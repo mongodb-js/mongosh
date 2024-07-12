@@ -40,11 +40,6 @@
   "dependencies": {
     "@mongodb-js/devtools-connect": "^3.0.2"
   },
-  "overrides": {
-    "@mongodb-js/devtools-connect": {
-      "mongodb-client-encryption": "^6.1.0-alpha.0"
-    }
-  },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",

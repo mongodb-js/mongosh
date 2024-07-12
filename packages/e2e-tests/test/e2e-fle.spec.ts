@@ -14,7 +14,6 @@ import { once } from 'events';
 import { serialize } from 'v8';
 import { inspect } from 'util';
 import path from 'path';
-import semver from 'semver';
 
 describe('FLE tests', function () {
   const testServer = startTestServer('e2e-fle', {
@@ -673,22 +672,102 @@ describe('FLE tests', function () {
     });
   });
 
-  context('using rangePreview/range algorithm', function () {
-    // rangePreview was renamed to range in 8.0
-    let rangeType: 'range' | 'rangePreview' = 'range';
-    let rangeAlgorithm: 'Range' | 'RangePreview' = 'Range';
+  context('8.0+', function () {
+    skipIfServerVersion(testServer, '< 8.0'); // Queryable Encryption v2 only available on 7.0+
+
+    const rangeType = 'range';
+    const rangeAlgorithm = 'Range';
     const rangeOptions = `{
       sparsity: Long(1),
+      trimFactor: 1,
       min: new Date('1970'),
       max: new Date('2100')
     }`;
 
-    beforeEach(async function () {
-      const serverVersion = await testServer.serverVersion();
-      if (semver.lt(serverVersion, '7.99.99')) {
-        rangeType = 'rangePreview';
-        rangeAlgorithm = 'RangePreview';
-      }
+    it('allows compactStructuredEncryptionData command when mongo instance configured with auto encryption', async function () {
+      const shell = TestShell.start({
+        args: ['--nodb', `--cryptSharedLibPath=${cryptLibrary}`],
+      });
+      const uri = JSON.stringify(await testServer.connectionString());
+
+      await shell.waitForPrompt();
+
+      await shell.executeLine(
+        'local = { key: BinData(0, "kh4Gv2N8qopZQMQYMEtww/AkPsIrXNmEMxTrs3tUoTQZbZu4msdRUaR8U5fXD7A7QXYHcEvuu4WctJLoT+NvvV3eeIg3MD+K8H9SR794m/safgRHdIfy6PD+rFpvmFbY") }'
+      );
+
+      await shell.executeLine(`keyMongo = Mongo(${uri}, { \
+        keyVaultNamespace: '${dbname}.keyVault', \
+        kmsProviders: { local } \
+      });`);
+
+      await shell.executeLine('keyVault = keyMongo.getKeyVault();');
+      await shell.executeLine('keyId = keyVault.createKey("local");');
+
+      await shell.executeLine(`encryptedFieldsMap = { \
+        '${dbname}.test': { \
+          fields: [{ path: 'phoneNumber', keyId, bsonType: 'string' }] \
+        } \
+      };`);
+
+      await shell.executeLine(`autoMongo = Mongo(${uri}, { \
+        keyVaultNamespace: '${dbname}.keyVault', \
+        kmsProviders: { local }, \
+        encryptedFieldsMap \
+      });`);
+
+      await shell.executeLine(
+        `autoMongo.getDB('${dbname}').createCollection('test', { encryptedFields: { fields: [] } });`
+      );
+      await shell.executeLine(`autoMongo.getDB('${dbname}').test.insertOne({ \
+        phoneNumber: '+12874627836445' \
+      });`);
+
+      const compactResult = await shell.executeLine(
+        `autoMongo.getDB('${dbname}').test.compactStructuredEncryptionData()`
+      );
+      expect(compactResult).to.include('ok: 1');
+    });
+
+    it('creates an encrypted collection and generates data encryption keys automatically per encrypted fields', async function () {
+      const shell = TestShell.start({ args: ['--nodb'] });
+      const uri = JSON.stringify(await testServer.connectionString());
+      await shell.waitForPrompt();
+      await shell.executeLine(
+        'local = { key: BinData(0, "kh4Gv2N8qopZQMQYMEtww/AkPsIrXNmEMxTrs3tUoTQZbZu4msdRUaR8U5fXD7A7QXYHcEvuu4WctJLoT+NvvV3eeIg3MD+K8H9SR794m/safgRHdIfy6PD+rFpvmFbY") }'
+      );
+      await shell.executeLine(`keyMongo = Mongo(${uri}, {
+        keyVaultNamespace: '${dbname}.keyVault',
+        kmsProviders: { local },
+        explicitEncryptionOnly: true
+      });`);
+      await shell.executeLine(`secretDB = keyMongo.getDB('${dbname}')`);
+      await shell.executeLine(`var { collection, encryptedFields } = secretDB.createEncryptedCollection('secretCollection', {
+        provider: 'local',
+        createCollectionOptions: {
+          encryptedFields: {
+            fields: [{
+              keyId: null,
+              path: 'secretField',
+              bsonType: 'string'
+            }]
+          }
+        }
+      });`);
+
+      await shell.executeLine(`plainMongo = Mongo(${uri});`);
+      const collections = await shell.executeLine(
+        `plainMongo.getDB('${dbname}').getCollectionNames()`
+      );
+      expect(collections).to.include('enxcol_.secretCollection.esc');
+      expect(collections).to.include('enxcol_.secretCollection.ecoc');
+      expect(collections).to.include('secretCollection');
+
+      const dekCount = await shell.executeLine(
+        `plainMongo.getDB('${dbname}').getCollection('keyVault').countDocuments()`
+      );
+      // Since there is only one field to be encrypted hence there would only be one DEK in our keyvault collection
+      expect(parseInt(dekCount.trim(), 10)).to.equal(1);
     });
 
     it('allows explicit range encryption with bypassQueryAnalysis', async function () {
@@ -824,96 +903,6 @@ describe('FLE tests', function () {
           .join(',')"
       );
       expect(out).to.include('1992,1993,1994,1995,1996,1997,1998');
-    });
-  });
-
-  context('8.0+', function () {
-    skipIfServerVersion(testServer, '< 8.0'); // Queryable Encryption v2 only available on 7.0+
-
-    it('allows compactStructuredEncryptionData command when mongo instance configured with auto encryption', async function () {
-      const shell = TestShell.start({
-        args: ['--nodb', `--cryptSharedLibPath=${cryptLibrary}`],
-      });
-      const uri = JSON.stringify(await testServer.connectionString());
-
-      await shell.waitForPrompt();
-
-      await shell.executeLine(
-        'local = { key: BinData(0, "kh4Gv2N8qopZQMQYMEtww/AkPsIrXNmEMxTrs3tUoTQZbZu4msdRUaR8U5fXD7A7QXYHcEvuu4WctJLoT+NvvV3eeIg3MD+K8H9SR794m/safgRHdIfy6PD+rFpvmFbY") }'
-      );
-
-      await shell.executeLine(`keyMongo = Mongo(${uri}, { \
-        keyVaultNamespace: '${dbname}.keyVault', \
-        kmsProviders: { local } \
-      });`);
-
-      await shell.executeLine('keyVault = keyMongo.getKeyVault();');
-      await shell.executeLine('keyId = keyVault.createKey("local");');
-
-      await shell.executeLine(`encryptedFieldsMap = { \
-        '${dbname}.test': { \
-          fields: [{ path: 'phoneNumber', keyId, bsonType: 'string' }] \
-        } \
-      };`);
-
-      await shell.executeLine(`autoMongo = Mongo(${uri}, { \
-        keyVaultNamespace: '${dbname}.keyVault', \
-        kmsProviders: { local }, \
-        encryptedFieldsMap \
-      });`);
-
-      await shell.executeLine(
-        `autoMongo.getDB('${dbname}').createCollection('test', { encryptedFields: { fields: [] } });`
-      );
-      await shell.executeLine(`autoMongo.getDB('${dbname}').test.insertOne({ \
-        phoneNumber: '+12874627836445' \
-      });`);
-
-      const compactResult = await shell.executeLine(
-        `autoMongo.getDB('${dbname}').test.compactStructuredEncryptionData()`
-      );
-      expect(compactResult).to.include('ok: 1');
-    });
-
-    it('creates an encrypted collection and generates data encryption keys automatically per encrypted fields', async function () {
-      const shell = TestShell.start({ args: ['--nodb'] });
-      const uri = JSON.stringify(await testServer.connectionString());
-      await shell.waitForPrompt();
-      await shell.executeLine(
-        'local = { key: BinData(0, "kh4Gv2N8qopZQMQYMEtww/AkPsIrXNmEMxTrs3tUoTQZbZu4msdRUaR8U5fXD7A7QXYHcEvuu4WctJLoT+NvvV3eeIg3MD+K8H9SR794m/safgRHdIfy6PD+rFpvmFbY") }'
-      );
-      await shell.executeLine(`keyMongo = Mongo(${uri}, {
-        keyVaultNamespace: '${dbname}.keyVault',
-        kmsProviders: { local },
-        explicitEncryptionOnly: true
-      });`);
-      await shell.executeLine(`secretDB = keyMongo.getDB('${dbname}')`);
-      await shell.executeLine(`var { collection, encryptedFields } = secretDB.createEncryptedCollection('secretCollection', {
-        provider: 'local',
-        createCollectionOptions: {
-          encryptedFields: {
-            fields: [{
-              keyId: null,
-              path: 'secretField',
-              bsonType: 'string'
-            }]
-          }
-        }
-      });`);
-
-      await shell.executeLine(`plainMongo = Mongo(${uri});`);
-      const collections = await shell.executeLine(
-        `plainMongo.getDB('${dbname}').getCollectionNames()`
-      );
-      expect(collections).to.include('enxcol_.secretCollection.esc');
-      expect(collections).to.include('enxcol_.secretCollection.ecoc');
-      expect(collections).to.include('secretCollection');
-
-      const dekCount = await shell.executeLine(
-        `plainMongo.getDB('${dbname}').getCollection('keyVault').countDocuments()`
-      );
-      // Since there is only one field to be encrypted hence there would only be one DEK in our keyvault collection
-      expect(parseInt(dekCount.trim(), 10)).to.equal(1);
     });
   });
 
