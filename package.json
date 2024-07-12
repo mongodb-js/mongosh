@@ -92,6 +92,14 @@
   "engines": {
     "node": ">=12.18.4"
   },
+  "overrides": {
+    "@mongodb-js/devtools-connect": {
+      "mongodb-client-encryption": "^6.1.0-alpha.0"
+    },
+    "mongodb": {
+      "mongodb-client-encryption": "^6.1.0-alpha.0"
+    }
+  },
   "devDependencies": {
     "@babel/compat-data": "^7.9.0",
     "@mongodb-js/monorepo-tools": "^1.1.10",

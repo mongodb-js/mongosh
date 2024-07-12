@@ -32,6 +32,11 @@
     "eslint": "^7.25.0",
     "prettier": "^2.8.8"
   },
+  "overrides": {
+    "@mongodb-js/devtools-connect": {
+      "mongodb-client-encryption": "^6.1.0-alpha.0"
+    }
+  },
   "scripts": {
     "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 -r ts-node/register \"./src/**/*.spec.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",

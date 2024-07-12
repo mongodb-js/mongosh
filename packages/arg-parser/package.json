@@ -48,5 +48,10 @@
     "eslint": "^7.25.0",
     "mongodb": "^6.8.0",
     "prettier": "^2.8.8"
+  },
+  "overrides": {
+    "@mongodb-js/devtools-connect": {
+      "mongodb-client-encryption": "^6.1.0-alpha.0"
+    }
   }
 }

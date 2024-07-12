@@ -59,7 +59,7 @@
   },
   "optionalDependencies": {
     "kerberos": "^2.1.0",
-    "mongodb-client-encryption": "6.1.0-alpha.0"
+    "mongodb-client-encryption": "^6.1.0-alpha.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
@@ -69,5 +69,10 @@
     "depcheck": "^1.4.3",
     "eslint": "^7.25.0",
     "prettier": "^2.8.8"
+  },
+  "overrides": {
+    "@mongodb-js/devtools-connect": {
+      "mongodb-client-encryption": "^6.1.0-alpha.0"
+    }
   }
 }
