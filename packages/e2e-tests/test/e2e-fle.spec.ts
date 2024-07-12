@@ -14,6 +14,7 @@ import { once } from 'events';
 import { serialize } from 'v8';
 import { inspect } from 'util';
 import path from 'path';
+import semver from 'semver';
 
 describe('FLE tests', function () {
   const testServer = startTestServer('e2e-fle', {
@@ -716,10 +717,18 @@ describe('FLE tests', function () {
       expect(parseInt(dekCount.trim(), 10)).to.equal(1);
     });
 
-    context('using rangePreview algorithm', function () {
-      // TODO(MONGOSH-1742): Server 8.0 drops "rangePreview" algorithm and adds
-      // "range". Re-enable these when the change is finalized
-      skipIfServerVersion(testServer, '>= 8.0.0-alpha');
+    context('using rangePreview/range algorithm', function () {
+      // rangePreview was renamed to range in 8.0
+      let rangeType: 'range' | 'rangePreview' = 'range';
+      let rangeAlgorithm: 'Range' | 'RangePreview' = 'Range';
+
+      beforeEach(async function () {
+        const serverVersion = await testServer.serverVersion();
+        if (semver.lt(serverVersion, '8.0.0')) {
+          rangeType = 'rangePreview';
+          rangeAlgorithm = 'RangePreview';
+        }
+      });
 
       it('allows explicit range encryption with bypassQueryAnalysis', async function () {
         // No --cryptSharedLibPath since bypassQueryAnalysis is also a community edition feature
@@ -754,7 +763,7 @@ describe('FLE tests', function () {
                 path: 'v',
                 bsonType: 'date',
                 queries: [{
-                  queryType: 'rangePreview',
+                  queryType: '${rangeType}',
                   contention: 4,
                   ...rangeOptions
                 }]
@@ -768,7 +777,7 @@ describe('FLE tests', function () {
               dataKey,
               new Date(year + '-02-02T12:45:16.277Z'),
               {
-                algorithm: 'RangePreview',
+                algorithm: '${rangeAlgorithm}',
                 contentionFactor: 4,
                 rangeOptions
               });
@@ -783,8 +792,8 @@ describe('FLE tests', function () {
         findPayload = clientEncryption.encryptExpression(dataKey, {
           $and: [ { v: {$gt: new Date('1992')} }, { v: {$lt: new Date('1999')} } ]
         }, {
-          algorithm: 'RangePreview',
-          queryType: 'rangePreview',
+          algorithm: '${rangeAlgorithm}',
+          queryType: '${rangeType}',
           contentionFactor: 4,
           rangeOptions
         });
@@ -833,7 +842,7 @@ describe('FLE tests', function () {
                 path: 'v',
                 bsonType: 'date',
                 queries: [{
-                  queryType: 'rangePreview',
+                  queryType: '${rangeType}',
                   contention: 4,
                   sparsity: 1,
                   min: new Date('1970'),

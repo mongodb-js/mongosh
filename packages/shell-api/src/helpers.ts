@@ -8,7 +8,6 @@ import type {
   FindOneAndUpdateOptions,
   DeleteOptions,
   MapReduceOptions,
-  KMSProviders,
   ExplainOptions,
 } from '@mongosh/service-provider-core';
 import {
@@ -937,9 +936,11 @@ export function processFLEOptions(
       );
     }
   } else {
+    // TODO: switch from any to KMSProviders (@mongosh/service-provider-core) once
+    // https://github.com/mongodb/node-mongodb-native/pull/4165/files is released.
     autoEncryption.kmsProviders = {
       ...fleOptions.kmsProviders,
-    } as KMSProviders;
+    } as any;
   }
 
   if (fleOptions.schemaMap) {

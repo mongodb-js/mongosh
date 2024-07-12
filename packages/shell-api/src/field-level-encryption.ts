@@ -33,13 +33,15 @@ import {
 } from '@mongosh/errors';
 import type { CreateEncryptedCollectionOptions } from '@mongosh/service-provider-core';
 
+type LocalKMSProviderConfiguration = {
+  key: Buffer | string | BinaryType;
+};
 export type ClientSideFieldLevelEncryptionKmsProvider = Omit<
   KMSProviders,
-  'local'
+  'local' | `local:${string}`
 > & {
-  local?: {
-    key: Buffer | string | BinaryType;
-  };
+  local?: LocalKMSProviderConfiguration;
+  [key: `local:${string}`]: LocalKMSProviderConfiguration;
 };
 
 export interface ClientSideFieldLevelEncryptionOptions {
