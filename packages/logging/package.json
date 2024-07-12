@@ -22,7 +22,7 @@
     "@mongosh/history": "0.0.0-dev.0",
     "@mongosh/types": "0.0.0-dev.0",
     "mongodb-log-writer": "^1.4.2",
-    "mongodb-redact": "^1.1.0"
+    "mongodb-redact": "^1.1.2"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
