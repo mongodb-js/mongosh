@@ -677,10 +677,15 @@ describe('FLE tests', function () {
     // rangePreview was renamed to range in 8.0
     let rangeType: 'range' | 'rangePreview' = 'range';
     let rangeAlgorithm: 'Range' | 'RangePreview' = 'Range';
+    const rangeOptions = `{
+      sparsity: Long(1),
+      min: new Date('1970'),
+      max: new Date('2100')
+    }`;
 
     beforeEach(async function () {
       const serverVersion = await testServer.serverVersion();
-      if (semver.lt(serverVersion, '8.0.0')) {
+      if (semver.lt(serverVersion, '7.99.99')) {
         rangeType = 'rangePreview';
         rangeAlgorithm = 'RangePreview';
       }
@@ -706,11 +711,6 @@ describe('FLE tests', function () {
         // Create necessary data key
         dataKey = keyVault.createKey('local');
 
-        rangeOptions = {
-          sparsity: Long(1),
-          min: new Date('1970'),
-          max: new Date('2100')
-        };
         coll = client.getDB('${dbname}').encryptiontest;
         client.getDB('${dbname}').createCollection('encryptiontest', {
           encryptedFields: {
@@ -721,7 +721,7 @@ describe('FLE tests', function () {
               queries: [{
                 queryType: '${rangeType}',
                 contention: 4,
-                ...rangeOptions
+                ...${rangeOptions}
               }]
             }]
           }
@@ -735,7 +735,7 @@ describe('FLE tests', function () {
             {
               algorithm: '${rangeAlgorithm}',
               contentionFactor: 4,
-              rangeOptions
+              rangeOptions: ${rangeOptions}
             });
           coll.insertOne({ v: insertPayload, year });
         }
@@ -751,7 +751,7 @@ describe('FLE tests', function () {
         algorithm: '${rangeAlgorithm}',
         queryType: '${rangeType}',
         contentionFactor: 4,
-        rangeOptions
+        rangeOptions: ${rangeOptions}
       });
       }`);
 
@@ -769,7 +769,7 @@ describe('FLE tests', function () {
 
     it('allows automatic range encryption', async function () {
       // TODO(MONGOSH-1550): On s390x, we are using the 6.0.x RHEL7 shared library,
-      // which does not support QE range. That's just fine for preview, but
+      // which does not support QE rangePreview/range. That's just fine for preview, but
       // we should switch to the 7.0.x RHEL8 shared library for Range GA.
       if (process.arch === 's390x') {
         return this.skip();
@@ -800,9 +800,7 @@ describe('FLE tests', function () {
               queries: [{
                 queryType: '${rangeType}',
                 contention: 4,
-                sparsity: 1,
-                min: new Date('1970'),
-                max: new Date('2100')
+                ...${rangeOptions}
               }]
             }]
           }
