@@ -7,7 +7,8 @@ import type { PackageVariant } from '../config';
 import { getDistro, getArch } from '../config';
 
 export async function downloadCryptLibrary(
-  variant: PackageVariant | 'host'
+  variant: PackageVariant | 'host',
+  _version?: string
 ): Promise<{ cryptLibrary: string; version: string }> {
   let opts: DownloadOptions = {};
   opts.arch = variant === 'host' ? undefined : getArch(variant);
@@ -34,7 +35,7 @@ export async function downloadCryptLibrary(
   );
   // Download mongodb for latest server version, including rapid releases
   // (for the platforms that they exist for, i.e. for ppc64le/s390x only pick stable releases).
-  let versionSpec = process.env.MONGOSH_SERVER_TEST_VERSION || 'continuous';
+  let versionSpec = _version || 'continuous';
   if (/ppc64/.test(opts.arch || process.arch)) {
     versionSpec = 'stable';
   }
