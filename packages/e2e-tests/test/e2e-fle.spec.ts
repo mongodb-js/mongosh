@@ -684,11 +684,6 @@ describe('FLE tests', function () {
       max: new Date('2100')
     }`;
 
-    before(async function () {
-      const version = await testServer.serverVersion();
-      cryptLibrary = await downloadCurrentCryptSharedLibrary(version);
-    });
-
     it('allows compactStructuredEncryptionData command when mongo instance configured with auto encryption', async function () {
       const shell = TestShell.start({
         args: ['--nodb', `--cryptSharedLibPath=${cryptLibrary}`],
