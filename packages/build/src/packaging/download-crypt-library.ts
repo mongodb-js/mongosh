@@ -77,9 +77,9 @@ function lookupReleaseDistro(packageVariant: PackageVariant): {
     case 's390x':
       return { platform: 'linux', distro: 'rhel72' };
     case 'arm64':
-      return { platform: 'linux', distro: 'amazon2' };
+      return { platform: 'linux', distro: 'amazon2023' };
     case 'x64':
-      return { platform: 'linux', distro: 'rhel70' };
+      return { platform: 'linux', distro: 'rhel80' };
     default:
       break;
   }
