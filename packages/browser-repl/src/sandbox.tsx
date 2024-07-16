@@ -2,6 +2,8 @@ import ReactDOM from 'react-dom';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   css,
+  ThemeProvider,
+  Theme,
   Description,
   FormFieldContainer,
   Label,
@@ -151,9 +153,12 @@ class DemoServiceProvider {
 const runtime = new IframeRuntime(new DemoServiceProvider() as any);
 
 const IframeRuntimeExample: React.FunctionComponent = () => {
+  const [darkMode, setDarkMode] = useState(true);
   const [redactInfo, setRedactInfo] = useState(false);
   const [maxOutputLength, setMaxOutputLength] = useState(1000);
   const [maxHistoryLength, setMaxHistoryLength] = useState(1000);
+  const [initialInput, setInitialInput] = useState('');
+  const [initialEvaluate, setInitialEvaluate] = useState<string[]>([]);
   const [initialOutput] = useState<ShellOutputEntry[]>([
     { format: 'output', value: { foo: 1, bar: true, buz: function () {} } },
   ]);
@@ -161,6 +166,8 @@ const IframeRuntimeExample: React.FunctionComponent = () => {
     'show dbs',
     'db.coll.stats()',
     '{x: 1, y: {z: 2}, k: [1, 2, 3]}',
+    'passwordPrompt()',
+    '(() => { throw new Error("Whoops!"); })()',
   ]);
 
   useEffect(() => {
@@ -171,23 +178,43 @@ const IframeRuntimeExample: React.FunctionComponent = () => {
   }, []);
 
   const key = useMemo(() => {
-    return initialHistory.join('');
-  }, [initialHistory]);
+    return initialHistory.concat(initialInput, initialEvaluate).join('');
+  }, [initialHistory, initialInput, initialEvaluate]);
 
   return (
     <div className={sandboxContainer}>
       <div className={shellContainer}>
-        <Shell
-          key={key}
-          runtime={runtime}
-          redactInfo={redactInfo}
-          maxOutputLength={maxOutputLength}
-          maxHistoryLength={maxHistoryLength}
-          initialOutput={initialOutput}
-          initialHistory={initialHistory.filter(Boolean)}
-        />
+        <ThemeProvider
+          theme={{ theme: darkMode ? Theme.Dark : Theme.Light, enabled: true }}
+        >
+          <Shell
+            key={key}
+            runtime={runtime}
+            redactInfo={redactInfo}
+            maxOutputLength={maxOutputLength}
+            maxHistoryLength={maxHistoryLength}
+            initialInput={initialInput}
+            initialEvaluate={initialEvaluate.filter(Boolean)}
+            initialOutput={initialOutput}
+            initialHistory={initialHistory.filter(Boolean)}
+          />
+        </ThemeProvider>
       </div>
       <div className={controlsContainer}>
+        <FormFieldContainer className={formField}>
+          <Label id="darkModeLabel" htmlFor="darkMode">
+            darkMode
+          </Label>
+          <Description>Toggle shell dark mode</Description>
+          <Toggle
+            aria-labelledby="darkModeLabel"
+            id="darkMode"
+            size="small"
+            checked={darkMode}
+            onChange={setDarkMode}
+          />
+        </FormFieldContainer>
+
         <FormFieldContainer className={formField}>
           <Label id="redactInfoLabel" htmlFor="redactInfo">
             redactInfo
@@ -259,6 +286,38 @@ const IframeRuntimeExample: React.FunctionComponent = () => {
             value={initialHistory.join('\n')}
             onChange={(evt) => {
               setInitialHistory(evt.currentTarget.value.split('\n'));
+            }}
+            className={cx(textarea, textInput)}
+          />
+        </FormFieldContainer>
+
+        <FormFieldContainer className={formField}>
+          <Label id="initialInputLabel" htmlFor="initialInput">
+            initialInput
+          </Label>
+          <Description>Initial value in the shell input field</Description>
+          <TextInput
+            className={textInput}
+            aria-labelledby="initialInputLabel"
+            value={initialInput}
+            onChange={(evt) => {
+              setInitialInput(evt.currentTarget.value);
+            }}
+          />
+        </FormFieldContainer>
+
+        <FormFieldContainer className={formField}>
+          <Label id="initialEvaluateLabel" htmlFor="initialEvaluate">
+            initialEvaluate
+          </Label>
+          <Description>
+            A set of input strings to evaluate right after shell is mounted
+          </Description>
+          <TextArea
+            aria-labelledby="initialEvaluate"
+            value={initialEvaluate.join('\n')}
+            onChange={(evt) => {
+              setInitialEvaluate(evt.currentTarget.value.split('\n'));
             }}
             className={cx(textarea, textInput)}
           />
