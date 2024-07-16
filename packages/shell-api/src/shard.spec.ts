@@ -2032,7 +2032,7 @@ describe('Shard', function () {
         );
         expect((await sh.status()).value.shards[0].tags).to.deep.equal([]);
       });
-      it('shows a full array if tags less than 20', async function () {
+      it('shows a full tag list when there are 20 or less tags', async function () {
         const db = instanceState.currentDb.getSiblingDB(dbName);
         await db.getCollection('coll').createIndex({ key: 1 });
         for (let i = 0; i < 19; i++) {
@@ -2052,7 +2052,7 @@ describe('Shard', function () {
         ).collections[ns].tags;
         expect(tags.length).to.equal(19);
       });
-      it('shows tags as a string when there are too many', async function () {
+      it('cuts a tag list when there are more than 20 tags', async function () {
         await sh.addShardToZone(`${shardId}-0`, 'zone19');
         await sh.updateZoneKeyRange(ns, { key: 190 }, { key: 200 }, 'zone19');
         await sh.addShardTag(`${shardId}-0`, 'zone19');
@@ -2063,10 +2063,40 @@ describe('Shard', function () {
         ).collections;
         const tags = collections[ns].tags;
 
-        expect(tags.length).to.equal(1);
-        expect(tags[0]).to.equal(
-          'too many tags to print, use verbose if you want to force print'
-        );
+        expect(tags.length).to.equal(21);
+        expect(
+          !!tags.find(
+            (tag) =>
+              tag ===
+              'too many tags to print, use verbose if you want to force print'
+          )
+        ).to.equal(true);
+      });
+    });
+    describe('chunks', function () {
+      it('shows a full chunk list when there are 20 or less chunks', async function () {
+        for (let i = 0; i < 19; i++) {
+          await sh.splitAt(ns, { key: i + 1 });
+        }
+        const chunks = (await sh.status()).value.databases.find(
+          (d) => d.database._id === 'test'
+        ).collections[ns].chunks;
+        expect(chunks.length).to.equal(20);
+      });
+
+      it('cuts a chunk list when there are more than 20 chunks', async function () {
+        await sh.splitAt(ns, { key: 20 });
+        const chunks = (await sh.status()).value.databases.find(
+          (d) => d.database._id === 'test'
+        ).collections[ns].chunks;
+        expect(chunks.length).to.equal(21);
+        expect(
+          !!chunks.find(
+            (tag) =>
+              tag ===
+              'too many chunks to print, use verbose if you want to force print'
+          )
+        ).to.equal(true);
       });
     });
     describe('balancer', function () {
@@ -2624,7 +2654,6 @@ describe('Shard', function () {
         ]);
       });
     });
-
     describe('checkMetadataConsistency', function () {
       skipIfServerVersion(mongos, '< 7.0');
       let db;
