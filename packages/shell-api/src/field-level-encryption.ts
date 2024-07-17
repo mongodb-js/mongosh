@@ -33,24 +33,15 @@ import {
 } from '@mongosh/errors';
 import type { CreateEncryptedCollectionOptions } from '@mongosh/service-provider-core';
 
-export type ClientSideFieldLevelEncryptionKmsProvider = Omit<
-  KMSProviders,
-  'local'
-> & {
-  local?: {
-    key: Buffer | string | BinaryType;
-  };
-};
-
 export interface ClientSideFieldLevelEncryptionOptions {
   keyVaultClient?: Mongo;
   keyVaultNamespace: string;
-  kmsProviders: ClientSideFieldLevelEncryptionKmsProvider;
+  kmsProviders: KMSProviders;
   schemaMap?: Document;
   bypassAutoEncryption?: boolean;
   explicitEncryptionOnly?: boolean;
   tlsOptions?: {
-    [k in keyof ClientSideFieldLevelEncryptionKmsProvider]?: ClientEncryptionTlsOptions;
+    [k in keyof KMSProviders]?: ClientEncryptionTlsOptions;
   };
   encryptedFieldsMap?: Document;
   bypassQueryAnalysis?: boolean;
