@@ -2093,6 +2093,7 @@ describe('Shard', function () {
       });
     });
     describe('chunks', function () {
+      skipIfServerVersion(mongos, '<= 6.0');
       it('shows a full chunk list when there are 20 or less chunks', async function () {
         for (let i = 0; i < 19; i++) {
           await sh.splitAt(ns, { key: i + 1 });
