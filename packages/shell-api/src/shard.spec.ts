@@ -2084,7 +2084,7 @@ describe('Shard', function () {
     });
     describe('chunks', function () {
       it('shows a full chunk list when there are 20 or less chunks', async function () {
-        for (let i = 0; i < 19; i++) {
+        for (let i = 1000; i < 1019; i++) {
           await sh.splitAt(ns, { key: i + 1 });
         }
         const chunks = (await sh.status()).value.databases.find(
@@ -2094,7 +2094,7 @@ describe('Shard', function () {
       });
 
       it('cuts a chunk list when there are more than 20 chunks', async function () {
-        await sh.splitAt(ns, { key: 20 });
+        await sh.splitAt(ns, { key: 1020 });
         const chunks = (await sh.status()).value.databases.find(
           (d) => d.database._id === 'test'
         ).collections[ns].chunks;
