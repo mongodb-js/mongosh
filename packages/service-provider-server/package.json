@@ -47,13 +47,13 @@
     }
   },
   "dependencies": {
-    "@mongodb-js/devtools-connect": "^3.0.2",
+    "@mongodb-js/devtools-connect": "^3.0.5",
     "@mongodb-js/oidc-plugin": "^1.0.2",
     "@mongosh/errors": "0.0.0-dev.0",
     "@mongosh/service-provider-core": "0.0.0-dev.0",
     "@mongosh/types": "0.0.0-dev.0",
     "aws4": "^1.12.0",
-    "mongodb": "^6.7.0",
+    "mongodb": "^6.8.0",
     "mongodb-connection-string-url": "^3.0.1",
     "socks": "^2.8.3"
   },
