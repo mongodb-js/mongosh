@@ -2084,7 +2084,16 @@ describe('Shard', function () {
     });
     describe('chunks', function () {
       it('shows a full chunk list when there are 20 or less chunks', async function () {
-        for (let i = 1000; i < 1019; i++) {
+        const chunks0 = (await sh.status()).value.databases.find(
+          (d) => d.database._id === 'test'
+        ).collections[ns].chunks;
+        // eslint-disable-next-line no-console
+        console.log('chunks0----------------------');
+        // eslint-disable-next-line no-console
+        console.log(chunks0);
+        // eslint-disable-next-line no-console
+        console.log('----------------------');
+        for (let i = 1000; i < 1019 - chunks0.length; i++) {
           await sh.splitAt(ns, { key: i + 1 });
         }
         const chunks = (await sh.status()).value.databases.find(
