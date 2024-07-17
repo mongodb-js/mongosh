@@ -2071,6 +2071,25 @@ describe('Shard', function () {
               'too many tags to print, use verbose if you want to force print'
           )
         ).to.equal(true);
+
+        for (let i = 0; i < 20; i++) {
+          expect(
+            (
+              await sh.removeRangeFromZone(
+                ns,
+                { key: i * 10 },
+                { key: i * 10 + 10 }
+              )
+            ).ok
+          ).to.equal(1);
+        }
+
+        const db = instanceState.currentDb.getSiblingDB(dbName);
+        await db.getCollection('coll').deleteMany({});
+
+        expect(
+          (await sh.removeShardFromZone(`${shardId}-0`, 'zone0')).ok
+        ).to.equal(1);
       });
     });
     describe('chunks', function () {
