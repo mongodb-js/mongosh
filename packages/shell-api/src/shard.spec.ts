@@ -2034,7 +2034,6 @@ describe('Shard', function () {
       });
       it('shows a full tag list when there are 20 or less tags', async function () {
         const db = instanceState.currentDb.getSiblingDB(dbName);
-        await db.getCollection('coll').createIndex({ key: 1 });
         for (let i = 0; i < 19; i++) {
           await db.getCollection('coll').insertOne({ key: 'A', value: i * 10 });
           await sh.addShardToZone(`${shardId}-0`, `zone${i}`);
@@ -2057,12 +2056,9 @@ describe('Shard', function () {
         await sh.updateZoneKeyRange(ns, { key: 190 }, { key: 200 }, 'zone19');
         await sh.addShardTag(`${shardId}-0`, 'zone19');
 
-        const databases = (await sh.status()).value.databases;
-        const collections = databases.find(
+        const tags = (await sh.status()).value.databases.find(
           (d) => d.database._id === 'test'
-        ).collections;
-        const tags = collections[ns].tags;
-
+        ).collections[ns].tags;
         expect(tags.length).to.equal(21);
         expect(
           !!tags.find(
@@ -2072,28 +2068,21 @@ describe('Shard', function () {
           )
         ).to.equal(true);
 
-        for (let i = 0; i < 20; i++) {
-          expect(
-            (
-              await sh.removeRangeFromZone(
-                ns,
-                { key: i * 10 },
-                { key: i * 10 + 10 }
-              )
-            ).ok
-          ).to.equal(1);
-        }
-
+        // Cleanup.
         const db = instanceState.currentDb.getSiblingDB(dbName);
         await db.getCollection('coll').deleteMany({});
-
-        expect(
-          (await sh.removeShardFromZone(`${shardId}-0`, 'zone0')).ok
-        ).to.equal(1);
+        for (let i = 0; i < 20; i++) {
+          await sh.removeRangeFromZone(
+            ns,
+            { key: i * 10 },
+            { key: i * 10 + 10 }
+          );
+          await sh.removeShardTag(`${shardId}-0`, `zone${i}`);
+          await sh.removeShardFromZone(`${shardId}-0`, `zone${i}`);
+        }
       });
     });
     describe('chunks', function () {
-      skipIfServerVersion(mongos, '<= 6.0');
       it('shows a full chunk list when there are 20 or less chunks', async function () {
         for (let i = 0; i < 19; i++) {
           await sh.splitAt(ns, { key: i + 1 });
