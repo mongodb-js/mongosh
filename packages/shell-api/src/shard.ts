@@ -486,7 +486,7 @@ export default class Shard extends ShellApiWithMongoClass {
   async balancerCollectionStatus(ns: string): Promise<Document> {
     assertArgsDefinedType([ns], ['string'], 'Shard.balancerCollectionStatus');
     this._emitShardApiCall('balancerCollectionStatus', { ns });
-    return this._database._runAdminCommand({
+    return this._database._runAdminReadCommand({
       balancerCollectionStatus: ns,
     });
   }
@@ -540,7 +540,7 @@ export default class Shard extends ShellApiWithMongoClass {
   async isBalancerRunning(): Promise<Document> {
     this._emitShardApiCall('isBalancerRunning', {});
     await getConfigDB(this._database);
-    return this._database._runAdminCommand({
+    return this._database._runAdminReadCommand({
       balancerStatus: 1,
     });
   }
@@ -550,7 +550,7 @@ export default class Shard extends ShellApiWithMongoClass {
   async startBalancer(timeout = 60000): Promise<Document> {
     assertArgsDefinedType([timeout], ['number'], 'Shard.startBalancer');
     this._emitShardApiCall('startBalancer', { timeout });
-    return this._database._runAdminCommand({
+    return this._database._runAdminReadCommand({
       balancerStart: 1,
       maxTimeMS: timeout,
     });
