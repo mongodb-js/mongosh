@@ -2061,12 +2061,10 @@ describe('Shard', function () {
         ).collections[ns].tags;
         expect(tags.length).to.equal(21);
         expect(
-          !!tags.find(
-            (tag) =>
-              tag ===
-              'too many tags to print, use verbose if you want to force print'
+          tags.indexOf(
+            'too many tags to print, use verbose if you want to force print'
           )
-        ).to.equal(true);
+        ).to.equal(20);
 
         // Cleanup.
         const db = instanceState.currentDb.getSiblingDB(dbName);
@@ -2755,12 +2753,10 @@ describe('Shard', function () {
       ).collections[ns].chunks;
       expect(chunks.length).to.equal(21);
       expect(
-        !!chunks.find(
-          (tag) =>
-            tag ===
-            'too many chunks to print, use verbose if you want to force print'
+        chunks.indexOf(
+          'too many chunks to print, use verbose if you want to force print'
         )
-      ).to.equal(true);
+      ).to.equal(20);
     });
   });
 });
