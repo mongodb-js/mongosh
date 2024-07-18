@@ -611,6 +611,7 @@ export async function getPrintableShardStatus(
                 chunksRes.push(
                   'too many chunks to print, use verbose if you want to force print'
                 );
+                break;
               }
             }
 
@@ -631,6 +632,7 @@ export async function getPrintableShardStatus(
                 tagsRes.push(
                   'too many tags to print, use verbose if you want to force print'
                 );
+                break;
               }
             }
             collRes.chunks = chunksRes;
