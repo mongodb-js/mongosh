@@ -2054,7 +2054,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @apiVersions([])
   async getShardVersion(): Promise<Document> {
     this._emitCollectionApiCall('getShardVersion', {});
-    return await this._database._runAdminCommand({
+    return await this._database._runAdminReadCommand({
       getShardVersion: `${this._database._name}.${this._name}`,
     });
   }
@@ -2258,7 +2258,7 @@ export default class Collection extends ShellApiWithMongoClass {
   ): Promise<Document> {
     assertArgsDefinedType([key], [true], 'Collection.analyzeShardKey');
     this._emitCollectionApiCall('analyzeShardKey', { key });
-    return await this._database._runAdminCommand({
+    return await this._database._runAdminReadCommand({
       analyzeShardKey: this.getFullName(),
       key,
       ...options,

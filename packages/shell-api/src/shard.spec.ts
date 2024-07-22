@@ -2032,6 +2032,53 @@ describe('Shard', function () {
         );
         expect((await sh.status()).value.shards[0].tags).to.deep.equal([]);
       });
+      it('shows a full tag list when there are 20 or less tags', async function () {
+        const db = instanceState.currentDb.getSiblingDB(dbName);
+        for (let i = 0; i < 19; i++) {
+          await db.getCollection('coll').insertOne({ key: 'A', value: i * 10 });
+          await sh.addShardToZone(`${shardId}-0`, `zone${i}`);
+          await sh.updateZoneKeyRange(
+            ns,
+            { key: i * 10 },
+            { key: i * 10 + 10 },
+            `zone${i}`
+          );
+          await sh.addShardTag(`${shardId}-0`, `zone${i}`);
+        }
+
+        const tags = (await sh.status()).value.databases.find(
+          (d) => d.database._id === 'test'
+        ).collections[ns].tags;
+        expect(tags.length).to.equal(19);
+      });
+      it('cuts a tag list when there are more than 20 tags', async function () {
+        await sh.addShardToZone(`${shardId}-0`, 'zone19');
+        await sh.updateZoneKeyRange(ns, { key: 190 }, { key: 200 }, 'zone19');
+        await sh.addShardTag(`${shardId}-0`, 'zone19');
+
+        const tags = (await sh.status()).value.databases.find(
+          (d) => d.database._id === 'test'
+        ).collections[ns].tags;
+        expect(tags.length).to.equal(21);
+        expect(
+          tags.indexOf(
+            'too many tags to print, use verbose if you want to force print'
+          )
+        ).to.equal(20);
+
+        // Cleanup.
+        const db = instanceState.currentDb.getSiblingDB(dbName);
+        await db.getCollection('coll').deleteMany({});
+        for (let i = 0; i < 20; i++) {
+          await sh.removeRangeFromZone(
+            ns,
+            { key: i * 10 },
+            { key: i * 10 + 10 }
+          );
+          await sh.removeShardTag(`${shardId}-0`, `zone${i}`);
+          await sh.removeShardFromZone(`${shardId}-0`, `zone${i}`);
+        }
+      });
     });
     describe('balancer', function () {
       it('reports balancer state', async function () {
@@ -2588,7 +2635,6 @@ describe('Shard', function () {
         ]);
       });
     });
-
     describe('checkMetadataConsistency', function () {
       skipIfServerVersion(mongos, '< 7.0');
       let db;
@@ -2627,6 +2673,90 @@ describe('Shard', function () {
         const cursor = await coll.checkMetadataConsistency({ checkIndexes: 1 });
         expect(await cursor.toArray()).to.deep.equal([]);
       });
+    });
+  });
+
+  describe('integration chunks', function () {
+    let serviceProvider: CliServiceProvider;
+    let instanceState: ShellInstanceState;
+    let sh: Shard;
+    const dbName = 'test';
+    const ns = `${dbName}.coll`;
+    const shardId = 'rs-shard1';
+
+    const [mongos, rs0, rs1] = startTestCluster(
+      'shard',
+      // shards: 0 creates a setup without any initial shards
+      { topology: 'sharded', shards: 0 },
+      {
+        topology: 'replset',
+        args: ['--replSet', `${shardId}-0`, '--shardsvr'],
+      },
+      { topology: 'replset', args: ['--replSet', `${shardId}-1`, '--shardsvr'] }
+    );
+
+    before(async function () {
+      serviceProvider = await CliServiceProvider.connect(
+        await mongos.connectionString(),
+        dummyOptions,
+        {},
+        new EventEmitter()
+      );
+      instanceState = new ShellInstanceState(serviceProvider);
+      sh = new Shard(instanceState.currentDb);
+
+      // check replset uninitialized
+      let members = await (
+        await sh._database.getSiblingDB('config').getCollection('shards').find()
+      )
+        .sort({ _id: 1 })
+        .toArray();
+      expect(members.length).to.equal(0);
+
+      // add new shards
+      expect(
+        (await sh.addShard(`${shardId}-0/${await rs0.hostport()}`)).shardAdded
+      ).to.equal(`${shardId}-0`);
+      expect(
+        (await sh.addShard(`${shardId}-1/${await rs1.hostport()}`)).shardAdded
+      ).to.equal(`${shardId}-1`);
+      members = await (
+        await sh._database.getSiblingDB('config').getCollection('shards').find()
+      )
+        .sort({ _id: 1 })
+        .toArray();
+      expect(members.length).to.equal(2);
+      await sh._database.getSiblingDB(dbName).dropDatabase();
+      await sh._database.getSiblingDB(dbName).createCollection('unsharded');
+      await sh.enableSharding(dbName);
+      await sh.shardCollection(ns, { key: 1 });
+    });
+
+    after(function () {
+      return serviceProvider.close(true);
+    });
+
+    it('shows a full chunk list when there are 20 or less chunks', async function () {
+      for (let i = 0; i < 19; i++) {
+        await sh.splitAt(ns, { key: i + 1 });
+      }
+      const chunks = (await sh.status()).value.databases.find(
+        (d) => d.database._id === 'test'
+      ).collections[ns].chunks;
+      expect(chunks.length).to.equal(20);
+    });
+
+    it('cuts a chunk list when there are more than 20 chunks', async function () {
+      await sh.splitAt(ns, { key: 20 });
+      const chunks = (await sh.status()).value.databases.find(
+        (d) => d.database._id === 'test'
+      ).collections[ns].chunks;
+      expect(chunks.length).to.equal(21);
+      expect(
+        chunks.indexOf(
+          'too many chunks to print, use verbose if you want to force print'
+        )
+      ).to.equal(20);
     });
   });
 });
