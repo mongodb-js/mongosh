@@ -8479,7 +8479,7 @@ tasks:
           node_js_version: "20.12.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4"
+          mongosh_server_test_version: ">= 8.0.0-rc14"
           node_js_version: "20.12.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n20_cli_repl"
@@ -8496,7 +8496,7 @@ tasks:
           node_js_version: "20.12.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4-enterprise"
+          mongosh_server_test_version: ">= 8.0.0-rc14-enterprise"
           node_js_version: "20.12.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n20_cli_repl"
@@ -8700,7 +8700,7 @@ tasks:
           node_js_version: "16.20.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4"
+          mongosh_server_test_version: ">= 8.0.0-rc14"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n16_cli_repl"
@@ -8717,7 +8717,7 @@ tasks:
           node_js_version: "16.20.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4-enterprise"
+          mongosh_server_test_version: ">= 8.0.0-rc14-enterprise"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n16_cli_repl"
@@ -8955,7 +8955,7 @@ tasks:
           node_js_version: "20.12.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4"
+          mongosh_server_test_version: ">= 8.0.0-rc14"
           node_js_version: "20.12.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n20_e2e_tests"
@@ -8972,7 +8972,7 @@ tasks:
           node_js_version: "20.12.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4-enterprise"
+          mongosh_server_test_version: ">= 8.0.0-rc14-enterprise"
           node_js_version: "20.12.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n20_e2e_tests"
@@ -9176,7 +9176,7 @@ tasks:
           node_js_version: "16.20.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4"
+          mongosh_server_test_version: ">= 8.0.0-rc14"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n16_e2e_tests"
@@ -9193,7 +9193,7 @@ tasks:
           node_js_version: "16.20.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4-enterprise"
+          mongosh_server_test_version: ">= 8.0.0-rc14-enterprise"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n16_e2e_tests"
@@ -9567,7 +9567,7 @@ tasks:
           node_js_version: "20.12.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4"
+          mongosh_server_test_version: ">= 8.0.0-rc14"
           node_js_version: "20.12.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n20_java_shell"
@@ -9584,7 +9584,7 @@ tasks:
           node_js_version: "20.12.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4-enterprise"
+          mongosh_server_test_version: ">= 8.0.0-rc14-enterprise"
           node_js_version: "20.12.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n20_java_shell"
@@ -9788,7 +9788,7 @@ tasks:
           node_js_version: "16.20.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4"
+          mongosh_server_test_version: ">= 8.0.0-rc14"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n16_java_shell"
@@ -9805,7 +9805,7 @@ tasks:
           node_js_version: "16.20.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4-enterprise"
+          mongosh_server_test_version: ">= 8.0.0-rc14-enterprise"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n16_java_shell"
@@ -10077,7 +10077,7 @@ tasks:
           node_js_version: "20.12.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4"
+          mongosh_server_test_version: ">= 8.0.0-rc14"
           node_js_version: "20.12.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n20_mongosh"
@@ -10094,7 +10094,7 @@ tasks:
           node_js_version: "20.12.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4-enterprise"
+          mongosh_server_test_version: ">= 8.0.0-rc14-enterprise"
           node_js_version: "20.12.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n20_mongosh"
@@ -10298,7 +10298,7 @@ tasks:
           node_js_version: "16.20.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4"
+          mongosh_server_test_version: ">= 8.0.0-rc14"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n16_mongosh"
@@ -10315,7 +10315,7 @@ tasks:
           node_js_version: "16.20.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4-enterprise"
+          mongosh_server_test_version: ">= 8.0.0-rc14-enterprise"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n16_mongosh"
@@ -10519,7 +10519,7 @@ tasks:
           node_js_version: "20.12.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4"
+          mongosh_server_test_version: ">= 8.0.0-rc14"
           node_js_version: "20.12.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n20_node_runtime_worker_thread"
@@ -10536,7 +10536,7 @@ tasks:
           node_js_version: "20.12.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4-enterprise"
+          mongosh_server_test_version: ">= 8.0.0-rc14-enterprise"
           node_js_version: "20.12.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n20_node_runtime_worker_thread"
@@ -10740,7 +10740,7 @@ tasks:
           node_js_version: "16.20.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4"
+          mongosh_server_test_version: ">= 8.0.0-rc14"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n16_node_runtime_worker_thread"
@@ -10757,7 +10757,7 @@ tasks:
           node_js_version: "16.20.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4-enterprise"
+          mongosh_server_test_version: ">= 8.0.0-rc14-enterprise"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n16_node_runtime_worker_thread"
@@ -10995,7 +10995,7 @@ tasks:
           node_js_version: "20.12.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4"
+          mongosh_server_test_version: ">= 8.0.0-rc14"
           node_js_version: "20.12.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n20_service_provider_server"
@@ -11012,7 +11012,7 @@ tasks:
           node_js_version: "20.12.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4-enterprise"
+          mongosh_server_test_version: ">= 8.0.0-rc14-enterprise"
           node_js_version: "20.12.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n20_service_provider_server"
@@ -11216,7 +11216,7 @@ tasks:
           node_js_version: "16.20.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4"
+          mongosh_server_test_version: ">= 8.0.0-rc14"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n16_service_provider_server"
@@ -11233,7 +11233,7 @@ tasks:
           node_js_version: "16.20.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4-enterprise"
+          mongosh_server_test_version: ">= 8.0.0-rc14-enterprise"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n16_service_provider_server"
@@ -11437,7 +11437,7 @@ tasks:
           node_js_version: "20.12.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4"
+          mongosh_server_test_version: ">= 8.0.0-rc14"
           node_js_version: "20.12.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n20_shell_api"
@@ -11454,7 +11454,7 @@ tasks:
           node_js_version: "20.12.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4-enterprise"
+          mongosh_server_test_version: ">= 8.0.0-rc14-enterprise"
           node_js_version: "20.12.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n20_shell_api"
@@ -11658,7 +11658,7 @@ tasks:
           node_js_version: "16.20.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4"
+          mongosh_server_test_version: ">= 8.0.0-rc14"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n16_shell_api"
@@ -11675,7 +11675,7 @@ tasks:
           node_js_version: "16.20.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4-enterprise"
+          mongosh_server_test_version: ">= 8.0.0-rc14-enterprise"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n16_shell_api"
