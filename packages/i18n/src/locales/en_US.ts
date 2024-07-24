@@ -2045,6 +2045,30 @@ const translations: Catalog = {
                 'Returns a cursor with information about metadata inconsistencies',
               example: 'sh.checkMetadataConsistency(<options>)',
             },
+            moveCollection: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.moveCollection',
+              description:
+                'Moves a single unsharded collection to a different shard.',
+              example: 'sh.moveCollection(ns, toShard)',
+            },
+            abortMoveCollection: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.abortMoveCollection',
+              description:
+                'Abort the current moveCollection operation on a given collection',
+              example: 'sh.abortMoveCollection(ns)',
+            },
+            unshardCollection: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.unshardCollection',
+              description:
+                'Unshard the given collection and move all data to the given shard.',
+              example: 'sh.unshardCollection(ns, toShard)',
+            },
+            abortUnshardCollection: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.abortUnshardCollection',
+              description:
+                'Abort the current unshardCollection operation on a given collection',
+              example: 'sh.abortUnshardCollection(ns)',
+            },
           },
         },
       },
