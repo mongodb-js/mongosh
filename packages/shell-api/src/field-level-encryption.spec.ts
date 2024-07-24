@@ -5,6 +5,7 @@ import type {
   ServiceProvider,
   ClientEncryptionEncryptOptions,
   ClientEncryptionDataKeyProvider,
+  KMSProviders,
 } from '@mongosh/service-provider-core';
 import { bson } from '@mongosh/service-provider-core';
 import { expect } from 'chai';
@@ -23,10 +24,7 @@ import {
   ALL_TOPOLOGIES,
   ALL_API_VERSIONS,
 } from './enums';
-import type {
-  ClientSideFieldLevelEncryptionOptions,
-  ClientSideFieldLevelEncryptionKmsProvider as KMSProvider,
-} from './field-level-encryption';
+import type { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
 import { ClientEncryption, KeyVault } from './field-level-encryption';
 import Mongo from './mongo';
 import ShellInstanceState from './shell-instance-state';
@@ -817,8 +815,8 @@ describe('Field Level Encryption', function () {
     });
 
     const kms: [
-      keyof KMSProvider,
-      KMSProvider[keyof KMSProvider] & {
+      keyof KMSProviders,
+      KMSProviders[keyof KMSProviders] & {
         tlsOptions?: ClientEncryptionTlsOptions;
       }
     ][] = [

@@ -1568,6 +1568,19 @@ describe('Shell API (integration)', function () {
           'serverInfo',
         ]);
       });
+
+      describe('after server 4.4', function () {
+        skipIfServerVersion(testServer, '<= 4.4');
+        it('the explainable cursor reflects collation', async function () {
+          const cursor = await explainable.find({}, undefined, {
+            collation: { locale: 'simple' },
+          });
+          const result = await toShellResult(cursor);
+          expect(result.printable.command.collation.locale).to.be.equal(
+            'simple'
+          );
+        });
+      });
     });
 
     describe('aggregate', function () {

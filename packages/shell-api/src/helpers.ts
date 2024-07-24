@@ -8,7 +8,6 @@ import type {
   FindOneAndUpdateOptions,
   DeleteOptions,
   MapReduceOptions,
-  KMSProviders,
   ExplainOptions,
 } from '@mongosh/service-provider-core';
 import {
@@ -556,6 +555,7 @@ export async function getPrintableShardStatus(
                 { noBalance: coll.noBalance },
               ];
             }
+
             const chunksRes = [];
             const chunksCollMatch = buildConfigChunksCollectionMatch(coll);
             const chunks = await (
@@ -566,21 +566,20 @@ export async function getPrintableShardStatus(
                 { $sort: { shard: 1 } },
               ])
             ).toArray();
-            let totalChunks = 0;
+
             collRes.chunkMetadata = [];
+
             chunks.forEach((z: any) => {
-              totalChunks += z.nChunks;
               collRes.chunkMetadata.push({
                 shard: z.shard,
                 nChunks: z.nChunks,
               });
             });
 
-            // NOTE: this will return the chunk info as a string, and will print ugly BSON
-            if (totalChunks < 20 || verbose) {
-              for await (const chunk of (
-                await chunksColl.find(chunksCollMatch)
-              ).sort({ min: 1 })) {
+            for await (const chunk of (
+              await chunksColl.find(chunksCollMatch)
+            ).sort({ min: 1 })) {
+              if (chunksRes.length < 20 || verbose) {
                 const c = {
                   min: chunk.min,
                   max: chunk.max,
@@ -607,11 +606,12 @@ export async function getPrintableShardStatus(
                 );
                 if (chunk.jumbo) c.jumbo = 'yes';
                 chunksRes.push(c);
+              } else if (chunksRes.length === 20 && !verbose) {
+                chunksRes.push(
+                  'too many chunks to print, use verbose if you want to force print'
+                );
+                break;
               }
-            } else {
-              chunksRes.push(
-                'too many chunks to print, use verbose if you want to force print'
-              );
             }
 
             const tagsRes: any[] = [];
@@ -620,11 +620,19 @@ export async function getPrintableShardStatus(
                 ns: coll._id,
               })
             ).sort({ min: 1 })) {
-              tagsRes.push({
-                tag: tag.tag,
-                min: tag.min,
-                max: tag.max,
-              });
+              if (tagsRes.length < 20 || verbose) {
+                tagsRes.push({
+                  tag: tag.tag,
+                  min: tag.min,
+                  max: tag.max,
+                });
+              }
+              if (tagsRes.length === 20 && !verbose) {
+                tagsRes.push(
+                  'too many tags to print, use verbose if you want to force print'
+                );
+                break;
+              }
             }
             collRes.chunks = chunksRes;
             collRes.tags = tagsRes;
@@ -939,7 +947,8 @@ export function processFLEOptions(
   } else {
     autoEncryption.kmsProviders = {
       ...fleOptions.kmsProviders,
-    } as KMSProviders;
+      // cast can go away after https://github.com/mongodb/node-mongodb-native/commit/d85f827aca56603b5d7b64f853c190473be81b6f
+    } as (typeof autoEncryption)['kmsProviders'];
   }
 
   if (fleOptions.schemaMap) {

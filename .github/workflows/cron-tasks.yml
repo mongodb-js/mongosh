@@ -66,6 +66,12 @@ jobs:
           git add .evergreen.yml
           git commit --no-allow-empty -m "chore: update evergreen config" || true
 
+      - name: Update Security Test Summary
+        run: |
+          npm run update-security-test-summary
+          git add docs/security-test-summary.md
+          git commit --no-allow-empty -m "chore: update security test summary" || true
+
       - name: Regenerate CLI usage text in README files
         run: |
           npm run update-cli-usage-text packages/*/*.md *.md

@@ -78,9 +78,16 @@ post:
         tar cvzf npm-logs.tgz npm-logs
 
         if [ -d "src/tmp/mongodb-runner/logs" ]; then
-            tar cvzf mongodb-runner-logs.tgz -C src/tmp/mongodb-runner logs
+          tar cvzf mongodb-runner-logs.tgz -C src/tmp/mongodb-runner logs
         else
-            echo "Directory src/tmp/logs does not exist. Skipping."
+          echo "Directory src/tmp/logs does not exist. Skipping."
+        fi
+
+        if [ -d "$HOME/.mongodb/mongosh" ]; then
+          TARGET="$PWD/mongosh-logs.tgz"
+          (cd $HOME/.mongodb && tar cvzf "$TARGET" mongosh/*_log)
+        else
+          echo "Directory ~/.mongodb/mongosh does not exist. Skipping."
         fi
   - command: s3.put
     params:
@@ -92,6 +99,17 @@ post:
       permissions: private
       visibility: signed
       content_type: application/x-gzip
+  - command: s3.put
+    params:
+      aws_key: ${aws_key}
+      aws_secret: ${aws_secret}
+      local_file: mongosh-logs.tgz
+      remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-logs-${build_variant}-${task_name}-${task_id}.tgz
+      bucket: mciuploads
+      permissions: private
+      visibility: signed
+      content_type: application/x-gzip
+      optional: true
   - command: s3.put
     params:
       aws_key: ${aws_key}
@@ -398,7 +416,8 @@ functions:
           DISTRO_ID: ${distro_id}
           NODE_JS_VERSION: ${node_js_version}
           MONGOSH_SHARED_OPENSSL: ${mongosh_shared_openssl}
-  upload_sbom_and_static_analysis:
+          GITHUB_PR_NUMBER: ${github_pr_number}
+  upload_sbom:
     - command: s3.put
       params:
         aws_key: ${aws_key}
@@ -417,16 +436,6 @@ functions:
         bucket: mciuploads
         permissions: public-read
         content_type: text/plain
-    - command: s3.put
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/static-analysis-report.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}${extra_upload_tag}-static-analysis-report.tgz
-        bucket: mciuploads
-        permissions: private
-        visibility: signed
-        content_type: application/json
   upload_compiled_artifact:
     - command: shell.exec
       params:
@@ -452,6 +461,16 @@ functions:
         bucket: mciuploads
         permissions: public-read
         content_type: application/x-gzip
+  upload_first_party_deps_list:
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}${extra_upload_tag}-first-party-deps.json
+        bucket: mciuploads
+        permissions: public-read
+        content_type: application/json
   download_compiled_artifact:
     - command: s3.get
       type: setup
@@ -521,9 +540,48 @@ functions:
           PACKAGE_VARIANT: ${package_variant}
           ARTIFACTORY_USERNAME: ${artifactory_username}
           ARTIFACTORY_PASSWORD: ${artifactory_password}
-          # for static analysis report generation
+          # for Silk SBOM integration
+          SILK_ASSET_GROUP: mongosh-${executable_os_id}
+          SILK_CLIENT_ID: ${silk_client_id}
+          SILK_CLIENT_SECRET: ${silk_client_secret}
+  create_static_analysis_report:
+  <%
+  let firstPartyDepsFilenames = [];
+  for (const { executableOsId, packages } of RELEASE_PACKAGE_MATRIX) {
+        const filename = `mongosh-${executableOsId}-first-party-deps.json`;
+        firstPartyDepsFilenames.push(filename); %>
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/<% out(filename) %>
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/<% out(filename) %>
+        bucket: mciuploads
+  <% } %>
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/setup-env.sh
+          .evergreen/create-static-analysis-report.sh
+        env:
+          NODE_JS_VERSION: ${node_js_version}
+          FIRST_PARTY_DEPENDENCY_FILENAMES: <% out(firstPartyDepsFilenames.map(f => `.sbom/${f}`).join(',')) %>
           GITHUB_TOKEN: ${github_token}
           GITHUB_PR_NUMBER: ${github_pr_number}
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/static-analysis-report.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-static-analysis-report.tgz
+        bucket: mciuploads
+        permissions: private
+        visibility: signed
+        content_type: application/x-gzip
   package_artifact:
     - command: expansions.write
       type: setup
@@ -780,8 +838,10 @@ functions:
             cat .sbom/vulnerability-report.md
           fi
 
-          # Fails if the report failed and is not a patch, including during releases:
           if [[ "${is_patch}" != "true" ]]; then
+            # Run `snyk monitor` to keep `main` tracked
+            npx snyk monitor --org=dcd6db53-1532-4e65-beca-55db83f2cd52 --file=package-lock.json
+            # Fails if the report failed and is not a patch, including during releases:
             exit $return_code
           fi
 
@@ -1095,6 +1155,7 @@ tasks:
           mongosh_server_test_version: "latest-alpha-enterprise"
           mongosh_test_force_api_strict: "1"
   - name: compile_artifact
+    tags: ["compile-artifact"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -1107,6 +1168,9 @@ tasks:
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
       - func: upload_compiled_artifact
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+      - func: upload_first_party_deps_list
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
 
@@ -1202,6 +1266,7 @@ tasks:
   <% for (const { executableOsId, compileBuildVariant, packages } of RELEASE_PACKAGE_MATRIX) {
        for (const { name: packageVariant } of packages) { %>
   - name: add_crypt_shared_and_sbom_<% out(packageVariant.replace(/-/g, '_')) %>
+    tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
         variant: <% out(compileBuildVariant) %>
@@ -1217,7 +1282,7 @@ tasks:
         vars:
           package_variant: <% out(packageVariant) %>
           executable_os_id: <% out(executableOsId) %>
-      - func: upload_sbom_and_static_analysis
+      - func: upload_sbom
         vars:
           executable_os_id: <% out(executableOsId) %>
           extra_upload_tag: -<% out(packageVariant) %>-sbom
@@ -1338,6 +1403,19 @@ tasks:
         throw new Error(`pkg ${name} is missing a valid smoke test indicator`);
     } %>
   <% } } } %>
+  - name: create_static_analysis_report
+    tags: ["extra-integration-test"]
+    depends_on:
+      - name: ".compile-artifact"
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+      - func: create_static_analysis_report
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
 
   ###
   # RELEASE TASKS
@@ -1453,10 +1531,11 @@ buildvariants:
       - name: test_connectivity
       - name: test_apistrict
   - name: linux_coverage
-    display_name: "Coverage Check"
+    display_name: "Coverage and Static Analysis Check"
     run_on: ubuntu2004-small
     tasks:
       - name: check_coverage
+      - name: create_static_analysis_report
   - name: linux_package
     display_name: "Ubuntu 20.04 x64 (Packaging)"
     run_on: ubuntu2004-small
@@ -1758,6 +1837,20 @@ buildvariants:
     run_on: rhel83-zseries-small
     tasks:
       - name: e2e_tests_linux_s390x
+  - name: e2e_macos14_x64
+    display_name: "MacOS 14 x64 (E2E Tests)"
+    run_on: macos-14
+    expansions:
+      executable_os_id: darwin-x64
+    tasks:
+      - name: e2e_tests_darwin_x64
+  - name: e2e_macos14_arm64
+    display_name: "MacOS 14 arm64 (E2E Tests)"
+    run_on: macos-14-arm64
+    expansions:
+      executable_os_id: darwin-arm64
+    tasks:
+      - name: e2e_tests_darwin_arm64
 
   - name: win32_unit
     display_name: "Windows (Unit tests)"
@@ -1770,8 +1863,8 @@ buildvariants:
       - name: test_<% out(test.id) %>
       <% } %>
   - name: win32
-    display_name: "Windows VS 2019"
-    run_on: windows-64-vs2019-small
+    display_name: "Windows VS 2022"
+    run_on: windows-vsCurrent-small
     expansions:
       executable_os_id: win32
     tasks:
@@ -1779,8 +1872,8 @@ buildvariants:
       - name: package_artifact_win32_x64
       - name: package_artifact_win32msi_x64
   - name: win32_build
-    display_name: "Windows VS 2019 (build)"
-    run_on: windows-64-vs2019-build
+    display_name: "Windows VS 2022 (build)"
+    run_on: windows-vsCurrent-large
     expansions:
       executable_os_id: win32
     tasks:
@@ -1857,6 +1950,16 @@ buildvariants:
   - name: pkg_smoke_tests_macos_1300_arm64
     display_name: "package smoke tests (macos 13.00 arm64)"
     run_on: macos-1300-arm64
+    tasks:
+      - name: pkg_test_macos_darwin_arm64
+  - name: pkg_smoke_tests_macos_1400_x64
+    display_name: "package smoke tests (macos 14.00 x64)"
+    run_on: macos-14
+    tasks:
+      - name: pkg_test_macos_darwin_x64
+  - name: pkg_smoke_tests_macos_1400_arm64
+    display_name: "package smoke tests (macos 14.00 arm64)"
+    run_on: macos-14-arm64
     tasks:
       - name: pkg_test_macos_darwin_arm64
   - name: pkg_smoke_tests_rhel72_s390x

@@ -12,6 +12,18 @@ import { expect } from 'chai';
 import { createServer as createHTTPSServer } from 'https';
 import { getCertPath, useTmpdir } from './repl-helpers';
 
+/**
+ * @securityTest OIDC Authentication End-to-End Tests
+ *
+ * In addition to our regular tests for the different authentication mechanisms supported
+ * by MongoDB, we give special consideration to our OpenID Connect database authentication
+ * feature, as it involves client applications performing actions based on directions
+ * received from the database server.
+ *
+ * Additionally, since the shell supports connections to multiple different endpoints in the
+ * same application, these tests ensure that OIDC authentication for distinct endpoints
+ * happens in isolation.
+ */
 describe('OIDC auth e2e', function () {
   skipIfApiStrict(); // connectionStatus is unversioned.
 
@@ -230,13 +242,16 @@ describe('OIDC auth e2e', function () {
     const originalGetPayload = getTokenPayload;
     getTokenPayload = async (metadata) => {
       return {
-        expires_in: 10,
+        expires_in: 2, // seconds
         payload: (await originalGetPayload(metadata)).payload,
       };
     };
     shell = TestShell.start({
       args: [
-        await testServer.connectionString(),
+        await testServer.connectionString({
+          maxIdleTimeMS: '1',
+          minPoolSize: '0',
+        }),
         '--authenticationMechanism=MONGODB-OIDC',
         '--oidcRedirectUri=http://localhost:0/',
         `--browser=${fetchBrowserFixture}`,
@@ -245,7 +260,7 @@ describe('OIDC auth e2e', function () {
     await shell.waitForPrompt();
 
     await shell.executeLine('db.adminCommand({ping: 1})');
-    await shell.executeLine('sleep(1000)');
+    await shell.executeLine('sleep(4000)');
     await shell.executeLine('db.adminCommand({ping: 1})');
     shell.assertNoErrors();
     expect(tokenFetches).to.be.greaterThan(1);

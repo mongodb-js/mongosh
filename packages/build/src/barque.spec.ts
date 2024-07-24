@@ -37,8 +37,6 @@ describe('Barque', function () {
                 'https://repo.mongodb.com/apt/ubuntu/dists/bionic/mongodb-enterprise/6.0/multiverse/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
                 'https://repo.mongodb.org/apt/ubuntu/dists/bionic/mongodb-org/7.0/multiverse/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
                 'https://repo.mongodb.com/apt/ubuntu/dists/bionic/mongodb-enterprise/7.0/multiverse/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
-                'https://repo.mongodb.org/apt/ubuntu/dists/bionic/mongodb-org/8.0/multiverse/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
-                'https://repo.mongodb.com/apt/ubuntu/dists/bionic/mongodb-enterprise/8.0/multiverse/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
                 'https://repo.mongodb.org/apt/ubuntu/dists/focal/mongodb-org/4.4/multiverse/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
                 'https://repo.mongodb.com/apt/ubuntu/dists/focal/mongodb-enterprise/4.4/multiverse/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
                 'https://repo.mongodb.org/apt/ubuntu/dists/focal/mongodb-org/5.0/multiverse/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
@@ -67,8 +65,6 @@ describe('Barque', function () {
                 'https://repo.mongodb.com/apt/debian/dists/buster/mongodb-enterprise/6.0/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
                 'https://repo.mongodb.org/apt/debian/dists/buster/mongodb-org/7.0/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
                 'https://repo.mongodb.com/apt/debian/dists/buster/mongodb-enterprise/7.0/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
-                'https://repo.mongodb.org/apt/debian/dists/buster/mongodb-org/8.0/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
-                'https://repo.mongodb.com/apt/debian/dists/buster/mongodb-enterprise/8.0/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
                 'https://repo.mongodb.org/apt/debian/dists/bullseye/mongodb-org/4.4/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
                 'https://repo.mongodb.com/apt/debian/dists/bullseye/mongodb-enterprise/4.4/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
                 'https://repo.mongodb.org/apt/debian/dists/bullseye/mongodb-org/5.0/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
@@ -77,8 +73,6 @@ describe('Barque', function () {
                 'https://repo.mongodb.com/apt/debian/dists/bullseye/mongodb-enterprise/6.0/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
                 'https://repo.mongodb.org/apt/debian/dists/bullseye/mongodb-org/7.0/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
                 'https://repo.mongodb.com/apt/debian/dists/bullseye/mongodb-enterprise/7.0/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
-                'https://repo.mongodb.org/apt/debian/dists/bullseye/mongodb-org/8.0/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
-                'https://repo.mongodb.com/apt/debian/dists/bullseye/mongodb-enterprise/8.0/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
                 'https://repo.mongodb.org/apt/debian/dists/bookworm/mongodb-org/4.4/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
                 'https://repo.mongodb.com/apt/debian/dists/bookworm/mongodb-enterprise/4.4/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
                 'https://repo.mongodb.org/apt/debian/dists/bookworm/mongodb-org/5.0/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
@@ -103,8 +97,6 @@ describe('Barque', function () {
                 'https://repo.mongodb.com/yum/redhat/7/mongodb-enterprise/6.0/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
                 'https://repo.mongodb.org/yum/redhat/7/mongodb-org/7.0/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
                 'https://repo.mongodb.com/yum/redhat/7/mongodb-enterprise/7.0/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
-                'https://repo.mongodb.org/yum/redhat/7/mongodb-org/8.0/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
-                'https://repo.mongodb.com/yum/redhat/7/mongodb-enterprise/8.0/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
                 'https://repo.mongodb.org/yum/redhat/8/mongodb-org/4.4/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
                 'https://repo.mongodb.com/yum/redhat/8/mongodb-enterprise/4.4/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
                 'https://repo.mongodb.org/yum/redhat/8/mongodb-org/5.0/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
@@ -133,8 +125,6 @@ describe('Barque', function () {
                 'https://repo.mongodb.com/yum/amazon/2013.03/mongodb-enterprise/6.0/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
                 'https://repo.mongodb.org/yum/amazon/2013.03/mongodb-org/7.0/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
                 'https://repo.mongodb.com/yum/amazon/2013.03/mongodb-enterprise/7.0/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
-                'https://repo.mongodb.org/yum/amazon/2013.03/mongodb-org/8.0/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
-                'https://repo.mongodb.com/yum/amazon/2013.03/mongodb-enterprise/8.0/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
                 'https://repo.mongodb.org/yum/amazon/2/mongodb-org/4.4/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
                 'https://repo.mongodb.com/yum/amazon/2/mongodb-enterprise/4.4/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
                 'https://repo.mongodb.org/yum/amazon/2/mongodb-org/5.0/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
@@ -143,8 +133,6 @@ describe('Barque', function () {
                 'https://repo.mongodb.com/yum/amazon/2/mongodb-enterprise/6.0/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
                 'https://repo.mongodb.org/yum/amazon/2/mongodb-org/7.0/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
                 'https://repo.mongodb.com/yum/amazon/2/mongodb-enterprise/7.0/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
-                'https://repo.mongodb.org/yum/amazon/2/mongodb-org/8.0/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
-                'https://repo.mongodb.com/yum/amazon/2/mongodb-enterprise/8.0/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
                 'https://repo.mongodb.org/yum/amazon/2023/mongodb-org/4.4/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
                 'https://repo.mongodb.com/yum/amazon/2023/mongodb-enterprise/4.4/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
                 'https://repo.mongodb.org/yum/amazon/2023/mongodb-org/5.0/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
@@ -209,8 +197,6 @@ describe('Barque', function () {
                 'https://repo.mongodb.com/yum/amazon/2/mongodb-enterprise/6.0/aarch64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
                 'https://repo.mongodb.org/yum/amazon/2/mongodb-org/7.0/aarch64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
                 'https://repo.mongodb.com/yum/amazon/2/mongodb-enterprise/7.0/aarch64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
-                'https://repo.mongodb.org/yum/amazon/2/mongodb-org/8.0/aarch64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
-                'https://repo.mongodb.com/yum/amazon/2/mongodb-enterprise/8.0/aarch64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
                 'https://repo.mongodb.org/yum/amazon/2023/mongodb-org/4.4/aarch64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
                 'https://repo.mongodb.com/yum/amazon/2023/mongodb-enterprise/4.4/aarch64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
                 'https://repo.mongodb.org/yum/amazon/2023/mongodb-org/5.0/aarch64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
@@ -235,8 +221,6 @@ describe('Barque', function () {
                 'https://repo.mongodb.com/yum/redhat/7/mongodb-enterprise/6.0/s390x/RPMS/mongodb-mongosh-0.1.0.el7.s390x.rpm',
                 'https://repo.mongodb.org/yum/redhat/7/mongodb-org/7.0/s390x/RPMS/mongodb-mongosh-0.1.0.el7.s390x.rpm',
                 'https://repo.mongodb.com/yum/redhat/7/mongodb-enterprise/7.0/s390x/RPMS/mongodb-mongosh-0.1.0.el7.s390x.rpm',
-                'https://repo.mongodb.org/yum/redhat/7/mongodb-org/8.0/s390x/RPMS/mongodb-mongosh-0.1.0.el7.s390x.rpm',
-                'https://repo.mongodb.com/yum/redhat/7/mongodb-enterprise/8.0/s390x/RPMS/mongodb-mongosh-0.1.0.el7.s390x.rpm',
                 'https://repo.mongodb.org/yum/redhat/8/mongodb-org/4.4/s390x/RPMS/mongodb-mongosh-0.1.0.el7.s390x.rpm',
                 'https://repo.mongodb.com/yum/redhat/8/mongodb-enterprise/4.4/s390x/RPMS/mongodb-mongosh-0.1.0.el7.s390x.rpm',
                 'https://repo.mongodb.org/yum/redhat/8/mongodb-org/5.0/s390x/RPMS/mongodb-mongosh-0.1.0.el7.s390x.rpm',
@@ -261,8 +245,6 @@ describe('Barque', function () {
                 'https://repo.mongodb.com/yum/redhat/7/mongodb-enterprise/6.0/ppc64le/RPMS/mongodb-mongosh-0.1.0.el7.ppc64le.rpm',
                 'https://repo.mongodb.org/yum/redhat/7/mongodb-org/7.0/ppc64le/RPMS/mongodb-mongosh-0.1.0.el7.ppc64le.rpm',
                 'https://repo.mongodb.com/yum/redhat/7/mongodb-enterprise/7.0/ppc64le/RPMS/mongodb-mongosh-0.1.0.el7.ppc64le.rpm',
-                'https://repo.mongodb.org/yum/redhat/7/mongodb-org/8.0/ppc64le/RPMS/mongodb-mongosh-0.1.0.el7.ppc64le.rpm',
-                'https://repo.mongodb.com/yum/redhat/7/mongodb-enterprise/8.0/ppc64le/RPMS/mongodb-mongosh-0.1.0.el7.ppc64le.rpm',
                 'https://repo.mongodb.org/yum/redhat/8/mongodb-org/4.4/ppc64le/RPMS/mongodb-mongosh-0.1.0.el7.ppc64le.rpm',
                 'https://repo.mongodb.com/yum/redhat/8/mongodb-enterprise/4.4/ppc64le/RPMS/mongodb-mongosh-0.1.0.el7.ppc64le.rpm',
                 'https://repo.mongodb.org/yum/redhat/8/mongodb-org/5.0/ppc64le/RPMS/mongodb-mongosh-0.1.0.el7.ppc64le.rpm',
@@ -346,6 +328,10 @@ describe('Barque', function () {
         const result = getReposAndArch(variant);
         expect(result.ppas).to.be.an('array');
         expect(result.arch).to.be.a('string');
+        if (result.ppas.length > 0) {
+          expect(result.ppas[0].repo).to.be.a('string');
+          expect(result.ppas[0].serverVersions).to.be.an('array');
+        }
       });
     }
   });

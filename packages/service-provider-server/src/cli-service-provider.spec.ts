@@ -1008,6 +1008,7 @@ describe('CliServiceProvider', function () {
     });
   });
 
+  // Security-relevant tests -- description covered in e2e-oidc tests.
   describe('processDriverOptions', function () {
     it('shares user configuration options from an existing CliServiceProvider instance', function () {
       const cloneableOidcOptions = {
