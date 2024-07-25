@@ -17,6 +17,7 @@ export type PPARepository =
   | 'ubuntu1804'
   | 'ubuntu2004'
   | 'ubuntu2204'
+  | 'ubuntu2404'
   | 'debian10'
   | 'debian11'
   | 'debian12'
@@ -102,10 +103,10 @@ export const SERVER_WITH_PPAS: Record<
     'debian12',
     'rhel80',
     'rhel90',
-    'suse12',
     'suse15',
     'ubuntu2004',
     'ubuntu2204',
+    'ubuntu2404',
   ],
 };
 
