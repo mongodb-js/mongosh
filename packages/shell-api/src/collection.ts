@@ -42,6 +42,7 @@ import {
   buildConfigChunksCollectionMatch,
   onlyShardedCollectionsInConfigFilter,
   aggregateBackgroundOptionNotSupportedHelp,
+  isMongosConnection,
 } from './helpers';
 import type {
   AnyBulkWriteOperation,
@@ -2064,6 +2065,12 @@ export default class Collection extends ShellApiWithMongoClass {
   @apiVersions([])
   async getShardDistribution(): Promise<CommandResult> {
     this._emitCollectionApiCall('getShardDistribution', {});
+
+    if (!isMongosConnection(this._mongo._serviceProvider)) {
+      throw new MongoshInvalidInputError(
+        'Please connect to a mongos before calling this function.'
+      );
+    }
 
     const result = {} as Document;
     const config = this._mongo.getDB('config');
