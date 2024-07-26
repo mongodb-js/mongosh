@@ -693,4 +693,61 @@ export default class Shard extends ShellApiWithMongoClass {
       checkMetadataConsistency: 1,
     });
   }
+
+  @serverVersions(['8.0.0', ServerVersions.latest])
+  @apiVersions([])
+  @returnsPromise
+  async moveCollection(ns: string, toShard: string): Promise<Document> {
+    assertArgsDefinedType(
+      [ns, toShard],
+      ['string', 'string'],
+      'Shard.moveCollection'
+    );
+    this._emitShardApiCall('moveCollection', { moveCollection: ns, toShard });
+    return await this._database._runAdminCommand({
+      moveCollection: ns,
+      toShard,
+    });
+  }
+
+  @serverVersions(['8.0.0', ServerVersions.latest])
+  @apiVersions([])
+  @returnsPromise
+  async abortMoveCollection(ns: string): Promise<Document> {
+    assertArgsDefinedType([ns], ['string'], 'Shard.abortMoveCollection');
+    this._emitShardApiCall('abortMoveCollection', { abortMoveCollection: ns });
+    return await this._database._runAdminCommand({ abortMoveCollection: ns });
+  }
+
+  @serverVersions(['8.0.0', ServerVersions.latest])
+  @apiVersions([])
+  @returnsPromise
+  async unshardCollection(ns: string, toShard: string): Promise<Document> {
+    assertArgsDefinedType(
+      [ns, toShard],
+      ['string', 'string'],
+      'Shard.unshardCollection'
+    );
+    this._emitShardApiCall('unshardCollection', {
+      unshardCollection: ns,
+      toShard,
+    });
+    return await this._database._runAdminCommand({
+      unshardCollection: ns,
+      toShard,
+    });
+  }
+
+  @serverVersions(['8.0.0', ServerVersions.latest])
+  @apiVersions([])
+  @returnsPromise
+  async abortUnshardCollection(ns: string): Promise<Document> {
+    assertArgsDefinedType([ns], ['string'], 'Shard.abortUnshardCollection');
+    this._emitShardApiCall('abortUnshardCollection', {
+      abortUnshardCollection: ns,
+    });
+    return await this._database._runAdminCommand({
+      abortUnshardCollection: ns,
+    });
+  }
 }
