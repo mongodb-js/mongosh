@@ -711,8 +711,12 @@ export default class Shard extends ShellApiWithMongoClass {
     await this.shardCollection(ns, key, unique, options);
     // SERVER-92762: Prevent unequal data distribution by setting
     // numInitialChunks to 1000.
+    const numInitialChunks =
+      typeof unique === 'object'
+        ? unique.numInitialChunks
+        : options?.numInitialChunks;
     return await this.reshardCollection(ns, key, {
-      numInitialChunks: 1000,
+      numInitialChunks: numInitialChunks ?? 1000,
       forceRedistribution: true,
     });
   }
