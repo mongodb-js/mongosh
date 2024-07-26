@@ -21,7 +21,7 @@ const config = {
   },
 };
 
-module.exports = ['index', 'child-process'].map((entry) => ({
+module.exports = ['index'].map((entry) => ({
   entry: { [entry]: path.resolve(__dirname, 'src', `${entry}.ts`) },
   ...merge(baseWebpackConfig, config),
 }));

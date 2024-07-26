@@ -28,7 +28,17 @@ describe('WorkerRuntime', function () {
 
   afterEach(async function () {
     if (runtime) {
-      await runtime.terminate();
+      // There is a Node.js bug that causes worker process to still be ref-ed
+      // after termination. To work around that, we are unrefing worker manually
+      // *immediately* after terminate method is called even though it should
+      // not be necessary. If this is not done in rare cases our test suite can
+      // get stuck. Even though the issue is fixed we would still need to keep
+      // this workaround for compat reasons.
+      //
+      // See: https://github.com/nodejs/node/pull/37319
+      const terminationPromise = runtime.terminate();
+      runtime['workerProcess'].unref();
+      await terminationPromise;
       runtime = null;
     }
   });
@@ -43,11 +53,11 @@ describe('WorkerRuntime', function () {
 
     afterEach(function () {
       delete process
-        .env.CHILD_PROCESS_PROXY_SRC_PATH_DO_NOT_USE_THIS_EXCEPT_FOR_TESTING;
+        .env.WORKER_RUNTIME_SRC_PATH_DO_NOT_USE_THIS_EXCEPT_FOR_TESTING;
     });
 
-    it('should return init error if child process failed to spawn', async function () {
-      process.env.CHILD_PROCESS_PROXY_SRC_PATH_DO_NOT_USE_THIS_EXCEPT_FOR_TESTING =
+    it('should return init error if worker thread failed to spawn', async function () {
+      process.env.WORKER_RUNTIME_SRC_PATH_DO_NOT_USE_THIS_EXCEPT_FOR_TESTING =
         brokenScript;
 
       runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, {
@@ -65,7 +75,7 @@ describe('WorkerRuntime', function () {
       expect(err).to.be.instanceof(Error);
       expect(err)
         .to.have.property('message')
-        .match(/Child process failed to start/);
+        .match(/Worker thread failed to start with/);
     });
   });
 
@@ -251,21 +261,40 @@ describe('WorkerRuntime', function () {
 
     // We will be testing a bunch of private props that can be accessed only with
     // strings to make TS happy
-    it('should terminate child process', async function () {
+    it('should terminate the worker thread', async function () {
       const runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, {
         nodb: true,
       });
+      await runtime.waitForRuntimeToBeReady();
+      expect(isRunning(runtime['workerProcess'].threadId)).to.not.equal(-1);
+      expect(isRunning(runtime['workerProcess'].threadId)).to.not.equal(
+        undefined
+      );
+
+      let resolvePromise;
+      const exitCalledPromise = new Promise((resolve) => {
+        resolvePromise = resolve;
+      });
+      runtime['workerProcess'].on('exit', () => {
+        resolvePromise();
+      });
+
+      // await waitFor(() => runtime['workerProcess'] !== undefined);
       await runtime.terminate();
-      expect(runtime['childProcess']).to.have.property('killed', true);
-      expect(isRunning(runtime['childProcess'].pid)).to.equal(false);
+
+      await exitCalledPromise;
+
+      // expect(runtime['workerProcess']).to.have.property('killed', true);
+      // expect(isRunning(runtime['workerProcess'].threadId)).to.equal(false);
+      expect(runtime['workerProcess'].threadId).to.equal(-1);
     });
 
-    it('should remove all listeners from childProcess', async function () {
+    it('should remove all listeners from workerProcess', async function () {
       const runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, {
         nodb: true,
       });
       await runtime.terminate();
-      expect(runtime['childProcess'].listenerCount('message')).to.equal(0);
+      expect(runtime['workerProcess'].listenerCount('message')).to.equal(0);
     });
 
     it('should cancel any in-flight runtime calls', async function () {
@@ -305,7 +334,7 @@ describe('WorkerRuntime', function () {
           await Promise.all([
             runtime.evaluate('sleep(1000000)'),
             (async () => {
-              // This is flaky when not enought time given to the worker to
+              // This is flaky when not enough time is given to the worker to
               // finish the sync part of the work. If it causes too much issues
               // it would be okay to disable this test completely
               await sleep(5000);
