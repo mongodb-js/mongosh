@@ -1790,6 +1790,38 @@ describe('Shard', function () {
         );
       });
     });
+
+    describe('shardAndDistributeCollection', function () {
+      it('calls shardCollection and then reshardCollection with correct parameters', async function () {
+        const expectedResult = { ok: 1 };
+
+        const shardCollectionStub = sinon
+          .stub(shard, 'shardCollection')
+          .resolves(expectedResult);
+        const reshardCollectionStub = sinon
+          .stub(shard, 'reshardCollection')
+          .resolves(expectedResult);
+
+        await shard.shardAndDistributeCollection('db.coll', { key: 1 });
+
+        expect(shardCollectionStub).to.have.been.calledOnceWith('db.coll', {
+          key: 1,
+        });
+        expect(reshardCollectionStub).to.have.been.calledOnceWith(
+          'db.coll',
+          { key: 1 },
+          { numInitialChunks: 1000, forceRedistribution: true }
+        );
+      });
+      it('returns whatever shard.reshardCollection returns', async function () {
+        const expectedResult = { ok: 1 };
+        sinon.stub(shard, 'reshardCollection').resolves(expectedResult);
+        const result = await shard.shardAndDistributeCollection('db.coll', {
+          key: 1,
+        });
+        expect(result).to.deep.equal(expectedResult);
+      });
+    });
   });
 
   describe('integration', function () {
