@@ -703,7 +703,7 @@ export default class Shard extends ShellApiWithMongoClass {
       ['string', 'string'],
       'Shard.moveCollection'
     );
-    this._emitShardApiCall('moveCollection', { toShard });
+    this._emitShardApiCall('moveCollection', { moveCollection: ns, toShard });
     return await this._database._runAdminCommand({
       moveCollection: ns,
       toShard,
@@ -728,7 +728,10 @@ export default class Shard extends ShellApiWithMongoClass {
       ['string', 'string'],
       'Shard.unshardCollection'
     );
-    this._emitShardApiCall('unshardCollection', { toShard });
+    this._emitShardApiCall('unshardCollection', {
+      unshardCollection: ns,
+      toShard,
+    });
     return await this._database._runAdminCommand({
       unshardCollection: ns,
       toShard,
@@ -741,7 +744,7 @@ export default class Shard extends ShellApiWithMongoClass {
   async abortUnshardCollection(ns: string): Promise<Document> {
     assertArgsDefinedType([ns], ['string'], 'Shard.abortUnshardCollection');
     this._emitShardApiCall('abortUnshardCollection', {
-      abortMoveCollection: ns,
+      abortUnshardCollection: ns,
     });
     return await this._database._runAdminCommand({
       abortUnshardCollection: ns,
