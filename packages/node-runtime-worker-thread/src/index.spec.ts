@@ -279,13 +279,9 @@ describe('WorkerRuntime', function () {
         resolvePromise();
       });
 
-      // await waitFor(() => runtime['workerProcess'] !== undefined);
       await runtime.terminate();
 
       await exitCalledPromise;
-
-      // expect(runtime['workerProcess']).to.have.property('killed', true);
-      // expect(isRunning(runtime['workerProcess'].threadId)).to.equal(false);
       expect(runtime['workerProcess'].threadId).to.equal(-1);
     });
 
