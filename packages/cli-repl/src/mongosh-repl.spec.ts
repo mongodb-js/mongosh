@@ -66,12 +66,10 @@ describe('MongoshNodeRepl', function () {
     // eslint-disable-next-line @typescript-eslint/require-await
     cp.getConfig.callsFake(async (key: string) => config[key]);
     // eslint-disable-next-line @typescript-eslint/require-await
-    cp.setConfig.callsFake(
-      async (key: string, value: any): Promise<'success'> => {
-        config[key] = value;
-        return 'success';
-      }
-    );
+    cp.setConfig.callsFake((key: string, value: any): 'success' => {
+      config[key] = value;
+      return 'success';
+    });
     cp.listConfigOptions.callsFake(() => Object.keys(config));
     cp.exit.callsFake(((code) => bus.emit('test-exit-event', code)) as any);
 
