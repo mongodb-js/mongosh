@@ -2045,6 +2045,12 @@ const translations: Catalog = {
                 'Returns a cursor with information about metadata inconsistencies',
               example: 'sh.checkMetadataConsistency(<options>)',
             },
+            shardAndDistributeCollection: {
+              description:
+                'Shards a collection and then immediately reshards the collection to the same shard key.',
+              example:
+                'sh.shardAndDistributeCollection(ns, key, unique?, options?)',
+            },
             moveCollection: {
               link: 'https://docs.mongodb.com/manual/reference/method/sh.moveCollection',
               description:

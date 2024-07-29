@@ -1791,6 +1791,85 @@ describe('Shard', function () {
       });
     });
 
+    describe('shardAndDistributeCollection', function () {
+      it('calls shardCollection and then reshardCollection with correct parameters', async function () {
+        const expectedResult = { ok: 1 };
+
+        const shardCollectionStub = sinon
+          .stub(shard, 'shardCollection')
+          .resolves(expectedResult);
+        const reshardCollectionStub = sinon
+          .stub(shard, 'reshardCollection')
+          .resolves(expectedResult);
+
+        await shard.shardAndDistributeCollection(
+          'db.coll',
+          { key: 1 },
+          true,
+          {}
+        );
+
+        expect(shardCollectionStub.calledOnce).to.equal(true);
+        expect(shardCollectionStub.firstCall.args).to.deep.equal([
+          'db.coll',
+          {
+            key: 1,
+          },
+          true,
+          {},
+        ]);
+
+        expect(reshardCollectionStub.calledOnce).to.equal(true);
+        expect(reshardCollectionStub.firstCall.args).to.deep.equal([
+          'db.coll',
+          { key: 1 },
+          { numInitialChunks: 1000, forceRedistribution: true },
+        ]);
+      });
+
+      it('allows user to pass numInitialChunks', async function () {
+        const expectedResult = { ok: 1 };
+
+        const shardCollectionStub = sinon
+          .stub(shard, 'shardCollection')
+          .resolves(expectedResult);
+        const reshardCollectionStub = sinon
+          .stub(shard, 'reshardCollection')
+          .resolves(expectedResult);
+
+        await shard.shardAndDistributeCollection('db.coll', { key: 1 }, true, {
+          numInitialChunks: 1,
+        });
+
+        expect(shardCollectionStub.calledOnce).to.equal(true);
+        expect(shardCollectionStub.firstCall.args).to.deep.equal([
+          'db.coll',
+          {
+            key: 1,
+          },
+          true,
+          {
+            numInitialChunks: 1,
+          },
+        ]);
+
+        expect(reshardCollectionStub.calledOnce).to.equal(true);
+        expect(reshardCollectionStub.firstCall.args).to.deep.equal([
+          'db.coll',
+          { key: 1 },
+          { numInitialChunks: 1, forceRedistribution: true },
+        ]);
+      });
+      it('returns whatever shard.reshardCollection returns', async function () {
+        const expectedResult = { ok: 1 };
+        sinon.stub(shard, 'reshardCollection').resolves(expectedResult);
+        const result = await shard.shardAndDistributeCollection('db.coll', {
+          key: 1,
+        });
+        expect(result).to.deep.equal(expectedResult);
+      });
+    });
+
     describe('moveCollection', function () {
       it('calls serviceProvider.runCommandWithCheck', async function () {
         await shard.moveCollection('db.coll', 'shard1');
