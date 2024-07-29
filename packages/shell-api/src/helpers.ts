@@ -945,8 +945,6 @@ export function processFLEOptions(
       );
     }
   } else {
-    // TODO: switch from any to KMSProviders (@mongosh/service-provider-core) once
-    // https://github.com/mongodb/node-mongodb-native/pull/4165/files is released.
     autoEncryption.kmsProviders = {
       ...fleOptions.kmsProviders,
       // cast can go away after https://github.com/mongodb/node-mongodb-native/commit/d85f827aca56603b5d7b64f853c190473be81b6f
