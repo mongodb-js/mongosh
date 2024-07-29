@@ -1097,6 +1097,24 @@ describe('Shell API (integration)', function () {
         });
       });
 
+      it('projects according to `fields`', async function () {
+        const result = await collection.findAndModify({
+          query: { doc: 4 },
+          new: true,
+          update: { doc: 4, asdf: true },
+          upsert: true,
+          fields: { asdf: 1, _id: 1 },
+        });
+        expect(Object.keys(result!)).to.deep.equal(['_id', 'asdf']);
+        expect(result!._id.constructor.name).to.equal('ObjectId');
+        expect(result!.asdf).to.equal(true);
+
+        expect(await findAllWithoutId(dbName, collectionName)).to.deep.include({
+          doc: 4,
+          asdf: true,
+        });
+      });
+
       context('on server 4.2+', function () {
         skipIfServerVersion(testServer, '< 4.2');
         it('allows update pipelines', async function () {

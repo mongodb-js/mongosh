@@ -1798,11 +1798,12 @@ describe('Collection', function () {
           ...options,
         });
 
+        const { fields: projection, ...expectedOptions } = options;
         expect(serviceProvider.findOneAndDelete).to.have.been.calledWith(
           collection._database._name,
           collection._name,
           { query: 1 },
-          { ...options, sort: { sort: 1 } }
+          { ...expectedOptions, sort: { sort: 1 }, projection }
         );
       });
     });
