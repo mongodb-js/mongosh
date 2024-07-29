@@ -9,8 +9,6 @@ import type {
   DeleteOptions,
   MapReduceOptions,
   ExplainOptions,
-  ServiceProvider,
-  TopologyDescription,
 } from '@mongosh/service-provider-core';
 import {
   CommonErrors,
@@ -34,17 +32,6 @@ import type { AbstractCursor } from './abstract-cursor';
 import type ChangeStreamCursor from './change-stream-cursor';
 import type { ShellBson } from './shell-bson';
 import { inspect } from 'util';
-
-export function isMongosConnection(serviceProvider: ServiceProvider): boolean {
-  const description = serviceProvider.getTopology()?.description as
-    | TopologyDescription
-    | undefined;
-  if (!description) {
-    return false;
-  }
-  const [server] = description.servers.values();
-  return server.type === 'Mongos';
-}
 
 /**
  * Helper method to adapt aggregation pipeline options.

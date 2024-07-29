@@ -2242,18 +2242,6 @@ describe('Collection', function () {
           ShellApiErrors.NotConnectedToShardedCluster
         );
       });
-      it('throws when connection is not mongos', async function () {
-        serviceProvider.getTopology.returns({
-          description: {
-            servers: new Map([['localhost:27017', { type: 'Standalone' }]]),
-          },
-        });
-        const error = await collection.getShardDistribution().catch((e) => e);
-        expect(error).to.be.instanceOf(MongoshInvalidInputError);
-        expect(error.message).to.contain(
-          'Please connect to a mongos before calling this function.'
-        );
-      });
     });
 
     describe('analyzeShardKey', function () {
