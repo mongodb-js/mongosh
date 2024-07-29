@@ -568,12 +568,16 @@ export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
 }
 
 export interface ConfigProvider<T> {
-  getConfig<K extends keyof T>(key: K): Promise<T[K] | undefined> | undefined;
+  getConfig<K extends keyof T>(
+    key: K
+  ): Promise<T[K] | undefined> | T[K] | undefined;
   setConfig<K extends keyof T>(
     key: K,
     value: T[K]
-  ): Promise<'success' | 'ignored'>;
-  resetConfig<K extends keyof T>(key: K): Promise<'success' | 'ignored'>;
+  ): Promise<'success' | 'ignored'> | 'success' | 'ignored';
+  resetConfig<K extends keyof T>(
+    key: K
+  ): Promise<'success' | 'ignored'> | 'success' | 'ignored';
   validateConfig<K extends keyof T>(
     key: K,
     value: T[K]

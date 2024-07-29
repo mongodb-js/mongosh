@@ -128,8 +128,8 @@ describe('Streams', function () {
       const spmName = 'testSpm';
       const cursorId = Date.now();
 
-      let getMoreResolve;
-      const getMoreCalled = new Promise((r) => (getMoreResolve = r));
+      let getMoreResolve: () => void;
+      const getMoreCalled = new Promise<void>((r) => (getMoreResolve = r));
 
       const runCmdStub = sinon.stub(mongo._serviceProvider, 'runCommand');
       runCmdStub
