@@ -62,7 +62,7 @@ for (const release of productionReleases) {
       const rhel72AndAbove = ['rhel72', ...rhel80AndAbove]
       const al2AndAbove = ['amazon2', 'amazon2023', ...rhel81AndAbove]
       const rhel70AndAboveAndRpmBased = ['rhel70', 'rhel71', ...rhel72AndAbove, 'amazon', ...al2AndAbove, 'suse12', 'suse15']
-      const ubuntu1804AndAboveAndDebBased = ['ubuntu1804', 'ubuntu1804', 'ubuntu2004', 'ubuntu2204', 'debian10', 'debian11', 'debian12']
+      const ubuntu1804AndAboveAndDebBased = ['ubuntu1804', 'ubuntu1804', 'ubuntu2004', 'ubuntu2204', 'ubuntu2404', 'debian10', 'debian11', 'debian12']
       const allLinux = [...rhel70AndAboveAndRpmBased, ...ubuntu1804AndAboveAndDebBased]
 
       for (const [re, targets_] of [
