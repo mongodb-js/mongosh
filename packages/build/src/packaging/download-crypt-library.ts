@@ -35,8 +35,8 @@ export async function downloadCryptLibrary(
   // Download mongodb for latest server version, including rapid releases
   // (for the platforms that they exist for, i.e. for ppc64le/s390x only pick stable releases).
   // TODO(MONGOSH-1833): The current 'continuous' release is not compatible with 8.x rc server releases. So we are using
-  // 8.0.0-rc11 (current latest) for now and once 8.0 is released we should switch back to continuous.
-  let versionSpec = '8.0.0-rc11';
+  // 8.0.0-rc15 (current latest) for now and once 8.0 is released we should switch back to continuous.
+  let versionSpec = '8.0.0-rc15';
   if (/ppc64/.test(opts.arch || process.arch)) {
     versionSpec = 'stable';
   }
