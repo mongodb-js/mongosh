@@ -61,6 +61,7 @@ import { KeyVault, ClientEncryption } from './field-level-encryption';
 import { ShellApiErrors } from './error-codes';
 import type { LogEntry } from './log-entry';
 import { parseAnyLogEntry } from './log-entry';
+import type { ShellBson } from './shell-bson';
 
 /* Utility, inverse of Readonly<T> */
 type Mutable<T> = {
@@ -311,7 +312,12 @@ export default class Mongo extends ShellApiClass {
   }
 
   async _listDatabases(opts: ListDatabasesOptions = {}): Promise<{
-    databases: { name: string; sizeOnDisk: number; empty: boolean }[];
+    databases: {
+      name: string;
+      sizeOnDisk: number | ShellBson['Long'];
+      empty: boolean;
+    }[];
+    ok: 1;
   }> {
     const result = await this._serviceProvider.listDatabases('admin', {
       ...this._getExplicitlyRequestedReadPref(),
@@ -348,7 +354,12 @@ export default class Mongo extends ShellApiClass {
   @returnsPromise
   @apiVersions([1])
   async getDBs(options: ListDatabasesOptions = {}): Promise<{
-    databases: { name: string; sizeOnDisk: number; empty: boolean }[];
+    databases: {
+      name: string;
+      sizeOnDisk: number | ShellBson['Long'];
+      empty: boolean;
+    }[];
+    ok: 1;
   }> {
     this._emitMongoApiCall('getDBs', { options });
     return await this._listDatabases(options);
@@ -510,7 +521,7 @@ export default class Mongo extends ShellApiClass {
     }
   }
 
-  async close(force: boolean): Promise<void> {
+  async close(force?: boolean): Promise<void> {
     const index = this._instanceState.mongos.indexOf(this);
     if (index === -1) {
       process.emitWarning(
@@ -522,7 +533,7 @@ export default class Mongo extends ShellApiClass {
       this._instanceState.mongos.splice(index, 1);
     }
 
-    await this._serviceProvider.close(force);
+    await this._serviceProvider.close(!!force);
   }
 
   async _suspend(): Promise<() => Promise<void>> {

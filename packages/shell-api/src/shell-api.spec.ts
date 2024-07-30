@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import type { ShellConfig } from './shell-api';
 import ShellApi from './shell-api';
 import { signatures, toShellResult } from './index';
 import type Cursor from './cursor';
@@ -16,6 +17,7 @@ import Mongo from './mongo';
 import type {
   ServiceProvider,
   MongoClient,
+  Document,
 } from '@mongosh/service-provider-core';
 import { bson } from '@mongosh/service-provider-core';
 import { EventEmitter } from 'events';
@@ -44,7 +46,7 @@ describe('ShellApi', function () {
       expect(signatures.ShellApi.type).to.equal('ShellApi');
     });
     it('attributes', function () {
-      expect(signatures.ShellApi.attributes.use).to.deep.equal({
+      expect(signatures.ShellApi.attributes?.use).to.deep.equal({
         type: 'function',
         returnsPromise: false,
         deprecated: false,
@@ -56,9 +58,9 @@ describe('ShellApi', function () {
         isDirectShellCommand: true,
         acceptsRawInput: false,
         shellCommandCompleter:
-          signatures.ShellApi.attributes.use.shellCommandCompleter,
+          signatures.ShellApi.attributes?.use.shellCommandCompleter,
       });
-      expect(signatures.ShellApi.attributes.show).to.deep.equal({
+      expect(signatures.ShellApi.attributes?.show).to.deep.equal({
         type: 'function',
         returnsPromise: true,
         deprecated: false,
@@ -70,9 +72,9 @@ describe('ShellApi', function () {
         isDirectShellCommand: true,
         acceptsRawInput: false,
         shellCommandCompleter:
-          signatures.ShellApi.attributes.show.shellCommandCompleter,
+          signatures.ShellApi.attributes?.show.shellCommandCompleter,
       });
-      expect(signatures.ShellApi.attributes.exit).to.deep.equal({
+      expect(signatures.ShellApi.attributes?.exit).to.deep.equal({
         type: 'function',
         returnsPromise: true,
         deprecated: false,
@@ -85,7 +87,7 @@ describe('ShellApi', function () {
         acceptsRawInput: false,
         shellCommandCompleter: undefined,
       });
-      expect(signatures.ShellApi.attributes.it).to.deep.equal({
+      expect(signatures.ShellApi.attributes?.it).to.deep.equal({
         type: 'function',
         returnsPromise: true,
         deprecated: false,
@@ -98,7 +100,7 @@ describe('ShellApi', function () {
         acceptsRawInput: false,
         shellCommandCompleter: undefined,
       });
-      expect(signatures.ShellApi.attributes.print).to.deep.equal({
+      expect(signatures.ShellApi.attributes?.print).to.deep.equal({
         type: 'function',
         returnsPromise: true,
         deprecated: false,
@@ -111,7 +113,7 @@ describe('ShellApi', function () {
         acceptsRawInput: false,
         shellCommandCompleter: undefined,
       });
-      expect(signatures.ShellApi.attributes.printjson).to.deep.equal({
+      expect(signatures.ShellApi.attributes?.printjson).to.deep.equal({
         type: 'function',
         returnsPromise: true,
         deprecated: false,
@@ -124,7 +126,7 @@ describe('ShellApi', function () {
         acceptsRawInput: false,
         shellCommandCompleter: undefined,
       });
-      expect(signatures.ShellApi.attributes.sleep).to.deep.equal({
+      expect(signatures.ShellApi.attributes?.sleep).to.deep.equal({
         type: 'function',
         returnsPromise: true,
         deprecated: false,
@@ -137,7 +139,7 @@ describe('ShellApi', function () {
         acceptsRawInput: false,
         shellCommandCompleter: undefined,
       });
-      expect(signatures.ShellApi.attributes.cls).to.deep.equal({
+      expect(signatures.ShellApi.attributes?.cls).to.deep.equal({
         type: 'function',
         returnsPromise: true,
         deprecated: false,
@@ -150,7 +152,7 @@ describe('ShellApi', function () {
         acceptsRawInput: false,
         shellCommandCompleter: undefined,
       });
-      expect(signatures.ShellApi.attributes.Mongo).to.deep.equal({
+      expect(signatures.ShellApi.attributes?.Mongo).to.deep.equal({
         type: 'function',
         returnsPromise: true,
         deprecated: false,
@@ -163,7 +165,7 @@ describe('ShellApi', function () {
         acceptsRawInput: false,
         shellCommandCompleter: undefined,
       });
-      expect(signatures.ShellApi.attributes.connect).to.deep.equal({
+      expect(signatures.ShellApi.attributes?.connect).to.deep.equal({
         type: 'function',
         returnsPromise: true,
         deprecated: false,
@@ -522,7 +524,7 @@ describe('ShellApi', function () {
     let bus: EventEmitter;
     let instanceState: ShellInstanceState;
     let mongo: Mongo;
-    let evaluationListener: StubbedInstance<EvaluationListener>;
+    let evaluationListener: Required<StubbedInstance<EvaluationListener>>;
 
     beforeEach(function () {
       bus = new EventEmitter();
@@ -536,7 +538,9 @@ describe('ShellApi', function () {
       serviceProvider.bsonLibrary = bson;
       mongo = stubInterface<Mongo>();
       mongo._serviceProvider = serviceProvider;
-      evaluationListener = stubInterface<EvaluationListener>();
+      evaluationListener = stubInterface<EvaluationListener>() as Required<
+        StubbedInstance<EvaluationListener>
+      >;
       instanceState = new ShellInstanceState(serviceProvider, bus);
       instanceState.setCtx({});
       instanceState.mongos.push(mongo);
@@ -813,12 +817,12 @@ describe('ShellApi', function () {
 
     describe('config', function () {
       context('with a full-config evaluation listener', function () {
-        let store;
-        let config;
-        let validators;
+        let store: Document;
+        let config: ShellConfig;
+        let validators: Record<string, (value: any) => string | null>;
 
         beforeEach(function () {
-          config = instanceState.context.config;
+          config = instanceState.shellApi.config;
           store = { somekey: '' };
           validators = {};
           // eslint-disable-next-line @typescript-eslint/require-await
@@ -828,7 +832,7 @@ describe('ShellApi', function () {
             return 'success';
           });
           // eslint-disable-next-line @typescript-eslint/require-await
-          evaluationListener.resetConfig.callsFake(async (key) => {
+          evaluationListener.resetConfig.callsFake((key: string): 'success' => {
             store[key] = '';
             return 'success';
           });
@@ -845,17 +849,17 @@ describe('ShellApi', function () {
 
         it('can get/set/list config keys', async function () {
           const value = { structuredData: 'value' };
-          expect(await config.set('somekey', value)).to.equal(
+          expect(await config.set('somekey' as any, value)).to.equal(
             'Setting "somekey" has been changed'
           );
-          expect(await config.get('somekey')).to.deep.equal(value);
+          expect(await config.get('somekey' as any)).to.deep.equal(value);
           expect((await toShellResult(config)).printable).to.deep.equal(
             new Map([['somekey', value]])
           );
-          expect(await config.reset('somekey')).to.deep.equal(
+          expect(await config.reset('somekey' as any)).to.deep.equal(
             'Setting "somekey" has been reset to its default value'
           );
-          expect(await config.get('somekey')).to.deep.equal('');
+          expect(await config.get('somekey' as any)).to.deep.equal('');
         });
 
         it('will fall back to defaults', async function () {
@@ -863,13 +867,13 @@ describe('ShellApi', function () {
         });
 
         it('rejects setting unavailable config keys', async function () {
-          expect(await config.set('unavailable', 'value')).to.equal(
+          expect(await config.set('unavailable' as any, 'value')).to.equal(
             'Option "unavailable" is not available in this environment'
           );
         });
 
         it('rejects setting explicitly ignored config keys', async function () {
-          expect(await config.set('ignoreme', 'value')).to.equal(
+          expect(await config.set('ignoreme' as any, 'value')).to.equal(
             'Option "ignoreme" is not available in this environment'
           );
         });
@@ -877,17 +881,17 @@ describe('ShellApi', function () {
         it('rejects setting explicitly invalid config values', async function () {
           store.badvalue = 1; // Make sure the config option exists
           validators.badvalue = (value) => `Bad value ${value} passed`;
-          expect(await config.set('badvalue', 'somevalue')).to.equal(
+          expect(await config.set('badvalue' as any, 'somevalue')).to.equal(
             'Cannot set option "badvalue": Bad value somevalue passed'
           );
         });
       });
 
       context('with a no-config evaluation listener', function () {
-        let config;
+        let config: ShellConfig;
 
         beforeEach(function () {
-          config = instanceState.context.config;
+          config = instanceState.shellApi.config;
         });
 
         it('will work with defaults', async function () {
@@ -905,7 +909,7 @@ describe('ShellApi', function () {
         });
 
         it('rejects setting all config keys', async function () {
-          expect(await config.set('somekey', 'value')).to.equal(
+          expect(await config.set('somekey' as any, 'value')).to.equal(
             'Option "somekey" is not available in this environment'
           );
         });
@@ -915,13 +919,13 @@ describe('ShellApi', function () {
   describe('command completers', function () {
     const params = {
       getCollectionCompletionsForCurrentDb: () => [''],
-      getDatabaseCompletions: (dbName) =>
+      getDatabaseCompletions: (dbName: string) =>
         ['dbOne', 'dbTwo'].filter((s) => s.startsWith(dbName)),
     };
 
     it('provides completions for show', async function () {
       const completer =
-        signatures.ShellApi.attributes.show.shellCommandCompleter;
+        signatures.ShellApi.attributes!.show.shellCommandCompleter!;
       expect(await completer(params, ['show', ''])).to.contain('databases');
       expect(await completer(params, ['show', 'pro'])).to.deep.equal([
         'profile',
@@ -930,7 +934,7 @@ describe('ShellApi', function () {
 
     it('provides completions for use', async function () {
       const completer =
-        signatures.ShellApi.attributes.use.shellCommandCompleter;
+        signatures.ShellApi.attributes!.use.shellCommandCompleter!;
       expect(await completer(params, ['use', ''])).to.deep.equal([
         'dbOne',
         'dbTwo',

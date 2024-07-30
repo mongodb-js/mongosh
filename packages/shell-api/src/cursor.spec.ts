@@ -1,6 +1,9 @@
 import { signatures, toShellResult } from './index';
 import Cursor from './cursor';
-import type { FindCursor as ServiceProviderCursor } from '@mongosh/service-provider-core';
+import type {
+  FindCursor as ServiceProviderCursor,
+  ServiceProviderFindCursor,
+} from '@mongosh/service-provider-core';
 import {
   ALL_PLATFORMS,
   ALL_SERVER_VERSIONS,
@@ -64,8 +67,8 @@ describe('Cursor', function () {
     });
   });
   describe('instance', function () {
-    let wrappee;
-    let cursor;
+    let wrappee: ServiceProviderFindCursor;
+    let cursor: Cursor;
     beforeEach(function () {
       wrappee = {
         map: sinon.spy(),
@@ -73,7 +76,7 @@ describe('Cursor', function () {
         bufferedCount() {
           return 0;
         },
-      };
+      } as Partial<ServiceProviderFindCursor> as ServiceProviderFindCursor;
       cursor = new Cursor(
         {
           _serviceProvider: { platform: 'CLI' },
@@ -96,14 +99,14 @@ describe('Cursor', function () {
     });
 
     it('map() returns a new cursor', function () {
-      expect(cursor.map()).to.equal(cursor);
+      expect(cursor.map((doc) => doc)).to.equal(cursor);
     });
     it('pretty returns the same cursor', function () {
       expect(cursor.pretty()).to.equal(cursor);
     });
 
     it('has the correct metadata', function () {
-      expect(cursor.collation.serverVersions).to.deep.equal([
+      expect((cursor.collation as any).serverVersions).to.deep.equal([
         '3.4.0',
         ServerVersions.latest,
       ]);

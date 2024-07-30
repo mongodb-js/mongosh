@@ -14,7 +14,7 @@ import { bson } from '@mongosh/service-provider-core';
 import type { DevtoolsConnectOptions } from '../../service-provider-server';
 import { CliServiceProvider } from '../../service-provider-server'; // avoid cyclic dep just for test
 import { startSharedTestServer } from '../../../testing/integration-testing-hooks';
-import { makeFakeConfigDatabase } from '../../../testing/shard-test-fake-data';
+import { makeFakeConfigDatabase } from '../test/shard-test-fake-data';
 import sinon from 'ts-sinon';
 import chai, { expect } from 'chai';
 import { EventEmitter } from 'events';
@@ -158,7 +158,7 @@ describe('getPrintableShardStatus', function () {
       if (db === 'admin' && cmd.balancerStatus) {
         return { ok: 1, inBalancerRound };
       }
-      return origRunCommandWithCheck.call(serviceProvider, db, cmd);
+      return origRunCommandWithCheck.call(serviceProvider, db, cmd, {});
     };
 
     await Promise.all(
@@ -188,7 +188,7 @@ describe('getPrintableShardStatus', function () {
   it('returns an object with sharding information', async function () {
     const status = await getPrintableShardStatus(configDatabase, false);
     expect(status.shardingVersion.clusterId).to.be.instanceOf(bson.ObjectId);
-    expect(status.shards.map(({ host }) => host)).to.include(
+    expect(status.shards.map(({ host }: { host: string }) => host)).to.include(
       'shard01/localhost:27018,localhost:27019,localhost:27020'
     );
     expect(status['most recently active mongoses']).to.have.lengthOf(1);
