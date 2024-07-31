@@ -47,6 +47,7 @@ import path from 'path';
 import { getOsInfo } from './get-os-info';
 import { UpdateNotificationManager } from './update-notification-manager';
 import { getTimingData, markTime, summariseTimingData } from './startup-timing';
+import { IdPInfo, OIDCCallbackParams } from 'mongodb';
 
 /**
  * Connecting text key.
@@ -1288,8 +1289,15 @@ export class CliRepl implements MongoshIOProvider {
       return redact === 'include-secrets' ? token : '<non-JWT token>';
     }
 
+    let lastServerIdPInfo: IdPInfo | undefined;
     const { oidcDumpTokens } = this.cliOptions;
     if (oidcDumpTokens) {
+      this.bus.on(
+        'mongodb-oidc-plugin:received-server-params',
+        ({ params: { idpInfo } }) => {
+          lastServerIdPInfo = idpInfo;
+        }
+      );
       this.bus.on(
         'mongodb-oidc-plugin:auth-succeeded',
         ({
@@ -1300,6 +1308,11 @@ export class CliRepl implements MongoshIOProvider {
           tokens: { accessToken: at, refreshToken: rt, idToken: idt },
         }) => {
           const printable = {
+            lastServerIdPInfo: lastServerIdPInfo && {
+              issuer: lastServerIdPInfo?.issuer,
+              clientId: lastServerIdPInfo?.clientId,
+              requestScopes: lastServerIdPInfo?.requestScopes,
+            },
             tokenType,
             refreshToken,
             expiresAt,

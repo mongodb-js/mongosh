@@ -497,6 +497,7 @@ describe('OIDC auth e2e', function () {
     shell.assertContainsOutput('"alg": "RS256"');
     shell.assertContainsOutput('"sub": "testuser"');
     shell.assertNotContainsOutput('"signature":');
+    shell.assertContainsOutput('"lastServerIdPInfo":');
     shell.assertNotContainsOutput(/"refreshToken": "(?!debugid:)/);
 
     shell = TestShell.start({
@@ -516,6 +517,7 @@ describe('OIDC auth e2e', function () {
     shell.assertContainsOutput('"alg": "RS256"');
     shell.assertContainsOutput('"sub": "testuser"');
     shell.assertContainsOutput('"signature":');
+    shell.assertContainsOutput('"lastServerIdPInfo":');
     shell.assertContainsOutput(/"refreshToken": "(?!debugid:)/);
   });
 });
