@@ -55,5 +55,6 @@ export interface CliOptions {
   oidcFlows?: string;
   oidcRedirectUri?: string;
   oidcTrustedEndpoint?: boolean;
+  oidcIdTokenAsAccessToken?: boolean;
   browser?: string | false;
 }

@@ -64,6 +64,7 @@ const OPTIONS = {
     'nodb',
     'norc',
     'oidcTrustedEndpoint',
+    'oidcIdTokenAsAccessToken',
     'perfTests',
     'quiet',
     'retryWrites',
@@ -91,6 +92,7 @@ const OPTIONS = {
     json: 'json', // List explicitly here since it can be a boolean or a string
     browser: 'browser', // ditto
     oidcRedirectUrl: 'oidcRedirectUri', // I'd get this wrong about 50% of the time
+    oidcIDTokenAsAccessToken: 'oidcIdTokenAsAccessToken', // ditto
   },
   configuration: {
     'camel-case-expansion': false,
