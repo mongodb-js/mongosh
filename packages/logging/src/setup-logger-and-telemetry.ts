@@ -632,7 +632,10 @@ export function setupLoggerAndTelemetry(
 
   const deprecatedApiCalls = new MultiSet<Pick<ApiEvent, 'class' | 'method'>>();
   const apiCalls = new MultiSet<Pick<ApiEvent, 'class' | 'method'>>();
+  let apiCallTrackingEnabled = false;
   bus.on('mongosh:api-call', function (ev: ApiEvent) {
+    // Only track if we have previously seen a mongosh:evaluate-started call
+    if (!apiCallTrackingEnabled) return;
     if (ev.deprecated) {
       deprecatedApiCalls.add({ class: ev.class, method: ev.method });
     }
@@ -641,6 +644,7 @@ export function setupLoggerAndTelemetry(
     }
   });
   bus.on('mongosh:evaluate-started', function () {
+    apiCallTrackingEnabled = true;
     // Clear API calls before evaluation starts. This is important because
     // some API calls are also emitted by mongosh CLI repl internals,
     // but we only care about those emitted from user code (i.e. during
@@ -680,6 +684,7 @@ export function setupLoggerAndTelemetry(
     }
     deprecatedApiCalls.clear();
     apiCalls.clear();
+    apiCallTrackingEnabled = false;
   });
 
   // Log ids 1_000_000_034 through 1_000_000_042 are reserved for the
