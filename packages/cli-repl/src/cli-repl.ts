@@ -204,6 +204,8 @@ export class CliRepl implements MongoshIOProvider {
       bus: this.bus,
       ioProvider: this,
     });
+
+    this.setupOIDCTokenDumpListener();
   }
 
   async getIsContainerizedEnvironment() {
@@ -1253,5 +1255,85 @@ export class CliRepl implements MongoshIOProvider {
         .MONGOSH_ASSUME_DIFFERENT_VERSION_FOR_UPDATE_NOTIFICATION_TEST ||
         version
     );
+  }
+
+  private setupOIDCTokenDumpListener() {
+    function tryParseJWT(
+      token: string | null | undefined,
+      redact: 'redact' | 'include-secrets'
+    ): unknown {
+      if (!token) return token;
+      const jwtParts = token.split('.');
+      if (
+        jwtParts.length === 3 &&
+        jwtParts.every(
+          (part) =>
+            Buffer.from(part, 'base64url')
+              .toString('base64url')
+              .replace(/=+$/, '') === part
+        )
+      ) {
+        const [header, payload] = jwtParts.map((part) => {
+          try {
+            return JSON.parse(Buffer.from(part, 'base64url').toString('utf8'));
+          } catch {}
+        });
+        if (redact === 'include-secrets') {
+          return { header, payload, signature: jwtParts[2] };
+        }
+        if (header && payload) {
+          return { header, payload };
+        }
+      }
+      return redact === 'include-secrets' ? token : '<non-JWT token>';
+    }
+
+    const { oidcDumpTokens } = this.cliOptions;
+    if (oidcDumpTokens) {
+      this.bus.on(
+        'mongodb-oidc-plugin:auth-succeeded',
+        ({
+          tokenType,
+          refreshToken, // only an identifier, not the actual token
+          expiresAt,
+          passIdTokenAsAccessToken,
+          tokens: { accessToken: at, refreshToken: rt, idToken: idt },
+        }) => {
+          const printable = {
+            tokenType,
+            refreshToken,
+            expiresAt,
+            passIdTokenAsAccessToken,
+            tokens:
+              oidcDumpTokens === 'include-secrets'
+                ? {
+                    accessToken: tryParseJWT(at, 'include-secrets'),
+                    refreshToken: tryParseJWT(rt, 'include-secrets'),
+                    idToken: tryParseJWT(idt, 'include-secrets'),
+                  }
+                : {
+                    accessToken: tryParseJWT(at, 'redact'),
+                    idToken: tryParseJWT(idt, 'redact'),
+                  },
+          };
+
+          this.output.write(
+            '\n' +
+              this.clr(
+                '----- BEGIN OIDC TOKEN DUMP -----',
+                'mongosh:section-header'
+              ) +
+              '\n' +
+              JSON.stringify(printable, null, 2) +
+              '\n' +
+              this.clr(
+                '----- END OIDC TOKEN DUMP -----',
+                'mongosh:section-header'
+              ) +
+              '\n'
+          );
+        }
+      );
+    }
   }
 }

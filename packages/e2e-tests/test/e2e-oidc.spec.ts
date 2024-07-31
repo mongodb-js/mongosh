@@ -478,4 +478,44 @@ describe('OIDC auth e2e', function () {
     await verifyUser(shell, 'testuser-id', 'testuser-id-group');
     shell.assertNoErrors();
   });
+
+  it('can print tokens as debug information if requested', async function () {
+    shell = TestShell.start({
+      args: [
+        await testServer.connectionString(),
+        '--authenticationMechanism=MONGODB-OIDC',
+        '--oidcRedirectUri=http://localhost:0/',
+        '--oidcDumpTokens',
+        `--browser=${fetchBrowserFixture}`,
+        '--eval=42',
+      ],
+    });
+    await shell.waitForExit();
+
+    shell.assertContainsOutput('BEGIN OIDC TOKEN DUMP');
+    shell.assertContainsOutput('"tokenType": "Bearer"');
+    shell.assertContainsOutput('"alg": "RS256"');
+    shell.assertContainsOutput('"sub": "testuser"');
+    shell.assertNotContainsOutput('"signature":');
+    shell.assertNotContainsOutput(/"refreshToken": "(?!debugid:)/);
+
+    shell = TestShell.start({
+      args: [
+        await testServer.connectionString(),
+        '--authenticationMechanism=MONGODB-OIDC',
+        '--oidcRedirectUri=http://localhost:0/',
+        '--oidcDumpTokens=include-secrets',
+        `--browser=${fetchBrowserFixture}`,
+        '--eval=42',
+      ],
+    });
+    await shell.waitForExit();
+
+    shell.assertContainsOutput('BEGIN OIDC TOKEN DUMP');
+    shell.assertContainsOutput('"tokenType": "Bearer"');
+    shell.assertContainsOutput('"alg": "RS256"');
+    shell.assertContainsOutput('"sub": "testuser"');
+    shell.assertContainsOutput('"signature":');
+    shell.assertContainsOutput(/"refreshToken": "(?!debugid:)/);
+  });
 });
