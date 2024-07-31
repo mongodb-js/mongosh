@@ -4,6 +4,7 @@ import type { StubbedInstance } from 'ts-sinon';
 import { stubInterface } from 'ts-sinon';
 import type { EventEmitter } from 'events';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
+import type { ExplainableCursor } from './index';
 import { signatures, toShellResult } from './index';
 import Database from './database';
 import type Cursor from './cursor';
@@ -31,7 +32,7 @@ describe('Explainable', function () {
       expect(signatures.Explainable.type).to.equal('Explainable');
     });
     it('attributes', function () {
-      expect(signatures.Explainable.attributes.find).to.deep.equal({
+      expect(signatures.Explainable.attributes?.find).to.deep.equal({
         type: 'function',
         returnsPromise: true,
         deprecated: false,
@@ -111,8 +112,8 @@ describe('Explainable', function () {
 
     describe('find', function () {
       context('without options', function () {
-        let cursorStub;
-        let explainResult;
+        let cursorStub: ExplainableCursor;
+        let explainResult: Document;
 
         beforeEach(async function () {
           explainResult = { ok: 1 };
@@ -158,8 +159,8 @@ describe('Explainable', function () {
       });
 
       context('with options', function () {
-        let cursorStub;
-        let explainResult;
+        let cursorStub: ExplainableCursor;
+        let explainResult: Document;
 
         beforeEach(async function () {
           explainResult = { ok: 1 };

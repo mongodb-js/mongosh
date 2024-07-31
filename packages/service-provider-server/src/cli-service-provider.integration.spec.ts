@@ -1,9 +1,20 @@
+import type { DropDatabaseResult } from './cli-service-provider';
 import CliServiceProvider from './cli-service-provider';
 import CompassServiceProvider from './compass/compass-service-provider';
 import { expect } from 'chai';
 import { EventEmitter } from 'events';
 import { MongoClient } from 'mongodb';
-import type { Db } from 'mongodb';
+import type {
+  AggregationCursor,
+  BulkWriteResult,
+  Db,
+  DeleteResult,
+  Document,
+  FindCursor,
+  InsertManyResult,
+  InsertOneResult,
+  UpdateResult,
+} from 'mongodb';
 import {
   skipIfServerVersion,
   startSharedTestServer,
@@ -157,7 +168,7 @@ describe('CliServiceProvider [integration]', function () {
           'topology',
           'extraInfo',
         ]);
-        expect(connectionInfo.buildInfo.version.length > 1);
+        expect(connectionInfo.buildInfo?.version.length).to.be.greaterThan(1);
       });
     });
 
@@ -171,7 +182,7 @@ describe('CliServiceProvider [integration]', function () {
           'topology',
           'extraInfo',
         ]);
-        expect(connectionInfo.buildInfo.version.length > 1);
+        expect(connectionInfo.buildInfo?.version.length).to.be.greaterThan(1);
       });
     });
   });
@@ -182,7 +193,7 @@ describe('CliServiceProvider [integration]', function () {
       function () {
         skipIfServerVersion(testServer, '< 4.4');
 
-        let result;
+        let result: AggregationCursor;
 
         beforeEach(function () {
           const pipeline = [
@@ -190,7 +201,7 @@ describe('CliServiceProvider [integration]', function () {
               $addFields: {
                 'attr.namespace': {
                   $function: {
-                    body: function (value): any {
+                    body: function (value: any): any {
                       if (value) {
                         return value;
                       }
@@ -213,7 +224,7 @@ describe('CliServiceProvider [integration]', function () {
     );
 
     context('when running against a collection', function () {
-      let result;
+      let result: AggregationCursor;
 
       beforeEach(function () {
         result = serviceProvider.aggregate('music', 'bands', [
@@ -228,7 +239,7 @@ describe('CliServiceProvider [integration]', function () {
     });
 
     context('when running against a database', function () {
-      let result;
+      let result: AggregationCursor;
 
       beforeEach(function () {
         result = serviceProvider.aggregateDb('admin', [{ $currentOp: {} }]);
@@ -243,7 +254,7 @@ describe('CliServiceProvider [integration]', function () {
 
   describe('#bulkWrite', function () {
     context('when the filter is empty', function () {
-      let result;
+      let result: BulkWriteResult;
       const requests = [
         {
           insertOne: { name: 'Aphex Twin' },
@@ -259,14 +270,14 @@ describe('CliServiceProvider [integration]', function () {
       });
 
       it('executes the count with an empty filter and resolves the result', function () {
-        expect(result.result.nInserted).to.equal(1);
+        expect((result as any).result.nInserted).to.equal(1);
       });
     });
   });
 
   describe('#count', function () {
     context('when the filter is empty', function () {
-      let result;
+      let result: number;
 
       beforeEach(async function () {
         result = await serviceProvider.count('music', 'bands');
@@ -280,7 +291,7 @@ describe('CliServiceProvider [integration]', function () {
 
   describe('#countDocuments', function () {
     context('when the filter is empty', function () {
-      let result;
+      let result: number;
 
       beforeEach(async function () {
         result = await serviceProvider.countDocuments('music', 'bands');
@@ -294,7 +305,7 @@ describe('CliServiceProvider [integration]', function () {
 
   describe('#deleteMany', function () {
     context('when the filter is empty', function () {
-      let result;
+      let result: DeleteResult;
 
       beforeEach(async function () {
         result = await serviceProvider.deleteMany('music', 'bands', {});
@@ -308,7 +319,7 @@ describe('CliServiceProvider [integration]', function () {
 
   describe('#deleteOne', function () {
     context('when the filter is empty', function () {
-      let result;
+      let result: DeleteResult;
 
       beforeEach(async function () {
         result = await serviceProvider.deleteOne('music', 'bands', {});
@@ -322,7 +333,7 @@ describe('CliServiceProvider [integration]', function () {
 
   describe('#distinct', function () {
     context('when the distinct is valid', function () {
-      let result;
+      let result: Document[];
 
       beforeEach(async function () {
         result = await serviceProvider.distinct('music', 'bands', 'name');
@@ -336,7 +347,7 @@ describe('CliServiceProvider [integration]', function () {
 
   describe('#estimatedDocumentCount', function () {
     context('when no options are provided', function () {
-      let result;
+      let result: number;
 
       beforeEach(async function () {
         result = await serviceProvider.estimatedDocumentCount('music', 'bands');
@@ -350,7 +361,7 @@ describe('CliServiceProvider [integration]', function () {
 
   describe('#find', function () {
     context('when the find is valid', function () {
-      let result;
+      let result: FindCursor;
 
       beforeEach(function () {
         result = serviceProvider.find('music', 'bands', { name: 'Aphex Twin' });
@@ -365,7 +376,7 @@ describe('CliServiceProvider [integration]', function () {
 
   describe('#findOneAndDelete', function () {
     context('when the find is valid', function () {
-      let result;
+      let result: Document | null;
       const filter = { name: 'Aphex Twin' };
 
       beforeEach(async function () {
@@ -377,14 +388,14 @@ describe('CliServiceProvider [integration]', function () {
       });
 
       it('executes the command and resolves the result', function () {
-        expect(result.ok).to.equal(1);
+        expect(result?.ok).to.equal(1);
       });
     });
   });
 
   describe('#findOneAndReplace', function () {
     context('when the find is valid', function () {
-      let result;
+      let result: Document;
       const filter = { name: 'Aphex Twin' };
       const replacement = { name: 'Richard James' };
 
@@ -405,7 +416,7 @@ describe('CliServiceProvider [integration]', function () {
 
   describe('#findOneAndUpdate', function () {
     context('when the find is valid', function () {
-      let result;
+      let result: Document;
       const filter = { name: 'Aphex Twin' };
       const update = { $set: { name: 'Richard James' } };
 
@@ -426,7 +437,7 @@ describe('CliServiceProvider [integration]', function () {
 
   describe('#insertMany', function () {
     context('when the insert is valid', function () {
-      let result;
+      let result: InsertManyResult;
 
       beforeEach(async function () {
         result = await serviceProvider.insertMany('music', 'bands', [
@@ -446,7 +457,7 @@ describe('CliServiceProvider [integration]', function () {
 
   describe('#insertOne', function () {
     context('when the insert is valid', function () {
-      let result;
+      let result: InsertOneResult;
 
       beforeEach(async function () {
         result = await serviceProvider.insertOne('music', 'bands', {
@@ -465,7 +476,7 @@ describe('CliServiceProvider [integration]', function () {
   });
 
   describe('#listDatabases', function () {
-    let result;
+    let result: Document;
 
     beforeEach(async function () {
       result = await serviceProvider.listDatabases('admin');
@@ -473,7 +484,9 @@ describe('CliServiceProvider [integration]', function () {
 
     it('returns a list of databases', function () {
       expect(result.ok).to.equal(1);
-      expect(result.databases.map((db) => db.name)).to.include('admin');
+      expect(
+        result.databases.map((db: { name: string }) => db.name)
+      ).to.include('admin');
     });
   });
 
@@ -482,7 +495,7 @@ describe('CliServiceProvider [integration]', function () {
     const replacement = { name: 'Richard James' };
 
     context('when the filter is empty', function () {
-      let result;
+      let result: UpdateResult;
 
       beforeEach(async function () {
         result = await serviceProvider.replaceOne(
@@ -501,7 +514,7 @@ describe('CliServiceProvider [integration]', function () {
 
   describe('#runCommand', function () {
     context('when the command is valid', function () {
-      let result;
+      let result: Document;
 
       beforeEach(async function () {
         result = await serviceProvider.runCommand('admin', { ismaster: true });
@@ -517,7 +530,7 @@ describe('CliServiceProvider [integration]', function () {
     const filter = { name: 'Aphex Twin' };
     const update = { $set: { name: 'Richard James' } };
     context('when the filter is empty', function () {
-      let result;
+      let result: UpdateResult;
 
       beforeEach(async function () {
         result = await serviceProvider.updateMany(
@@ -538,7 +551,7 @@ describe('CliServiceProvider [integration]', function () {
     const filter = { name: 'Aphex Twin' };
     const update = { $set: { name: 'Richard James' } };
     context('when the filter is empty', function () {
-      let result;
+      let result: UpdateResult;
 
       beforeEach(async function () {
         result = await serviceProvider.updateOne(
@@ -570,7 +583,7 @@ describe('CliServiceProvider [integration]', function () {
 
   describe('#dropDatabase', function () {
     context('when a database does not exist', function () {
-      let result;
+      let result: DropDatabaseResult;
 
       it('returns  {ok: 1}', async function () {
         result = await serviceProvider.dropDatabase(`test-db-${Date.now()}`);
@@ -579,7 +592,7 @@ describe('CliServiceProvider [integration]', function () {
     });
 
     context('when a database exists', function () {
-      let result;
+      let result: DropDatabaseResult;
 
       const dbExists = async (): Promise<boolean> => {
         return (await db.admin().listDatabases()).databases
@@ -734,7 +747,7 @@ describe('CliServiceProvider [integration]', function () {
           (collection) => collection.name === 'coll1'
         );
         expect(matchingCollection).to.not.be.undefined;
-        expect(matchingCollection.options).to.deep.contain({
+        expect(matchingCollection?.options).to.deep.contain({
           clusteredIndex: {
             v: 2,
             key: { _id: 1 },
@@ -792,7 +805,7 @@ describe('CliServiceProvider [integration]', function () {
 
   describe('#driverMetadata', function () {
     it('returns information about the driver instance', function () {
-      expect(serviceProvider.driverMetadata.driver.name).to.equal('nodejs');
+      expect(serviceProvider.driverMetadata?.driver.name).to.equal('nodejs');
     });
   });
 

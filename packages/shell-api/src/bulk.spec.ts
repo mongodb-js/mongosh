@@ -40,7 +40,7 @@ describe('Bulk API', function () {
         expect(signatures.Bulk.type).to.equal('Bulk');
       });
       it('attributes', function () {
-        expect(signatures.Bulk.attributes.find).to.deep.equal({
+        expect(signatures.Bulk.attributes?.find).to.deep.equal({
           type: 'function',
           returnsPromise: false,
           deprecated: false,
@@ -260,7 +260,7 @@ describe('Bulk API', function () {
         expect(signatures.BulkFindOp.type).to.equal('BulkFindOp');
       });
       it('attributes', function () {
-        expect(signatures.BulkFindOp.attributes.hint).to.deep.equal({
+        expect(signatures.BulkFindOp.attributes?.hint).to.deep.equal({
           type: 'function',
           returnsPromise: false,
           deprecated: false,

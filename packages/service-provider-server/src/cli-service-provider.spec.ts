@@ -1,5 +1,6 @@
 import { CommonErrors } from '@mongosh/errors';
 import chai, { expect } from 'chai';
+import type { ClientSession, SearchIndexDescription } from 'mongodb';
 import { Collection, Db, MongoClient } from 'mongodb';
 import sinonChai from 'sinon-chai';
 import type { StubbedInstance } from 'ts-sinon';
@@ -11,6 +12,8 @@ import { EventEmitter } from 'events';
 import type {
   ClientEncryption,
   ClientEncryptionDataKeyProvider,
+  Document,
+  IndexDescription,
 } from '@mongosh/service-provider-core';
 
 chai.use(sinonChai);
@@ -34,7 +37,9 @@ const DEFAULT_BASE_OPTS = { serializeFunctions: true, promoteLongs: false };
  *
  * @returns {Stub} The client stub to pass to the transport.
  */
-const createClientStub = (collectionStub): StubbedInstance<MongoClient> => {
+const createClientStub = (
+  collectionStub: StubbedInstance<Collection>
+): StubbedInstance<MongoClient> => {
   const clientStub = stubInterface<MongoClient>();
   const dbStub = stubInterface<Db>();
   dbStub.collection.returns(collectionStub);
@@ -49,11 +54,15 @@ describe('CliServiceProvider', function () {
 
   beforeEach(function () {
     bus = new EventEmitter();
+    collectionStub = stubInterface<Collection>();
+    serviceProvider = new CliServiceProvider({} as any, bus, dummyOptions);
   });
 
   describe('#constructor', function () {
     const mongoClient: any = sinon.spy();
-    serviceProvider = new CliServiceProvider(mongoClient, bus, dummyOptions);
+    beforeEach(function () {
+      serviceProvider = new CliServiceProvider(mongoClient, bus, dummyOptions);
+    });
 
     it('sets the mongo client on the instance', function () {
       expect((serviceProvider as any).mongoClient).to.equal(mongoClient);
@@ -445,12 +454,6 @@ describe('CliServiceProvider', function () {
       serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
     });
 
-    afterEach(function () {
-      dbStub = null;
-      clientStub = null;
-      serviceProvider = null;
-    });
-
     it('executes the command against the database', async function () {
       const result = await serviceProvider.runCommand('admin', { ismaster: 1 });
       expect(result).to.deep.equal(commandResult);
@@ -469,12 +472,6 @@ describe('CliServiceProvider', function () {
       dbStub.command.resolves(commandResult);
       clientStub.db.returns(dbStub);
       serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
-    });
-
-    afterEach(function () {
-      dbStub = null;
-      clientStub = null;
-      serviceProvider = null;
     });
 
     it('executes the command against the database and throws if ok: 0', async function () {
@@ -501,12 +498,6 @@ describe('CliServiceProvider', function () {
       dbStub.runCursorCommand.returns(commandResult);
       clientStub.db.returns(dbStub);
       serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
-    });
-
-    afterEach(function () {
-      dbStub = null;
-      clientStub = null;
-      serviceProvider = null;
     });
 
     it('executes the command against the database', function () {
@@ -623,18 +614,13 @@ describe('CliServiceProvider', function () {
   });
 
   describe('#createIndexes', function () {
-    let indexSpecs;
-    let nativeMethodResult;
+    let indexSpecs: IndexDescription[];
+    let nativeMethodResult: string[];
 
     beforeEach(function () {
-      indexSpecs = [{ key: 'x' }];
+      indexSpecs = [{ key: { key: 1 } }];
 
-      nativeMethodResult = {
-        createdCollectionAutomatically: false,
-        numIndexesBefore: 2,
-        numIndexesAfter: 3,
-        ok: 1,
-      };
+      nativeMethodResult = ['key_1'];
 
       collectionStub = stubInterface<Collection>();
       collectionStub.createIndexes.resolves(nativeMethodResult);
@@ -657,8 +643,8 @@ describe('CliServiceProvider', function () {
   });
 
   describe('#getIndexes', function () {
-    let indexSpecs;
-    let nativeMethodResult;
+    let indexSpecs: Document[];
+    let nativeMethodResult: any;
 
     beforeEach(function () {
       indexSpecs = [{ key: 'x' }];
@@ -843,11 +829,11 @@ describe('CliServiceProvider', function () {
     let clientStub: StubbedInstance<MongoClient>;
     let serviceProvider: CliServiceProvider;
     let db: StubbedInstance<Db>;
-    let driverSession;
+    let driverSession: ClientSession;
     beforeEach(function () {
       clientStub = stubInterface<MongoClient>();
       serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
-      driverSession = { dSession: 1 };
+      driverSession = { dSession: 1 } as any;
       clientStub.startSession.returns(driverSession);
       db = stubInterface<Db>();
       clientStub.db.returns(db);
@@ -863,12 +849,12 @@ describe('CliServiceProvider', function () {
   });
 
   describe('#watch', function () {
-    let options;
-    let expectedResult;
-    let watchMock;
-    let watchMock2;
-    let watchMock3;
-    let pipeline;
+    let options: Document;
+    let expectedResult: Document;
+    let watchMock: sinon.SinonStub;
+    let watchMock2: sinon.SinonStub;
+    let watchMock3: sinon.SinonStub;
+    let pipeline: Document[];
 
     beforeEach(function () {
       pipeline = [{ $match: { operationType: 'insertOne' } }];
@@ -892,15 +878,15 @@ describe('CliServiceProvider', function () {
         .returns(expectedResult);
 
       const collectionStub = sinon.createStubInstance(Collection, {
-        watch: watchMock3,
+        watch: watchMock3 as any,
       });
       const dbStub = sinon.createStubInstance(Db, {
-        watch: watchMock2,
+        watch: watchMock2 as any,
         collection: sinon.stub().returns(collectionStub) as any,
       });
       const clientStub = sinon.createStubInstance(MongoClient, {
         db: sinon.stub().returns(dbStub) as any,
-        watch: watchMock,
+        watch: watchMock as any,
       }) as any;
 
       serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
@@ -909,12 +895,12 @@ describe('CliServiceProvider', function () {
     it('executes watch on MongoClient', function () {
       const result = serviceProvider.watch(pipeline, options);
       expect(result).to.deep.equal(expectedResult);
-      (watchMock as any).verify();
+      expect(watchMock).to.have.been.calledOnce;
     });
     it('executes watch on Db', function () {
       const result = serviceProvider.watch(pipeline, options, {}, 'dbname');
       expect(result).to.deep.equal(expectedResult);
-      (watchMock2 as any).verify();
+      expect(watchMock2).to.have.been.calledOnce;
     });
     it('executes watch on collection', function () {
       const result = serviceProvider.watch(
@@ -925,7 +911,7 @@ describe('CliServiceProvider', function () {
         'collname'
       );
       expect(result).to.deep.equal(expectedResult);
-      (watchMock3 as any).verify();
+      expect(watchMock3).to.have.been.calledOnce;
     });
   });
 
@@ -955,19 +941,13 @@ describe('CliServiceProvider', function () {
       serviceProvider.getNewConnection = () => Promise.resolve(serviceProvider);
     });
 
-    afterEach(function () {
-      dbStub = null;
-      clientStub = null;
-      serviceProvider = null;
-    });
-
     it('returns some connection info data', async function () {
       const info = await serviceProvider.getConnectionInfo();
-      expect(info.extraInfo.is_atlas).to.equal(false);
-      expect(info.extraInfo.atlas_hostname).to.equal(null);
-      expect(info.extraInfo.is_local_atlas).to.equal(false);
-      expect(info.extraInfo.is_localhost).to.equal(true);
-      expect(info.extraInfo.fcv).to.equal(undefined);
+      expect(info.extraInfo?.is_atlas).to.equal(false);
+      expect(info.extraInfo?.atlas_hostname).to.equal(null);
+      expect(info.extraInfo?.is_local_atlas).to.equal(false);
+      expect(info.extraInfo?.is_localhost).to.equal(true);
+      expect(info.extraInfo?.fcv).to.equal(undefined);
       expect(dbStub.command).to.have.callCount(3);
       expect(
         dbStub.collection,
@@ -990,9 +970,9 @@ describe('CliServiceProvider', function () {
         );
 
         const info = await serviceProvider.getConnectionInfo();
-        expect(info.extraInfo.is_genuine).to.be.true;
-        expect(info.extraInfo.is_atlas).to.be.true;
-        expect(info.extraInfo.atlas_hostname).to.equal(
+        expect(info.extraInfo?.is_genuine).to.be.true;
+        expect(info.extraInfo?.is_atlas).to.be.true;
+        expect(info.extraInfo?.atlas_hostname).to.equal(
           'test-data-sets-00-02-a011bb.mongodb.net'
         );
       });
@@ -1010,8 +990,8 @@ describe('CliServiceProvider', function () {
         );
 
         const info = await serviceProvider.getConnectionInfo();
-        expect(info.extraInfo.is_genuine).to.be.false;
-        expect(info.extraInfo.non_genuine_server_name).to.equal('documentdb');
+        expect(info.extraInfo?.is_genuine).to.be.false;
+        expect(info.extraInfo?.non_genuine_server_name).to.equal('documentdb');
       });
     });
 
@@ -1027,8 +1007,8 @@ describe('CliServiceProvider', function () {
         );
 
         const info = await serviceProvider.getConnectionInfo();
-        expect(info.extraInfo.is_genuine).to.be.false;
-        expect(info.extraInfo.non_genuine_server_name).to.equal('cosmosdb');
+        expect(info.extraInfo?.is_genuine).to.be.false;
+        expect(info.extraInfo?.non_genuine_server_name).to.equal('cosmosdb');
       });
     });
   });
@@ -1124,9 +1104,9 @@ describe('CliServiceProvider', function () {
   });
 
   describe('#getSearchIndexes', function () {
-    let descriptions;
-    let nativeMethodResult;
-    let getSearchIndexesOptions;
+    let descriptions: Document[];
+    let nativeMethodResult: any;
+    let getSearchIndexesOptions: Document;
 
     beforeEach(function () {
       descriptions = [{ name: 'foo' }, { name: 'bar' }];
@@ -1153,12 +1133,11 @@ describe('CliServiceProvider', function () {
         const result = await serviceProvider.getSearchIndexes(
           'db1',
           'coll1',
-          null,
+          undefined,
           getSearchIndexesOptions
         );
         expect(result).to.deep.equal(descriptions);
         expect(collectionStub.listSearchIndexes).to.have.been.calledWith(
-          null,
           getSearchIndexesOptions
         );
       });
@@ -1182,8 +1161,8 @@ describe('CliServiceProvider', function () {
   });
 
   describe('#createSearchIndexes', function () {
-    let descriptions;
-    let nativeMethodResult;
+    let descriptions: SearchIndexDescription[];
+    let nativeMethodResult: string[];
 
     beforeEach(function () {
       descriptions = [
@@ -1216,7 +1195,7 @@ describe('CliServiceProvider', function () {
   });
 
   describe('#dropSearchIndex', function () {
-    let indexName;
+    let indexName: string;
 
     beforeEach(function () {
       indexName = 'foo';
@@ -1242,12 +1221,12 @@ describe('CliServiceProvider', function () {
   });
 
   describe('#updateSearchIndex', function () {
-    let indexName;
-    let description;
+    let indexName: string;
+    let description: SearchIndexDescription;
 
     beforeEach(function () {
       indexName = 'foo';
-      description = { x: 1, y: 2 };
+      description = { definition: { x: 1, y: 2 } };
 
       collectionStub = stubInterface<Collection>();
 

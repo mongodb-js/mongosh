@@ -1,27 +1,44 @@
 import util from 'util';
-import {expect} from 'chai';
+import { expect } from 'chai';
+import type { Database, Mongo, ReplicaSet } from '../src';
 
 export const delay = util.promisify(setTimeout);
 
-export const ensureMaster = async(cls, timeout, hp): Promise<void> => {
+export const ensureMaster = async (
+  cls: Database | ReplicaSet,
+  timeout: number,
+  hostport: string
+): Promise<void> => {
   while (!(await cls.hello()).isWritablePrimary) {
     if (timeout > 32000) {
-      return expect.fail(`Waited for ${hp} to become primary, never happened`);
+      return expect.fail(
+        `Waited for ${hostport} to become primary, never happened`
+      );
     }
     await delay(timeout);
     timeout *= 2; // try again but wait double
   }
 };
 
-const localSessionIds = async(mongo) => {
-  return (await (await mongo.getDB('config').aggregate([{ $listLocalSessions: {} }])).toArray()).map(k => JSON.stringify(k._id.id));
+const localSessionIds = async (mongo: Mongo) => {
+  return (
+    await (
+      await mongo.getDB('config').aggregate([{ $listLocalSessions: {} }])
+    ).toArray()
+  ).map((k) => JSON.stringify(k._id.id));
 };
 
-export const ensureSessionExists = async(mongo, timeout, sessionId): Promise<void> => {
+export const ensureSessionExists = async (
+  mongo: Mongo,
+  timeout: number,
+  sessionId: string
+): Promise<void> => {
   let ls = await localSessionIds(mongo);
   while (!ls.includes(sessionId)) {
     if (timeout > 32000) {
-      throw new Error(`Waited for session id ${sessionId}, never happened ${ls}`);
+      throw new Error(
+        `Waited for session id ${sessionId}, never happened ${ls}`
+      );
     }
     await delay(timeout);
     timeout *= 2; // try again but wait double
@@ -29,10 +46,16 @@ export const ensureSessionExists = async(mongo, timeout, sessionId): Promise<voi
   }
 };
 
-export const ensureResult = async <T = any>(timeout: number, getFn: () => T | Promise<T>, testFn: (T) => boolean, failMsg: string): Promise<any> => {
+export const ensureResult = async <T = any>(
+  timeout: number,
+  getFn: () => T | Promise<T>,
+  testFn: (val: T) => boolean,
+  failMsg: string
+): Promise<any> => {
   let result = await getFn();
-  while(!testFn(result)) {
+  while (!testFn(result)) {
     if (timeout > 1000) {
+      // eslint-disable-next-line no-console
       console.log(`looping at timeout=${timeout}, result=${result}`);
     }
     if (timeout > 30000) {
@@ -45,14 +68,17 @@ export const ensureResult = async <T = any>(timeout: number, getFn: () => T | Pr
   return result;
 };
 
-export function createRetriableMethod<T extends { [K in F]: (...args: any[]) => Promise<any> }, F extends keyof T>(
+export function createRetriableMethod<
+  T extends { [K in F]: (...args: any[]) => Promise<any> },
+  F extends keyof T
+>(
   target: T,
   method: F,
   options?: {
-    totalRetries?: number,
-    initialSleepInterval?: number,
-    backoffFactor?: number,
-    noiseThreshold: number,
+    totalRetries?: number;
+    initialSleepInterval?: number;
+    backoffFactor?: number;
+    noiseThreshold: number;
   }
 ): T[F] {
   const totalRetries = options?.totalRetries ?? 12;
@@ -66,7 +92,7 @@ export function createRetriableMethod<T extends { [K in F]: (...args: any[]) => 
   }
 
   let timeout = 0;
-  const retriableFunc = async(...args: any) => {
+  const retriableFunc = async (...args: any) => {
     let lastErr: any;
     let sleepInterval = initialSleepInterval;
     for (let i = 0; i < totalRetries; i++) {
@@ -74,7 +100,8 @@ export function createRetriableMethod<T extends { [K in F]: (...args: any[]) => 
         return await func.apply(target, args);
       } catch (e) {
         // start to be noisy after % of attempts failed
-        if (i > (totalRetries * noiseThreshold)) {
+        if (i > totalRetries * noiseThreshold) {
+          // eslint-disable-next-line no-console
           console.info(`${method.toString()} did not succeed yet. Error:`, e);
         }
 
@@ -91,7 +118,9 @@ export function createRetriableMethod<T extends { [K in F]: (...args: any[]) => 
     Object.assign(lastErr, {
       timedOut: true,
       timeout,
-      message: `[Timed out ${timeout}ms] - ${String(method)} - ${lastErr.message}`
+      message: `[Timed out ${timeout}ms] - ${String(method)} - ${
+        lastErr.message
+      }`,
     });
 
     throw lastErr;
