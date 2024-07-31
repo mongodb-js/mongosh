@@ -212,14 +212,20 @@ class CliServiceProvider
   ): Promise<CliServiceProvider> {
     let resolvedSrvConnectionString;
 
-    bus.on(
-      'devtools-connect:resolve-srv-succeeded',
-      (ev: ConnectResolveSrvSucceededEvent) => {
-        resolvedSrvConnectionString = new ConnectionString(ev.to, {
-          looseValidation: true,
-        });
-      }
-    );
+    try {
+      bus.on(
+        'devtools-connect:resolve-srv-succeeded',
+        (ev: ConnectResolveSrvSucceededEvent) => {
+          resolvedSrvConnectionString = new ConnectionString(ev.to, {
+            looseValidation: true,
+          });
+        }
+      );
+    } catch (error) {
+      // We cannot listen for an event on the mongosh bus of the application
+      // which runs in the node-runtimer-worker-thread environment, i.e. Compass Shell.
+      // The on() method on a normal event emitter should never throw.
+    }
 
     const connectionString = new ConnectionString(uri || 'mongodb://nodb/');
     const clientOptions = this.processDriverOptions(
