@@ -1,7 +1,6 @@
 // ^ segment data is in snake_case: forgive me javascript, for i have sinned.
 
 import getBuildInfo from 'mongodb-build-info';
-import { getCloudInfo } from 'mongodb-cloud-info';
 
 export type ConnectionExtraInfo = {
   is_atlas?: boolean;
@@ -36,6 +35,7 @@ async function getPublicCloudInfo(host: string): Promise<{
   is_public_cloud?: boolean;
 }> {
   try {
+    const { getCloudInfo } = await import('mongodb-cloud-info');
     const { isAws, isAzure, isGcp } = await getCloudInfo(host);
 
     const public_cloud_name = isAws
@@ -55,6 +55,7 @@ async function getPublicCloudInfo(host: string): Promise<{
       public_cloud_name,
     };
   } catch (err) {
+    // Cannot resolve dns used by mongodb-cloud-info in the browser environment.
     return {};
   }
 }
