@@ -241,6 +241,7 @@ describe('CliServiceProvider', function () {
       expect(collectionStub.find).to.have.been.calledWith(filter);
     });
   });
+
   describe('#find with options', function () {
     const filter = { name: 'Aphex Twin' };
     const findResult = [{ name: 'Aphex Twin' }];
@@ -963,6 +964,7 @@ describe('CliServiceProvider', function () {
     it('returns some connection info data', async function () {
       const info = await serviceProvider.getConnectionInfo();
       expect(info.extraInfo.is_atlas).to.equal(false);
+      expect(info.extraInfo.atlas_hostname).to.equal(null);
       expect(info.extraInfo.is_local_atlas).to.equal(false);
       expect(info.extraInfo.is_localhost).to.equal(true);
       expect(info.extraInfo.fcv).to.equal(undefined);
@@ -971,6 +973,29 @@ describe('CliServiceProvider', function () {
         dbStub.collection,
         'calls countDocument on collection to check local atlas cli support'
       ).to.have.callCount(1);
+    });
+
+    context('when connected to an Atlas deployment', function () {
+      it('correctly gathers info on the fake deployment', async function () {
+        const serviceProvider = new CliServiceProvider(
+          clientStub,
+          bus,
+          dummyOptions,
+          new ConnectionString(
+            'mongodb+srv://test-data-sets-a011bb.mongodb.net/admin'
+          ),
+          new ConnectionString(
+            'mongodb://test-data-sets-00-02-a011bb.mongodb.net,test-data-sets-00-00-a011bb.mongodb.net,test-data-sets-shard-00-01-a011bb-e06dc.mongodb.net/admin?appName=mongosh+0.0.0-test.0&authSource=admin&replicaSet=test-data-sets-0&tls=true'
+          )
+        );
+
+        const info = await serviceProvider.getConnectionInfo();
+        expect(info.extraInfo.is_genuine).to.be.true;
+        expect(info.extraInfo.is_atlas).to.be.true;
+        expect(info.extraInfo.atlas_hostname).to.equal(
+          'test-data-sets-00-02-a011bb.mongodb.net'
+        );
+      });
     });
 
     context('when connected to a DocumentDB deployment', function () {

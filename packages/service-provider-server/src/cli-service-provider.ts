@@ -70,7 +70,10 @@ import {
   ServiceProviderCore,
 } from '@mongosh/service-provider-core';
 
-import type { DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
+import type {
+  ConnectResolveSrvSucceededEvent,
+  DevtoolsConnectOptions,
+} from '@mongodb-js/devtools-connect';
 import { MongoshCommandFailed, MongoshInternalError } from '@mongosh/errors';
 import type { MongoshBus } from '@mongosh/types';
 import { forceCloseMongoClient } from './mongodb-patches';
@@ -206,6 +209,17 @@ class CliServiceProvider
     cliOptions: { nodb?: boolean } = {},
     bus: MongoshBus = new EventEmitter() // TODO: Change VSCode to pass all arguments, then remove defaults
   ): Promise<CliServiceProvider> {
+    let resolvedSrvConnectionString;
+
+    bus.on(
+      'devtools-connect:resolve-srv-succeeded',
+      (ev: ConnectResolveSrvSucceededEvent) => {
+        resolvedSrvConnectionString = new ConnectionString(ev.to, {
+          looseValidation: true,
+        });
+      }
+    );
+
     const connectionString = new ConnectionString(uri || 'mongodb://nodb/');
     const clientOptions = this.processDriverOptions(
       null,
@@ -250,13 +264,20 @@ class CliServiceProvider
     }
     clientOptions.parentState = state;
 
-    return new this(client, bus, clientOptions, connectionString);
+    return new this(
+      client,
+      bus,
+      clientOptions,
+      connectionString,
+      resolvedSrvConnectionString
+    );
   }
 
   public readonly platform: ReplPlatform;
   public readonly initialDb: string;
   public mongoClient: MongoClient; // public for testing
   private readonly uri?: ConnectionString;
+  private resolvedSrvUri?: ConnectionString;
   private currentClientOptions: DevtoolsConnectOptions;
   private dbcache: WeakMap<MongoClient, Map<string, Db>>;
   public baseCmdOptions: OperationOptions; // public for testing
@@ -274,10 +295,12 @@ class CliServiceProvider
     mongoClient: MongoClient,
     bus: MongoshBus,
     clientOptions: DevtoolsConnectOptions,
-    uri?: ConnectionString
+    uri?: ConnectionString,
+    resolvedSrvUri?: ConnectionString
   ) {
     super(bsonlib());
 
+    this.resolvedSrvUri = resolvedSrvUri;
     this.bus = bus;
     this.mongoClient = mongoClient;
     this.uri = uri;
@@ -390,6 +413,7 @@ class CliServiceProvider
   ): Promise<CliServiceProvider> {
     const connectionString = new ConnectionString(uri);
     const clientOptions = this.processDriverOptions(connectionString, options);
+
     const { client, state } = await this.connectMongoClient(
       connectionString.toString(),
       clientOptions
@@ -406,6 +430,7 @@ class CliServiceProvider
   async getConnectionInfo(): Promise<ConnectionInfo> {
     const topology = this.getTopology();
     const { version } = require('../package.json');
+    const uri = this.uri?.toString() ?? '';
     const [buildInfo = null, atlasVersion = null, fcv = null, atlascliInfo] =
       await Promise.all([
         this.runCommandWithCheck(
@@ -429,14 +454,17 @@ class CliServiceProvider
       ]);
 
     const isLocalAtlasCli = !!atlascliInfo;
+    const resolvedUri = this.uri?.isSRV ? this.resolvedSrvUri : this.uri;
+    const resolvedHostname = resolvedUri?.hosts[0] || null;
 
-    const extraConnectionInfo = getConnectExtraInfo(
-      this.uri?.toString() ?? '',
+    const extraConnectionInfo = await getConnectExtraInfo(
+      uri,
       version,
       buildInfo,
       atlasVersion,
       topology,
-      isLocalAtlasCli
+      isLocalAtlasCli,
+      resolvedHostname
     );
 
     return {

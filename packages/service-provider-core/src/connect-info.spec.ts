@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import getConnectInfo from './connect-info';
+import getConnectExtraInfo from './connect-info';
 
 describe('getConnectInfo', function () {
   const BUILD_INFO = {
@@ -59,13 +59,15 @@ describe('getConnectInfo', function () {
   };
 
   const ATLAS_URI =
-    'mongodb+srv://admin:catscatscats@cat-data-sets.cats.example.net/admin';
+    'mongodb+srv://admin:catscatscats@cat-data-sets.cats.mongodb.net/admin';
 
-  it('reports on an enterprise version >=3.2 of mongodb with credentials', function () {
+  it('reports on an enterprise version >=3.2 of mongodb with credentials', async function () {
     const output = {
       is_atlas: true,
+      is_atlas_url: true,
+      atlas_hostname: 'cat-data-sets-00-00.cats.mongodb.net',
       is_localhost: false,
-      is_do: false,
+      is_do_url: false,
       server_version: '3.2.0-rc2',
       mongosh_version: '0.0.6',
       is_enterprise: true,
@@ -83,22 +85,25 @@ describe('getConnectInfo', function () {
       is_local_atlas: false,
     };
     expect(
-      getConnectInfo(
+      await getConnectExtraInfo(
         ATLAS_URI,
         '0.0.6',
         BUILD_INFO,
         ATLAS_VERSION,
         TOPOLOGY_WITH_CREDENTIALS,
-        false
+        false,
+        'cat-data-sets-00-00.cats.mongodb.net'
       )
     ).to.deep.equal(output);
   });
 
-  it('reports on an enterprise version >=3.2 of mongodb with no credentials', function () {
+  it('reports on an enterprise version >=3.2 of mongodb with no credentials', async function () {
     const output = {
       is_atlas: true,
+      is_atlas_url: true,
+      atlas_hostname: 'test-data-sets-00-02-a011bb.mongodb.net',
       is_localhost: false,
-      is_do: false,
+      is_do_url: false,
       server_version: '3.2.0-rc2',
       mongosh_version: '0.0.6',
       is_enterprise: true,
@@ -116,24 +121,28 @@ describe('getConnectInfo', function () {
       is_local_atlas: false,
     };
     expect(
-      getConnectInfo(
+      await getConnectExtraInfo(
         ATLAS_URI,
         '0.0.6',
         BUILD_INFO,
         ATLAS_VERSION,
         TOPOLOGY_NO_CREDENTIALS,
-        false
+        false,
+        'test-data-sets-00-02-a011bb.mongodb.net'
       )
     ).to.deep.equal(output);
   });
 
-  it('reports correct information when a stream uri is passed', function () {
+  it('reports correct information when a stream uri is passed', async function () {
     const streamUri =
       'mongodb://atlas-stream-67b8e1cd6d60357be377be7b-1dekw.virginia-usa.a.query.mongodb-dev.net/';
     const output = {
       is_atlas: true,
+      is_atlas_url: true,
+      atlas_hostname:
+        'atlas-stream-67b8e1cd6d60357be377be7b-1dekw.virginia-usa.a.query.mongodb-dev.net',
       is_localhost: false,
-      is_do: false,
+      is_do_url: false,
       server_version: '3.2.0-rc2',
       mongosh_version: '0.0.6',
       is_enterprise: true,
@@ -149,24 +158,29 @@ describe('getConnectInfo', function () {
       node_version: process.version,
       server_os: 'osx',
       uri: streamUri,
+      is_public_cloud: true,
+      public_cloud_name: 'AWS',
     };
     expect(
-      getConnectInfo(
+      await getConnectExtraInfo(
         streamUri,
         '0.0.6',
         BUILD_INFO,
         null,
         TOPOLOGY_WITH_CREDENTIALS,
-        false
+        false,
+        'atlas-stream-67b8e1cd6d60357be377be7b-1dekw.virginia-usa.a.query.mongodb-dev.net'
       )
     ).to.deep.equal(output);
   });
 
-  it('reports correct information when an empty uri is passed', function () {
+  it('reports correct information when an empty uri is passed', async function () {
     const output = {
       is_atlas: false,
-      is_localhost: false,
-      is_do: false,
+      is_atlas_url: false,
+      atlas_hostname: null,
+      is_localhost: true,
+      is_do_url: false,
       server_version: '3.2.0-rc2',
       mongosh_version: '0.0.6',
       is_enterprise: true,
@@ -182,24 +196,28 @@ describe('getConnectInfo', function () {
       server_os: 'osx',
       uri: '',
       is_local_atlas: true,
+      is_public_cloud: false,
     };
     expect(
-      getConnectInfo(
+      await getConnectExtraInfo(
         '',
         '0.0.6',
         BUILD_INFO,
         null,
         TOPOLOGY_WITH_CREDENTIALS,
-        true
+        true,
+        'localhost'
       )
     ).to.deep.equal(output);
   });
 
-  it('does not fail when buildInfo is unavailable', function () {
+  it('does not fail when buildInfo is unavailable', async function () {
     const output = {
       is_atlas: false,
+      is_atlas_url: false,
+      atlas_hostname: null,
       is_localhost: false,
-      is_do: false,
+      is_do_url: false,
       server_version: undefined,
       mongosh_version: '0.0.6',
       is_enterprise: false,
@@ -217,7 +235,15 @@ describe('getConnectInfo', function () {
       is_local_atlas: false,
     };
     expect(
-      getConnectInfo('', '0.0.6', null, null, TOPOLOGY_WITH_CREDENTIALS, false)
+      await getConnectExtraInfo(
+        '',
+        '0.0.6',
+        null,
+        null,
+        TOPOLOGY_WITH_CREDENTIALS,
+        false,
+        null
+      )
     ).to.deep.equal(output);
   });
 });
