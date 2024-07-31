@@ -268,13 +268,13 @@ describe('Field Level Encryption', function () {
       };
 
       const options = {
-        algorithm: 'RangePreview',
-        queryType: 'rangePreview',
+        algorithm: 'Range',
+        queryType: 'range',
         contentionFactor: 0,
         rangeOptions: {
           sparsity: new bson.Long(1),
         },
-      } as const;
+      } as any; // TODO Needs a driver update to get correct types.
 
       it('calls encryptExpression with algorithm on libmongoc', async function () {
         libmongoc.encryptExpression.resolves();

@@ -34,7 +34,9 @@ export async function downloadCryptLibrary(
   );
   // Download mongodb for latest server version, including rapid releases
   // (for the platforms that they exist for, i.e. for ppc64le/s390x only pick stable releases).
-  let versionSpec = 'continuous';
+  // TODO(MONGOSH-1833): The current 'continuous' release is not compatible with 8.x rc server releases. So we are using
+  // 8.0.0-rc15 (current latest) for now and once 8.0 is released we should switch back to continuous.
+  let versionSpec = '8.0.0-rc15';
   if (/ppc64/.test(opts.arch || process.arch)) {
     versionSpec = 'stable';
   }
@@ -75,9 +77,9 @@ function lookupReleaseDistro(packageVariant: PackageVariant): {
     case 's390x':
       return { platform: 'linux', distro: 'rhel72' };
     case 'arm64':
-      return { platform: 'linux', distro: 'amazon2' };
+      return { platform: 'linux', distro: 'amazon2023' };
     case 'x64':
-      return { platform: 'linux', distro: 'rhel70' };
+      return { platform: 'linux', distro: 'rhel80' };
     default:
       break;
   }
