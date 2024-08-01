@@ -237,6 +237,7 @@ const MAPPINGS: {
       'allowedFlows',
       v.split(',').filter(Boolean) as OIDCOptions['allowedFlows']
     ),
+  oidcIdTokenAsAccessToken: (i, v) => setOIDC(i, 'passIdTokenAsAccessToken', v),
   browser: (i, v) =>
     setOIDC(i, 'openBrowser', typeof v === 'string' ? { command: v } : v),
 };

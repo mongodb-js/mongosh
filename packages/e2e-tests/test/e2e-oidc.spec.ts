@@ -31,6 +31,7 @@ describe('OIDC auth e2e', function () {
   let tokenFetches: number;
   let testServer: MongoRunnerSetup;
   let testServer2: MongoRunnerSetup;
+  let testServer3: MongoRunnerSetup;
   let oidcMockProviderConfig: OIDCMockProviderConfig;
   let oidcMockProvider: OIDCMockProvider;
   let oidcMockProviderHttps: OIDCMockProvider;
@@ -127,7 +128,26 @@ describe('OIDC auth e2e', function () {
         ...commonOidcServerArgs,
       ],
     });
-    await Promise.all([testServer.start(), testServer2.start()]);
+    testServer3 = new MongoRunnerSetup('e2e-oidc-test-idtoken', {
+      args: [
+        '--setParameter',
+        `oidcIdentityProviders=${JSON.stringify([
+          {
+            ...serverOidcConfig,
+            // When using ID tokens as access tokens, clientId and audience need to match
+            // (otherwise they usually should not)
+            clientId: 'testServer3',
+            audience: 'testServer3',
+          },
+        ])}`,
+        ...commonOidcServerArgs,
+      ],
+    });
+    await Promise.all([
+      testServer.start(),
+      testServer2.start(),
+      testServer3.start(),
+    ]);
   });
 
   beforeEach(function () {
@@ -151,6 +171,7 @@ describe('OIDC auth e2e', function () {
     await Promise.all([
       testServer?.stop(),
       testServer2?.stop(),
+      testServer3?.stop(),
       oidcMockProvider?.close(),
       oidcMockProviderHttps?.close(),
     ]);
@@ -409,5 +430,94 @@ describe('OIDC auth e2e', function () {
     shell.assertContainsOutput(
       /Unable to fetch issuer metadata for "https:\/\/localhost:\d+"/
     );
+  });
+
+  it('can successfully authenticate using the ID token rather than access token if requested', async function () {
+    const originalGetTokenPayload = getTokenPayload;
+    getTokenPayload = (metadata) => {
+      return {
+        ...originalGetTokenPayload(metadata),
+        payload: {
+          sub: 'testuser-at',
+          groups: ['testuser-at-group'],
+          aud: 'testServer3',
+        },
+        customIdTokenPayload: {
+          sub: 'testuser-id',
+          groups: ['testuser-id-group'],
+          aud: 'testServer3',
+        },
+      };
+    };
+
+    // Consistency check: ID token is *not* used by default
+    shell = TestShell.start({
+      args: [
+        await testServer3.connectionString(),
+        '--authenticationMechanism=MONGODB-OIDC',
+        '--oidcRedirectUri=http://localhost:0/',
+        `--browser=${fetchBrowserFixture}`,
+      ],
+    });
+    await shell.waitForPrompt();
+
+    await verifyUser(shell, 'testuser-at', 'testuser-at-group');
+
+    // Actual test: ID token data is used when --oidcIdTokenAsAccessToken is set
+    shell = TestShell.start({
+      args: [
+        await testServer3.connectionString(),
+        '--authenticationMechanism=MONGODB-OIDC',
+        '--oidcIdTokenAsAccessToken',
+        '--oidcRedirectUri=http://localhost:0/',
+        `--browser=${fetchBrowserFixture}`,
+      ],
+    });
+    await shell.waitForPrompt();
+
+    await verifyUser(shell, 'testuser-id', 'testuser-id-group');
+    shell.assertNoErrors();
+  });
+
+  it('can print tokens as debug information if requested', async function () {
+    shell = TestShell.start({
+      args: [
+        await testServer.connectionString(),
+        '--authenticationMechanism=MONGODB-OIDC',
+        '--oidcRedirectUri=http://localhost:0/',
+        '--oidcDumpTokens',
+        `--browser=${fetchBrowserFixture}`,
+        '--eval=42',
+      ],
+    });
+    await shell.waitForExit();
+
+    shell.assertContainsOutput('BEGIN OIDC TOKEN DUMP');
+    shell.assertContainsOutput('"tokenType": "Bearer"');
+    shell.assertContainsOutput('"alg": "RS256"');
+    shell.assertContainsOutput('"sub": "testuser"');
+    shell.assertNotContainsOutput('"signature":');
+    shell.assertContainsOutput('"lastServerIdPInfo":');
+    shell.assertNotContainsOutput(/"refreshToken": "(?!debugid:)/);
+
+    shell = TestShell.start({
+      args: [
+        await testServer.connectionString(),
+        '--authenticationMechanism=MONGODB-OIDC',
+        '--oidcRedirectUri=http://localhost:0/',
+        '--oidcDumpTokens=include-secrets',
+        `--browser=${fetchBrowserFixture}`,
+        '--eval=42',
+      ],
+    });
+    await shell.waitForExit();
+
+    shell.assertContainsOutput('BEGIN OIDC TOKEN DUMP');
+    shell.assertContainsOutput('"tokenType": "Bearer"');
+    shell.assertContainsOutput('"alg": "RS256"');
+    shell.assertContainsOutput('"sub": "testuser"');
+    shell.assertContainsOutput('"signature":');
+    shell.assertContainsOutput('"lastServerIdPInfo":');
+    shell.assertContainsOutput(/"refreshToken": "(?!debugid:)/);
   });
 });
