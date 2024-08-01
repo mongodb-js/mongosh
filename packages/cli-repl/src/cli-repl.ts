@@ -1266,18 +1266,22 @@ export class CliRepl implements MongoshIOProvider {
       if (!token) return token;
       const jwtParts = token.split('.');
       if (
+        // If this is a three-part token consisting of valid base64url-encoded
+        // parts (without trailing `=`), assume that it is a JWT access/id token.
         jwtParts.length === 3 &&
         jwtParts.every(
           (part) =>
             Buffer.from(part, 'base64url')
               .toString('base64url')
-              .replace(/=+$/, '') === part
+              .replace(/=+$/, '') === part.replace(/=+$/, '')
         )
       ) {
         const [header, payload] = jwtParts.map((part) => {
           try {
             return JSON.parse(Buffer.from(part, 'base64url').toString('utf8'));
-          } catch {}
+          } catch {
+            // Not a valid JWT in this case.
+          }
         });
         if (redact === 'include-secrets') {
           return { header, payload, signature: jwtParts[2] };
