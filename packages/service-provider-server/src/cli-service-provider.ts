@@ -10,6 +10,7 @@ import type {
   ClientEncryptionOptions,
   MongoClient,
   MongoMissingDependencyError,
+  SearchIndexDescription,
 } from 'mongodb';
 
 import type {
@@ -126,7 +127,7 @@ const bsonlib = () => {
   };
 };
 
-type DropDatabaseResult = {
+export type DropDatabaseResult = {
   ok: 0 | 1;
   dropped?: string;
 };
@@ -146,7 +147,7 @@ const DEFAULT_BASE_OPTIONS: OperationOptions = Object.freeze({
 
 /**
  * Pick properties of `uri` and `opts` that as a tuple that can be matched
- * against the correspondiung tuple for another `uri` and `opts` configuration,
+ * against the corresponding tuple for another `uri` and `opts` configuration,
  * and when they do, it is meaningful to share connection state between them.
  *
  * Currently, this is only used for OIDC. We don't need to make sure that the
@@ -1457,12 +1458,7 @@ class CliServiceProvider
   createSearchIndexes(
     database: string,
     collection: string,
-    // TODO(MONGOSH-1471): use SearchIndexDescription[] once available
-    specs: {
-      name: string;
-      type?: 'search' | 'vectorSearch';
-      definition: Document;
-    }[],
+    specs: SearchIndexDescription[],
     dbOptions?: DbOptions
   ): Promise<string[]> {
     return this.db(database, dbOptions)
@@ -1485,8 +1481,7 @@ class CliServiceProvider
     database: string,
     collection: string,
     indexName: string,
-    // TODO(MONGOSH-1471): use SearchIndexDescription once available
-    definition: Document,
+    definition: SearchIndexDescription,
     dbOptions?: DbOptions
   ): Promise<void> {
     return this.db(database, dbOptions)

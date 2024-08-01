@@ -10,6 +10,7 @@ import { signatures, toShellResult } from './index';
 import type { StubbedInstance } from 'ts-sinon';
 import { stubInterface } from 'ts-sinon';
 import type {
+  MongoClientOptions,
   ReadConcern,
   ReadPreference,
   ServiceProvider,
@@ -55,7 +56,7 @@ describe('Mongo', function () {
       expect(signatures.Mongo.type).to.equal('Mongo');
     });
     it('attributes', function () {
-      expect(signatures.Mongo.attributes.show).to.deep.equal({
+      expect(signatures.Mongo.attributes?.show).to.deep.equal({
         type: 'function',
         returnsPromise: true,
         deprecated: false,
@@ -630,7 +631,7 @@ describe('Mongo', function () {
       });
     });
     describe('setWriteConcern', function () {
-      [
+      for (const { args, opts } of [
         { args: ['majority'], opts: { w: 'majority' } },
         { args: ['majority', 200], opts: { w: 'majority', wtimeoutMS: 200 } },
         {
@@ -645,17 +646,20 @@ describe('Mongo', function () {
           args: [{ w: 'majority', wtimeout: 200, fsync: 1 }],
           opts: { w: 'majority', wtimeoutMS: 200, journal: true },
         },
-      ].forEach(({ args, opts }) => {
+      ] as {
+        args: Parameters<typeof mongo.setWriteConcern>;
+        opts: MongoClientOptions;
+      }[]) {
         it(`calls serviceProvider.resetConnectionOptions for args ${JSON.stringify(
           args
         )}`, async function () {
           serviceProvider.resetConnectionOptions.resolves();
-          await mongo.setWriteConcern.call(mongo, ...args); // tricking TS into thinking the arguments are correct
+          await mongo.setWriteConcern(...args);
           expect(
             serviceProvider.resetConnectionOptions
           ).to.have.been.calledWith(opts);
         });
-      });
+      }
 
       it('throws if resetConnectionOptions errors', async function () {
         const expectedError = new Error();
@@ -826,7 +830,7 @@ describe('Mongo', function () {
         expect.fail();
       });
       it('setSecondaryOk (starts as primary)', async function () {
-        const printCalls = [];
+        const printCalls: any[][] = [];
         instanceState.setEvaluationListener({
           onPrint(...args: any[]) {
             printCalls.push(args);
@@ -844,7 +848,7 @@ describe('Mongo', function () {
         ]);
       });
       it('setSecondaryOk (starts as secondary)', async function () {
-        const printCalls = [];
+        const printCalls: any[][] = [];
         instanceState.setEvaluationListener({
           onPrint(...args: any[]) {
             printCalls.push(args);
@@ -984,7 +988,7 @@ describe('Mongo', function () {
 
         it('errors if an API version is specified', async function () {
           try {
-            const mongo = await instanceState.shellApi.Mongo(uri, null, {
+            const mongo = await instanceState.shellApi.Mongo(uri, undefined, {
               api: { version: '1' },
             });
             await (
@@ -1001,7 +1005,7 @@ describe('Mongo', function () {
         skipIfServerVersion(testServer, '<= 4.4');
 
         it('can specify an API version', async function () {
-          const mongo = await instanceState.shellApi.Mongo(uri, null, {
+          const mongo = await instanceState.shellApi.Mongo(uri, undefined, {
             api: { version: '1' },
           });
           expect(mongo._connectionInfo.driverOptions).to.deep.equal({

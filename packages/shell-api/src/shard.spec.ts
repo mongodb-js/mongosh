@@ -9,6 +9,7 @@ import {
   ALL_SERVER_VERSIONS,
   ALL_TOPOLOGIES,
 } from './enums';
+import type { Collection } from './index';
 import { signatures, toShellResult } from './index';
 import Mongo from './mongo';
 import type {
@@ -16,6 +17,7 @@ import type {
   FindCursor as ServiceProviderCursor,
   AggregationCursor as ServiceProviderAggCursor,
   RunCommandCursor as ServiceProviderRunCommandCursor,
+  Document,
 } from '@mongosh/service-provider-core';
 import { bson } from '@mongosh/service-provider-core';
 import { EventEmitter } from 'events';
@@ -53,7 +55,7 @@ describe('Shard', function () {
       expect(signatures.Shard.type).to.equal('Shard');
     });
     it('attributes', function () {
-      expect(signatures.Shard.attributes.enableSharding).to.deep.equal({
+      expect(signatures.Shard.attributes?.enableSharding).to.deep.equal({
         type: 'function',
         returnsPromise: true,
         deprecated: false,
@@ -1790,6 +1792,199 @@ describe('Shard', function () {
         );
       });
     });
+
+    describe('shardAndDistributeCollection', function () {
+      it('calls shardCollection and then reshardCollection with correct parameters', async function () {
+        const expectedResult = { ok: 1 };
+
+        const shardCollectionStub = sinon
+          .stub(shard, 'shardCollection')
+          .resolves(expectedResult);
+        const reshardCollectionStub = sinon
+          .stub(shard, 'reshardCollection')
+          .resolves(expectedResult);
+
+        await shard.shardAndDistributeCollection(
+          'db.coll',
+          { key: 1 },
+          true,
+          {}
+        );
+
+        expect(shardCollectionStub.calledOnce).to.equal(true);
+        expect(shardCollectionStub.firstCall.args).to.deep.equal([
+          'db.coll',
+          {
+            key: 1,
+          },
+          true,
+          {},
+        ]);
+
+        expect(reshardCollectionStub.calledOnce).to.equal(true);
+        expect(reshardCollectionStub.firstCall.args).to.deep.equal([
+          'db.coll',
+          { key: 1 },
+          { numInitialChunks: 1000, forceRedistribution: true },
+        ]);
+      });
+
+      it('allows user to pass numInitialChunks', async function () {
+        const expectedResult = { ok: 1 };
+
+        const shardCollectionStub = sinon
+          .stub(shard, 'shardCollection')
+          .resolves(expectedResult);
+        const reshardCollectionStub = sinon
+          .stub(shard, 'reshardCollection')
+          .resolves(expectedResult);
+
+        await shard.shardAndDistributeCollection('db.coll', { key: 1 }, true, {
+          numInitialChunks: 1,
+        });
+
+        expect(shardCollectionStub.calledOnce).to.equal(true);
+        expect(shardCollectionStub.firstCall.args).to.deep.equal([
+          'db.coll',
+          {
+            key: 1,
+          },
+          true,
+          {
+            numInitialChunks: 1,
+          },
+        ]);
+
+        expect(reshardCollectionStub.calledOnce).to.equal(true);
+        expect(reshardCollectionStub.firstCall.args).to.deep.equal([
+          'db.coll',
+          { key: 1 },
+          { numInitialChunks: 1, forceRedistribution: true },
+        ]);
+      });
+      it('returns whatever shard.reshardCollection returns', async function () {
+        const expectedResult = { ok: 1 };
+        sinon.stub(shard, 'reshardCollection').resolves(expectedResult);
+        const result = await shard.shardAndDistributeCollection('db.coll', {
+          key: 1,
+        });
+        expect(result).to.deep.equal(expectedResult);
+      });
+    });
+
+    describe('moveCollection', function () {
+      it('calls serviceProvider.runCommandWithCheck', async function () {
+        await shard.moveCollection('db.coll', 'shard1');
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            moveCollection: 'db.coll',
+            toShard: 'shard1',
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await shard.moveCollection('db.coll', 'shard1');
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const caughtError = await shard
+          .moveCollection('db.coll', 'shard1')
+          .catch((e) => e);
+        expect(caughtError).to.equal(expectedError);
+      });
+    });
+
+    describe('abortMoveCollection', function () {
+      it('calls serviceProvider.runCommandWithCheck', async function () {
+        await shard.abortMoveCollection('db.coll');
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            abortMoveCollection: 'db.coll',
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await shard.abortMoveCollection('db.coll');
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const caughtError = await shard
+          .abortMoveCollection('db.coll')
+          .catch((e) => e);
+        expect(caughtError).to.equal(expectedError);
+      });
+    });
+
+    describe('unshardCollection', function () {
+      it('calls serviceProvider.runCommandWithCheck', async function () {
+        await shard.unshardCollection('db.coll', 'shard1');
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            unshardCollection: 'db.coll',
+            toShard: 'shard1',
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await shard.unshardCollection('db.coll', 'shard1');
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const caughtError = await shard
+          .unshardCollection('db.coll', 'shard1')
+          .catch((e) => e);
+        expect(caughtError).to.equal(expectedError);
+      });
+    });
+
+    describe('abortUnshardCollection', function () {
+      it('calls serviceProvider.runCommandWithCheck', async function () {
+        await shard.abortUnshardCollection('db.coll');
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            abortUnshardCollection: 'db.coll',
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await shard.abortUnshardCollection('db.coll');
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const caughtError = await shard
+          .abortUnshardCollection('db.coll')
+          .catch((e) => e);
+        expect(caughtError).to.equal(expectedError);
+      });
+    });
   });
 
   describe('integration', function () {
@@ -1868,7 +2063,7 @@ describe('Shard', function () {
       });
       context('with 5.0+ server', function () {
         skipIfServerVersion(mongos, '<= 4.4');
-        let apiStrictServiceProvider;
+        let apiStrictServiceProvider: ServiceProvider;
 
         before(async function () {
           try {
@@ -1918,7 +2113,7 @@ describe('Shard', function () {
         expect(
           Object.keys(
             (await sh.status()).value.databases.find(
-              (d) => d.database._id === 'test'
+              (d: Document) => d.database._id === 'test'
             )?.collections ?? []
           )
         ).to.deep.equal([]);
@@ -1927,7 +2122,7 @@ describe('Shard', function () {
         ).to.equal(ns);
         expect(
           (await sh.status()).value.databases.find(
-            (d) => d.database._id === 'test'
+            (d: Document) => d.database._id === 'test'
           ).collections[ns].shardKey
         ).to.deep.equal({ key: 1 });
 
@@ -2047,7 +2242,7 @@ describe('Shard', function () {
         }
 
         const tags = (await sh.status()).value.databases.find(
-          (d) => d.database._id === 'test'
+          (d: Document) => d.database._id === 'test'
         ).collections[ns].tags;
         expect(tags.length).to.equal(19);
       });
@@ -2057,7 +2252,7 @@ describe('Shard', function () {
         await sh.addShardTag(`${shardId}-0`, 'zone19');
 
         const tags = (await sh.status()).value.databases.find(
-          (d) => d.database._id === 'test'
+          (d: Document) => d.database._id === 'test'
         ).collections[ns].tags;
         expect(tags.length).to.equal(21);
         expect(
@@ -2112,7 +2307,7 @@ describe('Shard', function () {
               .getSiblingDB('config')
               .getCollection('collections')
               .findOne({ _id: ns })
-          ).noBalance
+          )?.noBalance
         ).to.equal(true);
       });
       it('enables balancing', async function () {
@@ -2123,7 +2318,7 @@ describe('Shard', function () {
               .getSiblingDB('config')
               .getCollection('collections')
               .findOne({ _id: ns })
-          ).noBalance
+          )?.noBalance
         ).to.equal(false);
       });
     });
@@ -2151,7 +2346,7 @@ describe('Shard', function () {
               .getSiblingDB('config')
               .getCollection('collections')
               .findOne({ _id: ns })
-          ).enableAutoMerge
+          )?.enableAutoMerge
         ).to.equal(false);
       });
       it('enables autoMerger', async function () {
@@ -2167,7 +2362,7 @@ describe('Shard', function () {
               .getSiblingDB('config')
               .getCollection('collections')
               .findOne({ _id: ns })
-          ).enableAutoMerge
+          )?.enableAutoMerge
         ).to.not.exist;
       });
     });
@@ -2216,11 +2411,11 @@ describe('Shard', function () {
             '0B avg obj size on shard',
           ]);
 
-          const ValueShardInfoKeys = Object.keys(ret.value).filter((key) =>
-            key.startsWith('Shard')
+          const ValueShardInfoKeys = Object.keys(ret.value as Document).filter(
+            (key) => key.startsWith('Shard')
           );
           expect(ValueShardInfoKeys).to.have.lengthOf(1);
-          expect(ret.value[ValueShardInfoKeys[0]]).to.deep.equal({
+          expect((ret.value as Document)[ValueShardInfoKeys[0]]).to.deep.equal({
             data: '0B',
             docs: 0,
             chunks: 1,
@@ -2249,11 +2444,11 @@ describe('Shard', function () {
             `${Totals.data} avg obj size on shard`,
           ]);
 
-          const ValueShardInfoKeys = Object.keys(ret.value).filter((key) =>
-            key.startsWith('Shard')
+          const ValueShardInfoKeys = Object.keys(ret.value as Document).filter(
+            (key) => key.startsWith('Shard')
           );
           expect(ValueShardInfoKeys).to.have.lengthOf(1);
-          expect(ret.value[ValueShardInfoKeys[0]]).to.deep.equal({
+          expect((ret.value as Document)[ValueShardInfoKeys[0]]).to.deep.equal({
             data: Totals.data,
             docs: 1,
             chunks: 1,
@@ -2617,7 +2812,7 @@ describe('Shard', function () {
         const result = await sh.status();
 
         const databasesDbItem = result.value.databases.find(
-          (item) => item.database._id === 'db'
+          (item: Document) => item.database._id === 'db'
         );
         // Cannot get strict guarantees about the value of this field since SERVER-63983
         expect(databasesDbItem.database.partitioned).to.be.oneOf([
@@ -2625,7 +2820,7 @@ describe('Shard', function () {
           undefined,
         ]);
         const databasesDbShItem = result.value.databases.find(
-          (item) => item.database._id === 'dbSh'
+          (item: Document) => item.database._id === 'dbSh'
         );
         // Cannot get strict guarantees about the value of this field since SERVER-60926 and SERVER-63983
         expect(databasesDbShItem.database.partitioned).to.be.oneOf([
@@ -2637,8 +2832,8 @@ describe('Shard', function () {
     });
     describe('checkMetadataConsistency', function () {
       skipIfServerVersion(mongos, '< 7.0');
-      let db;
-      let coll;
+      let db: Database;
+      let coll: Collection;
 
       before(async function () {
         db = instanceState.currentDb.getSiblingDB('db');
@@ -2741,7 +2936,7 @@ describe('Shard', function () {
         await sh.splitAt(ns, { key: i + 1 });
       }
       const chunks = (await sh.status()).value.databases.find(
-        (d) => d.database._id === 'test'
+        (d: Document) => d.database._id === 'test'
       ).collections[ns].chunks;
       expect(chunks.length).to.equal(20);
     });
@@ -2749,7 +2944,7 @@ describe('Shard', function () {
     it('cuts a chunk list when there are more than 20 chunks', async function () {
       await sh.splitAt(ns, { key: 20 });
       const chunks = (await sh.status()).value.databases.find(
-        (d) => d.database._id === 'test'
+        (d: Document) => d.database._id === 'test'
       ).collections[ns].chunks;
       expect(chunks.length).to.equal(21);
       expect(

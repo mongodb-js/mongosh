@@ -1,3 +1,4 @@
+/* eslint-disable filename-rules/match */
 import type Catalog from '../catalog';
 
 /**
@@ -82,6 +83,16 @@ const translations: Catalog = {
       connectionExampleWithDatabase:
         "Start mongosh using 'ships' database on specified connection string:",
       moreInformation: 'For more information on usage:',
+      oidcOptions: 'OIDC auth options:',
+      oidcFlows: 'Supported OIDC auth flows',
+      oidcRedirectUri:
+        'Local auth code flow redirect URL [http://localhost:27097/redirect]',
+      oidcTrustedEndpoint:
+        'Treat the cluster/database mongosh as a trusted endpoint',
+      oidcIdTokenAsAccessToken:
+        'Use ID tokens in place of access tokens for auth',
+      oidcDumpTokens:
+        "Debug OIDC by printing tokens to mongosh's output [full|include-secrets]",
     },
     'arg-parser': {
       'unknown-option': 'Error parsing command line: unrecognized option:',
@@ -2044,6 +2055,36 @@ const translations: Catalog = {
               description:
                 'Returns a cursor with information about metadata inconsistencies',
               example: 'sh.checkMetadataConsistency(<options>)',
+            },
+            shardAndDistributeCollection: {
+              description:
+                'Shards a collection and then immediately reshards the collection to the same shard key.',
+              example:
+                'sh.shardAndDistributeCollection(ns, key, unique?, options?)',
+            },
+            moveCollection: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.moveCollection',
+              description:
+                'Moves a single unsharded collection to a different shard.',
+              example: 'sh.moveCollection(ns, toShard)',
+            },
+            abortMoveCollection: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.abortMoveCollection',
+              description:
+                'Abort the current moveCollection operation on a given collection',
+              example: 'sh.abortMoveCollection(ns)',
+            },
+            unshardCollection: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.unshardCollection',
+              description:
+                'Unshard the given collection and move all data to the given shard.',
+              example: 'sh.unshardCollection(ns, toShard)',
+            },
+            abortUnshardCollection: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.abortUnshardCollection',
+              description:
+                'Abort the current unshardCollection operation on a given collection',
+              example: 'sh.abortUnshardCollection(ns)',
             },
           },
         },

@@ -43,7 +43,7 @@ const loadCallNestingLevelSymbol = Symbol.for('@@mongosh.loadCallNestingLevel');
  * Class for representing the `config` object in mongosh.
  */
 @shellApiClassDefault
-class ShellConfig extends ShellApiClass {
+export class ShellConfig extends ShellApiClass {
   _instanceState: ShellInstanceState;
   defaults: Readonly<ShellUserConfig>;
 

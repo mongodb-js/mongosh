@@ -1,3 +1,4 @@
+/* eslint-disable mocha/max-top-level-suites */
 import { expect } from 'chai';
 import { MongoLogWriter } from 'mongodb-log-writer';
 import { setupLoggerAndTelemetry } from './';
@@ -561,6 +562,7 @@ describe('setupLoggerAndTelemetry', function () {
     expect(analyticsOutput).to.be.empty;
 
     bus.emit('mongosh:new-user', { userId, anonymousId: userId });
+    bus.emit('mongosh:evaluate-started');
 
     logOutput = [];
     analyticsOutput = [];
@@ -704,6 +706,7 @@ describe('setupLoggerAndTelemetry', function () {
     logOutput = [];
     analyticsOutput = [];
 
+    bus.emit('mongosh:evaluate-started');
     bus.emit('mongosh:api-call', {
       method: 'cloneDatabase',
       class: 'Database',
@@ -723,5 +726,28 @@ describe('setupLoggerAndTelemetry', function () {
       method: 'cloneDatabase',
     });
     expect(analyticsOutput).to.have.lengthOf(2);
+  });
+
+  it('does not track database calls outside of evaluate-{started,finished}', function () {
+    setupLoggerAndTelemetry(bus, logger, analytics, {}, '1.0.0');
+    expect(logOutput).to.have.lengthOf(0);
+    expect(analyticsOutput).to.be.empty;
+
+    bus.emit('mongosh:new-user', { userId, anonymousId: userId });
+
+    logOutput = [];
+    analyticsOutput = [];
+
+    bus.emit('mongosh:api-call', {
+      method: 'cloneDatabase',
+      class: 'Database',
+      deprecated: true,
+      callDepth: 0,
+      isAsync: true,
+    });
+    bus.emit('mongosh:evaluate-finished');
+
+    expect(logOutput).to.have.lengthOf(0);
+    expect(analyticsOutput).to.be.empty;
   });
 });

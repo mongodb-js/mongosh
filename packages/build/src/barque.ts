@@ -10,6 +10,7 @@ import tar from 'tar-fs';
 import tmp from 'tmp-promise';
 import util, { promisify } from 'util';
 import type { PackageVariant, Config } from './config';
+import semver from 'semver';
 import {
   getArch,
   getDistro,
@@ -57,6 +58,7 @@ export function getReposAndArch(packageVariant: PackageVariant): {
           'ubuntu1804',
           'ubuntu2004',
           'ubuntu2204',
+          'ubuntu2404',
           'debian10',
           'debian11',
           'debian12',
@@ -217,6 +219,21 @@ export class Barque {
     for (const { repo: ppa, serverVersions } of ppasWithServerVersions) {
       for (const version of serverVersions) {
         for (const edition of this.mongodbEditions) {
+          // For ppc64le and s390x, we only publish enterprise edition only
+          // starting server version 6. But in order to keep the current publishing
+          // behaviour, we will only skip publishing for server version 8.0 community
+          // edition.
+          if (
+            edition === 'org' &&
+            ['ppc64le', 's390x'].includes(architecture) &&
+            semver.gte(version, '8.0.0')
+          ) {
+            console.info(
+              `Skipping publishing community v${version} for ${architecture}`
+            );
+            continue;
+          }
+
           const args = [
             '--level',
             'debug',
@@ -304,6 +321,8 @@ export class Barque {
         return `${base}/apt/ubuntu/dists/focal/mongodb-${edition}/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
       case 'ubuntu2204':
         return `${base}/apt/ubuntu/dists/jammy/mongodb-${edition}/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
+      case 'ubuntu2404':
+        return `${base}/apt/ubuntu/dists/noble/mongodb-${edition}/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
       case 'debian10':
         return `${base}/apt/debian/dists/buster/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
       case 'debian11':

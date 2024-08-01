@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import type { StubbedInstance } from 'ts-sinon';
-import sinon from 'sinon';
 import { stubInterface } from 'ts-sinon';
 import { signatures, toShellResult } from './index';
 import AggregationCursor from './aggregation-cursor';
@@ -10,7 +9,10 @@ import {
   ALL_TOPOLOGIES,
   ALL_API_VERSIONS,
 } from './enums';
-import type { AggregationCursor as SPAggregationCursor } from '@mongosh/service-provider-core';
+import type {
+  ServiceProviderAggregationCursor,
+  AggregationCursor as SPAggregationCursor,
+} from '@mongosh/service-provider-core';
 
 describe('AggregationCursor', function () {
   describe('help', function () {
@@ -30,7 +32,7 @@ describe('AggregationCursor', function () {
       expect(signatures.AggregationCursor.type).to.equal('AggregationCursor');
     });
     it('map signature', function () {
-      expect(signatures.AggregationCursor.attributes.map).to.deep.equal({
+      expect(signatures.AggregationCursor.attributes?.map).to.deep.equal({
         type: 'function',
         returnsPromise: false,
         deprecated: false,
@@ -46,16 +48,15 @@ describe('AggregationCursor', function () {
     });
   });
   describe('instance', function () {
-    let wrappee;
-    let cursor;
+    let wrappee: ServiceProviderAggregationCursor;
+    let cursor: AggregationCursor;
     beforeEach(function () {
       wrappee = {
-        map: sinon.spy(),
         closed: true,
         bufferedCount() {
           return 0;
         },
-      };
+      } as ServiceProviderAggregationCursor;
       cursor = new AggregationCursor(
         {
           _serviceProvider: { platform: 'CLI' },
@@ -78,7 +79,7 @@ describe('AggregationCursor', function () {
     });
 
     it('returns the same cursor', function () {
-      expect(cursor.map()).to.equal(cursor);
+      expect(cursor.map((doc) => doc)).to.equal(cursor);
     });
     it('pretty returns the same cursor', function () {
       expect(cursor.pretty()).to.equal(cursor);
@@ -91,22 +92,22 @@ describe('AggregationCursor', function () {
     } as any;
     describe('#close', function () {
       let spCursor: StubbedInstance<SPAggregationCursor>;
-      let shellApiCursor;
+      let shellApiCursor: AggregationCursor;
 
       beforeEach(function () {
         spCursor = stubInterface<SPAggregationCursor>();
         shellApiCursor = new AggregationCursor(mongo, spCursor);
       });
 
-      it('closes the cursor', function () {
-        shellApiCursor.close();
+      it('closes the cursor', async function () {
+        await shellApiCursor.close();
         expect(spCursor.close).to.have.been.called;
       });
     });
 
     describe('#hasNext', function () {
       let spCursor: StubbedInstance<SPAggregationCursor>;
-      let shellApiCursor;
+      let shellApiCursor: AggregationCursor;
 
       beforeEach(function () {
         spCursor = stubInterface<SPAggregationCursor>();
@@ -122,7 +123,7 @@ describe('AggregationCursor', function () {
 
     describe('#tryNext', function () {
       let spCursor: StubbedInstance<SPAggregationCursor>;
-      let shellApiCursor;
+      let shellApiCursor: AggregationCursor;
 
       beforeEach(function () {
         spCursor = stubInterface<SPAggregationCursor>();
@@ -176,7 +177,7 @@ describe('AggregationCursor', function () {
 
     describe('#objsLeftInBatch', function () {
       let spCursor: StubbedInstance<SPAggregationCursor>;
-      let shellApiCursor;
+      let shellApiCursor: AggregationCursor;
 
       beforeEach(function () {
         spCursor = stubInterface<SPAggregationCursor>();
@@ -192,7 +193,7 @@ describe('AggregationCursor', function () {
 
     describe('#itcount', function () {
       let spCursor: StubbedInstance<SPAggregationCursor>;
-      let shellApiCursor;
+      let shellApiCursor: AggregationCursor;
 
       beforeEach(function () {
         spCursor = stubInterface<SPAggregationCursor>();
@@ -210,7 +211,7 @@ describe('AggregationCursor', function () {
 
     describe('#explain', function () {
       let spCursor: StubbedInstance<SPAggregationCursor>;
-      let shellApiCursor;
+      let shellApiCursor: AggregationCursor;
 
       beforeEach(function () {
         spCursor = stubInterface<SPAggregationCursor>();

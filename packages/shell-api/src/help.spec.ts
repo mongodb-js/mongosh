@@ -4,7 +4,7 @@ import { toShellResult } from './index';
 import { expect } from 'chai';
 
 describe('Help', function () {
-  let translate;
+  let translate: (str: string) => string;
 
   beforeEach(function () {
     translate = sinon.fake((x) => `translated: ${x}`);
