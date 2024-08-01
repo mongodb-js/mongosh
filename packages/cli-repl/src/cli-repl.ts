@@ -47,7 +47,7 @@ import path from 'path';
 import { getOsInfo } from './get-os-info';
 import { UpdateNotificationManager } from './update-notification-manager';
 import { getTimingData, markTime, summariseTimingData } from './startup-timing';
-import { IdPInfo, OIDCCallbackParams } from 'mongodb';
+import type { IdPInfo } from 'mongodb';
 
 /**
  * Connecting text key.
