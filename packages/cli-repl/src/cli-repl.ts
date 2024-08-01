@@ -1003,22 +1003,23 @@ export class CliRepl implements MongoshIOProvider {
 
   /**
    * Require the user to enter a password.
-   *
-   * @param {string} driverUrl - The driver URI.
-   * @param {DevtoolsConnectOptions} driverOptions - The driver options.
    */
   async requirePassword(): Promise<string> {
+    const printPrompt = process.stdout.isTTY
+      ? this.output.write.bind(this.output)
+      : process.stderr.write.bind(process.stderr);
+
     const passwordPromise = askpassword({
       input: this.input,
-      output: this.output,
+      output: process.stdout.isTTY ? this.output : process.stderr,
       replacementCharacter: '*',
     });
-    this.output.write('Enter password: ');
+    printPrompt('Enter password: ');
     try {
       try {
         return (await passwordPromise).toString();
       } finally {
-        this.output.write('\n');
+        printPrompt('\n');
       }
     } catch (error: any) {
       await this._fatalError(error);
