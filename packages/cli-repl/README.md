@@ -69,6 +69,20 @@ of mongosh, visit https://www.mongodb.com/try/download/shell.
         --keyVaultNamespace [arg]              database.collection to store encrypted FLE parameters
         --kmsURL [arg]                         Test parameter to override the URL of the KMS endpoint
 
+        oidcFlows?: string;
+        oidcRedirectUri?: string;
+        oidcTrustedEndpoint?: boolean;
+        oidcIdTokenAsAccessToken?: boolean;
+        oidcDumpTokens?: boolean | 'redacted' | 'include-secrets';
+
+  OIDC auth options:
+
+        --oidcFlows[=auth-code,device-auth]    Supported OIDC auth flows
+        --oidcRedirectUri[=url]                Local auth code flow redirect URL [http://localhost:27097/redirect]
+        --oidcTrustedEndpoint                  Treat the cluster/database mongosh as a trusted endpoint
+        --oidcIdTokenAsAccessToken             Use ID tokens in place of access tokens for auth
+        --oidcDumpTokens[=mode]                Debug OIDC by printing tokens to mongosh's output [full|include-secrets]
+
   DB Address Examples:
 
         foo                                    Foo database on local machine
