@@ -147,7 +147,7 @@ const DEFAULT_BASE_OPTIONS: OperationOptions = Object.freeze({
 
 /**
  * Pick properties of `uri` and `opts` that as a tuple that can be matched
- * against the correspondiung tuple for another `uri` and `opts` configuration,
+ * against the corresponding tuple for another `uri` and `opts` configuration,
  * and when they do, it is meaningful to share connection state between them.
  *
  * Currently, this is only used for OIDC. We don't need to make sure that the
