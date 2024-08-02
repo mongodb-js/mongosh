@@ -71,10 +71,7 @@ import {
   ServiceProviderCore,
 } from '@mongosh/service-provider-core';
 
-import type {
-  ConnectResolveSrvSucceededEvent,
-  DevtoolsConnectOptions,
-} from '@mongodb-js/devtools-connect';
+import type { DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
 import { MongoshCommandFailed, MongoshInternalError } from '@mongosh/errors';
 import type { MongoshBus } from '@mongosh/types';
 import { forceCloseMongoClient } from './mongodb-patches';
@@ -210,23 +207,6 @@ class CliServiceProvider
     cliOptions: { nodb?: boolean } = {},
     bus: MongoshBus = new EventEmitter() // TODO: Change VSCode to pass all arguments, then remove defaults
   ): Promise<CliServiceProvider> {
-    let resolvedSrvConnectionString;
-
-    try {
-      bus.on(
-        'devtools-connect:resolve-srv-succeeded',
-        (ev: ConnectResolveSrvSucceededEvent) => {
-          resolvedSrvConnectionString = new ConnectionString(ev.to, {
-            looseValidation: true,
-          });
-        }
-      );
-    } catch (error) {
-      // We cannot listen for an event on the mongosh bus of the application
-      // which runs in the node-runtimer-worker-thread environment, i.e. Compass Shell.
-      // The on() method on a normal event emitter should never throw.
-    }
-
     const connectionString = new ConnectionString(uri || 'mongodb://nodb/');
     const clientOptions = this.processDriverOptions(
       null,
@@ -271,20 +251,13 @@ class CliServiceProvider
     }
     clientOptions.parentState = state;
 
-    return new this(
-      client,
-      bus,
-      clientOptions,
-      connectionString,
-      resolvedSrvConnectionString
-    );
+    return new this(client, bus, clientOptions, connectionString);
   }
 
   public readonly platform: ReplPlatform;
   public readonly initialDb: string;
   public mongoClient: MongoClient; // public for testing
   private readonly uri?: ConnectionString;
-  private resolvedSrvUri?: ConnectionString;
   private currentClientOptions: DevtoolsConnectOptions;
   private dbcache: WeakMap<MongoClient, Map<string, Db>>;
   public baseCmdOptions: OperationOptions; // public for testing
@@ -302,12 +275,10 @@ class CliServiceProvider
     mongoClient: MongoClient,
     bus: MongoshBus,
     clientOptions: DevtoolsConnectOptions,
-    uri?: ConnectionString,
-    resolvedSrvUri?: ConnectionString
+    uri?: ConnectionString
   ) {
     super(bsonlib());
 
-    this.resolvedSrvUri = resolvedSrvUri;
     this.bus = bus;
     this.mongoClient = mongoClient;
     this.uri = uri;
@@ -436,7 +407,6 @@ class CliServiceProvider
 
   async getConnectionInfo(): Promise<ConnectionInfo> {
     const topology = this.getTopology();
-    const { version } = require('../package.json');
     const uri = this.uri?.toString() ?? '';
     const [buildInfo = null, atlasVersion = null, fcv = null, atlascliInfo] =
       await Promise.all([
@@ -461,22 +431,17 @@ class CliServiceProvider
       ]);
 
     const isLocalAtlasCli = !!atlascliInfo;
-    const resolvedUri = this.uri?.isSRV ? this.resolvedSrvUri : this.uri;
-    const resolvedHostname = resolvedUri?.hosts[0] || null;
-
-    const extraConnectionInfo = await getConnectExtraInfo(
+    const extraConnectionInfo = getConnectExtraInfo(
       uri,
-      version,
       buildInfo,
       atlasVersion,
       topology,
-      isLocalAtlasCli,
-      resolvedHostname
+      isLocalAtlasCli
     );
 
     return {
-      buildInfo: buildInfo,
-      topology: topology,
+      buildInfo,
+      topology,
       extraInfo: {
         ...extraConnectionInfo,
         fcv: fcv?.featureCompatibilityVersion?.version,

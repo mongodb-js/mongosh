@@ -7,7 +7,10 @@ import type {
   ServiceProvider,
   TopologyDescription,
 } from '@mongosh/service-provider-core';
-import { DEFAULT_DB } from '@mongosh/service-provider-core';
+import {
+  DEFAULT_DB,
+  getHostnameForConnection,
+} from '@mongosh/service-provider-core';
 import type {
   ApiEvent,
   ApiEventWithArguments,
@@ -217,6 +220,8 @@ export default class ShellInstanceState {
   }
 
   async fetchConnectionInfo(): Promise<ConnectionInfo | undefined> {
+    const { version } = require('../package.json');
+
     if (!this.cliOptions.nodb) {
       const serviceProvider = this.currentServiceProvider;
       if (
@@ -240,8 +245,11 @@ export default class ShellInstanceState {
       }
 
       const apiVersionInfo = this.apiVersionInfo();
+      const topology = this.currentServiceProvider.getTopology();
       this.messageBus.emit('mongosh:connect', {
         ...connectionInfo?.extraInfo,
+        mongosh_version: version,
+        resolved_hostname: getHostnameForConnection(topology),
         api_version: apiVersionInfo?.version,
         api_strict: apiVersionInfo?.strict,
         api_deprecation_errors: apiVersionInfo?.deprecationErrors,

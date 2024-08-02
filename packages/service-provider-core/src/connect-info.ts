@@ -4,9 +4,7 @@ import getBuildInfo from 'mongodb-build-info';
 
 export type ConnectionExtraInfo = {
   is_atlas?: boolean;
-  atlas_hostname?: string | null;
   server_version?: string;
-  mongosh_version?: string;
   server_os?: string;
   server_arch?: string;
   is_enterprise?: boolean;
@@ -27,56 +25,30 @@ export type HostInformation = {
   is_atlas_url?: boolean;
   is_do_url?: boolean; // Is digital ocean url.
   is_public_cloud?: boolean;
-  public_cloud_name?: string;
 };
 
-async function getPublicCloudInfo(host: string): Promise<{
-  public_cloud_name?: string;
-  is_public_cloud?: boolean;
-}> {
-  try {
-    const { getCloudInfo } = await import('mongodb-cloud-info');
-    const { isAws, isAzure, isGcp } = await getCloudInfo(host);
-
-    const public_cloud_name = isAws
-      ? 'AWS'
-      : isAzure
-      ? 'Azure'
-      : isGcp
-      ? 'GCP'
-      : undefined;
-
-    if (public_cloud_name === undefined) {
-      return { is_public_cloud: false };
-    }
-
-    return {
-      is_public_cloud: true,
-      public_cloud_name,
-    };
-  } catch (err) {
-    // Cannot resolve dns used by mongodb-cloud-info in the browser environment.
-    return {};
-  }
+export function getHostnameForConnection(topology: any): string | undefined {
+  const resolvedHost = topology?.s.servers?.values().next().value
+    .description.address;
+  const [hostname] = (resolvedHost ?? '').split(':');
+  return hostname || undefined;
 }
 
-async function getHostInformation(
-  host: string | null
-): Promise<HostInformation> {
+function getHostInformation(host?: string): HostInformation {
   if (!host) {
     return {
+      is_localhost: false,
       is_do_url: false,
       is_atlas_url: false,
-      is_localhost: false,
     };
   }
 
   if (getBuildInfo.isLocalhost(host)) {
     return {
+      is_localhost: true,
       is_public_cloud: false,
       is_do_url: false,
       is_atlas_url: false,
-      is_localhost: true,
     };
   }
 
@@ -84,30 +56,25 @@ async function getHostInformation(
     return {
       is_localhost: false,
       is_public_cloud: false,
-      is_atlas_url: false,
       is_do_url: true,
+      is_atlas_url: false,
     };
   }
-
-  const publicCloudInfo = await getPublicCloudInfo(host);
 
   return {
     is_localhost: false,
     is_do_url: false,
     is_atlas_url: getBuildInfo.isAtlas(host),
-    ...publicCloudInfo,
   };
 }
 
-export default async function getConnectExtraInfo(
+export default function getConnectExtraInfo(
   uri: string,
-  mongoshVersion: string,
   buildInfo: any,
   atlasVersion: any,
   topology: any,
-  isLocalAtlas: boolean,
-  resolvedHostname: string | null
-): Promise<ConnectionExtraInfo> {
+  isLocalAtlas: boolean
+): ConnectionExtraInfo {
   buildInfo ??= {}; // We're currently not getting buildInfo with --apiStrict.
   const { isGenuine: is_genuine, serverName: non_genuine_server_name } =
     getBuildInfo.getGenuineMongoDB(uri);
@@ -121,14 +88,13 @@ export default async function getConnectExtraInfo(
   const { serverOs: server_os, serverArch: server_arch } =
     getBuildInfo.getBuildEnv(buildInfo);
   const isAtlas = !!atlasVersion?.atlasVersion || getBuildInfo.isAtlas(uri);
+  const resolvedHostname = getHostnameForConnection(topology);
 
   return {
-    ...(await getHostInformation(resolvedHostname)),
+    ...getHostInformation(resolvedHostname),
     is_atlas: isAtlas,
-    atlas_hostname: isAtlas ? resolvedHostname : null,
     server_version: buildInfo.version,
     node_version: process.version,
-    mongosh_version: mongoshVersion,
     server_os,
     uri,
     server_arch,

@@ -931,7 +931,13 @@ describe('CliServiceProvider', function () {
         return { countDocuments: async () => 0 };
       });
       clientStub.db.returns(dbStub);
-      clientStub.topology = { s: {} };
+      clientStub.topology = {
+        s: {
+          servers: new Map().set('localhost', {
+            description: { address: 'localhost' },
+          }),
+        },
+      };
       serviceProvider = new CliServiceProvider(
         clientStub,
         bus,
@@ -944,7 +950,6 @@ describe('CliServiceProvider', function () {
     it('returns some connection info data', async function () {
       const info = await serviceProvider.getConnectionInfo();
       expect(info.extraInfo?.is_atlas).to.equal(false);
-      expect(info.extraInfo?.atlas_hostname).to.equal(null);
       expect(info.extraInfo?.is_local_atlas).to.equal(false);
       expect(info.extraInfo?.is_localhost).to.equal(true);
       expect(info.extraInfo?.fcv).to.equal(undefined);
@@ -963,18 +968,12 @@ describe('CliServiceProvider', function () {
           dummyOptions,
           new ConnectionString(
             'mongodb+srv://test-data-sets-a011bb.mongodb.net/admin'
-          ),
-          new ConnectionString(
-            'mongodb://test-data-sets-00-02-a011bb.mongodb.net,test-data-sets-00-00-a011bb.mongodb.net,test-data-sets-shard-00-01-a011bb-e06dc.mongodb.net/admin?appName=mongosh+0.0.0-test.0&authSource=admin&replicaSet=test-data-sets-0&tls=true'
           )
         );
 
         const info = await serviceProvider.getConnectionInfo();
         expect(info.extraInfo?.is_genuine).to.be.true;
         expect(info.extraInfo?.is_atlas).to.be.true;
-        expect(info.extraInfo?.atlas_hostname).to.equal(
-          'test-data-sets-00-02-a011bb.mongodb.net'
-        );
       });
     });
 

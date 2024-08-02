@@ -87,6 +87,39 @@ export function toSnakeCase(str: string): string {
   return matches.map((x) => x.toLowerCase()).join('_');
 }
 
+async function getPublicCloudInfo(host?: string): Promise<{
+  public_cloud_name?: string;
+  is_public_cloud?: boolean;
+}> {
+  if (!host) {
+    return {};
+  }
+
+  try {
+    const { getCloudInfo } = await import('mongodb-cloud-info');
+    const { isAws, isAzure, isGcp } = await getCloudInfo(host);
+
+    const public_cloud_name = isAws
+      ? 'AWS'
+      : isAzure
+      ? 'Azure'
+      : isGcp
+      ? 'GCP'
+      : undefined;
+
+    if (public_cloud_name === undefined) {
+      return { is_public_cloud: false };
+    }
+
+    return {
+      is_public_cloud: true,
+      public_cloud_name,
+    };
+  } catch (err) {
+    return {};
+  }
+}
+
 /**
  * Connect a MongoshBus instance that emits events to logging and analytics providers.
  *
@@ -141,32 +174,40 @@ export function setupLoggerAndTelemetry(
   );
 
   bus.on('mongosh:connect', function (args: ConnectEvent) {
-    const connectionUri = args.uri && redactURICredentials(args.uri);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { uri: _uri, ...argsWithoutUri } = args;
-    const params = {
-      session_id,
-      userId,
-      telemetryAnonymousId,
-      connectionUri,
-      ...argsWithoutUri,
+    const { uri, resolved_hostname, ...argsWithoutUriAndHostname } = args;
+    const connectionUri = uri && redactURICredentials(uri);
+    const atlasHostname = {
+      atlas_hostname: args.is_atlas ? resolved_hostname : null,
     };
-    log.info(
-      'MONGOSH',
-      mongoLogId(1_000_000_004),
-      'connect',
-      'Connecting to server',
-      params
-    );
 
-    analytics.track({
-      ...getTelemetryUserIdentity(),
-      event: 'New Connection',
-      properties: {
+    (async () => {
+      const publicCloudInfo = await getPublicCloudInfo(resolved_hostname);
+      const properties = {
         ...trackProperties,
-        ...argsWithoutUri,
-      },
-    });
+        ...argsWithoutUriAndHostname,
+        ...atlasHostname,
+        ...publicCloudInfo,
+      };
+
+      log.info(
+        'MONGOSH',
+        mongoLogId(1_000_000_004),
+        'connect',
+        'Connecting to server',
+        {
+          userId,
+          telemetryAnonymousId,
+          connectionUri,
+          ...properties,
+        }
+      );
+
+      analytics.track({
+        ...getTelemetryUserIdentity(),
+        event: 'New Connection',
+        properties,
+      });
+    })().catch(() => undefined);
   });
 
   bus.on('mongosh:start-session', function (args: SessionStartedEvent) {

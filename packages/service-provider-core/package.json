@@ -48,7 +48,7 @@
     "bson": "^6.7.0",
     "mongodb": "^6.8.0",
     "mongodb-build-info": "^1.7.2",
-    "mongodb-cloud-info": "^2.1.2"
+    "mongodb-cloud-info": "^2.1.4"
   },
   "optionalDependencies": {
     "mongodb-client-encryption": "^6.0.0"
