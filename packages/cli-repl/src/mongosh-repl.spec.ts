@@ -1461,6 +1461,7 @@ describe('MongoshNodeRepl', function () {
         'getConnectionInfo',
         'getFleOptions',
         'getRawClient',
+        'getTopology',
         'getURI',
         'runCommandWithCheck',
       ]);
