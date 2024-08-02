@@ -28,7 +28,7 @@ export type HostInformation = {
 };
 
 export function getHostnameForConnection(topology: any): string | undefined {
-  const resolvedHost = topology?.s.servers?.values().next().value
+  const resolvedHost = topology?.s?.servers?.values().next().value
     .description.address;
   const [hostname] = (resolvedHost ?? '').split(':');
   return hostname || undefined;
