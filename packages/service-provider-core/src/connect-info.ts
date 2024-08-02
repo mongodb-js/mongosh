@@ -91,7 +91,7 @@ export default function getConnectExtraInfo(
   const resolvedHostname = getHostnameForConnection(topology);
 
   return {
-    ...getHostInformation(resolvedHostname),
+    ...getHostInformation(resolvedHostname || uri),
     is_atlas: isAtlas,
     server_version: buildInfo.version,
     node_version: process.version,
