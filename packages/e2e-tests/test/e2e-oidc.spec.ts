@@ -413,8 +413,15 @@ describe('OIDC auth e2e', function () {
     // We cannot make the mongod server accept the mock IdP's certificate,
     // so the best we can verify here is that auth failed *on the server*
     shell.assertContainsOutput(/MongoServerError: Authentication failed/);
+  });
 
-    // Negative test: Without --tlsUseSystemCA, mongosh fails earlier:
+  it('does not fail without --tlsUseSystemCA', async function () {
+    await fs.mkdir(path.join(tmpdir.path, 'certs'), { recursive: true });
+    await fs.copyFile(
+      getCertPath('ca.crt'),
+      path.join(tmpdir.path, 'certs', 'somefilename.crt')
+    );
+
     shell = TestShell.start({
       args: [
         await testServer2.connectionString(
@@ -427,9 +434,9 @@ describe('OIDC auth e2e', function () {
       ],
     });
     await shell.waitForExit();
-    shell.assertContainsOutput(
-      /Unable to fetch issuer metadata for "https:\/\/localhost:\d+"/
-    );
+    // We cannot make the mongod server accept the mock IdP's certificate,
+    // so the best we can verify here is that auth failed *on the server*
+    shell.assertContainsOutput(/MongoServerError: Authentication failed/);
   });
 
   it('can successfully authenticate using the ID token rather than access token if requested', async function () {

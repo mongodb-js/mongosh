@@ -236,7 +236,6 @@ class CliServiceProvider
       delete clientOptionsCopy.oidc;
       delete clientOptionsCopy.parentHandle;
       delete clientOptionsCopy.parentState;
-      delete clientOptionsCopy.useSystemCA;
       client = new MongoClientCtor(
         connectionString.toString(),
         clientOptionsCopy
