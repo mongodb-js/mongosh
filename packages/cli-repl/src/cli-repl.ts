@@ -78,6 +78,12 @@ export type CliReplOptions = {
   input: Readable;
   /** The stream to write shell output to. */
   output: Writable;
+  /**
+   * The stream to write prompt output to when requesting data from user, like password.
+   * Helpful when user wants to redirect the output to a file or null device.
+   * If not provided, the `output` stream will be used.
+   */
+  promptOutput?: Writable;
   /** The set of home directory paths used by this shell instance. */
   shellHomePaths: ShellHomePaths;
   /** The ordered list of paths in which to look for a global configuration file. */
@@ -112,6 +118,7 @@ export class CliRepl implements MongoshIOProvider {
   logWriter?: MongoLogWriter;
   input: Readable;
   output: Writable;
+  promptOutput: Writable;
   analyticsOptions?: AnalyticsOptions;
   segmentAnalytics?: SegmentAnalytics;
   toggleableAnalytics: ToggleableAnalytics = new ToggleableAnalytics();
@@ -132,6 +139,7 @@ export class CliRepl implements MongoshIOProvider {
     this.cliOptions = options.shellCliOptions;
     this.input = options.input;
     this.output = options.output;
+    this.promptOutput = options.promptOutput ?? options.output;
     this.analyticsOptions = options.analyticsOptions;
     this.onExit = options.onExit;
 
@@ -1005,21 +1013,17 @@ export class CliRepl implements MongoshIOProvider {
    * Require the user to enter a password.
    */
   async requirePassword(): Promise<string> {
-    const printPrompt = process.stdout.isTTY
-      ? this.output.write.bind(this.output)
-      : process.stderr.write.bind(process.stderr);
-
     const passwordPromise = askpassword({
       input: this.input,
-      output: process.stdout.isTTY ? this.output : process.stderr,
+      output: this.promptOutput,
       replacementCharacter: '*',
     });
-    printPrompt('Enter password: ');
+    this.promptOutput.write('Enter password: ');
     try {
       try {
         return (await passwordPromise).toString();
       } finally {
-        printPrompt('\n');
+        this.promptOutput.write('\n');
       }
     } catch (error: any) {
       await this._fatalError(error);
