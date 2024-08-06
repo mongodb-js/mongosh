@@ -50,14 +50,11 @@ describe('OIDC auth e2e', function () {
     if (
       process.platform !== 'linux' ||
       !process.env.MONGOSH_SERVER_TEST_VERSION ||
-      !process.env.MONGOSH_SERVER_TEST_VERSION.includes('-enterprise') ||
-      +process.version.slice(1).split('.')[0] < 16
+      !process.env.MONGOSH_SERVER_TEST_VERSION.includes('-enterprise')
     ) {
       // OIDC is only supported on Linux in the 7.0+ enterprise server,
       // and we can't skip based on the dynamically detected server version because
       // the OIDC config is something that needs to be available at server startup time.
-      // Our mock OIDC provider does not work with Node.js 14, so we also need to skip
-      // tests there.
       return this.skip();
     }
 

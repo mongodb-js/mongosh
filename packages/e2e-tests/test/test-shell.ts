@@ -9,6 +9,7 @@ import { once } from 'events';
 import { inspect } from 'util';
 import path from 'path';
 import stripAnsi from 'strip-ansi';
+import { EJSON } from 'bson';
 import { eventually } from '../../../testing/eventually';
 
 export type TestShellStartupResult =
@@ -238,6 +239,16 @@ export class TestShell {
     this.writeInputLine(line);
     await this.waitForPrompt(previousOutputLength);
     return this._output.slice(previousOutputLength);
+  }
+
+  async executeLineWithJSONResult(line: string): Promise<any> {
+    const output = await this.executeLine(
+      `">>>>>>" + EJSON.stringify(${line}, {relaxed:false}) + "<<<<<<"`
+    );
+    const matching = output.match(/>>>>>>(.+)<<<<<</)?.[1];
+    if (!matching)
+      throw new Error(`Could not parse output from line: '${output}'`);
+    return EJSON.parse(matching);
   }
 
   assertNoErrors(): void {

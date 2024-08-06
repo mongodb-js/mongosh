@@ -1,31 +1,15 @@
 import { assert, expect } from 'chai';
 import { promises as fs } from 'fs';
 import path from 'path';
-import type { MongodSetup } from '../../../testing/integration-testing-hooks';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
 import {
   useTmpdir,
   setTemporaryHomeDirectory,
   readReplLogfile,
   getCertPath,
+  connectionStringWithLocalhost,
 } from './repl-helpers';
 import { TestShell } from './test-shell';
-
-// TLS requires matching hostnames, so here we need to explicitly
-// specify `localhost` + IPv4 instead of `127.0.0.1`
-async function connectionStringWithLocalhost(
-  setup: MongodSetup,
-  searchParams: Record<string, string> = {}
-): Promise<string> {
-  const cs = await setup.connectionStringUrl();
-  cs.hosts = cs.hosts.map((host) =>
-    host.replace(/^(127.0.0.1)(?=$|:)/, 'localhost')
-  );
-  cs.searchParams.set('family', '4');
-  for (const [key, value] of Object.entries(searchParams))
-    cs.searchParams.set(key, value);
-  return cs.toString();
-}
 
 const CA_CERT = getCertPath('ca.crt');
 const NON_CA_CERT = getCertPath('non-ca.crt');
@@ -255,6 +239,10 @@ describe('e2e TLS', function () {
           logContents.find((line) => line.id === 1_000_000_049).attr
             .asyncFallbackError
         ).to.equal(null); // Ensure that system CA loading happened asynchronously.
+        expect(
+          logContents.find((line) => line.id === 1_000_000_049).attr
+            .systemCertsError
+        ).to.equal(null); // Ensure that system CA could be loaded successfully.
       });
 
       it('works with system CA on Linux with SSL_CERT_FILE', async function () {
@@ -288,6 +276,10 @@ describe('e2e TLS', function () {
           logContents.find((line) => line.id === 1_000_000_049).attr
             .asyncFallbackError
         ).to.equal(null); // Ensure that system CA loading happened asynchronously.
+        expect(
+          logContents.find((line) => line.id === 1_000_000_049).attr
+            .systemCertsError
+        ).to.equal(null); // Ensure that system CA could be loaded successfully.
       });
 
       it('fails on macOS/Windows with system CA', async function () {
