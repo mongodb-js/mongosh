@@ -31,7 +31,6 @@ module.exports = {
   externals: {
     "node:crypto": "commonjs2 crypto",
     electron: "commonjs2 electron", // optional dep of the OIDC plugin
-    ssh2: "commonjs2 ssh2",
   },
 
   optimization: {
