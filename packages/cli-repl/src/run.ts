@@ -31,6 +31,7 @@ import net from 'net';
 import v8 from 'v8';
 import { TimingCategories } from '@mongosh/types';
 import './webpack-self-inspection';
+import { systemCA } from '@mongodb-js/devtools-proxy-support';
 
 // TS does not yet have type definitions for v8.startupSnapshot
 if ((v8 as any)?.startupSnapshot?.isBuildingSnapshot?.()) {
@@ -194,6 +195,11 @@ async function main() {
         }
       }
     }
+
+    markTime(TimingCategories.Main, 'scheduling system-ca loading');
+    // asynchronously populate the system CA cache in devtools-proxy-support
+    systemCA().catch(() => undefined);
+    markTime(TimingCategories.Main, 'scheduled system-ca loading');
 
     const connectionInfo = generateConnectionInfoFromCliArgs(options);
     connectionInfo.driverOptions = {
