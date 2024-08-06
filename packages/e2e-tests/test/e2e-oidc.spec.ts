@@ -416,6 +416,12 @@ describe('OIDC auth e2e', function () {
   });
 
   it('uses system ca by default when calling the IdP https endpoint', async function () {
+    await fs.mkdir(path.join(tmpdir.path, 'certs'), { recursive: true });
+    await fs.copyFile(
+      getCertPath('ca.crt'),
+      path.join(tmpdir.path, 'certs', 'somefilename.crt')
+    );
+
     shell = TestShell.start({
       args: [
         await testServer2.connectionString(
@@ -426,7 +432,13 @@ describe('OIDC auth e2e', function () {
         '--oidcRedirectUri=http://localhost:0/',
         `--browser=${fetchBrowserFixture}`,
       ],
+      env: {
+        ...process.env,
+        SSL_CERT_DIR: path.join(tmpdir.path, 'certs') + '',
+        MONGOSH_E2E_TEST_CURL_ALLOW_INVALID_TLS: '1',
+      },
     });
+
     await shell.waitForExit();
     // We cannot make the mongod server accept the mock IdP's certificate,
     // so the best we can verify here is that auth failed *on the server*
