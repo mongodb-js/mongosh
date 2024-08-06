@@ -385,7 +385,7 @@ describe('OIDC auth e2e', function () {
     shell2.assertNoErrors();
   });
 
-  it('can apply --useSystemCA to the IdP https endpoint', async function () {
+  it('can apply --tlsUseSystemCA to the IdP https endpoint', async function () {
     await fs.mkdir(path.join(tmpdir.path, 'certs'), { recursive: true });
     await fs.copyFile(
       getCertPath('ca.crt'),
@@ -415,13 +415,7 @@ describe('OIDC auth e2e', function () {
     shell.assertContainsOutput(/MongoServerError: Authentication failed/);
   });
 
-  it('does not fail without --tlsUseSystemCA', async function () {
-    await fs.mkdir(path.join(tmpdir.path, 'certs'), { recursive: true });
-    await fs.copyFile(
-      getCertPath('ca.crt'),
-      path.join(tmpdir.path, 'certs', 'somefilename.crt')
-    );
-
+  it('uses system ca by default when calling the IdP https endpoint', async function () {
     shell = TestShell.start({
       args: [
         await testServer2.connectionString(

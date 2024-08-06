@@ -122,7 +122,7 @@ variable. For detailed instructions for each of our supported platforms, please 
 
 ### Requirements
 
-- Node.js v16.x
+- Node.js v20.x
 
 ### Install
 
