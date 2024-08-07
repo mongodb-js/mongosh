@@ -385,7 +385,7 @@ describe('OIDC auth e2e', function () {
     shell2.assertNoErrors();
   });
 
-  it('can apply --tlsUseSystemCA to the IdP https endpoint', async function () {
+  it('can specify --tlsUseSystemCA as a no-op', async function () {
     await fs.mkdir(path.join(tmpdir.path, 'certs'), { recursive: true });
     await fs.copyFile(
       getCertPath('ca.crt'),
