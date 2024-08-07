@@ -12,7 +12,6 @@ function enableFipsIfRequested() {
   }
 }
 enableFipsIfRequested();
-(process as any).noDeprecation = true;
 
 import { markTime } from './startup-timing';
 import { CliRepl } from './cli-repl';
