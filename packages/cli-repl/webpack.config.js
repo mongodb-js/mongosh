@@ -125,7 +125,7 @@ function makeLazyForwardModule(pkg) {
       }
     `;
   } else {
-    source += `orig = _realModule`;
+    source += `orig = _realModule;\n`;
   }
 
   if (typeof moduleContents === 'function') {
