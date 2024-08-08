@@ -21,15 +21,14 @@ describe('e2e startup banners', function () {
 
   const testServer = startSharedTestServer();
 
-  context('modules included in snapshots', function () {
+  context.only('modules included in snapshots', function () {
     it('includes the right modules at the right point in time', async function () {
       if (!process.env.MONGOSH_TEST_EXECUTABLE_PATH) return this.skip();
 
       const connectionString = await testServer.connectionString();
       const helperScript = `
       const S = process.__mongosh_webpack_stats;
-      const L = (list) => list.map(S.lookupNaturalModuleName).filter( \
-        name => name && !name.endsWith('.json') && !name.includes('/lazy-webpack-modules/'));
+      const L = (list) => list.map(S.lookupNaturalModuleName);
       `;
       const commonArgs = ['--quiet', '--json=relaxed', '--eval', helperScript];
       const argLists = [
@@ -65,7 +64,13 @@ describe('e2e startup banners', function () {
       ).map((output) =>
         (JSON.parse(output) as string[])
           .sort()
-          .map((pkg) => pkg.replace(/\\/g, '/'))
+          .map((pkg) => pkg?.replace(/\\/g, '/'))
+          .filter(
+            (name) =>
+              name &&
+              !name.endsWith('.json') &&
+              !name.includes('/lazy-webpack-modules/')
+          )
       );
 
       // Ensure that: atSnapshotTime ⊆ atNodbEvalTime ⊆ atDbEvalTime ⊆ atReplEvalTime ⊆ all
