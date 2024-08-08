@@ -21,7 +21,7 @@ describe('e2e startup banners', function () {
 
   const testServer = startSharedTestServer();
 
-  context.only('modules included in snapshots', function () {
+  context('modules included in snapshots', function () {
     it('includes the right modules at the right point in time', async function () {
       if (!process.env.MONGOSH_TEST_EXECUTABLE_PATH) return this.skip();
 
