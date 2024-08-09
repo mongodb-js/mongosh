@@ -1,5 +1,6 @@
 import redactInfo from 'mongodb-redact';
 import { redactURICredentials } from '@mongosh/history';
+import { getCloudInfo } from 'mongodb-cloud-info';
 import type {
   MongoshBus,
   ApiEventWithArguments,
@@ -96,7 +97,6 @@ async function getPublicCloudInfo(host?: string): Promise<{
   }
 
   try {
-    const { getCloudInfo } = await import('mongodb-cloud-info');
     const { isAws, isAzure, isGcp } = await getCloudInfo(host);
 
     const public_cloud_name = isAws
