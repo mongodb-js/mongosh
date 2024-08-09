@@ -250,6 +250,7 @@ describe('CliServiceProvider', function () {
       expect(collectionStub.find).to.have.been.calledWith(filter);
     });
   });
+
   describe('#find with options', function () {
     const filter = { name: 'Aphex Twin' };
     const findResult = [{ name: 'Aphex Twin' }];
@@ -930,7 +931,13 @@ describe('CliServiceProvider', function () {
         return { countDocuments: async () => 0 };
       });
       clientStub.db.returns(dbStub);
-      clientStub.topology = { s: {} };
+      clientStub.topology = {
+        s: {
+          servers: new Map().set('localhost', {
+            description: { address: 'localhost' },
+          }),
+        },
+      };
       serviceProvider = new CliServiceProvider(
         clientStub,
         bus,
@@ -951,6 +958,23 @@ describe('CliServiceProvider', function () {
         dbStub.collection,
         'calls countDocument on collection to check local atlas cli support'
       ).to.have.callCount(1);
+    });
+
+    context('when connected to an Atlas deployment', function () {
+      it('correctly gathers info on the fake deployment', async function () {
+        const serviceProvider = new CliServiceProvider(
+          clientStub,
+          bus,
+          dummyOptions,
+          new ConnectionString(
+            'mongodb+srv://test-data-sets-a011bb.mongodb.net/admin'
+          )
+        );
+
+        const info = await serviceProvider.getConnectionInfo();
+        expect(info.extraInfo?.is_genuine).to.be.true;
+        expect(info.extraInfo?.is_atlas).to.be.true;
+      });
     });
 
     context('when connected to a DocumentDB deployment', function () {

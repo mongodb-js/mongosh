@@ -44,15 +44,19 @@ export interface ShowEvent {
 
 export interface ConnectEvent {
   is_atlas?: boolean;
+  resolved_hostname?: string;
   is_localhost?: boolean;
-  is_do?: boolean;
+  is_do_url?: boolean;
   server_version?: string;
+  mongosh_version: string;
   server_os?: string;
   server_arch?: string;
   is_enterprise?: boolean;
   auth_type?: string;
   is_data_federation?: boolean;
+  is_stream?: boolean;
   dl_version?: string;
+  atlas_version?: string;
   is_genuine?: boolean;
   non_genuine_server_name?: string;
   api_version?: string;
@@ -60,6 +64,9 @@ export interface ConnectEvent {
   api_deprecation_errors?: boolean;
   node_version?: string;
   uri?: string;
+  is_local_atlas?: boolean;
+  is_atlas_url?: boolean;
+  is_public_cloud?: boolean;
 }
 
 export interface ScriptLoadFileEvent {

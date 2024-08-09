@@ -392,6 +392,7 @@ class CliServiceProvider
   ): Promise<CliServiceProvider> {
     const connectionString = new ConnectionString(uri);
     const clientOptions = this.processDriverOptions(connectionString, options);
+
     const { client, state } = await this.connectMongoClient(
       connectionString.toString(),
       clientOptions
@@ -407,7 +408,7 @@ class CliServiceProvider
 
   async getConnectionInfo(): Promise<ConnectionInfo> {
     const topology = this.getTopology();
-    const { version } = require('../package.json');
+    const uri = this.uri?.toString() ?? '';
     const [buildInfo = null, atlasVersion = null, fcv = null, atlascliInfo] =
       await Promise.all([
         this.runCommandWithCheck(
@@ -431,10 +432,8 @@ class CliServiceProvider
       ]);
 
     const isLocalAtlasCli = !!atlascliInfo;
-
     const extraConnectionInfo = getConnectExtraInfo(
-      this.uri?.toString() ?? '',
-      version,
+      uri,
       buildInfo,
       atlasVersion,
       topology,
@@ -442,8 +441,8 @@ class CliServiceProvider
     );
 
     return {
-      buildInfo: buildInfo,
-      topology: topology,
+      buildInfo,
+      topology,
       extraInfo: {
         ...extraConnectionInfo,
         fcv: fcv?.featureCompatibilityVersion?.version,
