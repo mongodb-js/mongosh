@@ -8603,7 +8603,7 @@ tasks:
           node_js_version: "20.16.0"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4"
+          mongosh_server_test_version: ">= 8.0.0-rc15"
           node_js_version: "20.16.0"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n20_cli_repl"
@@ -8620,7 +8620,7 @@ tasks:
           node_js_version: "20.16.0"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4-enterprise"
+          mongosh_server_test_version: ">= 8.0.0-rc15-enterprise"
           node_js_version: "20.16.0"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n20_cli_repl"
@@ -8824,7 +8824,7 @@ tasks:
           node_js_version: "16.20.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4"
+          mongosh_server_test_version: ">= 8.0.0-rc15"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n16_cli_repl"
@@ -8841,7 +8841,7 @@ tasks:
           node_js_version: "16.20.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4-enterprise"
+          mongosh_server_test_version: ">= 8.0.0-rc15-enterprise"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n16_cli_repl"
@@ -9079,7 +9079,7 @@ tasks:
           node_js_version: "20.16.0"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4"
+          mongosh_server_test_version: ">= 8.0.0-rc15"
           node_js_version: "20.16.0"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n20_e2e_tests"
@@ -9096,7 +9096,7 @@ tasks:
           node_js_version: "20.16.0"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4-enterprise"
+          mongosh_server_test_version: ">= 8.0.0-rc15-enterprise"
           node_js_version: "20.16.0"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n20_e2e_tests"
@@ -9300,7 +9300,7 @@ tasks:
           node_js_version: "16.20.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4"
+          mongosh_server_test_version: ">= 8.0.0-rc15"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n16_e2e_tests"
@@ -9317,7 +9317,7 @@ tasks:
           node_js_version: "16.20.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4-enterprise"
+          mongosh_server_test_version: ">= 8.0.0-rc15-enterprise"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n16_e2e_tests"
@@ -9691,7 +9691,7 @@ tasks:
           node_js_version: "20.16.0"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4"
+          mongosh_server_test_version: ">= 8.0.0-rc15"
           node_js_version: "20.16.0"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n20_java_shell"
@@ -9708,7 +9708,7 @@ tasks:
           node_js_version: "20.16.0"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4-enterprise"
+          mongosh_server_test_version: ">= 8.0.0-rc15-enterprise"
           node_js_version: "20.16.0"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n20_java_shell"
@@ -9912,7 +9912,7 @@ tasks:
           node_js_version: "16.20.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4"
+          mongosh_server_test_version: ">= 8.0.0-rc15"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n16_java_shell"
@@ -9929,7 +9929,7 @@ tasks:
           node_js_version: "16.20.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4-enterprise"
+          mongosh_server_test_version: ">= 8.0.0-rc15-enterprise"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n16_java_shell"
@@ -10201,7 +10201,7 @@ tasks:
           node_js_version: "20.16.0"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4"
+          mongosh_server_test_version: ">= 8.0.0-rc15"
           node_js_version: "20.16.0"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n20_mongosh"
@@ -10218,7 +10218,7 @@ tasks:
           node_js_version: "20.16.0"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4-enterprise"
+          mongosh_server_test_version: ">= 8.0.0-rc15-enterprise"
           node_js_version: "20.16.0"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n20_mongosh"
@@ -10422,7 +10422,7 @@ tasks:
           node_js_version: "16.20.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4"
+          mongosh_server_test_version: ">= 8.0.0-rc15"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n16_mongosh"
@@ -10439,7 +10439,7 @@ tasks:
           node_js_version: "16.20.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4-enterprise"
+          mongosh_server_test_version: ">= 8.0.0-rc15-enterprise"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n16_mongosh"
@@ -10643,7 +10643,7 @@ tasks:
           node_js_version: "20.16.0"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4"
+          mongosh_server_test_version: ">= 8.0.0-rc15"
           node_js_version: "20.16.0"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n20_node_runtime_worker_thread"
@@ -10660,7 +10660,7 @@ tasks:
           node_js_version: "20.16.0"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4-enterprise"
+          mongosh_server_test_version: ">= 8.0.0-rc15-enterprise"
           node_js_version: "20.16.0"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n20_node_runtime_worker_thread"
@@ -10864,7 +10864,7 @@ tasks:
           node_js_version: "16.20.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4"
+          mongosh_server_test_version: ">= 8.0.0-rc15"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n16_node_runtime_worker_thread"
@@ -10881,7 +10881,7 @@ tasks:
           node_js_version: "16.20.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4-enterprise"
+          mongosh_server_test_version: ">= 8.0.0-rc15-enterprise"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n16_node_runtime_worker_thread"
@@ -11119,7 +11119,7 @@ tasks:
           node_js_version: "20.16.0"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4"
+          mongosh_server_test_version: ">= 8.0.0-rc15"
           node_js_version: "20.16.0"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n20_service_provider_server"
@@ -11136,7 +11136,7 @@ tasks:
           node_js_version: "20.16.0"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4-enterprise"
+          mongosh_server_test_version: ">= 8.0.0-rc15-enterprise"
           node_js_version: "20.16.0"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n20_service_provider_server"
@@ -11340,7 +11340,7 @@ tasks:
           node_js_version: "16.20.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4"
+          mongosh_server_test_version: ">= 8.0.0-rc15"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n16_service_provider_server"
@@ -11357,7 +11357,7 @@ tasks:
           node_js_version: "16.20.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4-enterprise"
+          mongosh_server_test_version: ">= 8.0.0-rc15-enterprise"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n16_service_provider_server"
@@ -11561,7 +11561,7 @@ tasks:
           node_js_version: "20.16.0"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4"
+          mongosh_server_test_version: ">= 8.0.0-rc15"
           node_js_version: "20.16.0"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n20_shell_api"
@@ -11578,7 +11578,7 @@ tasks:
           node_js_version: "20.16.0"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4-enterprise"
+          mongosh_server_test_version: ">= 8.0.0-rc15-enterprise"
           node_js_version: "20.16.0"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n20_shell_api"
@@ -11782,7 +11782,7 @@ tasks:
           node_js_version: "16.20.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4"
+          mongosh_server_test_version: ">= 8.0.0-rc15"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n16_shell_api"
@@ -11799,7 +11799,7 @@ tasks:
           node_js_version: "16.20.2"
       - func: test
         vars:
-          mongosh_server_test_version: ">= 8.0.0-rc4-enterprise"
+          mongosh_server_test_version: ">= 8.0.0-rc15-enterprise"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n16_shell_api"
@@ -12042,6 +12042,44 @@ tasks:
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: e2e_tests_darwin_x64_800rc15_fips
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: darwin
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.16.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: darwin-x64
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "20.16.0"
+          mongosh_server_test_version: "8.0.0-rc15-enterprise"
+          mongosh_test_e2e_force_fips: "1"
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: e2e_tests_darwin_x64_800rc15
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: darwin
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.16.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: darwin-x64
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "20.16.0"
+          mongosh_server_test_version: "8.0.0-rc15-enterprise"
+          mongosh_test_e2e_force_fips: ""
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_darwin_x64_60x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -12130,6 +12168,44 @@ tasks:
         vars:
           node_js_version: "20.16.0"
           mongosh_server_test_version: "stable-enterprise"
+          mongosh_test_e2e_force_fips: ""
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: e2e_tests_darwin_arm64_800rc15_fips
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: darwin_arm64
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.16.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: darwin-arm64
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "20.16.0"
+          mongosh_server_test_version: "8.0.0-rc15-enterprise"
+          mongosh_test_e2e_force_fips: "1"
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: e2e_tests_darwin_arm64_800rc15
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: darwin_arm64
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.16.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: darwin-arm64
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "20.16.0"
+          mongosh_server_test_version: "8.0.0-rc15-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_darwin_arm64_60x_fips
@@ -12222,6 +12298,44 @@ tasks:
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: e2e_tests_linux_x64_800rc15_fips
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_x64_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.16.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "20.16.0"
+          mongosh_server_test_version: "8.0.0-rc15-enterprise"
+          mongosh_test_e2e_force_fips: "1"
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: e2e_tests_linux_x64_800rc15
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_x64_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.16.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "20.16.0"
+          mongosh_server_test_version: "8.0.0-rc15-enterprise"
+          mongosh_test_e2e_force_fips: ""
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_x64_60x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -12310,6 +12424,44 @@ tasks:
         vars:
           node_js_version: "20.16.0"
           mongosh_server_test_version: "stable-enterprise"
+          mongosh_test_e2e_force_fips: ""
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: e2e_tests_linux_x64_openssl11_800rc15_fips
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_x64_build_openssl11
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.16.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl11
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "20.16.0"
+          mongosh_server_test_version: "8.0.0-rc15-enterprise"
+          mongosh_test_e2e_force_fips: "1"
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: e2e_tests_linux_x64_openssl11_800rc15
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_x64_build_openssl11
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.16.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl11
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "20.16.0"
+          mongosh_server_test_version: "8.0.0-rc15-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_x64_openssl11_60x_fips
@@ -12402,6 +12554,44 @@ tasks:
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: e2e_tests_linux_x64_openssl3_800rc15_fips
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_x64_build_openssl3
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.16.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl3
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "20.16.0"
+          mongosh_server_test_version: "8.0.0-rc15-enterprise"
+          mongosh_test_e2e_force_fips: "1"
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: e2e_tests_linux_x64_openssl3_800rc15
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_x64_build_openssl3
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.16.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl3
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "20.16.0"
+          mongosh_server_test_version: "8.0.0-rc15-enterprise"
+          mongosh_test_e2e_force_fips: ""
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_x64_openssl3_60x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -12490,6 +12680,44 @@ tasks:
         vars:
           node_js_version: "20.16.0"
           mongosh_server_test_version: "stable-enterprise"
+          mongosh_test_e2e_force_fips: ""
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: e2e_tests_linux_arm64_800rc15_fips
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_arm64_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.16.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "20.16.0"
+          mongosh_server_test_version: "8.0.0-rc15-enterprise"
+          mongosh_test_e2e_force_fips: "1"
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: e2e_tests_linux_arm64_800rc15
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_arm64_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.16.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "20.16.0"
+          mongosh_server_test_version: "8.0.0-rc15-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_arm64_60x_fips
@@ -12582,6 +12810,44 @@ tasks:
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: e2e_tests_linux_arm64_openssl11_800rc15_fips
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_arm64_build_openssl11
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.16.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl11
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "20.16.0"
+          mongosh_server_test_version: "8.0.0-rc15-enterprise"
+          mongosh_test_e2e_force_fips: "1"
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: e2e_tests_linux_arm64_openssl11_800rc15
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_arm64_build_openssl11
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.16.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl11
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "20.16.0"
+          mongosh_server_test_version: "8.0.0-rc15-enterprise"
+          mongosh_test_e2e_force_fips: ""
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_arm64_openssl11_60x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -12670,6 +12936,44 @@ tasks:
         vars:
           node_js_version: "20.16.0"
           mongosh_server_test_version: "stable-enterprise"
+          mongosh_test_e2e_force_fips: ""
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: e2e_tests_linux_arm64_openssl3_800rc15_fips
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_arm64_build_openssl3
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.16.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl3
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "20.16.0"
+          mongosh_server_test_version: "8.0.0-rc15-enterprise"
+          mongosh_test_e2e_force_fips: "1"
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: e2e_tests_linux_arm64_openssl3_800rc15
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_arm64_build_openssl3
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.16.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl3
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "20.16.0"
+          mongosh_server_test_version: "8.0.0-rc15-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_arm64_openssl3_60x_fips
@@ -12762,6 +13066,44 @@ tasks:
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: e2e_tests_linux_ppc64le_800rc15_fips
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_ppc64le_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.16.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-ppc64le
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "20.16.0"
+          mongosh_server_test_version: "8.0.0-rc15-enterprise"
+          mongosh_test_e2e_force_fips: "1"
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: e2e_tests_linux_ppc64le_800rc15
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_ppc64le_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.16.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-ppc64le
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "20.16.0"
+          mongosh_server_test_version: "8.0.0-rc15-enterprise"
+          mongosh_test_e2e_force_fips: ""
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_ppc64le_60x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -12852,6 +13194,44 @@ tasks:
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: e2e_tests_linux_s390x_800rc15_fips
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_s390x_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.16.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-s390x
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "20.16.0"
+          mongosh_server_test_version: "8.0.0-rc15-enterprise"
+          mongosh_test_e2e_force_fips: "1"
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: e2e_tests_linux_s390x_800rc15
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_s390x_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.16.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-s390x
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "20.16.0"
+          mongosh_server_test_version: "8.0.0-rc15-enterprise"
+          mongosh_test_e2e_force_fips: ""
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_s390x_60x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -12940,6 +13320,44 @@ tasks:
         vars:
           node_js_version: "20.16.0"
           mongosh_server_test_version: "stable-enterprise"
+          mongosh_test_e2e_force_fips: ""
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: e2e_tests_win32_800rc15_fips
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: win32_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.16.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: win32
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "20.16.0"
+          mongosh_server_test_version: "8.0.0-rc15-enterprise"
+          mongosh_test_e2e_force_fips: "1"
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: e2e_tests_win32_800rc15
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: win32_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.16.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: win32
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "20.16.0"
+          mongosh_server_test_version: "8.0.0-rc15-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_win32_60x_fips
@@ -17543,6 +17961,13 @@ buildvariants:
     tasks:
       - name: e2e_tests_linux_x64
       - name: e2e_tests_linux_x64_openssl3
+  - name: e2e_ubuntu2404_x64
+    display_name: "Ubuntu 24.04 x64 (E2E Tests)"
+    run_on: ubuntu2404-small
+    tags: ["nightly-driver"]
+    tasks:
+      - name: e2e_tests_linux_x64_800rc15
+      - name: e2e_tests_linux_x64_openssl3_800rc15
   - name: e2e_debian10_x64
     display_name: "Debian 10 x64 (E2E Tests)"
     run_on: debian10-small
@@ -17600,6 +18025,12 @@ buildvariants:
     tasks:
       - name: e2e_tests_linux_arm64
       - name: e2e_tests_linux_arm64_openssl3
+  - name: e2e_ubuntu2404_arm64
+    display_name: "Ubuntu 24.04 arm64 (E2E Tests)"
+    run_on: ubuntu2404-arm64-small
+    tasks:
+      - name: e2e_tests_linux_arm64_800rc15
+      - name: e2e_tests_linux_arm64_openssl3_800rc15
   - name: e2e_amazon2_arm64
     display_name: "Amazon Linux 2 arm64 (E2E Tests)"
     run_on: amazon2-arm64-large

@@ -28,7 +28,7 @@ describe('e2e startup banners', function () {
       const connectionString = await testServer.connectionString();
       const helperScript = `
       const S = process.__mongosh_webpack_stats;
-      const L = (list) => list.map(S.lookupNaturalModuleName).filter(name => name && !name.endsWith('.json'));
+      const L = (list) => list.map(S.lookupNaturalModuleName);
       `;
       const commonArgs = ['--quiet', '--json=relaxed', '--eval', helperScript];
       const argLists = [
@@ -64,7 +64,13 @@ describe('e2e startup banners', function () {
       ).map((output) =>
         (JSON.parse(output) as string[])
           .sort()
-          .map((pkg) => pkg.replace(/\\/g, '/'))
+          .map((pkg) => pkg?.replace(/\\/g, '/'))
+          .filter(
+            (name) =>
+              name &&
+              !name.endsWith('.json') &&
+              !name.includes('/lazy-webpack-modules/')
+          )
       );
 
       // Ensure that: atSnapshotTime ⊆ atNodbEvalTime ⊆ atDbEvalTime ⊆ atReplEvalTime ⊆ all
@@ -128,11 +134,11 @@ describe('e2e startup banners', function () {
       verifyAllInCategoryMatch('repl-eval', /^node_modules\/pretty-repl\//);
       verifyAllInCategoryMatch(
         'db-eval',
-        /^node_modules\/(kerberos|os-dns-native|resolve-mongodb-srv)\//
+        /^node_modules\/(kerberos|os-dns-native|resolve-mongodb-srv|macos-export-certificate-and-key|win-export-certificate-and-key)\//
       );
       verifyAllInCategoryMatch(
         'nodb-eval',
-        /^node_modules\/(kerberos|mongodb-client-encryption|glibc-version)\//
+        /^node_modules\/(kerberos|mongodb-client-encryption|glibc-version|@mongodb-js\/devtools-proxy-support|@mongodb-js\/socksv5|system-ca)\//
       );
       verifyAllThatMatchAreInCategory(
         'not-loaded',
