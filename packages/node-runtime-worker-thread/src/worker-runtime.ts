@@ -1,5 +1,5 @@
 /* istanbul ignore file */
-/* ^^^ we test the dist directly, so isntanbul can't calculate the coverage correctly */
+/* ^^^ we test the dist directly, so istanbul can't calculate the coverage correctly */
 
 import { parentPort, isMainThread } from 'worker_threads';
 import type {
@@ -199,8 +199,8 @@ const workerRuntime: WorkerRuntime = {
 
 // We expect the amount of listeners to be more than the default value of 10 but
 // probably not more than ~25 (all exposed methods on
-// ChildProcessEvaluationListener and ChildProcessMongoshBus + any concurrent
-// in-flight calls on ChildProcessRuntime) at once
+// WorkerThreadEvaluationListener and WorkerThreadMongoshBus + any concurrent
+// in-flight calls on WorkerThreadRuntime) at once
 parentPort.setMaxListeners(25);
 
 exposeAll(workerRuntime, parentPort);

@@ -24,11 +24,21 @@ function sleep(ms: number) {
 }
 
 describe('WorkerRuntime', function () {
-  let runtime: WorkerRuntime;
+  let runtime: WorkerRuntime | null = null;
 
   afterEach(async function () {
     if (runtime) {
-      await runtime.terminate();
+      // There is a Node.js bug that causes worker process to still be ref-ed
+      // after termination. To work around that, we are unrefing worker manually
+      // *immediately* after terminate method is called even though it should
+      // not be necessary. If this is not done in rare cases our test suite can
+      // get stuck. Even though the issue is fixed we would still need to keep
+      // this workaround for compat reasons.
+      //
+      // See: https://github.com/nodejs/node/pull/37319
+      const terminationPromise = runtime.terminate();
+      runtime['workerProcess'].unref();
+      await terminationPromise;
       runtime = null;
     }
   });
@@ -43,11 +53,11 @@ describe('WorkerRuntime', function () {
 
     afterEach(function () {
       delete process
-        .env.CHILD_PROCESS_PROXY_SRC_PATH_DO_NOT_USE_THIS_EXCEPT_FOR_TESTING;
+        .env.WORKER_RUNTIME_SRC_PATH_DO_NOT_USE_THIS_EXCEPT_FOR_TESTING;
     });
 
-    it('should return init error if child process failed to spawn', async function () {
-      process.env.CHILD_PROCESS_PROXY_SRC_PATH_DO_NOT_USE_THIS_EXCEPT_FOR_TESTING =
+    it('should return init error if worker thread failed to spawn', async function () {
+      process.env.WORKER_RUNTIME_SRC_PATH_DO_NOT_USE_THIS_EXCEPT_FOR_TESTING =
         brokenScript;
 
       runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, {
@@ -65,34 +75,7 @@ describe('WorkerRuntime', function () {
       expect(err).to.be.instanceof(Error);
       expect(err)
         .to.have.property('message')
-        .match(/Child process failed to start/);
-    });
-
-    it('should return init error if worker in child process failed to spawn', async function () {
-      runtime = new WorkerRuntime(
-        'mongodb://nodb/',
-        dummyOptions,
-        { nodb: true },
-        {
-          env: {
-            WORKER_RUNTIME_SRC_PATH_DO_NOT_USE_THIS_EXCEPT_FOR_TESTING:
-              brokenScript,
-          },
-        }
-      );
-
-      let err;
-
-      try {
-        await runtime.evaluate('1+1');
-      } catch (e: any) {
-        err = e;
-      }
-
-      expect(err).to.be.instanceof(Error);
-      expect(err)
-        .to.have.property('message')
-        .match(/Worker thread failed to start/);
+        .match(/Worker thread failed to start with/);
     });
   });
 
@@ -278,21 +261,36 @@ describe('WorkerRuntime', function () {
 
     // We will be testing a bunch of private props that can be accessed only with
     // strings to make TS happy
-    it('should terminate child process', async function () {
+    it('should terminate the worker thread', async function () {
       const runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, {
         nodb: true,
       });
+      await runtime.waitForRuntimeToBeReady();
+      expect(isRunning(runtime['workerProcess'].threadId)).to.not.equal(-1);
+      expect(isRunning(runtime['workerProcess'].threadId)).to.not.equal(
+        undefined
+      );
+
+      let resolvePromise;
+      const exitCalledPromise = new Promise((resolve) => {
+        resolvePromise = resolve;
+      });
+      runtime['workerProcess'].on('exit', () => {
+        resolvePromise();
+      });
+
       await runtime.terminate();
-      expect(runtime['childProcess']).to.have.property('killed', true);
-      expect(isRunning(runtime['childProcess'].pid)).to.equal(false);
+
+      await exitCalledPromise;
+      expect(runtime['workerProcess'].threadId).to.equal(-1);
     });
 
-    it('should remove all listeners from childProcess', async function () {
+    it('should remove all listeners from workerProcess', async function () {
       const runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, {
         nodb: true,
       });
       await runtime.terminate();
-      expect(runtime['childProcess'].listenerCount('message')).to.equal(0);
+      expect(runtime['workerProcess'].listenerCount('message')).to.equal(0);
     });
 
     it('should cancel any in-flight runtime calls', async function () {
@@ -318,85 +316,166 @@ describe('WorkerRuntime', function () {
   });
 
   describe('interrupt', function () {
-    it('should interrupt in-flight async tasks', async function () {
-      runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, {
-        nodb: true,
+    context('async tasks', function () {
+      it('should interrupt in-flight tasks', async function () {
+        runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, {
+          nodb: true,
+        });
+
+        await runtime.waitForRuntimeToBeReady();
+
+        let err: Error;
+
+        try {
+          await Promise.all([
+            runtime.evaluate('sleep(1000000)'),
+            (async () => {
+              // This is flaky when not enough time is given to the worker to
+              // finish the sync part of the work. If it causes too much issues
+              // it would be okay to disable this test completely
+              await sleep(5000);
+              await runtime.interrupt();
+            })(),
+          ]);
+        } catch (e: any) {
+          err = e;
+        }
+
+        expect(err).to.be.instanceof(Error);
+        expect(err)
+          .to.have.property('message')
+          .match(/Async script execution was interrupted/);
       });
 
-      await runtime.waitForRuntimeToBeReady();
+      it('should allow to evaluate again after interruption', async function () {
+        runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, {
+          nodb: true,
+        });
 
-      let err: Error;
+        await runtime.waitForRuntimeToBeReady();
 
-      try {
-        await Promise.all([
-          runtime.evaluate('sleep(1000000)'),
-          (async () => {
-            // This is flaky when not enought time given to the worker to
-            // finish the sync part of the work. If it causes too much issues
-            // it would be okay to disable this test completely
-            await sleep(5000);
-            await runtime.interrupt();
-          })(),
-        ]);
-      } catch (e: any) {
-        err = e;
-      }
+        try {
+          await Promise.all([
+            runtime.evaluate('sleep(1000000)'),
+            (async () => {
+              await sleep(200);
+              await runtime.interrupt();
+            })(),
+          ]);
+        } catch (e: any) {
+          // ignore
+        }
 
-      expect(err).to.be.instanceof(Error);
-      expect(err)
-        .to.have.property('message')
-        .match(/Async script execution was interrupted/);
+        const result = await runtime.evaluate('1+1');
+
+        expect(result).to.have.property('printable', 2);
+      });
+
+      it('should preserve the context after interruption', async function () {
+        runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, {
+          nodb: true,
+        });
+
+        await runtime.waitForRuntimeToBeReady();
+
+        await runtime.evaluate('let x = 1');
+        await runtime.evaluate('x = x + 2');
+
+        try {
+          await Promise.all([
+            runtime.evaluate('sleep(1000000)'),
+            (async () => {
+              await sleep(200);
+              await runtime.interrupt();
+            })(),
+          ]);
+        } catch (e: any) {
+          // ignore
+        }
+
+        const result = await runtime.evaluate('x + 3');
+
+        expect(result).to.have.property('printable', 6);
+      });
     });
 
-    it('should interrupt in-flight synchronous tasks', async function () {
-      runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, {
-        nodb: true,
+    context('sync tasks', function () {
+      it('should interrupt in-flight tasks', async function () {
+        runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, {
+          nodb: true,
+        });
+
+        await runtime.waitForRuntimeToBeReady();
+
+        let err: Error;
+
+        try {
+          await Promise.all([
+            runtime.evaluate('while(true){}'),
+            (async () => {
+              await sleep(200);
+              await runtime.interrupt();
+            })(),
+          ]);
+        } catch (e: any) {
+          err = e;
+        }
+
+        expect(err).to.be.instanceof(Error);
+        expect(err)
+          .to.have.property('message')
+          .match(/Script execution was interrupted/);
       });
 
-      await runtime.waitForRuntimeToBeReady();
+      it('should allow to evaluate again after interruption', async function () {
+        runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, {
+          nodb: true,
+        });
 
-      let err: Error;
+        await runtime.waitForRuntimeToBeReady();
 
-      try {
-        await Promise.all([
-          runtime.evaluate('while(true){}'),
-          (async () => {
-            await sleep(200);
-            await runtime.interrupt();
-          })(),
-        ]);
-      } catch (e: any) {
-        err = e;
-      }
+        try {
+          await Promise.all([
+            runtime.evaluate('while(true){}'),
+            (async () => {
+              await sleep(200);
+              await runtime.interrupt();
+            })(),
+          ]);
+        } catch (e: any) {
+          // ignore
+        }
 
-      expect(err).to.be.instanceof(Error);
-      expect(err)
-        .to.have.property('message')
-        .match(/Script execution was interrupted/);
-    });
+        const result = await runtime.evaluate('1+1');
 
-    it('should allow to evaluate again after interruption', async function () {
-      runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, {
-        nodb: true,
+        expect(result).to.have.property('printable', 2);
       });
 
-      await runtime.waitForRuntimeToBeReady();
+      it('should preserve the context after interruption', async function () {
+        runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, {
+          nodb: true,
+        });
 
-      try {
-        await Promise.all([
-          runtime.evaluate('while(true){}'),
-          (async () => {
-            await sleep(200);
-            await runtime.interrupt();
-          })(),
-        ]);
-      } catch (e: any) {
-        // ignore
-      }
+        await runtime.waitForRuntimeToBeReady();
 
-      const result = await runtime.evaluate('1+1');
+        await runtime.evaluate('let x = 1');
+        await runtime.evaluate('x = x + 2');
 
-      expect(result).to.have.property('printable', 2);
+        try {
+          await Promise.all([
+            runtime.evaluate('while(true){}'),
+            (async () => {
+              await sleep(200);
+              await runtime.interrupt();
+            })(),
+          ]);
+        } catch (e: any) {
+          // ignore
+        }
+
+        const result = await runtime.evaluate('x + 3');
+        expect(result).to.have.property('printable', 6);
+      });
     });
   });
 });
