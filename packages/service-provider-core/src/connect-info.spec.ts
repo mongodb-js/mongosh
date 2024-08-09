@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import getConnectExtraInfo from './connect-info';
+import getConnectExtraInfo, { getHostnameForConnection } from './connect-info';
 
 describe('getConnectInfo', function () {
   const BUILD_INFO = {
@@ -259,5 +259,40 @@ describe('getConnectInfo', function () {
         false
       )
     ).to.deep.equal(output);
+  });
+
+  describe('getHostnameForConnection', function () {
+    it('handels hostname without port', function () {
+      const hostname = getHostnameForConnection({
+        s: {
+          credentials: {
+            mechanism: 'LDAP',
+          },
+          servers: new Map().set(
+            'test-000-shard-00-00.test.mongodb.net:27017',
+            {
+              description: {
+                address: 'test-000-shard-00-00.test.mongodb.net:27017',
+              },
+            }
+          ),
+        },
+      });
+      expect(hostname).to.be.eql('test-000-shard-00-00.test.mongodb.net');
+    });
+
+    it('handels IPv6 hostname without port', function () {
+      const hostname = getHostnameForConnection({
+        s: {
+          credentials: {
+            mechanism: 'LDAP',
+          },
+          servers: new Map().set('[3fff:0:a88:15a3::ac2f]:8001', {
+            description: { address: '[3fff:0:a88:15a3::ac2f]:8001' },
+          }),
+        },
+      });
+      expect(hostname).to.be.eql('3fff:0:a88:15a3::ac2f');
+    });
   });
 });

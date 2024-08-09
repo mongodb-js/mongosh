@@ -28,10 +28,14 @@ export type HostInformation = {
 };
 
 export function getHostnameForConnection(topology: any): string | undefined {
-  const resolvedHost = topology?.s?.servers?.values().next().value
-    .description.address;
-  const [hostname] = (resolvedHost ?? '').split(':');
-  return hostname || undefined;
+  const resolvedHost =
+    topology?.s?.servers?.values().next().value.description.address ?? '';
+
+  if (resolvedHost.startsWith('[')) {
+    return resolvedHost.slice(1).split(']')[0]; // IPv6
+  }
+
+  return resolvedHost.split(':')[0];
 }
 
 function getHostInformation(host?: string): HostInformation {
