@@ -238,7 +238,6 @@ describe('e2e TLS', function () {
               serverSelectionTimeoutMS: '1500',
             }),
             '--tls',
-            '--tlsUseSystemCA',
           ],
           env: {
             ...env,
@@ -273,7 +272,6 @@ describe('e2e TLS', function () {
               serverSelectionTimeoutMS: '1500',
             }),
             '--tls',
-            '--tlsUseSystemCA',
           ],
           env: {
             ...env,
@@ -303,7 +301,6 @@ describe('e2e TLS', function () {
               serverSelectionTimeoutMS: '1500',
             }),
             '--tls',
-            '--tlsUseSystemCA',
           ],
           env,
         });

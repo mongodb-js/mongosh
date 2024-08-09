@@ -56,7 +56,6 @@ const translations: Catalog = {
         'Specifies the .pem file that contains the Certificate Revocation List',
       tlsDisabledProtocols:
         'Comma separated list of TLS protocols to disable [TLS1_0,TLS1_1,TLS1_2]',
-      tlsUseSystemCA: 'Load the operating system trusted certificate list',
       tlsFIPSMode: "Enable the system TLS library's FIPS mode",
       apiVersionOptions: 'API version options:',
       apiVersion: 'Specifies the API version to connect with',

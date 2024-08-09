@@ -385,7 +385,7 @@ describe('OIDC auth e2e', function () {
     shell2.assertNoErrors();
   });
 
-  it('can apply --useSystemCA to the IdP https endpoint', async function () {
+  it('can specify --tlsUseSystemCA as a no-op', async function () {
     await fs.mkdir(path.join(tmpdir.path, 'certs'), { recursive: true });
     await fs.copyFile(
       getCertPath('ca.crt'),
@@ -413,8 +413,15 @@ describe('OIDC auth e2e', function () {
     // We cannot make the mongod server accept the mock IdP's certificate,
     // so the best we can verify here is that auth failed *on the server*
     shell.assertContainsOutput(/MongoServerError: Authentication failed/);
+  });
 
-    // Negative test: Without --tlsUseSystemCA, mongosh fails earlier:
+  it('uses system ca by default when calling the IdP https endpoint', async function () {
+    await fs.mkdir(path.join(tmpdir.path, 'certs'), { recursive: true });
+    await fs.copyFile(
+      getCertPath('ca.crt'),
+      path.join(tmpdir.path, 'certs', 'somefilename.crt')
+    );
+
     shell = TestShell.start({
       args: [
         await testServer2.connectionString(
@@ -425,11 +432,17 @@ describe('OIDC auth e2e', function () {
         '--oidcRedirectUri=http://localhost:0/',
         `--browser=${fetchBrowserFixture}`,
       ],
+      env: {
+        ...process.env,
+        SSL_CERT_DIR: path.join(tmpdir.path, 'certs') + '',
+        MONGOSH_E2E_TEST_CURL_ALLOW_INVALID_TLS: '1',
+      },
     });
+
     await shell.waitForExit();
-    shell.assertContainsOutput(
-      /Unable to fetch issuer metadata for "https:\/\/localhost:\d+"/
-    );
+    // We cannot make the mongod server accept the mock IdP's certificate,
+    // so the best we can verify here is that auth failed *on the server*
+    shell.assertContainsOutput(/MongoServerError: Authentication failed/);
   });
 
   it('can successfully authenticate using the ID token rather than access token if requested', async function () {
