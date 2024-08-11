@@ -67,7 +67,6 @@ variable. For detailed instructions for each of our supported platforms, please 
         --tlsCertificateSelector [arg]         TLS Certificate in system store (Windows and macOS only)
         --tlsCRLFile [arg]                     Specifies the .pem file that contains the Certificate Revocation List
         --tlsDisabledProtocols [arg]           Comma separated list of TLS protocols to disable [TLS1_0,TLS1_1,TLS1_2]
-        --tlsUseSystemCA                       Load the operating system trusted certificate list
         --tlsFIPSMode                          Enable the system TLS library's FIPS mode
 
   API version options:
@@ -83,6 +82,20 @@ variable. For detailed instructions for each of our supported platforms, please 
         --awsSessionToken [arg]                Optional AWS Session Token ID
         --keyVaultNamespace [arg]              database.collection to store encrypted FLE parameters
         --kmsURL [arg]                         Test parameter to override the URL of the KMS endpoint
+
+        oidcFlows?: string;
+        oidcRedirectUri?: string;
+        oidcTrustedEndpoint?: boolean;
+        oidcIdTokenAsAccessToken?: boolean;
+        oidcDumpTokens?: boolean | 'redacted' | 'include-secrets';
+
+  OIDC auth options:
+
+        --oidcFlows[=auth-code,device-auth]    Supported OIDC auth flows
+        --oidcRedirectUri[=url]                Local auth code flow redirect URL [http://localhost:27097/redirect]
+        --oidcTrustedEndpoint                  Treat the cluster/database mongosh as a trusted endpoint
+        --oidcIdTokenAsAccessToken             Use ID tokens in place of access tokens for auth
+        --oidcDumpTokens[=mode]                Debug OIDC by printing tokens to mongosh's output [full|include-secrets]
 
   DB Address Examples:
 
@@ -109,7 +122,7 @@ variable. For detailed instructions for each of our supported platforms, please 
 
 ### Requirements
 
-- Node.js v16.x
+- Node.js v20.x
 
 ### Install
 

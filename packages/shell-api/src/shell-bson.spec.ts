@@ -740,7 +740,7 @@ describe('Shell BSON', function () {
   });
 
   describe('BSON constructor properties', function () {
-    for (const key of Object.keys(bson)) {
+    for (const key of Object.keys(bson) as (keyof typeof bson)[]) {
       it(`matches original BSON constructor properties (${key})`, function () {
         if (!(key in shellBson) || bson[key] === shellBson[key]) {
           return;
@@ -759,7 +759,7 @@ describe('Shell BSON', function () {
         delete bsonProperties.prototype?.writable;
 
         // Non-public methods:
-        delete bsonProperties.fromExtendedJSON; // Long.fromExtendedJSON was not made public on purpose
+        delete (bsonProperties as any).fromExtendedJSON; // Long.fromExtendedJSON was not made public on purpose
         delete bsonProperties.BSON_BINARY_SUBTYPE_DEFAULT; // private
         delete bsonProperties.createPk; // @internal
         delete bsonProperties.getInc; // private

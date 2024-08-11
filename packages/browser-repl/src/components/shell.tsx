@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import type { EditorRef } from '@mongodb-js/compass-editor';
 import {
   css,
-  ThemeProvider,
-  Theme,
   palette,
   fontFamilies,
+  useDarkMode,
+  cx,
 } from '@mongodb-js/compass-components';
 import type { Runtime } from '@mongosh/browser-runtime-core';
 import { changeHistory } from '@mongosh/history';
@@ -19,8 +19,6 @@ const shellContainer = css({
   fontSize: '13px',
   lineHeight: '24px',
   fontFamily: fontFamilies.code,
-  backgroundColor: palette.gray.dark4,
-  color: palette.gray.light3,
   padding: '4px 0',
   width: '100%',
   height: '100%',
@@ -46,6 +44,16 @@ const shellContainer = css({
   },
 });
 
+const shellContainerLightModeStyles = css({
+  backgroundColor: palette.white,
+  color: palette.black,
+});
+
+const shellContainerDarkModeStyles = css({
+  backgroundColor: palette.gray.dark4,
+  color: palette.gray.light3,
+});
+
 interface ShellProps {
   /* The runtime used to evaluate code.
    */
@@ -61,6 +69,11 @@ interface ShellProps {
    * the oldest entry.
    */
   onHistoryChanged: (history: readonly string[]) => void;
+
+  /**
+   * A function called each time the text in the shell input is changed
+   */
+  onInputChanged?: (input: string) => void;
 
   /* If set, the shell will omit or redact entries containing sensitive
    * info from history. Defaults to `false`.
@@ -85,6 +98,16 @@ interface ShellProps {
    */
   onOperationEnd: () => void;
 
+  /**
+   * Initial value in the shell input field
+   */
+  initialInput?: string;
+
+  /**
+   * A set of input strings to evaluate right after shell is mounted
+   */
+  initialEvaluate?: string | string[];
+
   /* An array of entries to be displayed in the output area.
    *
    * Can be used to restore the output between sessions, or to setup
@@ -103,6 +126,10 @@ interface ShellProps {
    * Note: new entries will not be appended to the array.
    */
   initialHistory: readonly string[];
+
+  darkMode?: boolean;
+
+  className?: string;
 }
 
 interface ShellState {
@@ -120,7 +147,7 @@ const noop = (): void => {
 /**
  * The browser-repl Shell component
  */
-export class Shell extends Component<ShellProps, ShellState> {
+export class _Shell extends Component<ShellProps, ShellState> {
   static defaultProps = {
     onHistoryChanged: noop,
     onOperationStarted: noop,
@@ -128,6 +155,7 @@ export class Shell extends Component<ShellProps, ShellState> {
     onOutputChanged: noop,
     maxOutputLength: 1000,
     maxHistoryLength: 1000,
+    initialInput: '',
     initialOutput: [],
     initialHistory: [],
   };
@@ -146,9 +174,20 @@ export class Shell extends Component<ShellProps, ShellState> {
   };
 
   componentDidMount(): void {
+    // Store the intial prop value on mount so that we're not using potentially
+    // updated one when actually running the lines
+    let evalLines: string[] = [];
+    if (this.props.initialEvaluate) {
+      evalLines = Array.isArray(this.props.initialEvaluate)
+        ? this.props.initialEvaluate
+        : [this.props.initialEvaluate];
+    }
     this.scrollToBottom();
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.updateShellPrompt();
+    void this.updateShellPrompt().then(async () => {
+      for (const input of evalLines) {
+        await this.onInput(input);
+      }
+    });
   }
 
   componentDidUpdate(): void {
@@ -351,7 +390,7 @@ export class Shell extends Component<ShellProps, ShellState> {
     this.editor = editor;
   };
 
-  private focusEditor = (): void => {
+  focusEditor = (): void => {
     this.editor?.focus();
   };
 
@@ -379,6 +418,8 @@ export class Shell extends Component<ShellProps, ShellState> {
 
     return (
       <ShellInput
+        initialText={this.props.initialInput}
+        onTextChange={this.props.onInputChanged}
         prompt={this.state.shellPrompt}
         autocompleter={this.props.runtime}
         history={this.state.history}
@@ -393,24 +434,39 @@ export class Shell extends Component<ShellProps, ShellState> {
 
   render(): JSX.Element {
     return (
-      <ThemeProvider theme={{ theme: Theme.Dark, enabled: true }}>
-        <div
-          data-testid="shell"
-          className={shellContainer}
-          onClick={this.onShellClicked}
-        >
-          <div>
-            <ShellOutput output={this.state.output} />
-          </div>
-          <div
-            ref={(el): void => {
-              this.shellInputElement = el;
-            }}
-          >
-            {this.renderInput()}
-          </div>
+      <div
+        data-testid="shell"
+        className={cx(
+          shellContainer,
+          this.props.darkMode
+            ? shellContainerDarkModeStyles
+            : shellContainerLightModeStyles,
+          this.props.className
+        )}
+        onClick={this.onShellClicked}
+      >
+        <div>
+          <ShellOutput output={this.state.output} />
         </div>
-      </ThemeProvider>
+        <div
+          ref={(el): void => {
+            this.shellInputElement = el;
+          }}
+        >
+          {this.renderInput()}
+        </div>
+      </div>
     );
   }
 }
+
+type DefaultProps = keyof (typeof _Shell)['defaultProps'];
+
+export const Shell = React.forwardRef<
+  _Shell,
+  Omit<ShellProps, DefaultProps | 'darkMode'> &
+    Partial<Pick<ShellProps, DefaultProps>>
+>(function ShellWithDarkMode(props, ref) {
+  const darkMode = useDarkMode();
+  return <_Shell darkMode={darkMode} ref={ref} {...props}></_Shell>;
+});

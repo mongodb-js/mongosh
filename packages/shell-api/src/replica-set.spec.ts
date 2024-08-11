@@ -15,7 +15,7 @@ import semver from 'semver';
 import sinonChai from 'sinon-chai';
 import type { StubbedInstance } from 'ts-sinon';
 import { stubInterface } from 'ts-sinon';
-import { createRetriableMethod, ensureMaster } from '../../../testing/helpers';
+import { createRetriableMethod, ensureMaster } from '../test/helpers';
 import type { MongodSetup } from '../../../testing/integration-testing-hooks';
 import {
   skipIfServerVersion,
@@ -71,7 +71,7 @@ describe('ReplicaSet', function () {
     });
 
     it('attributes', function () {
-      expect(signatures.ReplicaSet.attributes.initiate).to.deep.equal({
+      expect(signatures.ReplicaSet.attributes?.initiate).to.deep.equal({
         type: 'function',
         returnsPromise: true,
         deprecated: false,
@@ -700,26 +700,27 @@ describe('ReplicaSet', function () {
           version: 1,
         };
         config = deepClone(oldConfig);
-        config.members.push(secondary);
+        config.members!.push(secondary);
         reconfigResults = [{ ok: 1 }, { ok: 1 }];
         reconfigCalls = [];
 
         // eslint-disable-next-line @typescript-eslint/require-await
         serviceProvider.runCommandWithCheck.callsFake(
           // eslint-disable-next-line @typescript-eslint/require-await
-          async (db: string, cmd: Document) => {
+          async (db: string, cmd: Document): Promise<Document> => {
             if (cmd.replSetGetConfig) {
               return { config: oldConfig };
             }
             if (cmd.replSetReconfig) {
               const result = reconfigResults.shift();
               reconfigCalls.push(deepClone(cmd.replSetReconfig));
-              if (result.ok) {
+              if (result?.ok) {
                 oldConfig = deepClone(cmd.replSetReconfig);
                 return result;
               }
               throw new Error(`Reconfig failed: ${JSON.stringify(result)}`);
             }
+            throw new Error('unreachable!');
           }
         );
       });
@@ -794,8 +795,8 @@ describe('ReplicaSet', function () {
           {
             ...origConfig,
             members: [
-              config.members[0],
-              config.members[1],
+              config.members![0],
+              config.members![1],
               { ...secondary, priority: 0 },
             ],
             version: 2,
@@ -979,7 +980,7 @@ describe('ReplicaSet', function () {
         it('reconfig with one less secondary', async function () {
           const newcfg: Partial<ReplSetConfig> = {
             _id: replId,
-            members: [cfg.members[0], cfg.members[1]],
+            members: [cfg.members![0], cfg.members![1]],
           };
           const version = (await rs.conf()).version;
           const result = await reconfigWithRetry(newcfg);
@@ -1029,7 +1030,7 @@ describe('ReplicaSet', function () {
         it('removes a member of the config', async function () {
           const removeWithRetry = createRetriableMethod(rs, 'remove');
           const version = (await rs.conf()).version;
-          const result = await removeWithRetry(cfg.members[2].host);
+          const result = await removeWithRetry(cfg.members![2].host);
           expect(result.ok).to.equal(1);
           const conf = await rs.conf();
           expect(conf.members.length).to.equal(2);
@@ -1173,7 +1174,9 @@ describe('ReplicaSet', function () {
       const { members } = await rs.status();
       expect(members).to.have.lengthOf(3);
       expect(
-        members.filter((member) => member.stateStr === 'PRIMARY')
+        members.filter(
+          (member: { stateStr?: string }) => member.stateStr === 'PRIMARY'
+        )
       ).to.have.lengthOf(1);
     });
   });

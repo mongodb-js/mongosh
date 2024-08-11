@@ -4,7 +4,7 @@ import { expect } from '../../testing/chai';
 import type { ReactWrapper, ShallowWrapper } from '../../testing/enzyme';
 import { mount, shallow } from '../../testing/enzyme';
 import { PasswordPrompt } from './password-prompt';
-import { Shell } from './shell';
+import { _Shell as Shell } from './shell';
 import { ShellInput } from './shell-input';
 import { ShellOutput } from './shell-output';
 import type { ShellOutputEntry } from './shell-output-line';
@@ -515,5 +515,12 @@ describe('<Shell />', function () {
       wrapper.update();
       expect(wrapper.find('ShellInput').prop('prompt')).to.equal('abc>');
     });
+  });
+
+  it('sets initial text for the shell input', function () {
+    wrapper = mount(
+      <Shell runtime={fakeRuntime} initialInput="db.coll.find({})" />
+    );
+    expect(wrapper.find('Editor').prop('value')).to.eq('db.coll.find({})');
   });
 });

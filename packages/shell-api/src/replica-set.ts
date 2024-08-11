@@ -60,7 +60,7 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
 
   async _getConfig(): Promise<ReplSetConfig> {
     try {
-      const result = await this._database._runAdminCommand({
+      const result = await this._database._runAdminReadCommand({
         replSetGetConfig: 1,
       });
       if (result.config === undefined) {
@@ -242,7 +242,7 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
   @apiVersions([])
   async status(): Promise<Document> {
     this._emitReplicaSetApiCall('status', {});
-    return this._database._runAdminCommand({
+    return this._database._runAdminReadCommand({
       replSetGetStatus: 1,
     });
   }
