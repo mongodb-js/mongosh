@@ -217,7 +217,10 @@ async function main() {
       getCryptLibraryPaths,
       input: process.stdin,
       output: process.stdout,
-      promptOutput: process.stdout.isTTY ? process.stdout : process.stderr,
+      promptOutput:
+        process.env.TEST_USE_STDOUT_FOR_PASSWORD || process.stdout.isTTY
+          ? process.stdout
+          : process.stderr,
       // Node.js 20.0.0 made p.exit(undefined) behave as p.exit(0) rather than p.exit()
       onExit: (code?: number | undefined) =>
         code === undefined ? process.exit() : process.exit(code),
