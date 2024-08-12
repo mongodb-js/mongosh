@@ -128,7 +128,7 @@ export default class Mongo extends ShellApiClass {
       // the parent service provider. For example, it could
       // appear to be odd that --awsAccessKeyId applies to
       // programmatically created Mongo() instances but
-      // --apiVersion or --tlsUseSystemCA does not.
+      // --apiVersion does not.
       const spFleOptions = sp?.getFleOptions?.();
       if (spFleOptions) {
         this._connectionInfo.driverOptions.autoEncryption = spFleOptions;

@@ -101,9 +101,6 @@ export const USAGE = `
         --tlsDisabledProtocols [arg]           ${i18n.__(
           'cli-repl.args.tlsDisabledProtocols'
         )}
-        --tlsUseSystemCA                       ${i18n.__(
-          'cli-repl.args.tlsUseSystemCA'
-        )}
         --tlsFIPSMode                          ${i18n.__(
           'cli-repl.args.tlsFIPSMode'
         )}
