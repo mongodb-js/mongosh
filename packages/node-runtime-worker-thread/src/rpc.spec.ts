@@ -91,7 +91,7 @@ describe('rpc', function () {
       .match(/TypeError: Uh-oh, error!\r?\n\s+at throws/);
   });
 
-  it.skip('throws on client if arguments are not serializable', async function () {
+  it('throws on client if arguments are not serializable', async function () {
     messageBus = createMockRpcMesageBus();
     caller = createCaller(['callMe'], messageBus);
 
@@ -118,7 +118,7 @@ describe('rpc', function () {
       .match(/could not be cloned/);
   });
 
-  it.skip('throws on client if retured value from the server is not serializable', async function () {
+  it('throws on client if retured value from the server is not serializable', async function () {
     messageBus = createMockRpcMesageBus();
     caller = createCaller(['returnsFunction'], messageBus);
 
