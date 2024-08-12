@@ -85,7 +85,9 @@ class WorkerRuntime implements Runtime {
       const waitForError = async () => {
         const [err] = await once(workerProcess, 'error');
         if (err) {
-          err.message = `Worker thread failed to start`;
+          err.message = `Worker thread failed to start with error: ${
+            (err as Error).message
+          }`;
           throw err;
         }
       };
