@@ -1,4 +1,3 @@
-import type { Worker } from 'worker_threads';
 import type { Exposed } from './rpc';
 import { exposeAll, close } from './rpc';
 import type { WorkerRuntime } from './index';

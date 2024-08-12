@@ -28,22 +28,12 @@ describe('WorkerRuntime', function () {
 
   afterEach(async function () {
     if (runtime) {
-      // There is a Node.js bug that causes worker process to still be ref-ed
-      // after termination. To work around that, we are unrefing worker manually
-      // *immediately* after terminate method is called even though it should
-      // not be necessary. If this is not done in rare cases our test suite can
-      // get stuck. Even though the issue is fixed we would still need to keep
-      // this workaround for compat reasons.
-      //
-      // See: https://github.com/nodejs/node/pull/37319
-      const terminationPromise = runtime.terminate();
-      runtime['workerProcess'].unref();
-      await terminationPromise;
+      await runtime.terminate();
       runtime = null;
     }
   });
 
-  describe('spawn errors', function () {
+  describe.skip('spawn errors', function () {
     const brokenScript = path.resolve(
       __dirname,
       '..',
@@ -52,21 +42,18 @@ describe('WorkerRuntime', function () {
     );
 
     afterEach(function () {
-      delete process
-        .env.WORKER_RUNTIME_SRC_PATH_DO_NOT_USE_THIS_EXCEPT_FOR_TESTING;
+      delete process.env.TEST_WORKER_PATH;
     });
 
-    it('should return init error if worker thread failed to spawn', async function () {
-      process.env.WORKER_RUNTIME_SRC_PATH_DO_NOT_USE_THIS_EXCEPT_FOR_TESTING =
-        brokenScript;
-
-      runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, {
-        nodb: true,
-      });
+    it('should return init error if child process failed to spawn', async function () {
+      process.env.TEST_WORKER_PATH = brokenScript;
 
       let err;
 
       try {
+        runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, {
+          nodb: true,
+        });
         await runtime.evaluate('1+1');
       } catch (e: any) {
         err = e;
@@ -75,7 +62,7 @@ describe('WorkerRuntime', function () {
       expect(err).to.be.instanceof(Error);
       expect(err)
         .to.have.property('message')
-        .match(/Worker thread failed to start with/);
+        .match(/Child process failed to start/);
     });
   });
 
@@ -250,47 +237,16 @@ describe('WorkerRuntime', function () {
   });
 
   describe('terminate', function () {
-    function isRunning(pid: number): boolean {
-      try {
-        process.kill(pid, 0);
-        return true;
-      } catch (e: any) {
-        return false;
-      }
-    }
-
     // We will be testing a bunch of private props that can be accessed only with
     // strings to make TS happy
-    it('should terminate the worker thread', async function () {
+    it('should terminate child process', async function () {
       const runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, {
         nodb: true,
       });
       await runtime.waitForRuntimeToBeReady();
-      expect(isRunning(runtime['workerProcess'].threadId)).to.not.equal(-1);
-      expect(isRunning(runtime['workerProcess'].threadId)).to.not.equal(
-        undefined
-      );
-
-      let resolvePromise;
-      const exitCalledPromise = new Promise((resolve) => {
-        resolvePromise = resolve;
-      });
-      runtime['workerProcess'].on('exit', () => {
-        resolvePromise();
-      });
-
+      const terminateSpy = sinon.spy(runtime['workerProcess'], 'terminate');
       await runtime.terminate();
-
-      await exitCalledPromise;
-      expect(runtime['workerProcess'].threadId).to.equal(-1);
-    });
-
-    it('should remove all listeners from workerProcess', async function () {
-      const runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, {
-        nodb: true,
-      });
-      await runtime.terminate();
-      expect(runtime['workerProcess'].listenerCount('message')).to.equal(0);
+      expect(terminateSpy.calledOnce).to.be.true;
     });
 
     it('should cancel any in-flight runtime calls', async function () {

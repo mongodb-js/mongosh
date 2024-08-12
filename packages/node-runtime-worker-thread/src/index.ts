@@ -9,6 +9,7 @@ import type {
 import type { MongoshBus } from '@mongosh/types';
 import path from 'path';
 import { EventEmitter, once } from 'events';
+import Worker from 'web-worker';
 import type { Caller } from './rpc';
 import { createCaller, cancel, exposeAll } from './rpc';
 import type { WorkerRuntime as WorkerThreadWorkerRuntime } from './worker-runtime';
@@ -17,8 +18,6 @@ import {
   serializeConnectOptions,
 } from './serializer';
 import type { CompassServiceProvider } from '@mongosh/service-provider-server';
-import { SHARE_ENV, Worker } from 'worker_threads';
-import type { WorkerOptions } from 'worker_threads';
 import type { InterruptHandle } from 'interruptor';
 import { interrupt as nativeInterrupt } from 'interruptor';
 import { WorkerThreadEvaluationListener } from './worker-thread-evaluation-listener';
@@ -28,27 +27,6 @@ type DevtoolsConnectOptions = Parameters<
   (typeof CompassServiceProvider)['connect']
 >[1];
 type WorkerThreadRuntime = Caller<WorkerThreadWorkerRuntime>;
-
-const workerRuntimeSrcPath = path.resolve(__dirname, 'worker-runtime.js');
-
-const workerReadyPromise = async (workerProcess: Worker): Promise<void> => {
-  const waitForReadyMessage = async () => {
-    let msg: string;
-    while (([msg] = await once(workerProcess, 'message'))) {
-      if (msg === 'ready') return;
-    }
-  };
-
-  const waitForError = async () => {
-    const [err] = await once(workerProcess, 'error');
-    if (err) {
-      err.message = `Worker thread failed to start with the following error: ${err.message}`;
-      throw err;
-    }
-  };
-
-  await Promise.race([waitForReadyMessage(), waitForError()]);
-};
 
 class WorkerRuntime implements Runtime {
   private initOptions: {
@@ -72,6 +50,10 @@ class WorkerRuntime implements Runtime {
 
   private workerProcessMongoshBus!: WorkerProcessMongoshBus;
 
+  private workerProcessPath =
+    process.env.TEST_WORKER_PATH ??
+    path.resolve(__dirname, 'worker-runtime.js');
+
   constructor(
     uri: string,
     driverOptions: DevtoolsConnectOptions,
@@ -86,15 +68,33 @@ class WorkerRuntime implements Runtime {
 
   private async initWorker() {
     const workerProcess = new Worker(
-      process.env.WORKER_RUNTIME_SRC_PATH_DO_NOT_USE_THIS_EXCEPT_FOR_TESTING ||
-        workerRuntimeSrcPath,
-      { env: SHARE_ENV }
+      this.workerProcessPath,
+      this.initOptions.workerOptions
     );
-    this.workerProcess = workerProcess;
 
-    await workerReadyPromise(this.workerProcess);
+    const workerReadyPromise = async (): Promise<void> => {
+      const waitForReadyMessage = async () => {
+        let msg: {
+          data: string;
+        };
+        while (([msg] = await once(workerProcess, 'message'))) {
+          if (msg?.data === 'ready') return;
+        }
+      };
 
-    workerProcess.setMaxListeners(25);
+      const waitForError = async () => {
+        const [err] = await once(workerProcess, 'error');
+        if (err) {
+          // TODO: These errors from a web worker might be immutable.
+          err.message = `Worker thread failed to start with the following error: ${err.message}`;
+          throw err;
+        }
+      };
+
+      await Promise.race([waitForReadyMessage(), waitForError()]);
+    };
+
+    await workerReadyPromise();
 
     const { interrupt } = createCaller(['interrupt'], workerProcess);
 
@@ -126,7 +126,7 @@ class WorkerRuntime implements Runtime {
 
     this.workerThreadEvaluationListener = new WorkerThreadEvaluationListener(
       this,
-      this.workerProcess
+      workerProcess
     );
 
     exposeAll(
@@ -140,7 +140,7 @@ class WorkerRuntime implements Runtime {
 
     this.workerProcessMongoshBus = new WorkerProcessMongoshBus(
       this.eventEmitter,
-      this.workerProcess
+      workerProcess
     );
 
     await this.workerProcessRuntime.init(
@@ -148,6 +148,7 @@ class WorkerRuntime implements Runtime {
       serializeConnectOptions(this.initOptions.driverOptions),
       this.initOptions.cliOptions
     );
+    this.workerProcess = workerProcess;
   }
 
   async evaluate(code: string): Promise<RuntimeEvaluationResult> {
@@ -186,7 +187,7 @@ class WorkerRuntime implements Runtime {
     }
 
     if (this.workerProcess) {
-      await this.workerProcess.terminate();
+      this.workerProcess.terminate();
     }
 
     if (this.workerThreadEvaluationListener) {
