@@ -190,7 +190,7 @@ module.exports = {
     };
   },
   manpage: {
-    sourceUrl: 'https://docs.mongodb.com/mongodb-shell/manpages.tar.gz',
+    sourceUrl: 'https://www.mongodb.com/docs/mongodb-shell/manpages.tar.gz',
     downloadPath: path.resolve(TMP_DIR, 'manpage'),
     fileName: MANPAGE_NAME,
   },
