@@ -1,3 +1,4 @@
+import { setTimeout } from 'node:timers';
 import type Mongo from './mongo';
 import Collection from './collection';
 import {
