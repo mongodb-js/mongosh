@@ -91,6 +91,39 @@ describe('rpc', function () {
       .match(/TypeError: Uh-oh, error!\r?\n\s+at throws/);
   });
 
+  it('allows undefined response', async function () {
+    messageBus = createMockRpcMesageBus();
+    caller = createCaller(['callMe'], messageBus);
+
+    exposed = exposeAll(
+      {
+        callMe(fn: any) {
+          fn(1, 2);
+        },
+      },
+      messageBus
+    );
+
+    expect(await caller.callMe((a: number, b: number) => a + b)).to.be
+      .undefined;
+  });
+
+  it('allows function response', async function () {
+    messageBus = createMockRpcMesageBus();
+    caller = createCaller(['returnsFunction'], messageBus);
+
+    exposed = exposeAll(
+      {
+        returnsFunction() {
+          return () => {};
+        },
+      },
+      messageBus
+    );
+
+    expect(await caller.returnsFunction()).to.be.instanceof(Function);
+  });
+
   describe('createCaller', function () {
     it('creates a caller with provided method names', function () {
       messageBus = createMockRpcMesageBus();
