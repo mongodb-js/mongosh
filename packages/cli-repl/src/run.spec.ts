@@ -121,13 +121,9 @@ describe('CLI entry point', function () {
     });
 
     it('requests password when user is redirecting output', async function () {
-      const args = [
-        ...pathToRun,
-        'mongodb://amy@localhost:27017',
-        '> /dev/null',
-      ];
+      const args = [...pathToRun, 'mongodb://amy@localhost:27017'];
       const proc = childProcess.spawn(process.execPath, args, {
-        stdio: 'pipe',
+        stdio: ['pipe', 'ignore', 'pipe'],
         env: { ...process.env },
       });
       let stderr = '';
