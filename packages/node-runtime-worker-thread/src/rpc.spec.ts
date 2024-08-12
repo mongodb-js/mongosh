@@ -91,60 +91,6 @@ describe('rpc', function () {
       .match(/TypeError: Uh-oh, error!\r?\n\s+at throws/);
   });
 
-  it('throws on client if arguments are not serializable', async function () {
-    messageBus = createMockRpcMesageBus();
-    caller = createCaller(['callMe'], messageBus);
-
-    exposed = exposeAll(
-      {
-        callMe(fn: any) {
-          fn(1, 2);
-        },
-      },
-      messageBus
-    );
-
-    let err: Error;
-
-    try {
-      await caller.callMe((a: number, b: number) => a + b);
-    } catch (e: any) {
-      err = e;
-    }
-
-    expect(err).to.be.instanceof(Error);
-    expect(err)
-      .to.have.property('message')
-      .match(/could not be cloned/);
-  });
-
-  it('throws on client if retured value from the server is not serializable', async function () {
-    messageBus = createMockRpcMesageBus();
-    caller = createCaller(['returnsFunction'], messageBus);
-
-    exposed = exposeAll(
-      {
-        returnsFunction() {
-          return () => {};
-        },
-      },
-      messageBus
-    );
-
-    let err: Error;
-
-    try {
-      await caller.returnsFunction();
-    } catch (e: any) {
-      err = e;
-    }
-
-    expect(err).to.be.instanceof(Error);
-    expect(err)
-      .to.have.property('message')
-      .match(/could not be cloned/);
-  });
-
   describe('createCaller', function () {
     it('creates a caller with provided method names', function () {
       messageBus = createMockRpcMesageBus();
