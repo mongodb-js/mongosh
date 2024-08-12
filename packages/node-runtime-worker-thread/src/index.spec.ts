@@ -1,4 +1,3 @@
-import path from 'path';
 import chai, { expect } from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
@@ -31,39 +30,6 @@ describe('WorkerRuntime', function () {
       await runtime.terminate();
       runtime = null;
     }
-  });
-
-  describe.skip('spawn errors', function () {
-    const brokenScript = path.resolve(
-      __dirname,
-      '..',
-      '__fixtures__',
-      'script-that-throws.js'
-    );
-
-    afterEach(function () {
-      delete process.env.TEST_WORKER_PATH;
-    });
-
-    it('should return init error if child process failed to spawn', async function () {
-      process.env.TEST_WORKER_PATH = brokenScript;
-
-      let err;
-
-      try {
-        runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, {
-          nodb: true,
-        });
-        await runtime.evaluate('1+1');
-      } catch (e: any) {
-        err = e;
-      }
-
-      expect(err).to.be.instanceof(Error);
-      expect(err)
-        .to.have.property('message')
-        .match(/Child process failed to start/);
-    });
   });
 
   describe('evaluate', function () {
