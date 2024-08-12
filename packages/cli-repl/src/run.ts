@@ -198,7 +198,7 @@ async function main() {
     const connectionInfo = generateConnectionInfoFromCliArgs(options);
     connectionInfo.driverOptions = {
       ...connectionInfo.driverOptions,
-      ...getTlsCertificateSelector(options.tlsCertificateSelector),
+      ...(await getTlsCertificateSelector(options.tlsCertificateSelector)),
       driverInfo: { name: 'mongosh', version },
     };
 

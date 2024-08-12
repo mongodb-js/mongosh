@@ -222,7 +222,6 @@ const MAPPINGS: {
   tlsCertificateKeyFile: (i, v) => setUrlParam(i, 'tlsCertificateKeyFile', v),
   tlsCertificateKeyFilePassword: (i, v) =>
     setUrlParam(i, 'tlsCertificateKeyFilePassword', v),
-  tlsUseSystemCA: (i, v) => setDriver(i, 'useSystemCA', v),
   username: (i, v) => setUrl(i, 'username', encodeURIComponent(v)),
   oidcRedirectUri: (i, v) => setOIDC(i, 'redirectURI', v),
   oidcTrustedEndpoint: (i, v) =>

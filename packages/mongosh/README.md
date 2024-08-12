@@ -56,7 +56,6 @@ of mongosh, visit https://www.mongodb.com/try/download/shell.
         --tlsCertificateSelector [arg]         TLS Certificate in system store (Windows and macOS only)
         --tlsCRLFile [arg]                     Specifies the .pem file that contains the Certificate Revocation List
         --tlsDisabledProtocols [arg]           Comma separated list of TLS protocols to disable [TLS1_0,TLS1_1,TLS1_2]
-        --tlsUseSystemCA                       Load the operating system trusted certificate list
         --tlsFIPSMode                          Enable the system TLS library's FIPS mode
 
   API version options:

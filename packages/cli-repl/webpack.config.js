@@ -39,6 +39,7 @@ const enableReverseModuleLookupPlugin =
 
 /** @type import('webpack').Configuration */
 const config = {
+  devtool: false,
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'mongosh.js',
@@ -61,6 +62,11 @@ const config = {
       // b) uses http, which is not a supported module for snapshots at this point.
       express: makeLazyForwardModule('express'),
       'openid-client': makeLazyForwardModule('openid-client'),
+      // some dependencies of @mongodb-js/devtools-proxy-support use WebAssembly,
+      // `new Buffer()` or the built-in http module
+      '@mongodb-js/devtools-proxy-support': makeLazyForwardModule(
+        '@mongodb-js/devtools-proxy-support'
+      ),
       ...Object.fromEntries(
         lazyNodeBuiltins.map((m) => [m, makeLazyForwardModule(m)])
       ),
