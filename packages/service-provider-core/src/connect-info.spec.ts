@@ -201,7 +201,6 @@ describe('getConnectInfo', function () {
       server_os: 'osx',
       uri: '',
       is_local_atlas: true,
-      is_public_cloud: false,
     };
     expect(
       getConnectExtraInfo(

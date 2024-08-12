@@ -24,7 +24,6 @@ export type HostInformation = {
   is_localhost?: boolean;
   is_atlas_url?: boolean;
   is_do_url?: boolean; // Is digital ocean url.
-  is_public_cloud?: boolean;
 };
 
 export function getHostnameForConnection(topology: any): string | undefined {
@@ -50,7 +49,6 @@ function getHostInformation(host?: string): HostInformation {
   if (getBuildInfo.isLocalhost(host)) {
     return {
       is_localhost: true,
-      is_public_cloud: false,
       is_do_url: false,
       is_atlas_url: false,
     };
@@ -59,7 +57,6 @@ function getHostInformation(host?: string): HostInformation {
   if (getBuildInfo.isDigitalOcean(host)) {
     return {
       is_localhost: false,
-      is_public_cloud: false,
       is_do_url: true,
       is_atlas_url: false,
     };

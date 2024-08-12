@@ -1,6 +1,5 @@
 import redactInfo from 'mongodb-redact';
 import { redactURICredentials } from '@mongosh/history';
-import { getCloudInfo } from 'mongodb-cloud-info';
 import type {
   MongoshBus,
   ApiEventWithArguments,
@@ -88,38 +87,6 @@ export function toSnakeCase(str: string): string {
   return matches.map((x) => x.toLowerCase()).join('_');
 }
 
-async function getPublicCloudInfo(host?: string): Promise<{
-  public_cloud_name?: string;
-  is_public_cloud?: boolean;
-}> {
-  if (!host) {
-    return {};
-  }
-
-  try {
-    const { isAws, isAzure, isGcp } = await getCloudInfo(host);
-
-    const public_cloud_name = isAws
-      ? 'AWS'
-      : isAzure
-      ? 'Azure'
-      : isGcp
-      ? 'GCP'
-      : undefined;
-
-    if (public_cloud_name === undefined) {
-      return { is_public_cloud: false };
-    }
-
-    return {
-      is_public_cloud: true,
-      public_cloud_name,
-    };
-  } catch (err) {
-    return {};
-  }
-}
-
 /**
  * Connect a MongoshBus instance that emits events to logging and analytics providers.
  *
@@ -181,12 +148,10 @@ export function setupLoggerAndTelemetry(
     };
 
     (async () => {
-      const publicCloudInfo = await getPublicCloudInfo(resolved_hostname);
       const properties = {
         ...trackProperties,
         ...argsWithoutUriAndHostname,
         ...atlasHostname,
-        ...publicCloudInfo,
       };
 
       log.info(

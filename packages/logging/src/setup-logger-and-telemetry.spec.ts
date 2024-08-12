@@ -98,7 +98,6 @@ describe('setupLoggerAndTelemetry', function () {
     expect(logOutput[0].attr.is_localhost).to.equal(true);
     expect(logOutput[0].attr.is_atlas).to.equal(false);
     expect(logOutput[0].attr.atlas_hostname).to.equal(null);
-    expect(logOutput[0].attr.is_public_cloud).to.equal(false);
     expect(logOutput[0].attr.node_version).to.equal('v12.19.0');
 
     expect(analyticsOutput).to.deep.equal([
@@ -113,7 +112,6 @@ describe('setupLoggerAndTelemetry', function () {
             is_localhost: true,
             is_atlas: false,
             atlas_hostname: null,
-            is_public_cloud: false,
             node_version: 'v12.19.0',
           },
         },

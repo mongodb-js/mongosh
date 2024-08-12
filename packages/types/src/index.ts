@@ -66,7 +66,6 @@ export interface ConnectEvent {
   uri?: string;
   is_local_atlas?: boolean;
   is_atlas_url?: boolean;
-  is_public_cloud?: boolean;
 }
 
 export interface ScriptLoadFileEvent {
