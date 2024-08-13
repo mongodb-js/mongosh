@@ -115,8 +115,25 @@ function makeLazyForwardModule(pkg) {
     : `require(${S(require.resolve(pkg))})`;
 
   const moduleContents = require(pkg);
-  let source = `'use strict';\nlet _cache;\n`;
-  source += `function orig() {\n_cache = ${realRequire}; orig = () => _cache; return _cache;\n}\n`;
+  let source = `'use strict';\nlet _cache, orig;\n`;
+  source += `function _realModule() {\n_cache = ${realRequire}; orig = () => _cache; return _cache;\n}\n`;
+
+  if (process.env.MONGOSH_DEBUG_WEBPACK_FORWARDING_MODULES) {
+    source += `const _startupSnapshot = __non_webpack_require__("v8").startupSnapshot;
+      function _throwModule() {\nthrow new Error('cannot load package "' + ${S(
+        pkg
+      )} + '" while building snapshot');\n}
+      if (_startupSnapshot.isBuildingSnapshot()) {
+        orig = _throwModule;
+        _startupSnapshot.addDeserializeCallback(() => orig = _realModule);
+      } else {
+        orig = _realModule;
+      }
+    `;
+  } else {
+    source += `orig = _realModule;\n`;
+  }
+
   if (typeof moduleContents === 'function') {
     source += `module.exports = function(...args) { return orig().apply(this, args); };\n`;
   } else {
