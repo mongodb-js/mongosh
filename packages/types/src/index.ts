@@ -48,7 +48,6 @@ export interface ConnectEvent {
   is_localhost?: boolean;
   is_do_url?: boolean;
   server_version?: string;
-  mongosh_version: string;
   server_os?: string;
   server_arch?: string;
   is_enterprise?: boolean;

@@ -146,33 +146,30 @@ export function setupLoggerAndTelemetry(
     const atlasHostname = {
       atlas_hostname: args.is_atlas ? resolved_hostname : null,
     };
+    const properties = {
+      ...trackProperties,
+      ...argsWithoutUriAndHostname,
+      ...atlasHostname,
+    };
 
-    (async () => {
-      const properties = {
-        ...trackProperties,
-        ...argsWithoutUriAndHostname,
-        ...atlasHostname,
-      };
+    log.info(
+      'MONGOSH',
+      mongoLogId(1_000_000_004),
+      'connect',
+      'Connecting to server',
+      {
+        userId,
+        telemetryAnonymousId,
+        connectionUri,
+        ...properties,
+      }
+    );
 
-      log.info(
-        'MONGOSH',
-        mongoLogId(1_000_000_004),
-        'connect',
-        'Connecting to server',
-        {
-          userId,
-          telemetryAnonymousId,
-          connectionUri,
-          ...properties,
-        }
-      );
-
-      analytics.track({
-        ...getTelemetryUserIdentity(),
-        event: 'New Connection',
-        properties,
-      });
-    })().catch(() => undefined);
+    analytics.track({
+      ...getTelemetryUserIdentity(),
+      event: 'New Connection',
+      properties,
+    });
   });
 
   bus.on('mongosh:start-session', function (args: SessionStartedEvent) {

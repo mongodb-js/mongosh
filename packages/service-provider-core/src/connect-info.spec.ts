@@ -1,5 +1,6 @@
 import { expect } from 'chai';
-import getConnectExtraInfo, { getHostnameForConnection } from './connect-info';
+import getConnectExtraInfo from './connect-info';
+import { ConnectionString } from 'mongodb-connection-string-url';
 
 describe('getConnectInfo', function () {
   const BUILD_INFO = {
@@ -49,6 +50,9 @@ describe('getConnectInfo', function () {
   const ATLAS_URI =
     'mongodb+srv://admin:catscatscats@cat-data-sets.cats.mongodb.net/admin';
 
+  const ATLAS_URI_WITH_AUTH =
+    'mongodb+srv://admin:catscatscats@cat-data-sets.cats.mongodb.net/admin?authMechanism=PLAIN&authSource=%24external';
+
   it('reports on an enterprise version >=3.2 of mongodb with credentials', function () {
     const output = {
       is_atlas: true,
@@ -57,7 +61,7 @@ describe('getConnectInfo', function () {
       is_do_url: false,
       server_version: '3.2.0-rc2',
       is_enterprise: true,
-      auth_type: 'LDAP',
+      auth_type: 'PLAIN',
       is_data_federation: false,
       is_stream: false,
       dl_version: null,
@@ -67,28 +71,23 @@ describe('getConnectInfo', function () {
       server_arch: 'x86_64',
       node_version: process.version,
       server_os: 'osx',
-      uri: ATLAS_URI,
+      uri: ATLAS_URI_WITH_AUTH,
       is_local_atlas: false,
     };
     expect(
-      getConnectExtraInfo(
-        ATLAS_URI,
-        BUILD_INFO,
-        ATLAS_VERSION,
-        {
-          s: {
-            credentials: {
-              mechanism: 'LDAP',
+      getConnectExtraInfo({
+        connectionString: new ConnectionString(ATLAS_URI_WITH_AUTH),
+        buildInfo: BUILD_INFO,
+        atlasVersion: ATLAS_VERSION,
+        topology: {
+          servers: new Map().set('test-data-sets-00-02-a011bb.mongodb.net', {
+            hostAddress: {
+              host: 'test-data-sets-00-02-a011bb.mongodb.net',
             },
-            servers: new Map().set('test-data-sets-00-02-a011bb.mongodb.net', {
-              description: {
-                address: 'test-data-sets-00-02-a011bb.mongodb.net',
-              },
-            }),
-          },
+          }),
         },
-        false
-      )
+        isLocalAtlas: false,
+      })
     ).to.deep.equal(output);
   });
 
@@ -100,7 +99,7 @@ describe('getConnectInfo', function () {
       is_do_url: false,
       server_version: '3.2.0-rc2',
       is_enterprise: true,
-      auth_type: null,
+      auth_type: undefined,
       is_data_federation: false,
       is_stream: false,
       dl_version: null,
@@ -114,21 +113,19 @@ describe('getConnectInfo', function () {
       is_local_atlas: false,
     };
     expect(
-      getConnectExtraInfo(
-        ATLAS_URI,
-        BUILD_INFO,
-        ATLAS_VERSION,
-        {
-          s: {
-            servers: new Map().set('test-data-sets-00-02-a011bb.mongodb.net', {
-              description: {
-                address: 'test-data-sets-00-02-a011bb.mongodb.net',
-              },
-            }),
-          },
+      getConnectExtraInfo({
+        connectionString: new ConnectionString(ATLAS_URI),
+        buildInfo: BUILD_INFO,
+        atlasVersion: ATLAS_VERSION,
+        topology: {
+          servers: new Map().set('test-data-sets-00-02-a011bb.mongodb.net', {
+            hostAddress: {
+              host: 'test-data-sets-00-02-a011bb.mongodb.net',
+            },
+          }),
         },
-        false
-      )
+        isLocalAtlas: false,
+      })
     ).to.deep.equal(output);
   });
 
@@ -142,7 +139,7 @@ describe('getConnectInfo', function () {
       is_do_url: false,
       server_version: '3.2.0-rc2',
       is_enterprise: true,
-      auth_type: 'LDAP',
+      auth_type: undefined,
       is_data_federation: false,
       is_stream: true,
       dl_version: null,
@@ -156,28 +153,22 @@ describe('getConnectInfo', function () {
       uri: streamUri,
     };
     expect(
-      getConnectExtraInfo(
-        streamUri,
-        BUILD_INFO,
-        null,
-        {
-          s: {
-            credentials: {
-              mechanism: 'LDAP',
-            },
-            servers: new Map().set(
-              'atlas-stream-67b8e1cd6d60357be377be7b-1dekw.virginia-usa.a.query.mongodb-dev.net',
-              {
-                description: {
-                  address:
-                    'atlas-stream-67b8e1cd6d60357be377be7b-1dekw.virginia-usa.a.query.mongodb-dev.net',
-                },
-              }
-            ),
-          },
+      getConnectExtraInfo({
+        connectionString: new ConnectionString(streamUri),
+        buildInfo: BUILD_INFO,
+        atlasVersion: null,
+        topology: {
+          servers: new Map().set(
+            'atlas-stream-67b8e1cd6d60357be377be7b-1dekw.virginia-usa.a.query.mongodb-dev.net',
+            {
+              hostAddress: {
+                host: 'atlas-stream-67b8e1cd6d60357be377be7b-1dekw.virginia-usa.a.query.mongodb-dev.net',
+              },
+            }
+          ),
         },
-        false
-      )
+        isLocalAtlas: false,
+      })
     ).to.deep.equal(output);
   });
 
@@ -189,7 +180,7 @@ describe('getConnectInfo', function () {
       is_do_url: false,
       server_version: '3.2.0-rc2',
       is_enterprise: true,
-      auth_type: 'LDAP',
+      auth_type: undefined,
       is_data_federation: false,
       is_stream: false,
       dl_version: null,
@@ -203,22 +194,16 @@ describe('getConnectInfo', function () {
       is_local_atlas: true,
     };
     expect(
-      getConnectExtraInfo(
-        '',
-        BUILD_INFO,
-        null,
-        {
-          s: {
-            credentials: {
-              mechanism: 'LDAP',
-            },
-            servers: new Map().set('localhost', {
-              description: { address: 'localhost' },
-            }),
-          },
+      getConnectExtraInfo({
+        buildInfo: BUILD_INFO,
+        atlasVersion: null,
+        topology: {
+          servers: new Map().set('localhost:27017', {
+            hostAddress: { host: 'localhost' },
+          }),
         },
-        true
-      )
+        isLocalAtlas: true,
+      })
     ).to.deep.equal(output);
   });
 
@@ -230,7 +215,7 @@ describe('getConnectInfo', function () {
       is_do_url: false,
       server_version: undefined,
       is_enterprise: false,
-      auth_type: 'LDAP',
+      auth_type: undefined,
       is_data_federation: false,
       is_stream: false,
       dl_version: null,
@@ -244,54 +229,12 @@ describe('getConnectInfo', function () {
       is_local_atlas: false,
     };
     expect(
-      getConnectExtraInfo(
-        '',
-        null,
-        null,
-        {
-          s: {
-            credentials: {
-              mechanism: 'LDAP',
-            },
-          },
-        },
-        false
-      )
+      getConnectExtraInfo({
+        buildInfo: null,
+        atlasVersion: null,
+        topology: {},
+        isLocalAtlas: false,
+      })
     ).to.deep.equal(output);
-  });
-
-  describe('getHostnameForConnection', function () {
-    it('handels hostname without port', function () {
-      const hostname = getHostnameForConnection({
-        s: {
-          credentials: {
-            mechanism: 'LDAP',
-          },
-          servers: new Map().set(
-            'test-000-shard-00-00.test.mongodb.net:27017',
-            {
-              description: {
-                address: 'test-000-shard-00-00.test.mongodb.net:27017',
-              },
-            }
-          ),
-        },
-      });
-      expect(hostname).to.be.eql('test-000-shard-00-00.test.mongodb.net');
-    });
-
-    it('handels IPv6 hostname without port', function () {
-      const hostname = getHostnameForConnection({
-        s: {
-          credentials: {
-            mechanism: 'LDAP',
-          },
-          servers: new Map().set('[3fff:0:a88:15a3::ac2f]:8001', {
-            description: { address: '[3fff:0:a88:15a3::ac2f]:8001' },
-          }),
-        },
-      });
-      expect(hostname).to.be.eql('3fff:0:a88:15a3::ac2f');
-    });
   });
 });

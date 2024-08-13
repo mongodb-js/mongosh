@@ -1,6 +1,7 @@
 // ^ segment data is in snake_case: forgive me javascript, for i have sinned.
 
 import getBuildInfo from 'mongodb-build-info';
+import type { ConnectionString } from 'mongodb-connection-string-url';
 
 export type ConnectionExtraInfo = {
   is_atlas?: boolean;
@@ -27,14 +28,7 @@ export type HostInformation = {
 };
 
 export function getHostnameForConnection(topology: any): string | undefined {
-  const resolvedHost =
-    topology?.s?.servers?.values().next().value.description.address ?? '';
-
-  if (resolvedHost.startsWith('[')) {
-    return resolvedHost.slice(1).split(']')[0]; // IPv6
-  }
-
-  return resolvedHost.split(':')[0];
+  return topology?.servers?.values().next().value.hostAddress.host;
 }
 
 function getHostInformation(host?: string): HostInformation {
@@ -69,13 +63,23 @@ function getHostInformation(host?: string): HostInformation {
   };
 }
 
-export default function getConnectExtraInfo(
-  uri: string,
-  buildInfo: any,
-  atlasVersion: any,
-  topology: any,
-  isLocalAtlas: boolean
-): ConnectionExtraInfo {
+export default function getConnectExtraInfo({
+  connectionString,
+  buildInfo,
+  atlasVersion,
+  topology,
+  isLocalAtlas,
+}: {
+  connectionString?: ConnectionString;
+  buildInfo: any;
+  atlasVersion: any;
+  topology: any;
+  isLocalAtlas: boolean;
+}): ConnectionExtraInfo {
+  const auth_type =
+    connectionString?.searchParams.get('authMechanism') ?? undefined;
+  const uri = connectionString?.toString() ?? '';
+
   buildInfo ??= {}; // We're currently not getting buildInfo with --apiStrict.
   const { isGenuine: is_genuine, serverName: non_genuine_server_name } =
     getBuildInfo.getGenuineMongoDB(uri);
@@ -83,9 +87,6 @@ export default function getConnectExtraInfo(
   const { isDataLake: is_data_federation, dlVersion: dl_version } =
     getBuildInfo.getDataLake(buildInfo);
 
-  const auth_type = topology.s.credentials
-    ? topology.s.credentials.mechanism
-    : null;
   const { serverOs: server_os, serverArch: server_arch } =
     getBuildInfo.getBuildEnv(buildInfo);
   const isAtlas = !!atlasVersion?.atlasVersion || getBuildInfo.isAtlas(uri);

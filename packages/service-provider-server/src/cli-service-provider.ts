@@ -11,6 +11,8 @@ import type {
   MongoClient,
   MongoMissingDependencyError,
   SearchIndexDescription,
+  TopologyDescription,
+  TopologyDescriptionChangedEvent,
 } from 'mongodb';
 
 import type {
@@ -226,6 +228,20 @@ class CliServiceProvider
 
     let client: MongoClient;
     let state: DevtoolsConnectionState | undefined;
+    let lastSeenTopology: TopologyDescription | undefined;
+
+    class MongoshMongoClient extends MongoClientCtor {
+      constructor(url: string, options?: MongoClientOptions) {
+        super(url, options);
+        this.on(
+          'topologyDescriptionChanged',
+          (evt: TopologyDescriptionChangedEvent) => {
+            lastSeenTopology = evt.newDescription;
+          }
+        );
+      }
+    }
+
     if (cliOptions.nodb) {
       const clientOptionsCopy: MongoClientOptions &
         Partial<DevtoolsConnectOptions> = {
@@ -247,12 +263,18 @@ class CliServiceProvider
         connectionString.toString(),
         clientOptions,
         bus,
-        MongoClientCtor
+        MongoshMongoClient
       ));
     }
     clientOptions.parentState = state;
 
-    return new this(client, bus, clientOptions, connectionString);
+    return new this(
+      client,
+      bus,
+      clientOptions,
+      connectionString,
+      lastSeenTopology
+    );
   }
 
   public readonly platform: ReplPlatform;
@@ -263,6 +285,12 @@ class CliServiceProvider
   private dbcache: WeakMap<MongoClient, Map<string, Db>>;
   public baseCmdOptions: OperationOptions; // public for testing
   private bus: MongoshBus;
+
+  /**
+   * Stores the most recent topology description from the server's SDAM events:
+   * https://github.com/mongodb/specifications/blob/master/source/server-discovery-and-monitoring/server-discovery-and-monitoring-monitoring.rst#events
+   */
+  private _lastSeenTopology: TopologyDescription | undefined;
 
   /**
    * Instantiate a new CliServiceProvider with the Node driver's connected
@@ -276,13 +304,15 @@ class CliServiceProvider
     mongoClient: MongoClient,
     bus: MongoshBus,
     clientOptions: DevtoolsConnectOptions,
-    uri?: ConnectionString
+    uri?: ConnectionString,
+    lastSeenTopology?: TopologyDescription
   ) {
     super(bsonlib());
 
     this.bus = bus;
     this.mongoClient = mongoClient;
     this.uri = uri;
+    this._lastSeenTopology = lastSeenTopology;
     this.platform = 'CLI';
     try {
       this.initialDb = (mongoClient as any).s.options.dbName || DEFAULT_DB;
@@ -402,13 +432,12 @@ class CliServiceProvider
       client,
       this.bus,
       clientOptions,
-      connectionString
+      connectionString,
+      this._lastSeenTopology
     );
   }
 
   async getConnectionInfo(): Promise<ConnectionInfo> {
-    const topology = this.getTopology();
-    const uri = this.uri?.toString() ?? '';
     const [buildInfo = null, atlasVersion = null, fcv = null, atlascliInfo] =
       await Promise.all([
         this.runCommandWithCheck(
@@ -431,18 +460,17 @@ class CliServiceProvider
         }).catch(() => 0),
       ]);
 
-    const isLocalAtlasCli = !!atlascliInfo;
-    const extraConnectionInfo = getConnectExtraInfo(
-      uri,
+    const extraConnectionInfo = getConnectExtraInfo({
+      connectionString: this.uri,
       buildInfo,
       atlasVersion,
-      topology,
-      isLocalAtlasCli
-    );
+      topology: this._lastSeenTopology,
+      isLocalAtlas: !!atlascliInfo,
+    });
 
     return {
       buildInfo,
-      topology,
+      topology: this._lastSeenTopology,
       extraInfo: {
         ...extraConnectionInfo,
         fcv: fcv?.featureCompatibilityVersion?.version,

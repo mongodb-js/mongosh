@@ -82,7 +82,6 @@ describe('setupLoggerAndTelemetry', function () {
     expect(analyticsOutput).to.be.empty;
 
     bus.emit('mongosh:connect', {
-      mongosh_version: '1.0.0',
       uri: 'mongodb://localhost/',
       is_localhost: true,
       is_atlas: false,
@@ -134,7 +133,6 @@ describe('setupLoggerAndTelemetry', function () {
     expect(analyticsOutput).to.be.empty;
 
     bus.emit('mongosh:connect', {
-      mongosh_version: '1.0.0',
       uri: 'mongodb://test-data-sets-a011bb.mongodb.net/',
       is_localhost: false,
       is_atlas: true,
