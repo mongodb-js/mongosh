@@ -254,7 +254,7 @@ class CliServiceProvider
       delete clientOptionsCopy.parentState;
       delete clientOptionsCopy.proxy;
       delete clientOptionsCopy.applyProxyToOIDC;
-      client = new MongoClientCtor(
+      client = new MongoshMongoClient(
         connectionString.toString(),
         clientOptionsCopy
       );
@@ -287,8 +287,7 @@ class CliServiceProvider
   private bus: MongoshBus;
 
   /**
-   * Stores the most recent topology description from the server's SDAM events:
-   * https://github.com/mongodb/specifications/blob/master/source/server-discovery-and-monitoring/server-discovery-and-monitoring-monitoring.rst#events
+   * Stores the last seen topology at the time when .connect() finishes.
    */
   private _lastSeenTopology: TopologyDescription | undefined;
 
@@ -437,6 +436,12 @@ class CliServiceProvider
     );
   }
 
+  _getHostnameForConnection(
+    topology?: TopologyDescription
+  ): string | undefined {
+    return topology?.servers?.values().next().value.hostAddress.host;
+  }
+
   async getConnectionInfo(): Promise<ConnectionInfo> {
     const [buildInfo = null, atlasVersion = null, fcv = null, atlascliInfo] =
       await Promise.all([
@@ -460,17 +465,21 @@ class CliServiceProvider
         }).catch(() => 0),
       ]);
 
+    const resolvedHostname = this._getHostnameForConnection(
+      this._lastSeenTopology
+    );
+
     const extraConnectionInfo = getConnectExtraInfo({
       connectionString: this.uri,
       buildInfo,
       atlasVersion,
-      topology: this._lastSeenTopology,
+      resolvedHostname,
       isLocalAtlas: !!atlascliInfo,
     });
 
     return {
       buildInfo,
-      topology: this._lastSeenTopology,
+      resolvedHostname,
       extraInfo: {
         ...extraConnectionInfo,
         fcv: fcv?.featureCompatibilityVersion?.version,

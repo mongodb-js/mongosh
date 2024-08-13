@@ -27,10 +27,6 @@ export type HostInformation = {
   is_do_url?: boolean; // Is digital ocean url.
 };
 
-export function getHostnameForConnection(topology: any): string | undefined {
-  return topology?.servers?.values().next().value.hostAddress.host;
-}
-
 function getHostInformation(host?: string): HostInformation {
   if (!host) {
     return {
@@ -67,13 +63,13 @@ export default function getConnectExtraInfo({
   connectionString,
   buildInfo,
   atlasVersion,
-  topology,
+  resolvedHostname,
   isLocalAtlas,
 }: {
   connectionString?: ConnectionString;
   buildInfo: any;
   atlasVersion: any;
-  topology: any;
+  resolvedHostname?: string;
   isLocalAtlas: boolean;
 }): ConnectionExtraInfo {
   const auth_type =
@@ -90,7 +86,6 @@ export default function getConnectExtraInfo({
   const { serverOs: server_os, serverArch: server_arch } =
     getBuildInfo.getBuildEnv(buildInfo);
   const isAtlas = !!atlasVersion?.atlasVersion || getBuildInfo.isAtlas(uri);
-  const resolvedHostname = getHostnameForConnection(topology);
 
   return {
     ...getHostInformation(resolvedHostname || uri),

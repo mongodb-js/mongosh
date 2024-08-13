@@ -3,12 +3,9 @@ import { expect } from 'chai';
 import { MongoLogWriter } from 'mongodb-log-writer';
 import { setupLoggerAndTelemetry } from './';
 import { EventEmitter } from 'events';
-import { promisify } from 'util';
 import { MongoshInvalidInputError } from '@mongosh/errors';
 import type { MongoshBus } from '@mongosh/types';
 import { toSnakeCase } from './setup-logger-and-telemetry';
-
-const wait = promisify(setTimeout);
 
 describe('toSnakeCase', function () {
   const useCases = [
@@ -67,7 +64,7 @@ describe('setupLoggerAndTelemetry', function () {
     bus = new EventEmitter();
   });
 
-  it('tracks new local connection events', async function () {
+  it('tracks new local connection events', function () {
     setupLoggerAndTelemetry(
       bus,
       logger,
@@ -88,9 +85,6 @@ describe('setupLoggerAndTelemetry', function () {
       resolved_hostname: 'localhost',
       node_version: 'v12.19.0',
     });
-
-    // Make sure cloud info is resolved.
-    await wait(500);
 
     expect(logOutput[0].msg).to.equal('Connecting to server');
     expect(logOutput[0].attr.connectionUri).to.equal('mongodb://localhost/');
@@ -118,7 +112,7 @@ describe('setupLoggerAndTelemetry', function () {
     ]);
   });
 
-  it('tracks new atlas connection events', async function () {
+  it('tracks new atlas connection events', function () {
     setupLoggerAndTelemetry(
       bus,
       logger,
@@ -139,9 +133,6 @@ describe('setupLoggerAndTelemetry', function () {
       resolved_hostname: 'test-data-sets-00-02-a011bb.mongodb.net',
       node_version: 'v12.19.0',
     });
-
-    // Make sure cloud info is resolved.
-    await wait(500);
 
     expect(logOutput[0].msg).to.equal('Connecting to server');
     expect(logOutput[0].attr.connectionUri).to.equal(

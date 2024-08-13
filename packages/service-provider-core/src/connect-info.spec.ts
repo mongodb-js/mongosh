@@ -79,13 +79,7 @@ describe('getConnectInfo', function () {
         connectionString: new ConnectionString(ATLAS_URI_WITH_AUTH),
         buildInfo: BUILD_INFO,
         atlasVersion: ATLAS_VERSION,
-        topology: {
-          servers: new Map().set('test-data-sets-00-02-a011bb.mongodb.net', {
-            hostAddress: {
-              host: 'test-data-sets-00-02-a011bb.mongodb.net',
-            },
-          }),
-        },
+        resolvedHostname: 'test-data-sets-00-02-a011bb.mongodb.net',
         isLocalAtlas: false,
       })
     ).to.deep.equal(output);
@@ -117,13 +111,7 @@ describe('getConnectInfo', function () {
         connectionString: new ConnectionString(ATLAS_URI),
         buildInfo: BUILD_INFO,
         atlasVersion: ATLAS_VERSION,
-        topology: {
-          servers: new Map().set('test-data-sets-00-02-a011bb.mongodb.net', {
-            hostAddress: {
-              host: 'test-data-sets-00-02-a011bb.mongodb.net',
-            },
-          }),
-        },
+        resolvedHostname: 'test-data-sets-00-02-a011bb.mongodb.net',
         isLocalAtlas: false,
       })
     ).to.deep.equal(output);
@@ -157,16 +145,8 @@ describe('getConnectInfo', function () {
         connectionString: new ConnectionString(streamUri),
         buildInfo: BUILD_INFO,
         atlasVersion: null,
-        topology: {
-          servers: new Map().set(
-            'atlas-stream-67b8e1cd6d60357be377be7b-1dekw.virginia-usa.a.query.mongodb-dev.net',
-            {
-              hostAddress: {
-                host: 'atlas-stream-67b8e1cd6d60357be377be7b-1dekw.virginia-usa.a.query.mongodb-dev.net',
-              },
-            }
-          ),
-        },
+        resolvedHostname:
+          'atlas-stream-67b8e1cd6d60357be377be7b-1dekw.virginia-usa.a.query.mongodb-dev.net',
         isLocalAtlas: false,
       })
     ).to.deep.equal(output);
@@ -197,11 +177,7 @@ describe('getConnectInfo', function () {
       getConnectExtraInfo({
         buildInfo: BUILD_INFO,
         atlasVersion: null,
-        topology: {
-          servers: new Map().set('localhost:27017', {
-            hostAddress: { host: 'localhost' },
-          }),
-        },
+        resolvedHostname: 'localhost',
         isLocalAtlas: true,
       })
     ).to.deep.equal(output);
@@ -232,7 +208,6 @@ describe('getConnectInfo', function () {
       getConnectExtraInfo({
         buildInfo: null,
         atlasVersion: null,
-        topology: {},
         isLocalAtlas: false,
       })
     ).to.deep.equal(output);

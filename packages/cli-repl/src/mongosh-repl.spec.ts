@@ -86,7 +86,6 @@ describe('MongoshNodeRepl', function () {
       buildInfo: {
         version: '4.4.1',
       },
-      topology: null,
     });
     sp.runCommandWithCheck.resolves({ ok: 1 });
     serviceProvider = sp;
@@ -1259,7 +1258,6 @@ describe('MongoshNodeRepl', function () {
           version: '4.4.1',
           modules: ['enterprise'],
         },
-        topology: null,
       });
 
       const initialized = await mongoshRepl.initialize(serviceProvider);
@@ -1421,7 +1419,6 @@ describe('MongoshNodeRepl', function () {
         buildInfo: {
           version: '4.4.1',
         },
-        topology: null,
       });
       mongoshReplOptions.shellCliOptions = {
         nodb: false,
@@ -1461,7 +1458,6 @@ describe('MongoshNodeRepl', function () {
         'getConnectionInfo',
         'getFleOptions',
         'getRawClient',
-        'getTopology',
         'getURI',
         'runCommandWithCheck',
       ]);

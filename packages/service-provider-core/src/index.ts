@@ -1,9 +1,6 @@
 import './textencoder-polyfill'; // for mongodb-connection-string-url in the java-shell
 import ServiceProvider, { ServiceProviderCore } from './service-provider';
-import getConnectExtraInfo, {
-  ConnectionExtraInfo,
-  getHostnameForConnection,
-} from './connect-info';
+import getConnectExtraInfo, { ConnectionExtraInfo } from './connect-info';
 import type { ReplPlatform } from './platform';
 const DEFAULT_DB = 'test';
 import { bsonStringifiers } from './printable-bson';
@@ -38,5 +35,4 @@ export {
   ServiceProviderCore,
   bsonStringifiers,
   ConnectionExtraInfo,
-  getHostnameForConnection,
 };
