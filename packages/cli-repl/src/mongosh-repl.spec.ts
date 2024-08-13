@@ -1289,7 +1289,6 @@ describe('MongoshNodeRepl', function () {
           version: '4.4.1',
           modules: ['enterprise'],
         },
-        topology: null,
       };
 
       sp.getConnectionInfo.resolves(connectionInfo);
