@@ -20,7 +20,7 @@ Page](https://www.mongodb.com/try/download/shell). We currently maintain MongoDB
 Shell on three different platforms - Windows (zip), MacOS (zip) and Linux (tgz, deb and rpm).
 Once downloaded, you will have to extract the binary and add it to your PATH
 variable. For detailed instructions for each of our supported platforms, please visit
-[installation documentation](https://docs.mongodb.com/mongodb-shell/install#mdb-shell-install).
+[installation documentation](https://www.mongodb.com/docs/mongodb-shell/install#mdb-shell-install).
 
 ## CLI Usage
 

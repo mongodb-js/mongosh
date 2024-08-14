@@ -134,11 +134,11 @@ describe('e2e startup banners', function () {
       verifyAllInCategoryMatch('repl-eval', /^node_modules\/pretty-repl\//);
       verifyAllInCategoryMatch(
         'db-eval',
-        /^node_modules\/(kerberos|os-dns-native|resolve-mongodb-srv|macos-export-certificate-and-key|win-export-certificate-and-key)\//
+        /^node_modules\/(kerberos|os-dns-native|resolve-mongodb-srv)\//
       );
       verifyAllInCategoryMatch(
         'nodb-eval',
-        /^node_modules\/(kerberos|mongodb-client-encryption|glibc-version|@mongodb-js\/devtools-proxy-support|@mongodb-js\/socksv5|system-ca)\//
+        /^node_modules\/(kerberos|mongodb-client-encryption|glibc-version|@mongodb-js\/devtools-proxy-support|@mongodb-js\/socksv5|agent-base|(win|macos)-export-certificate-and-key)\//
       );
       verifyAllThatMatchAreInCategory(
         'not-loaded',
