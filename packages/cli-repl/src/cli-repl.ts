@@ -48,6 +48,11 @@ import { getOsInfo } from './get-os-info';
 import { UpdateNotificationManager } from './update-notification-manager';
 import { getTimingData, markTime, summariseTimingData } from './startup-timing';
 import type { IdPInfo } from 'mongodb';
+import type {
+  AgentWithInitialize,
+  DevtoolsProxyOptions,
+} from '@mongodb-js/devtools-proxy-support';
+import { useOrCreateAgent } from '@mongodb-js/devtools-proxy-support';
 
 /**
  * Connecting text key.
@@ -127,7 +132,11 @@ export class CliRepl implements MongoshIOProvider {
   closing = false;
   isContainerizedEnvironment = false;
   hasOnDiskTelemetryId = false;
-  updateNotificationManager = new UpdateNotificationManager();
+  proxyOptions: DevtoolsProxyOptions = {
+    useEnvironmentVariableProxies: true,
+  };
+  agent: AgentWithInitialize | undefined;
+  updateNotificationManager: UpdateNotificationManager;
   fetchMongoshUpdateUrlRegardlessOfCiEnvironment = false; // for testing
   cachedGlibcVersion: null | string | undefined = null;
 
@@ -187,6 +196,10 @@ export class CliRepl implements MongoshIOProvider {
       onerror: (err: Error) => this.bus.emit('mongosh:error', err, 'log'),
       onwarn: (err: Error, path: string) =>
         this.warnAboutInaccessibleFile(err, path),
+    });
+    this.agent = useOrCreateAgent(this.proxyOptions);
+    this.updateNotificationManager = new UpdateNotificationManager({
+      proxyOptions: this.agent,
     });
 
     // We can't really do anything meaningful if the output stream is broken or
@@ -420,6 +433,7 @@ export class CliRepl implements MongoshIOProvider {
         installdir: this.shellHomeDirectory.roamingPath('snippets'),
         instanceState: this.mongoshRepl.runtimeState().instanceState,
         skipInitialIndexLoad: !willEnterInteractiveMode,
+        proxyOptions: this.agent,
       });
     }
 
@@ -751,7 +765,7 @@ export class CliRepl implements MongoshIOProvider {
     try {
       let config: CliUserConfig;
       if (fileContents.trim().startsWith('{')) {
-        config = bson.EJSON.parse(fileContents) as any;
+        config = bson.EJSON.parse(fileContents);
       } else {
         config = (yaml.load(fileContents) as any)?.mongosh ?? {};
       }
@@ -1046,6 +1060,7 @@ export class CliRepl implements MongoshIOProvider {
     if (this.closing) {
       return;
     }
+    this.agent?.destroy();
     if (!this.output.destroyed) {
       // Wait for output to be fully flushed before exiting.
       if (this.output.writableEnded) {
@@ -1174,9 +1189,7 @@ export class CliRepl implements MongoshIOProvider {
           )}\nWaiting...\n`
       );
     };
-    driverOptions.proxy ??= {
-      useEnvironmentVariableProxies: true,
-    };
+    driverOptions.proxy ??= this.proxyOptions;
     driverOptions.applyProxyToOIDC ??= true;
 
     const [redirectURI, trustedEndpoints, browser] = await Promise.all([

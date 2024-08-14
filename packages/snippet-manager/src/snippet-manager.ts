@@ -17,8 +17,12 @@ import tar from 'tar';
 import zlib from 'zlib';
 import bson from 'bson';
 import joi from 'joi';
-import importNodeFetch from '@mongosh/import-node-fetch';
-import type { Response } from '@mongosh/import-node-fetch';
+import type {
+  AgentWithInitialize,
+  DevtoolsProxyOptions,
+  Response,
+} from '@mongodb-js/devtools-proxy-support';
+import { createFetch } from '@mongodb-js/devtools-proxy-support';
 const pipeline = promisify(stream.pipeline);
 const brotliCompress = promisify(zlib.brotliCompress);
 const brotliDecompress = promisify(zlib.brotliDecompress);
@@ -27,6 +31,7 @@ export interface SnippetOptions {
   installdir: string;
   instanceState: ShellInstanceState;
   skipInitialIndexLoad?: boolean;
+  proxyOptions?: DevtoolsProxyOptions | AgentWithInitialize;
 }
 
 export interface ErrorMatcher {
@@ -109,11 +114,13 @@ export class SnippetManager implements ShellPlugin {
   print: (...args: any[]) => Promise<void>;
   npmArgv: string[];
   inflightFetchIndexPromise: Promise<SnippetIndexFile[]> | null = null;
+  fetch: (url: string) => Promise<Response>;
 
   constructor({
     installdir,
     instanceState,
     skipInitialIndexLoad,
+    proxyOptions = {},
   }: SnippetOptions) {
     const { load, config, print, require } = instanceState.context;
     this._instanceState = instanceState;
@@ -127,6 +134,7 @@ export class SnippetManager implements ShellPlugin {
     this.installdir = installdir;
     this.repos = null;
     this.npmArgv = [];
+    this.fetch = createFetch(proxyOptions);
 
     if (!skipInitialIndexLoad) {
       this.prepareIndex().catch(() => {});
@@ -191,12 +199,6 @@ export class SnippetManager implements ShellPlugin {
 
   get messageBus(): MongoshBus {
     return this._instanceState.messageBus;
-  }
-
-  async fetch(url: string): Promise<Response> {
-    // 'http' is not supported in startup snapshots yet.
-    const fetch = await importNodeFetch();
-    return await fetch.default(url);
   }
 
   async prepareNpm(): Promise<string[]> {
