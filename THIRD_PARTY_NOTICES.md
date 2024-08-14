@@ -291,7 +291,7 @@ Package|Version|License
 **[ini](#2269ab4bd2e1fa90571f520780ab5499f6d49da3b7daee9b9dfdad9e93c33a18)**|1.3.8|ISC
 **[ip-address](#8de6e89459554be8a933663b25ae1d1ffee71458028fa8cbe5d68b349438a8c8)**|9.0.5|MIT
 **[ipaddr.js](#38a5a1606dbc89a9c65a28d1e9ebe3c8d323e107a77c495a56dbf522211676d2)**|1.9.1|MIT
-**[ipaddr.js](#f4e32bbb7cff356d748ba3bc8ca95b860f4bccd19fe9f7299a4664f19d471dbb)**|2.0.1|MIT
+**[ipaddr.js](#4995da0c4dcb2b5992f306ab16aeed26ed94f375597565c205c98d1925713577)**|2.2.0|MIT
 **[ipv6-normalize](#7a4346dbf206011966449898fcd37178a9be89acf6dff120b676d4c4d0dec203)**|1.0.1|MIT
 **[is-docker](#893885e21608c60de02539fa3bd5a98f7068127aa5fab86a215bfec41a3119a4)**|2.2.1|MIT
 **[is-docker](#b21de9a8d47c7c165b912be5c7a36eae3939076531e05733aa2ac7f1099dc46d)**|3.0.0|MIT
@@ -25194,8 +25194,8 @@ License files:
       
 
 
-<a id="f4e32bbb7cff356d748ba3bc8ca95b860f4bccd19fe9f7299a4664f19d471dbb"></a>
-### [ipaddr.js](https://www.npmjs.com/package/ipaddr.js) (version 2.0.1)
+<a id="4995da0c4dcb2b5992f306ab16aeed26ed94f375597565c205c98d1925713577"></a>
+### [ipaddr.js](https://www.npmjs.com/package/ipaddr.js) (version 2.2.0)
 License tags: MIT
 
 License files:

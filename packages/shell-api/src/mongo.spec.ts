@@ -441,7 +441,6 @@ describe('Mongo', function () {
           serviceProvider.getConnectionInfo.resolves({
             extraInfo: { is_genuine: true, uri: '' },
             buildInfo: {},
-            topology: null,
           });
 
           const result = await mongo.show('nonGenuineMongoDBCheck');
@@ -456,7 +455,6 @@ describe('Mongo', function () {
               serviceProvider.getConnectionInfo.resolves({
                 extraInfo: { is_genuine: false, uri: '' },
                 buildInfo: {},
-                topology: null,
               });
             });
 

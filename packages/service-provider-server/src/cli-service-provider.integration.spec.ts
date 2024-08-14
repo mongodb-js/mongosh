@@ -165,7 +165,7 @@ describe('CliServiceProvider [integration]', function () {
 
         expect(Object.keys(connectionInfo)).to.deep.equal([
           'buildInfo',
-          'topology',
+          'resolvedHostname',
           'extraInfo',
         ]);
         expect(connectionInfo.buildInfo?.version.length).to.be.greaterThan(1);
@@ -179,7 +179,7 @@ describe('CliServiceProvider [integration]', function () {
 
         expect(Object.keys(connectionInfo)).to.deep.equal([
           'buildInfo',
-          'topology',
+          'resolvedHostname',
           'extraInfo',
         ]);
         expect(connectionInfo.buildInfo?.version.length).to.be.greaterThan(1);
