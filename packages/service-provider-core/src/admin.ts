@@ -45,7 +45,7 @@ export interface CheckMetadataConsistencyOptions {
 
 export interface ConnectionInfo {
   buildInfo: Document | null;
-  topology: any | null;
+  resolvedHostname?: string;
   extraInfo: (ConnectionExtraInfo & { fcv?: string }) | null;
 }
 

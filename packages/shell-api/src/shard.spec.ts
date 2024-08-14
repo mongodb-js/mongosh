@@ -871,7 +871,6 @@ describe('Shard', function () {
         serviceProvider.getConnectionInfo.resolves({
           extraInfo: { uri: '' },
           buildInfo: { version: '6.0.3-alpha0' },
-          topology: null,
         });
         serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
         serviceProvider.updateOne.resolves({ acknowledged: 1 } as any);
@@ -952,7 +951,6 @@ describe('Shard', function () {
         serviceProvider.getConnectionInfo.resolves({
           extraInfo: { uri: '' },
           buildInfo: { version: '6.0.3-alpha0' },
-          topology: null,
         });
         serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
         serviceProvider.updateOne.resolves({ acknowledged: 1 } as any);
