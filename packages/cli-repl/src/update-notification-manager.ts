@@ -27,7 +27,7 @@ export class UpdateNotificationManager {
     proxyOptions = {},
   }: {
     proxyOptions?: DevtoolsProxyOptions | AgentWithInitialize;
-  }) {
+  } = {}) {
     this.fetch = createFetch(proxyOptions);
   }
 
