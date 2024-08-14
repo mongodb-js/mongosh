@@ -1467,7 +1467,7 @@ describe('Collection', function () {
         context(
           'when the aggregation fails with error code `13388`',
           function () {
-            const fallbackErrors = [
+            for (const mockError of [
               {
                 ...new Error('Code 13388'),
                 code: 13388,
@@ -1480,9 +1480,7 @@ describe('Collection', function () {
                 ...new Error('Failed to Parse'),
                 codeName: 'FailedToParse',
               },
-            ];
-
-            fallbackErrors.forEach((mockError) => {
+            ]) {
               context(`in case of ${mockError.name} error`, function () {
                 beforeEach(function () {
                   const tryNext = sinon.stub();
@@ -1544,7 +1542,7 @@ describe('Collection', function () {
                   }
                 );
               });
-            });
+            }
           }
         );
       });
