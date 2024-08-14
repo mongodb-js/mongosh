@@ -18,5 +18,7 @@ ignores:
  - ipv6-normalize
  - bindings
  - system-ca
+ # used for monkey-patching our s390x fix in
+ - '@tootallnate/quickjs-emscripten'
 ignore-patterns:
  - .eslintrc.js
