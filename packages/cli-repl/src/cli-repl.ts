@@ -1174,24 +1174,10 @@ export class CliRepl implements MongoshIOProvider {
           )}\nWaiting...\n`
       );
     };
-    if (process.env.MONGOSH_EXPERIMENTAL_OIDC_PROXY_SUPPORT) {
-      const ProxyAgent = (await import('proxy-agent')).ProxyAgent;
-      const tlsCAFile =
-        driverOptions.tlsCAFile ??
-        new ConnectionString(driverUri)
-          .typedSearchParams<DevtoolsConnectOptions>()
-          .get('tlsCAFile');
-      const ca = tlsCAFile ? await fs.readFile(tlsCAFile) : undefined;
-      driverOptions.oidc.customHttpOptions = (_url, opts) => {
-        if (ca && !opts.ca) {
-          opts = { ...opts, ca };
-        }
-        return {
-          ...opts,
-          agent: new ProxyAgent({ ...opts }),
-        };
-      };
-    }
+    driverOptions.proxy ??= {
+      useEnvironmentVariableProxies: true,
+    };
+    driverOptions.applyProxyToOIDC ??= true;
 
     const [redirectURI, trustedEndpoints, browser] = await Promise.all([
       this.getConfig('oidcRedirectURI'),
