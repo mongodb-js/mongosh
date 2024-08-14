@@ -101,9 +101,6 @@ export const USAGE = `
         --tlsDisabledProtocols [arg]           ${i18n.__(
           'cli-repl.args.tlsDisabledProtocols'
         )}
-        --tlsUseSystemCA                       ${i18n.__(
-          'cli-repl.args.tlsUseSystemCA'
-        )}
         --tlsFIPSMode                          ${i18n.__(
           'cli-repl.args.tlsFIPSMode'
         )}
@@ -136,6 +133,30 @@ export const USAGE = `
         )}
         --kmsURL [arg]                         ${i18n.__(
           'cli-repl.args.kmsURL'
+        )}
+
+        oidcFlows?: string;
+        oidcRedirectUri?: string;
+        oidcTrustedEndpoint?: boolean;
+        oidcIdTokenAsAccessToken?: boolean;
+        oidcDumpTokens?: boolean | 'redacted' | 'include-secrets';
+
+  ${clr(i18n.__('cli-repl.args.oidcOptions'), 'mongosh:section-header')}
+
+        --oidcFlows[=auth-code,device-auth]    ${i18n.__(
+          'cli-repl.args.oidcFlows'
+        )}
+        --oidcRedirectUri[=url]                ${i18n.__(
+          'cli-repl.args.oidcRedirectUri'
+        )}
+        --oidcTrustedEndpoint                  ${i18n.__(
+          'cli-repl.args.oidcTrustedEndpoint'
+        )}
+        --oidcIdTokenAsAccessToken             ${i18n.__(
+          'cli-repl.args.oidcIdTokenAsAccessToken'
+        )}
+        --oidcDumpTokens[=mode]                ${i18n.__(
+          'cli-repl.args.oidcDumpTokens'
         )}
 
   ${clr(i18n.__('cli-repl.args.dbAddressOptions'), 'mongosh:section-header')}

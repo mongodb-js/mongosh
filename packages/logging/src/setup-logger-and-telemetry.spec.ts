@@ -1,3 +1,4 @@
+/* eslint-disable mocha/max-top-level-suites */
 import { expect } from 'chai';
 import { MongoLogWriter } from 'mongodb-log-writer';
 import { setupLoggerAndTelemetry } from './';
@@ -63,7 +64,107 @@ describe('setupLoggerAndTelemetry', function () {
     bus = new EventEmitter();
   });
 
-  it('works', function () {
+  it('tracks new local connection events', function () {
+    setupLoggerAndTelemetry(
+      bus,
+      logger,
+      analytics,
+      {
+        platform: process.platform,
+        arch: process.arch,
+      },
+      '1.0.0'
+    );
+    expect(logOutput).to.have.lengthOf(0);
+    expect(analyticsOutput).to.be.empty;
+
+    bus.emit('mongosh:connect', {
+      uri: 'mongodb://localhost/',
+      is_localhost: true,
+      is_atlas: false,
+      resolved_hostname: 'localhost',
+      node_version: 'v12.19.0',
+    });
+
+    expect(logOutput[0].msg).to.equal('Connecting to server');
+    expect(logOutput[0].attr.connectionUri).to.equal('mongodb://localhost/');
+    expect(logOutput[0].attr.is_localhost).to.equal(true);
+    expect(logOutput[0].attr.is_atlas).to.equal(false);
+    expect(logOutput[0].attr.atlas_hostname).to.equal(null);
+    expect(logOutput[0].attr.node_version).to.equal('v12.19.0');
+
+    expect(analyticsOutput).to.deep.equal([
+      [
+        'track',
+        {
+          anonymousId: undefined,
+          event: 'New Connection',
+          properties: {
+            mongosh_version: '1.0.0',
+            session_id: '5fb3c20ee1507e894e5340f3',
+            is_localhost: true,
+            is_atlas: false,
+            atlas_hostname: null,
+            node_version: 'v12.19.0',
+          },
+        },
+      ],
+    ]);
+  });
+
+  it('tracks new atlas connection events', function () {
+    setupLoggerAndTelemetry(
+      bus,
+      logger,
+      analytics,
+      {
+        platform: process.platform,
+        arch: process.arch,
+      },
+      '1.0.0'
+    );
+    expect(logOutput).to.have.lengthOf(0);
+    expect(analyticsOutput).to.be.empty;
+
+    bus.emit('mongosh:connect', {
+      uri: 'mongodb://test-data-sets-a011bb.mongodb.net/',
+      is_localhost: false,
+      is_atlas: true,
+      resolved_hostname: 'test-data-sets-00-02-a011bb.mongodb.net',
+      node_version: 'v12.19.0',
+    });
+
+    expect(logOutput[0].msg).to.equal('Connecting to server');
+    expect(logOutput[0].attr.connectionUri).to.equal(
+      'mongodb://test-data-sets-a011bb.mongodb.net/'
+    );
+    expect(logOutput[0].attr.is_localhost).to.equal(false);
+    expect(logOutput[0].attr.is_atlas).to.equal(true);
+    expect(logOutput[0].attr.atlas_hostname).to.equal(
+      'test-data-sets-00-02-a011bb.mongodb.net'
+    );
+    expect(logOutput[0].attr.node_version).to.equal('v12.19.0');
+
+    expect(analyticsOutput).to.deep.equal([
+      [
+        'track',
+        {
+          anonymousId: undefined,
+          event: 'New Connection',
+          properties: {
+            mongosh_version: '1.0.0',
+            session_id: '5fb3c20ee1507e894e5340f3',
+            is_localhost: false,
+            is_atlas: true,
+            atlas_hostname: 'test-data-sets-00-02-a011bb.mongodb.net',
+            node_version: 'v12.19.0',
+          },
+        },
+      ],
+    ]);
+  });
+
+  it('tracks a sequence of events', function () {
     setupLoggerAndTelemetry(
       bus,
       logger,
@@ -79,12 +180,6 @@ describe('setupLoggerAndTelemetry', function () {
 
     bus.emit('mongosh:new-user', { userId, anonymousId: userId });
     bus.emit('mongosh:update-user', { userId, anonymousId: userId });
-    bus.emit('mongosh:connect', {
-      uri: 'mongodb://localhost/',
-      is_localhost: true,
-      is_atlas: false,
-      node_version: 'v12.19.0',
-    } as any);
     bus.emit('mongosh:start-session', {
       isInteractive: true,
       jsContext: 'foo',
@@ -229,16 +324,8 @@ describe('setupLoggerAndTelemetry', function () {
     });
 
     let i = 0;
+
     expect(logOutput[i++].msg).to.equal('User updated');
-    expect(logOutput[i].msg).to.equal('Connecting to server');
-    expect(logOutput[i].attr.session_id).to.equal('5fb3c20ee1507e894e5340f3');
-    expect(logOutput[i].attr.telemetryAnonymousId).to.equal(
-      '53defe995fa47e6c13102d9d'
-    );
-    expect(logOutput[i].attr.connectionUri).to.equal('mongodb://localhost/');
-    expect(logOutput[i].attr.is_localhost).to.equal(true);
-    expect(logOutput[i].attr.is_atlas).to.equal(false);
-    expect(logOutput[i++].attr.node_version).to.equal('v12.19.0');
     expect(logOutput[i].s).to.equal('E');
     expect(logOutput[i++].attr.message).to.match(/meow/);
     expect(logOutput[i].s).to.equal('F');
@@ -404,20 +491,6 @@ describe('setupLoggerAndTelemetry', function () {
         'track',
         {
           anonymousId: '53defe995fa47e6c13102d9d',
-          event: 'New Connection',
-          properties: {
-            mongosh_version: '1.0.0',
-            session_id: '5fb3c20ee1507e894e5340f3',
-            is_localhost: true,
-            is_atlas: false,
-            node_version: 'v12.19.0',
-          },
-        },
-      ],
-      [
-        'track',
-        {
-          anonymousId: '53defe995fa47e6c13102d9d',
           event: 'Startup Time',
           properties: {
             is_interactive: true,
@@ -561,6 +634,7 @@ describe('setupLoggerAndTelemetry', function () {
     expect(analyticsOutput).to.be.empty;
 
     bus.emit('mongosh:new-user', { userId, anonymousId: userId });
+    bus.emit('mongosh:evaluate-started');
 
     logOutput = [];
     analyticsOutput = [];
@@ -704,6 +778,7 @@ describe('setupLoggerAndTelemetry', function () {
     logOutput = [];
     analyticsOutput = [];
 
+    bus.emit('mongosh:evaluate-started');
     bus.emit('mongosh:api-call', {
       method: 'cloneDatabase',
       class: 'Database',
@@ -723,5 +798,28 @@ describe('setupLoggerAndTelemetry', function () {
       method: 'cloneDatabase',
     });
     expect(analyticsOutput).to.have.lengthOf(2);
+  });
+
+  it('does not track database calls outside of evaluate-{started,finished}', function () {
+    setupLoggerAndTelemetry(bus, logger, analytics, {}, '1.0.0');
+    expect(logOutput).to.have.lengthOf(0);
+    expect(analyticsOutput).to.be.empty;
+
+    bus.emit('mongosh:new-user', { userId, anonymousId: userId });
+
+    logOutput = [];
+    analyticsOutput = [];
+
+    bus.emit('mongosh:api-call', {
+      method: 'cloneDatabase',
+      class: 'Database',
+      deprecated: true,
+      callDepth: 0,
+      isAsync: true,
+    });
+    bus.emit('mongosh:evaluate-finished');
+
+    expect(logOutput).to.have.lengthOf(0);
+    expect(analyticsOutput).to.be.empty;
   });
 });

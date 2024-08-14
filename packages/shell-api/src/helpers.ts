@@ -783,6 +783,7 @@ export type FindAndModifyMethodShellOptions = {
   remove?: boolean;
   new?: boolean;
   fields?: Document;
+  projection?: Document;
   upsert?: boolean;
   bypassDocumentValidation?: boolean;
   writeConcern?: Document;

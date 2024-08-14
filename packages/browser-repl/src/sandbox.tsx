@@ -103,7 +103,6 @@ class DemoServiceProvider {
       extraInfo: {
         uri: 'mongodb://localhost/',
       },
-      topology: null,
     };
   }
 

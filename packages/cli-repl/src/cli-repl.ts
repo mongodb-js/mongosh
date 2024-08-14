@@ -47,6 +47,7 @@ import path from 'path';
 import { getOsInfo } from './get-os-info';
 import { UpdateNotificationManager } from './update-notification-manager';
 import { getTimingData, markTime, summariseTimingData } from './startup-timing';
+import type { IdPInfo } from 'mongodb';
 
 /**
  * Connecting text key.
@@ -77,6 +78,12 @@ export type CliReplOptions = {
   input: Readable;
   /** The stream to write shell output to. */
   output: Writable;
+  /**
+   * The stream to write prompt output to when requesting data from user, like password.
+   * Helpful when user wants to redirect the output to a file or null device.
+   * If not provided, the `output` stream will be used.
+   */
+  promptOutput?: Writable;
   /** The set of home directory paths used by this shell instance. */
   shellHomePaths: ShellHomePaths;
   /** The ordered list of paths in which to look for a global configuration file. */
@@ -111,6 +118,7 @@ export class CliRepl implements MongoshIOProvider {
   logWriter?: MongoLogWriter;
   input: Readable;
   output: Writable;
+  promptOutput: Writable;
   analyticsOptions?: AnalyticsOptions;
   segmentAnalytics?: SegmentAnalytics;
   toggleableAnalytics: ToggleableAnalytics = new ToggleableAnalytics();
@@ -131,6 +139,7 @@ export class CliRepl implements MongoshIOProvider {
     this.cliOptions = options.shellCliOptions;
     this.input = options.input;
     this.output = options.output;
+    this.promptOutput = options.promptOutput ?? options.output;
     this.analyticsOptions = options.analyticsOptions;
     this.onExit = options.onExit;
 
@@ -204,6 +213,8 @@ export class CliRepl implements MongoshIOProvider {
       bus: this.bus,
       ioProvider: this,
     });
+
+    this.setupOIDCTokenDumpListener();
   }
 
   async getIsContainerizedEnvironment() {
@@ -1000,22 +1011,19 @@ export class CliRepl implements MongoshIOProvider {
 
   /**
    * Require the user to enter a password.
-   *
-   * @param {string} driverUrl - The driver URI.
-   * @param {DevtoolsConnectOptions} driverOptions - The driver options.
    */
   async requirePassword(): Promise<string> {
     const passwordPromise = askpassword({
       input: this.input,
-      output: this.output,
+      output: this.promptOutput,
       replacementCharacter: '*',
     });
-    this.output.write('Enter password: ');
+    this.promptOutput.write('Enter password: ');
     try {
       try {
         return (await passwordPromise).toString();
       } finally {
-        this.output.write('\n');
+        this.promptOutput.write('\n');
       }
     } catch (error: any) {
       await this._fatalError(error);
@@ -1166,24 +1174,10 @@ export class CliRepl implements MongoshIOProvider {
           )}\nWaiting...\n`
       );
     };
-    if (process.env.MONGOSH_EXPERIMENTAL_OIDC_PROXY_SUPPORT) {
-      const ProxyAgent = (await import('proxy-agent')).ProxyAgent;
-      const tlsCAFile =
-        driverOptions.tlsCAFile ??
-        new ConnectionString(driverUri)
-          .typedSearchParams<DevtoolsConnectOptions>()
-          .get('tlsCAFile');
-      const ca = tlsCAFile ? await fs.readFile(tlsCAFile) : undefined;
-      driverOptions.oidc.customHttpOptions = (_url, opts) => {
-        if (ca && !opts.ca) {
-          opts = { ...opts, ca };
-        }
-        return {
-          ...opts,
-          agent: new ProxyAgent({ ...opts }),
-        };
-      };
-    }
+    driverOptions.proxy ??= {
+      useEnvironmentVariableProxies: true,
+    };
+    driverOptions.applyProxyToOIDC ??= true;
 
     const [redirectURI, trustedEndpoints, browser] = await Promise.all([
       this.getConfig('oidcRedirectURI'),
@@ -1253,5 +1247,101 @@ export class CliRepl implements MongoshIOProvider {
         .MONGOSH_ASSUME_DIFFERENT_VERSION_FOR_UPDATE_NOTIFICATION_TEST ||
         version
     );
+  }
+
+  private setupOIDCTokenDumpListener() {
+    function tryParseJWT(
+      token: string | null | undefined,
+      redact: 'redact' | 'include-secrets'
+    ): unknown {
+      if (!token) return token;
+      const jwtParts = token.split('.');
+      if (
+        // If this is a three-part token consisting of valid base64url-encoded
+        // parts (without trailing `=`), assume that it is a JWT access/id token.
+        jwtParts.length === 3 &&
+        jwtParts.every(
+          (part) =>
+            Buffer.from(part, 'base64url')
+              .toString('base64url')
+              .replace(/=+$/, '') === part.replace(/=+$/, '')
+        )
+      ) {
+        const [header, payload] = jwtParts.map((part) => {
+          try {
+            return JSON.parse(Buffer.from(part, 'base64url').toString('utf8'));
+          } catch {
+            // Not a valid JWT in this case.
+          }
+        });
+        if (redact === 'include-secrets') {
+          return { header, payload, signature: jwtParts[2] };
+        }
+        if (header && payload) {
+          return { header, payload };
+        }
+      }
+      return redact === 'include-secrets' ? token : '<non-JWT token>';
+    }
+
+    let lastServerIdPInfo: IdPInfo | undefined;
+    const { oidcDumpTokens } = this.cliOptions;
+    if (oidcDumpTokens) {
+      this.bus.on(
+        'mongodb-oidc-plugin:received-server-params',
+        ({ params: { idpInfo } }) => {
+          lastServerIdPInfo = idpInfo;
+        }
+      );
+      this.bus.on(
+        'mongodb-oidc-plugin:auth-succeeded',
+        ({
+          tokenType,
+          refreshToken, // only an identifier, not the actual token
+          expiresAt,
+          passIdTokenAsAccessToken,
+          tokens: { accessToken: at, refreshToken: rt, idToken: idt },
+        }) => {
+          const printable = {
+            lastServerIdPInfo: lastServerIdPInfo && {
+              issuer: lastServerIdPInfo?.issuer,
+              clientId: lastServerIdPInfo?.clientId,
+              requestScopes: lastServerIdPInfo?.requestScopes,
+            },
+            tokenType,
+            refreshToken,
+            expiresAt,
+            passIdTokenAsAccessToken,
+            tokens:
+              oidcDumpTokens === 'include-secrets'
+                ? {
+                    accessToken: tryParseJWT(at, 'include-secrets'),
+                    refreshToken: tryParseJWT(rt, 'include-secrets'),
+                    idToken: tryParseJWT(idt, 'include-secrets'),
+                  }
+                : {
+                    accessToken: tryParseJWT(at, 'redact'),
+                    idToken: tryParseJWT(idt, 'redact'),
+                  },
+          };
+
+          this.output.write(
+            '\n' +
+              this.clr(
+                '----- BEGIN OIDC TOKEN DUMP -----',
+                'mongosh:section-header'
+              ) +
+              '\n' +
+              JSON.stringify(printable, null, 2) +
+              '\n' +
+              this.clr(
+                '----- END OIDC TOKEN DUMP -----',
+                'mongosh:section-header'
+              ) +
+              '\n'
+          );
+        }
+      );
+    }
   }
 }

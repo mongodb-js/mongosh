@@ -48,12 +48,13 @@ export interface CliOptions {
   tlsCRLFile?: string;
   tlsDisabledProtocols?: boolean;
   tlsFIPSMode?: boolean;
-  tlsUseSystemCA?: boolean;
   username?: string;
   verbose?: boolean; // No-op since driver v5.0.0 (see also MONGOSH-970)
   version?: boolean;
   oidcFlows?: string;
   oidcRedirectUri?: string;
   oidcTrustedEndpoint?: boolean;
+  oidcIdTokenAsAccessToken?: boolean;
+  oidcDumpTokens?: boolean | 'redacted' | 'include-secrets';
   browser?: string | false;
 }

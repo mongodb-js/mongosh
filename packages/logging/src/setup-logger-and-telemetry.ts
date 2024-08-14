@@ -141,31 +141,34 @@ export function setupLoggerAndTelemetry(
   );
 
   bus.on('mongosh:connect', function (args: ConnectEvent) {
-    const connectionUri = args.uri && redactURICredentials(args.uri);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { uri: _uri, ...argsWithoutUri } = args;
-    const params = {
-      session_id,
-      userId,
-      telemetryAnonymousId,
-      connectionUri,
-      ...argsWithoutUri,
+    const { uri, resolved_hostname, ...argsWithoutUriAndHostname } = args;
+    const connectionUri = uri && redactURICredentials(uri);
+    const atlasHostname = {
+      atlas_hostname: args.is_atlas ? resolved_hostname : null,
     };
+    const properties = {
+      ...trackProperties,
+      ...argsWithoutUriAndHostname,
+      ...atlasHostname,
+    };
+
     log.info(
       'MONGOSH',
       mongoLogId(1_000_000_004),
       'connect',
       'Connecting to server',
-      params
+      {
+        userId,
+        telemetryAnonymousId,
+        connectionUri,
+        ...properties,
+      }
     );
 
     analytics.track({
       ...getTelemetryUserIdentity(),
       event: 'New Connection',
-      properties: {
-        ...trackProperties,
-        ...argsWithoutUri,
-      },
+      properties,
     });
   });
 
@@ -632,7 +635,10 @@ export function setupLoggerAndTelemetry(
 
   const deprecatedApiCalls = new MultiSet<Pick<ApiEvent, 'class' | 'method'>>();
   const apiCalls = new MultiSet<Pick<ApiEvent, 'class' | 'method'>>();
+  let apiCallTrackingEnabled = false;
   bus.on('mongosh:api-call', function (ev: ApiEvent) {
+    // Only track if we have previously seen a mongosh:evaluate-started call
+    if (!apiCallTrackingEnabled) return;
     if (ev.deprecated) {
       deprecatedApiCalls.add({ class: ev.class, method: ev.method });
     }
@@ -641,6 +647,7 @@ export function setupLoggerAndTelemetry(
     }
   });
   bus.on('mongosh:evaluate-started', function () {
+    apiCallTrackingEnabled = true;
     // Clear API calls before evaluation starts. This is important because
     // some API calls are also emitted by mongosh CLI repl internals,
     // but we only care about those emitted from user code (i.e. during
@@ -680,6 +687,7 @@ export function setupLoggerAndTelemetry(
     }
     deprecatedApiCalls.clear();
     apiCalls.clear();
+    apiCallTrackingEnabled = false;
   });
 
   // Log ids 1_000_000_034 through 1_000_000_042 are reserved for the

@@ -10,17 +10,23 @@ import {
   skipIfApiStrict,
   startSharedTestServer,
 } from '../../../testing/integration-testing-hooks';
+import type { ShellApi, Mongo } from './index';
 import { toShellResult, Topologies } from './index';
-import type { Document } from '@mongosh/service-provider-core';
+import type {
+  AnyBulkWriteOperation,
+  Document,
+} from '@mongosh/service-provider-core';
 import type { ApiEvent } from '@mongosh/types';
 import { ShellUserConfig } from '@mongosh/types';
 import { EventEmitter, once } from 'events';
 import { dummyOptions } from './helpers.spec';
+import type { ShellBson } from './shell-bson';
+import type Bulk from './bulk';
 
 // Compile JS code as an expression. We use this to generate some JS functions
 // whose code is stringified and compiled elsewhere, to make sure that the code
 // does not contain coverage instrumentation.
-const compileExpr = (templ, ...subs): any => {
+const compileExpr = (templ: TemplateStringsArray, ...subs: string[]): any => {
   return eval(`(${String.raw(templ, ...subs)})`);
 };
 
@@ -215,13 +221,13 @@ describe('Shell API (integration)', function () {
     return serviceProvider.close(true);
   });
 
-  let instanceState;
-  let shellApi;
-  let mongo;
-  let dbName;
+  let instanceState: ShellInstanceState;
+  let shellApi: ShellApi;
+  let mongo: Mongo;
+  let dbName: string;
   let database: Database;
   let collection: Collection;
-  let collectionName;
+  let collectionName: string;
 
   beforeEach(async function () {
     dbName = `test-${Date.now()}`;
@@ -242,7 +248,7 @@ describe('Shell API (integration)', function () {
   describe('commands', function () {
     describe('it', function () {
       beforeEach(async function () {
-        const docs = [];
+        const docs: Document[] = [];
 
         let i = 1;
         while (i <= 21) {
@@ -300,8 +306,8 @@ describe('Shell API (integration)', function () {
     });
     describe('bulkWrite', function () {
       context('with an insertOne request', function () {
-        let requests;
-        let result;
+        let requests: AnyBulkWriteOperation[];
+        let result: Document;
 
         beforeEach(async function () {
           requests = [
@@ -391,7 +397,7 @@ describe('Shell API (integration)', function () {
       });
 
       context('without upsert', function () {
-        let result;
+        let result: Document;
 
         beforeEach(async function () {
           result = await collection.updateOne({ doc: 1 }, { $inc: { x: 1 } });
@@ -433,7 +439,7 @@ describe('Shell API (integration)', function () {
       });
 
       context('with upsert', function () {
-        let result;
+        let result: Document;
 
         beforeEach(async function () {
           result = await collection.updateOne(
@@ -482,7 +488,7 @@ describe('Shell API (integration)', function () {
 
     describe('convertToCapped', function () {
       skipIfApiStrict();
-      let result;
+      let result: Document;
 
       beforeEach(async function () {
         await serviceProvider.createCollection(dbName, collectionName);
@@ -502,7 +508,7 @@ describe('Shell API (integration)', function () {
     });
 
     describe('createIndex', function () {
-      let result;
+      let result: string;
 
       beforeEach(async function () {
         await serviceProvider.createCollection(dbName, collectionName);
@@ -530,7 +536,7 @@ describe('Shell API (integration)', function () {
     });
 
     describe('createIndexes', function () {
-      let result;
+      let result: Document;
 
       beforeEach(async function () {
         await serviceProvider.createCollection(dbName, collectionName);
@@ -555,7 +561,7 @@ describe('Shell API (integration)', function () {
     });
 
     describe('createIndexes with multiple indexes', function () {
-      let result;
+      let result: Document;
 
       beforeEach(async function () {
         await serviceProvider.createCollection(dbName, collectionName);
@@ -718,7 +724,7 @@ describe('Shell API (integration)', function () {
         it(`hides/unhides indexes ${description}`, async function () {
           const indexesBefore = await collection.getIndexes();
           expect(indexesBefore).to.have.lengthOf(2);
-          expect(indexesBefore.find((ix) => ix.key.a).hidden).to.equal(
+          expect(indexesBefore.find((ix) => ix.key.a)?.hidden).to.equal(
             undefined
           );
 
@@ -727,7 +733,7 @@ describe('Shell API (integration)', function () {
           expect(hideResult.hidden_new).to.equal(true);
 
           const indexesWithHidden = await collection.getIndexes();
-          expect(indexesWithHidden.find((ix) => ix.key.a).hidden).to.equal(
+          expect(indexesWithHidden.find((ix) => ix.key.a)?.hidden).to.equal(
             true
           );
 
@@ -736,7 +742,7 @@ describe('Shell API (integration)', function () {
           expect(unhideResult.hidden_new).to.equal(false);
 
           const indexesAfter = await collection.getIndexes();
-          expect(indexesAfter.find((ix) => ix.key.a).hidden).to.equal(
+          expect(indexesAfter.find((ix) => ix.key.a)?.hidden).to.equal(
             undefined
           );
         });
@@ -952,7 +958,7 @@ describe('Shell API (integration)', function () {
 
     describe('drop', function () {
       context('when a collection exists', function () {
-        let result;
+        let result: boolean;
         beforeEach(async function () {
           await serviceProvider.createCollection(dbName, collectionName);
           result = await collection.drop();
@@ -1097,6 +1103,24 @@ describe('Shell API (integration)', function () {
         });
       });
 
+      it('projects according to `fields`', async function () {
+        const result = await collection.findAndModify({
+          query: { doc: 4 },
+          new: true,
+          update: { doc: 4, asdf: true },
+          upsert: true,
+          fields: { asdf: 1, _id: 1 },
+        });
+        expect(Object.keys(result!)).to.deep.equal(['_id', 'asdf']);
+        expect(result!._id.constructor.name).to.equal('ObjectId');
+        expect(result!.asdf).to.equal(true);
+
+        expect(await findAllWithoutId(dbName, collectionName)).to.deep.include({
+          doc: 4,
+          asdf: true,
+        });
+      });
+
       context('on server 4.2+', function () {
         skipIfServerVersion(testServer, '< 4.2');
         it('allows update pipelines', async function () {
@@ -1189,7 +1213,7 @@ describe('Shell API (integration)', function () {
 
         await collection.aggregate({ $match: {} }, { $out: 'copy' }); // ignore the result
 
-        expect((await database.getCollection('copy').findOne()).x).to.equal(x);
+        expect((await database.getCollection('copy').findOne())?.x).to.equal(x);
       });
 
       [true, false, 'queryPlanner'].forEach((explain) => {
@@ -1405,7 +1429,7 @@ describe('Shell API (integration)', function () {
     });
 
     describe('dropDatabase', function () {
-      let otherDbName;
+      let otherDbName: string;
       beforeEach(function () {
         otherDbName = `${dbName}-2`;
       });
@@ -1414,9 +1438,9 @@ describe('Shell API (integration)', function () {
         await serviceProvider.dropDatabase(otherDbName);
       });
 
-      const listDatabases = async (): Promise<string> => {
+      const listDatabases = async (): Promise<string[]> => {
         const { databases } = await serviceProvider.listDatabases('admin');
-        return databases.map((db) => db.name);
+        return databases.map((db: { name: string }) => db.name);
       };
 
       it('drops only the target database', async function () {
@@ -1899,8 +1923,8 @@ describe('Shell API (integration)', function () {
     describe('mapReduce', function () {
       skipIfServerVersion(testServer, '< 4.4');
 
-      let mapFn;
-      let reduceFn;
+      let mapFn: () => void;
+      let reduceFn: (a: string, b: string[]) => string;
       beforeEach(async function () {
         await loadMRExample(collection);
         mapFn = compileExpr`function() {
@@ -1945,9 +1969,12 @@ describe('Shell API (integration)', function () {
   });
 
   describe('Bulk API', function () {
-    let bulk;
+    let bulk: Bulk;
     const size = 100;
-    ['initializeUnorderedBulkOp', 'initializeOrderedBulkOp'].forEach((m) => {
+    for (const m of [
+      'initializeUnorderedBulkOp',
+      'initializeOrderedBulkOp',
+    ] as const) {
       describe(m, function () {
         describe('insert', function () {
           beforeEach(async function () {
@@ -2454,7 +2481,7 @@ describe('Shell API (integration)', function () {
           });
         });
       });
-    });
+    }
   });
 
   describe('mongo', function () {
@@ -2508,8 +2535,8 @@ describe('Shell API (integration)', function () {
         const admin = result.databases.find((db) => db.name === 'admin');
         // The 5.0+ server responds with a Long.
         expect(
-          typeof admin.sizeOnDisk === 'number' ||
-            admin.sizeOnDisk.constructor.name === 'Long'
+          typeof admin?.sizeOnDisk === 'number' ||
+            admin?.sizeOnDisk.constructor.name === 'Long'
         ).to.equal(true);
       });
     });
@@ -2525,7 +2552,7 @@ describe('Shell API (integration)', function () {
         };
       });
       afterEach(function () {
-        delete serviceProvider.getRawClient;
+        delete (serviceProvider as any).getRawClient;
       });
 
       it('adds a notice to the error message', async function () {
@@ -2554,7 +2581,9 @@ describe('Shell API (integration)', function () {
       skipIfServerVersion(testServer, '< 4.4');
 
       it('converts a shard key to its hashed representation', async function () {
-        const result = await mongo.convertShardKeyToHashed({ foo: 'bar' });
+        const result: ShellBson['Long'] = (await mongo.convertShardKeyToHashed({
+          foo: 'bar',
+        })) as any;
         expect(result.constructor.name).to.equal('Long');
         expect(result.toString()).to.equal('4975617422686807705');
       });
@@ -2684,15 +2713,15 @@ describe('Shell API (integration)', function () {
         out: { inline: 1 },
       });
       expect(result.ok).to.equal(1);
-      expect(result.results.map((k) => k._id).sort()).to.deep.equal([
+      expect(result.results.map((k: Document) => k._id).sort()).to.deep.equal([
         'Ant O. Knee',
         'Busby Bee',
         'Cam Elot',
         'Don Quis',
       ]);
-      expect(result.results.map((k) => k.value).sort()).to.deep.equal([
-        125, 155, 60, 95,
-      ]);
+      expect(result.results.map((k: Document) => k.value).sort()).to.deep.equal(
+        [125, 155, 60, 95]
+      );
     });
     it('accepts finalize as option', async function () {
       await loadMRExample(collection);
@@ -2710,13 +2739,15 @@ describe('Shell API (integration)', function () {
         finalize: finalizeFn,
       });
       expect(result.ok).to.equal(1);
-      expect(result.results.map((k) => k._id).sort()).to.deep.equal([
+      expect(result.results.map((k: Document) => k._id).sort()).to.deep.equal([
         'Ant O. Knee',
         'Busby Bee',
         'Cam Elot',
         'Don Quis',
       ]);
-      expect(result.results.map((k) => k.value)).to.deep.equal([1, 1, 1, 1]);
+      expect(result.results.map((k: Document) => k.value)).to.deep.equal([
+        1, 1, 1, 1,
+      ]);
     });
   });
 
@@ -2730,7 +2761,7 @@ describe('Shell API (integration)', function () {
 
       it('returns information about the connection', async function () {
         const fetchedInfo = await instanceState.fetchConnectionInfo();
-        expect(fetchedInfo.buildInfo.version).to.equal(
+        expect(fetchedInfo?.buildInfo?.version).to.equal(
           await database.version()
         );
         expect(instanceState.cachedConnectionInfo()).to.equal(fetchedInfo);
@@ -2751,11 +2782,11 @@ describe('Shell API (integration)', function () {
       });
 
       it('returns information that is meaningful for autocompletion', async function () {
-        const params = await instanceState.getAutocompleteParameters();
+        const params = instanceState.getAutocompleteParameters();
         expect(params.topology()).to.equal(Topologies.Standalone);
-        expect(params.connectionInfo().uri).to.equal(connectionString);
-        expect(params.connectionInfo().is_atlas).to.equal(false);
-        expect(params.connectionInfo().is_localhost).to.equal(true);
+        expect(params.connectionInfo()?.uri).to.equal(connectionString);
+        expect(params.connectionInfo()?.is_atlas).to.equal(false);
+        expect(params.connectionInfo()?.is_localhost).to.equal(true);
         expect(await database._getCollectionNames()).to.deep.equal(['docs']);
         expect(
           await params.getCollectionCompletionsForCurrentDb('d')
@@ -2809,14 +2840,17 @@ describe('Shell API (integration)', function () {
       await collection.insertMany([...Array(100).keys()].map((i) => ({ i })));
       const cfg = new ShellUserConfig();
       instanceState.setEvaluationListener({
-        getConfig(key: string) {
+        getConfig<K extends keyof ShellUserConfig>(key: K): ShellUserConfig[K] {
           return cfg[key];
         },
-        setConfig(key: string, value: any) {
+        setConfig<K extends keyof ShellUserConfig>(
+          key: K,
+          value: ShellUserConfig[K]
+        ) {
           cfg[key] = value;
           return 'success';
         },
-        resetConfig(key: string) {
+        resetConfig<K extends keyof ShellUserConfig>(key: K) {
           cfg[key] = new ShellUserConfig()[key];
           return 'success';
         },
@@ -2868,10 +2902,13 @@ describe('Shell API (integration)', function () {
       await collection.insertMany([...Array(10).keys()].map((i) => ({ i })));
       const cfg = new ShellUserConfig();
       instanceState.setEvaluationListener({
-        getConfig(key: string) {
+        getConfig<K extends keyof ShellUserConfig>(key: K): ShellUserConfig[K] {
           return cfg[key];
         },
-        setConfig(key: string, value: any) {
+        setConfig<K extends keyof ShellUserConfig>(
+          key: K,
+          value: ShellUserConfig[K]
+        ) {
           cfg[key] = value;
           return 'success';
         },

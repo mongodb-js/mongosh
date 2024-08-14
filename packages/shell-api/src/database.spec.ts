@@ -99,7 +99,7 @@ describe('Database', function () {
       expect(signatures.Database.type).to.equal('Database');
     });
     it('attributes', function () {
-      expect(signatures.Database.attributes.aggregate).to.deep.equal({
+      expect(signatures.Database.attributes?.aggregate).to.deep.equal({
         type: 'function',
         returnsPromise: true,
         deprecated: false,
@@ -477,7 +477,7 @@ describe('Database', function () {
 
       it('throws if name is not a string', function () {
         expect(() => {
-          database.getSiblingDB(undefined);
+          database.getSiblingDB(undefined as any);
         }).to.throw('Missing required argument');
       });
 
@@ -522,7 +522,7 @@ describe('Database', function () {
 
       it('throws if name is not a string', function () {
         expect(() => {
-          database.getCollection(undefined);
+          database.getCollection(undefined as any);
         }).to.throw('Missing required argument');
       });
 
@@ -2654,19 +2654,21 @@ describe('Database', function () {
 
     describe('cloneDatabase, cloneCollection, copyDatabase', function () {
       it('throws a helpful exception regarding their removal', function () {
-        ['cloneDatabase', 'cloneCollection', 'copyDatabase'].forEach(
-          (method) => {
-            try {
-              database[method]();
-              expect.fail('expected error');
-            } catch (e: any) {
-              expect(e).to.be.instanceOf(MongoshDeprecatedError);
-              expect(e.message).to.contain(
-                `\`${method}()\` was removed because it was deprecated in MongoDB 4.0`
-              );
-            }
+        for (const method of [
+          'cloneDatabase',
+          'cloneCollection',
+          'copyDatabase',
+        ] as const) {
+          try {
+            database[method]();
+            expect.fail('expected error');
+          } catch (e: any) {
+            expect(e).to.be.instanceOf(MongoshDeprecatedError);
+            expect(e.message).to.contain(
+              `\`${method}()\` was removed because it was deprecated in MongoDB 4.0`
+            );
           }
-        );
+        }
       });
     });
 
@@ -3035,10 +3037,14 @@ describe('Database', function () {
       database = session.getDatabase('db1');
     });
     it('all commands that use runCommandWithCheck', async function () {
-      for (const method of Object.getOwnPropertyNames(
-        Database.prototype
+      for (const method of (
+        Object.getOwnPropertyNames(Database.prototype) as (string &
+          keyof Database)[]
       ).filter(
-        (k) => !ignore.includes(k) && !Object.keys(exceptions).includes(k)
+        (k) =>
+          typeof k === 'string' &&
+          !ignore.includes(k) &&
+          !Object.keys(exceptions).includes(k)
       )) {
         if (
           !method.startsWith('_') &&
@@ -3058,21 +3064,26 @@ describe('Database', function () {
       }
     });
     it('all commands that use other methods', async function () {
-      for (const method of Object.keys(exceptions)) {
-        const customA = exceptions[method].a || args;
-        const customM = exceptions[method].m || 'runCommandWithCheck';
-        const customI = exceptions[method].i || 2;
+      for (const method of Object.keys(
+        exceptions
+      ) as (keyof typeof exceptions)[]) {
+        const exception: { a?: any[]; m?: string; i?: number } =
+          exceptions[method];
+        const customA = exception.a || args;
+        const customM = (exception.m ||
+          'runCommandWithCheck') as keyof ServiceProvider;
+        const customI = exception.i || 2;
         try {
-          await database[method](...customA);
+          await (database[method] as any)(...customA);
         } catch (e: any) {
           expect.fail(`${method} failed, error thrown ${e.message}`);
         }
-        expect(serviceProvider[customM].called).to.equal(
+        expect((serviceProvider[customM] as any).called).to.equal(
           true,
           `expecting ${customM} to be called but it was not`
         );
         expect(
-          serviceProvider[customM].getCall(-1).args[customI].session
+          (serviceProvider[customM] as any).getCall(-1).args[customI].session
         ).to.equal(internalSession);
       }
     });

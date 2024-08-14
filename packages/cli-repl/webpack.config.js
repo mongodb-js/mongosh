@@ -39,6 +39,7 @@ const enableReverseModuleLookupPlugin =
 
 /** @type import('webpack').Configuration */
 const config = {
+  devtool: false,
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'mongosh.js',
@@ -61,6 +62,11 @@ const config = {
       // b) uses http, which is not a supported module for snapshots at this point.
       express: makeLazyForwardModule('express'),
       'openid-client': makeLazyForwardModule('openid-client'),
+      // some dependencies of @mongodb-js/devtools-proxy-support use WebAssembly,
+      // `new Buffer()` or the built-in http module
+      '@mongodb-js/devtools-proxy-support': makeLazyForwardModule(
+        '@mongodb-js/devtools-proxy-support'
+      ),
       ...Object.fromEntries(
         lazyNodeBuiltins.map((m) => [m, makeLazyForwardModule(m)])
       ),
@@ -109,8 +115,25 @@ function makeLazyForwardModule(pkg) {
     : `require(${S(require.resolve(pkg))})`;
 
   const moduleContents = require(pkg);
-  let source = `'use strict';\nlet _cache;\n`;
-  source += `function orig() {\n_cache = ${realRequire}; orig = () => _cache; return _cache;\n}\n`;
+  let source = `'use strict';\nlet _cache, orig;\n`;
+  source += `function _realModule() {\n_cache = ${realRequire}; orig = () => _cache; return _cache;\n}\n`;
+
+  if (process.env.MONGOSH_DEBUG_WEBPACK_FORWARDING_MODULES) {
+    source += `const _startupSnapshot = __non_webpack_require__("v8").startupSnapshot;
+      function _throwModule() {\nthrow new Error('cannot load package "' + ${S(
+        pkg
+      )} + '" while building snapshot');\n}
+      if (_startupSnapshot.isBuildingSnapshot()) {
+        orig = _throwModule;
+        _startupSnapshot.addDeserializeCallback(() => orig = _realModule);
+      } else {
+        orig = _realModule;
+      }
+    `;
+  } else {
+    source += `orig = _realModule;\n`;
+  }
+
   if (typeof moduleContents === 'function') {
     source += `module.exports = function(...args) { return orig().apply(this, args); };\n`;
   } else {

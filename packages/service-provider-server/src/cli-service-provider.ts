@@ -10,6 +10,9 @@ import type {
   ClientEncryptionOptions,
   MongoClient,
   MongoMissingDependencyError,
+  SearchIndexDescription,
+  TopologyDescription,
+  TopologyDescriptionChangedEvent,
 } from 'mongodb';
 
 import type {
@@ -126,7 +129,7 @@ const bsonlib = () => {
   };
 };
 
-type DropDatabaseResult = {
+export type DropDatabaseResult = {
   ok: 0 | 1;
   dropped?: string;
 };
@@ -146,7 +149,7 @@ const DEFAULT_BASE_OPTIONS: OperationOptions = Object.freeze({
 
 /**
  * Pick properties of `uri` and `opts` that as a tuple that can be matched
- * against the correspondiung tuple for another `uri` and `opts` configuration,
+ * against the corresponding tuple for another `uri` and `opts` configuration,
  * and when they do, it is meaningful to share connection state between them.
  *
  * Currently, this is only used for OIDC. We don't need to make sure that the
@@ -225,6 +228,20 @@ class CliServiceProvider
 
     let client: MongoClient;
     let state: DevtoolsConnectionState | undefined;
+    let lastSeenTopology: TopologyDescription | undefined;
+
+    class MongoshMongoClient extends MongoClientCtor {
+      constructor(url: string, options?: MongoClientOptions) {
+        super(url, options);
+        this.on(
+          'topologyDescriptionChanged',
+          (evt: TopologyDescriptionChangedEvent) => {
+            lastSeenTopology = evt.newDescription;
+          }
+        );
+      }
+    }
+
     if (cliOptions.nodb) {
       const clientOptionsCopy: MongoClientOptions &
         Partial<DevtoolsConnectOptions> = {
@@ -235,8 +252,9 @@ class CliServiceProvider
       delete clientOptionsCopy.oidc;
       delete clientOptionsCopy.parentHandle;
       delete clientOptionsCopy.parentState;
-      delete clientOptionsCopy.useSystemCA;
-      client = new MongoClientCtor(
+      delete clientOptionsCopy.proxy;
+      delete clientOptionsCopy.applyProxyToOIDC;
+      client = new MongoshMongoClient(
         connectionString.toString(),
         clientOptionsCopy
       );
@@ -245,12 +263,18 @@ class CliServiceProvider
         connectionString.toString(),
         clientOptions,
         bus,
-        MongoClientCtor
+        MongoshMongoClient
       ));
     }
     clientOptions.parentState = state;
 
-    return new this(client, bus, clientOptions, connectionString);
+    return new this(
+      client,
+      bus,
+      clientOptions,
+      connectionString,
+      lastSeenTopology
+    );
   }
 
   public readonly platform: ReplPlatform;
@@ -261,6 +285,11 @@ class CliServiceProvider
   private dbcache: WeakMap<MongoClient, Map<string, Db>>;
   public baseCmdOptions: OperationOptions; // public for testing
   private bus: MongoshBus;
+
+  /**
+   * Stores the last seen topology at the time when .connect() finishes.
+   */
+  private _lastSeenTopology: TopologyDescription | undefined;
 
   /**
    * Instantiate a new CliServiceProvider with the Node driver's connected
@@ -274,13 +303,15 @@ class CliServiceProvider
     mongoClient: MongoClient,
     bus: MongoshBus,
     clientOptions: DevtoolsConnectOptions,
-    uri?: ConnectionString
+    uri?: ConnectionString,
+    lastSeenTopology?: TopologyDescription
   ) {
     super(bsonlib());
 
     this.bus = bus;
     this.mongoClient = mongoClient;
     this.uri = uri;
+    this._lastSeenTopology = lastSeenTopology;
     this.platform = 'CLI';
     try {
       this.initialDb = (mongoClient as any).s.options.dbName || DEFAULT_DB;
@@ -390,6 +421,7 @@ class CliServiceProvider
   ): Promise<CliServiceProvider> {
     const connectionString = new ConnectionString(uri);
     const clientOptions = this.processDriverOptions(connectionString, options);
+
     const { client, state } = await this.connectMongoClient(
       connectionString.toString(),
       clientOptions
@@ -399,13 +431,18 @@ class CliServiceProvider
       client,
       this.bus,
       clientOptions,
-      connectionString
+      connectionString,
+      this._lastSeenTopology
     );
   }
 
+  _getHostnameForConnection(
+    topology?: TopologyDescription
+  ): string | undefined {
+    return topology?.servers?.values().next().value.hostAddress.host;
+  }
+
   async getConnectionInfo(): Promise<ConnectionInfo> {
-    const topology = this.getTopology();
-    const { version } = require('../package.json');
     const [buildInfo = null, atlasVersion = null, fcv = null, atlascliInfo] =
       await Promise.all([
         this.runCommandWithCheck(
@@ -428,20 +465,21 @@ class CliServiceProvider
         }).catch(() => 0),
       ]);
 
-    const isLocalAtlasCli = !!atlascliInfo;
-
-    const extraConnectionInfo = getConnectExtraInfo(
-      this.uri?.toString() ?? '',
-      version,
-      buildInfo,
-      atlasVersion,
-      topology,
-      isLocalAtlasCli
+    const resolvedHostname = this._getHostnameForConnection(
+      this._lastSeenTopology
     );
 
+    const extraConnectionInfo = getConnectExtraInfo({
+      connectionString: this.uri,
+      buildInfo,
+      atlasVersion,
+      resolvedHostname,
+      isLocalAtlas: !!atlascliInfo,
+    });
+
     return {
-      buildInfo: buildInfo,
-      topology: topology,
+      buildInfo,
+      resolvedHostname,
       extraInfo: {
         ...extraConnectionInfo,
         fcv: fcv?.featureCompatibilityVersion?.version,
@@ -1457,12 +1495,7 @@ class CliServiceProvider
   createSearchIndexes(
     database: string,
     collection: string,
-    // TODO(MONGOSH-1471): use SearchIndexDescription[] once available
-    specs: {
-      name: string;
-      type?: 'search' | 'vectorSearch';
-      definition: Document;
-    }[],
+    specs: SearchIndexDescription[],
     dbOptions?: DbOptions
   ): Promise<string[]> {
     return this.db(database, dbOptions)
@@ -1485,8 +1518,7 @@ class CliServiceProvider
     database: string,
     collection: string,
     indexName: string,
-    // TODO(MONGOSH-1471): use SearchIndexDescription once available
-    definition: Document,
+    definition: SearchIndexDescription,
     dbOptions?: DbOptions
   ): Promise<void> {
     return this.db(database, dbOptions)

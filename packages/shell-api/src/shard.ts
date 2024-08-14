@@ -694,6 +694,33 @@ export default class Shard extends ShellApiWithMongoClass {
     });
   }
 
+  @returnsPromise
+  @serverVersions(['5.0.0', ServerVersions.latest])
+  async shardAndDistributeCollection(
+    ns: string,
+    key: Document,
+    unique?: boolean | Document,
+    options?: Document
+  ): Promise<Document> {
+    this._emitShardApiCall('shardAndDistributeCollection', {
+      ns,
+      key,
+      unique,
+      options,
+    });
+    await this.shardCollection(ns, key, unique, options);
+    // SERVER-92762: Prevent unequal data distribution by setting
+    // numInitialChunks to 1000.
+    const numInitialChunks =
+      typeof unique === 'object'
+        ? unique.numInitialChunks
+        : options?.numInitialChunks;
+    return await this.reshardCollection(ns, key, {
+      numInitialChunks: numInitialChunks ?? 1000,
+      forceRedistribution: true,
+    });
+  }
+
   @serverVersions(['8.0.0', ServerVersions.latest])
   @apiVersions([])
   @returnsPromise

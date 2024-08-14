@@ -1,3 +1,4 @@
+/* eslint-disable filename-rules/match */
 import type Catalog from '../catalog';
 
 /**
@@ -55,7 +56,6 @@ const translations: Catalog = {
         'Specifies the .pem file that contains the Certificate Revocation List',
       tlsDisabledProtocols:
         'Comma separated list of TLS protocols to disable [TLS1_0,TLS1_1,TLS1_2]',
-      tlsUseSystemCA: 'Load the operating system trusted certificate list',
       tlsFIPSMode: "Enable the system TLS library's FIPS mode",
       apiVersionOptions: 'API version options:',
       apiVersion: 'Specifies the API version to connect with',
@@ -82,6 +82,16 @@ const translations: Catalog = {
       connectionExampleWithDatabase:
         "Start mongosh using 'ships' database on specified connection string:",
       moreInformation: 'For more information on usage:',
+      oidcOptions: 'OIDC auth options:',
+      oidcFlows: 'Supported OIDC auth flows',
+      oidcRedirectUri:
+        'Local auth code flow redirect URL [http://localhost:27097/redirect]',
+      oidcTrustedEndpoint:
+        'Treat the cluster/database mongosh as a trusted endpoint',
+      oidcIdTokenAsAccessToken:
+        'Use ID tokens in place of access tokens for auth',
+      oidcDumpTokens:
+        "Debug OIDC by printing tokens to mongosh's output [full|include-secrets]",
     },
     'arg-parser': {
       'unknown-option': 'Error parsing command line: unrecognized option:',
@@ -96,7 +106,7 @@ const translations: Catalog = {
       disabledTelemetry: 'Telemetry is now disabled.',
       wiki: {
         info: 'For mongosh info see:',
-        link: 'https://docs.mongodb.com/mongodb-shell/',
+        link: 'https://www.mongodb.com/docs/mongodb-shell/',
       },
       additionalErrorInfo: 'Additional information',
       additionalErrorResult: 'Result',
@@ -2044,6 +2054,12 @@ const translations: Catalog = {
               description:
                 'Returns a cursor with information about metadata inconsistencies',
               example: 'sh.checkMetadataConsistency(<options>)',
+            },
+            shardAndDistributeCollection: {
+              description:
+                'Shards a collection and then immediately reshards the collection to the same shard key.',
+              example:
+                'sh.shardAndDistributeCollection(ns, key, unique?, options?)',
             },
             moveCollection: {
               link: 'https://docs.mongodb.com/manual/reference/method/sh.moveCollection',

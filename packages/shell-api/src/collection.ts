@@ -42,6 +42,7 @@ import {
   buildConfigChunksCollectionMatch,
   onlyShardedCollectionsInConfigFilter,
   aggregateBackgroundOptionNotSupportedHelp,
+  getConfigDB,
 } from './helpers';
 import type {
   AnyBulkWriteOperation,
@@ -482,8 +483,19 @@ export default class Collection extends ShellApiWithMongoClass {
       FindAndModifyMethodShellOptions,
       'query' | 'update'
     > = { ...options };
+    if (
+      reducedOptions.projection !== undefined &&
+      reducedOptions.fields !== undefined
+    ) {
+      throw new MongoshInvalidInputError(
+        'Cannot specify both .fields and .projection for findAndModify()',
+        CommonErrors.InvalidArgument
+      );
+    }
+    reducedOptions.projection ??= reducedOptions.fields;
     delete (reducedOptions as any).query;
     delete (reducedOptions as any).update;
+    delete (reducedOptions as any).fields;
     if (options.remove) {
       return this.findOneAndDelete(options.query, reducedOptions);
     }
@@ -2064,6 +2076,8 @@ export default class Collection extends ShellApiWithMongoClass {
   @apiVersions([])
   async getShardDistribution(): Promise<CommandResult> {
     this._emitCollectionApiCall('getShardDistribution', {});
+
+    await getConfigDB(this._database); // Warns if not connected to mongos
 
     const result = {} as Document;
     const config = this._mongo.getDB('config');

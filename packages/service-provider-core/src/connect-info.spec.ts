@@ -1,5 +1,6 @@
 import { expect } from 'chai';
-import getConnectInfo from './connect-info';
+import getConnectExtraInfo from './connect-info';
+import { ConnectionString } from 'mongodb-connection-string-url';
 
 describe('getConnectInfo', function () {
   const BUILD_INFO = {
@@ -46,30 +47,21 @@ describe('getConnectInfo', function () {
     gitVersion: '8f7e5bdde713391e8123a463895bb7fb660a5ffd',
   };
 
-  const TOPOLOGY_WITH_CREDENTIALS = {
-    s: {
-      credentials: {
-        mechanism: 'LDAP',
-      },
-    },
-  };
-
-  const TOPOLOGY_NO_CREDENTIALS = {
-    s: {},
-  };
-
   const ATLAS_URI =
-    'mongodb+srv://admin:catscatscats@cat-data-sets.cats.example.net/admin';
+    'mongodb+srv://admin:catscatscats@cat-data-sets.cats.mongodb.net/admin';
+
+  const ATLAS_URI_WITH_AUTH =
+    'mongodb+srv://admin:catscatscats@cat-data-sets.cats.mongodb.net/admin?authMechanism=PLAIN&authSource=%24external';
 
   it('reports on an enterprise version >=3.2 of mongodb with credentials', function () {
     const output = {
       is_atlas: true,
+      is_atlas_url: true,
       is_localhost: false,
-      is_do: false,
+      is_do_url: false,
       server_version: '3.2.0-rc2',
-      mongosh_version: '0.0.6',
       is_enterprise: true,
-      auth_type: 'LDAP',
+      auth_type: 'PLAIN',
       is_data_federation: false,
       is_stream: false,
       dl_version: null,
@@ -79,30 +71,29 @@ describe('getConnectInfo', function () {
       server_arch: 'x86_64',
       node_version: process.version,
       server_os: 'osx',
-      uri: ATLAS_URI,
+      uri: ATLAS_URI_WITH_AUTH,
       is_local_atlas: false,
     };
     expect(
-      getConnectInfo(
-        ATLAS_URI,
-        '0.0.6',
-        BUILD_INFO,
-        ATLAS_VERSION,
-        TOPOLOGY_WITH_CREDENTIALS,
-        false
-      )
+      getConnectExtraInfo({
+        connectionString: new ConnectionString(ATLAS_URI_WITH_AUTH),
+        buildInfo: BUILD_INFO,
+        atlasVersion: ATLAS_VERSION,
+        resolvedHostname: 'test-data-sets-00-02-a011bb.mongodb.net',
+        isLocalAtlas: false,
+      })
     ).to.deep.equal(output);
   });
 
   it('reports on an enterprise version >=3.2 of mongodb with no credentials', function () {
     const output = {
       is_atlas: true,
+      is_atlas_url: true,
       is_localhost: false,
-      is_do: false,
+      is_do_url: false,
       server_version: '3.2.0-rc2',
-      mongosh_version: '0.0.6',
       is_enterprise: true,
-      auth_type: null,
+      auth_type: undefined,
       is_data_federation: false,
       is_stream: false,
       dl_version: null,
@@ -116,14 +107,13 @@ describe('getConnectInfo', function () {
       is_local_atlas: false,
     };
     expect(
-      getConnectInfo(
-        ATLAS_URI,
-        '0.0.6',
-        BUILD_INFO,
-        ATLAS_VERSION,
-        TOPOLOGY_NO_CREDENTIALS,
-        false
-      )
+      getConnectExtraInfo({
+        connectionString: new ConnectionString(ATLAS_URI),
+        buildInfo: BUILD_INFO,
+        atlasVersion: ATLAS_VERSION,
+        resolvedHostname: 'test-data-sets-00-02-a011bb.mongodb.net',
+        isLocalAtlas: false,
+      })
     ).to.deep.equal(output);
   });
 
@@ -132,12 +122,12 @@ describe('getConnectInfo', function () {
       'mongodb://atlas-stream-67b8e1cd6d60357be377be7b-1dekw.virginia-usa.a.query.mongodb-dev.net/';
     const output = {
       is_atlas: true,
+      is_atlas_url: true,
       is_localhost: false,
-      is_do: false,
+      is_do_url: false,
       server_version: '3.2.0-rc2',
-      mongosh_version: '0.0.6',
       is_enterprise: true,
-      auth_type: 'LDAP',
+      auth_type: undefined,
       is_data_federation: false,
       is_stream: true,
       dl_version: null,
@@ -151,26 +141,26 @@ describe('getConnectInfo', function () {
       uri: streamUri,
     };
     expect(
-      getConnectInfo(
-        streamUri,
-        '0.0.6',
-        BUILD_INFO,
-        null,
-        TOPOLOGY_WITH_CREDENTIALS,
-        false
-      )
+      getConnectExtraInfo({
+        connectionString: new ConnectionString(streamUri),
+        buildInfo: BUILD_INFO,
+        atlasVersion: null,
+        resolvedHostname:
+          'atlas-stream-67b8e1cd6d60357be377be7b-1dekw.virginia-usa.a.query.mongodb-dev.net',
+        isLocalAtlas: false,
+      })
     ).to.deep.equal(output);
   });
 
   it('reports correct information when an empty uri is passed', function () {
     const output = {
       is_atlas: false,
-      is_localhost: false,
-      is_do: false,
+      is_atlas_url: false,
+      is_localhost: true,
+      is_do_url: false,
       server_version: '3.2.0-rc2',
-      mongosh_version: '0.0.6',
       is_enterprise: true,
-      auth_type: 'LDAP',
+      auth_type: undefined,
       is_data_federation: false,
       is_stream: false,
       dl_version: null,
@@ -184,26 +174,24 @@ describe('getConnectInfo', function () {
       is_local_atlas: true,
     };
     expect(
-      getConnectInfo(
-        '',
-        '0.0.6',
-        BUILD_INFO,
-        null,
-        TOPOLOGY_WITH_CREDENTIALS,
-        true
-      )
+      getConnectExtraInfo({
+        buildInfo: BUILD_INFO,
+        atlasVersion: null,
+        resolvedHostname: 'localhost',
+        isLocalAtlas: true,
+      })
     ).to.deep.equal(output);
   });
 
   it('does not fail when buildInfo is unavailable', function () {
     const output = {
       is_atlas: false,
+      is_atlas_url: false,
       is_localhost: false,
-      is_do: false,
+      is_do_url: false,
       server_version: undefined,
-      mongosh_version: '0.0.6',
       is_enterprise: false,
-      auth_type: 'LDAP',
+      auth_type: undefined,
       is_data_federation: false,
       is_stream: false,
       dl_version: null,
@@ -217,7 +205,11 @@ describe('getConnectInfo', function () {
       is_local_atlas: false,
     };
     expect(
-      getConnectInfo('', '0.0.6', null, null, TOPOLOGY_WITH_CREDENTIALS, false)
+      getConnectExtraInfo({
+        buildInfo: null,
+        atlasVersion: null,
+        isLocalAtlas: false,
+      })
     ).to.deep.equal(output);
   });
 });

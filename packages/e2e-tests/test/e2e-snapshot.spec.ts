@@ -15,7 +15,7 @@ const commonPrefix = (a: string, b: string): string =>
     ? a
     : b && commonPrefix(a, b.slice(0, -1));
 
-describe('e2e startup banners', function () {
+describe('e2e snapshot support', function () {
   skipIfApiStrict();
   afterEach(TestShell.cleanup);
 
@@ -28,7 +28,7 @@ describe('e2e startup banners', function () {
       const connectionString = await testServer.connectionString();
       const helperScript = `
       const S = process.__mongosh_webpack_stats;
-      const L = (list) => list.map(S.lookupNaturalModuleName).filter(name => name && !name.endsWith('.json'));
+      const L = (list) => list.map(S.lookupNaturalModuleName);
       `;
       const commonArgs = ['--quiet', '--json=relaxed', '--eval', helperScript];
       const argLists = [
@@ -64,7 +64,13 @@ describe('e2e startup banners', function () {
       ).map((output) =>
         (JSON.parse(output) as string[])
           .sort()
-          .map((pkg) => pkg.replace(/\\/g, '/'))
+          .map((pkg) => pkg?.replace(/\\/g, '/'))
+          .filter(
+            (name) =>
+              name &&
+              !name.endsWith('.json') &&
+              !name.includes('/lazy-webpack-modules/')
+          )
       );
 
       // Ensure that: atSnapshotTime ⊆ atNodbEvalTime ⊆ atDbEvalTime ⊆ atReplEvalTime ⊆ all
@@ -97,14 +103,22 @@ describe('e2e startup banners', function () {
       // console.table(categorized.map(([m, c]) => [m.replace(prefix, ''), c]));
       const verifyAllInCategoryMatch = (
         category: (typeof categorized)[number][1],
-        re: RegExp
+        re: RegExp,
+        negative = false
       ) => {
         for (const [module, cat] of categorized) {
           if (cat === category) {
-            expect(module).to.match(
-              re,
-              `Found unexpected '${module}' in category '${cat}'`
-            );
+            if (negative) {
+              expect(module).not.to.match(
+                re,
+                `Found unexpected '${module}' in category '${cat}'`
+              );
+            } else {
+              expect(module).to.match(
+                re,
+                `Found unexpected '${module}' in category '${cat}'`
+              );
+            }
           }
         }
       };
@@ -132,8 +146,12 @@ describe('e2e startup banners', function () {
       );
       verifyAllInCategoryMatch(
         'nodb-eval',
-        /^node_modules\/(kerberos|mongodb-client-encryption|glibc-version)\//
+        /^node_modules\/(kerberos|mongodb-client-encryption|glibc-version|@mongodb-js\/devtools-proxy-support|@mongodb-js\/socksv5|agent-base|(win|macos)-export-certificate-and-key|@tootallnate\/quickjs-emscripten)\//
       );
+      if (process.arch !== 's390x') {
+        // quickjs is in the list above but should be exlucded anywhere but on s390x
+        verifyAllInCategoryMatch('nodb-eval', /quickjs-emscripten/, true);
+      }
       verifyAllThatMatchAreInCategory(
         'not-loaded',
         /^node_modules\/(express|openid-client|qs|send|jose|execa|body-parser|@babel\/highlight|@babel\/code-frame)\//
