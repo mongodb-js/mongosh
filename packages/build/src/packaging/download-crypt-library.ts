@@ -35,14 +35,11 @@ export async function downloadCryptLibrary(
   // Download mongodb for latest server version, including rapid releases
   // (for the platforms that they exist for, i.e. for ppc64le/s390x only pick stable releases).
   // TODO(MONGOSH-1833): The current 'continuous' release is not compatible with 8.x rc server releases. So we are using
-  // 8.0.0-rc15 (current latest) for now and once 8.0 is released we should switch back to continuous.
-  let versionSpec = '8.0.0-rc15';
-  if (/ppc64/.test(opts.arch || process.arch)) {
-    versionSpec = 'stable';
-  }
-  if (/s390x/.test(opts.arch || process.arch)) {
-    versionSpec = '6.0.x'; // The 7.x+ server releases don't have RHEL7-compatible crypt_shared libraries
-  }
+  // 8.0.0-rc17 (current latest) for now and once 8.0 is released we should switch back to continuous.
+  const versionSpec = '8.0.0-rc17';
+  //if (/ppc64|s390x/.test(opts.arch || process.arch)) {
+  //  versionSpec = 'stable';
+  //}
   const { downloadedBinDir: libdir, version } =
     await downloadMongoDbWithVersionInfo(cryptTmpTargetDir, versionSpec, opts);
   const cryptLibrary = path.join(
@@ -75,11 +72,11 @@ function lookupReleaseDistro(packageVariant: PackageVariant): {
     case 'ppc64le':
       return { platform: 'linux', distro: 'rhel81' };
     case 's390x':
-      return { platform: 'linux', distro: 'rhel72' };
+      return { platform: 'linux', distro: 'rhel83' };
     case 'arm64':
       return { platform: 'linux', distro: 'amazon2023' };
     case 'x64':
-      return { platform: 'linux', distro: 'rhel80' };
+      return { platform: 'linux', distro: 'rhel8' };
     default:
       break;
   }

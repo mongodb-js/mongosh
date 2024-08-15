@@ -15,8 +15,8 @@ const MONGODB_VERSIONS = [
   { shortName: '60xe', versionSpec: '6.0.x-enterprise' },
   { shortName: '70xc', versionSpec: '7.0.x' },
   { shortName: '70xe', versionSpec: '7.0.x-enterprise' },
-  { shortName: '80xc', versionSpec: '>= 8.0.0-rc15' },
-  { shortName: '80xe', versionSpec: '>= 8.0.0-rc15-enterprise' },
+  { shortName: '80xc', versionSpec: '8.0.0-rc17' },
+  { shortName: '80xe', versionSpec: '8.0.0-rc17-enterprise' },
   { shortName: 'latest', versionSpec: 'latest-alpha-enterprise' }
 ];
 const NODE_VERSIONS = [
@@ -1192,7 +1192,7 @@ tasks:
   # E2E TESTS
   ###
   <% for (const { executableOsId, compileBuildVariant } of RELEASE_PACKAGE_MATRIX) {
-    for (const mVersion of ['stable', '8.0.0-rc15', '6.0.x']) {
+    for (const mVersion of ['stable', '8.0.0-rc17', '6.0.x']) {
       for (const fipsVariant of ['fips', 'nofips']) {
     %>
   - name: e2e_tests_<% out(executableOsId.replace(/-/g, '_')) %><% out(mVersion === 'stable' ? '' : '_' + mVersion.replace(/[^a-zA-Z0-9]/g, '')) %><% out(fipsVariant === 'fips' ? '_fips' : '') %>
