@@ -743,6 +743,8 @@ functions:
       params:
         working_dir: src
         shell: bash
+        env:
+          MONGOSH_NO_AUTOMATIC_ENCRYPTION_SUPPORT: ${no_automatic_encryption_support|}
         script: |
           set -e
           set -x
@@ -769,6 +771,8 @@ functions:
       params:
         working_dir: src
         shell: bash
+        env:
+          MONGOSH_NO_AUTOMATIC_ENCRYPTION_SUPPORT: ${no_automatic_encryption_support|}
         script: |
           set -e
           set -x
@@ -794,6 +798,8 @@ functions:
       params:
         working_dir: src
         shell: bash
+        env:
+          MONGOSH_NO_AUTOMATIC_ENCRYPTION_SUPPORT: ${no_automatic_encryption_support|}
         script: |
           set -e
           set -x
@@ -1965,6 +1971,8 @@ buildvariants:
   - name: pkg_smoke_tests_rhel72_s390x
     display_name: "package smoke tests (RHEL 7.2 s390x)"
     run_on: rhel72-zseries-small
+    expansions:
+      no_automatic_encryption_support: 1
     tasks:
       - name: pkg_test_rpmextract_rpm_s390x
   - name: pkg_smoke_tests_rhel83_s390x

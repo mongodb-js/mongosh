@@ -27,6 +27,15 @@ describe('FLE tests', function () {
   let cryptLibrary: string;
 
   before(async function () {
+    if (process.platform === 'linux') {
+      const [major, minor] = (process.report as any)
+        .getReport()
+        .header.glibcVersionRuntime.split('.');
+      expect(major).to.equal(2);
+      // All crypt_shared versions that we use require at least glibc 2.28
+      if (+minor < 28) return this.skip();
+    }
+
     kmsServer = makeFakeHTTPServer(fakeAWSHandlers);
     kmsServer.listen(0);
     await once(kmsServer, 'listening');
