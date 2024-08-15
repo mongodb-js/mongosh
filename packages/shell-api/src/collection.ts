@@ -1863,9 +1863,14 @@ export default class Collection extends ShellApiWithMongoClass {
 
       return await this._aggregateAndScaleCollStats(collStats, scale);
     } catch (e: any) {
-      if (e?.codeName === 'StaleConfig' || e?.code === 13388) {
+      if (
+        e?.codeName === 'StaleConfig' ||
+        e?.code === 13388 ||
+        e?.codeName === 'FailedToParse'
+      ) {
         // Fallback to the deprecated way of fetching that folks can still
         // fetch the stats of sharded timeseries collections. SERVER-72686
+        // and atlas data federation (MONGOSH-1425)
         try {
           return await this._getLegacyCollStats(scale);
         } catch (legacyCollStatsError) {
