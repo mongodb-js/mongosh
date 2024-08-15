@@ -141,7 +141,6 @@
     "packages/build",
     "packages/errors",
     "packages/history",
-    "packages/import-node-fetch",
     "packages/java-shell",
     "packages/js-multiline-to-singleline",
     "packages/types",

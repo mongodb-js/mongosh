@@ -35,8 +35,8 @@
     "unitTestsOnly": true
   },
   "dependencies": {
+    "@mongodb-js/devtools-proxy-support": "^0.3.5",
     "@mongosh/errors": "0.0.0-dev.0",
-    "@mongosh/import-node-fetch": "0.0.0-dev.0",
     "@mongosh/shell-api": "0.0.0-dev.0",
     "@mongosh/types": "0.0.0-dev.0",
     "bson": "^6.7.0",
