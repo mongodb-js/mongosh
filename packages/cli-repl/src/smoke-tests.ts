@@ -73,8 +73,13 @@ export async function runSmokeTests({
   const expectFipsSupport =
     !!process.env.MONGOSH_SMOKE_TEST_OS_HAS_FIPS_SUPPORT &&
     (await buildInfo()).sharedOpenssl;
+  const expectAutomaticEncryptionSupport =
+    !process.env.MONGOSH_NO_AUTOMATIC_ENCRYPTION_SUPPORT;
   if (!wantPerformanceTesting) {
-    console.log('FIPS support required to pass?', { expectFipsSupport });
+    console.log('FIPS/FLE support required to pass?', {
+      expectFipsSupport,
+      expectAutomaticEncryptionSupport,
+    });
   }
   const perfResults: PerfTestResult[] = [];
 

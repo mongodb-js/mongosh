@@ -32,7 +32,7 @@ async function preCompileHook(nodeSourceTree: string) {
       env: {
         ...process.env,
         FLE_NODE_SOURCE_PATH: nodeSourceTree,
-        LIBMONGOCRYPT_VERSION: `node-v${fleAddonVersion}`,
+        MONGODB_CLIENT_ENCRYPTION_VERSION: `v${fleAddonVersion}`,
       },
       stdio: 'inherit',
     }

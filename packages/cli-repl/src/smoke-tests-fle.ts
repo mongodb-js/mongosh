@@ -13,7 +13,8 @@ const assert = function(value, message) {
   }
 };
 if (db.version().startsWith('4.0.') ||
-    !db.runCommand({buildInfo:1}).modules.includes('enterprise')) {
+    !db.runCommand({buildInfo:1}).modules.includes('enterprise') ||
+    !!process.env.MONGOSH_NO_AUTOMATIC_ENCRYPTION_SUPPORT) {
   // No FLE on mongod < 4.2 or community
   print('Test skipped')
   process.exit(0)
