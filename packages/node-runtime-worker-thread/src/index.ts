@@ -9,7 +9,6 @@ import type {
 import type { MongoshBus } from '@mongosh/types';
 import path from 'path';
 import { EventEmitter, once } from 'events';
-import Worker from 'web-worker';
 import type { Caller } from './rpc';
 import { createCaller, cancel, exposeAll } from './rpc';
 import type { WorkerRuntime as WorkerThreadWorkerRuntime } from './worker-runtime';
