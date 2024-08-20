@@ -61,6 +61,7 @@
     }
   },
   "dependencies": {
+    "@mongodb-js/devtools-proxy-support": "^0.3.4",
     "@mongosh/arg-parser": "0.0.0-dev.0",
     "@mongosh/autocomplete": "0.0.0-dev.0",
     "@mongosh/editor": "0.0.0-dev.0",
@@ -87,7 +88,6 @@
     "mongodb-log-writer": "^1.4.2",
     "numeral": "^2.0.6",
     "pretty-repl": "^4.0.1",
-    "proxy-agent": "^6.4.0",
     "semver": "^7.5.4",
     "strip-ansi": "^6.0.0",
     "text-table": "^0.2.0",

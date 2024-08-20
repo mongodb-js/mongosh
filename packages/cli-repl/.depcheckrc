@@ -17,5 +17,6 @@ ignores:
  - emphasize
  - ipv6-normalize
  - bindings
+ - system-ca
 ignore-patterns:
  - .eslintrc.js

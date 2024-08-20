@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Sun Aug 11 2024.
+This document was automatically generated on Wed Aug 14 2024.
 
 ## List of dependencies
 
@@ -146,7 +146,6 @@ Package|Version|License
 **[@smithy/util-stream](#620a9e04e4791a554ce9ddd0d3fa2f264d0d5bf211b7e5d4354411bc40d58ad6)**|3.1.3|Apache-2.0
 **[@smithy/util-uri-escape](#00c89382e0278c66e8d4394996711d826b23491ef5e313b58f5681da7a07d0b6)**|3.0.0|Apache-2.0
 **[@smithy/util-utf8](#c0da7acc7121c0e4e76c58d92e290275318534cfce16949c7b916cfa0301c3b9)**|3.0.0|Apache-2.0
-**[@tootallnate/once](#67cdedcbbaa818293e716277e06157d390a94c250fe7d9514e66e238a0fa2855)**|2.0.0|MIT
 **[@tootallnate/quickjs-emscripten](#dda6dbabe98503ac1af20979be1778d7a1c8f355b85377124a909567193c2cd3)**|0.23.0|MIT
 **[abbrev](#833e7f77a7281caac706be0c8f668047915855542cbbf1bd470fe0e885db13b5)**|1.1.1|ISC
 **[accepts](#4c224d266c36e8e0abc4a53eb7eaa038504ee20b9b91f3e761187298a447d76b)**|1.3.8|MIT
@@ -157,7 +156,6 @@ Package|Version|License
 **[acorn-static-class-features](#f6024de47034c2be7edac4d9ed3065f2ca7114178d5c5471d557d595fd61c186)**|1.0.0|MIT
 **[acorn](#fc95bfb698293b3127755b9d97e2974c7df920d0c63b56dd59fb99de9867d4d0)**|7.4.1|MIT
 **[acorn](#4aa96f656a11c11b0e17ee35cc26cad7c13dcf4afdff6431e6d074261b59f47d)**|8.8.2|MIT
-**[agent-base](#90b79cd8f1f67d4f29e7209a89558cc8e59d9703970fea7598104fe49242ad3a)**|6.0.2|MIT
 **[agent-base](#f2315537cada74050b82aaa21dcd7136d001ad9b9442d6ce952030fd890ad26b)**|7.1.1|MIT
 **[ansi-escape-sequences](#facc0b756e4e6b040bafa6604056a2290d18923d9c14a2e0a64f850d3477bac0)**|5.1.2|MIT
 **[ansi-regex](#7fa0e28daa6f9c697017b06f32a9e31a57ccfb4f138a8daded68a5d002231e29)**|5.0.1|MIT
@@ -218,6 +216,7 @@ Package|Version|License
 **[data-uri-to-buffer](#639ac74ee96dfbd31300c6ba10258377dafb6c2f9caa5bf388c099153953624c)**|5.0.1|MIT
 **[debug](#233219ced46fb5b84e28859835e97775eb9d0181f4cb85d6aa5cecb61e595947)**|2.6.9|MIT
 **[debug](#f9b654e80c05af90dc288869333e452db67fbba75969b385acd60df9895a7944)**|4.3.4|MIT
+**[debug](#8f6d58c520b4b6702b6fb9abb811ba1798560ac052612c0fa8dc243516825360)**|4.3.6|MIT
 **[decompress-response](#46099480250f7aa8cf2b8137a8611392266770618d74e0d131b89eea24e741b2)**|3.3.0|MIT
 **[deep-extend](#654bd7d00073c2195bca924a07d93393b2aaf5cacbb6f52a383877f6f33dbfbf)**|0.6.0|MIT
 **[default-browser-id](#bc6a381b83371172dbb72cac459792e2d4d55ecb71165c082142ef085b2130ee)**|3.0.0|MIT
@@ -282,11 +281,7 @@ Package|Version|License
 **[highlight.js](#2c60adc5db39462d0c2ff2176f71b4694ffe5060c53b1aa4f6f670e269ec1905)**|11.5.1|BSD-3-Clause
 **[hijack-stream](#ea52eb26f65d948b0a115c633971204879db11a0d623979e50d0ca5d2445cae0)**|2.0.1|Apache-2.0
 **[http-errors](#63ffbc6de129d4a36e73df25da1f31ee2a7da3b1060e1b5b3c2b5cad89ca04c7)**|2.0.0|MIT
-**[http-proxy-agent](#68ac264b10ad868898faeed8db0177afc3780c94e76ac9c397d8e665fc4d546e)**|5.0.0|MIT
-**[http-proxy-agent](#7e5bf494aea64988e9b1d91368301085d546c0ec2ec7259c2c90656f358f49ca)**|7.0.0|MIT
 **[http-proxy-agent](#bd2b92f8eb0b68f6d255c316d3cd8c9aff9984e8bcb584d47613c422de726405)**|7.0.2|MIT
-**[https-proxy-agent](#14d044588a649be94c6acf6aa36850a9b740feabc84842b6630ee573abb07344)**|5.0.0|MIT
-**[https-proxy-agent](#e557daf61de730aba64546bd9cc4da010c799b036b108361b676216a38093a1b)**|7.0.4|MIT
 **[https-proxy-agent](#8a149a0a84183adc7ec4c2ca491a2aced0803a8c5fdae6e99879bcb4720837e1)**|7.0.5|MIT
 **[human-signals](#49d0a41c5a505634282f30fd5bf8876d5c9fd885fc242bcf16c71d3b4c4e2da5)**|2.1.0|Apache-2.0
 **[human-signals](#62680fd7715b22b948ad9771bc3f0de13d753f68f6478afdda970d4393faa754)**|4.3.1|Apache-2.0
@@ -326,7 +321,6 @@ Package|Version|License
 **[lru-cache](#1ea0bf8b28ace14de4e2fc9471ee313d67042cd77c198afd0729e3df12c79b0d)**|11.0.0|ISC
 **[lru-cache](#fe7f0a2f2cf4c92f13c3a2a63f14f80f20f6919979306dc054e4f947c1234651)**|5.1.1|ISC
 **[lru-cache](#938513411a6603ce29334db15563fb94b7d52f839d32b9bd78c18f5d3f98aa5a)**|6.0.0|ISC
-**[lru-cache](#a69459d3b86b0ce0e8219931c4a933a57014f338357d5698c5b74621761816c9)**|7.18.3|ISC
 **[media-typer](#fa74be298a38f8f9351484e9124aba4a4086182a4cba24449f195219a2843784)**|0.3.0|MIT
 **[memory-pager](#7fbdeab18f48c3527cae276a51cd879e42d15337aba1acb44fedcf748137608b)**|1.5.0|MIT
 **[merge-descriptors](#8629510f1c3aef4893205a8e59216dee1806f69eaeedcdb2eb376b4632ced8d1)**|1.0.1|MIT
@@ -395,8 +389,6 @@ Package|Version|License
 **[process-nextick-args](#449a33b1fb1386db92b40df9073f48703b67ff05c4da5043d007fdb90ed76aca)**|2.0.1|MIT
 **[proto-list](#d4d3609bf7b212ffd3a73f3a8f8e7b69fedcf74d6e9843ee217046ab37b32260)**|1.2.4|ISC
 **[proxy-addr](#7b128e3d41d39ecb1a405a490a53ae86f70ef45f01079333ed3ca49939f5fba8)**|2.0.7|MIT
-**[proxy-agent](#16a804720b6ea2885672db5d26cb2a1ffce72595a33b6c58b68057c7511a7493)**|6.4.0|MIT
-**[proxy-from-env](#2469d0f664f15c027d1c1d8ce13ec8630ab2ea4f4151b1694d2bcc1074f36c2e)**|1.1.0|MIT
 **[pump](#147f1bd3a6380306e696f0574feda0b1490121a1d12e4500e91ffb6e888ffa3a)**|3.0.0|MIT
 **[punycode](#3fe331f5536b72438f24d644ea9804b5e462f791a4c72a6d94f37193af1086aa)**|2.3.1|MIT
 **[qs](#f0014afee41bfb4a111252068b917fc6a9a61ea307f982526a7082ea503f9040)**|6.11.0|BSD-3-Clause
@@ -421,8 +413,6 @@ Package|Version|License
 **[simple-concat](#7e08f893385d0a6d7059029da3885e8346ad01eb58d6e4561612d2fb653c15ec)**|1.0.1|MIT
 **[simple-get](#c2c12990b6319daff653bdf953cadfa368185f0edc671124fb1028f6979df829)**|4.0.1|MIT
 **[smart-buffer](#bc8fbee089eb9cddf673c4c9dbc15edd13839063c27e2814009b6a0448065875)**|4.2.0|MIT
-**[socks-proxy-agent](#381fdbd997a2c5705c7f31d1dfc6ea520835b34db50b0d5d54d5274f9c333d19)**|7.0.0|MIT
-**[socks-proxy-agent](#89a0b09ca23a753d49198fdc2d0eba5777bfa034693ee8a468a61f67981f5592)**|8.0.3|MIT
 **[socks-proxy-agent](#e192db394689e9e76e333aebe6a6958554ba85f63c4b2959bd6732f76ce1ed0d)**|8.0.4|MIT
 **[socks](#0248dada9537f6f43ee753036902a8c3d06323744469309fdc207cd0b14f70e9)**|2.8.3|MIT
 **[source-map](#40ab158a4f9c7e0cb2e7fc113cfd0df14cabf73f76ff90e255227d216f5ce28c)**|0.5.7|BSD-3-Clause
@@ -19216,37 +19206,6 @@ License files:
          limitations under the License.
 
 
-<a id="67cdedcbbaa818293e716277e06157d390a94c250fe7d9514e66e238a0fa2855"></a>
-### [@tootallnate/once](https://www.npmjs.com/package/@tootallnate/once) (version 2.0.0)
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      MIT License
-      
-      Copyright (c) 2020 Nathan Rajlich
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-      
-
-
 <a id="dda6dbabe98503ac1af20979be1778d7a1c8f355b85377124a909567193c2cd3"></a>
 ### [@tootallnate/quickjs-emscripten](https://www.npmjs.com/package/@tootallnate/quickjs-emscripten) (version 0.23.0)
 License tags: MIT
@@ -19572,11 +19531,6 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
       
-
-
-<a id="90b79cd8f1f67d4f29e7209a89558cc8e59d9703970fea7598104fe49242ad3a"></a>
-### [agent-base](https://www.npmjs.com/package/agent-base) (version 6.0.2)
-License tags: MIT
 
 
 <a id="f2315537cada74050b82aaa21dcd7136d001ad9b9442d6ce952030fd890ad26b"></a>
@@ -22307,6 +22261,36 @@ License files:
       
 
 
+<a id="8f6d58c520b4b6702b6fb9abb811ba1798560ac052612c0fa8dc243516825360"></a>
+### [debug](https://www.npmjs.com/package/debug) (version 4.3.6)
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      (The MIT License)
+      
+      Copyright (c) 2014-2017 TJ Holowaychuk <tj@vision-media.ca>
+      Copyright (c) 2018-2021 Josh Junon
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+      and associated documentation files (the 'Software'), to deal in the Software without restriction,
+      including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+      and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
+      subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all copies or substantial
+      portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+      LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+      IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+      WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+      SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      
+      
+
+
 <a id="46099480250f7aa8cf2b8137a8611392266770618d74e0d131b89eea24e741b2"></a>
 ### [decompress-response](https://www.npmjs.com/package/decompress-response) (version 3.3.0)
 License tags: MIT
@@ -24564,46 +24548,6 @@ License files:
       
 
 
-<a id="68ac264b10ad868898faeed8db0177afc3780c94e76ac9c397d8e665fc4d546e"></a>
-### [http-proxy-agent](https://www.npmjs.com/package/http-proxy-agent) (version 5.0.0)
-License tags: MIT
-
-
-<a id="7e5bf494aea64988e9b1d91368301085d546c0ec2ec7259c2c90656f358f49ca"></a>
-### [http-proxy-agent](https://www.npmjs.com/package/http-proxy-agent) (version 7.0.0)
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      License
-      -------
-      
-      (The MIT License)
-      
-      Copyright (c) 2013 Nathan Rajlich &lt;nathan@tootallnate.net&gt;
-      
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      'Software'), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-      
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-      IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-      CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-      TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-      SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-
 <a id="bd2b92f8eb0b68f6d255c316d3cd8c9aff9984e8bcb584d47613c422de726405"></a>
 ### [http-proxy-agent](https://www.npmjs.com/package/http-proxy-agent) (version 7.0.2)
 License tags: MIT
@@ -24634,42 +24578,6 @@ License files:
       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       
-
-
-<a id="14d044588a649be94c6acf6aa36850a9b740feabc84842b6630ee573abb07344"></a>
-### [https-proxy-agent](https://www.npmjs.com/package/https-proxy-agent) (version 5.0.0)
-License tags: MIT
-
-
-<a id="e557daf61de730aba64546bd9cc4da010c799b036b108361b676216a38093a1b"></a>
-### [https-proxy-agent](https://www.npmjs.com/package/https-proxy-agent) (version 7.0.4)
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      (The MIT License)
-      
-      Copyright (c) 2013 Nathan Rajlich <nathan@tootallnate.net>
-      
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      'Software'), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-      
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-      IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-      CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-      TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-      SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 <a id="8a149a0a84183adc7ec4c2ca491a2aced0803a8c5fdae6e99879bcb4720837e1"></a>
@@ -26286,31 +26194,6 @@ License files:
       The ISC License
       
       Copyright (c) Isaac Z. Schlueter and Contributors
-      
-      Permission to use, copy, modify, and/or distribute this software for any
-      purpose with or without fee is hereby granted, provided that the above
-      copyright notice and this permission notice appear in all copies.
-      
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-      IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-      
-
-
-<a id="a69459d3b86b0ce0e8219931c4a933a57014f338357d5698c5b74621761816c9"></a>
-### [lru-cache](https://www.npmjs.com/package/lru-cache) (version 7.18.3)
-License tags: ISC
-
-License files:
-* LICENSE:
-
-      The ISC License
-      
-      Copyright (c) 2010-2023 Isaac Z. Schlueter and Contributors
       
       Permission to use, copy, modify, and/or distribute this software for any
       purpose with or without fee is hereby granted, provided that the above
@@ -29471,67 +29354,6 @@ License files:
       
 
 
-<a id="16a804720b6ea2885672db5d26cb2a1ffce72595a33b6c58b68057c7511a7493"></a>
-### [proxy-agent](https://www.npmjs.com/package/proxy-agent) (version 6.4.0)
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      (The MIT License)
-      
-      Copyright (c) 2013 Nathan Rajlich <nathan@tootallnate.net>
-      
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      'Software'), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-      
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-      IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-      CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-      TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-      SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-<a id="2469d0f664f15c027d1c1d8ce13ec8630ab2ea4f4151b1694d2bcc1074f36c2e"></a>
-### [proxy-from-env](https://www.npmjs.com/package/proxy-from-env) (version 1.1.0)
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      The MIT License
-      
-      Copyright (C) 2016-2018 Rob Wu <rob@robwu.nl>
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy of
-      this software and associated documentation files (the "Software"), to deal in
-      the Software without restriction, including without limitation the rights to
-      use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-      of the Software, and to permit persons to whom the Software is furnished to do
-      so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-      FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-      COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-      IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-      CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-
 <a id="147f1bd3a6380306e696f0574feda0b1490121a1d12e4500e91ffb6e888ffa3a"></a>
 ### [pump](https://www.npmjs.com/package/pump) (version 3.0.0)
 License tags: MIT
@@ -30474,42 +30296,6 @@ License files:
       IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
       CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       
-
-
-<a id="381fdbd997a2c5705c7f31d1dfc6ea520835b34db50b0d5d54d5274f9c333d19"></a>
-### [socks-proxy-agent](https://www.npmjs.com/package/socks-proxy-agent) (version 7.0.0)
-License tags: MIT
-
-
-<a id="89a0b09ca23a753d49198fdc2d0eba5777bfa034693ee8a468a61f67981f5592"></a>
-### [socks-proxy-agent](https://www.npmjs.com/package/socks-proxy-agent) (version 8.0.3)
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      (The MIT License)
-      
-      Copyright (c) 2013 Nathan Rajlich <nathan@tootallnate.net>
-      
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      'Software'), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-      
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-      IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-      CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-      TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-      SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 <a id="e192db394689e9e76e333aebe6a6958554ba85f63c4b2959bd6732f76ce1ed0d"></a>
