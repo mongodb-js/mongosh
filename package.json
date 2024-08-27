@@ -131,7 +131,7 @@
     "yaml": "^1.10.0"
   },
   "optionalDependencies": {
-    "lerna": "^7.1.5"
+    "lerna": "^8.1.8"
   },
   "workspaces": [
     "configs/eslint-config-mongosh",
