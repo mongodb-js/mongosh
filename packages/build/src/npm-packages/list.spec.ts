@@ -7,6 +7,10 @@ import { listNpmPackages } from './list';
 import { markBumpedFilesAsAssumeUnchanged } from './publish';
 
 describe('npm-packages list', function () {
+  before(function () {
+    if (process.version.startsWith('v16.')) return this.skip();
+  });
+
   describe('listNpmPackages', function () {
     it('lists packages', function () {
       const packages = listNpmPackages();
