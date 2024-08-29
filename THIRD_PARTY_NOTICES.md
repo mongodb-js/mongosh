@@ -258,7 +258,6 @@ Package|Version|License
 **[forwarded](#2d7f4275b09b041fd821b7672ebae7c9ccad3c87f3f37b6bd91306973c02b9a3)**|0.2.0|MIT
 **[fresh](#d7c677c373e09a5e9c7fe1d1ce69ca3147fe0455bf5606a26251970181d9efc4)**|0.5.2|MIT
 **[fs-constants](#9961a9f7535cded379a7696ad6d002a62d4826a3a8c2ffb5624383b942c879e5)**|1.0.0|MIT
-**[fs-extra](#43fc58d8d59999b59dfce81e2b4e3792c990ec198f923d74dfb429782b65bac0)**|11.1.1|MIT
 **[fs-extra](#968c94c7a6fd1dd1b957c528a210fc7613f5defe88fd252c79e8334d13b0e433)**|8.1.0|MIT
 **[fs-minipass](#c2c405232aa58245a067fead9e0e8bd8330cda684111af434bcab882090c44fa)**|2.1.0|ISC
 **[function-bind](#872e2c89d12c23c0eeb66c0909b68465356ae48c68f552a0e81e50629ba59592)**|1.1.1|MIT
@@ -312,7 +311,6 @@ Package|Version|License
 **[jsesc](#253e8a44fc188759c5ce35330e4f20aacf1d0253d7e8d7dffd4a1f884a10ce1e)**|2.5.2|MIT
 **[json5](#16281c6ea25e0cec4bc0bb8c01d1759d66992776381bf9c5af6959bec47d2f77)**|2.2.3|MIT
 **[jsonfile](#ee6699687d879e2655eb0c687d7d8ad7bf952bb8a1092d720b58ae709e885213)**|4.0.0|MIT
-**[jsonfile](#1504ddbe5031429f6d90bb02373b4629ff5da9ef4e869d5015ff42f685817e74)**|6.1.0|MIT
 **[kerberos](#05c7d2f17faccacb505a07f79ccba22ce089aa668a8bef64de84cf5dcd4f585e)**|2.1.0|Apache-2.0
 **[lodash.merge](#996e40d63a94f1b8693d7c81e0cdfb874c6432d6bbd675976fc1b6b13652c8db)**|4.6.2|MIT
 **[lodash](#adaac4144887ebc2c1b682380ff385210f681fc58b4bc1ef3986148cf8dcd28a)**|4.17.21|MIT
@@ -447,7 +445,6 @@ Package|Version|License
 **[tweetnacl](#496caef692284d7a5d6acd31283b785ebca47d82b2d85c9af7ea1913bb4b49a8)**|0.14.5|Unlicense
 **[type-is](#12dbb9fcc3a6de5bbd595659bff8b688d45fff57a2014441e4fe6779f5eeb7e2)**|1.6.18|MIT
 **[universalify](#6929b48cd126bb32b64aef3221e4e6d538ff1a5f415629267a3f627f60c7ac7a)**|0.1.2|MIT
-**[universalify](#c381098afc5e144dfbd23d044afa2bf9bcf3dcadb7eb397d379f6cfd0ed47001)**|2.0.0|MIT
 **[unpipe](#3a555405bd00c7e7e52b07a5600248bdaa683db613d7c286e425511cee8ed14a)**|1.0.0|MIT
 **[untildify](#511cd56aa5943fd465da93776449b0a7249438206b5c5bfc22cc6d7e55ab0029)**|4.0.0|MIT
 **[update-browserslist-db](#c75c767300388f08f47f0f82724337260db84f2a48648447f6a10297a7618229)**|1.0.11|MIT
@@ -23408,31 +23405,6 @@ License files:
       
 
 
-<a id="43fc58d8d59999b59dfce81e2b4e3792c990ec198f923d74dfb429782b65bac0"></a>
-### [fs-extra](https://www.npmjs.com/package/fs-extra) (version 11.1.1)
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      (The MIT License)
-      
-      Copyright (c) 2011-2017 JP Richardson
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
-      (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify,
-       merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
-       furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-      WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS
-      OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-       ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-
 <a id="968c94c7a6fd1dd1b957c528a210fc7613f5defe88fd252c79e8334d13b0e433"></a>
 ### [fs-extra](https://www.npmjs.com/package/fs-extra) (version 8.1.0)
 License tags: MIT
@@ -25518,31 +25490,6 @@ License files:
 
 <a id="ee6699687d879e2655eb0c687d7d8ad7bf952bb8a1092d720b58ae709e885213"></a>
 ### [jsonfile](https://www.npmjs.com/package/jsonfile) (version 4.0.0)
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      (The MIT License)
-      
-      Copyright (c) 2012-2015, JP Richardson <jprichardson@gmail.com>
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
-      (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify,
-       merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
-       furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-      WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS
-      OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-       ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-
-<a id="1504ddbe5031429f6d90bb02373b4629ff5da9ef4e869d5015ff42f685817e74"></a>
-### [jsonfile](https://www.npmjs.com/package/jsonfile) (version 6.1.0)
 License tags: MIT
 
 License files:
@@ -31320,36 +31267,6 @@ License files:
 
 <a id="6929b48cd126bb32b64aef3221e4e6d538ff1a5f415629267a3f627f60c7ac7a"></a>
 ### [universalify](https://www.npmjs.com/package/universalify) (version 0.1.2)
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      (The MIT License)
-      
-      Copyright (c) 2017, Ryan Zimmerman <opensrc@ryanzim.com>
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy of
-      this software and associated documentation files (the 'Software'), to deal in
-      the Software without restriction, including without limitation the rights to
-      use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-      the Software, and to permit persons to whom the Software is furnished to do so,
-      subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-      FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-      COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-      IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-      CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-
-<a id="c381098afc5e144dfbd23d044afa2bf9bcf3dcadb7eb397d379f6cfd0ed47001"></a>
-### [universalify](https://www.npmjs.com/package/universalify) (version 2.0.0)
 License tags: MIT
 
 License files:
