@@ -9,6 +9,7 @@ import type {
 import type { MongoshBus } from '@mongosh/types';
 import path from 'path';
 import { EventEmitter, once } from 'events';
+import { pathToFileURL } from 'url';
 import type { Caller } from './rpc';
 import { createCaller, cancel, exposeAll } from './rpc';
 import type { WorkerRuntime as WorkerThreadWorkerRuntime } from './worker-runtime';
@@ -49,9 +50,7 @@ class WorkerRuntime implements Runtime {
 
   private workerProcessMongoshBus!: WorkerProcessMongoshBus;
 
-  private workerProcessPath =
-    process.env.TEST_WORKER_PATH ??
-    path.resolve(__dirname, 'worker-runtime.js');
+  private workerProcessPath = path.resolve(__dirname, 'worker-runtime.js');
 
   constructor(
     uri: string,
@@ -67,7 +66,7 @@ class WorkerRuntime implements Runtime {
 
   private async initWorker() {
     const workerProcess = new Worker(
-      this.workerProcessPath,
+      pathToFileURL(this.workerProcessPath).href,
       this.initOptions.workerOptions
     );
 

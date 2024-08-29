@@ -13,6 +13,7 @@ import type { WorkerRuntime } from './worker-runtime';
 import type { RuntimeEvaluationResult } from '@mongosh/browser-runtime-core';
 import { interrupt } from 'interruptor';
 import { dummyOptions } from './index.spec';
+import { pathToFileURL } from 'url';
 
 chai.use(sinonChai);
 
@@ -33,7 +34,7 @@ describe('worker-runtime', function () {
   let caller: Caller<WorkerRuntime>;
 
   beforeEach(async function () {
-    worker = new Worker(workerThreadModule);
+    worker = new Worker(pathToFileURL(workerThreadModule).href);
     await once(worker, 'message');
 
     caller = createCaller(
