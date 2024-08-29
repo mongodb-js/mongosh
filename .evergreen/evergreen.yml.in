@@ -15,8 +15,8 @@ const MONGODB_VERSIONS = [
   { shortName: '60xe', versionSpec: '6.0.x-enterprise' },
   { shortName: '70xc', versionSpec: '7.0.x' },
   { shortName: '70xe', versionSpec: '7.0.x-enterprise' },
-  { shortName: '80xc', versionSpec: '>= 8.0.0-rc15' },
-  { shortName: '80xe', versionSpec: '>= 8.0.0-rc15-enterprise' },
+  { shortName: '80xc', versionSpec: '8.0.0-rc17' },
+  { shortName: '80xe', versionSpec: '8.0.0-rc17-enterprise' },
   { shortName: 'latest', versionSpec: 'latest-alpha-enterprise' }
 ];
 const NODE_VERSIONS = [
@@ -743,6 +743,8 @@ functions:
       params:
         working_dir: src
         shell: bash
+        env:
+          MONGOSH_NO_AUTOMATIC_ENCRYPTION_SUPPORT: ${no_automatic_encryption_support|}
         script: |
           set -e
           set -x
@@ -769,6 +771,8 @@ functions:
       params:
         working_dir: src
         shell: bash
+        env:
+          MONGOSH_NO_AUTOMATIC_ENCRYPTION_SUPPORT: ${no_automatic_encryption_support|}
         script: |
           set -e
           set -x
@@ -794,6 +798,8 @@ functions:
       params:
         working_dir: src
         shell: bash
+        env:
+          MONGOSH_NO_AUTOMATIC_ENCRYPTION_SUPPORT: ${no_automatic_encryption_support|}
         script: |
           set -e
           set -x
@@ -1192,7 +1198,7 @@ tasks:
   # E2E TESTS
   ###
   <% for (const { executableOsId, compileBuildVariant } of RELEASE_PACKAGE_MATRIX) {
-    for (const mVersion of ['stable', '8.0.0-rc15', '6.0.x']) {
+    for (const mVersion of ['stable', '8.0.0-rc17', '6.0.x']) {
       for (const fipsVariant of ['fips', 'nofips']) {
     %>
   - name: e2e_tests_<% out(executableOsId.replace(/-/g, '_')) %><% out(mVersion === 'stable' ? '' : '_' + mVersion.replace(/[^a-zA-Z0-9]/g, '')) %><% out(fipsVariant === 'fips' ? '_fips' : '') %>
@@ -1732,8 +1738,8 @@ buildvariants:
     run_on: ubuntu2404-small
     tags: ["nightly-driver"]
     tasks:
-      - name: e2e_tests_linux_x64_800rc15
-      - name: e2e_tests_linux_x64_openssl3_800rc15
+      - name: e2e_tests_linux_x64_800rc17
+      - name: e2e_tests_linux_x64_openssl3_800rc17
   - name: e2e_debian10_x64
     display_name: "Debian 10 x64 (E2E Tests)"
     run_on: debian10-small
@@ -1795,8 +1801,8 @@ buildvariants:
     display_name: "Ubuntu 24.04 arm64 (E2E Tests)"
     run_on: ubuntu2404-arm64-small
     tasks:
-      - name: e2e_tests_linux_arm64_800rc15
-      - name: e2e_tests_linux_arm64_openssl3_800rc15
+      - name: e2e_tests_linux_arm64_800rc17
+      - name: e2e_tests_linux_arm64_openssl3_800rc17
   - name: e2e_amazon2_arm64
     display_name: "Amazon Linux 2 arm64 (E2E Tests)"
     run_on: amazon2-arm64-large
@@ -1965,6 +1971,8 @@ buildvariants:
   - name: pkg_smoke_tests_rhel72_s390x
     display_name: "package smoke tests (RHEL 7.2 s390x)"
     run_on: rhel72-zseries-small
+    expansions:
+      no_automatic_encryption_support: 1
     tasks:
       - name: pkg_test_rpmextract_rpm_s390x
   - name: pkg_smoke_tests_rhel83_s390x

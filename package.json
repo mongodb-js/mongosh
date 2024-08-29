@@ -47,7 +47,7 @@
     "generate-error-overview": "npm run generate-error-overview --workspace @mongosh/errors",
     "update-authors": "ts-node -P configs/tsconfig-mongosh/tsconfig.common.json scripts/generate-authors.ts",
     "create-dependency-sbom-lists": "npm run webpack-build -w packages/cli-repl && npm run write-node-js-dep && npm run create-purls-file && npm run create-first-party-dependency-lists",
-    "create-first-party-dependency-lists": "mongodb-sbom-tools fetch-codeql-results --first-party-deps-list-dest=.sbom/first-party-deps.json --dependencies=.sbom/dependencies.json --exclude-repos=mongodb-js/kerberos",
+    "create-first-party-dependency-lists": "mongodb-sbom-tools fetch-codeql-results --first-party-deps-list-dest=.sbom/first-party-deps.json --dependencies=.sbom/dependencies.json --exclude-repos=mongodb-js/kerberos,mongodb-client-encryption",
     "create-purls-file": "node scripts/create-purls.js .sbom/dependencies.json .sbom/node-js-dep.json > .sbom/purls.txt",
     "preupdate-third-party-notices": "npm run create-dependency-sbom-lists",
     "update-third-party-notices": "mongodb-sbom-tools generate-3rd-party-notices --product='mongosh' --dependencies=.sbom/dependencies.json > THIRD_PARTY_NOTICES.md",
@@ -131,7 +131,7 @@
     "yaml": "^1.10.0"
   },
   "optionalDependencies": {
-    "lerna": "^7.1.5"
+    "lerna": "^8.1.8"
   },
   "workspaces": [
     "configs/eslint-config-mongosh",
@@ -141,7 +141,6 @@
     "packages/build",
     "packages/errors",
     "packages/history",
-    "packages/import-node-fetch",
     "packages/java-shell",
     "packages/js-multiline-to-singleline",
     "packages/types",

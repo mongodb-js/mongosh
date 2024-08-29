@@ -242,6 +242,7 @@ export default class ShellInstanceState {
       const apiVersionInfo = this.apiVersionInfo();
       this.messageBus.emit('mongosh:connect', {
         ...connectionInfo?.extraInfo,
+        resolved_hostname: connectionInfo?.resolvedHostname,
         api_version: apiVersionInfo?.version,
         api_strict: apiVersionInfo?.strict,
         api_deprecation_errors: apiVersionInfo?.deprecationErrors,

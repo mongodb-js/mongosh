@@ -61,14 +61,13 @@
     }
   },
   "dependencies": {
-    "@mongodb-js/devtools-proxy-support": "^0.3.4",
+    "@mongodb-js/devtools-proxy-support": "^0.3.6",
     "@mongosh/arg-parser": "0.0.0-dev.0",
     "@mongosh/autocomplete": "0.0.0-dev.0",
     "@mongosh/editor": "0.0.0-dev.0",
     "@mongosh/errors": "0.0.0-dev.0",
     "@mongosh/history": "0.0.0-dev.0",
     "@mongosh/i18n": "0.0.0-dev.0",
-    "@mongosh/import-node-fetch": "0.0.0-dev.0",
     "@mongosh/js-multiline-to-singleline": "0.0.0-dev.0",
     "@mongosh/logging": "0.0.0-dev.0",
     "@mongosh/service-provider-core": "0.0.0-dev.0",

@@ -1467,63 +1467,82 @@ describe('Collection', function () {
         context(
           'when the aggregation fails with error code `13388`',
           function () {
-            beforeEach(function () {
-              const tryNext = sinon.stub();
-              const mockError: any = new Error('test error');
-              mockError.code = 13388;
-              tryNext.onCall(0).rejects(mockError);
-              serviceProvider.aggregate.returns({ tryNext } as any);
-            });
+            for (const mockError of [
+              {
+                ...new Error('Code 13388'),
+                code: 13388,
+              },
+              {
+                ...new Error('Stale Config'),
+                codeName: 'StaleConfig',
+              },
+              {
+                ...new Error('Failed to Parse'),
+                codeName: 'FailedToParse',
+              },
+            ]) {
+              context(`in case of ${mockError.name} error`, function () {
+                beforeEach(function () {
+                  const tryNext = sinon.stub();
+                  tryNext.onCall(0).rejects(mockError);
+                  serviceProvider.aggregate.returns({ tryNext } as any);
+                });
 
-            it('runs the deprecated collStats command with the default scale', async function () {
-              await collection.stats();
+                it('runs the deprecated collStats command with the default scale', async function () {
+                  await collection.stats();
 
-              expect(
-                serviceProvider.runCommandWithCheck
-              ).to.have.been.calledWith(database._name, {
-                collStats: collection._name,
-                scale: 1,
-              });
-            });
+                  expect(
+                    serviceProvider.runCommandWithCheck
+                  ).to.have.been.calledWith(database._name, {
+                    collStats: collection._name,
+                    scale: 1,
+                  });
+                });
 
-            it('runs the deprecated collStats command with a custom scale', async function () {
-              await collection.stats({
-                scale: 1024, // Scale to kilobytes.
-              });
+                it('runs the deprecated collStats command with a custom scale', async function () {
+                  await collection.stats({
+                    scale: 1024, // Scale to kilobytes.
+                  });
 
-              expect(
-                serviceProvider.runCommandWithCheck
-              ).to.have.been.calledWith(database._name, {
-                collStats: collection._name,
-                scale: 1024,
-              });
-            });
+                  expect(
+                    serviceProvider.runCommandWithCheck
+                  ).to.have.been.calledWith(database._name, {
+                    collStats: collection._name,
+                    scale: 1024,
+                  });
+                });
 
-            it('runs the deprecated collStats command with the legacy scale parameter', async function () {
-              await collection.stats(2);
+                it('runs the deprecated collStats command with the legacy scale parameter', async function () {
+                  await collection.stats(2);
 
-              expect(
-                serviceProvider.runCommandWithCheck
-              ).to.have.been.calledWith(database._name, {
-                collStats: collection._name,
-                scale: 2,
-              });
-            });
+                  expect(
+                    serviceProvider.runCommandWithCheck
+                  ).to.have.been.calledWith(database._name, {
+                    collStats: collection._name,
+                    scale: 2,
+                  });
+                });
 
-            context('when the fallback collStats command fails', function () {
-              beforeEach(function () {
-                serviceProvider.runCommandWithCheck.rejects(
-                  new Error('not our error')
+                context(
+                  'when the fallback collStats command fails',
+                  function () {
+                    beforeEach(function () {
+                      serviceProvider.runCommandWithCheck.rejects(
+                        new Error('not our error')
+                      );
+                    });
+
+                    it('surfaces the original aggregation error', async function () {
+                      const error = await collection.stats().catch((e) => e);
+
+                      expect(serviceProvider.runCommandWithCheck).to.have.been
+                        .called;
+                      expect(error.message).to.equal(mockError.message);
+                    });
+                  }
                 );
               });
-
-              it('surfaces the original aggregation error', async function () {
-                const error = await collection.stats().catch((e) => e);
-
-                expect(serviceProvider.runCommandWithCheck).to.have.been.called;
-                expect(error.message).to.equal('test error');
-              });
-            });
+            }
           }
         );
       });

@@ -1,15 +1,12 @@
 import semver from 'semver';
 import { promises as fs } from 'fs';
-import importNodeFetch from '@mongosh/import-node-fetch';
 import type {
-  RequestInfo,
+  AgentWithInitialize,
+  DevtoolsProxyOptions,
   RequestInit,
   Response,
-} from '@mongosh/import-node-fetch';
-
-// 'http' is not supported in startup snapshots yet.
-const fetch = async (url: RequestInfo, init?: RequestInit): Promise<Response> =>
-  await (await importNodeFetch()).default(url, init);
+} from '@mongodb-js/devtools-proxy-support';
+import { createFetch } from '@mongodb-js/devtools-proxy-support';
 
 interface MongoshUpdateLocalFileContents {
   lastChecked?: number;
@@ -24,6 +21,15 @@ export class UpdateNotificationManager {
   private latestKnownMongoshVersion: string | undefined = undefined;
   private localFilesystemFetchInProgress: Promise<unknown> | undefined =
     undefined;
+  private fetch: (url: string, init: RequestInit) => Promise<Response>;
+
+  constructor({
+    proxyOptions = {},
+  }: {
+    proxyOptions?: DevtoolsProxyOptions | AgentWithInitialize;
+  } = {}) {
+    this.fetch = createFetch(proxyOptions);
+  }
 
   async getLatestVersionIfMoreRecent(
     currentVersion: string
@@ -94,7 +100,7 @@ export class UpdateNotificationManager {
       return;
     }
 
-    const response = await fetch(updateURL, {
+    const response = await this.fetch(updateURL, {
       headers: localFileContents?.etag
         ? { 'if-none-match': localFileContents?.etag }
         : {},

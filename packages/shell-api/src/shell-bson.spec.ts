@@ -381,6 +381,15 @@ describe('Shell BSON', function () {
       }
       expect.fail('expected error');
     });
+    it('passes through non-string args to `new Date()`', function () {
+      expect(shellBson.ISODate()).to.be.an.instanceOf(Date);
+      expect(shellBson.ISODate(0).getTime()).to.equal(0);
+      expect(shellBson.ISODate(null).getTime()).to.equal(0);
+      expect(shellBson.ISODate(1234).getTime()).to.equal(1234);
+      expect(shellBson.ISODate(shellBson.ISODate(1234)).getTime()).to.equal(
+        1234
+      );
+    });
   });
   describe('BinData', function () {
     it('expects strings as base 64', function () {

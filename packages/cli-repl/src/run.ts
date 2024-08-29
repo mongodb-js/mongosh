@@ -22,6 +22,7 @@ import { baseBuildInfo, buildInfo } from './build-info';
 import { getStoragePaths, getGlobalConfigPaths } from './config-directory';
 import { getCryptLibraryPaths } from './crypt-library-paths';
 import { getTlsCertificateSelector } from './tls-certificate-selector';
+import { applyPacProxyS390XPatch } from './pac-proxy-s390x-patch';
 import { redactURICredentials } from '@mongosh/history';
 import { generateConnectionInfoFromCliArgs } from '@mongosh/arg-parser';
 import askcharacter from 'askcharacter';
@@ -169,6 +170,8 @@ async function main() {
     if (process.env.CLEAR_SIGINT_LISTENERS) {
       process.removeAllListeners('SIGINT');
     }
+
+    applyPacProxyS390XPatch();
 
     // If we are spawned via Windows doubleclick, ask the user for an URI to
     // connect to. Allow an environment variable to override this for testing.

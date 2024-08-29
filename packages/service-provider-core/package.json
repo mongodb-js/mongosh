@@ -47,10 +47,11 @@
     "@mongosh/errors": "0.0.0-dev.0",
     "bson": "^6.7.0",
     "mongodb": "^6.8.0",
-    "mongodb-build-info": "^1.7.2"
+    "mongodb-build-info": "^1.7.2",
+    "mongodb-connection-string-url": "^3.0.1"
   },
   "optionalDependencies": {
-    "mongodb-client-encryption": "^6.0.0"
+    "mongodb-client-encryption": "^6.1.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
