@@ -705,8 +705,8 @@ describe('arg-parser', function () {
           });
 
           it('sets the filenames', function () {
-            expect(parseCliArgs(argv).fileNames[0]).to.equal('test1.js');
-            expect(parseCliArgs(argv).fileNames[1]).to.equal('test2.js');
+            expect(parseCliArgs(argv).fileNames?.[0]).to.equal('test1.js');
+            expect(parseCliArgs(argv).fileNames?.[1]).to.equal('test2.js');
           });
         });
 
@@ -718,8 +718,8 @@ describe('arg-parser', function () {
           });
 
           it('sets the filenames', function () {
-            expect(parseCliArgs(argv).fileNames[0]).to.equal('test1.mongodb');
-            expect(parseCliArgs(argv).fileNames[1]).to.equal('test2.mongodb');
+            expect(parseCliArgs(argv).fileNames?.[0]).to.equal('test1.mongodb');
+            expect(parseCliArgs(argv).fileNames?.[1]).to.equal('test2.mongodb');
           });
         });
 
@@ -731,8 +731,8 @@ describe('arg-parser', function () {
           });
 
           it('sets the filenames', function () {
-            expect(parseCliArgs(argv).fileNames[0]).to.equal('test1.txt');
-            expect(parseCliArgs(argv).fileNames[1]).to.equal('test2.txt');
+            expect(parseCliArgs(argv).fileNames?.[0]).to.equal('test1.txt');
+            expect(parseCliArgs(argv).fileNames?.[1]).to.equal('test2.txt');
           });
         });
 
@@ -744,8 +744,8 @@ describe('arg-parser', function () {
           });
 
           it('sets the filenames', function () {
-            expect(parseCliArgs(argv).fileNames[0]).to.equal('test1.txt');
-            expect(parseCliArgs(argv).fileNames[1]).to.equal('test2.txt');
+            expect(parseCliArgs(argv).fileNames?.[0]).to.equal('test1.txt');
+            expect(parseCliArgs(argv).fileNames?.[1]).to.equal('test2.txt');
           });
         });
 
@@ -764,8 +764,8 @@ describe('arg-parser', function () {
           });
 
           it('sets the filenames', function () {
-            expect(parseCliArgs(argv).fileNames[0]).to.equal('test1.txt');
-            expect(parseCliArgs(argv).fileNames[1]).to.equal('test2.txt');
+            expect(parseCliArgs(argv).fileNames?.[0]).to.equal('test1.txt');
+            expect(parseCliArgs(argv).fileNames?.[1]).to.equal('test2.txt');
           });
         });
       });
@@ -779,8 +779,8 @@ describe('arg-parser', function () {
           });
 
           it('sets the filenames', function () {
-            expect(parseCliArgs(argv).fileNames[0]).to.equal('test1.js');
-            expect(parseCliArgs(argv).fileNames[1]).to.equal('test2.js');
+            expect(parseCliArgs(argv).fileNames?.[0]).to.equal('test1.js');
+            expect(parseCliArgs(argv).fileNames?.[1]).to.equal('test2.js');
           });
         });
 
@@ -792,8 +792,8 @@ describe('arg-parser', function () {
           });
 
           it('sets the filenames', function () {
-            expect(parseCliArgs(argv).fileNames[0]).to.equal('test1.mongodb');
-            expect(parseCliArgs(argv).fileNames[1]).to.equal('test2.mongodb');
+            expect(parseCliArgs(argv).fileNames?.[0]).to.equal('test1.mongodb');
+            expect(parseCliArgs(argv).fileNames?.[1]).to.equal('test2.mongodb');
           });
         });
 
@@ -807,7 +807,7 @@ describe('arg-parser', function () {
           });
 
           it('uses the remainder as filenames', function () {
-            expect(parseCliArgs(argv).fileNames[0]).to.equal('test2.txt');
+            expect(parseCliArgs(argv).fileNames?.[0]).to.equal('test2.txt');
           });
         });
 
@@ -821,7 +821,7 @@ describe('arg-parser', function () {
           });
 
           it('uses the remainder as filenames', function () {
-            expect(parseCliArgs(argv).fileNames[0]).to.equal('test2.txt');
+            expect(parseCliArgs(argv).fileNames?.[0]).to.equal('test2.txt');
           });
         });
 
@@ -842,7 +842,7 @@ describe('arg-parser', function () {
             });
 
             it('uses the remainder as filenames', function () {
-              expect(parseCliArgs(argv).fileNames[0]).to.equal(
+              expect(parseCliArgs(argv).fileNames?.[0]).to.equal(
                 'mongodb://domain.foo.js'
               );
             });
@@ -892,7 +892,7 @@ describe('arg-parser', function () {
     });
 
     context('when providing a deprecated argument', function () {
-      [
+      for (const { deprecated, replacement, value } of [
         { deprecated: 'ssl', replacement: 'tls' },
         {
           deprecated: 'sslAllowInvalidCertificates',
@@ -929,7 +929,7 @@ describe('arg-parser', function () {
           replacement: 'tlsDisabledProtocols',
           value: 'disabledProtos',
         },
-      ].forEach(({ deprecated, replacement, value }) => {
+      ] as const) {
         it(`replaces --${deprecated} with --${replacement}`, function () {
           const argv = [...baseArgv, `--${deprecated}`];
           if (value) {
@@ -940,7 +940,7 @@ describe('arg-parser', function () {
           expect(args).to.not.have.property(deprecated);
           expect(args[replacement]).to.equal(value ?? true);
         });
-      });
+      }
     });
   });
 });

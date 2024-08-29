@@ -51,6 +51,7 @@ describe('CliRepl', function () {
   const tmpdir = useTmpdir();
 
   async function log(): Promise<any[]> {
+    if (!cliRepl.logWriter?.logFilePath) return [];
     await cliRepl.logWriter.flush(); // Ensure any pending data is written first
     return readReplLogfile(cliRepl.logWriter.logFilePath);
   }
@@ -76,8 +77,8 @@ describe('CliRepl', function () {
     });
     exitCode = null;
 
-    let resolveExitPromise;
-    exitPromise = new Promise((resolve) => {
+    let resolveExitPromise!: () => void;
+    exitPromise = new Promise<void>((resolve) => {
       resolveExitPromise = resolve;
     });
 
@@ -858,7 +859,7 @@ describe('CliRepl', function () {
           try {
             await cliRepl.start('', {});
             expect.fail('missed exception');
-          } catch (err) {
+          } catch (err: any) {
             expect(err.message).to.equal('nested error');
           }
         });
@@ -869,7 +870,7 @@ describe('CliRepl', function () {
           try {
             await cliRepl.start('', {});
             expect.fail('missed exception');
-          } catch (err) {
+          } catch (err: any) {
             expect(err.message).to.equal(
               'Cannot use --json without --eval or with --shell or with extra files'
             );
@@ -884,7 +885,7 @@ describe('CliRepl', function () {
           try {
             await cliRepl.start('', {});
             expect.fail('missed exception');
-          } catch (err) {
+          } catch (err: any) {
             expect(err.message).to.equal(
               'Cannot use --json without --eval or with --shell or with extra files'
             );
@@ -899,7 +900,7 @@ describe('CliRepl', function () {
           try {
             await cliRepl.start('', {});
             expect.fail('missed exception');
-          } catch (err) {
+          } catch (err: any) {
             expect(err.message).to.equal(
               'Cannot use --json without --eval or with --shell or with extra files'
             );
@@ -1285,7 +1286,7 @@ describe('CliRepl', function () {
     it('does not emit warnings when connecting multiple times', async function () {
       await cliRepl.start(await testServer.connectionString(), {});
       let warnings = 0;
-      const warningListener = (warning) => {
+      const warningListener = (warning: unknown) => {
         console.log('Unexpected warning', warning);
         warnings++;
       };
@@ -1407,7 +1408,9 @@ describe('CliRepl', function () {
           input.write('exit\n');
           await waitBus(cliRepl.bus, 'mongosh:closed');
           const useEvents = requests.flatMap((req) =>
-            JSON.parse(req.body).batch.filter((entry) => entry.event === 'Use')
+            JSON.parse(req.body).batch.filter(
+              (entry: any) => entry.event === 'Use'
+            )
           );
           expect(useEvents).to.have.lengthOf(1);
         });
@@ -1425,7 +1428,9 @@ describe('CliRepl', function () {
           input.write('exit\n');
           await waitBus(cliRepl.bus, 'mongosh:closed');
           const useEvents = requests.flatMap((req) =>
-            JSON.parse(req.body).batch.filter((entry) => entry.event === 'Use')
+            JSON.parse(req.body).batch.filter(
+              (entry: any) => entry.event === 'Use'
+            )
           );
           expect(useEvents).to.have.lengthOf(0);
         });
@@ -1448,7 +1453,9 @@ describe('CliRepl', function () {
           input.write('exit\n');
           await waitBus(cliRepl.bus, 'mongosh:closed');
           const useEvents = requests.flatMap((req) =>
-            JSON.parse(req.body).batch.filter((entry) => entry.event === 'Use')
+            JSON.parse(req.body).batch.filter(
+              (entry: any) => entry.event === 'Use'
+            )
           );
           expect(useEvents).to.have.lengthOf(2);
         });
@@ -1469,7 +1476,7 @@ describe('CliRepl', function () {
           const loadEvents = requests
             .map((req) =>
               JSON.parse(req.body).batch.filter(
-                (entry) => entry.event === 'Script Loaded'
+                (entry: any) => entry.event === 'Script Loaded'
               )
             )
             .flat();
@@ -1486,7 +1493,7 @@ describe('CliRepl', function () {
           const apiEvents = requests
             .map((req) =>
               JSON.parse(req.body).batch.filter(
-                (entry) => entry.event === 'API Call'
+                (entry: any) => entry.event === 'API Call'
               )
             )
             .flat();
@@ -1500,12 +1507,12 @@ describe('CliRepl', function () {
 
         it('includes a statement about flushed telemetry in the log', async function () {
           await cliRepl.start(await testServer.connectionString(), {});
-          const { logFilePath } = cliRepl.logWriter;
+          const { logFilePath } = cliRepl.logWriter!;
           input.write('db.hello()\n');
           input.write('exit\n');
           await waitBus(cliRepl.bus, 'mongosh:closed');
           const flushEntry = (await readReplLogfile(logFilePath)).find(
-            (entry) => entry.id === 1_000_000_045
+            (entry: any) => entry.id === 1_000_000_045
           );
           expect(flushEntry.attr.flushError).to.equal(null);
           expect(flushEntry.attr.flushDuration).to.be.a('number');
@@ -1522,7 +1529,7 @@ describe('CliRepl', function () {
           expect(
             requests
               .flatMap((req) =>
-                JSON.parse(req.body).batch.map((entry) => entry.event)
+                JSON.parse(req.body).batch.map((entry: any) => entry.event)
               )
               .sort()
               .filter(Boolean)
@@ -1550,7 +1557,7 @@ describe('CliRepl', function () {
           const apiEvents = requests
             .map((req) =>
               JSON.parse(req.body).batch.filter(
-                (entry) => entry.event === 'API Call'
+                (entry: any) => entry.event === 'API Call'
               )
             )
             .flat();
@@ -1712,7 +1719,7 @@ describe('CliRepl', function () {
 
             const connectEvents = requests.flatMap((req) =>
               JSON.parse(req.body).batch.filter(
-                (entry) => entry.event === 'New Connection'
+                (entry: any) => entry.event === 'New Connection'
               )
             );
             expect(connectEvents).to.have.lengthOf(1);

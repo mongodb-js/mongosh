@@ -80,14 +80,17 @@ const fakeTTYProps: Partial<ReadStream & WriteStream> = {
   isRaw: true,
   setRawMode(newValue: boolean) {
     this.isRaw = newValue;
-    return this;
+    return this as ReadStream & WriteStream;
   },
   getColorDepth() {
     return 256;
   },
 };
 
-async function readReplLogfile(logPath: string) {
+async function readReplLogfile(
+  logPath?: string | null | undefined
+): Promise<any[]> {
+  if (!logPath) return [];
   return (await fs.readFile(logPath, 'utf8'))
     .split('\n')
     .filter((line) => line.trim())

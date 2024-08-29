@@ -173,9 +173,9 @@ describe('AsyncRepl', function () {
       exited = true;
     });
 
-    let resolve;
+    let resolve!: () => void;
     repl.context.asyncFn = () =>
-      new Promise((res) => {
+      new Promise<void>((res) => {
         resolve = res;
       });
 

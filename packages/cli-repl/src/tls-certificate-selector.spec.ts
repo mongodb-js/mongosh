@@ -16,7 +16,7 @@ describe('arg-mapper.applyTlsCertificateSelector', function () {
       );
       exportCertificateAndPrivateKey = sinon.stub();
       require(process.env.TEST_OS_EXPORT_CERTIFICATE_AND_KEY_PATH).setFn(
-        (search) => exportCertificateAndPrivateKey(search)
+        (search: unknown) => exportCertificateAndPrivateKey(search)
       );
     });
     afterEach(function () {

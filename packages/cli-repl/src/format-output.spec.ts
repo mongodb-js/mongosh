@@ -510,7 +510,7 @@ test      558.79 GiB
       function () {
         for (const type of ['ExplainOutput', 'ExplainableCursor']) {
           it(`returns output with large depth (${type})`, function () {
-            const value = {};
+            const value: Record<string, unknown> = {};
             let it = value;
             for (let i = 0; i <= 20; i++) {
               it = it[`level${i}`] = {};
