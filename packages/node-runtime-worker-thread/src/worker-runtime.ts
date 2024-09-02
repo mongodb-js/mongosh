@@ -113,7 +113,6 @@ const workerRuntime: WorkerRuntime = {
     //       TS2589: Type instantiation is excessively deep and possibly infinite.
     // I could not figure out why exactly that was the case, so 'as any'
     // will have to do for now.
-    // TODO: Do we still need error?
     provider = await CompassServiceProvider.connect(
       uri,
       deserializeConnectOptions(driverOptions),
