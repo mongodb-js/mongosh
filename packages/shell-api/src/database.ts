@@ -280,7 +280,7 @@ export default class Database extends ShellApiWithMongoClass {
         // are not going to differ from fresh ones, and even if they do, a
         // subsequent autocompletion request will almost certainly have at least
         // the new cached results.
-        await new Promise((resolve) => setTimeout(resolve, 200).unref());
+        await new Promise((resolve) => setTimeout(resolve, 200)?.unref?.());
         return this._cachedCollectionNames;
       })(),
     ]);

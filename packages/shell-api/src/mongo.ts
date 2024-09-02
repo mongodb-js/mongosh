@@ -345,7 +345,7 @@ export default class Mongo extends ShellApiClass {
       (async () => {
         // See the comment in _getCollectionNamesForCompletion/database.ts
         // for the choice of 200 ms.
-        await new Promise((resolve) => setTimeout(resolve, 200).unref());
+        await new Promise((resolve) => setTimeout(resolve, 200)?.unref?.());
         return this._cachedDatabaseNames;
       })(),
     ]);

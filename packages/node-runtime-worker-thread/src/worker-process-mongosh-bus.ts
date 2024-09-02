@@ -1,25 +1,24 @@
-import type { ChildProcess } from 'child_process';
 import type { MongoshBus } from '@mongosh/types';
 import type { Exposed } from './rpc';
 import { exposeAll, close } from './rpc';
 
-export class ChildProcessMongoshBus {
+export class WorkerProcessMongoshBus {
   exposedEmitter: Exposed<MongoshBus>;
 
-  constructor(eventEmitter: MongoshBus, childProcess: ChildProcess) {
+  constructor(eventEmitter: MongoshBus, worker: Worker) {
     const exposedEmitter: Exposed<MongoshBus> = exposeAll(
       {
         emit(...args) {
           eventEmitter.emit(...args);
         },
         on() {
-          throw new Error("Can't use `on` method on ChildProcessMongoshBus");
+          throw new Error("Can't use `on` method on WorkerProcessMongoshBus");
         },
         once() {
-          throw new Error("Can't use `once` method on ChildProcessMongoshBus");
+          throw new Error("Can't use `once` method on WorkerProcessMongoshBus");
         },
       },
-      childProcess
+      worker
     );
     this.exposedEmitter = exposedEmitter;
   }

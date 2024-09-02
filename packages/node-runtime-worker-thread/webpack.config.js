@@ -22,9 +22,7 @@ const config = {
   },
 };
 
-module.exports = ['index', 'child-process-proxy', 'worker-runtime'].map(
-  (entry) => ({
-    entry: { [entry]: path.resolve(__dirname, 'src', `${entry}.ts`) },
-    ...merge(baseWebpackConfig, config),
-  })
-);
+module.exports = ['index', 'worker-runtime'].map((entry) => ({
+  entry: { [entry]: path.resolve(__dirname, 'src', `${entry}.ts`) },
+  ...merge(baseWebpackConfig, config),
+}));

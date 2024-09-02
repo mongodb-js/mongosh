@@ -1,6 +1,6 @@
 import path from 'path';
 import { once } from 'events';
-import { Worker } from 'worker_threads';
+import Worker from 'web-worker';
 import chai, { expect } from 'chai';
 import sinonChai from 'sinon-chai';
 import sinon from 'sinon';
@@ -13,6 +13,7 @@ import type { WorkerRuntime } from './worker-runtime';
 import type { RuntimeEvaluationResult } from '@mongosh/browser-runtime-core';
 import { interrupt } from 'interruptor';
 import { dummyOptions } from './index.spec';
+import { pathToFileURL } from 'url';
 
 chai.use(sinonChai);
 
@@ -28,12 +29,12 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-describe('worker', function () {
-  let worker: Worker;
+describe('worker-runtime', function () {
+  let worker: any;
   let caller: Caller<WorkerRuntime>;
 
   beforeEach(async function () {
-    worker = new Worker(workerThreadModule);
+    worker = new Worker(pathToFileURL(workerThreadModule).href);
     await once(worker, 'message');
 
     caller = createCaller(
@@ -55,20 +56,9 @@ describe('worker', function () {
     };
   });
 
-  afterEach(async function () {
+  afterEach(function () {
     if (worker) {
-      // There is a Node.js bug that causes worker process to still be ref-ed
-      // after termination. To work around that, we are unrefing worker manually
-      // *immediately* after terminate method is called even though it should
-      // not be necessary. If this is not done in rare cases our test suite can
-      // get stuck. Even though the issue is fixed we would still need to keep
-      // this workaround for compat reasons.
-      //
-      // See: https://github.com/nodejs/node/pull/37319
-      const terminationPromise = worker.terminate();
-      worker.unref();
-      await terminationPromise;
-      worker = null;
+      worker.terminate();
     }
 
     if (caller) {
@@ -171,7 +161,7 @@ describe('worker', function () {
     describe('shell-api results', function () {
       const testServer = startSharedTestServer();
       const db = `test-db-${Date.now().toString(16)}`;
-      let exposed: Exposed<unknown>;
+      let exposed: Exposed<unknown> | null;
 
       afterEach(function () {
         if (exposed) {
@@ -333,7 +323,7 @@ describe('worker', function () {
         .forEach((testCase) => {
           const [commands, resultType, printable] = testCase;
 
-          let command: string;
+          let command: string | undefined;
           let prepare: undefined | string[];
 
           if (Array.isArray(commands)) {
@@ -522,7 +512,7 @@ describe('worker', function () {
       return evalListener;
     };
 
-    let exposed: Exposed<unknown>;
+    let exposed: Exposed<unknown> | null;
 
     afterEach(function () {
       if (exposed) {
