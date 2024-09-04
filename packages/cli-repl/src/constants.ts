@@ -135,12 +135,6 @@ export const USAGE = `
           'cli-repl.args.kmsURL'
         )}
 
-        oidcFlows?: string;
-        oidcRedirectUri?: string;
-        oidcTrustedEndpoint?: boolean;
-        oidcIdTokenAsAccessToken?: boolean;
-        oidcDumpTokens?: boolean | 'redacted' | 'include-secrets';
-
   ${clr(i18n.__('cli-repl.args.oidcOptions'), 'mongosh:section-header')}
 
         --oidcFlows[=auth-code,device-auth]    ${i18n.__(
