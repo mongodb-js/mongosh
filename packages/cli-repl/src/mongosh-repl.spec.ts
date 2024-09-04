@@ -71,7 +71,8 @@ describe('MongoshNodeRepl', function () {
       return 'success';
     });
     cp.listConfigOptions.callsFake(() => Object.keys(config));
-    cp.exit.callsFake(((code) => bus.emit('test-exit-event', code)) as any);
+    cp.exit.callsFake(((code: number) =>
+      bus.emit('test-exit-event', code)) as any);
 
     ioProvider = cp;
 
@@ -91,8 +92,8 @@ describe('MongoshNodeRepl', function () {
     serviceProvider = sp;
     calledServiceProviderFunctions = () =>
       Object.fromEntries(
-        Object.keys(sp)
-          .map((key) => [key, sp[key]?.callCount])
+        Object.entries(sp)
+          .map(([key, value]) => [key, value?.callCount])
           .filter(([, count]) => !!count)
       );
 
@@ -105,7 +106,7 @@ describe('MongoshNodeRepl', function () {
     mongoshRepl = new MongoshNodeRepl(mongoshReplOptions);
   });
 
-  let originalEnvVars;
+  let originalEnvVars: Record<string, string | undefined>;
   before(function () {
     originalEnvVars = { ...process.env };
   });
@@ -527,7 +528,9 @@ describe('MongoshNodeRepl', function () {
           let getHistory: () => string[];
 
           beforeEach(function () {
-            const { history } = mongoshRepl.runtimeState().repl as any;
+            const { history } = mongoshRepl.runtimeState().repl as unknown as {
+              history: string[];
+            };
             getHistory = () =>
               history.filter((line) => !line.startsWith('prefill-'));
             for (let i = 0; i < prefill; i++) {
@@ -827,10 +830,12 @@ describe('MongoshNodeRepl', function () {
     });
 
     it('does not refresh the prompt if a window resize occurs while evaluating', async function () {
-      let resolveInProgress;
-      mongoshRepl.runtimeState().context.inProgress = new Promise((resolve) => {
-        resolveInProgress = resolve;
-      });
+      let resolveInProgress!: () => void;
+      mongoshRepl.runtimeState().context.inProgress = new Promise<void>(
+        (resolve) => {
+          resolveInProgress = resolve;
+        }
+      );
       input.write('inProgress\n');
       await tick();
 
@@ -933,7 +938,9 @@ describe('MongoshNodeRepl', function () {
     context('user prompts', function () {
       beforeEach(function () {
         // No boolean equivalent for 'passwordPrompt' in the API, so provide one:
-        mongoshRepl.runtimeState().context.booleanPrompt = (question) => {
+        mongoshRepl.runtimeState().context.booleanPrompt = (
+          question: string
+        ) => {
           return Object.assign(mongoshRepl.onPrompt(question, 'yesno'), {
             [Symbol.for('@@mongosh.syntheticPromise')]: true,
           });
