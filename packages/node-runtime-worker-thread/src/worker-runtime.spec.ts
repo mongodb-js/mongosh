@@ -63,14 +63,14 @@ describe('worker-runtime', function () {
 
     if (caller) {
       caller[cancel]();
-      caller = null;
+      caller = null as any;
     }
   });
 
   it('should throw if worker is not initialized yet', async function () {
     const { evaluate } = caller;
 
-    let err: Error;
+    let err!: Error;
 
     try {
       await evaluate('1 + 1');
@@ -161,18 +161,18 @@ describe('worker-runtime', function () {
     describe('shell-api results', function () {
       const testServer = startSharedTestServer();
       const db = `test-db-${Date.now().toString(16)}`;
-      let exposed: Exposed<unknown> | null;
+      let exposed: Exposed<unknown>; // adding `| null` breaks TS type inference
 
       afterEach(function () {
         if (exposed) {
           exposed[close]();
-          exposed = null;
+          exposed = null as any;
         }
       });
 
       type CommandTestRecord =
         | [string | string[], string]
-        | [string | string[], string, any];
+        | [string | string[], string | null, any];
 
       const showCommand: CommandTestRecord[] = [
         [
@@ -323,11 +323,11 @@ describe('worker-runtime', function () {
         .forEach((testCase) => {
           const [commands, resultType, printable] = testCase;
 
-          let command: string | undefined;
+          let command: string;
           let prepare: undefined | string[];
 
           if (Array.isArray(commands)) {
-            command = commands.pop();
+            command = commands.pop()!;
             prepare = commands;
           } else {
             command = commands;
@@ -376,7 +376,7 @@ describe('worker-runtime', function () {
 
         await init('mongodb://nodb/', dummyOptions, { nodb: true });
 
-        let err: Error;
+        let err!: Error;
         try {
           await evaluate('throw new TypeError("Oh no, types!")');
         } catch (e: any) {
@@ -396,7 +396,7 @@ describe('worker-runtime', function () {
 
         await init('mongodb://nodb/', dummyOptions, { nodb: true });
 
-        let err: Error;
+        let err!: Error;
         try {
           await evaluate(
             'throw Object.assign(new TypeError("Oh no, types!"), { errInfo: { message: "wrong type :S" } })'
@@ -430,7 +430,7 @@ describe('worker-runtime', function () {
         const { init, evaluate } = caller;
         await init('mongodb://nodb/', dummyOptions, { nodb: true });
 
-        let err: Error;
+        let err!: Error;
 
         try {
           await Promise.all([
@@ -665,7 +665,7 @@ describe('worker-runtime', function () {
 
         await init('mongodb://nodb/', dummyOptions, { nodb: true });
 
-        let err: Error;
+        let err!: Error;
 
         try {
           await Promise.all([
@@ -695,7 +695,7 @@ describe('worker-runtime', function () {
 
       await init('mongodb://nodb/', dummyOptions, { nodb: true });
 
-      let err: Error;
+      let err!: Error;
 
       try {
         await Promise.all([

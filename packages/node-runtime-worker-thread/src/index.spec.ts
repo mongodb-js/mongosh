@@ -48,7 +48,7 @@ describe('WorkerRuntime', function () {
           nodb: true,
         });
 
-        let err: Error;
+        let err!: Error;
 
         try {
           await runtime.evaluate('throw new TypeError("Oh no, types!")');
@@ -219,7 +219,7 @@ describe('WorkerRuntime', function () {
       const runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, {
         nodb: true,
       });
-      let err: Error;
+      let err!: Error;
       try {
         await Promise.all([
           runtime.evaluate('while(true){}'),
@@ -246,7 +246,7 @@ describe('WorkerRuntime', function () {
 
         await runtime.waitForRuntimeToBeReady();
 
-        let err: Error;
+        let err!: Error;
 
         try {
           await Promise.all([
@@ -329,7 +329,7 @@ describe('WorkerRuntime', function () {
 
         await runtime.waitForRuntimeToBeReady();
 
-        let err: Error;
+        let err!: Error;
 
         try {
           await Promise.all([

@@ -50,7 +50,10 @@ export type Exposed<T> = { [k in keyof T]: T[k] & { close(): void } } & {
   [close]: () => void;
 };
 
-export function exposeAll<O>(obj: O, messageBus: RPCMessageBus): Exposed<O> {
+export function exposeAll<O extends object>(
+  obj: O,
+  messageBus: RPCMessageBus
+): Exposed<O> {
   Object.entries(obj as Record<string, any>).forEach(([key, val]) => {
     const { close } = expose(
       key,
