@@ -27,7 +27,7 @@ describe('rpc', function () {
     woof(...args: any[]): string;
     neverResolves(...args: any[]): void;
   }>;
-  let exposed: Exposed<unknown> | null;
+  let exposed: Exposed<unknown>; // adding `| null` breaks TS type inference
 
   afterEach(function () {
     if (messageBus) {
@@ -36,12 +36,12 @@ describe('rpc', function () {
 
     if (caller) {
       caller[cancel]();
-      caller = null;
+      caller = null as any;
     }
 
     if (exposed) {
       exposed[close]();
-      exposed = null;
+      exposed = null as any;
     }
   });
 
@@ -74,7 +74,7 @@ describe('rpc', function () {
       messageBus
     );
 
-    let err: Error;
+    let err!: Error;
 
     try {
       // eslint-disable-next-line @typescript-eslint/await-thenable
@@ -136,7 +136,7 @@ describe('rpc', function () {
       messageBus = createMockRpcMesageBus();
       caller = createCaller(['meow'], messageBus);
 
-      messageBus.addEventListener('message', (data) => {
+      messageBus.addEventListener('message', (data: unknown) => {
         expect(data).to.have.property('func', 'meow');
         done();
       });
@@ -150,7 +150,7 @@ describe('rpc', function () {
       it('stops all in-flight evaluations', async function () {
         messageBus = createMockRpcMesageBus();
         caller = createCaller(['neverResolves'], messageBus);
-        let err: Error;
+        let err!: Error;
         try {
           await Promise.all([
             caller.neverResolves(),

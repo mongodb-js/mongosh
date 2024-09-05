@@ -25,7 +25,7 @@ describe('Lock', function () {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     lock.lock();
 
-    let err: Error;
+    let err!: Error;
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises

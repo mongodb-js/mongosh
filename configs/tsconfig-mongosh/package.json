@@ -5,8 +5,7 @@
   "description": "Shared Mongosh Typescript configuration",
   "license": "SSPL",
   "files": [
-    "tsconfig.common.json",
-    "tsconfig.test.json"
+    "tsconfig.common.json"
   ],
   "peerDependencies": {
     "typescript": "^5.3.3"
