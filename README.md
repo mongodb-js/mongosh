@@ -83,12 +83,6 @@ variable. For detailed instructions for each of our supported platforms, please 
         --keyVaultNamespace [arg]              database.collection to store encrypted FLE parameters
         --kmsURL [arg]                         Test parameter to override the URL of the KMS endpoint
 
-        oidcFlows?: string;
-        oidcRedirectUri?: string;
-        oidcTrustedEndpoint?: boolean;
-        oidcIdTokenAsAccessToken?: boolean;
-        oidcDumpTokens?: boolean | 'redacted' | 'include-secrets';
-
   OIDC auth options:
 
         --oidcFlows[=auth-code,device-auth]    Supported OIDC auth flows
