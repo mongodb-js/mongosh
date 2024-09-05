@@ -38,7 +38,7 @@
     "unitTestsOnly": true
   },
   "dependencies": {
-    "@mongodb-js/devtools-connect": "^3.2.8"
+    "@mongodb-js/devtools-connect": "^3.2.10"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
