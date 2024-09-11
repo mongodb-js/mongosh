@@ -1250,6 +1250,31 @@ describe('MongoshNodeRepl', function () {
           expect(output).to.not.contain('Error');
           expect(error).to.be.instanceof(MongoshCommandFailed);
         });
+
+        it('does not show anything if connecting to local Atlas', async function () {
+          // Make sure the startupWarnings resolves with errors
+          sp.runCommandWithCheck
+            .withArgs(
+              ADMIN_DB,
+              {
+                getLog: 'startupWarnings',
+              },
+              {}
+            )
+            .resolves({ ok: 1, log: logLines });
+          // Make sure the connection info indicates a local Atlas server
+          sp.getConnectionInfo.resolves({
+            extraInfo: {
+              uri: 'mongodb://localhost:27017/test',
+              is_local_atlas: true,
+            },
+            buildInfo: {},
+          });
+          await mongoshRepl.initialize(serviceProvider);
+          expect(output).to.not.contain(
+            'The server generated these startup warnings when booting'
+          );
+        });
       });
     }
   });
