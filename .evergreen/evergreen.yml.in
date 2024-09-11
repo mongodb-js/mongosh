@@ -1494,7 +1494,7 @@ tasks:
 buildvariants:
   - name: darwin_unit
     display_name: "MacOS Big Sur (Unit tests)"
-    run_on: macos-1100
+    run_on: macos-11
     expansions:
       executable_os_id: darwin-x64
     tasks:
@@ -1504,7 +1504,7 @@ buildvariants:
       <% } %>
   - name: darwin
     display_name: "MacOS Big Sur"
-    run_on: macos-1100
+    run_on: macos-11
     expansions:
       executable_os_id: darwin-x64
     tasks:
@@ -1516,7 +1516,7 @@ buildvariants:
       - name: sign_artifact_darwin_arm64
   - name: darwin_arm64
     display_name: "MacOS Big Sur (arm64)"
-    run_on: macos-1100-arm64
+    run_on: macos-11-arm64
     expansions:
       executable_os_id: darwin-arm64
     tasks:
@@ -1577,7 +1577,7 @@ buildvariants:
       - name: verify_artifact_win32msi_x64
   - name: verify_mac_artifact
     display_name: "MacOS (Signature Verification)"
-    run_on: macos-1100
+    run_on: macos-11
     tasks:
       - name: verify_artifact_darwin_arm64
       - name: verify_artifact_darwin_x64
@@ -1945,17 +1945,17 @@ buildvariants:
       - name: pkg_test_ssh_win32msi_x64
   - name: pkg_smoke_tests_macos_1100_x64
     display_name: "package smoke tests (macos 11.00 x64)"
-    run_on: macos-1100
+    run_on: macos-11
     tasks:
       - name: pkg_test_macos_darwin_x64
   - name: pkg_smoke_tests_macos_1100_arm64
     display_name: "package smoke tests (macos 11.00 arm64)"
-    run_on: macos-1100-arm64
+    run_on: macos-11-arm64
     tasks:
       - name: pkg_test_macos_darwin_arm64
   - name: pkg_smoke_tests_macos_1300_arm64
     display_name: "package smoke tests (macos 13.00 arm64)"
-    run_on: macos-1300-arm64
+    run_on: macos-13-arm64
     tasks:
       - name: pkg_test_macos_darwin_arm64
   - name: pkg_smoke_tests_macos_1400_x64
