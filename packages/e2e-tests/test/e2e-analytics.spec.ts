@@ -13,7 +13,7 @@ describe('e2e Analytics Node', function () {
     { args: ['--replSet', replSetName] }
   );
 
-  after(TestShell.cleanup);
+  afterEach(TestShell.cleanup);
 
   before(async function () {
     if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
