@@ -13,6 +13,22 @@ const wait: (ms?: number) => Promise<void> = (ms = 10) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
+const waitFor = async (fn: () => void, timeout = 10_000) => {
+  const start = Date.now();
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    await wait();
+    try {
+      fn();
+      return;
+    } catch (err) {
+      if (Date.now() - start >= timeout) {
+        throw err;
+      }
+    }
+  }
+};
+
 describe('<Shell />', function () {
   let onOutputChangedSpy;
   let onHistoryChangedSpy;
@@ -522,5 +538,33 @@ describe('<Shell />', function () {
       <Shell runtime={fakeRuntime} initialInput="db.coll.find({})" />
     );
     expect(wrapper.find('Editor').prop('value')).to.eq('db.coll.find({})');
+  });
+
+  it('evaluates initial lines', async function () {
+    wrapper = mount(
+      <Shell
+        runtime={fakeRuntime}
+        initialEvaluate={['use test', 'db.coll.find({})']}
+      />
+    );
+
+    // The `operationInProgress` state should be set to true right away
+    expect(wrapper.state('operationInProgress')).to.eq(true);
+    expect(wrapper.state('output')).to.deep.eq([]);
+
+    await waitFor(() => {
+      // Eventually we can see through output state that initial lines were
+      // evaluated
+      expect(
+        wrapper
+          .state('output')
+          .filter((line) => {
+            return line.format === 'input';
+          })
+          .map((line) => {
+            return line.value;
+          })
+      ).to.deep.eq(['use test', 'db.coll.find({})']);
+    });
   });
 });

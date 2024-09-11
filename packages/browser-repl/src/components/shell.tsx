@@ -144,6 +144,23 @@ const noop = (): void => {
   /* */
 };
 
+const normalizeInitialEvaluate = (initialEvaluate: string | string[]) => {
+  return (
+    Array.isArray(initialEvaluate) ? initialEvaluate : [initialEvaluate]
+  ).filter((line) => {
+    // Filter out empty lines if passed by accident
+    return !!line;
+  });
+};
+
+const isInitialEvaluateEmpty = (
+  initialEvaluate?: string | string[] | undefined
+) => {
+  return (
+    !initialEvaluate || normalizeInitialEvaluate(initialEvaluate).length === 0
+  );
+};
+
 /**
  * The browser-repl Shell component
  */
@@ -166,7 +183,7 @@ export class _Shell extends Component<ShellProps, ShellState> {
   private onCancelPasswordPrompt: () => void = noop;
 
   readonly state: ShellState = {
-    operationInProgress: false,
+    operationInProgress: !isInitialEvaluateEmpty(this.props.initialEvaluate),
     output: this.props.initialOutput.slice(-this.props.maxOutputLength),
     history: this.props.initialHistory.slice(0, this.props.maxHistoryLength),
     passwordPrompt: '',
@@ -178,9 +195,7 @@ export class _Shell extends Component<ShellProps, ShellState> {
     // updated one when actually running the lines
     let evalLines: string[] = [];
     if (this.props.initialEvaluate) {
-      evalLines = Array.isArray(this.props.initialEvaluate)
-        ? this.props.initialEvaluate
-        : [this.props.initialEvaluate];
+      evalLines = normalizeInitialEvaluate(this.props.initialEvaluate);
     }
     this.scrollToBottom();
     void this.updateShellPrompt().then(async () => {
