@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { spawnSync } from 'child_process';
-import { TestShell } from './test-shell';
+import { cleanTestShellsAfterEach, TestShell } from './test-shell';
 
 function assertEnvVariable(variableName: string): string {
   if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
@@ -84,6 +84,8 @@ function getConnectionString(username?: string, password?: string): string {
 }
 
 describe('e2e AWS AUTH', function () {
+  cleanTestShellsAfterEach();
+
   this.timeout(60_000); // AWS auth tests can take longer than the default timeout in CI
   let expectedAssumedRole: string;
 
@@ -116,8 +118,6 @@ describe('e2e AWS AUTH', function () {
       ':assumed-role/'
     ).replace('arn:aws:iam::', 'arn:aws:sts::')}/*`;
   });
-
-  afterEach(TestShell.cleanup);
 
   context('without environment variables being present', function () {
     context('specifying explicit parameters', function () {

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
-import { TestShell } from './test-shell';
+import { cleanTestShellsAfterEach, TestShell } from './test-shell';
 import { eventually } from '../../../testing/eventually';
 import {
   startTestServer,
@@ -16,6 +16,8 @@ import { inspect } from 'util';
 import path from 'path';
 
 describe('FLE tests', function () {
+  cleanTestShellsAfterEach();
+
   const testServer = startTestServer('e2e-fle', {
     topology: 'replset',
     secondaries: 0,
@@ -56,7 +58,6 @@ describe('FLE tests', function () {
     await client.db(dbname).dropDatabase();
     await client.close();
   });
-  afterEach(TestShell.cleanup);
 
   function* awsTestCases() {
     for (const useApiStrict of [false, true]) {

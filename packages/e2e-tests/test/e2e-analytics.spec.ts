@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { startTestCluster } from '../../../testing/integration-testing-hooks';
 import { eventually } from '../../../testing/eventually';
-import { TestShell } from './test-shell';
+import { cleanTestShellsAfterEach, TestShell } from './test-shell';
 
 describe('e2e Analytics Node', function () {
   const replSetName = 'replicaSet';
@@ -13,7 +13,7 @@ describe('e2e Analytics Node', function () {
     { args: ['--replSet', replSetName] }
   );
 
-  afterEach(TestShell.cleanup);
+  cleanTestShellsAfterEach();
 
   before(async function () {
     if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {

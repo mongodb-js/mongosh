@@ -5,11 +5,11 @@ import {
 } from '../../../testing/integration-testing-hooks';
 import { eventually } from '../../../testing/eventually';
 import { expect } from 'chai';
-import { TestShell } from './test-shell';
+import { TestShell, cleanTestShellsAfterEach } from './test-shell';
 
 describe('e2e direct connection', function () {
   skipIfApiStrict();
-  afterEach(TestShell.cleanup);
+  cleanTestShellsAfterEach();
 
   const tabtab = async (shell: TestShell) => {
     await new Promise((resolve) => setTimeout(resolve, 400));
@@ -80,11 +80,6 @@ describe('e2e direct connection', function () {
         dbname = `test-${Date.now()}-${(Math.random() * 100000) | 0}`;
         await shell.executeLine(`use ${dbname}`);
         await shell.executeLine('db.testcollection.insertOne({})');
-        shell.writeInputLine('exit');
-      });
-      after(async function () {
-        const shell = TestShell.start({ args: [await rs0.connectionString()] });
-        await shell.executeLine(`db.getSiblingDB("${dbname}").dropDatabase()`);
         shell.writeInputLine('exit');
       });
 

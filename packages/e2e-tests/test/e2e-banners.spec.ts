@@ -2,11 +2,11 @@ import {
   skipIfApiStrict,
   startSharedTestServer,
 } from '../../../testing/integration-testing-hooks';
-import { TestShell } from './test-shell';
+import { cleanTestShellsAfterEach, TestShell } from './test-shell';
 
 describe('e2e startup banners', function () {
   skipIfApiStrict();
-  afterEach(TestShell.cleanup);
+  cleanTestShellsAfterEach();
 
   const testServer = startSharedTestServer();
 

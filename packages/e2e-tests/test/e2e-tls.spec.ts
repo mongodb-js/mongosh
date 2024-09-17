@@ -9,7 +9,7 @@ import {
   getCertPath,
   connectionStringWithLocalhost,
 } from './repl-helpers';
-import { TestShell } from './test-shell';
+import { cleanTestShellsAfterEach, TestShell } from './test-shell';
 
 const CA_CERT = getCertPath('ca.crt');
 const NON_CA_CERT = getCertPath('non-ca.crt');
@@ -30,6 +30,8 @@ const CRL_INCLUDING_SERVER = getCertPath('ca-server.crl');
  * and compliance with user-specified behavior that is specific to TLS connectivity.
  */
 describe('e2e TLS', function () {
+  cleanTestShellsAfterEach();
+
   let homedir: string;
   let env: Record<string, string>;
   let logBasePath: string;
@@ -64,7 +66,6 @@ describe('e2e TLS', function () {
       console.error('Could not remove fake home directory:', err);
     }
   });
-  afterEach(TestShell.cleanup);
 
   context(
     'connecting without client cert to server with valid cert',
@@ -87,7 +88,6 @@ describe('e2e TLS', function () {
         shell.kill();
         await shell.waitForExit();
       });
-      afterEach(TestShell.cleanup);
 
       const server = startTestServer('e2e-tls-no-cli-valid-srv', {
         args: [
@@ -323,8 +323,6 @@ describe('e2e TLS', function () {
       await shell.executeLine('db.shutdownServer({ force: true })');
       shell.kill();
       await shell.waitForExit();
-
-      await TestShell.cleanup.call(this);
     });
 
     const server = startTestServer('e2e-tls-valid-cli-valid-srv', {
@@ -625,7 +623,6 @@ describe('e2e TLS', function () {
       });
       await shell.waitForPrompt();
       await shell.executeLine('db.shutdownServer({ force: true })');
-      await TestShell.killall();
     });
 
     const server = startTestServer('e2e-tls-invalid-srv', {

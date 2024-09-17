@@ -12,6 +12,8 @@ import stripAnsi from 'strip-ansi';
 import { EJSON } from 'bson';
 import { eventually } from '../../../testing/eventually';
 
+/* eslint-disable mocha/no-exports -- This file export hooks wrapping Mocha's Hooks APIs */
+
 export type TestShellStartupResult =
   | { state: 'prompt' }
   | { state: 'exit'; exitCode: number };
@@ -31,6 +33,50 @@ function matches(str: string, pattern: string | RegExp): boolean {
     : pattern.test(str);
 }
 
+/**
+ * Toggle used to ensure an appropriate hook is registered, to clean up test shells.
+ * NOTE: This is a local variable of the module instead of a static on {@link TestShell} to allow the hooks to toggle it.
+ */
+let testShellEnabled = false;
+
+/**
+ * Enables the TestShell and kill all shells after all tests of the current suite.
+ */
+export function cleanTestShellsAfter() {
+  before('enabled TestShell', function () {
+    assert(
+      !testShellEnabled,
+      'TestShell is already enabled, use only one cleanTestShellsAfter or cleanTestShellsAfterEach'
+    );
+    testShellEnabled = true;
+  });
+
+  after('kill all TestShell instances', async function (this: Mocha.Context) {
+    assert(testShellEnabled, 'Expected TestShell to be enabled');
+    testShellEnabled = false;
+    await TestShell.killAll();
+  });
+}
+
+/**
+ * Enables the TestShell and kill all shells after each test
+ * NOTE: This also registers {@link cleanTestShellsAfter} hook internally, to allow `after` hooks to start TestShell instances.
+ */
+export function cleanTestShellsAfterEach() {
+  cleanTestShellsAfter();
+
+  afterEach(
+    'kill all TestShell instances',
+    async function (this: Mocha.Context) {
+      assert(testShellEnabled, 'Expected TestShell to be enabled');
+      if (this.currentTest?.state === 'failed') {
+        TestShell.printShells();
+      }
+      await TestShell.killAll();
+    }
+  );
+}
+
 export interface TestShellOptions {
   args: string[];
   env?: Record<string, string>;
@@ -47,6 +93,11 @@ export class TestShell {
   private static _openShells: TestShell[] = [];
 
   static start(options: TestShellOptions = { args: [] }): TestShell {
+    assert(
+      testShellEnabled,
+      'Expected TestShell to be enabled, did you call cleanTestShellsAfter or cleanTestShellsAfterEach? Or did you call TestShell.start in an after hook?'
+    );
+
     let shellProcess: ChildProcessWithoutNullStreams;
 
     let env = options.env || process.env;
@@ -105,14 +156,13 @@ export class TestShell {
     return shell.output;
   }
 
-  static async killall(): Promise<void> {
-    const exitPromises: Promise<unknown>[] = [];
-    while (TestShell._openShells.length) {
-      const shell = TestShell._openShells.pop()!;
-      shell.kill();
-      exitPromises.push(shell.waitForExit());
-    }
-    await Promise.all(exitPromises);
+  static async killAll(): Promise<void> {
+    await Promise.all(
+      TestShell._openShells.map((shell) => {
+        shell.kill();
+        return shell.waitForExit();
+      })
+    );
   }
 
   debugInformation() {
@@ -125,24 +175,10 @@ export class TestShell {
     };
   }
 
-  static async cleanupAfterAll(): Promise<void> {
-    let foundOpenShells = false;
+  static printShells() {
     for (const shell of TestShell._openShells) {
-      foundOpenShells = true;
       console.error(shell.debugInformation());
     }
-    await TestShell.killall();
-    if (foundOpenShells)
-      throw new Error('Open shells at end of test discovered!');
-  }
-
-  static async cleanup(this: Mocha.Context): Promise<void> {
-    if (this.currentTest?.state === 'failed') {
-      for (const shell of TestShell._openShells) {
-        console.error(shell.debugInformation());
-      }
-    }
-    await TestShell.killall();
   }
 
   private _process: ChildProcessWithoutNullStreams;
@@ -336,6 +372,3 @@ export class TestShell {
     return match.groups!.logId;
   }
 }
-
-// If any shells remain at the end of the script, print their full output
-globalThis?.after('ensure no hanging shells', TestShell.cleanupAfterAll);

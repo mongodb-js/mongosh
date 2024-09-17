@@ -11,7 +11,7 @@ import {
   startSharedTestServer,
   startTestServer,
 } from '../../../testing/integration-testing-hooks';
-import { TestShell } from './test-shell';
+import { cleanTestShellsAfterEach, TestShell } from './test-shell';
 import type { Server as HTTPSServer } from 'https';
 import { createServer as createHTTPSServer } from 'https';
 import {
@@ -40,7 +40,7 @@ describe('e2e proxy support', function () {
   skipIfApiStrict();
   skipIfEnvServerVersion('< 7.0');
 
-  afterEach(TestShell.cleanup);
+  cleanTestShellsAfterEach();
 
   const tmpdir = useTmpdir();
   const testServer = startSharedTestServer();

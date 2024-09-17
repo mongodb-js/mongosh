@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import type { Db, Document, MongoClientOptions } from 'mongodb';
 import { MongoClient } from 'mongodb';
 import { eventually } from '../../../testing/eventually';
-import { TestShell } from './test-shell';
+import { cleanTestShellsAfterEach, TestShell } from './test-shell';
 import {
   skipIfApiStrict,
   startSharedTestServer,
@@ -107,6 +107,8 @@ describe('Auth e2e', function () {
   let examplePrivilege2: Document;
 
   describe('with regular URI', function () {
+    cleanTestShellsAfterEach();
+
     beforeEach(async function () {
       const connectionString = await testServer.connectionString();
       dbName = `test-${Date.now()}`;
@@ -137,7 +139,6 @@ describe('Auth e2e', function () {
 
       await client.close();
     });
-    afterEach(TestShell.cleanup);
 
     describe('user management', function () {
       describe('createUser', function () {
@@ -1144,6 +1145,7 @@ describe('Auth e2e', function () {
 
       await client.close();
     });
-    afterEach(TestShell.cleanup);
+
+    cleanTestShellsAfterEach();
   });
 });

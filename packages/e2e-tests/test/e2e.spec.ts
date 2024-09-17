@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import type { Db } from 'mongodb';
 import { MongoClient } from 'mongodb';
 import { eventually } from '../../../testing/eventually';
-import { TestShell } from './test-shell';
+import { cleanTestShellsAfterEach, TestShell } from './test-shell';
 import {
   skipIfServerVersion,
   startSharedTestServer,
@@ -29,7 +29,7 @@ const jsContextFlagCombinations: `--jsContext=${'plain-vm' | 'repl'}`[][] = [
 describe('e2e', function () {
   const testServer = startSharedTestServer();
 
-  afterEach(TestShell.cleanup);
+  cleanTestShellsAfterEach();
 
   describe('--version', function () {
     it('shows version', async function () {
@@ -1378,7 +1378,6 @@ describe('e2e', function () {
     });
 
     afterEach(async function () {
-      await TestShell.killall.call(this);
       try {
         await fs.rm(homedir, { recursive: true, force: true });
       } catch (err: any) {

@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import path from 'path';
 import { promises as fs } from 'fs';
 import { eventually } from '../../../testing/eventually';
-import { TestShell } from './test-shell';
+import { cleanTestShellsAfterEach, TestShell } from './test-shell';
 import {
   useTmpdir,
   fakeExternalEditor,
@@ -14,6 +14,8 @@ describe('external editor e2e', function () {
   let homedir: string;
   let env: Record<string, string>;
   let shell: TestShell;
+
+  cleanTestShellsAfterEach();
 
   beforeEach(async function () {
     const homeInfo = setTemporaryHomeDirectory();
@@ -42,7 +44,6 @@ describe('external editor e2e', function () {
   });
 
   afterEach(async function () {
-    await TestShell.killall.call(this);
     try {
       await fs.rm(homedir, { recursive: true, force: true });
     } catch (err: any) {

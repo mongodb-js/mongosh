@@ -6,7 +6,7 @@ import {
 import { promises as fs } from 'fs';
 import type { OIDCMockProviderConfig } from '@mongodb-js/oidc-mock-provider';
 import { OIDCMockProvider } from '@mongodb-js/oidc-mock-provider';
-import { TestShell } from './test-shell';
+import { cleanTestShellsAfterEach, TestShell } from './test-shell';
 import path from 'path';
 import { expect } from 'chai';
 import { createServer as createHTTPSServer } from 'https';
@@ -30,6 +30,7 @@ import {
  * happens in isolation.
  */
 describe('OIDC auth e2e', function () {
+  cleanTestShellsAfterEach();
   skipIfApiStrict(); // connectionStatus is unversioned.
 
   let getTokenPayload: typeof oidcMockProviderConfig.getTokenPayload;
@@ -163,8 +164,6 @@ describe('OIDC auth e2e', function () {
       oidcMockProviderHttps?.close(),
     ]);
   });
-
-  afterEach(TestShell.cleanup);
 
   async function verifyUser(
     shell: TestShell,
