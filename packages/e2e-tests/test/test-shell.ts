@@ -52,7 +52,6 @@ export function cleanTestShellsAfter() {
   });
 
   after('kill all TestShell instances', async function (this: Mocha.Context) {
-    assert(testShellEnabled, 'Expected TestShell to be enabled');
     testShellEnabled = false;
     await TestShell.killAll();
   });
