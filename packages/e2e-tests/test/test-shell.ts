@@ -156,8 +156,10 @@ export class TestShell {
   }
 
   static async killAll(): Promise<void> {
+    // Using splice to mutate the array of open shells in-place
+    const openShells = TestShell._openShells.splice(0);
     await Promise.all(
-      TestShell._openShells.map((shell) => {
+      openShells.map((shell) => {
         shell.kill();
         return shell.waitForExit();
       })
