@@ -47,7 +47,7 @@ describe('snippet integration tests', function () {
 
   it('allows managing snippets', async function () {
     shell.writeInputLine('snippet install analyze-schema');
-    await eventually(
+    await shell.eventually(
       () => {
         shell.assertContainsOutput(
           'Installed new snippets analyze-schema. Do you want to load them now?'
@@ -77,7 +77,7 @@ describe('snippet integration tests', function () {
       return this.skip(); // https://jira.mongodb.org/browse/MONGOSH-746
     }
     shell.writeInput('snippet insta\t');
-    await eventually(() => {
+    await shell.eventually(() => {
       shell.assertContainsOutput('snippet install');
     });
   });

@@ -64,12 +64,17 @@ describe('e2e direct connection', function () {
           `rs.initiate(${JSON.stringify(replSetConfig)})`
         );
         shell.assertContainsOutput('ok: 1');
-        await eventually(async () => {
-          await shell.executeLine('db.isMaster()');
-          shell.assertContainsOutput('ismaster: true');
-          shell.assertContainsOutput(`me: '${await rs0.hostport()}'`);
-          shell.assertContainsOutput(`setName: '${replSetId}'`);
-        });
+        await eventually(
+          async () => {
+            const output = await shell.executeLine('db.isMaster()');
+            expect(output).contains('ismaster: true');
+            expect(output).contains(`me: '${await rs0.hostport()}'`);
+            expect(output).contains(`setName: '${replSetId}'`);
+          },
+          {
+            timeout: 20_000,
+          }
+        );
 
         await shell.executeLine('use admin');
         await shell.executeLine(
@@ -204,7 +209,7 @@ describe('e2e direct connection', function () {
           await shell.waitForPrompt();
           shell.writeInput('db.testc');
           await tabtab(shell);
-          await eventually(() => {
+          await shell.eventually(() => {
             shell.assertContainsOutput('db.testcollection');
           });
         });
@@ -370,7 +375,7 @@ describe('e2e direct connection', function () {
           await shell.waitForPrompt();
           shell.writeInput('db.testc');
           await tabtab(shell);
-          await eventually(() => {
+          await shell.eventually(() => {
             shell.assertContainsOutput('db.testcollection');
           });
         });

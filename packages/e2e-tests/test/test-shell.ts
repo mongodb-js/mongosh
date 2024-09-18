@@ -9,7 +9,6 @@ import { inspect } from 'util';
 import path from 'path';
 import stripAnsi from 'strip-ansi';
 import { EJSON } from 'bson';
-import { eventually } from '../../../testing/eventually';
 
 /* eslint-disable mocha/no-exports -- This file export hooks wrapping Mocha's Hooks APIs */
 
@@ -144,6 +143,7 @@ export class TestShell {
   private _output: string;
   private _rawOutput: string;
   private _onClose: Promise<number>;
+  private _previousOutputLength = 0;
 
   constructor(
     shellProcess: ChildProcessWithoutNullStreams,
@@ -237,6 +237,64 @@ export class TestShell {
       this.waitForPrompt().then(() => ({ state: 'prompt' } as const)),
       this.waitForExit().then((c) => ({ state: 'exit', exitCode: c } as const)),
     ]);
+  }
+
+  /**
+   * Like the `eventually` utility, but instead of calling the callback on a timer,
+   * the callback is called as output is emitted.
+   */
+  eventually<T = unknown>(
+    cb: () => Promise<T> | T,
+    { timeout = 10_000 }: { timeout?: number } = {}
+  ) {
+    return new Promise<T>((resolve, reject) => {
+      const { stdout, stderr } = this._process;
+      let lastError: Error | null = null;
+      let currentCheck = Promise.resolve();
+
+      const timeoutTimer = setTimeout(() => {
+        cleanUp();
+        reject(
+          new Error(
+            `Timed out (waited ${timeout}ms): ${
+              lastError instanceof Error ? lastError.message : 'No cause'
+            }`
+          )
+        );
+      }, timeout);
+
+      function check() {
+        // Awaits any previous check to ensure there's only one check in-flight
+        // This is to prevent a new call to the `cb` if a previous call returned a promise which hasn't yet resolved
+        currentCheck = currentCheck.then(async () => {
+          try {
+            const result = await cb();
+            cleanUp();
+            resolve(result);
+          } catch (err) {
+            if (err instanceof Error) {
+              lastError = err;
+            } else {
+              throw new Error(
+                'Expected the callback to throw instances of Error'
+              );
+            }
+          }
+        }, reject);
+      }
+
+      function cleanUp() {
+        stdout.off('data', check);
+        stderr.off('data', check);
+        clearTimeout(timeoutTimer);
+      }
+
+      // Check as the process emits output
+      stdout.on('data', check);
+      stderr.on('data', check);
+      // Check right away
+      process.nextTick(check);
+    });
   }
 
   kill(signal?: SignalType): void {
