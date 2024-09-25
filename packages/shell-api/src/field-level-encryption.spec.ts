@@ -885,7 +885,7 @@ srDVjIT3LsvTqw==`,
       ],
     ];
     for (const [kmsName, kmsAndTlsOptions] of kms) {
-      it.only(`provides ClientEncryption for kms=${kmsName}`, async function () {
+      it(`provides ClientEncryption for kms=${kmsName}`, async function () {
         const kmsOptions = { ...kmsAndTlsOptions, tlsOptions: undefined };
         const mongo = new Mongo(
           instanceState,
