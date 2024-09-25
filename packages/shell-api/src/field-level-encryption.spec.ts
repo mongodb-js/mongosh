@@ -942,6 +942,7 @@ srDVjIT3LsvTqw==`,
               expect(connections).to.deep.equal([
                 {
                   options: {
+                    autoSelectFamily: true,
                     host: 'kmip.example.com',
                     servername: 'kmip.example.com',
                     port: 123,
