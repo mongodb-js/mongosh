@@ -173,7 +173,7 @@ describe('Auth e2e', function () {
         it('digestPassword', async function () {
           if (
             process.env.MONGOSH_TEST_E2E_FORCE_FIPS ||
-            process.env.DISTRO_ID === 'rhel92-fips'
+            process.env.DISTRO_ID === 'rhel93-fips'
           ) {
             return this.skip(); // No SCRAM-SHA-1 in FIPS mode
           }
@@ -239,7 +239,7 @@ describe('Auth e2e', function () {
         it('digestPassword', async function () {
           if (
             process.env.MONGOSH_TEST_E2E_FORCE_FIPS ||
-            process.env.DISTRO_ID === 'rhel92-fips'
+            process.env.DISTRO_ID === 'rhel93-fips'
           ) {
             return this.skip(); // No SCRAM-SHA-1 in FIPS mode
           }
@@ -960,7 +960,7 @@ describe('Auth e2e', function () {
       it('can auth with SCRAM-SHA-1', async function () {
         if (
           process.env.MONGOSH_TEST_E2E_FORCE_FIPS ||
-          process.env.DISTRO_ID === 'rhel92-fips'
+          process.env.DISTRO_ID === 'rhel93-fips'
         ) {
           return this.skip(); // No SCRAM-SHA-1 in FIPS mode
         }
