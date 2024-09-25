@@ -2607,14 +2607,14 @@ describe('Shell API (integration)', function () {
       it('lists projection with args', async function () {
         await loadQueryCache(collection);
         const planCache = collection.getPlanCache();
-        const res = await planCache.list([{ $project: { queryHash: 1 } }]);
+        const res = await planCache.list([{ $project: { planCacheKey: 1 } }]);
         // The 6.0 server greatly reduces the expectations we can make here,
         // so just assert that query hashes are returned.
         expect(res).to.have.lengthOf.at.least(2);
         expect(res).to.have.lengthOf.at.most(4);
         expect([
           ...new Set(res.map((doc) => JSON.stringify(Object.keys(doc)))),
-        ]).to.deep.equal(['["queryHash"]']);
+        ]).to.deep.equal(['["planCacheKey"]']);
       });
     });
     describe('clear', function () {
