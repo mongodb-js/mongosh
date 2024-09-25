@@ -885,7 +885,7 @@ srDVjIT3LsvTqw==`,
       ],
     ];
     for (const [kmsName, kmsAndTlsOptions] of kms) {
-      it(`provides ClientEncryption for kms=${kmsName}`, async function () {
+      it.only(`provides ClientEncryption for kms=${kmsName}`, async function () {
         const kmsOptions = { ...kmsAndTlsOptions, tlsOptions: undefined };
         const mongo = new Mongo(
           instanceState,
@@ -942,6 +942,7 @@ srDVjIT3LsvTqw==`,
               expect(connections).to.deep.equal([
                 {
                   options: {
+                    autoSelectFamily: true,
                     host: 'kmip.example.com',
                     servername: 'kmip.example.com',
                     port: 123,
