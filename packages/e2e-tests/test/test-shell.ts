@@ -115,16 +115,31 @@ export class TestShell {
     await Promise.all(exitPromises);
   }
 
+  debugInformation() {
+    return {
+      pid: this.process.pid,
+      output: this.output,
+      rawOutput: this.rawOutput,
+      exitCode: this.process.exitCode,
+      signal: this.process.signalCode,
+    };
+  }
+
+  static async cleanupAfterAll(): Promise<void> {
+    let foundOpenShells = false;
+    for (const shell of TestShell._openShells) {
+      foundOpenShells = true;
+      console.error(shell.debugInformation());
+    }
+    await TestShell.killall();
+    if (foundOpenShells)
+      throw new Error('Open shells at end of test discovered!');
+  }
+
   static async cleanup(this: Mocha.Context): Promise<void> {
     if (this.currentTest?.state === 'failed') {
       for (const shell of TestShell._openShells) {
-        console.error({
-          pid: shell.process.pid,
-          output: shell.output,
-          rawOutput: shell.rawOutput,
-          exitCode: shell.process.exitCode,
-          signal: shell.process.signalCode,
-        });
+        console.error(shell.debugInformation());
       }
     }
     await TestShell.killall();
@@ -321,3 +336,6 @@ export class TestShell {
     return match.groups!.logId;
   }
 }
+
+// If any shells remain at the end of the script, print their full output
+globalThis?.after('ensure no hanging shells', TestShell.cleanupAfterAll);

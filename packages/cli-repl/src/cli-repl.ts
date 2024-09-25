@@ -192,7 +192,9 @@ export class CliRepl implements MongoshIOProvider {
     this.logManager = new MongoLogManager({
       directory: this.shellHomeDirectory.localPath('.'),
       retentionDays: 30,
-      maxLogFileCount: 100,
+      maxLogFileCount: +(
+        process.env.MONGOSH_TEST_ONLY_MAX_LOG_FILE_COUNT || 100
+      ),
       onerror: (err: Error) => this.bus.emit('mongosh:error', err, 'log'),
       onwarn: (err: Error, path: string) =>
         this.warnAboutInaccessibleFile(err, path),

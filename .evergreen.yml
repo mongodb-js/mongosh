@@ -1,6 +1,12 @@
 
 exec_timeout_secs: 10800
 
+pre:
+  - command: shell.exec
+    params:
+      shell: bash
+      script: |
+        rm -rf "$HOME/.mongodb/mongosh"
 post_error_fails_task: true
 post:
   - command: shell.exec
