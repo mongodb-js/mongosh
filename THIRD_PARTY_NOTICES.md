@@ -181,7 +181,7 @@ Package|Version|License
 **[bplist-parser](#a012056f1b32796d923573a3b1ef72cf36943d95e5e2f6af0f7eeab57a21be24)**|0.2.0|MIT
 **[brace-expansion](#2ba3ee23cc6a2718243e9c0c59ce154058f292965f563aa291b459a414e863cb)**|1.1.11|MIT
 **[browserslist](#a95274c46e5fc3c90b90fdf6cc259a6b44331ddca76e255afd128465621592ed)**|4.23.3|MIT
-**[bson](#b355c474f7d8440212aca8ad979743ee65c159f2d853f15ebad55e080bb21ae5)**|6.7.0|Apache-2.0
+**[bson](#d6c506bcc160fe77704fb17890d28ffb1d1c30b72dbce07bd5e970af63932d46)**|6.8.0|Apache-2.0
 **[buffer-alloc-unsafe](#1022220a813dd092d3ced592ac36121a00bd08a9c2020e08ad370dc29ed217f0)**|1.1.0|MIT
 **[buffer-alloc](#d5cbc95b9dde4a46cd45334630efe3bc9025c904074bee845376bd60651441c0)**|1.2.0|MIT
 **[buffer-fill](#c3747dfd267829ceeb564a1717d0c65d88d2b366e215f640067abefac59e3fd4)**|1.0.0|MIT
@@ -318,7 +318,7 @@ Package|Version|License
 **[jsesc](#253e8a44fc188759c5ce35330e4f20aacf1d0253d7e8d7dffd4a1f884a10ce1e)**|2.5.2|MIT
 **[json5](#16281c6ea25e0cec4bc0bb8c01d1759d66992776381bf9c5af6959bec47d2f77)**|2.2.3|MIT
 **[jsonfile](#ee6699687d879e2655eb0c687d7d8ad7bf952bb8a1092d720b58ae709e885213)**|4.0.0|MIT
-**[kerberos](#05c7d2f17faccacb505a07f79ccba22ce089aa668a8bef64de84cf5dcd4f585e)**|2.1.0|Apache-2.0
+**[kerberos](#ac70d4903c6441fd96843a6ecb73f258ee27ef26b25290257564a11c10ecd17b)**|2.2.0|Apache-2.0
 **[lodash.merge](#996e40d63a94f1b8693d7c81e0cdfb874c6432d6bbd675976fc1b6b13652c8db)**|4.6.2|MIT
 **[lodash](#adaac4144887ebc2c1b682380ff385210f681fc58b4bc1ef3986148cf8dcd28a)**|4.17.21|MIT
 **[lowlight](#6efc5090c0eda3b461d933d6b79bddcdf8165a10aea9f39ac76620ce5fb05bf5)**|1.17.0|MIT
@@ -351,7 +351,7 @@ Package|Version|License
 **[mongodb-crypt-library-version](#003bd2892d6f6fdac0613ba8f9a2fbb054ddd1c26901e1d2fc7e83861b21cf4d)**|1.0.5|Apache-2.0
 **[mongodb-log-writer](#c4945018f8490fc8e56e1414e262fcf1b802800e05cd15f2bd6b7a9d0b94af85)**|1.4.2|Apache-2.0
 **[mongodb-redact](#d246d19a773f4cc2f2d0431d018a38295c9f9b1b45cfbe7ee16230056b667453)**|1.1.2|Apache-2.0
-**[mongodb](#6fec8e7c940738c785acba4b627a32d91425768e886601b770ad3b664670653e)**|6.8.0|Apache-2.0
+**[mongodb](#8359f923d8c3b1a357d06d091825d7c04bb269086e94b6f8617edd5b4b03fa2b)**|6.9.0|Apache-2.0
 **[ms](#484b814b85d5028e34246147c8fc901d33570202bd7cdc3703c0ed1078eba0aa)**|2.0.0|MIT
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
 **[ms](#2083576c5af8054927640b4788059806d07e250a26066c9ccb2d928394fb9226)**|2.1.3|MIT
@@ -388,7 +388,7 @@ Package|Version|License
 **[path-to-regexp](#96d230365f414cce8d80ceb9d99d855685dfa922f931b49ea01952a1efe64266)**|0.1.10|MIT
 **[path-to-regexp](#571cfd74ecd5ea999273383b83a44bf35d4a62383c67a63fef169cc42eb2d859)**|1.9.0|MIT
 **[picocolors](#87994c8f4d800603a2cf449baca40fcaf984088237be5cebbfbc79de0d95da98)**|1.0.1|ISC
-**[prebuild-install](#b3a047e51af19ed4c091ca34a3d59939490120cbc75e67f511fc02d31379c55d)**|7.1.1|MIT
+**[prebuild-install](#93d13a9b3a51a6a802fcd35aa031d3ae7369aa6fd47d3a89f28a6d31ea3c9dc5)**|7.1.2|MIT
 **[pretty-repl](#52450099e67a2b965036ab65b63b01d615b3fbcff38085a23fd8e80694d2a8ed)**|4.0.1|MIT
 **[process-nextick-args](#449a33b1fb1386db92b40df9073f48703b67ff05c4da5043d007fdb90ed76aca)**|2.0.1|MIT
 **[proto-list](#d4d3609bf7b212ffd3a73f3a8f8e7b69fedcf74d6e9843ee217046ab37b32260)**|1.2.4|ISC
@@ -20700,8 +20700,8 @@ License files:
       
 
 
-<a id="b355c474f7d8440212aca8ad979743ee65c159f2d853f15ebad55e080bb21ae5"></a>
-### [bson](https://www.npmjs.com/package/bson) (version 6.7.0)
+<a id="d6c506bcc160fe77704fb17890d28ffb1d1c30b72dbce07bd5e970af63932d46"></a>
+### [bson](https://www.npmjs.com/package/bson) (version 6.8.0)
 License tags: Apache-2.0
 
 License files:
@@ -25740,8 +25740,8 @@ License files:
       
 
 
-<a id="05c7d2f17faccacb505a07f79ccba22ce089aa668a8bef64de84cf5dcd4f585e"></a>
-### [kerberos](https://www.npmjs.com/package/kerberos) (version 2.1.0)
+<a id="ac70d4903c6441fd96843a6ecb73f258ee27ef26b25290257564a11c10ecd17b"></a>
+### [kerberos](https://www.npmjs.com/package/kerberos) (version 2.2.0)
 License tags: Apache-2.0
 
 License files:
@@ -27989,8 +27989,8 @@ License files:
       
 
 
-<a id="6fec8e7c940738c785acba4b627a32d91425768e886601b770ad3b664670653e"></a>
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 6.8.0)
+<a id="8359f923d8c3b1a357d06d091825d7c04bb269086e94b6f8617edd5b4b03fa2b"></a>
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 6.9.0)
 License tags: Apache-2.0
 
 License files:
@@ -29170,8 +29170,8 @@ License files:
       
 
 
-<a id="b3a047e51af19ed4c091ca34a3d59939490120cbc75e67f511fc02d31379c55d"></a>
-### [prebuild-install](https://www.npmjs.com/package/prebuild-install) (version 7.1.1)
+<a id="93d13a9b3a51a6a802fcd35aa031d3ae7369aa6fd47d3a89f28a6d31ea3c9dc5"></a>
+### [prebuild-install](https://www.npmjs.com/package/prebuild-install) (version 7.1.2)
 License tags: MIT
 
 License files:
