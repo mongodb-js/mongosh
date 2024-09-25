@@ -1378,6 +1378,7 @@ describe('e2e', function () {
     });
 
     afterEach(async function () {
+      await TestShell.killAll();
       try {
         await fs.rm(homedir, { recursive: true, force: true });
       } catch (err: any) {
