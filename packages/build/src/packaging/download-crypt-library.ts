@@ -34,12 +34,10 @@ export async function downloadCryptLibrary(
   );
   // Download mongodb for latest server version, including rapid releases
   // (for the platforms that they exist for, i.e. for ppc64le/s390x only pick stable releases).
-  // TODO(MONGOSH-1833): The current 'continuous' release is not compatible with 8.x rc server releases. So we are using
-  // 8.0.0-rc17 (current latest) for now and once 8.0 is released we should switch back to continuous.
-  const versionSpec = '8.0.0-rc17';
-  //if (/ppc64|s390x/.test(opts.arch || process.arch)) {
-  //  versionSpec = 'stable';
-  //}
+  let versionSpec = 'continuous';
+  if (/ppc64|s390x/.test(opts.arch || process.arch)) {
+    versionSpec = 'stable';
+  }
   const { downloadedBinDir: libdir, version } =
     await downloadMongoDbWithVersionInfo(cryptTmpTargetDir, versionSpec, opts);
   const cryptLibrary = path.join(
