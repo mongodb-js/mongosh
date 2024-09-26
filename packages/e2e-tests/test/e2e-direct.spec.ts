@@ -82,6 +82,13 @@ describe('e2e direct connection', function () {
         await shell.executeLine('db.testcollection.insertOne({})');
         shell.writeInputLine('exit');
       });
+      after(async function () {
+        const shell = this.startTestShell({
+          args: [await rs0.connectionString()],
+        });
+        await shell.executeLine(`db.getSiblingDB("${dbname}").dropDatabase()`);
+        shell.writeInputLine('exit');
+      });
 
       context('connecting to secondary members directly', function () {
         it('works when specifying a connection string', async function () {
