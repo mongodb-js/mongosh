@@ -4,7 +4,8 @@ import type { Db } from 'mongodb';
 import { MongoClient } from 'mongodb';
 
 import { eventually } from '../../../testing/eventually';
-import { ensureTestShellAfterHook, TestShell } from './test-shell';
+import { TestShell } from './test-shell';
+import { ensureTestShellAfterHook } from './test-shell-context';
 import {
   skipIfServerVersion,
   startSharedTestServer,

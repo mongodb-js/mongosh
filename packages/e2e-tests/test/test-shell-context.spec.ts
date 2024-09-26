@@ -1,6 +1,7 @@
-import { ensureTestShellAfterHook, TestShell } from './test-shell';
+import { TestShell } from './test-shell';
+import { ensureTestShellAfterHook } from './test-shell-context';
 
-describe('TestShell', function () {
+describe('TestShell context', function () {
   context('hooks and tests', function () {
     before(async function () {
       const shell = this.startTestShell({ args: ['--nodb'] });
