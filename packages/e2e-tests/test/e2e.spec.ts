@@ -4,7 +4,7 @@ import type { Db } from 'mongodb';
 import { MongoClient } from 'mongodb';
 
 import { eventually } from '../../../testing/eventually';
-import type { TestShell } from './test-shell';
+import { ensureTestShellAfterHook, TestShell } from './test-shell';
 import {
   skipIfServerVersion,
   startSharedTestServer,
@@ -1378,7 +1378,11 @@ describe('e2e', function () {
       };
     });
 
+    // Ensure the afterEach below runs after shells are killed
+    ensureTestShellAfterHook('afterEach', this);
+
     afterEach(async function () {
+      TestShell.assertNoOpenShells();
       try {
         await fs.rm(homedir, { recursive: true, force: true });
       } catch (err: any) {
