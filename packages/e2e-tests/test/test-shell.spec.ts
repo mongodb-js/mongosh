@@ -1,7 +1,7 @@
-import { TestShell } from './test-shell';
+import { ensureTestShellAfterHook, TestShell } from './test-shell';
 
 describe('TestShell', function () {
-  context('sub-suite', function () {
+  context('hooks and tests', function () {
     before(async function () {
       const shell = this.startTestShell({ args: ['--nodb'] });
       await shell.waitForPrompt();
@@ -25,6 +25,24 @@ describe('TestShell', function () {
     it("doesn't explode", async function () {
       const shell = this.startTestShell({ args: ['--nodb'] });
       await shell.waitForPrompt();
+    });
+  });
+
+  context('adding an after each running after cleanup', function () {
+    beforeEach(async function () {
+      const shell = this.startTestShell({ args: ['--nodb'] });
+      await shell.waitForPrompt();
+    });
+
+    // Calling this before the "afterEach" below, ensures the cleanup hook gets added before it
+    ensureTestShellAfterHook('afterEach', this);
+
+    afterEach(function () {
+      TestShell.assertNoOpenShells();
+    });
+
+    it('works', function () {
+      /* */
     });
   });
 

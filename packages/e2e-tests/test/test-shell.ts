@@ -359,17 +359,19 @@ type AfterEachInjectedSuite = {
 };
 
 /**
- * Registers an after (all or each) hook to kill test shells started during the hooks or tests
+ * Registers an after (all or each) hook to kill test shells started during the hooks or tests.
+ * You don't have to call this from tests, but you can if you want to register an after (each) hook
+ * which runs after the shells have been killed.
  */
-function ensureAfterHook(
+export function ensureTestShellAfterHook(
   hookName: 'afterEach',
   suite: Mocha.Suite
 ): asserts suite is AfterEachInjectedSuite & Mocha.Suite;
-function ensureAfterHook(
+export function ensureTestShellAfterHook(
   hookName: 'afterAll',
   suite: Mocha.Suite
 ): asserts suite is AfterAllInjectedSuite & Mocha.Suite;
-function ensureAfterHook(
+export function ensureTestShellAfterHook(
   hookName: 'afterEach' | 'afterAll',
   suite: Partial<AfterAllInjectedSuite & AfterEachInjectedSuite> & Mocha.Suite
 ): void {
@@ -409,19 +411,19 @@ Mocha.Context.prototype.startTestShell = function (
       runnable.originalTitle === '"before each" hook' ||
       runnable.originalTitle === '"after each" hook'
     ) {
-      ensureAfterHook('afterEach', parent);
+      ensureTestShellAfterHook('afterEach', parent);
       parent[TEST_SHELLS_AFTER_EACH].add(shell);
     } else if (
       runnable.originalTitle === '"before all" hook' ||
       runnable.originalTitle === '"after all" hook'
     ) {
-      ensureAfterHook('afterAll', parent);
+      ensureTestShellAfterHook('afterAll', parent);
       parent[TEST_SHELLS_AFTER_ALL].add(shell);
     } else {
       throw new Error(`Unexpected ${runnable.originalTitle || runnable.title}`);
     }
   } else if (runnable instanceof Mocha.Test) {
-    ensureAfterHook('afterEach', parent);
+    ensureTestShellAfterHook('afterEach', parent);
     parent[TEST_SHELLS_AFTER_EACH].add(shell);
   } else {
     throw new Error('Unexpected Runnable: Expected a Hook or a Test');
