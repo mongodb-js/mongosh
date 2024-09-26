@@ -168,7 +168,7 @@ describe('e2e TLS', function () {
         const result = await shell.waitForPromptOrExit();
         expect(result.state).to.equal('exit');
         shell.assertContainsOutput(
-          /unable to verify the first certificate|self[- ]signed certificate in certificate chain/
+          /unable to verify the first certificate|self[- ]signed certificate in certificate chain|unable to get (local )?issuer certificate/
         );
       });
 
@@ -185,7 +185,7 @@ describe('e2e TLS', function () {
         const result = await shell.waitForPromptOrExit();
         expect(result.state).to.equal('exit');
         shell.assertContainsOutput(
-          /unable to verify the first certificate|self[- ]signed certificate in certificate chain/
+          /unable to verify the first certificate|self[- ]signed certificate in certificate chain|unable to get (local )?issuer certificate/
         );
       });
 
