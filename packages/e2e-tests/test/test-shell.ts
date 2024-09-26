@@ -1,4 +1,4 @@
-import type Mocha from 'mocha';
+import Mocha from 'mocha';
 import assert from 'assert';
 import type {
   ChildProcess,
@@ -33,49 +33,6 @@ function matches(str: string, pattern: string | RegExp): boolean {
     : pattern.test(str);
 }
 
-/**
- * Toggle used to ensure an appropriate hook is registered, to clean up test shells.
- * NOTE: This is a local variable of the module instead of a static on {@link TestShell} to allow the hooks to toggle it.
- */
-let testShellEnabled = false;
-
-/**
- * Enables the TestShell and kill all shells after all tests of the current suite.
- */
-export function cleanTestShellsAfter() {
-  before('enabled TestShell', function () {
-    assert(
-      !testShellEnabled,
-      'TestShell is already enabled, use only one cleanTestShellsAfter or cleanTestShellsAfterEach'
-    );
-    testShellEnabled = true;
-  });
-
-  after('kill all TestShell instances', async function (this: Mocha.Context) {
-    testShellEnabled = false;
-    await TestShell.killAll();
-  });
-}
-
-/**
- * Enables the TestShell and kill all shells after each test
- * NOTE: This also registers {@link cleanTestShellsAfter} hook internally, to allow `after` hooks to start TestShell instances.
- */
-export function cleanTestShellsAfterEach() {
-  cleanTestShellsAfter();
-
-  afterEach(
-    'kill all TestShell instances',
-    async function (this: Mocha.Context) {
-      assert(testShellEnabled, 'Expected TestShell to be enabled');
-      if (this.currentTest?.state === 'failed') {
-        TestShell.printShells();
-      }
-      await TestShell.killAll();
-    }
-  );
-}
-
 export interface TestShellOptions {
   args: string[];
   env?: Record<string, string>;
@@ -89,14 +46,12 @@ export interface TestShellOptions {
  * Test shell helper class.
  */
 export class TestShell {
-  private static _openShells: TestShell[] = [];
+  private static _openShells: Set<TestShell> = new Set();
 
+  /**
+   * @deprecated Use the {@link Mocha.Context.startTestShell} hook instead
+   */
   static start(options: TestShellOptions = { args: [] }): TestShell {
-    assert(
-      testShellEnabled,
-      'Expected TestShell to be enabled, did you call cleanTestShellsAfter or cleanTestShellsAfterEach? Or did you call TestShell.start in an after hook?'
-    );
-
     let shellProcess: ChildProcessWithoutNullStreams;
 
     let env = options.env || process.env;
@@ -141,7 +96,10 @@ export class TestShell {
     }
 
     const shell = new TestShell(shellProcess, options.consumeStdio);
-    TestShell._openShells.push(shell);
+    TestShell._openShells.add(shell);
+    void shell.waitForExit().then(() => {
+      TestShell._openShells.delete(shell);
+    });
 
     return shell;
   }
@@ -153,17 +111,6 @@ export class TestShell {
     await shell.waitForExit();
     shell.assertNoErrors();
     return shell.output;
-  }
-
-  static async killAll(): Promise<void> {
-    // Using splice to mutate the array of open shells in-place
-    const openShells = TestShell._openShells.splice(0);
-    await Promise.all(
-      openShells.map((shell) => {
-        shell.kill();
-        return shell.waitForExit();
-      })
-    );
   }
 
   debugInformation() {
@@ -180,6 +127,21 @@ export class TestShell {
     for (const shell of TestShell._openShells) {
       console.error(shell.debugInformation());
     }
+  }
+
+  static assertNoOpenShells() {
+    const debugInformation = [...TestShell._openShells].map((shell) =>
+      shell.debugInformation()
+    );
+    assert.strictEqual(
+      TestShell._openShells.size,
+      0,
+      `Expected no open shells, found: ${JSON.stringify(
+        debugInformation,
+        null,
+        2
+      )}`
+    );
   }
 
   private _process: ChildProcessWithoutNullStreams;
@@ -373,3 +335,96 @@ export class TestShell {
     return match.groups!.logId;
   }
 }
+
+// Context extension to manage TestShell lifetime
+
+declare module 'mocha' {
+  interface Context {
+    /**
+     * Starts a test shell and registers a hook to kill it after the test
+     */
+    startTestShell(options?: TestShellOptions): TestShell;
+  }
+}
+
+const TEST_SHELLS_AFTER_ALL = Symbol('test-shells-after-all');
+const TEST_SHELLS_AFTER_EACH = Symbol('test-shells-after-each');
+
+type AfterAllInjectedSuite = {
+  [TEST_SHELLS_AFTER_ALL]: Set<TestShell>;
+};
+
+type AfterEachInjectedSuite = {
+  [TEST_SHELLS_AFTER_EACH]: Set<TestShell>;
+};
+
+/**
+ * Registers an after (all or each) hook to kill test shells started during the hooks or tests
+ */
+function ensureAfterHook(
+  hookName: 'afterEach',
+  suite: Mocha.Suite
+): asserts suite is AfterEachInjectedSuite & Mocha.Suite;
+function ensureAfterHook(
+  hookName: 'afterAll',
+  suite: Mocha.Suite
+): asserts suite is AfterAllInjectedSuite & Mocha.Suite;
+function ensureAfterHook(
+  hookName: 'afterEach' | 'afterAll',
+  suite: Partial<AfterAllInjectedSuite & AfterEachInjectedSuite> & Mocha.Suite
+): void {
+  const symbol =
+    hookName === 'afterAll' ? TEST_SHELLS_AFTER_ALL : TEST_SHELLS_AFTER_EACH;
+  if (!suite[symbol]) {
+    // Store the set of shells to kill afterwards
+    const shells = new Set<TestShell>();
+    suite[symbol] = shells;
+    suite[hookName](async () => {
+      const shellsToKill = [...shells];
+      shells.clear();
+      await Promise.all(
+        shellsToKill.map((shell) => {
+          // TODO: Consider if it's okay to kill those that are already killed?
+          shell.kill();
+          return shell.waitForExit();
+        })
+      );
+    });
+  }
+}
+
+Mocha.Context.prototype.startTestShell = function (
+  this: Mocha.Context,
+  options: TestShellOptions
+) {
+  const { test: runnable } = this;
+  assert(runnable, 'Expected a runnable / test');
+  const { parent } = runnable;
+  assert(parent, 'Expected runnable to have a parent');
+  // Start the shell
+  const shell = TestShell.start(options);
+  // Register a hook to kill the shell
+  if (runnable instanceof Mocha.Hook) {
+    if (
+      runnable.originalTitle === '"before each" hook' ||
+      runnable.originalTitle === '"after each" hook'
+    ) {
+      ensureAfterHook('afterEach', parent);
+      parent[TEST_SHELLS_AFTER_EACH].add(shell);
+    } else if (
+      runnable.originalTitle === '"before all" hook' ||
+      runnable.originalTitle === '"after all" hook'
+    ) {
+      ensureAfterHook('afterAll', parent);
+      parent[TEST_SHELLS_AFTER_ALL].add(shell);
+    } else {
+      throw new Error(`Unexpected ${runnable.originalTitle || runnable.title}`);
+    }
+  } else if (runnable instanceof Mocha.Test) {
+    ensureAfterHook('afterEach', parent);
+    parent[TEST_SHELLS_AFTER_EACH].add(shell);
+  } else {
+    throw new Error('Unexpected Runnable: Expected a Hook or a Test');
+  }
+  return shell;
+};
