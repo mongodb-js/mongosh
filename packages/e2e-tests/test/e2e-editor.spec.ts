@@ -2,7 +2,8 @@ import { expect } from 'chai';
 import path from 'path';
 import { promises as fs } from 'fs';
 import { eventually } from '../../../testing/eventually';
-import type { TestShell } from './test-shell';
+import { TestShell } from './test-shell';
+import { ensureTestShellAfterHook } from './test-shell-context';
 import {
   useTmpdir,
   fakeExternalEditor,
@@ -41,7 +42,10 @@ describe('external editor e2e', function () {
     );
   });
 
+  ensureTestShellAfterHook('afterEach', this);
+
   afterEach(async function () {
+    TestShell.assertNoOpenShells();
     try {
       await fs.rm(homedir, { recursive: true, force: true });
     } catch (err: any) {
