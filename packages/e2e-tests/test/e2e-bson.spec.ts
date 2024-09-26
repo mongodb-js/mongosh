@@ -2,12 +2,10 @@ import { expect } from 'chai';
 import type { Db } from 'mongodb';
 import { MongoClient } from 'mongodb';
 import { bson } from '@mongosh/service-provider-core';
-import { cleanTestShellsAfterEach, TestShell } from './test-shell';
+import type { TestShell } from './test-shell';
 import { startSharedTestServer } from '../../../testing/integration-testing-hooks';
 
 describe('BSON e2e', function () {
-  cleanTestShellsAfterEach();
-
   const testServer = startSharedTestServer();
   let db: Db;
   let client: MongoClient;
@@ -17,7 +15,7 @@ describe('BSON e2e', function () {
   beforeEach(async function () {
     const connectionString = await testServer.connectionString();
     dbName = `test-${Date.now()}`;
-    shell = TestShell.start({ args: [connectionString] });
+    shell = this.startTestShell({ args: [connectionString] });
 
     client = await MongoClient.connect(connectionString, {});
 
