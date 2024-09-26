@@ -50,7 +50,7 @@ export class TestShell {
   /**
    * Starts a test shell.
    *
-   * Beware that the caller is responsible for calling {@link TestShell.kill} (and potentially {@link TestShell.waitForExit}).
+   * Beware that the caller is responsible for calling {@link kill} (and potentially {@link waitForExit}).
    *
    * Consider calling the `startTestShell` function on a {@link Mocha.Context} instead, as that manages the lifetime the shell
    * and ensures it gets killed eventually.
@@ -106,15 +106,6 @@ export class TestShell {
     });
 
     return shell;
-  }
-
-  static async runAndGetOutputWithoutErrors(
-    options: TestShellOptions
-  ): Promise<string> {
-    const shell = this.start(options);
-    await shell.waitForExit();
-    shell.assertNoErrors();
-    return shell.output;
   }
 
   debugInformation() {
@@ -230,6 +221,15 @@ export class TestShell {
 
   waitForExit(): Promise<number> {
     return this._onClose;
+  }
+
+  /**
+   * Waits for the shell to exit, asserts no errors and returns the output.
+   */
+  async waitForCleanOutput(): Promise<string> {
+    await this.waitForExit();
+    this.assertNoErrors();
+    return this.output;
   }
 
   async waitForPromptOrExit(): Promise<TestShellStartupResult> {
