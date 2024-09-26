@@ -49,7 +49,11 @@ export class TestShell {
 
   /**
    * Starts a test shell.
-   * @private Use the {@link Mocha.Context.startTestShell} hook instead
+   *
+   * Beware that the caller is responsible for calling {@link TestShell.kill} (and potentially {@link TestShell.waitForExit}).
+   *
+   * Consider calling the `startTestShell` function on a {@link Mocha.Context} instead, as that manages the lifetime the shell
+   * and ensures it gets killed eventually.
    */
   static start(options: TestShellOptions = { args: [] }): TestShell {
     let shellProcess: ChildProcessWithoutNullStreams;
