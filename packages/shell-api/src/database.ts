@@ -1063,7 +1063,10 @@ export default class Database extends ShellApiWithMongoClass {
     }
 
     const adminDb = this.getSiblingDB('admin');
-    const aggregateOptions = { $readPreference: { mode: 'primaryPreferred' } };
+    const aggregateOptions = {
+      $readPreference: { mode: 'primaryPreferred' },
+      bsonRegExp: true,
+    };
 
     try {
       const cursor = await adminDb.aggregate(pipeline, aggregateOptions);
