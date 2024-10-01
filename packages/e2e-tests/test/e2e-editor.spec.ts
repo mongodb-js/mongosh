@@ -3,6 +3,7 @@ import path from 'path';
 import { promises as fs } from 'fs';
 import { eventually } from '../../../testing/eventually';
 import { TestShell } from './test-shell';
+import { ensureTestShellAfterHook } from './test-shell-context';
 import {
   useTmpdir,
   fakeExternalEditor,
@@ -21,7 +22,7 @@ describe('external editor e2e', function () {
     homedir = homeInfo.homedir;
     env = homeInfo.env;
 
-    shell = TestShell.start({
+    shell = this.startTestShell({
       args: ['--nodb'],
       forceTerminal: true,
       env,
@@ -41,8 +42,10 @@ describe('external editor e2e', function () {
     );
   });
 
+  ensureTestShellAfterHook('afterEach', this);
+
   afterEach(async function () {
-    await TestShell.killall.call(this);
+    TestShell.assertNoOpenShells();
     try {
       await fs.rm(homedir, { recursive: true, force: true });
     } catch (err: any) {

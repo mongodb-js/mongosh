@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { expect } from 'chai';
-import { TestShell } from './test-shell';
+import type { TestShell } from './test-shell';
 import { useTmpdir } from './repl-helpers';
 import { eventually } from '../../../testing/eventually';
 
@@ -19,7 +19,7 @@ describe('snippet integration tests', function () {
     }
 
     makeTestShell = () =>
-      TestShell.start({
+      this.startTestShell({
         args: ['--nodb'],
         cwd: tmpdir.path,
         env: {
@@ -44,7 +44,6 @@ describe('snippet integration tests', function () {
       { recursive: true }
     );
   });
-  afterEach(TestShell.cleanup);
 
   it('allows managing snippets', async function () {
     shell.writeInputLine('snippet install analyze-schema');

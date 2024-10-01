@@ -2,7 +2,6 @@ import {
   skipIfApiStrict,
   startSharedTestServer,
 } from '../../../testing/integration-testing-hooks';
-import { TestShell } from './test-shell';
 import { expect } from 'chai';
 
 const setDifference = <T>(a: T[], b: T[]) => a.filter((e) => !b.includes(e));
@@ -17,7 +16,6 @@ const commonPrefix = (a: string, b: string): string =>
 
 describe('e2e snapshot support', function () {
   skipIfApiStrict();
-  afterEach(TestShell.cleanup);
 
   const testServer = startSharedTestServer();
 
@@ -58,7 +56,7 @@ describe('e2e snapshot support', function () {
       ] = (
         await Promise.all(
           argLists.map((args) =>
-            TestShell.runAndGetOutputWithoutErrors({ args })
+            this.startTestShell({ args }).waitForCleanOutput()
           )
         )
       ).map((output) =>

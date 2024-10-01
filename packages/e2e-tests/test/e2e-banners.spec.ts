@@ -2,17 +2,16 @@ import {
   skipIfApiStrict,
   startSharedTestServer,
 } from '../../../testing/integration-testing-hooks';
-import { TestShell } from './test-shell';
+import type { TestShell } from './test-shell';
 
 describe('e2e startup banners', function () {
   skipIfApiStrict();
-  afterEach(TestShell.cleanup);
 
   const testServer = startSharedTestServer();
 
   context('without special configuration', function () {
     it('shows startup warnings', async function () {
-      const shell = TestShell.start({
+      const shell = this.startTestShell({
         args: [await testServer.connectionString()],
       });
       await shell.waitForPrompt();
@@ -30,7 +29,7 @@ describe('e2e startup banners', function () {
     let helperShell: TestShell;
 
     beforeEach(async function () {
-      helperShell = TestShell.start({
+      helperShell = this.startTestShell({
         args: [await testServer.connectionString()],
       });
       await helperShell.waitForPrompt();
@@ -47,7 +46,7 @@ describe('e2e startup banners', function () {
     });
 
     it('shows automation notices', async function () {
-      const shell = TestShell.start({
+      const shell = this.startTestShell({
         args: [await testServer.connectionString()],
       });
       await shell.waitForPrompt();
