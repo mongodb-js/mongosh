@@ -47,8 +47,6 @@ describe('e2e currentOp', function () {
       );
       expect(currentOpCall).to.include('projection: { test: 1 }');
 
-      console.log(currentOpCall);
-
       await regexOperation;
 
       currentOpCall = await currentOpShell.executeLine(`db.currentOp()`);
