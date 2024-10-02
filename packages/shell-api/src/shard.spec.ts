@@ -2554,6 +2554,63 @@ describe('Shard', function () {
         });
       });
     });
+
+    describe('collection.getShardDistribution()', function () {
+      let db: Database;
+      const dbName = 'shard-stats-test';
+      const ns = `${dbName}.test`;
+
+      beforeEach(async function () {
+        db = sh._database.getSiblingDB(dbName);
+        await db.getCollection('test').insertOne({ key: 1 });
+        await db.getCollection('test').createIndex({ key: 1 });
+      });
+
+      afterEach(async function () {
+        await db.dropDatabase();
+      });
+
+      context('unsharded collections', function () {
+        it('throws an error', async function () {
+          const caughtError = await db
+            .getCollection('test')
+            .getShardDistribution()
+            .catch((e) => e);
+          expect(caughtError.message).includes(
+            'Collection test is not sharded'
+          );
+        });
+      });
+
+      context('sharded collections', function () {
+        beforeEach(async function () {
+          expect((await sh.enableSharding(dbName)).ok).to.equal(1);
+          expect(
+            (await sh.shardCollection(ns, { key: 1 })).collectionsharded
+          ).to.equal(ns);
+        });
+
+        it('returns the correct StatsResult', async function () {
+          const result = await db.getCollection('test').getShardDistribution();
+          const shardDistributionValue = result.value as Document;
+
+          expect(result.type).to.equal('StatsResult');
+
+          const shardFields = Object.keys(shardDistributionValue).filter(
+            (field) => field !== 'Totals'
+          );
+          expect(shardFields.length).to.equal(1);
+          const shardField = shardFields[0];
+          expect(
+            shardDistributionValue[shardField]['estimated docs per chunk']
+          ).to.equal(1);
+
+          expect(shardDistributionValue.Totals.docs).to.equal(1);
+          expect(shardDistributionValue.Totals.chunks).to.equal(1);
+        });
+      });
+    });
+
     describe('collection.stats()', function () {
       let db: Database;
       let hasTotalSize: boolean;

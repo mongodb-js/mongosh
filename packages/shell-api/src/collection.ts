@@ -2326,7 +2326,7 @@ export default class Collection extends ShellApiWithMongoClass {
     return await this._mongo._serviceProvider.getSearchIndexes(
       this._database._name,
       this._name,
-      indexName as string | undefined,
+      indexName,
       { ...(await this._database._baseOptions()), ...options }
     );
   }
@@ -2355,7 +2355,7 @@ export default class Collection extends ShellApiWithMongoClass {
       this._name,
       [
         {
-          name: (indexName as string | undefined) ?? 'default',
+          name: indexName ?? 'default',
           // Omitting type when it is 'search' for compat with older servers
           ...(type &&
             type !== 'search' && { type: type as 'search' | 'vectorSearch' }),
