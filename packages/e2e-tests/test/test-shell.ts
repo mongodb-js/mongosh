@@ -1,4 +1,3 @@
-import type Mocha from 'mocha';
 import assert from 'assert';
 import type {
   ChildProcess,
@@ -11,6 +10,8 @@ import path from 'path';
 import stripAnsi from 'strip-ansi';
 import { EJSON } from 'bson';
 import { eventually } from '../../../testing/eventually';
+
+/* eslint-disable mocha/no-exports -- This file export hooks wrapping Mocha's Hooks APIs */
 
 export type TestShellStartupResult =
   | { state: 'prompt' }
@@ -44,8 +45,16 @@ export interface TestShellOptions {
  * Test shell helper class.
  */
 export class TestShell {
-  private static _openShells: TestShell[] = [];
+  private static _openShells: Set<TestShell> = new Set();
 
+  /**
+   * Starts a test shell.
+   *
+   * Beware that the caller is responsible for calling {@link kill} (and potentially {@link waitForExit}).
+   *
+   * Consider calling the `startTestShell` function on a {@link Mocha.Context} instead, as that manages the lifetime the shell
+   * and ensures it gets killed eventually.
+   */
   static start(options: TestShellOptions = { args: [] }): TestShell {
     let shellProcess: ChildProcessWithoutNullStreams;
 
@@ -91,28 +100,12 @@ export class TestShell {
     }
 
     const shell = new TestShell(shellProcess, options.consumeStdio);
-    TestShell._openShells.push(shell);
+    TestShell._openShells.add(shell);
+    void shell.waitForExit().then(() => {
+      TestShell._openShells.delete(shell);
+    });
 
     return shell;
-  }
-
-  static async runAndGetOutputWithoutErrors(
-    options: TestShellOptions
-  ): Promise<string> {
-    const shell = this.start(options);
-    await shell.waitForExit();
-    shell.assertNoErrors();
-    return shell.output;
-  }
-
-  static async killall(): Promise<void> {
-    const exitPromises: Promise<unknown>[] = [];
-    while (TestShell._openShells.length) {
-      const shell = TestShell._openShells.pop()!;
-      shell.kill();
-      exitPromises.push(shell.waitForExit());
-    }
-    await Promise.all(exitPromises);
   }
 
   debugInformation() {
@@ -125,24 +118,25 @@ export class TestShell {
     };
   }
 
-  static async cleanupAfterAll(): Promise<void> {
-    let foundOpenShells = false;
+  static printShells() {
     for (const shell of TestShell._openShells) {
-      foundOpenShells = true;
       console.error(shell.debugInformation());
     }
-    await TestShell.killall();
-    if (foundOpenShells)
-      throw new Error('Open shells at end of test discovered!');
   }
 
-  static async cleanup(this: Mocha.Context): Promise<void> {
-    if (this.currentTest?.state === 'failed') {
-      for (const shell of TestShell._openShells) {
-        console.error(shell.debugInformation());
-      }
-    }
-    await TestShell.killall();
+  static assertNoOpenShells() {
+    const debugInformation = [...TestShell._openShells].map((shell) =>
+      shell.debugInformation()
+    );
+    assert.strictEqual(
+      TestShell._openShells.size,
+      0,
+      `Expected no open shells, found: ${JSON.stringify(
+        debugInformation,
+        null,
+        2
+      )}`
+    );
   }
 
   private _process: ChildProcessWithoutNullStreams;
@@ -227,6 +221,15 @@ export class TestShell {
 
   waitForExit(): Promise<number> {
     return this._onClose;
+  }
+
+  /**
+   * Waits for the shell to exit, asserts no errors and returns the output.
+   */
+  async waitForCleanOutput(): Promise<string> {
+    await this.waitForExit();
+    this.assertNoErrors();
+    return this.output;
   }
 
   async waitForPromptOrExit(): Promise<TestShellStartupResult> {
@@ -336,6 +339,3 @@ export class TestShell {
     return match.groups!.logId;
   }
 }
-
-// If any shells remain at the end of the script, print their full output
-globalThis?.after('ensure no hanging shells', TestShell.cleanupAfterAll);

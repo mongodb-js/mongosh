@@ -11,7 +11,7 @@
     "url": "git://github.com/mongodb-js/mongosh.git"
   },
   "scripts": {
-    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 --colors -r ts-node/register \"./test/e2e*.spec.ts\"",
+    "test": "mocha -r ts-node/register -r \"../../scripts/import-expansions.js\" -r \"./test/test-shell-context.ts\" --timeout 15000 --colors \"./test/*.spec.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
