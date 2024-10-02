@@ -63,7 +63,7 @@ describe('e2e currentOp', function () {
 
     it('should work when the operation contains regex', async function () {
       const regExpString = '^(?i)\\\\Qchho0842\\E';
-      // The currentOp return simplifies unnecessary escapes such as \E
+      // The values from currentOp removes redundant escapes such as \E
       const simplifiedRegExpString = '^(?i)\\\\Qchho0842E';
 
       void helperShell.executeLine(
