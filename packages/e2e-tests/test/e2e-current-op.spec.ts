@@ -62,7 +62,9 @@ describe('e2e currentOp', function () {
     });
 
     it('should work when the operation contains regex', async function () {
-      const regExpString = '^(?i)\\Qchho0842\\E';
+      const regExpString = '^(?i)\\\\Qchho0842\\E';
+      // The currentOp return simplifies unnecessary escapes such as \E
+      const simplifiedRegExpString = '^(?i)\\\\Qchho0842E';
 
       void helperShell.executeLine(
         `db.coll.find({$where: function() { sleep(${OPERATION_TIME}) }}).projection({re: BSONRegExp('${regExpString}')})`
@@ -74,10 +76,8 @@ describe('e2e currentOp', function () {
       const currentOpCall = await currentOpShell.executeLine(`db.currentOp()`);
       currentOpShell.assertNoErrors();
 
-      const regExpStringWithoutEscapes = regExpString.replace(/\\/g, '');
-
       expect(currentOpCall).to.include(
-        `projection: { re: BSONRegExp('${regExpStringWithoutEscapes}', '') }`
+        `projection: { re: BSONRegExp('${simplifiedRegExpString}', '') }`
       );
     });
   });
