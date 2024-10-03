@@ -2609,6 +2609,63 @@ describe('Shard', function () {
           expect(shardDistributionValue.Totals.chunks).to.equal(1);
         });
       });
+
+      // We explicitly test sharded time series collections as it fallbacks to the bucket information
+      context('sharded timeseries collections', function () {
+        skipIfServerVersion(mongos, '< 5.1');
+
+        const timeseriesCollectionName = 'testTS';
+        const timeseriesNS = `${dbName}.${timeseriesCollectionName}`;
+
+        beforeEach(async function () {
+          expect((await sh.enableSharding(dbName)).ok).to.equal(1);
+
+          expect(
+            (
+              await sh.shardCollection(
+                timeseriesNS,
+                { 'metadata.bucketId': 1 },
+                {
+                  timeseries: {
+                    timeField: 'timestamp',
+                    metaField: 'metadata',
+                    granularity: 'hours',
+                  },
+                }
+              )
+            ).collectionsharded
+          ).to.equal(timeseriesNS);
+          await db.getCollection(timeseriesCollectionName).insertOne({
+            metadata: {
+              bucketId: 1,
+              type: 'temperature',
+            },
+            timestamp: new Date('2021-05-18T00:00:00.000Z'),
+            temp: 12,
+          });
+        });
+
+        it('returns the correct StatsResult', async function () {
+          const result = await db
+            .getCollection('testTS')
+            .getShardDistribution();
+          const shardDistributionValue = result.value as Document;
+
+          expect(result.type).to.equal('StatsResult');
+
+          const shardFields = Object.keys(shardDistributionValue).filter(
+            (field) => field !== 'Totals'
+          );
+          expect(shardFields.length).to.equal(1);
+          const shardField = shardFields[0];
+          expect(
+            shardDistributionValue[shardField]['estimated docs per chunk']
+          ).to.equal(1);
+
+          expect(shardDistributionValue.Totals.docs).to.equal(1);
+          expect(shardDistributionValue.Totals.chunks).to.equal(1);
+        });
+      });
     });
 
     describe('collection.stats()', function () {
