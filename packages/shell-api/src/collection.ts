@@ -2101,42 +2101,43 @@ export default class Collection extends ShellApiWithMongoClass {
       avgObjSize: number;
     }[] = [];
 
-    let configCollectionsInfo: Document | null;
+    const timeseriesShardStats = collStats.find(
+      (extractedShardStats) =>
+        typeof extractedShardStats.storageStats.timeseries !== 'undefined'
+    );
+
     let timeseriesBucketCount: number | undefined;
+    let timeseriesBucketNs: string | undefined;
+    if (typeof timeseriesShardStats !== 'undefined') {
+      const { storageStats } = timeseriesShardStats;
+
+      const timeseries: Document | undefined = storageStats['timeseries'];
+
+      if (typeof timeseries !== 'undefined') {
+        timeseriesBucketCount = timeseries['bucketCount'];
+        timeseriesBucketNs = timeseries['bucketsNs'];
+      }
+    }
+
+    const ns = timeseriesBucketNs ?? `${this._database._name}.${this._name}`;
+
+    const configCollectionsInfo = await config
+      .getCollection('collections')
+      .findOne({
+        _id: ns,
+        ...onlyShardedCollectionsInConfigFilter,
+      });
+
+    if (!configCollectionsInfo) {
+      throw new MongoshInvalidInputError(
+        `Collection ${this._name} is not sharded`,
+        ShellApiErrors.NotConnectedToShardedCluster
+      );
+    }
 
     await Promise.all(
       collStats.map((extractedShardStats) =>
         (async (): Promise<void> => {
-          // Extract and store only the relevant subset of the stats for this shard
-          if (!configCollectionsInfo) {
-            const { storageStats } = extractedShardStats;
-            let timeseriesBucketNs: string | undefined;
-
-            const timeseries: Document | undefined = storageStats['timeseries'];
-
-            if (typeof timeseries !== 'undefined') {
-              timeseriesBucketCount = timeseries['bucketCount'];
-              timeseriesBucketNs = timeseries['bucketsNs'];
-            }
-
-            const ns =
-              timeseriesBucketNs ?? `${this._database._name}.${this._name}`;
-
-            configCollectionsInfo = await config
-              .getCollection('collections')
-              .findOne({
-                _id: ns,
-                ...onlyShardedCollectionsInConfigFilter,
-              });
-
-            if (!configCollectionsInfo) {
-              throw new MongoshInvalidInputError(
-                `Collection ${this._name} is not sharded`,
-                ShellApiErrors.NotConnectedToShardedCluster
-              );
-            }
-          }
-
           const { shard } = extractedShardStats;
           // If we have an UUID, use that for lookups. If we have only the ns,
           // use that. (On 5.0+ servers, config.chunk has uses the UUID, before
