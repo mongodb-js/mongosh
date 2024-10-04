@@ -2139,14 +2139,15 @@ export default class Collection extends ShellApiWithMongoClass {
     }[] = [];
 
     const ns = `${this._database._name}.${this._name}`;
-    let configCollectionsInfo = await config
+    let configCollectionsInfo: Document;
+    const existingConfigCollectionsInfo = await config
       .getCollection('collections')
       .findOne({
         _id: ns,
         ...onlyShardedCollectionsInConfigFilter,
       });
 
-    if (!configCollectionsInfo) {
+    if (!existingConfigCollectionsInfo) {
       const timeseriesCollectionInfo =
         await this._getShardedTimeseriesCollectionInfo(config, collStats);
 
@@ -2158,6 +2159,8 @@ export default class Collection extends ShellApiWithMongoClass {
       }
 
       configCollectionsInfo = timeseriesCollectionInfo;
+    } else {
+      configCollectionsInfo = existingConfigCollectionsInfo;
     }
 
     await Promise.all(

@@ -2658,11 +2658,13 @@ describe('Shard', function () {
           );
           expect(shardFields.length).to.equal(1);
           const shardField = shardFields[0];
+
+          // Timeseries will have count 0
           expect(
             shardDistributionValue[shardField]['estimated docs per chunk']
-          ).to.equal(1);
+          ).to.equal(0);
 
-          expect(shardDistributionValue.Totals.docs).to.equal(1);
+          expect(shardDistributionValue.Totals.docs).to.equal(0);
           expect(shardDistributionValue.Totals.chunks).to.equal(1);
         });
       });
