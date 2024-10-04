@@ -2076,6 +2076,47 @@ export default class Collection extends ShellApiWithMongoClass {
     });
   }
 
+  /**
+   * Helper for getting collection info of sharded timeseries collections
+   * @returns the bucket count and collection info based on given collStats
+   */
+  async _getShardedTimeseriesCollectionInfo(
+    config: Database,
+    collStats: Document[]
+  ): Promise<{
+    timeseriesBucketCount: number | null;
+    timeseriesCollectionInfo: Document | null;
+  }> {
+    const timeseriesShardStats = collStats.find(
+      (extractedShardStats) =>
+        typeof extractedShardStats.storageStats.timeseries !== 'undefined'
+    );
+
+    if (!timeseriesShardStats) {
+      return {
+        timeseriesCollectionInfo: null,
+        timeseriesBucketCount: null,
+      };
+    }
+
+    const { storageStats } = timeseriesShardStats;
+
+    const timeseries: Document = storageStats['timeseries'];
+
+    const timeseriesBucketCount: number | null =
+      timeseries['bucketCount'] ?? null;
+    const timeseriesBucketNs: string | undefined = timeseries['bucketsNs'];
+
+    const timeseriesCollectionInfo = await config
+      .getCollection('collections')
+      .findOne({
+        _id: timeseriesBucketNs,
+        ...onlyShardedCollectionsInConfigFilter,
+      });
+
+    return { timeseriesBucketCount, timeseriesCollectionInfo };
+  }
+
   @returnsPromise
   @topologies([Topologies.Sharded])
   @apiVersions([])
@@ -2101,38 +2142,29 @@ export default class Collection extends ShellApiWithMongoClass {
       avgObjSize: number;
     }[] = [];
 
-    const timeseriesShardStats = collStats.find(
-      (extractedShardStats) =>
-        typeof extractedShardStats.storageStats.timeseries !== 'undefined'
-    );
-
-    let timeseriesBucketCount: number | undefined;
-    let timeseriesBucketNs: string | undefined;
-    if (typeof timeseriesShardStats !== 'undefined') {
-      const { storageStats } = timeseriesShardStats;
-
-      const timeseries: Document | undefined = storageStats['timeseries'];
-
-      if (typeof timeseries !== 'undefined') {
-        timeseriesBucketCount = timeseries['bucketCount'];
-        timeseriesBucketNs = timeseries['bucketsNs'];
-      }
-    }
-
-    const ns = timeseriesBucketNs ?? `${this._database._name}.${this._name}`;
-
-    const configCollectionsInfo = await config
+    const ns = `${this._database._name}.${this._name}`;
+    let configCollectionsInfo = await config
       .getCollection('collections')
       .findOne({
         _id: ns,
         ...onlyShardedCollectionsInConfigFilter,
       });
 
+    let fallbackTimeseriesBucketCount: number | undefined;
+
     if (!configCollectionsInfo) {
-      throw new MongoshInvalidInputError(
-        `Collection ${this._name} is not sharded`,
-        ShellApiErrors.NotConnectedToShardedCluster
-      );
+      const { timeseriesCollectionInfo, timeseriesBucketCount } =
+        await this._getShardedTimeseriesCollectionInfo(config, collStats);
+
+      if (!timeseriesCollectionInfo || !timeseriesBucketCount) {
+        throw new MongoshInvalidInputError(
+          `Collection ${this._name} is not sharded`,
+          ShellApiErrors.NotConnectedToShardedCluster
+        );
+      }
+
+      fallbackTimeseriesBucketCount = timeseriesBucketCount;
+      configCollectionsInfo = timeseriesCollectionInfo;
     }
 
     await Promise.all(
@@ -2165,7 +2197,7 @@ export default class Collection extends ShellApiWithMongoClass {
 
           // In sharded timeseries collections, we use the bucket count
           const shardStatsCount =
-            timeseriesBucketCount ?? shardStats.count ?? 0;
+            fallbackTimeseriesBucketCount ?? shardStats.count ?? 0;
 
           const estimatedChunkDataPerChunk =
             shardStats.numChunks === 0
