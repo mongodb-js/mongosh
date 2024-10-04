@@ -26,6 +26,7 @@ describe('e2e currentOp', function () {
         args: [await testServer.connectionString()],
       });
       await helperShell.waitForPrompt();
+      await currentOpShell.waitForPrompt();
 
       // Insert a dummy object so find commands will actually run with the delay.
       await helperShell.executeLine('db.coll.insertOne({})');
