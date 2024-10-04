@@ -3,11 +3,10 @@ import {
   skipIfApiStrict,
   startSharedTestServer,
 } from '../../../testing/integration-testing-hooks';
-import { TestShell } from './test-shell';
+import type { TestShell } from './test-shell';
 
 describe('e2e currentOp', function () {
   skipIfApiStrict();
-  afterEach(TestShell.cleanup);
 
   const testServer = startSharedTestServer();
 
@@ -20,10 +19,10 @@ describe('e2e currentOp', function () {
     this.timeout(OPERATION_TIME * 2);
 
     beforeEach(async function () {
-      helperShell = TestShell.start({
+      helperShell = this.startTestShell({
         args: [await testServer.connectionString()],
       });
-      currentOpShell = TestShell.start({
+      currentOpShell = this.startTestShell({
         args: [await testServer.connectionString()],
       });
       await helperShell.waitForPrompt();
