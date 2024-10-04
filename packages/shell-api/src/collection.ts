@@ -2078,7 +2078,8 @@ export default class Collection extends ShellApiWithMongoClass {
 
   /**
    * Helper for getting collection info of sharded timeseries collections
-   * @returns the bucket count and collection info based on given collStats
+   * @returns collection info based on given collStats, null if the information is not found or
+   * if the collection is not timeseries.
    */
   async _getShardedTimeseriesCollectionInfo(
     config: Database,
