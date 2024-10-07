@@ -1429,7 +1429,7 @@ export default class Database extends ShellApiWithMongoClass {
         CommonErrors.CommandFailed
       );
     }
-    for (const cmdDescription of Object.values(result.commands)) {
+    for (const cmdDescription of Object.values(result.commands) as Document[]) {
       if ('slaveOk' in cmdDescription) {
         cmdDescription.secondaryOk = cmdDescription.slaveOk;
         delete cmdDescription.slaveOk;
