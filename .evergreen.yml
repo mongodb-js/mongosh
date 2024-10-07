@@ -17210,7 +17210,7 @@ tasks:
 buildvariants:
   - name: darwin_unit
     display_name: "MacOS Big Sur (Unit tests)"
-    run_on: macos-11
+    run_on: macos-14-arm64
     expansions:
       executable_os_id: darwin-x64
     tasks:
