@@ -16369,10 +16369,10 @@ tasks:
 # Need to run builds for every possible build variant.
 buildvariants:
   - name: darwin_unit
-    display_name: "MacOS Big Sur (Unit tests)"
+    display_name: "MacOS 14 arm64 (Unit tests)"
     run_on: macos-14-arm64
     expansions:
-      executable_os_id: darwin-x64
+      executable_os_id: darwin-arm64
     tasks:
       - name: check
       - name: test_n20_arg_parser
