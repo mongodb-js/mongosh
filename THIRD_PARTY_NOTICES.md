@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Sun Oct 06 2024.
+This document was automatically generated on Mon Oct 07 2024.
 
 ## List of dependencies
 
@@ -318,7 +318,7 @@ Package|Version|License
 **[jsesc](#253e8a44fc188759c5ce35330e4f20aacf1d0253d7e8d7dffd4a1f884a10ce1e)**|2.5.2|MIT
 **[json5](#16281c6ea25e0cec4bc0bb8c01d1759d66992776381bf9c5af6959bec47d2f77)**|2.2.3|MIT
 **[jsonfile](#ee6699687d879e2655eb0c687d7d8ad7bf952bb8a1092d720b58ae709e885213)**|4.0.0|MIT
-**[kerberos](#ac70d4903c6441fd96843a6ecb73f258ee27ef26b25290257564a11c10ecd17b)**|2.2.0|Apache-2.0
+**[kerberos](#05c7d2f17faccacb505a07f79ccba22ce089aa668a8bef64de84cf5dcd4f585e)**|2.1.0|Apache-2.0
 **[lodash.merge](#996e40d63a94f1b8693d7c81e0cdfb874c6432d6bbd675976fc1b6b13652c8db)**|4.6.2|MIT
 **[lodash](#adaac4144887ebc2c1b682380ff385210f681fc58b4bc1ef3986148cf8dcd28a)**|4.17.21|MIT
 **[lowlight](#6efc5090c0eda3b461d933d6b79bddcdf8165a10aea9f39ac76620ce5fb05bf5)**|1.17.0|MIT
@@ -25738,8 +25738,8 @@ License files:
       
 
 
-<a id="ac70d4903c6441fd96843a6ecb73f258ee27ef26b25290257564a11c10ecd17b"></a>
-### [kerberos](https://www.npmjs.com/package/kerberos) (version 2.2.0)
+<a id="05c7d2f17faccacb505a07f79ccba22ce089aa668a8bef64de84cf5dcd4f585e"></a>
+### [kerberos](https://www.npmjs.com/package/kerberos) (version 2.1.0)
 License tags: Apache-2.0
 
 License files:
