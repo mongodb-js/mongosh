@@ -1609,7 +1609,7 @@ describe('e2e', function () {
             '1.0.0';
           {
             const shell = await startTestShell();
-            await shell.eventually(async () => {
+            await eventually(async () => {
               expect(
                 JSON.parse(
                   await fs.readFile(
