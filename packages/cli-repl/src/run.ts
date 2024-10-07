@@ -34,6 +34,12 @@ import { TimingCategories } from '@mongosh/types';
 import './webpack-self-inspection';
 import { systemCA } from '@mongodb-js/devtools-proxy-support';
 
+if ('boxednode' in process) {
+  // compiled executable
+  // https://github.com/mongodb-js/devtools-shared/pull/476
+  (process as any).__tlsSupportsAllowPartialTrustChainFlag = true;
+}
+
 // TS does not yet have type definitions for v8.startupSnapshot
 if ((v8 as any)?.startupSnapshot?.isBuildingSnapshot?.()) {
   // Import a few nested deps of dependencies that cannot be included in the
