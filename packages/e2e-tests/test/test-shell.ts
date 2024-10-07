@@ -287,7 +287,7 @@ export class TestShell {
   }
 
   writeInputLine(chars: string): void {
-    this.writeInput(`${chars}\n`);
+    this.writeInput(`${chars.trim()}\n`);
   }
 
   async executeLine(line: string): Promise<string> {
