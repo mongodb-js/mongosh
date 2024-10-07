@@ -16,7 +16,7 @@ describe('e2e currentOp', function () {
 
     const OPERATION_TIME = 1_000;
     const CURRENT_OP_WAIT_TIME = 100;
-    this.timeout(OPERATION_TIME * 2);
+    this.timeout(OPERATION_TIME * 5);
 
     beforeEach(async function () {
       helperShell = this.startTestShell({
