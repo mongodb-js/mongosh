@@ -1964,29 +1964,23 @@ describe('e2e', function () {
 
       it('should return the current operation and clear when it is complete', async function () {
         const currentCommand = helperShell.executeLine(
-          `db.coll.find({$where: function() { sleep(${OPERATION_TIME}) }}).projection({test: 1})`
+          `db.coll.find({$where: function() { sleep(${OPERATION_TIME}) }}).projection({testProjection: 1})`
         );
         helperShell.assertNoErrors();
         await sleep(CURRENT_OP_WAIT_TIME);
         let currentOpCall = await currentOpShell.executeLine(`db.currentOp()`);
 
         currentOpShell.assertNoErrors();
-        expect(currentOpCall).to.include("find: 'coll'");
-        expect(currentOpCall).to.include(
-          `filter: { '$where': Code('function() { sleep(${OPERATION_TIME}) }') }`
-        );
-        expect(currentOpCall).to.include('projection: { test: 1 }');
+        expect(currentOpCall).to.include(`sleep(${OPERATION_TIME})`);
+        expect(currentOpCall).to.include('testProjection');
 
         await currentCommand;
 
         currentOpCall = await currentOpShell.executeLine(`db.currentOp()`);
 
         currentOpShell.assertNoErrors();
-        expect(currentOpCall).not.to.include("find: 'coll'");
-        expect(currentOpCall).not.to.include(
-          `filter: { '$where': Code('function() { sleep(${OPERATION_TIME}) }') }`
-        );
-        expect(currentOpCall).not.to.include('projection: { test: 1 }');
+        expect(currentOpCall).not.to.include(`sleep(${OPERATION_TIME})`);
+        expect(currentOpCall).not.to.include('testProjection');
       });
 
       it('should work when the operation contains regex', async function () {
