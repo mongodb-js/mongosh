@@ -21,6 +21,7 @@ import { createServer as createHTTPServer } from 'http';
 import { once } from 'events';
 import type { AddressInfo } from 'net';
 const { EJSON } = bson;
+import { sleep } from './util-helpers';
 
 const jsContextFlagCombinations: `--jsContext=${'plain-vm' | 'repl'}`[][] = [
   [],
@@ -1936,6 +1937,82 @@ describe('e2e', function () {
       });
       expect(await shell.waitForExit()).to.equal(0);
       shell.assertContainsOutput('610');
+    });
+  });
+
+  describe('currentOp', function () {
+    context('with 2 shells', function () {
+      let helperShell: TestShell;
+      let currentOpShell: TestShell;
+
+      const CURRENT_OP_WAIT_TIME = 100;
+      const OPERATION_TIME = CURRENT_OP_WAIT_TIME * 2;
+
+      beforeEach(async function () {
+        helperShell = this.startTestShell({
+          args: [await testServer.connectionString()],
+        });
+        currentOpShell = this.startTestShell({
+          args: [await testServer.connectionString()],
+        });
+        await helperShell.waitForPrompt();
+        await currentOpShell.waitForPrompt();
+
+        // Insert a dummy object so find commands will actually run with the delay.
+        await helperShell.executeLine('db.coll.insertOne({})');
+      });
+
+      it('should return the current operation and clear when it is complete', async function () {
+        const currentCommand = helperShell.executeLine(
+          `db.coll.find({$where: function() { sleep(${OPERATION_TIME}) }}).projection({test: 1})`
+        );
+        helperShell.assertNoErrors();
+        await sleep(CURRENT_OP_WAIT_TIME);
+        let currentOpCall = await currentOpShell.executeLine(`db.currentOp()`);
+
+        currentOpShell.assertNoErrors();
+        expect(currentOpCall).to.include("find: 'coll'");
+        expect(currentOpCall).to.include(
+          `filter: { '$where': Code('function() { sleep(${OPERATION_TIME}) }') }`
+        );
+        expect(currentOpCall).to.include('projection: { test: 1 }');
+
+        await currentCommand;
+
+        currentOpCall = await currentOpShell.executeLine(`db.currentOp()`);
+
+        currentOpShell.assertNoErrors();
+        expect(currentOpCall).not.to.include("find: 'coll'");
+        expect(currentOpCall).not.to.include(
+          `filter: { '$where': Code('function() { sleep(${OPERATION_TIME}) }') }`
+        );
+        expect(currentOpCall).not.to.include('projection: { test: 1 }');
+      });
+
+      it('should work when the operation contains regex', async function () {
+        const regExpString = String.raw`^(?i)\Qchho0842\E`;
+
+        // Stringify the reg exp and drop the quotation marks.
+        // Meant to account for JS escaping behavior and to compare with output later.
+        const stringifiedRegExpString = `${JSON.stringify(regExpString)}`.slice(
+          1,
+          -1
+        );
+
+        void helperShell.executeLine(
+          `db.coll.find({$where: function() { sleep(${OPERATION_TIME}) }}).projection({re: BSONRegExp('${stringifiedRegExpString}')})`
+        );
+        helperShell.assertNoErrors();
+
+        await sleep(CURRENT_OP_WAIT_TIME);
+
+        const currentOpCall = await currentOpShell.executeLine(
+          `db.currentOp()`
+        );
+        currentOpShell.assertNoErrors();
+
+        expect(currentOpCall).to.include(stringifiedRegExpString);
+      });
     });
   });
 });
