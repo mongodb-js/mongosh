@@ -14,8 +14,8 @@ describe('e2e currentOp', function () {
     let helperShell: TestShell;
     let currentOpShell: TestShell;
 
-    const OPERATION_TIME = CURRENT_OP_WAIT_TIME * 2;
     const CURRENT_OP_WAIT_TIME = 100;
+    const OPERATION_TIME = CURRENT_OP_WAIT_TIME * 2;
     this.timeout(OPERATION_TIME * 5);
 
     beforeEach(async function () {
@@ -32,8 +32,8 @@ describe('e2e currentOp', function () {
       await helperShell.executeLine('db.coll.insertOne({})');
     });
 
-    it('should return the correct operation', async function () {
-      const regexOperation = helperShell.executeLine(
+    it('should return the current operation and clear when it is complete', async function () {
+      const currentCommand = helperShell.executeLine(
         `db.coll.find({$where: function() { sleep(${OPERATION_TIME}) }}).projection({test: 1})`
       );
       helperShell.assertNoErrors();
@@ -47,7 +47,7 @@ describe('e2e currentOp', function () {
       );
       expect(currentOpCall).to.include('projection: { test: 1 }');
 
-      await regexOperation;
+      await currentCommand;
 
       currentOpCall = await currentOpShell.executeLine(`db.currentOp()`);
 
