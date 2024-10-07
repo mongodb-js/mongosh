@@ -14,7 +14,7 @@ describe('e2e currentOp', function () {
     let helperShell: TestShell;
     let currentOpShell: TestShell;
 
-    const OPERATION_TIME = 1_000;
+    const OPERATION_TIME = CURRENT_OP_WAIT_TIME * 2;
     const CURRENT_OP_WAIT_TIME = 100;
     this.timeout(OPERATION_TIME * 5);
 
