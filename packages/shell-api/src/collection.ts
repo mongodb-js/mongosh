@@ -2124,7 +2124,7 @@ export default class Collection extends ShellApiWithMongoClass {
 
     if (!timeseriesCollectionInfo) {
       throw new MongoshRuntimeError(
-        `Timeseries collection bucket info not found`,
+        `Error finding collection information for ${timeseriesBucketNs}`,
         CommonErrors.CommandFailed
       );
     }
