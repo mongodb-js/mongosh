@@ -2659,12 +2659,12 @@ describe('Shard', function () {
           expect(shardFields.length).to.equal(1);
           const shardField = shardFields[0];
 
-          // Timeseries will have count 0
+          // Timeseries will have count NaN
           expect(
             shardDistributionValue[shardField]['estimated docs per chunk']
-          ).to.equal(0);
+          ).to.be.NaN;
 
-          expect(shardDistributionValue.Totals.docs).to.equal(0);
+          expect(shardDistributionValue.Totals.docs).to.be.NaN;
           expect(shardDistributionValue.Totals.chunks).to.equal(1);
         });
       });

@@ -2190,9 +2190,9 @@ export default class Collection extends ShellApiWithMongoClass {
 
           const key = `Shard ${shardStats.shardId} at ${shardStats.host}`;
 
-          // In sharded timeseries collections, count is undefined
-          // and will be presented as 0.
-          const shardStatsCount = shardStats.count ?? 0;
+          // In sharded timeseries collections we do not have a count
+          // so we intentionally pass NaN as a result to the client.
+          const shardStatsCount: number = shardStats.count ?? NaN;
 
           const estimatedChunkDataPerChunk =
             shardStats.numChunks === 0
