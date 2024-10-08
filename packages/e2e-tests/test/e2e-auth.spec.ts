@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import type { Db, Document, MongoClientOptions } from 'mongodb';
 import { MongoClient } from 'mongodb';
-import { eventually } from '../../../testing/eventually';
 import type { TestShell } from './test-shell';
 import {
   skipIfApiStrict,

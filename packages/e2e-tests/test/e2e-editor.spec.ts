@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import path from 'path';
 import { promises as fs } from 'fs';
-import { eventually } from '../../../testing/eventually';
 import { TestShell } from './test-shell';
 import { ensureTestShellAfterHook } from './test-shell-context';
 import {
