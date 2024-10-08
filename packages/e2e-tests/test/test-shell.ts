@@ -165,10 +165,7 @@ export class TestShell {
       });
     }
 
-    this._onClose = (async () => {
-      const [code] = await once(shellProcess, 'close');
-      return code;
-    })();
+    this._onClose = once(shellProcess, 'close').then(([code]) => code);
   }
 
   get output(): string {
