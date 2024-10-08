@@ -1945,7 +1945,7 @@ describe('e2e', function () {
       let helperShell: TestShell;
       let currentOpShell: TestShell;
 
-      const CURRENT_OP_WAIT_TIME = 1000;
+      const CURRENT_OP_WAIT_TIME = 100;
       const OPERATION_TIME = CURRENT_OP_WAIT_TIME * 2;
 
       beforeEach(async function () {
@@ -1972,8 +1972,6 @@ describe('e2e', function () {
 
         currentOpShell.assertNoErrors();
 
-        // TODO: Remove this
-        console.log(currentOpCall);
         expect(currentOpCall).to.include('testProjection');
 
         await currentCommand;
