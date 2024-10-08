@@ -1945,7 +1945,7 @@ describe('e2e', function () {
       let helperShell: TestShell;
       let currentOpShell: TestShell;
 
-      const CURRENT_OP_WAIT_TIME = 100;
+      const CURRENT_OP_WAIT_TIME = 400;
       const OPERATION_TIME = CURRENT_OP_WAIT_TIME * 2;
 
       beforeEach(async function () {
