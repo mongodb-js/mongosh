@@ -90,6 +90,7 @@ import { HIDDEN_COMMANDS } from '@mongosh/history';
 import PlanCache from './plan-cache';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ShellApiErrors } from './error-codes';
+import type { GetShardDistributionResult } from './result';
 
 @shellApiClassDefault
 @addSourceToResults
@@ -2135,12 +2136,14 @@ export default class Collection extends ShellApiWithMongoClass {
   @returnsPromise
   @topologies([Topologies.Sharded])
   @apiVersions([])
-  async getShardDistribution(): Promise<CommandResult> {
+  async getShardDistribution(): Promise<
+    CommandResult<GetShardDistributionResult>
+  > {
     this._emitCollectionApiCall('getShardDistribution', {});
 
     await getConfigDB(this._database); // Warns if not connected to mongos
 
-    const result = {} as Document;
+    const result = {} as GetShardDistributionResult;
     const config = this._mongo.getDB('config');
 
     const collStats = await (
@@ -2235,7 +2238,7 @@ export default class Collection extends ShellApiWithMongoClass {
       data: dataFormat(totals.size),
       docs: totals.count,
       chunks: totals.numChunks,
-    } as Document;
+    } as GetShardDistributionResult['Totals'];
 
     for (const shardStats of conciseShardsStats) {
       const estDataPercent =
@@ -2254,7 +2257,7 @@ export default class Collection extends ShellApiWithMongoClass {
       ];
     }
     result.Totals = totalValue;
-    return new CommandResult('StatsResult', result);
+    return new CommandResult<GetShardDistributionResult>('StatsResult', result);
   }
 
   @serverVersions(['3.1.0', ServerVersions.latest])
