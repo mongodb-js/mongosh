@@ -2557,7 +2557,7 @@ describe('Shard', function () {
 
     describe('collection.getShardDistribution()', function () {
       let db: Database;
-      const dbName = 'shard-stats-test';
+      const dbName = 'get-shard-distribution-test';
       const ns = `${dbName}.test`;
 
       beforeEach(async function () {
@@ -2614,7 +2614,7 @@ describe('Shard', function () {
       context('sharded timeseries collections', function () {
         skipIfServerVersion(mongos, '< 5.1');
 
-        const timeseriesCollectionName = 'testTS';
+        const timeseriesCollectionName = 'getShardDistributionTS';
         const timeseriesNS = `${dbName}.${timeseriesCollectionName}`;
 
         beforeEach(async function () {
@@ -2647,7 +2647,7 @@ describe('Shard', function () {
 
         it('returns the correct StatsResult', async function () {
           const result = await db
-            .getCollection('testTS')
+            .getCollection(timeseriesCollectionName)
             .getShardDistribution();
           const shardDistributionValue = result.value as Document;
 
@@ -2659,12 +2659,12 @@ describe('Shard', function () {
           expect(shardFields.length).to.equal(1);
           const shardField = shardFields[0];
 
-          // Timeseries will have count 0
+          // Timeseries will have count NaN
           expect(
             shardDistributionValue[shardField]['estimated docs per chunk']
-          ).to.equal(0);
+          ).to.be.NaN;
 
-          expect(shardDistributionValue.Totals.docs).to.equal(0);
+          expect(shardDistributionValue.Totals.docs).to.be.NaN;
           expect(shardDistributionValue.Totals.chunks).to.equal(1);
         });
       });

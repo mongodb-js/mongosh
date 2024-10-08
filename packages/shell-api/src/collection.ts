@@ -2077,32 +2077,43 @@ export default class Collection extends ShellApiWithMongoClass {
   }
 
   /**
-   * Helper for getting collection info of sharded timeseries collections
-   * @returns collection info based on given collStats, null if the information is not found or
-   * if the collection is not timeseries.
+   * Helper for getting collection info for sharded collections.
+   * @throws If the collection is not sharded.
+   * @returns collection info based on given collStats.
    */
-  async _getShardedTimeseriesCollectionInfo(
+  async _getShardedCollectionInfo(
     config: Database,
     collStats: Document[]
-  ): Promise<Document | null> {
+  ): Promise<Document> {
+    const ns = `${this._database._name}.${this._name}`;
+    const existingConfigCollectionsInfo = await config
+      .getCollection('collections')
+      .findOne({
+        _id: ns,
+        ...onlyShardedCollectionsInConfigFilter,
+      });
+
+    if (existingConfigCollectionsInfo !== null) {
+      return existingConfigCollectionsInfo;
+    }
+
+    // If the collection info is not found, check if it is timeseries and use the bucket
     const timeseriesShardStats = collStats.find(
       (extractedShardStats) =>
         typeof extractedShardStats.storageStats.timeseries !== 'undefined'
     );
 
     if (!timeseriesShardStats) {
-      return null;
+      throw new MongoshInvalidInputError(
+        `Collection ${this._name} is not sharded`,
+        ShellApiErrors.NotConnectedToShardedCluster
+      );
     }
 
     const { storageStats } = timeseriesShardStats;
 
-    const timeseries: Document = storageStats['timeseries'];
-
-    const timeseriesBucketNs: string | undefined = timeseries['bucketsNs'];
-
-    if (!timeseriesBucketNs) {
-      return null;
-    }
+    const timeseries: Document = storageStats.timeseries;
+    const timeseriesBucketNs: string = timeseries.bucketsNs;
 
     const timeseriesCollectionInfo = await config
       .getCollection('collections')
@@ -2110,6 +2121,13 @@ export default class Collection extends ShellApiWithMongoClass {
         _id: timeseriesBucketNs,
         ...onlyShardedCollectionsInConfigFilter,
       });
+
+    if (!timeseriesCollectionInfo) {
+      throw new MongoshRuntimeError(
+        `Error finding collection information for ${timeseriesBucketNs}`,
+        CommonErrors.CommandFailed
+      );
+    }
 
     return timeseriesCollectionInfo;
   }
@@ -2139,30 +2157,10 @@ export default class Collection extends ShellApiWithMongoClass {
       avgObjSize: number;
     }[] = [];
 
-    const ns = `${this._database._name}.${this._name}`;
-    let configCollectionsInfo: Document;
-    const existingConfigCollectionsInfo = await config
-      .getCollection('collections')
-      .findOne({
-        _id: ns,
-        ...onlyShardedCollectionsInConfigFilter,
-      });
-
-    if (!existingConfigCollectionsInfo) {
-      const timeseriesCollectionInfo =
-        await this._getShardedTimeseriesCollectionInfo(config, collStats);
-
-      if (!timeseriesCollectionInfo) {
-        throw new MongoshInvalidInputError(
-          `Collection ${this._name} is not sharded`,
-          ShellApiErrors.NotConnectedToShardedCluster
-        );
-      }
-
-      configCollectionsInfo = timeseriesCollectionInfo;
-    } else {
-      configCollectionsInfo = existingConfigCollectionsInfo;
-    }
+    const configCollectionsInfo = await this._getShardedCollectionInfo(
+      config,
+      collStats
+    );
 
     await Promise.all(
       collStats.map((extractedShardStats) =>
@@ -2203,8 +2201,9 @@ export default class Collection extends ShellApiWithMongoClass {
 
           const key = `Shard ${shardStats.shardId} at ${shardStats.host}`;
 
-          // In sharded timeseries collections, count is 0.
-          const shardStatsCount = shardStats.count ?? 0;
+          // In sharded timeseries collections we do not have a count
+          // so we intentionally pass NaN as a result to the client.
+          const shardStatsCount: number = shardStats.count ?? NaN;
 
           const estimatedChunkDataPerChunk =
             shardStats.numChunks === 0
