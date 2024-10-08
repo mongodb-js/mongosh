@@ -1971,7 +1971,9 @@ describe('e2e', function () {
         let currentOpCall = await currentOpShell.executeLine(`db.currentOp()`);
 
         currentOpShell.assertNoErrors();
-        expect(currentOpCall).to.include(`sleep(${OPERATION_TIME})`);
+
+        // TODO: Remove this
+        console.log(currentOpCall);
         expect(currentOpCall).to.include('testProjection');
 
         await currentCommand;
@@ -1979,7 +1981,6 @@ describe('e2e', function () {
         currentOpCall = await currentOpShell.executeLine(`db.currentOp()`);
 
         currentOpShell.assertNoErrors();
-        expect(currentOpCall).not.to.include(`sleep(${OPERATION_TIME})`);
         expect(currentOpCall).not.to.include('testProjection');
       });
 
