@@ -2076,6 +2076,62 @@ export default class Collection extends ShellApiWithMongoClass {
     });
   }
 
+  /**
+   * Helper for getting collection info for sharded collections.
+   * @throws If the collection is not sharded.
+   * @returns collection info based on given collStats.
+   */
+  async _getShardedCollectionInfo(
+    config: Database,
+    collStats: Document[]
+  ): Promise<Document> {
+    const ns = `${this._database._name}.${this._name}`;
+    const existingConfigCollectionsInfo = await config
+      .getCollection('collections')
+      .findOne({
+        _id: ns,
+        ...onlyShardedCollectionsInConfigFilter,
+      });
+
+    if (existingConfigCollectionsInfo !== null) {
+      return existingConfigCollectionsInfo;
+    }
+
+    // If the collection info is not found, check if it is timeseries and use the bucket
+    const timeseriesShardStats = collStats.find(
+      (extractedShardStats) =>
+        typeof extractedShardStats.storageStats.timeseries !== 'undefined'
+    );
+
+    if (!timeseriesShardStats) {
+      throw new MongoshInvalidInputError(
+        `Collection ${this._name} is not sharded`,
+        ShellApiErrors.NotConnectedToShardedCluster
+      );
+    }
+
+    const { storageStats } = timeseriesShardStats;
+
+    const timeseries: Document = storageStats.timeseries;
+    const timeseriesBucketNs: string = timeseries.bucketsNs;
+
+    const timeseriesCollectionInfo = await config
+      .getCollection('collections')
+      .findOne({
+        _id: timeseriesBucketNs,
+        ...onlyShardedCollectionsInConfigFilter,
+      });
+
+    if (!timeseriesCollectionInfo) {
+      throw new MongoshRuntimeError(
+        `Error finding collection information for ${timeseriesBucketNs}`,
+        CommonErrors.CommandFailed
+      );
+    }
+
+    return timeseriesCollectionInfo;
+  }
+
   @returnsPromise
   @topologies([Topologies.Sharded])
   @apiVersions([])
@@ -2086,20 +2142,6 @@ export default class Collection extends ShellApiWithMongoClass {
 
     const result = {} as Document;
     const config = this._mongo.getDB('config');
-    const ns = `${this._database._name}.${this._name}`;
-
-    const configCollectionsInfo = await config
-      .getCollection('collections')
-      .findOne({
-        _id: ns,
-        ...onlyShardedCollectionsInConfigFilter,
-      });
-    if (!configCollectionsInfo) {
-      throw new MongoshInvalidInputError(
-        `Collection ${this._name} is not sharded`,
-        ShellApiErrors.NotConnectedToShardedCluster
-      );
-    }
 
     const collStats = await (
       await this.aggregate({ $collStats: { storageStats: {} } })
@@ -2115,12 +2157,15 @@ export default class Collection extends ShellApiWithMongoClass {
       avgObjSize: number;
     }[] = [];
 
-    await Promise.all(
-      collStats.map((extShardStats) =>
-        (async (): Promise<void> => {
-          // Extract and store only the relevant subset of the stats for this shard
-          const { shard } = extShardStats;
+    const configCollectionsInfo = await this._getShardedCollectionInfo(
+      config,
+      collStats
+    );
 
+    await Promise.all(
+      collStats.map((extractedShardStats) =>
+        (async (): Promise<void> => {
+          const { shard } = extractedShardStats;
           // If we have an UUID, use that for lookups. If we have only the ns,
           // use that. (On 5.0+ servers, config.chunk has uses the UUID, before
           // that it had the ns).
@@ -2131,39 +2176,43 @@ export default class Collection extends ShellApiWithMongoClass {
           const [host, numChunks] = await Promise.all([
             config
               .getCollection('shards')
-              .findOne({ _id: extShardStats.shard }),
+              .findOne({ _id: extractedShardStats.shard }),
             config.getCollection('chunks').countDocuments(countChunksQuery),
           ]);
           const shardStats = {
             shardId: shard,
             host: host !== null ? host.host : null,
-            size: extShardStats.storageStats.size,
-            count: extShardStats.storageStats.count,
+            size: extractedShardStats.storageStats.size,
+            count: extractedShardStats.storageStats.count,
             numChunks: numChunks,
-            avgObjSize: extShardStats.storageStats.avgObjSize,
+            avgObjSize: extractedShardStats.storageStats.avgObjSize,
           };
 
           const key = `Shard ${shardStats.shardId} at ${shardStats.host}`;
 
-          const estChunkData =
+          // In sharded timeseries collections we do not have a count
+          // so we intentionally pass NaN as a result to the client.
+          const shardStatsCount: number = shardStats.count ?? NaN;
+
+          const estimatedChunkDataPerChunk =
             shardStats.numChunks === 0
               ? 0
               : shardStats.size / shardStats.numChunks;
-          const estChunkCount =
+          const estimatedDocsPerChunk =
             shardStats.numChunks === 0
               ? 0
-              : Math.floor(shardStats.count / shardStats.numChunks);
+              : Math.floor(shardStatsCount / shardStats.numChunks);
 
           result[key] = {
             data: dataFormat(coerceToJSNumber(shardStats.size)),
-            docs: shardStats.count,
+            docs: shardStatsCount,
             chunks: shardStats.numChunks,
-            'estimated data per chunk': dataFormat(estChunkData),
-            'estimated docs per chunk': estChunkCount,
+            'estimated data per chunk': dataFormat(estimatedChunkDataPerChunk),
+            'estimated docs per chunk': estimatedDocsPerChunk,
           };
 
           totals.size += coerceToJSNumber(shardStats.size);
-          totals.count += coerceToJSNumber(shardStats.count);
+          totals.count += coerceToJSNumber(shardStatsCount);
           totals.numChunks += coerceToJSNumber(shardStats.numChunks);
 
           conciseShardsStats.push(shardStats);
@@ -2326,7 +2375,7 @@ export default class Collection extends ShellApiWithMongoClass {
     return await this._mongo._serviceProvider.getSearchIndexes(
       this._database._name,
       this._name,
-      indexName as string | undefined,
+      indexName,
       { ...(await this._database._baseOptions()), ...options }
     );
   }
@@ -2355,7 +2404,7 @@ export default class Collection extends ShellApiWithMongoClass {
       this._name,
       [
         {
-          name: (indexName as string | undefined) ?? 'default',
+          name: indexName ?? 'default',
           // Omitting type when it is 'search' for compat with older servers
           ...(type &&
             type !== 'search' && { type: type as 'search' | 'vectorSearch' }),
