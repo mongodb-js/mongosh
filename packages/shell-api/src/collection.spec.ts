@@ -2258,8 +2258,16 @@ describe('Collection', function () {
       it('throws when collection is not sharded', async function () {
         const serviceProviderCursor = stubInterface<ServiceProviderCursor>();
         serviceProviderCursor.limit.returns(serviceProviderCursor);
-        serviceProviderCursor.tryNext.resolves(null);
-        serviceProvider.find.returns(serviceProviderCursor as any);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        serviceProviderCursor.tryNext.returns(null as any);
+        serviceProvider.find.returns(serviceProviderCursor);
+
+        const tryNext = sinon.stub();
+        tryNext.onCall(0).resolves({ storageStats: {} });
+        tryNext.onCall(1).resolves(null);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        serviceProvider.aggregate.returns({ tryNext } as any);
+
         const error = await collection.getShardDistribution().catch((e) => e);
 
         expect(error).to.be.instanceOf(MongoshInvalidInputError);

@@ -47,8 +47,11 @@ for (const packageInfo of MONGOSH_PACKAGES) {
       for (const { shortName: mShort, versionSpec: mVersion } of MONGODB_VERSIONS) {
         let variants = packageInfo.variants ?? defaultVariants;
         variants = (mShort === '42xe') ?
-          // The MongoDB 4.2 enterprise server does not work on Ubuntu 20.04
-          variants.filter(v => v !== 'linux') :
+          // The MongoDB 4.2 enterprise server does not work on Ubuntu 20.04 or arm64 macOS
+          variants.filter(v => v !== 'linux' && v !== 'darwin') :
+          // Unit tests on macOS use arm64 and therefore require 6.0+
+          (['42xc', '42xe', '44xc', '44xe', '50xc', '50xe'].includes(mShort)) ?
+          variants.filter(v => v !== 'darwin') :
           variants;
         const id = `m${mShort}_n${nShort}_${packageInfo.name.replace(/-/g, '_')}`;
         ALL_UNIT_TESTS.push({
@@ -1499,10 +1502,10 @@ tasks:
 # Need to run builds for every possible build variant.
 buildvariants:
   - name: darwin_unit
-    display_name: "MacOS Big Sur (Unit tests)"
-    run_on: macos-11
+    display_name: "MacOS 14 arm64 (Unit tests)"
+    run_on: macos-14-arm64
     expansions:
-      executable_os_id: darwin-x64
+      executable_os_id: darwin-arm64
     tasks:
       - name: check
       <% for (const test of ALL_UNIT_TESTS.filter(t => t.variants.includes('darwin'))) { %>
