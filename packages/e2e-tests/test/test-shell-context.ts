@@ -45,13 +45,21 @@ export function ensureTestShellAfterHook(
     // Store the set of shells to kill afterwards
     const shells = new Set<TestShell>();
     suite[symbol] = shells;
-    suite[hookName](async () => {
+    suite[hookName](async function () {
       const shellsToKill = [...shells];
       shells.clear();
+
+      if (this.currentTest?.state === 'failed') {
+        for (const shell of shellsToKill) {
+          console.error(shell.debugInformation());
+        }
+      }
+
       await Promise.all(
         shellsToKill.map((shell) => {
-          // TODO: Consider if it's okay to kill those that are already killed?
-          shell.kill();
+          if (shell.process.exitCode === null) {
+            shell.kill();
+          }
           return shell.waitForExit();
         })
       );
