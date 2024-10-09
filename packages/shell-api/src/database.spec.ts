@@ -1796,10 +1796,11 @@ describe('Database', function () {
         },
       });
 
-      const READ_PREFERENCE = {
+      const AGGREGATE_OPTIONS = {
         $readPreference: {
           mode: 'primaryPreferred',
         },
+        bsonRegExp: true,
       };
 
       beforeEach(function () {
@@ -1824,7 +1825,7 @@ describe('Database', function () {
               })
             );
             expect(serviceProvider.aggregateDb.firstCall.args[2]).to.deep.equal(
-              READ_PREFERENCE
+              AGGREGATE_OPTIONS
             );
           }
         });
@@ -1846,7 +1847,7 @@ describe('Database', function () {
             })
           );
           expect(serviceProvider.aggregateDb.firstCall.args[2]).to.deep.equal(
-            READ_PREFERENCE
+            AGGREGATE_OPTIONS
           );
         });
       });
@@ -1868,7 +1869,7 @@ describe('Database', function () {
           );
           expect(matchStage).to.deep.equals({ $match: {} });
           expect(serviceProvider.aggregateDb.firstCall.args[2]).to.deep.equal(
-            READ_PREFERENCE
+            AGGREGATE_OPTIONS
           );
         });
       });
@@ -1890,7 +1891,7 @@ describe('Database', function () {
           );
           expect(matchStage).to.deep.equals({ $match: {} });
           expect(serviceProvider.aggregateDb.firstCall.args[2]).to.deep.equal(
-            READ_PREFERENCE
+            AGGREGATE_OPTIONS
           );
         });
       });
@@ -1914,7 +1915,7 @@ describe('Database', function () {
             );
             expect(matchStage).to.deep.equals({ $match: {} });
             expect(serviceProvider.aggregateDb.firstCall.args[2]).to.deep.equal(
-              READ_PREFERENCE
+              AGGREGATE_OPTIONS
             );
           });
         }
@@ -1945,7 +1946,7 @@ describe('Database', function () {
               $match: { waitingForLock: true },
             });
             expect(serviceProvider.aggregateDb.firstCall.args[2]).to.deep.equal(
-              READ_PREFERENCE
+              AGGREGATE_OPTIONS
             );
           });
 
