@@ -2186,10 +2186,13 @@ export default class Collection extends ShellApiWithMongoClass {
           // Since 6.0, there can be orphan documents indicated by numOrphanDocs.
           // These orphan documents need to be accounted for in the size calculation.
           const orphanDocumentsCount =
-            extractedShardStats.storageStats.numOrphanDocs ?? 0;
+            typeof extractedShardStats.storageStats.numOrphanDocs === 'number'
+              ? extractedShardStats.storageStats.numOrphanDocs
+              : 0;
           const ownedSize =
             extractedShardStats.storageStats.size -
-            orphanDocumentsCount * extractedShardStats.storageStats.avgObjSize;
+            orphanDocumentsCount *
+              (extractedShardStats.storageStats.avgObjSize ?? 0);
 
           const shardStats = {
             shardId: shard,
