@@ -2185,18 +2185,16 @@ export default class Collection extends ShellApiWithMongoClass {
 
           // Since 6.0, there can be orphan documents indicated by numOrphanDocs.
           // These orphan documents need to be accounted for in the size calculation.
-          const orphanDocumentsSize = !extractedShardStats.storageStats
-            .numOrphanDocs
-            ? 0
-            : extractedShardStats.storageStats.numOrphanDocs *
-              extractedShardStats.storageStats.avgObjSize;
-          const adjustedSize =
-            extractedShardStats.storageStats.size - orphanDocumentsSize;
+          const orphanDocumentsCount =
+            extractedShardStats.storageStats.numOrphanDocs ?? 0;
+          const ownedSize =
+            (extractedShardStats.storageStats.count - orphanDocumentsCount) *
+            extractedShardStats.storageStats.avgObjSize;
 
           const shardStats = {
             shardId: shard,
             host: host !== null ? host.host : null,
-            size: adjustedSize,
+            size: ownedSize,
             count: extractedShardStats.storageStats.count,
             numChunks: numChunks,
             avgObjSize: extractedShardStats.storageStats.avgObjSize,
@@ -2225,7 +2223,7 @@ export default class Collection extends ShellApiWithMongoClass {
             'estimated docs per chunk': estimatedDocsPerChunk,
           };
 
-          totals.size += coerceToJSNumber(adjustedSize);
+          totals.size += coerceToJSNumber(ownedSize);
           totals.count += coerceToJSNumber(shardStatsCount);
           totals.numChunks += coerceToJSNumber(shardStats.numChunks);
 
