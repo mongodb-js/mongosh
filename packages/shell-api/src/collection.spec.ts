@@ -2332,7 +2332,7 @@ describe('Collection', function () {
           );
           const shardField = Object.keys(shardDistribution.value).find(
             (field) => field !== 'Totals'
-          ) as string;
+          ) as `Shard ${string} at ${string}`;
 
           expect(shardField).not.undefined;
           expect(

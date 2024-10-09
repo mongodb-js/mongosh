@@ -90,7 +90,6 @@ import { HIDDEN_COMMANDS } from '@mongosh/history';
 import PlanCache from './plan-cache';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ShellApiErrors } from './error-codes';
-import type { GetShardDistributionResult } from './result';
 
 @shellApiClassDefault
 @addSourceToResults
@@ -2185,14 +2184,11 @@ export default class Collection extends ShellApiWithMongoClass {
 
           // Since 6.0, there can be orphan documents indicated by numOrphanDocs.
           // These orphan documents need to be accounted for in the size calculation.
-          const orphanDocumentsCount =
-            typeof extractedShardStats.storageStats.numOrphanDocs === 'number'
-              ? extractedShardStats.storageStats.numOrphanDocs
-              : 0;
+          const orphanDocumentsSize =
+            (extractedShardStats.storageStats.numOrphanDocs ?? 0) *
+            (extractedShardStats.storageStats.avgObjSize ?? 0);
           const ownedSize =
-            extractedShardStats.storageStats.size -
-            orphanDocumentsCount *
-              (extractedShardStats.storageStats.avgObjSize ?? 0);
+            extractedShardStats.storageStats.size - orphanDocumentsSize;
 
           const shardStats = {
             shardId: shard,
@@ -2202,8 +2198,6 @@ export default class Collection extends ShellApiWithMongoClass {
             numChunks: numChunks,
             avgObjSize: extractedShardStats.storageStats.avgObjSize,
           };
-
-          const key = `Shard ${shardStats.shardId} at ${shardStats.host}`;
 
           // In sharded timeseries collections we do not have a count
           // so we intentionally pass NaN as a result to the client.
@@ -2218,7 +2212,7 @@ export default class Collection extends ShellApiWithMongoClass {
               ? 0
               : Math.floor(shardStatsCount / shardStats.numChunks);
 
-          result[key] = {
+          result[`Shard ${shardStats.shardId} at ${shardStats.host}`] = {
             data: dataFormat(coerceToJSNumber(shardStats.size)),
             docs: shardStatsCount,
             chunks: shardStats.numChunks,
@@ -2258,6 +2252,7 @@ export default class Collection extends ShellApiWithMongoClass {
       ];
     }
     result.Totals = totalValue;
+
     return new CommandResult<GetShardDistributionResult>('StatsResult', result);
   }
 
@@ -2482,3 +2477,24 @@ export default class Collection extends ShellApiWithMongoClass {
     );
   }
 }
+
+export type GetShardDistributionResult = {
+  Totals: {
+    data: string;
+    docs: number;
+    chunks: number;
+  } & {
+    [individualShardDistribution: `Shard ${string}`]: [
+      `${number} % data`,
+      `${number} % docs in cluster`,
+      `${string} avg obj size on shard`
+    ];
+  };
+  [individualShardResult: `Shard ${string} at ${string}`]: {
+    data: string;
+    docs: number;
+    chunks: number;
+    'estimated data per chunk': string;
+    'estimated docs per chunk': number;
+  };
+};

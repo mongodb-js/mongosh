@@ -127,21 +127,3 @@ export class CursorIterationResult extends ShellApiValueClass {
     this.documents = [];
   }
 }
-
-export type GetShardDistributionResult = {
-  Totals: {
-    data: string;
-    docs: number;
-    chunks: number;
-  } & {
-    [individualShardDistribution: string]: string[];
-  };
-} & {
-  [individualShardResult: string]: {
-    data: string;
-    docs: number;
-    chunks: number;
-    'estimated data per chunk': string;
-    'estimated docs per chunk': number;
-  };
-};
