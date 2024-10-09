@@ -2188,8 +2188,8 @@ export default class Collection extends ShellApiWithMongoClass {
           const orphanDocumentsCount =
             extractedShardStats.storageStats.numOrphanDocs ?? 0;
           const ownedSize =
-            (extractedShardStats.storageStats.count - orphanDocumentsCount) *
-            extractedShardStats.storageStats.avgObjSize;
+            extractedShardStats.storageStats.size -
+            orphanDocumentsCount * extractedShardStats.storageStats.avgObjSize;
 
           const shardStats = {
             shardId: shard,
