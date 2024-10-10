@@ -249,7 +249,7 @@ Package|Version|License
 **[execa](#4172423d3420d919e31613f23914ef325af8a3bf9ed3c6110a4053369b1cfddd)**|5.1.1|MIT
 **[execa](#099ba5f976333854bfd5aa2237fd12d883c4477af76007a7963109833edef012)**|7.2.0|MIT
 **[expand-template](#46d3e73ca0d4a8c14e99252386f0a5c1a4fd8b2747331373d7b4da97105c15bb)**|2.0.3|(MIT OR WTFPL)
-**[express](#8751e219c34fdecbdbc22ade072ef51354f9ff6434904f388f85002299a5a1ec)**|4.21.0|MIT
+**[express](#96b5945aa9b5ba9189eb3e9f50f6522e976d90a93dc42f2f3aa13cbcffb434a2)**|4.21.1|MIT
 **[fast-xml-parser](#ebbe8cacbca0e6da2c884ade309dddffc2df1cf8f3532ffda03e31aa6d3a9a3b)**|4.4.1|MIT
 **[fault](#387740fc7544e813d0a9ad480550d0bb536270783b1ce8c1ee83cd7d18b1472e)**|1.0.4|MIT
 **[fetch-blob](#9a40c73e2482c1cc651991133722a6fedd12dc752d2858a21da24395e6fc8461)**|3.2.0|MIT
@@ -23149,8 +23149,8 @@ License files:
       THE SOFTWARE.
 
 
-<a id="8751e219c34fdecbdbc22ade072ef51354f9ff6434904f388f85002299a5a1ec"></a>
-### [express](https://www.npmjs.com/package/express) (version 4.21.0)
+<a id="96b5945aa9b5ba9189eb3e9f50f6522e976d90a93dc42f2f3aa13cbcffb434a2"></a>
+### [express](https://www.npmjs.com/package/express) (version 4.21.1)
 License tags: MIT
 
 License files:
