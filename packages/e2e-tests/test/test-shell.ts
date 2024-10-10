@@ -183,6 +183,22 @@ export class TestShell {
     return this._process;
   }
 
+  async waitForLine(pattern: RegExp, start = 0): Promise<void> {
+    await eventually(() => {
+      const output = this._output.slice(start);
+      const lines = output.split('\n');
+      const found = !!lines.filter((l) => pattern.exec(l));
+      if (!found) {
+        throw new assert.AssertionError({
+          message: 'expected line',
+          expected: pattern.toString(),
+          actual:
+            this._output.slice(0, start) + '[line search starts here]' + output,
+        });
+      }
+    });
+  }
+
   async waitForPrompt(start = 0): Promise<void> {
     await eventually(() => {
       const output = this._output.slice(start);
