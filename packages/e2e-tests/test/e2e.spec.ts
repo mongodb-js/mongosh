@@ -166,7 +166,7 @@ describe('e2e', function () {
       shell.assertNoErrors();
 
       await shell.executeLine(',cat,\n');
-      await eventually(() => {
+      await shell.eventually(() => {
         expect(shell.rawOutput).to.match(
           /SyntaxError(\x1b\[.*m)+: Unexpected token/
         );
@@ -241,7 +241,7 @@ describe('e2e', function () {
       shell.writeInput('_+55\r\n');
       await promisify(setTimeout)(100);
       shell.writeInput('_+89\r\n');
-      await eventually(() => {
+      await shell.eventually(() => {
         shell.assertContainsOutput('233');
       });
     });
@@ -566,7 +566,7 @@ describe('e2e', function () {
 
     it('runs an unterminated function', async function () {
       shell.writeInputLine('function x () {');
-      await eventually(() => {
+      await shell.eventually(() => {
         shell.assertContainsOutput('...');
       });
       shell.assertNoErrors();
@@ -676,7 +676,7 @@ describe('e2e', function () {
         `load(${JSON.stringify(require.resolve('moment'))})`
       );
       shell.writeInputLine('print("loaded" + "scripts")');
-      await eventually(
+      await shell.eventually(
         () => {
           // Use eventually explicitly to get a bigger timeout, lodash is
           // quite “big” in terms of async rewriting
@@ -928,7 +928,7 @@ describe('e2e', function () {
             forceTerminal: true,
           });
 
-          await eventually(() => {
+          await shell.eventually(() => {
             if (shell.output.includes('Long sleep')) {
               return;
             }
@@ -937,7 +937,7 @@ describe('e2e', function () {
 
           shell.kill('SIGINT');
 
-          await eventually(() => {
+          await shell.eventually(() => {
             if (shell.output.includes('MongoshInterruptedError')) {
               return;
             }
@@ -1040,7 +1040,7 @@ describe('e2e', function () {
       db.coll1.insertOne({ foo: 89 });
       db.coll1.aggregate([{$group: {_id: null, total: {$sum: '$foo'}}}])
       `);
-      await eventually(() => {
+      await shell.eventually(() => {
         shell.assertContainsOutput('total: 144');
       });
     });
@@ -1053,7 +1053,7 @@ describe('e2e', function () {
       db.coll1.insertOne({ foo: 89 });
       db.coll1.aggregate([{$group: {_id: null, total: {$sum: '$foo'}}}])
       `);
-      await eventually(() => {
+      await shell.eventually(() => {
         shell.assertContainsOutput('total: 144');
       });
     });
@@ -1062,7 +1062,7 @@ describe('e2e', function () {
       createReadStream(
         path.resolve(__dirname, 'fixtures', 'exampleplayground.js')
       ).pipe(shell.process.stdin);
-      await eventually(() => {
+      await shell.eventually(() => {
         shell.assertContainsOutput("{ _id: 'xyz', totalSaleAmount: 150 }");
       });
     });
@@ -1076,7 +1076,7 @@ describe('e2e', function () {
       createReadStream(
         path.resolve(__dirname, 'fixtures', 'asi-script.js')
       ).pipe(shell.process.stdin);
-      await eventually(() => {
+      await shell.eventually(() => {
         shell.assertContainsOutput('admin;system.version;');
       });
     });
@@ -1155,7 +1155,7 @@ describe('e2e', function () {
               'load'
             ),
           });
-          await eventually(() => {
+          await shell.eventually(() => {
             shell.assertContainsOutput('hello one');
           });
           // We can't assert the exit code here currently because that breaks
@@ -1199,7 +1199,7 @@ describe('e2e', function () {
                 'load'
               ),
             });
-            await eventually(() => {
+            await shell.eventually(() => {
               shell.assertContainsOutput('Error: uh oh');
             });
             expect(await shell.waitForExit()).to.equal(1);
@@ -1213,7 +1213,7 @@ describe('e2e', function () {
           const shell = this.startTestShell({
             args: ['--nodb', ...jsContextFlags, '--eval', script],
           });
-          await eventually(() => {
+          await shell.eventually(() => {
             shell.assertContainsOutput('hello one');
           });
           expect(await shell.waitForExit()).to.equal(0);
@@ -1241,7 +1241,7 @@ describe('e2e', function () {
               'throw new Error("uh oh")',
             ],
           });
-          await eventually(() => {
+          await shell.eventually(() => {
             shell.assertContainsOutput('Error: uh oh');
           });
           expect(await shell.waitForExit()).to.equal(1);
@@ -1256,7 +1256,7 @@ describe('e2e', function () {
               'setImmediate(() => { throw new Error("uh oh"); })',
             ],
           });
-          await eventually(() => {
+          await shell.eventually(() => {
             shell.assertContainsOutput('Error: uh oh');
           });
           expect(await shell.waitForExit()).to.equal(
@@ -1273,7 +1273,7 @@ describe('e2e', function () {
               'void Promise.resolve().then(() => { throw new Error("uh oh"); })',
             ],
           });
-          await eventually(() => {
+          await shell.eventually(() => {
             shell.assertContainsOutput('Error: uh oh');
           });
           expect(await shell.waitForExit()).to.equal(
@@ -1479,7 +1479,7 @@ describe('e2e', function () {
       describe('log file', function () {
         it('creates a log file that keeps track of session events', async function () {
           expect(await shell.executeLine('print(123 + 456)')).to.include('579');
-          await eventually(async () => {
+          await shell.eventually(async () => {
             const log = await readLogfile();
             expect(
               log.filter((logEntry) => /Evaluating input/.test(logEntry.msg))
@@ -1515,7 +1515,7 @@ describe('e2e', function () {
           shell = await startTestShell();
           // Arrow up twice to skip the .exit line
           shell.writeInput('\u001b[A\u001b[A');
-          await eventually(() => {
+          await shell.eventually(() => {
             expect(shell.output).to.include('a = 42');
           });
           shell.writeInput('\n.exit\n');
@@ -1640,7 +1640,7 @@ describe('e2e', function () {
       it('keeps working when the home directory cannot be created at all', async function () {
         await fs.writeFile(homedir, 'this is a file and not a directory');
         const shell = await startTestShell();
-        await eventually(() => {
+        await shell.eventually(() => {
           expect(shell.output).to.include('Warning: Could not access file:');
         });
         expect(await shell.executeLine('print(123 + 456)')).to.include('579');
@@ -1654,7 +1654,7 @@ describe('e2e', function () {
         await fs.mkdir(path.dirname(logBasePath), { recursive: true });
         await fs.writeFile(logBasePath, 'also not a directory');
         const shell = await startTestShell();
-        await eventually(() => {
+        await shell.eventually(() => {
           expect(shell.output).to.include('Warning: Could not access file:');
         });
         expect(await shell.executeLine('print(123 + 456)')).to.include('579');
@@ -1679,7 +1679,7 @@ describe('e2e', function () {
         await fs.writeFile(configPath, '{}');
         await fs.chmod(configPath, 0); // Remove all permissions
         const shell = await startTestShell();
-        await eventually(() => {
+        await shell.eventually(() => {
           expect(shell.output).to.include('Warning: Could not access file:');
         });
         expect(await shell.executeLine('print(123 + 456)')).to.include('579');

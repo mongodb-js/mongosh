@@ -9,7 +9,6 @@ import { inspect } from 'util';
 import path from 'path';
 import stripAnsi from 'strip-ansi';
 import { EJSON } from 'bson';
-import { eventually } from '../../../testing/eventually';
 
 /* eslint-disable mocha/no-exports -- This file export hooks wrapping Mocha's Hooks APIs */
 
@@ -144,6 +143,7 @@ export class TestShell {
   private _output: string;
   private _rawOutput: string;
   private _onClose: Promise<number>;
+  private _previousOutputLength = 0;
 
   constructor(
     shellProcess: ChildProcessWithoutNullStreams,
@@ -165,10 +165,7 @@ export class TestShell {
       });
     }
 
-    this._onClose = (async () => {
-      const [code] = await once(shellProcess, 'close');
-      return code;
-    })();
+    this._onClose = once(shellProcess, 'close').then(([code]) => code);
   }
 
   get output(): string {
@@ -183,39 +180,19 @@ export class TestShell {
     return this._process;
   }
 
-  async waitForPrompt(start = 0): Promise<void> {
-    await eventually(() => {
-      const output = this._output.slice(start);
+  /**
+   * Wait for the last line of the output to become a prompt and resolve with it
+   */
+  async waitForPrompt(start = 0): Promise<string> {
+    return this.eventually(() => {
+      const output = this._output.slice(start).trim();
       const lines = output.split('\n');
-      const found = !!lines
-        .filter((l) => PROMPT_PATTERN.exec(l)) // a line that is the prompt must at least match the pattern
-        .find((l) => {
-          // in some situations the prompt occurs multiple times in the line (but only in tests!)
-          const prompts = l
-            .trim()
-            .replace(/>$/g, '')
-            .split('>')
-            .map((m) => m.trim());
-          // if there are multiple prompt parts they must all equal
-          if (prompts.length > 1) {
-            for (const p of prompts) {
-              if (p !== prompts[0]) {
-                return false;
-              }
-            }
-          }
-          return true;
-        });
-      if (!found) {
-        throw new assert.AssertionError({
-          message: 'expected prompt',
-          expected: PROMPT_PATTERN.toString(),
-          actual:
-            this._output.slice(0, start) +
-            '[prompt search starts here]' +
-            output,
-        });
-      }
+      const lastLine = lines[lines.length - 1];
+      assert(
+        PROMPT_PATTERN.test(lastLine),
+        `Expected a prompt (last line was "${lastLine}")`
+      );
+      return lastLine;
     });
   }
 
@@ -239,6 +216,64 @@ export class TestShell {
     ]);
   }
 
+  /**
+   * Like the `eventually` utility, but instead of calling the callback on a timer,
+   * the callback is called as output is emitted.
+   */
+  eventually<T = unknown>(
+    cb: () => Promise<T> | T,
+    { timeout = 10_000 }: { timeout?: number } = {}
+  ) {
+    return new Promise<T>((resolve, reject) => {
+      const { stdout, stderr } = this._process;
+      let lastError: Error | null = null;
+      let currentCheck = Promise.resolve();
+
+      const timeoutTimer = setTimeout(() => {
+        cleanUp();
+        reject(
+          new Error(
+            `Timed out (waited ${timeout}ms): ${
+              lastError instanceof Error ? lastError.message : 'No cause'
+            }`
+          )
+        );
+      }, timeout);
+
+      function check() {
+        // Awaits any previous check to ensure there's only one check in-flight
+        // This is to prevent a new call to the `cb` if a previous call returned a promise which hasn't yet resolved
+        currentCheck = currentCheck.then(async () => {
+          try {
+            const result = await cb();
+            cleanUp();
+            resolve(result);
+          } catch (err) {
+            if (err instanceof Error) {
+              lastError = err;
+            } else {
+              throw new Error(
+                'Expected the callback to throw instances of Error'
+              );
+            }
+          }
+        }, reject);
+      }
+
+      function cleanUp() {
+        stdout.off('data', check);
+        stderr.off('data', check);
+        clearTimeout(timeoutTimer);
+      }
+
+      // Check as the process emits output
+      stdout.on('data', check);
+      stderr.on('data', check);
+      // Check right away
+      process.nextTick(check);
+    });
+  }
+
   kill(signal?: SignalType): void {
     this._process.kill(signal);
   }
@@ -249,14 +284,25 @@ export class TestShell {
   }
 
   writeInputLine(chars: string): void {
-    this.writeInput(`${chars}\n`);
+    this.writeInput(`${chars.trim()}\n`);
   }
 
   async executeLine(line: string): Promise<string> {
-    const previousOutputLength = this._output.length;
+    // Waiting for a prompt to appear since the last execution
+    await this.waitForPrompt(this._previousOutputLength);
+    // Keeping an the length of the output to return only output as result of the input
+    const outputLengthBefore = this._output.length;
     this.writeInputLine(line);
-    await this.waitForPrompt(previousOutputLength);
-    return this._output.slice(previousOutputLength);
+    // Wait for the execution and a new prompt to appear
+    const prompt = await this.waitForPrompt(outputLengthBefore);
+    // Store the output (excluding the following prompt)
+    const output = this._output.slice(
+      outputLengthBefore,
+      this._output.length - prompt.length - 1
+    );
+    // Storing the output for future executions
+    this._previousOutputLength = outputLengthBefore + output.length;
+    return output;
   }
 
   async executeLineWithJSONResult(line: string): Promise<any> {

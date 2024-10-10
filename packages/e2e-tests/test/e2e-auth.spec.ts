@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import type { Db, Document, MongoClientOptions } from 'mongodb';
 import { MongoClient } from 'mongodb';
-import { eventually } from '../../../testing/eventually';
 import type { TestShell } from './test-shell';
 import {
   skipIfApiStrict,
@@ -298,7 +297,7 @@ describe('Auth e2e', function () {
         it('dropAllUsers', async function () {
           await shell.executeLine(`use ${dbName}`);
           shell.writeInputLine('db.dropAllUsers()');
-          await eventually(() => {
+          await shell.eventually(() => {
             try {
               shell.assertContainsOutput('{ n: 2, ok: 1 }');
             } catch {
@@ -508,7 +507,7 @@ describe('Auth e2e', function () {
         it('dropAllRoles', async function () {
           await shell.executeLine(`use ${dbName}`);
           shell.writeInputLine('db.dropAllRoles()');
-          await eventually(() => {
+          await shell.eventually(() => {
             try {
               shell.assertContainsOutput('{ n: 2, ok: 1 }');
             } catch {
@@ -737,7 +736,7 @@ describe('Auth e2e', function () {
         it('throws if pwd is wrong', async function () {
           await shell.executeLine(`use ${dbName}`);
           shell.writeInputLine('db.auth("anna", "pwd2")');
-          await eventually(
+          await shell.eventually(
             () => {
               shell.assertContainsError('Authentication failed');
             },
@@ -752,7 +751,7 @@ describe('Auth e2e', function () {
           shell.writeInputLine(
             'db.auth({ user: "anna", pwd: "pwd2", mechanism: "not a mechanism"})'
           );
-          await eventually(
+          await shell.eventually(
             () => {
               expect(shell.output).to.match(
                 /MongoParseError: authMechanism one of .+, got not a mechanism/
@@ -1067,7 +1066,7 @@ describe('Auth e2e', function () {
             'SCRAM-SHA-1',
           ],
         });
-        await eventually(() => {
+        await shell.eventually(() => {
           expect(shell.output).to.match(
             /MongoServerError: Authentication failed|Unable to use SCRAM-SHA-1/
           );
@@ -1088,7 +1087,7 @@ describe('Auth e2e', function () {
             'SCRAM-SHA-256',
           ],
         });
-        await eventually(() => {
+        await shell.eventually(() => {
           expect(shell.output).to.match(
             /MongoServerError: Authentication failed|Unable to use SCRAM-SHA-256/
           );

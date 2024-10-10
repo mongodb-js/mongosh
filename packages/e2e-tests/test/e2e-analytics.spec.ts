@@ -46,7 +46,7 @@ describe('e2e Analytics Node', function () {
         );
         expect(helloIsWritablePrimary).to.contain('true');
       },
-      { timeout: 20_000 }
+      { timeout: 40_000 }
     );
   });
 

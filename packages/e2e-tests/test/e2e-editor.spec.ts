@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import path from 'path';
 import { promises as fs } from 'fs';
-import { eventually } from '../../../testing/eventually';
 import { TestShell } from './test-shell';
 import { ensureTestShellAfterHook } from './test-shell-context';
 import {
@@ -73,7 +72,7 @@ describe('external editor e2e', function () {
 
       expect(result).to.include('"editor" has been changed');
       shell.writeInputLine(shellOriginalInput);
-      await eventually(() => {
+      await shell.eventually(() => {
         shell.assertContainsOutput(shellModifiedInput);
       });
     });
@@ -97,7 +96,7 @@ describe('external editor e2e', function () {
 
       expect(result).to.include('"editor" has been changed');
       shell.writeInputLine(shellOriginalInput);
-      await eventually(() => {
+      await shell.eventually(() => {
         shell.assertContainsOutput(shellModifiedInput);
       });
     });
@@ -118,7 +117,7 @@ describe('external editor e2e', function () {
 
       expect(result).to.include('"editor" has been changed');
       shell.writeInputLine(shellOriginalInput);
-      await eventually(() => {
+      await shell.eventually(() => {
         shell.assertContainsOutput(shellModifiedInput);
       });
     });
@@ -145,7 +144,7 @@ describe('external editor e2e', function () {
 
       expect(result).to.include('"editor" has been changed');
       shell.writeInputLine(shellOriginalInput);
-      await eventually(() => {
+      await shell.eventually(() => {
         shell.assertContainsOutput(shellModifiedInput);
       });
     });
@@ -163,7 +162,7 @@ describe('external editor e2e', function () {
 
       expect(result).to.include('"editor" has been changed');
       shell.writeInputLine(shellOriginalInput);
-      await eventually(() => {
+      await shell.eventually(() => {
         shell.assertContainsError('failed with an exit code 1');
       });
     });
@@ -182,7 +181,7 @@ describe('external editor e2e', function () {
 
       expect(result).to.include('"editor" has been changed');
       shell.writeInputLine('edit');
-      await eventually(() => {
+      await shell.eventually(() => {
         shell.assertContainsOutput(output);
       });
     });
@@ -216,7 +215,7 @@ describe('external editor e2e', function () {
           "const name = 'I want to test a sequence of writeInputLine'"
         );
         shell.writeInputLine('edit name');
-        await eventually(() => {
+        await shell.eventually(() => {
           shell.assertContainsOutput(shellModifiedInput);
         });
       });
@@ -254,7 +253,7 @@ describe('external editor e2e', function () {
 
           expect(result).to.include('"editor" has been changed');
           shell.writeInputLine(shellOriginalInput);
-          await eventually(() => {
+          await shell.eventually(() => {
             shell.assertContainsOutput(shellModifiedInput);
           });
         });
@@ -279,7 +278,7 @@ describe('external editor e2e', function () {
 
           expect(result).to.include('"editor" has been changed');
           shell.writeInputLine(shellOriginalInput);
-          await eventually(() => {
+          await shell.eventually(() => {
             shell.assertContainsOutput(shellModifiedInput);
           });
         });
@@ -303,7 +302,7 @@ describe('external editor e2e', function () {
 
           expect(result).to.include('"editor" has been changed');
           shell.writeInputLine(shellOriginalInput);
-          await eventually(() => {
+          await shell.eventually(() => {
             shell.assertContainsOutput(shellModifiedInput);
           });
         });
