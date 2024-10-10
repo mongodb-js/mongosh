@@ -6,13 +6,14 @@ import {
 import { eventually } from '../../../testing/eventually';
 import { expect } from 'chai';
 import type { TestShell } from './test-shell';
+import { sleep } from './util-helpers';
 
 describe('e2e direct connection', function () {
   skipIfApiStrict();
   const tabtab = async (shell: TestShell) => {
-    await new Promise((resolve) => setTimeout(resolve, 400));
+    await sleep(400);
     shell.writeInput('\u0009');
-    await new Promise((resolve) => setTimeout(resolve, 400));
+    await sleep(400);
     shell.writeInput('\u0009');
   };
 

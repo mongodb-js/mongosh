@@ -279,7 +279,7 @@ describe('e2e', function () {
         if (buffer.includes('"i": 100') && !hasWaited) {
           // This delay is relevant for reproducing this bug; it gives
           // the mongosh process time to exit before all output has been printed.
-          await new Promise((resolve) => setTimeout(resolve, 1000));
+          await sleep(1000);
           hasWaited = true;
         }
       }
@@ -986,10 +986,10 @@ describe('e2e', function () {
       });
       it('behaves normally after an exception', async function () {
         await shell.executeLine('throw new Error()');
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        await sleep(100);
         shell.kill('SIGINT');
         await shell.waitForPrompt();
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        await sleep(100);
         shell.assertNotContainsOutput('interrupted');
         shell.assertNotContainsOutput('Stopping execution');
       });
