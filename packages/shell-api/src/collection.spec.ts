@@ -2276,6 +2276,70 @@ describe('Collection', function () {
           ShellApiErrors.NotConnectedToShardedCluster
         );
       });
+
+      describe('with orphan documents', function () {
+        const mockedNumChunks = 2;
+        const mockedCollectionConfigInfo = {};
+        const mockedShardStats = {
+          shard: 'test-shard',
+          storageStats: {
+            size: 1000,
+            numOrphanDocs: 10,
+            avgObjSize: 7,
+            count: 15,
+          },
+        };
+        const mockedShardInfo = {
+          host: 'dummy-host',
+        };
+
+        beforeEach(function () {
+          const serviceProviderCursor = stubInterface<ServiceProviderCursor>();
+
+          // Make find and limit have no effect so the value of findOne is determined by tryNext.
+          serviceProviderCursor.limit.returns(serviceProviderCursor);
+          serviceProvider.find.returns(serviceProviderCursor);
+
+          // Mock according to the order of findOne calls getShardDistribution uses.
+          serviceProviderCursor.tryNext
+            .onCall(0)
+            .resolves(mockedCollectionConfigInfo);
+          serviceProviderCursor.tryNext.onCall(1).resolves(mockedShardInfo);
+          serviceProvider.countDocuments.returns(
+            Promise.resolve(mockedNumChunks)
+          );
+
+          const aggregateTryNext = sinon.stub();
+          aggregateTryNext.onCall(0).resolves(mockedShardStats);
+          aggregateTryNext.onCall(1).resolves(null);
+
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+          serviceProvider.aggregate.returns({
+            tryNext: aggregateTryNext,
+          } as any);
+        });
+
+        it('should account for numOrphanDocs when calculating size', async function () {
+          const shardDistribution = await collection.getShardDistribution();
+
+          const { storageStats } = mockedShardStats;
+          expect(shardDistribution.type).equals('StatsResult');
+          const adjustedSize =
+            storageStats.size -
+            storageStats.numOrphanDocs * storageStats.avgObjSize;
+          expect(shardDistribution.value.Totals.data).equals(
+            `${adjustedSize}B`
+          );
+          const shardField = Object.keys(shardDistribution.value).find(
+            (field) => field !== 'Totals'
+          ) as `Shard ${string} at ${string}`;
+
+          expect(shardField).not.undefined;
+          expect(
+            shardDistribution.value[shardField]['estimated data per chunk']
+          ).equals(`${adjustedSize / mockedNumChunks}B`);
+        });
+      });
     });
 
     describe('analyzeShardKey', function () {
