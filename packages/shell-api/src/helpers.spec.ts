@@ -214,7 +214,9 @@ describe('getPrintableShardStatus', function () {
     ]) {
       it(`does not show ${hiddenField} in shardingVersion`, async function () {
         const status = await getPrintableShardStatus(configDatabase, false);
-        expect(status.shardingVersion[hiddenField]).to.equal(undefined);
+        expect((status.shardingVersion as any)[hiddenField]).to.equal(
+          undefined
+        );
       });
     }
   });
@@ -235,8 +237,10 @@ describe('getPrintableShardStatus', function () {
 
   it('returns an object with verbose sharding information if requested', async function () {
     const status = await getPrintableShardStatus(configDatabase, true);
-    expect(status['most recently active mongoses'][0].up).to.be.a('number');
-    expect(status['most recently active mongoses'][0].waiting).to.be.a(
+    expect((status['most recently active mongoses'][0] as any).up).to.be.a(
+      'number'
+    );
+    expect((status['most recently active mongoses'][0] as any).waiting).to.be.a(
       'boolean'
     );
   });
@@ -281,7 +285,7 @@ describe('getPrintableShardStatus', function () {
       status.balancer['Collections with active migrations']
     ).to.have.lengthOf(1);
     expect(
-      status.balancer['Collections with active migrations'].join('')
+      status.balancer['Collections with active migrations']?.join('')
     ).to.include('asdf');
   });
 

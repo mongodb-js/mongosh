@@ -26,7 +26,7 @@ import type {
   bson,
 } from '@mongosh/service-provider-core';
 import type { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
-import { type AutoEncryptionOptions } from 'mongodb';
+import type { AutoEncryptionOptions, Long, ObjectId, Timestamp } from 'mongodb';
 import { shellApiType } from './enums';
 import type { AbstractCursor } from './abstract-cursor';
 import type ChangeStreamCursor from './change-stream-cursor';
@@ -224,10 +224,12 @@ export function processDigestPassword(
  * @param verbose
  */
 export async function getPrintableShardStatus(
-  configDB: Database,
+  db: Database,
   verbose: boolean
-): Promise<Document> {
-  const result = {} as any;
+): Promise<ShardingStatusResult> {
+  const result = {} as ShardingStatusResult;
+
+  const configDB = await getConfigDB(db);
 
   // configDB is a DB object that contains the sharding metadata of interest.
   const mongosColl = configDB.getCollection('mongos');
@@ -259,9 +261,12 @@ export async function getPrintableShardStatus(
     );
   }
 
-  result.shardingVersion = version;
+  result.shardingVersion = version as {
+    _id: number;
+    clusterId: ObjectId;
+  };
 
-  result.shards = shards;
+  result.shards = shards as ShardingStatusResult['shards'];
 
   // (most recently) active mongoses
   const mongosActiveThresholdMs = 60000;
@@ -280,9 +285,8 @@ export async function getPrintableShardStatus(
     }
   }
 
-  mongosAdjective = `${mongosAdjective} mongoses`;
   if (mostRecentMongosTime === null) {
-    result[mongosAdjective] = 'none';
+    result[`${mongosAdjective} mongoses`] = 'none';
   } else {
     const recentMongosQuery = {
       ping: {
@@ -295,25 +299,27 @@ export async function getPrintableShardStatus(
     };
 
     if (verbose) {
-      result[mongosAdjective] = await (await mongosColl.find(recentMongosQuery))
+      result[`${mongosAdjective} mongoses`] = await (
+        await mongosColl.find(recentMongosQuery)
+      )
         .sort({ ping: -1 })
         .toArray();
     } else {
-      result[mongosAdjective] = (
+      result[`${mongosAdjective} mongoses`] = (
         (await (
           await mongosColl.aggregate([
             { $match: recentMongosQuery },
             { $group: { _id: '$mongoVersion', num: { $sum: 1 } } },
             { $sort: { num: -1 } },
           ])
-        ).toArray()) as any[]
+        ).toArray()) as { _id: string; num: number }[]
       ).map((z: { _id: string; num: number }) => {
         return { [z._id]: z.num };
       });
     }
   }
 
-  const balancerRes: Record<string, any> = {};
+  const balancerRes = {} as ShardingStatusResult['balancer'];
   await Promise.all([
     (async (): Promise<void> => {
       // Is autosplit currently enabled
@@ -331,13 +337,13 @@ export async function getPrintableShardStatus(
     })(),
     (async (): Promise<void> => {
       // Is the balancer currently active
-      let balancerRunning = 'unknown';
+      let balancerRunning: 'yes' | 'no' | 'unknown' = 'unknown';
       try {
         const balancerStatus = await configDB.adminCommand({
           balancerStatus: 1,
         });
         balancerRunning = balancerStatus.inBalancerRound ? 'yes' : 'no';
-      } catch (err: any) {
+      } catch (err) {
         // pass, ignore all error messages
       }
       balancerRes['Currently running'] = balancerRunning;
@@ -364,7 +370,9 @@ export async function getPrintableShardStatus(
       if (activeLocks?.length > 0) {
         balancerRes['Collections with active migrations'] = activeLocks.map(
           (lock) => {
-            return `${lock._id} started at ${lock.when}`;
+            // This type assertion is necessary for the string literal type check
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+            return `${lock._id} started at ${lock.when}` as `${string} started at ${string}`;
           }
         );
       }
@@ -418,8 +426,23 @@ export async function getPrintableShardStatus(
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
 
+        type MigrationResult =
+          | {
+              _id: 'Success';
+              count: number;
+              from: never;
+              to: never;
+            }
+          // Failed migration
+          | {
+              _id: string;
+              count: number;
+              from: string;
+              to: string;
+            };
+
         // Successful migrations.
-        let migrations = await (
+        let migrations = (await (
           await changelogColl.aggregate([
             {
               $match: {
@@ -437,11 +460,11 @@ export async function getPrintableShardStatus(
               },
             },
           ])
-        ).toArray();
+        ).toArray()) as MigrationResult[];
 
         // Failed migrations.
         migrations = migrations.concat(
-          await (
+          (await (
             await changelogColl.aggregate([
               {
                 $match: {
@@ -472,11 +495,12 @@ export async function getPrintableShardStatus(
                 },
               },
             ])
-          ).toArray()
+          ).toArray()) as MigrationResult[]
         );
 
-        const migrationsRes: Record<number, string> = {};
-        migrations.forEach((x: any) => {
+        const migrationsRes: ShardingStatusResult['balancer']['Migration Results for the last 24 hours'] =
+          {};
+        migrations.forEach((x) => {
           if (x._id === 'Success') {
             migrationsRes[x.count] = x._id;
           } else {
@@ -644,9 +668,82 @@ export async function getPrintableShardStatus(
     )
   ).filter((dbEntry) => !!dbEntry);
 
+  let shardedDataDistribution: ShardedDataDistribution | undefined;
+
+  try {
+    // Available since 6.0.3
+    const adminDb = db.getSiblingDB('admin');
+    shardedDataDistribution = (await (
+      await adminDb.aggregate([{ $shardedDataDistribution: {} }])
+    ).toArray()) as ShardedDataDistribution;
+  } catch (e) {
+    // Pass, most likely an older version.
+    console.error('shardedDataDistribution Errored:', e);
+  }
+
+  result.shardedDataDistribution = shardedDataDistribution;
+
   delete result.shardingVersion.currentVersion;
   return result;
 }
+
+type ShardingStatusResult = {
+  shardingVersion: {
+    _id: number;
+    clusterId: ObjectId;
+    /** This gets deleted when it is returned from getPrintableShardStatus */
+    currentVersion?: number;
+  };
+  shards: {
+    _id: string;
+    host: string;
+    state: number;
+    topologyTime: Timestamp;
+    replSetConfigVersion: Long;
+  }[];
+  [mongoses: `${string} mongoses`]:
+    | 'none'
+    | {
+        [version: string]:
+          | number
+          | {
+              up: number;
+              waiting: boolean;
+            };
+      }[];
+  autosplit: {
+    'Currently enabled': 'yes' | 'no';
+  };
+  balancer: {
+    'Currently enabled': 'yes' | 'no';
+    'Currently running': 'yes' | 'no' | 'unknown';
+    'Failed balancer rounds in last 5 attempts': number;
+    'Migration Results for the last 24 hours':
+      | 'No recent migrations'
+      | {
+          [count: number]:
+            | 'Success'
+            | `Failed with error '${string}', from ${string} to ${string}`;
+        };
+    'Balancer active window is set between'?: `${string} and ${string} server local time`;
+    'Last reported error'?: string;
+    'Time of Reported error'?: string;
+    'Collections with active migrations'?: `${string} started at ${string}`[];
+  };
+  shardedDataDistribution?: ShardedDataDistribution;
+  databases: { database: Document; collections: Document }[];
+};
+
+type ShardedDataDistribution = {
+  ns: string;
+  shards: {
+    shardName: string;
+    numOrphanedDocs: number;
+    numOwnedDocuments: number;
+    orphanedSizeBytes: number;
+    ownedSizeBytes: number;
+  };
+}[];
 
 export async function getConfigDB(db: Database): Promise<Database> {
   const helloResult = await db._maybeCachedHello();
