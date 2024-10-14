@@ -390,6 +390,17 @@ describe('Database', function () {
         serviceProviderCursor = stubInterface<ServiceProviderAggCursor>();
       });
 
+      it('throws if the given argument is not an array', async function () {
+        let caughtError: MongoshInvalidInputError | undefined;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        await database.aggregate({} as any).catch((err) => {
+          caughtError = err;
+        });
+        expect(caughtError?.message).contains(
+          'Aggregate pipeline argument must be an array'
+        );
+      });
+
       it('calls serviceProvider.aggregateDb with pipleline and options', async function () {
         await database.aggregate([{ $piplelineStage: {} }], { options: true });
 

@@ -432,6 +432,14 @@ export default class Database extends ShellApiWithMongoClass {
       );
     }
     assertArgsDefinedType([pipeline], [true], 'Database.aggregate');
+
+    if (!Array.isArray(pipeline)) {
+      throw new MongoshInvalidInputError(
+        'Aggregate pipeline argument must be an array',
+        CommonErrors.InvalidArgument
+      );
+    }
+
     this._emitDatabaseApiCall('aggregate', { options, pipeline });
 
     const { aggOptions, dbOptions, explain } = adaptAggregateOptions(options);
@@ -1429,6 +1437,7 @@ export default class Database extends ShellApiWithMongoClass {
         CommonErrors.CommandFailed
       );
     }
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     for (const cmdDescription of Object.values(result.commands) as Document[]) {
       if ('slaveOk' in cmdDescription) {
         cmdDescription.secondaryOk = cmdDescription.slaveOk;
