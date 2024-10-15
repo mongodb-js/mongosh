@@ -412,6 +412,14 @@ export default class Database extends ShellApiWithMongoClass {
     return await this._runAdminCommand(cmd, {});
   }
 
+  async aggregate(
+    singleStage: Document,
+    options?: Document
+  ): Promise<AggregationCursor>;
+  async aggregate(
+    pipeline: Document[],
+    options?: Document
+  ): Promise<AggregationCursor>;
   /**
    * Run an aggregation against the db.
    *
@@ -423,7 +431,7 @@ export default class Database extends ShellApiWithMongoClass {
   @returnType('AggregationCursor')
   @apiVersions([1])
   async aggregate(
-    pipeline: Document[],
+    pipelineOrSingleStage: Document | Document[],
     options?: Document
   ): Promise<AggregationCursor> {
     if ('background' in (options ?? {})) {
@@ -431,6 +439,10 @@ export default class Database extends ShellApiWithMongoClass {
         aggregateBackgroundOptionNotSupportedHelp
       );
     }
+    const pipeline: Document[] = Array.isArray(pipelineOrSingleStage)
+      ? pipelineOrSingleStage
+      : [pipelineOrSingleStage];
+
     assertArgsDefinedType([pipeline], [true], 'Database.aggregate');
 
     if (!Array.isArray(pipeline)) {
