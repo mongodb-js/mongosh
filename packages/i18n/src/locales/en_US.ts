@@ -1271,7 +1271,7 @@ const translations: Catalog = {
             createView: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.createView/',
               description: 'Create new view',
-              example: "db.createCollection('viewName', 'source', [])",
+              example: "db.createView('viewName', 'source', [])",
             },
             createUser: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.createUser',
