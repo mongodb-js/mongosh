@@ -1,3 +1,4 @@
+import type { ShardedDataDistribution } from './helpers';
 import {
   assertArgsDefinedType,
   coerceToJSNumber,
@@ -135,6 +136,21 @@ describe('getPrintableShardStatus', function () {
   let serviceProvider: ServiceProvider;
   let inBalancerRound = false;
 
+  const mockedShardedDataDistribution: ShardedDataDistribution = [
+    {
+      ns: 'test.ns',
+      shards: [
+        {
+          shardName: 'test',
+          numOrphanedDocs: 1,
+          numOwnedDocuments: 5,
+          orphanedSizeBytes: 20,
+          ownedSizeBytes: 80,
+        },
+      ],
+    },
+  ];
+
   beforeEach(async function () {
     serviceProvider = await CliServiceProvider.connect(
       await testServer.connectionString(),
@@ -152,9 +168,20 @@ describe('getPrintableShardStatus', function () {
     configDatabase = new Database(mongo, 'config_test');
     expect(configDatabase.getName()).to.equal('config_test');
 
+    const mockedAdminDb = {
+      aggregate: stub()
+        .withArgs([{ $shardedDataDistribution: {} }])
+        .resolves({
+          toArray: stub().resolves(mockedShardedDataDistribution),
+        }),
+    };
+    const getSiblingDB = stub();
+    getSiblingDB.withArgs('admin').returns(mockedAdminDb);
+    getSiblingDB.withArgs('config').returns(configDatabase);
+
     db = {
       _maybeCachedHello: stub().returns({ msg: 'isdbgrid' }),
-      getSiblingDB: stub().withArgs('config').returns(configDatabase),
+      getSiblingDB,
     } as unknown as Database;
 
     const origRunCommandWithCheck = serviceProvider.runCommandWithCheck;
@@ -209,6 +236,10 @@ describe('getPrintableShardStatus', function () {
     );
     expect(status.databases).to.have.lengthOf(1);
     expect(status.databases[0].database._id).to.equal('config');
+
+    expect(status.shardedDataDistribution).to.equal(
+      mockedShardedDataDistribution
+    );
   });
 
   describe('hides all internal deprecated fields in shardingVersion', function () {

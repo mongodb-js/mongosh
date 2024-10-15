@@ -734,7 +734,7 @@ type ShardingStatusResult = {
   databases: { database: Document; collections: Document }[];
 };
 
-type ShardedDataDistribution = {
+export type ShardedDataDistribution = {
   ns: string;
   shards: {
     shardName: string;
@@ -742,7 +742,7 @@ type ShardedDataDistribution = {
     numOwnedDocuments: number;
     orphanedSizeBytes: number;
     ownedSizeBytes: number;
-  };
+  }[];
 }[];
 
 export async function getConfigDB(db: Database): Promise<Database> {
