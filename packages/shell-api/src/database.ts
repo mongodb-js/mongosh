@@ -445,13 +445,6 @@ export default class Database extends ShellApiWithMongoClass {
 
     assertArgsDefinedType([pipeline], [true], 'Database.aggregate');
 
-    if (!Array.isArray(pipeline)) {
-      throw new MongoshInvalidInputError(
-        'Aggregate pipeline argument must be an array',
-        CommonErrors.InvalidArgument
-      );
-    }
-
     this._emitDatabaseApiCall('aggregate', { options, pipeline });
 
     const { aggOptions, dbOptions, explain } = adaptAggregateOptions(options);
