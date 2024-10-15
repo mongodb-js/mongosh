@@ -9,7 +9,6 @@ import {
   getCertPath,
   connectionStringWithLocalhost,
 } from './repl-helpers';
-import { TestShell } from './test-shell';
 
 const CA_CERT = getCertPath('ca.crt');
 const NON_CA_CERT = getCertPath('non-ca.crt');
@@ -64,7 +63,6 @@ describe('e2e TLS', function () {
       console.error('Could not remove fake home directory:', err);
     }
   });
-  afterEach(TestShell.cleanup);
 
   context(
     'connecting without client cert to server with valid cert',
@@ -74,7 +72,7 @@ describe('e2e TLS', function () {
         // and subsequently can't connect to the server to find out if it's up,
         // then thinks it isn't and doesn't shut it down cleanly. We shut it down
         // here to work around that.
-        const shell = TestShell.start({
+        const shell = this.startTestShell({
           args: [
             await connectionStringWithLocalhost(server),
             '--tls',
@@ -87,7 +85,6 @@ describe('e2e TLS', function () {
         shell.kill();
         await shell.waitForExit();
       });
-      afterEach(TestShell.cleanup);
 
       const server = startTestServer('e2e-tls-no-cli-valid-srv', {
         args: [
@@ -102,7 +99,7 @@ describe('e2e TLS', function () {
       });
 
       it('works with matching CA (args)', async function () {
-        const shell = TestShell.start({
+        const shell = this.startTestShell({
           args: [
             await connectionStringWithLocalhost(server),
             '--tls',
@@ -115,7 +112,7 @@ describe('e2e TLS', function () {
       });
 
       it('works with matching CA (connection string)', async function () {
-        const shell = TestShell.start({
+        const shell = this.startTestShell({
           args: [
             await connectionStringWithLocalhost(server, {
               tls: 'true',
@@ -128,7 +125,7 @@ describe('e2e TLS', function () {
       });
 
       it('fails when not using --tls (args)', async function () {
-        const shell = TestShell.start({
+        const shell = this.startTestShell({
           args: [
             await connectionStringWithLocalhost(server, {
               serverSelectionTimeoutMS: '1500',
@@ -141,7 +138,7 @@ describe('e2e TLS', function () {
       });
 
       it('fails when not using --tls (connection string)', async function () {
-        const shell = TestShell.start({
+        const shell = this.startTestShell({
           args: [
             await connectionStringWithLocalhost(server, {
               serverSelectionTimeoutMS: '1500',
@@ -155,7 +152,7 @@ describe('e2e TLS', function () {
       });
 
       it('fails with invalid CA (args)', async function () {
-        const shell = TestShell.start({
+        const shell = this.startTestShell({
           args: [
             await connectionStringWithLocalhost(server, {
               serverSelectionTimeoutMS: '1500',
@@ -168,12 +165,12 @@ describe('e2e TLS', function () {
         const result = await shell.waitForPromptOrExit();
         expect(result.state).to.equal('exit');
         shell.assertContainsOutput(
-          /unable to verify the first certificate|self[- ]signed certificate in certificate chain/
+          /unable to verify the first certificate|self[- ]signed certificate in certificate chain|unable to get (local )?issuer certificate/
         );
       });
 
       it('fails with invalid CA (connection string)', async function () {
-        const shell = TestShell.start({
+        const shell = this.startTestShell({
           args: [
             await connectionStringWithLocalhost(server, {
               serverSelectionTimeoutMS: '1500',
@@ -185,12 +182,12 @@ describe('e2e TLS', function () {
         const result = await shell.waitForPromptOrExit();
         expect(result.state).to.equal('exit');
         shell.assertContainsOutput(
-          /unable to verify the first certificate|self[- ]signed certificate in certificate chain/
+          /unable to verify the first certificate|self[- ]signed certificate in certificate chain|unable to get (local )?issuer certificate/
         );
       });
 
       it('fails when providing a CRL including the servers cert', async function () {
-        const shell = TestShell.start({
+        const shell = this.startTestShell({
           args: [
             await connectionStringWithLocalhost(server, {
               serverSelectionTimeoutMS: '1500',
@@ -216,7 +213,7 @@ describe('e2e TLS', function () {
           CA_CERT,
           path.join(tmpdir.path, 'certs', 'somefilename.crt')
         );
-        const shell = TestShell.start({
+        const shell = this.startTestShell({
           args: [
             await connectionStringWithLocalhost(server, {
               serverSelectionTimeoutMS: '1500',
@@ -254,7 +251,7 @@ describe('e2e TLS', function () {
           CA_CERT,
           path.join(tmpdir.path, 'certs', 'somefilename.crt')
         );
-        const shell = TestShell.start({
+        const shell = this.startTestShell({
           args: [
             await connectionStringWithLocalhost(server, {
               serverSelectionTimeoutMS: '1500',
@@ -287,7 +284,7 @@ describe('e2e TLS', function () {
         if (process.platform !== 'darwin' && process.platform !== 'win32') {
           return this.skip();
         }
-        const shell = TestShell.start({
+        const shell = this.startTestShell({
           args: [
             await connectionStringWithLocalhost(server, {
               serverSelectionTimeoutMS: '1500',
@@ -309,7 +306,7 @@ describe('e2e TLS', function () {
 
   context('connecting with client cert to server with valid cert', function () {
     after(async function () {
-      const shell = TestShell.start({
+      const shell = this.startTestShell({
         args: [
           await connectionStringWithLocalhost(server),
           '--tls',
@@ -323,8 +320,6 @@ describe('e2e TLS', function () {
       await shell.executeLine('db.shutdownServer({ force: true })');
       shell.kill();
       await shell.waitForExit();
-
-      await TestShell.cleanup.call(this);
     });
 
     const server = startTestServer('e2e-tls-valid-cli-valid-srv', {
@@ -345,7 +340,7 @@ describe('e2e TLS', function () {
         return this.skip(); // createUser is unversioned
       }
       /* connect with cert to create user */
-      const shell = TestShell.start({
+      const shell = this.startTestShell({
         args: [
           await connectionStringWithLocalhost(server, {
             serverSelectionTimeoutMS: '1500',
@@ -369,7 +364,7 @@ describe('e2e TLS', function () {
     });
 
     it('works with valid cert (args)', async function () {
-      const shell = TestShell.start({
+      const shell = this.startTestShell({
         args: [
           await connectionStringWithLocalhost(server, {
             serverSelectionTimeoutMS: '1500',
@@ -400,7 +395,7 @@ describe('e2e TLS', function () {
     });
 
     it('works with valid cert (args, encrypted)', async function () {
-      const shell = TestShell.start({
+      const shell = this.startTestShell({
         args: [
           await connectionStringWithLocalhost(server, {
             serverSelectionTimeoutMS: '1500',
@@ -438,7 +433,7 @@ describe('e2e TLS', function () {
     });
 
     it('works with valid cert (connection string)', async function () {
-      const shell = TestShell.start({
+      const shell = this.startTestShell({
         args: [
           await connectionStringWithLocalhost(server, {
             serverSelectionTimeoutMS: '1500',
@@ -466,7 +461,7 @@ describe('e2e TLS', function () {
     });
 
     it('works with valid cert (connection string, encrypted)', async function () {
-      const shell = TestShell.start({
+      const shell = this.startTestShell({
         args: [
           await connectionStringWithLocalhost(server, {
             serverSelectionTimeoutMS: '1500',
@@ -499,8 +494,43 @@ describe('e2e TLS', function () {
       expect(logFileContents).not.to.include(CLIENT_CERT_PASSWORD);
     });
 
+    it('asks for tlsCertificateKeyFilePassword when it is needed (connection string, encrypted)', async function () {
+      const shell = this.startTestShell({
+        args: [
+          await connectionStringWithLocalhost(server, {
+            serverSelectionTimeoutMS: '1500',
+            authMechanism: 'MONGODB-X509',
+            tls: 'true',
+            tlsCAFile: CA_CERT,
+            tlsCertificateKeyFile: CLIENT_CERT_ENCRYPTED,
+          }),
+        ],
+        env,
+      });
+
+      await shell.waitForLine(/Enter TLS key file password:/);
+      await shell.executeLine(CLIENT_CERT_PASSWORD);
+
+      expect(
+        await shell.executeLine('db.runCommand({ connectionStatus: 1 })')
+      ).to.include(`user: '${certUser}'`);
+
+      expect(
+        await shell.executeLine(
+          'db.getSiblingDB("$external").auth({mechanism: "MONGODB-X509"})'
+        )
+      ).to.include('ok: 1');
+      expect(
+        await shell.executeLine('db.runCommand({ connectionStatus: 1 })')
+      ).to.include(`user: '${certUser}'`);
+
+      const logPath = path.join(logBasePath, `${shell.logId}_log`);
+      const logFileContents = await fs.readFile(logPath, 'utf8');
+      expect(logFileContents).not.to.include(CLIENT_CERT_PASSWORD);
+    });
+
     it('fails with invalid cert (args)', async function () {
-      const shell = TestShell.start({
+      const shell = this.startTestShell({
         args: [
           await connectionStringWithLocalhost(server, {
             serverSelectionTimeoutMS: '1500',
@@ -520,7 +550,7 @@ describe('e2e TLS', function () {
     });
 
     it('fails with invalid cert (connection string)', async function () {
-      const shell = TestShell.start({
+      const shell = this.startTestShell({
         args: [
           await connectionStringWithLocalhost(server, {
             serverSelectionTimeoutMS: '1500',
@@ -551,7 +581,7 @@ describe('e2e TLS', function () {
       });
       `
       );
-      const shell = TestShell.start({
+      const shell = this.startTestShell({
         args: [
           await connectionStringWithLocalhost(server, {
             serverSelectionTimeoutMS: '1500',
@@ -576,7 +606,7 @@ describe('e2e TLS', function () {
     });
 
     it('fails with an invalid tlsCertificateSelector', async function () {
-      const shell = TestShell.start({
+      const shell = this.startTestShell({
         args: [
           await connectionStringWithLocalhost(server, {
             serverSelectionTimeoutMS: '1500',
@@ -614,7 +644,7 @@ describe('e2e TLS', function () {
       // and subsequently can't connect to the server to find out if it's up,
       // then thinks it isn't and doesn't shut it down cleanly. We shut it down
       // here to work around that.
-      const shell = TestShell.start({
+      const shell = this.startTestShell({
         args: [
           await connectionStringWithLocalhost(server),
           '--tls',
@@ -625,7 +655,6 @@ describe('e2e TLS', function () {
       });
       await shell.waitForPrompt();
       await shell.executeLine('db.shutdownServer({ force: true })');
-      await TestShell.killall();
     });
 
     const server = startTestServer('e2e-tls-invalid-srv', {
@@ -641,7 +670,7 @@ describe('e2e TLS', function () {
     });
 
     it('works with allowInvalidCertificates', async function () {
-      const shell = TestShell.start({
+      const shell = this.startTestShell({
         args: [
           await connectionStringWithLocalhost(server),
           '--tls',
@@ -655,7 +684,7 @@ describe('e2e TLS', function () {
     });
 
     it('works with allowInvalidHostnames', async function () {
-      const shell = TestShell.start({
+      const shell = this.startTestShell({
         args: [
           await connectionStringWithLocalhost(server),
           '--tls',
@@ -669,7 +698,7 @@ describe('e2e TLS', function () {
     });
 
     it('fails when no additional args are provided', async function () {
-      const shell = TestShell.start({
+      const shell = this.startTestShell({
         args: [
           await connectionStringWithLocalhost(server),
           '--tls',

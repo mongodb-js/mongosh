@@ -5,7 +5,7 @@ export BASEDIR="$PWD/.evergreen"
 if echo $NODE_JS_VERSION | grep -q ^16 ; then
   NPM_VERSION=9.9.2 # 9.9.3 does not install well on Windows
 else
-  NPM_VERSION=10.x
+  NPM_VERSION=10.8.3 # 10.9.0 does not install well on Windows
 fi
 
 if [ "$OS" == "Windows_NT" ]; then

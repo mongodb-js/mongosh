@@ -355,11 +355,17 @@ class MongoshNodeRepl implements EvaluationListener {
       // cf. legacy shell:
       // https://github.com/mongodb/mongo/blob/a6df396047a77b90bf1ce9463eecffbee16fb864/src/mongo/shell/mongo_main.cpp#L1003-L1026
       const { shellApi } = instanceState;
-      const banners = await Promise.all([
-        (async () => await shellApi._untrackedShow('startupWarnings'))(),
-        (async () => await shellApi._untrackedShow('automationNotices'))(),
-        (async () => await shellApi._untrackedShow('nonGenuineMongoDBCheck'))(),
-      ]);
+      // Assuming `instanceState.fetchConnectionInfo()` was already called above
+      const connectionInfo = instanceState.cachedConnectionInfo();
+      // Skipping startup warnings (see https://jira.mongodb.org/browse/MONGOSH-1776)
+      const bannerCommands = connectionInfo?.extraInfo?.is_local_atlas
+        ? ['automationNotices', 'nonGenuineMongoDBCheck']
+        : ['startupWarnings', 'automationNotices', 'nonGenuineMongoDBCheck'];
+      const banners = await Promise.all(
+        bannerCommands.map(
+          async (command) => await shellApi._untrackedShow(command)
+        )
+      );
       for (const banner of banners) {
         if (banner.value) {
           await shellApi.print(banner);

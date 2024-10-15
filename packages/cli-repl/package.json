@@ -61,7 +61,7 @@
     }
   },
   "dependencies": {
-    "@mongodb-js/devtools-proxy-support": "^0.3.9",
+    "@mongodb-js/devtools-proxy-support": "^0.4.1",
     "@mongosh/arg-parser": "0.0.0-dev.0",
     "@mongosh/autocomplete": "0.0.0-dev.0",
     "@mongosh/editor": "0.0.0-dev.0",
@@ -93,7 +93,7 @@
     "yargs-parser": "^20.2.4"
   },
   "devDependencies": {
-    "mongodb": "^6.8.0",
+    "mongodb": "^6.9.0",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/sbom-tools": "^0.7.0",

@@ -2,8 +2,10 @@
 import { expect } from 'chai';
 import type { Db } from 'mongodb';
 import { MongoClient } from 'mongodb';
+
 import { eventually } from '../../../testing/eventually';
 import { TestShell } from './test-shell';
+import { ensureTestShellAfterHook } from './test-shell-context';
 import {
   skipIfServerVersion,
   startSharedTestServer,
@@ -19,6 +21,7 @@ import { createServer as createHTTPServer } from 'http';
 import { once } from 'events';
 import type { AddressInfo } from 'net';
 const { EJSON } = bson;
+import { sleep } from './util-helpers';
 
 const jsContextFlagCombinations: `--jsContext=${'plain-vm' | 'repl'}`[][] = [
   [],
@@ -29,11 +32,9 @@ const jsContextFlagCombinations: `--jsContext=${'plain-vm' | 'repl'}`[][] = [
 describe('e2e', function () {
   const testServer = startSharedTestServer();
 
-  afterEach(TestShell.cleanup);
-
   describe('--version', function () {
     it('shows version', async function () {
-      const shell = TestShell.start({ args: ['--version'] });
+      const shell = this.startTestShell({ args: ['--version'] });
       await shell.waitForExit();
 
       shell.assertNoErrors();
@@ -43,7 +44,7 @@ describe('e2e', function () {
 
   describe('--build-info', function () {
     it('shows build info in JSON format', async function () {
-      const shell = TestShell.start({ args: ['--build-info'] });
+      const shell = this.startTestShell({ args: ['--build-info'] });
       await shell.waitForExit();
 
       shell.assertNoErrors();
@@ -91,7 +92,7 @@ describe('e2e', function () {
 
       let processReport: any;
       {
-        const shell = TestShell.start({
+        const shell = this.startTestShell({
           args: [
             '--quiet',
             '--nodb',
@@ -109,7 +110,7 @@ describe('e2e', function () {
     });
 
     it('provides build info via the buildInfo() builtin', async function () {
-      const shell = TestShell.start({
+      const shell = this.startTestShell({
         args: [
           '--quiet',
           '--eval',
@@ -129,7 +130,7 @@ describe('e2e', function () {
   describe('--nodb', function () {
     let shell: TestShell;
     beforeEach(async function () {
-      shell = TestShell.start({
+      shell = this.startTestShell({
         args: ['--nodb'],
       });
       await shell.waitForPrompt();
@@ -156,7 +157,7 @@ describe('e2e', function () {
       expect(shell.output).to.include('No connected database\n> ');
     });
     it('colorizes syntax errors', async function () {
-      shell = TestShell.start({
+      shell = this.startTestShell({
         args: ['--nodb'],
         env: { ...process.env, FORCE_COLOR: 'true', TERM: 'xterm-256color' },
         forceTerminal: true,
@@ -245,7 +246,7 @@ describe('e2e', function () {
       });
     });
     it('accepts a --tlsFIPSMode argument', async function () {
-      shell = TestShell.start({
+      shell = this.startTestShell({
         args: ['--nodb', '--tlsFIPSMode'],
       });
       const result = await shell.waitForPromptOrExit();
@@ -261,7 +262,7 @@ describe('e2e', function () {
       }
     });
     it('prints full output even when that output is buffered', async function () {
-      shell = TestShell.start({
+      shell = this.startTestShell({
         args: [
           '--nodb',
           '--quiet',
@@ -286,7 +287,7 @@ describe('e2e', function () {
     });
     it('handles custom prompt() function in conjunction with line-by-line input well', async function () {
       // https://jira.mongodb.org/browse/MONGOSH-1617
-      shell = TestShell.start({
+      shell = this.startTestShell({
         args: [
           '--nodb',
           '--shell',
@@ -328,7 +329,7 @@ describe('e2e', function () {
         describe('via host:port/test', function () {
           let shell: TestShell;
           beforeEach(async function () {
-            shell = TestShell.start({
+            shell = this.startTestShell({
               args: [`${await testServer.hostport()}/${dbname}`],
             });
             await shell.waitForPrompt();
@@ -342,7 +343,7 @@ describe('e2e', function () {
         describe('via mongodb://uri', function () {
           let shell: TestShell;
           beforeEach(async function () {
-            shell = TestShell.start({
+            shell = this.startTestShell({
               args: [`mongodb://${await testServer.hostport()}/${dbnameUri}`],
             });
             await shell.waitForPrompt();
@@ -357,7 +358,7 @@ describe('e2e', function () {
           let shell: TestShell;
           beforeEach(async function () {
             const port = await testServer.port();
-            shell = TestShell.start({ args: [dbname, `--port=${port}`] });
+            shell = this.startTestShell({ args: [dbname, `--port=${port}`] });
             await shell.waitForPrompt();
             shell.assertNoErrors();
           });
@@ -369,7 +370,7 @@ describe('e2e', function () {
         describe('via use() method', function () {
           let shell: TestShell;
           beforeEach(async function () {
-            shell = TestShell.start({
+            shell = this.startTestShell({
               args: [`mongodb://${await testServer.hostport()}/`],
             });
             await shell.waitForPrompt();
@@ -390,7 +391,7 @@ describe('e2e', function () {
     context('with default appName', function () {
       let shell: TestShell;
       beforeEach(async function () {
-        shell = TestShell.start({
+        shell = this.startTestShell({
           args: [`mongodb://${await testServer.hostport()}/`],
         });
         await shell.waitForPrompt();
@@ -411,7 +412,7 @@ describe('e2e', function () {
     context('with custom appName', function () {
       let shell: TestShell;
       beforeEach(async function () {
-        shell = TestShell.start({
+        shell = this.startTestShell({
           args: [`mongodb://${await testServer.hostport()}/?appName=Felicia`],
         });
         await shell.waitForPrompt();
@@ -438,7 +439,7 @@ describe('e2e', function () {
     beforeEach(async function () {
       const connectionString = await testServer.connectionString();
       dbName = `test-${Date.now()}`;
-      shell = TestShell.start({ args: [connectionString] });
+      shell = this.startTestShell({ args: [connectionString] });
 
       client = await MongoClient.connect(connectionString, {});
 
@@ -882,7 +883,7 @@ describe('e2e', function () {
   describe('with --host', function () {
     let shell: TestShell;
     it('allows invalid hostnames with _', async function () {
-      shell = TestShell.start({
+      shell = this.startTestShell({
         args: ['--host', 'xx_invalid_domain_xx'],
         env: { ...process.env, FORCE_COLOR: 'true', TERM: 'xterm-256color' },
         forceTerminal: true,
@@ -921,7 +922,7 @@ describe('e2e', function () {
             'load',
             'long-sleep.js'
           );
-          const shell = TestShell.start({
+          const shell = this.startTestShell({
             args: ['--nodb', ...jsContextFlags, filename],
             removeSigintListeners: true,
             forceTerminal: true,
@@ -949,7 +950,7 @@ describe('e2e', function () {
     describe('interactive', function () {
       let shell: TestShell;
       beforeEach(async function () {
-        shell = TestShell.start({
+        shell = this.startTestShell({
           args: ['--nodb'],
           removeSigintListeners: true,
         });
@@ -1007,7 +1008,7 @@ describe('e2e', function () {
   describe('printing', function () {
     let shell: TestShell;
     beforeEach(async function () {
-      shell = TestShell.start({ args: ['--nodb'] });
+      shell = this.startTestShell({ args: ['--nodb'] });
       await shell.waitForPrompt();
       shell.assertNoErrors();
     });
@@ -1026,7 +1027,9 @@ describe('e2e', function () {
   describe('pipe from stdin', function () {
     let shell: TestShell;
     beforeEach(async function () {
-      shell = TestShell.start({ args: [await testServer.connectionString()] });
+      shell = this.startTestShell({
+        args: [await testServer.connectionString()],
+      });
     });
 
     it('reads and runs code from stdin, with .write()', async function () {
@@ -1080,7 +1083,7 @@ describe('e2e', function () {
 
     it('works fine with custom prompts', async function () {
       // https://jira.mongodb.org/browse/MONGOSH-1617
-      shell = TestShell.start({
+      shell = this.startTestShell({
         args: [
           await testServer.connectionString(),
           '--eval',
@@ -1101,7 +1104,7 @@ describe('e2e', function () {
   describe('Node.js builtin APIs in the shell', function () {
     let shell: TestShell;
     beforeEach(async function () {
-      shell = TestShell.start({
+      shell = this.startTestShell({
         args: ['--nodb'],
         cwd: path.resolve(__dirname, 'fixtures', 'require-base'),
         env: {
@@ -1140,7 +1143,7 @@ describe('e2e', function () {
     )})`, function () {
       context('file from disk', function () {
         it('loads a file from the command line as requested', async function () {
-          const shell = TestShell.start({
+          const shell = this.startTestShell({
             args: ['--nodb', ...jsContextFlags, './hello1.js'],
             cwd: path.resolve(
               __dirname,
@@ -1165,7 +1168,7 @@ describe('e2e', function () {
 
         if (!jsContextFlags.includes('--jsContext=plain-vm')) {
           it('drops into shell if --shell is used', async function () {
-            const shell = TestShell.start({
+            const shell = this.startTestShell({
               args: ['--nodb', ...jsContextFlags, '--shell', './hello1.js'],
               cwd: path.resolve(
                 __dirname,
@@ -1184,7 +1187,7 @@ describe('e2e', function () {
           });
 
           it('fails with the error if the loaded script throws', async function () {
-            const shell = TestShell.start({
+            const shell = this.startTestShell({
               args: ['--nodb', ...jsContextFlags, '--shell', './throw.js'],
               cwd: path.resolve(
                 __dirname,
@@ -1207,7 +1210,7 @@ describe('e2e', function () {
       context('--eval', function () {
         const script = 'const a = "hello", b = " one"; a + b';
         it('loads a script from the command line as requested', async function () {
-          const shell = TestShell.start({
+          const shell = this.startTestShell({
             args: ['--nodb', ...jsContextFlags, '--eval', script],
           });
           await eventually(() => {
@@ -1219,7 +1222,7 @@ describe('e2e', function () {
 
         if (!jsContextFlags.includes('--jsContext=plain-vm')) {
           it('drops into shell if --shell is used', async function () {
-            const shell = TestShell.start({
+            const shell = this.startTestShell({
               args: ['--nodb', ...jsContextFlags, '--eval', script, '--shell'],
             });
             await shell.waitForPrompt();
@@ -1230,7 +1233,7 @@ describe('e2e', function () {
         }
 
         it('fails with the error if the loaded script throws synchronously', async function () {
-          const shell = TestShell.start({
+          const shell = this.startTestShell({
             args: [
               '--nodb',
               ...jsContextFlags,
@@ -1245,7 +1248,7 @@ describe('e2e', function () {
         });
 
         it('fails with the error if the loaded script throws asynchronously (setImmediate)', async function () {
-          const shell = TestShell.start({
+          const shell = this.startTestShell({
             args: [
               '--nodb',
               ...jsContextFlags,
@@ -1262,7 +1265,7 @@ describe('e2e', function () {
         });
 
         it('fails with the error if the loaded script throws asynchronously (Promise)', async function () {
-          const shell = TestShell.start({
+          const shell = this.startTestShell({
             args: [
               '--nodb',
               ...jsContextFlags,
@@ -1286,7 +1289,7 @@ describe('e2e', function () {
             executionAsyncId: async_hooks.executionAsyncId()
           };
         })()`;
-          const shell = TestShell.start({
+          const shell = this.startTestShell({
             args: [
               '--nodb',
               ...jsContextFlags,
@@ -1366,7 +1369,7 @@ describe('e2e', function () {
         EJSON.parse(await fs.readFile(configPath, 'utf8'));
       readLogfile = async () => readReplLogfile(logPath);
       startTestShell = async (...extraArgs: string[]) => {
-        const shell = TestShell.start({
+        const shell = this.startTestShell({
           args: ['--nodb', ...extraArgs],
           env: env,
           forceTerminal: true,
@@ -1377,8 +1380,11 @@ describe('e2e', function () {
       };
     });
 
+    // Ensure the afterEach below runs after shells are killed
+    ensureTestShellAfterHook('afterEach', this);
+
     afterEach(async function () {
-      await TestShell.killall.call(this);
+      TestShell.assertNoOpenShells();
       try {
         await fs.rm(homedir, { recursive: true, force: true });
       } catch (err: any) {
@@ -1417,7 +1423,7 @@ describe('e2e', function () {
             globalConfig,
             'mongosh:\n  redactHistory: remove-redact'
           );
-          shell = TestShell.start({
+          shell = this.startTestShell({
             args: ['--nodb'],
             env: {
               ...env,
@@ -1709,7 +1715,7 @@ describe('e2e', function () {
       skipIfServerVersion(testServer, '> 4.4');
 
       it('errors if an API version is specified', async function () {
-        const shell = TestShell.start({
+        const shell = this.startTestShell({
           args: [
             await testServer.connectionString({}, { pathname: `/${dbName}` }),
             '--apiVersion',
@@ -1727,7 +1733,7 @@ describe('e2e', function () {
       skipIfServerVersion(testServer, '<= 4.4');
 
       it('can specify an API version', async function () {
-        const shell = TestShell.start({
+        const shell = this.startTestShell({
           args: [
             await testServer.connectionString({}, { pathname: `/${dbName}` }),
             '--apiVersion',
@@ -1743,7 +1749,7 @@ describe('e2e', function () {
       });
 
       it('can specify an API version and strict mode', async function () {
-        const shell = TestShell.start({
+        const shell = this.startTestShell({
           args: [
             await testServer.connectionString({}, { pathname: `/${dbName}` }),
             '--apiVersion',
@@ -1762,7 +1768,7 @@ describe('e2e', function () {
 
       it('can iterate cursors', async function () {
         // Make sure SERVER-55593 doesn't happen to us.
-        const shell = TestShell.start({
+        const shell = this.startTestShell({
           args: [
             await testServer.connectionString({}, { pathname: `/${dbName}` }),
             '--apiVersion',
@@ -1784,7 +1790,7 @@ describe('e2e', function () {
 
   describe('fail-fast connections', function () {
     it('fails fast for ENOTFOUND errors', async function () {
-      const shell = TestShell.start({
+      const shell = this.startTestShell({
         args: [
           'mongodb://' +
             'verymuchnonexistentdomainname'.repeat(4) +
@@ -1798,7 +1804,7 @@ describe('e2e', function () {
     it('fails fast for ENOTFOUND/EINVAL errors', async function () {
       // Very long & nonexistent domain can result in EINVAL in Node.js >= 20.11
       // In lower versions, it would be ENOTFOUND
-      const shell = TestShell.start({
+      const shell = this.startTestShell({
         args: [
           'mongodb://' +
             'verymuchnonexistentdomainname'.repeat(10) +
@@ -1810,7 +1816,7 @@ describe('e2e', function () {
     });
 
     it('fails fast for ECONNREFUSED errors to a single host', async function () {
-      const shell = TestShell.start({ args: ['--port', '1'] });
+      const shell = this.startTestShell({ args: ['--port', '1'] });
       const result = await shell.waitForPromptOrExit();
       expect(result).to.deep.equal({ state: 'exit', exitCode: 1 });
     });
@@ -1822,7 +1828,7 @@ describe('e2e', function () {
         // isn't a shell-specific issue.
         return this.skip();
       }
-      const shell = TestShell.start({
+      const shell = this.startTestShell({
         args: [
           'mongodb://127.0.0.1:1,127.0.0.2:1,127.0.0.3:1/?replicaSet=foo&readPreference=secondary',
         ],
@@ -1836,7 +1842,9 @@ describe('e2e', function () {
     let shell: TestShell;
 
     beforeEach(async function () {
-      shell = TestShell.start({ args: [await testServer.connectionString()] });
+      shell = this.startTestShell({
+        args: [await testServer.connectionString()],
+      });
       await shell.waitForPrompt();
       shell.assertNoErrors();
     });
@@ -1874,7 +1882,7 @@ describe('e2e', function () {
     let shell: TestShell;
 
     beforeEach(function () {
-      shell = TestShell.start({
+      shell = this.startTestShell({
         args: [],
         env: { ...process.env, MONGOSH_FORCE_CONNECTION_STRING_PROMPT: '1' },
         forceTerminal: true,
@@ -1901,7 +1909,7 @@ describe('e2e', function () {
 
   describe('with incomplete loadBalanced connectivity', function () {
     it('prints a warning at startup', async function () {
-      const shell = TestShell.start({
+      const shell = this.startTestShell({
         args: ['mongodb://localhost:1/?loadBalanced=true'],
       });
       await shell.waitForPrompt();
@@ -1923,12 +1931,81 @@ describe('e2e', function () {
         'fixtures',
         'simple-console-log.js'
       );
-      const shell = TestShell.start({
+      const shell = this.startTestShell({
         args: [filename],
         env: { ...process.env, MONGOSH_RUN_NODE_SCRIPT: '1' },
       });
       expect(await shell.waitForExit()).to.equal(0);
       shell.assertContainsOutput('610');
+    });
+  });
+
+  describe('currentOp', function () {
+    context('with 2 shells', function () {
+      let helperShell: TestShell;
+      let currentOpShell: TestShell;
+
+      const CURRENT_OP_WAIT_TIME = 400;
+      const OPERATION_TIME = CURRENT_OP_WAIT_TIME * 2;
+
+      beforeEach(async function () {
+        helperShell = this.startTestShell({
+          args: [await testServer.connectionString()],
+        });
+        currentOpShell = this.startTestShell({
+          args: [await testServer.connectionString()],
+        });
+        await helperShell.waitForPrompt();
+        await currentOpShell.waitForPrompt();
+
+        // Insert a dummy object so find commands will actually run with the delay.
+        await helperShell.executeLine('db.coll.insertOne({})');
+      });
+
+      it('should return the current operation and clear when it is complete', async function () {
+        const currentCommand = helperShell.executeLine(
+          `db.coll.find({$where: function() { sleep(${OPERATION_TIME}) }}).projection({testProjection: 1})`
+        );
+        helperShell.assertNoErrors();
+        await sleep(CURRENT_OP_WAIT_TIME);
+        let currentOpCall = await currentOpShell.executeLine(`db.currentOp()`);
+
+        currentOpShell.assertNoErrors();
+
+        expect(currentOpCall).to.include('testProjection');
+
+        await currentCommand;
+
+        currentOpCall = await currentOpShell.executeLine(`db.currentOp()`);
+
+        currentOpShell.assertNoErrors();
+        expect(currentOpCall).not.to.include('testProjection');
+      });
+
+      it('should work when the operation contains regex', async function () {
+        const regExpString = String.raw`^(?i)\Qchho0842\E`;
+
+        // Stringify the reg exp and drop the quotation marks.
+        // Meant to account for JS escaping behavior and to compare with output later.
+        const stringifiedRegExpString = `${JSON.stringify(regExpString)}`.slice(
+          1,
+          -1
+        );
+
+        void helperShell.executeLine(
+          `db.coll.find({$where: function() { sleep(${OPERATION_TIME}) }}).projection({re: BSONRegExp('${stringifiedRegExpString}')})`
+        );
+        helperShell.assertNoErrors();
+
+        await sleep(CURRENT_OP_WAIT_TIME);
+
+        const currentOpCall = await currentOpShell.executeLine(
+          `db.currentOp()`
+        );
+        currentOpShell.assertNoErrors();
+
+        expect(currentOpCall).to.include(stringifiedRegExpString);
+      });
     });
   });
 });

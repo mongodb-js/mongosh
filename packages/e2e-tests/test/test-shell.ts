@@ -1,4 +1,3 @@
-import type Mocha from 'mocha';
 import assert from 'assert';
 import type {
   ChildProcess,
@@ -11,6 +10,8 @@ import path from 'path';
 import stripAnsi from 'strip-ansi';
 import { EJSON } from 'bson';
 import { eventually } from '../../../testing/eventually';
+
+/* eslint-disable mocha/no-exports -- This file export hooks wrapping Mocha's Hooks APIs */
 
 export type TestShellStartupResult =
   | { state: 'prompt' }
@@ -44,8 +45,16 @@ export interface TestShellOptions {
  * Test shell helper class.
  */
 export class TestShell {
-  private static _openShells: TestShell[] = [];
+  private static _openShells: Set<TestShell> = new Set();
 
+  /**
+   * Starts a test shell.
+   *
+   * Beware that the caller is responsible for calling {@link kill} (and potentially {@link waitForExit}).
+   *
+   * Consider calling the `startTestShell` function on a {@link Mocha.Context} instead, as that manages the lifetime the shell
+   * and ensures it gets killed eventually.
+   */
   static start(options: TestShellOptions = { args: [] }): TestShell {
     let shellProcess: ChildProcessWithoutNullStreams;
 
@@ -91,43 +100,43 @@ export class TestShell {
     }
 
     const shell = new TestShell(shellProcess, options.consumeStdio);
-    TestShell._openShells.push(shell);
+    TestShell._openShells.add(shell);
+    void shell.waitForExit().then(() => {
+      TestShell._openShells.delete(shell);
+    });
 
     return shell;
   }
 
-  static async runAndGetOutputWithoutErrors(
-    options: TestShellOptions
-  ): Promise<string> {
-    const shell = this.start(options);
-    await shell.waitForExit();
-    shell.assertNoErrors();
-    return shell.output;
+  debugInformation() {
+    return {
+      pid: this.process.pid,
+      output: this.output,
+      rawOutput: this.rawOutput,
+      exitCode: this.process.exitCode,
+      signal: this.process.signalCode,
+    };
   }
 
-  static async killall(): Promise<void> {
-    const exitPromises: Promise<unknown>[] = [];
-    while (TestShell._openShells.length) {
-      const shell = TestShell._openShells.pop()!;
-      shell.kill();
-      exitPromises.push(shell.waitForExit());
+  static printShells() {
+    for (const shell of TestShell._openShells) {
+      console.error(shell.debugInformation());
     }
-    await Promise.all(exitPromises);
   }
 
-  static async cleanup(this: Mocha.Context): Promise<void> {
-    if (this.currentTest?.state === 'failed') {
-      for (const shell of TestShell._openShells) {
-        console.error({
-          pid: shell.process.pid,
-          output: shell.output,
-          rawOutput: shell.rawOutput,
-          exitCode: shell.process.exitCode,
-          signal: shell.process.signalCode,
-        });
-      }
-    }
-    await TestShell.killall();
+  static assertNoOpenShells() {
+    const debugInformation = [...TestShell._openShells].map((shell) =>
+      shell.debugInformation()
+    );
+    assert.strictEqual(
+      TestShell._openShells.size,
+      0,
+      `Expected no open shells, found: ${JSON.stringify(
+        debugInformation,
+        null,
+        2
+      )}`
+    );
   }
 
   private _process: ChildProcessWithoutNullStreams;
@@ -174,6 +183,22 @@ export class TestShell {
     return this._process;
   }
 
+  async waitForLine(pattern: RegExp, start = 0): Promise<void> {
+    await eventually(() => {
+      const output = this._output.slice(start);
+      const lines = output.split('\n');
+      const found = !!lines.filter((l) => pattern.exec(l));
+      if (!found) {
+        throw new assert.AssertionError({
+          message: 'expected line',
+          expected: pattern.toString(),
+          actual:
+            this._output.slice(0, start) + '[line search starts here]' + output,
+        });
+      }
+    });
+  }
+
   async waitForPrompt(start = 0): Promise<void> {
     await eventually(
       () => {
@@ -218,6 +243,15 @@ export class TestShell {
 
   waitForExit(): Promise<number> {
     return this._onClose;
+  }
+
+  /**
+   * Waits for the shell to exit, asserts no errors and returns the output.
+   */
+  async waitForCleanOutput(): Promise<string> {
+    await this.waitForExit();
+    this.assertNoErrors();
+    return this.output;
   }
 
   async waitForPromptOrExit(): Promise<TestShellStartupResult> {

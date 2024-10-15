@@ -192,7 +192,9 @@ export class CliRepl implements MongoshIOProvider {
     this.logManager = new MongoLogManager({
       directory: this.shellHomeDirectory.localPath('.'),
       retentionDays: 30,
-      maxLogFileCount: 100,
+      maxLogFileCount: +(
+        process.env.MONGOSH_TEST_ONLY_MAX_LOG_FILE_COUNT || 100
+      ),
       onerror: (err: Error) => this.bus.emit('mongosh:error', err, 'log'),
       onwarn: (err: Error, path: string) =>
         this.warnAboutInaccessibleFile(err, path),
@@ -286,6 +288,14 @@ export class CliRepl implements MongoshIOProvider {
       if (this.isPasswordMissingURI(cs)) {
         cs.password = encodeURIComponent(await this.requirePassword());
       }
+
+      if (await this.isTlsKeyFilePasswordMissingURI(searchParams)) {
+        const keyFilePassword = encodeURIComponent(
+          await this.requirePassword('Enter TLS key file password')
+        );
+        searchParams.set('tlsCertificateKeyFilePassword', keyFilePassword);
+      }
+
       this.ensurePasswordFieldIsPresentInAuth(driverOptions);
       driverUri = cs.toString();
     }
@@ -1006,6 +1016,27 @@ export class CliRepl implements MongoshIOProvider {
     );
   }
 
+  async isTlsKeyFilePasswordMissingURI(
+    searchParams: unknown
+  ): Promise<boolean> {
+    const searchMap = searchParams as Map<keyof DevtoolsConnectOptions, string>;
+    const tlsCertificateKeyFile = searchMap.get('tlsCertificateKeyFile');
+    const tlsCertificateKeyFilePassword = searchMap.get(
+      'tlsCertificateKeyFilePassword'
+    );
+
+    if (tlsCertificateKeyFile && !tlsCertificateKeyFilePassword) {
+      const { contents } = await this.readFileUTF8(tlsCertificateKeyFile);
+
+      // Matches standard encrypted key formats for PKCS#12/PKCS#8 and PKCS#1
+      return (
+        contents.search(/(ENCRYPTED PRIVATE KEY|Proc-Type: 4,ENCRYPTED)/) !== -1
+      );
+    }
+
+    return false;
+  }
+
   /**
    * Sets the auth.password field to undefined in the driverOptions if the auth
    * object is present with a truthy username. This is required by the driver, e.g.
@@ -1026,13 +1057,13 @@ export class CliRepl implements MongoshIOProvider {
   /**
    * Require the user to enter a password.
    */
-  async requirePassword(): Promise<string> {
+  async requirePassword(passwordPrompt = 'Enter password'): Promise<string> {
     const passwordPromise = askpassword({
       input: this.input,
       output: this.promptOutput,
       replacementCharacter: '*',
     });
-    this.promptOutput.write('Enter password: ');
+    this.promptOutput.write(`${passwordPrompt}: `);
     try {
       try {
         return (await passwordPromise).toString();

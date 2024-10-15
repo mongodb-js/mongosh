@@ -12,12 +12,15 @@ index f189ba2bf0..2602f6403e 100755
    if options.node_snapshot_main is not None:
 diff --git a/node.gyp b/node.gyp
 index 67909bdeb8..b38250a8cc 100644
---- node.gyp 	2024-06-28 10:58:19
-+++ node.gyp	2024-06-28 10:58:29
-@@ -464,36 +464,6 @@
-       }
-     },
-     "conditions": [
+--- node.gyp	2024-10-07 13:02:39
++++ node.gyp	2024-10-07 13:02:45
+@@ -472,36 +472,6 @@
+         {
+           "cflags": [
+             "-Wno-restrict"
+-          ]
+-        }
+-      ],
 -      [
 -        "target_arch==\"arm64\"",
 -        {
@@ -45,9 +48,6 @@ index 67909bdeb8..b38250a8cc 100644
 -                ]
 -              }
 -            ]
--          ]
--        }
--      ],
-       [
-         "OS in \"aix os400\"",
-         {
+           ]
+         }
+       ],
