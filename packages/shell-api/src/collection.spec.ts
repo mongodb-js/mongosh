@@ -1181,11 +1181,9 @@ describe('Collection', function () {
 
           it('returns the error as object', async function () {
             let caughtError: Error | undefined;
-            expect(
-              await collection
-                .dropIndexes('index_1')
-                .catch((err) => (caughtError = err))
-            );
+            await collection
+              .dropIndexes('index_1')
+              .catch((err) => (caughtError = err));
 
             expect(caughtError).to.deep.equal(expectedError);
           });
