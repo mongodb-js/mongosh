@@ -412,14 +412,6 @@ export default class Database extends ShellApiWithMongoClass {
     return await this._runAdminCommand(cmd, {});
   }
 
-  async aggregate(
-    singleStage: Document,
-    options?: Document
-  ): Promise<AggregationCursor>;
-  async aggregate(
-    pipeline: Document[],
-    options?: Document
-  ): Promise<AggregationCursor>;
   /**
    * Run an aggregation against the db.
    *
