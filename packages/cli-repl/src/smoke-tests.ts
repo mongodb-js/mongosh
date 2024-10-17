@@ -151,6 +151,15 @@ export async function runSmokeTests({
       tags: ['startup'],
     },
     {
+      name: 'eval_nodb_require',
+      input: '',
+      output: /foobar/,
+      includeStderr: false,
+      testArgs: ['--nodb', '--eval', 'require("util").format("%sbar", "foo")'],
+      exitCode: 0,
+      perfTestIterations: 0,
+    },
+    {
       name: 'mongosh_version',
       input: '',
       output: new RegExp(escapeRegexp(baseBuildInfo().version)),
