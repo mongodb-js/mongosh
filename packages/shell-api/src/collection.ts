@@ -1335,15 +1335,6 @@ export default class Collection extends ShellApiWithMongoClass {
         return all.sort((a, b) => b.nIndexesWas - a.nIndexesWas)[0];
       }
 
-      if (error?.codeName === 'IndexNotFound') {
-        return {
-          ok: error.ok,
-          errmsg: error.errmsg,
-          code: error.code,
-          codeName: error.codeName,
-        };
-      }
-
       throw error;
     }
   }
