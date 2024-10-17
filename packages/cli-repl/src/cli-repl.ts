@@ -1017,11 +1017,12 @@ export class CliRepl implements MongoshIOProvider {
   }
 
   async isTlsKeyFilePasswordMissingURI(
-    searchParams: unknown
+    searchParams: ReturnType<
+      typeof ConnectionString.prototype.typedSearchParams<DevtoolsConnectOptions>
+    >
   ): Promise<boolean> {
-    const searchMap = searchParams as Map<keyof DevtoolsConnectOptions, string>;
-    const tlsCertificateKeyFile = searchMap.get('tlsCertificateKeyFile');
-    const tlsCertificateKeyFilePassword = searchMap.get(
+    const tlsCertificateKeyFile = searchParams.get('tlsCertificateKeyFile');
+    const tlsCertificateKeyFilePassword = searchParams.get(
       'tlsCertificateKeyFilePassword'
     );
 
