@@ -164,7 +164,7 @@ export default class Collection extends ShellApiWithMongoClass {
   async aggregate(
     pipeline: Document[],
     options: Document & { explain: ExplainVerbosityLike }
-  ): Promise<AggregationCursor>;
+  ): Promise<Document>;
   async aggregate(...stages: Document[]): Promise<AggregationCursor>;
   @returnsPromise
   @returnType('AggregationCursor')
@@ -191,10 +191,7 @@ export default class Collection extends ShellApiWithMongoClass {
       this._database._name,
       this._name,
       pipeline,
-      {
-        ...(await this._database._baseOptions()),
-        ...aggOptions,
-      },
+      { ...(await this._database._baseOptions()), ...aggOptions },
       dbOptions
     );
     const cursor = new AggregationCursor(this._mongo, providerCursor);
