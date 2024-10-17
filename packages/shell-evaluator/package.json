@@ -40,7 +40,7 @@
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@mongosh/types": "0.0.0-dev.0",
     "@types/sinon-chai": "^3.2.4",
-    "depcheck": "^1.4.3",
+    "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
     "prettier": "^2.8.8"
   },
