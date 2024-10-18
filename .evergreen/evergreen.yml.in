@@ -520,7 +520,7 @@ functions:
           AWS_AUTH_IAM_ACCESS_KEY_ID: ${devtools_ci_aws_key}
           AWS_AUTH_IAM_SECRET_ACCESS_KEY: ${devtools_ci_aws_secret}
           DISABLE_OPENSSL_SHARED_CONFIG_FOR_BUNDLED_OPENSSL: ${disable_openssl_shared_config_for_bundled_openssl}
-          E2E_TASK_NAME: ${task_name}
+          E2E_TASK_NAME: ${var_task_name}
 
   ###
   # PACKAGING AND UPLOADING
@@ -1232,7 +1232,7 @@ tasks:
           mongosh_server_test_version: "<% out(mVersion) %>-enterprise"
           mongosh_test_e2e_force_fips: "<% out(fipsVariant === 'fips' ? '1' : '') %>"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
-          task_name: "e2e_tests_<% out(executableOsId.replace(/-/g, '_')) %><% out(mVersion === 'stable' ? '' : '_' + mVersion.replace(/[^a-zA-Z0-9]/g, '')) %><% out(fipsVariant === 'fips' ? '_fips' : '') %>"
+          var_task_name: "e2e_tests_<% out(executableOsId.replace(/-/g, '_')) %><% out(mVersion === 'stable' ? '' : '_' + mVersion.replace(/[^a-zA-Z0-9]/g, '')) %><% out(fipsVariant === 'fips' ? '_fips' : '') %>"
   <% } } %>
   - name: perf_tests_<% out(executableOsId.replace(/-/g, '_')) %>
     tags: ["perf-test"]
