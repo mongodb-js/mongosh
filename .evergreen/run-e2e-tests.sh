@@ -23,4 +23,4 @@ fi
 
 echo "TEST NAME IS $E2E_TASK_NAME"
 echo "$MONGOSH_TEST_EXECUTABLE_PATH"
-E2E_TASK_NAME=${E2E_TASK_NAME} npm run test-e2e
+npm run test-e2e

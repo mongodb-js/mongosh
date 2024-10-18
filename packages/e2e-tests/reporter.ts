@@ -9,7 +9,7 @@ const XUnit = reporters.XUnit;
 export class MochaReporter extends reporters.Base {
   constructor(runner: Runner, options: MochaOptions) {
     super(runner, options);
-    const suiteName = process.env.E2E_TASK_NAME ?? path.basename(process.cwd());
+    const suiteName = process.env.TASK_NAME ?? path.basename(process.cwd());
     console.info(`MOCHAREPORTER:${suiteName}`);
 
     new Spec(runner);
