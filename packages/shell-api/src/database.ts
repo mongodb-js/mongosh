@@ -423,7 +423,7 @@ export default class Database extends ShellApiWithMongoClass {
   @returnType('AggregationCursor')
   @apiVersions([1])
   async aggregate(
-    pipeline: Document[],
+    pipelineOrSingleStage: Document | Document[],
     options?: Document
   ): Promise<AggregationCursor> {
     if ('background' in (options ?? {})) {
@@ -431,7 +431,12 @@ export default class Database extends ShellApiWithMongoClass {
         aggregateBackgroundOptionNotSupportedHelp
       );
     }
+    const pipeline: Document[] = Array.isArray(pipelineOrSingleStage)
+      ? pipelineOrSingleStage
+      : [pipelineOrSingleStage];
+
     assertArgsDefinedType([pipeline], [true], 'Database.aggregate');
+
     this._emitDatabaseApiCall('aggregate', { options, pipeline });
 
     const { aggOptions, dbOptions, explain } = adaptAggregateOptions(options);
@@ -1429,6 +1434,7 @@ export default class Database extends ShellApiWithMongoClass {
         CommonErrors.CommandFailed
       );
     }
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     for (const cmdDescription of Object.values(result.commands) as Document[]) {
       if ('slaveOk' in cmdDescription) {
         cmdDescription.secondaryOk = cmdDescription.slaveOk;

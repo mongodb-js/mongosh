@@ -400,6 +400,16 @@ describe('Database', function () {
         );
       });
 
+      it('supports a single aggregation stage', async function () {
+        await database.aggregate({ $piplelineStage: {} }, { options: true });
+
+        expect(serviceProvider.aggregateDb).to.have.been.calledWith(
+          database._name,
+          [{ $piplelineStage: {} }],
+          { options: true }
+        );
+      });
+
       it('calls serviceProvider.aggregateDb with explicit batchSize', async function () {
         await database.aggregate([{ $piplelineStage: {} }], {
           options: true,
