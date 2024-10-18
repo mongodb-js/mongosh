@@ -11766,7 +11766,7 @@ tasks:
           executable_os_id: linux-arm64
       - func: run_e2e_tests
         vars:
-          task_name_var: ${task_name}
+          task_name_var: e2e_tests_linux_arm64
           node_js_version: "20.18.0"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
