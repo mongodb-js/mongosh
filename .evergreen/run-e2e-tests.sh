@@ -14,6 +14,7 @@ fi
 source .evergreen/setup-env.sh
 dist/mongosh --version
 
+export TASK_NAME="$E2E_TASK_NAME"
 export MONGOSH_TEST_EXECUTABLE_PATH="$(pwd)/dist/mongosh"
 
 if [ "$OS" == "Windows_NT" ]; then
@@ -21,6 +22,5 @@ if [ "$OS" == "Windows_NT" ]; then
   export MONGOSH_TEST_EXECUTABLE_PATH="$(cygpath -w "$MONGOSH_TEST_EXECUTABLE_PATH")"
 fi
 
-echo "TEST NAME IS $E2E_TASK_NAME"
 echo "$MONGOSH_TEST_EXECUTABLE_PATH"
 npm run test-e2e
