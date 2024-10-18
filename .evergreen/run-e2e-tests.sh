@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -e
 export NODE_JS_VERSION=${NODE_JS_VERSION}
+export E2E_TASK_NAME=${E2E_TASK_NAME}
 
 if [[ "$DISABLE_OPENSSL_SHARED_CONFIG_FOR_BUNDLED_OPENSSL" == "true" ]] && [[ ! "$E2E_TASK_NAME" =~ openssl(3|11) ]]; then
   # On RHEL9 and based-distros, an additional configuration option
@@ -11,7 +12,6 @@ if [[ "$DISABLE_OPENSSL_SHARED_CONFIG_FOR_BUNDLED_OPENSSL" == "true" ]] && [[ ! 
   export OPENSSL_CONF=""
 fi
 
-export E2E_TASK_NAME="$E2E_TASK_NAME"
 source .evergreen/setup-env.sh
 dist/mongosh --version
 
