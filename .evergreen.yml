@@ -11443,7 +11443,7 @@ tasks:
         vars:
           executable_os_id: linux-x64
       - func: run_e2e_tests
-        vars:i
+        vars:
           task_name_var: "${task_name}"
           node_js_version: "20.18.0"
           mongosh_server_test_version: "6.0.x-enterprise"
