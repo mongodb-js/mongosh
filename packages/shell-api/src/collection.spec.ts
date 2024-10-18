@@ -1165,26 +1165,27 @@ describe('Collection', function () {
       context(
         'when serviceProvider.dropIndexes rejects IndexNotFound',
         function () {
+          let expectedError: Error;
           beforeEach(function () {
-            const error = new Error('index not found with name [index_1]');
-            Object.assign(error, {
+            expectedError = new Error('index not found with name [index_1]');
+            Object.assign(expectedError, {
               ok: 0,
               errmsg: 'index not found with name [index_1]',
               code: 27,
               codeName: 'IndexNotFound',
-              name: 'MongoError',
+              name: 'MongoServerError',
             });
 
-            serviceProvider.runCommandWithCheck.rejects(error);
+            serviceProvider.runCommandWithCheck.rejects(expectedError);
           });
 
           it('returns the error as object', async function () {
-            expect(await collection.dropIndexes('index_1')).to.deep.equal({
-              ok: 0,
-              errmsg: 'index not found with name [index_1]',
-              code: 27,
-              codeName: 'IndexNotFound',
-            });
+            let caughtError: Error | undefined;
+            await collection
+              .dropIndexes('index_1')
+              .catch((err) => (caughtError = err));
+
+            expect(caughtError).to.deep.equal(expectedError);
           });
         }
       );
