@@ -11076,6 +11076,7 @@ tasks:
           executable_os_id: darwin-x64
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -11095,6 +11096,7 @@ tasks:
           executable_os_id: darwin-x64
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -11114,6 +11116,7 @@ tasks:
           executable_os_id: darwin-x64
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -11133,6 +11136,7 @@ tasks:
           executable_os_id: darwin-x64
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -11152,6 +11156,7 @@ tasks:
           executable_os_id: darwin-x64
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -11171,6 +11176,7 @@ tasks:
           executable_os_id: darwin-x64
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -11204,6 +11210,7 @@ tasks:
           executable_os_id: darwin-arm64
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -11223,6 +11230,7 @@ tasks:
           executable_os_id: darwin-arm64
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -11242,6 +11250,7 @@ tasks:
           executable_os_id: darwin-arm64
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -11261,6 +11270,7 @@ tasks:
           executable_os_id: darwin-arm64
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -11280,6 +11290,7 @@ tasks:
           executable_os_id: darwin-arm64
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -11299,6 +11310,7 @@ tasks:
           executable_os_id: darwin-arm64
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -11332,6 +11344,7 @@ tasks:
           executable_os_id: linux-x64
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -11351,6 +11364,7 @@ tasks:
           executable_os_id: linux-x64
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -11370,6 +11384,7 @@ tasks:
           executable_os_id: linux-x64
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -11389,6 +11404,7 @@ tasks:
           executable_os_id: linux-x64
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -11408,6 +11424,7 @@ tasks:
           executable_os_id: linux-x64
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -11427,6 +11444,7 @@ tasks:
           executable_os_id: linux-x64
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -11460,6 +11478,7 @@ tasks:
           executable_os_id: linux-x64-openssl11
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -11479,6 +11498,7 @@ tasks:
           executable_os_id: linux-x64-openssl11
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -11498,6 +11518,7 @@ tasks:
           executable_os_id: linux-x64-openssl11
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -11517,6 +11538,7 @@ tasks:
           executable_os_id: linux-x64-openssl11
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -11536,6 +11558,7 @@ tasks:
           executable_os_id: linux-x64-openssl11
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -11555,6 +11578,7 @@ tasks:
           executable_os_id: linux-x64-openssl11
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -11588,6 +11612,7 @@ tasks:
           executable_os_id: linux-x64-openssl3
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -11607,6 +11632,7 @@ tasks:
           executable_os_id: linux-x64-openssl3
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -11626,6 +11652,7 @@ tasks:
           executable_os_id: linux-x64-openssl3
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -11645,6 +11672,7 @@ tasks:
           executable_os_id: linux-x64-openssl3
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -11664,6 +11692,7 @@ tasks:
           executable_os_id: linux-x64-openssl3
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -11683,6 +11712,7 @@ tasks:
           executable_os_id: linux-x64-openssl3
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -11716,6 +11746,7 @@ tasks:
           executable_os_id: linux-arm64
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -11735,6 +11766,7 @@ tasks:
           executable_os_id: linux-arm64
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -11754,6 +11786,7 @@ tasks:
           executable_os_id: linux-arm64
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -11773,6 +11806,7 @@ tasks:
           executable_os_id: linux-arm64
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -11792,6 +11826,7 @@ tasks:
           executable_os_id: linux-arm64
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -11811,6 +11846,7 @@ tasks:
           executable_os_id: linux-arm64
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -11844,6 +11880,7 @@ tasks:
           executable_os_id: linux-arm64-openssl11
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -11863,6 +11900,7 @@ tasks:
           executable_os_id: linux-arm64-openssl11
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -11882,6 +11920,7 @@ tasks:
           executable_os_id: linux-arm64-openssl11
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -11901,6 +11940,7 @@ tasks:
           executable_os_id: linux-arm64-openssl11
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -11920,6 +11960,7 @@ tasks:
           executable_os_id: linux-arm64-openssl11
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -11939,6 +11980,7 @@ tasks:
           executable_os_id: linux-arm64-openssl11
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -11972,6 +12014,7 @@ tasks:
           executable_os_id: linux-arm64-openssl3
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -11991,6 +12034,7 @@ tasks:
           executable_os_id: linux-arm64-openssl3
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -12010,6 +12054,7 @@ tasks:
           executable_os_id: linux-arm64-openssl3
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -12029,6 +12074,7 @@ tasks:
           executable_os_id: linux-arm64-openssl3
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -12048,6 +12094,7 @@ tasks:
           executable_os_id: linux-arm64-openssl3
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -12067,6 +12114,7 @@ tasks:
           executable_os_id: linux-arm64-openssl3
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -12100,6 +12148,7 @@ tasks:
           executable_os_id: linux-ppc64le
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -12119,6 +12168,7 @@ tasks:
           executable_os_id: linux-ppc64le
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -12138,6 +12188,7 @@ tasks:
           executable_os_id: linux-ppc64le
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -12157,6 +12208,7 @@ tasks:
           executable_os_id: linux-ppc64le
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -12176,6 +12228,7 @@ tasks:
           executable_os_id: linux-ppc64le
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -12195,6 +12248,7 @@ tasks:
           executable_os_id: linux-ppc64le
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -12228,6 +12282,7 @@ tasks:
           executable_os_id: linux-s390x
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -12247,6 +12302,7 @@ tasks:
           executable_os_id: linux-s390x
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -12266,6 +12322,7 @@ tasks:
           executable_os_id: linux-s390x
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -12285,6 +12342,7 @@ tasks:
           executable_os_id: linux-s390x
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -12304,6 +12362,7 @@ tasks:
           executable_os_id: linux-s390x
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -12323,6 +12382,7 @@ tasks:
           executable_os_id: linux-s390x
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -12356,6 +12416,7 @@ tasks:
           executable_os_id: win32
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -12375,6 +12436,7 @@ tasks:
           executable_os_id: win32
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -12394,6 +12456,7 @@ tasks:
           executable_os_id: win32
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -12413,6 +12476,7 @@ tasks:
           executable_os_id: win32
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
@@ -12432,6 +12496,7 @@ tasks:
           executable_os_id: win32
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
@@ -12451,6 +12516,7 @@ tasks:
           executable_os_id: win32
       - func: run_e2e_tests
         vars:
+          task_name: ${task_name}
           node_js_version: "20.18.0"
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
