@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 set -e
-echo "e2e test task_name:"
-echo $E2E_TASK_NAME
 export NODE_JS_VERSION=${NODE_JS_VERSION}
 export E2E_TASK_NAME=${E2E_TASK_NAME}
 
