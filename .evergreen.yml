@@ -60,6 +60,9 @@ post:
       visibility: signed
       content_type: application/x-gzip
       optional: true
+  - command: attach.xunit_results
+    params:
+      file: src/.logs/*.xml
 
 
 # Functions are any command that can be run.
@@ -11077,6 +11080,7 @@ tasks:
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_darwin_x64_fips"
   - name: e2e_tests_darwin_x64
     tags: ["e2e-test"]
     depends_on:
@@ -11096,6 +11100,7 @@ tasks:
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_darwin_x64"
   - name: e2e_tests_darwin_x64_70x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -11115,6 +11120,7 @@ tasks:
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_darwin_x64_70x_fips"
   - name: e2e_tests_darwin_x64_70x
     tags: ["e2e-test"]
     depends_on:
@@ -11134,6 +11140,7 @@ tasks:
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_darwin_x64_70x"
   - name: e2e_tests_darwin_x64_60x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -11153,6 +11160,7 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_darwin_x64_60x_fips"
   - name: e2e_tests_darwin_x64_60x
     tags: ["e2e-test"]
     depends_on:
@@ -11172,6 +11180,7 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_darwin_x64_60x"
   - name: perf_tests_darwin_x64
     tags: ["perf-test"]
     depends_on:
@@ -11205,6 +11214,7 @@ tasks:
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_darwin_arm64_fips"
   - name: e2e_tests_darwin_arm64
     tags: ["e2e-test"]
     depends_on:
@@ -11224,6 +11234,7 @@ tasks:
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_darwin_arm64"
   - name: e2e_tests_darwin_arm64_70x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -11243,6 +11254,7 @@ tasks:
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_darwin_arm64_70x_fips"
   - name: e2e_tests_darwin_arm64_70x
     tags: ["e2e-test"]
     depends_on:
@@ -11262,6 +11274,7 @@ tasks:
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_darwin_arm64_70x"
   - name: e2e_tests_darwin_arm64_60x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -11281,6 +11294,7 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_darwin_arm64_60x_fips"
   - name: e2e_tests_darwin_arm64_60x
     tags: ["e2e-test"]
     depends_on:
@@ -11300,6 +11314,7 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_darwin_arm64_60x"
   - name: perf_tests_darwin_arm64
     tags: ["perf-test"]
     depends_on:
@@ -11333,6 +11348,7 @@ tasks:
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_x64_fips"
   - name: e2e_tests_linux_x64
     tags: ["e2e-test"]
     depends_on:
@@ -11352,6 +11368,7 @@ tasks:
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_x64"
   - name: e2e_tests_linux_x64_70x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -11371,6 +11388,7 @@ tasks:
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_x64_70x_fips"
   - name: e2e_tests_linux_x64_70x
     tags: ["e2e-test"]
     depends_on:
@@ -11390,6 +11408,7 @@ tasks:
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_x64_70x"
   - name: e2e_tests_linux_x64_60x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -11409,6 +11428,7 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_x64_60x_fips"
   - name: e2e_tests_linux_x64_60x
     tags: ["e2e-test"]
     depends_on:
@@ -11428,6 +11448,7 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_x64_60x"
   - name: perf_tests_linux_x64
     tags: ["perf-test"]
     depends_on:
@@ -11461,6 +11482,7 @@ tasks:
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_x64_openssl11_fips"
   - name: e2e_tests_linux_x64_openssl11
     tags: ["e2e-test"]
     depends_on:
@@ -11480,6 +11502,7 @@ tasks:
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_x64_openssl11"
   - name: e2e_tests_linux_x64_openssl11_70x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -11499,6 +11522,7 @@ tasks:
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_x64_openssl11_70x_fips"
   - name: e2e_tests_linux_x64_openssl11_70x
     tags: ["e2e-test"]
     depends_on:
@@ -11518,6 +11542,7 @@ tasks:
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_x64_openssl11_70x"
   - name: e2e_tests_linux_x64_openssl11_60x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -11537,6 +11562,7 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_x64_openssl11_60x_fips"
   - name: e2e_tests_linux_x64_openssl11_60x
     tags: ["e2e-test"]
     depends_on:
@@ -11556,6 +11582,7 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_x64_openssl11_60x"
   - name: perf_tests_linux_x64_openssl11
     tags: ["perf-test"]
     depends_on:
@@ -11589,6 +11616,7 @@ tasks:
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_x64_openssl3_fips"
   - name: e2e_tests_linux_x64_openssl3
     tags: ["e2e-test"]
     depends_on:
@@ -11608,6 +11636,7 @@ tasks:
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_x64_openssl3"
   - name: e2e_tests_linux_x64_openssl3_70x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -11627,6 +11656,7 @@ tasks:
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_x64_openssl3_70x_fips"
   - name: e2e_tests_linux_x64_openssl3_70x
     tags: ["e2e-test"]
     depends_on:
@@ -11646,6 +11676,7 @@ tasks:
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_x64_openssl3_70x"
   - name: e2e_tests_linux_x64_openssl3_60x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -11665,6 +11696,7 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_x64_openssl3_60x_fips"
   - name: e2e_tests_linux_x64_openssl3_60x
     tags: ["e2e-test"]
     depends_on:
@@ -11684,6 +11716,7 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_x64_openssl3_60x"
   - name: perf_tests_linux_x64_openssl3
     tags: ["perf-test"]
     depends_on:
@@ -11717,6 +11750,7 @@ tasks:
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_arm64_fips"
   - name: e2e_tests_linux_arm64
     tags: ["e2e-test"]
     depends_on:
@@ -11736,6 +11770,7 @@ tasks:
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_arm64"
   - name: e2e_tests_linux_arm64_70x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -11755,6 +11790,7 @@ tasks:
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_arm64_70x_fips"
   - name: e2e_tests_linux_arm64_70x
     tags: ["e2e-test"]
     depends_on:
@@ -11774,6 +11810,7 @@ tasks:
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_arm64_70x"
   - name: e2e_tests_linux_arm64_60x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -11793,6 +11830,7 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_arm64_60x_fips"
   - name: e2e_tests_linux_arm64_60x
     tags: ["e2e-test"]
     depends_on:
@@ -11812,6 +11850,7 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_arm64_60x"
   - name: perf_tests_linux_arm64
     tags: ["perf-test"]
     depends_on:
@@ -11845,6 +11884,7 @@ tasks:
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_arm64_openssl11_fips"
   - name: e2e_tests_linux_arm64_openssl11
     tags: ["e2e-test"]
     depends_on:
@@ -11864,6 +11904,7 @@ tasks:
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_arm64_openssl11"
   - name: e2e_tests_linux_arm64_openssl11_70x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -11883,6 +11924,7 @@ tasks:
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_arm64_openssl11_70x_fips"
   - name: e2e_tests_linux_arm64_openssl11_70x
     tags: ["e2e-test"]
     depends_on:
@@ -11902,6 +11944,7 @@ tasks:
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_arm64_openssl11_70x"
   - name: e2e_tests_linux_arm64_openssl11_60x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -11921,6 +11964,7 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_arm64_openssl11_60x_fips"
   - name: e2e_tests_linux_arm64_openssl11_60x
     tags: ["e2e-test"]
     depends_on:
@@ -11940,6 +11984,7 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_arm64_openssl11_60x"
   - name: perf_tests_linux_arm64_openssl11
     tags: ["perf-test"]
     depends_on:
@@ -11973,6 +12018,7 @@ tasks:
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_arm64_openssl3_fips"
   - name: e2e_tests_linux_arm64_openssl3
     tags: ["e2e-test"]
     depends_on:
@@ -11992,6 +12038,7 @@ tasks:
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_arm64_openssl3"
   - name: e2e_tests_linux_arm64_openssl3_70x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -12011,6 +12058,7 @@ tasks:
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_arm64_openssl3_70x_fips"
   - name: e2e_tests_linux_arm64_openssl3_70x
     tags: ["e2e-test"]
     depends_on:
@@ -12030,6 +12078,7 @@ tasks:
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_arm64_openssl3_70x"
   - name: e2e_tests_linux_arm64_openssl3_60x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -12049,6 +12098,7 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_arm64_openssl3_60x_fips"
   - name: e2e_tests_linux_arm64_openssl3_60x
     tags: ["e2e-test"]
     depends_on:
@@ -12068,6 +12118,7 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_arm64_openssl3_60x"
   - name: perf_tests_linux_arm64_openssl3
     tags: ["perf-test"]
     depends_on:
@@ -12101,6 +12152,7 @@ tasks:
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_ppc64le_fips"
   - name: e2e_tests_linux_ppc64le
     tags: ["e2e-test"]
     depends_on:
@@ -12120,6 +12172,7 @@ tasks:
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_ppc64le"
   - name: e2e_tests_linux_ppc64le_70x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -12139,6 +12192,7 @@ tasks:
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_ppc64le_70x_fips"
   - name: e2e_tests_linux_ppc64le_70x
     tags: ["e2e-test"]
     depends_on:
@@ -12158,6 +12212,7 @@ tasks:
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_ppc64le_70x"
   - name: e2e_tests_linux_ppc64le_60x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -12177,6 +12232,7 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_ppc64le_60x_fips"
   - name: e2e_tests_linux_ppc64le_60x
     tags: ["e2e-test"]
     depends_on:
@@ -12196,6 +12252,7 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_ppc64le_60x"
   - name: perf_tests_linux_ppc64le
     tags: ["perf-test"]
     depends_on:
@@ -12229,6 +12286,7 @@ tasks:
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_s390x_fips"
   - name: e2e_tests_linux_s390x
     tags: ["e2e-test"]
     depends_on:
@@ -12248,6 +12306,7 @@ tasks:
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_s390x"
   - name: e2e_tests_linux_s390x_70x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -12267,6 +12326,7 @@ tasks:
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_s390x_70x_fips"
   - name: e2e_tests_linux_s390x_70x
     tags: ["e2e-test"]
     depends_on:
@@ -12286,6 +12346,7 @@ tasks:
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_s390x_70x"
   - name: e2e_tests_linux_s390x_60x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -12305,6 +12366,7 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_s390x_60x_fips"
   - name: e2e_tests_linux_s390x_60x
     tags: ["e2e-test"]
     depends_on:
@@ -12324,6 +12386,7 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_linux_s390x_60x"
   - name: perf_tests_linux_s390x
     tags: ["perf-test"]
     depends_on:
@@ -12357,6 +12420,7 @@ tasks:
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_win32_fips"
   - name: e2e_tests_win32
     tags: ["e2e-test"]
     depends_on:
@@ -12376,6 +12440,7 @@ tasks:
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_win32"
   - name: e2e_tests_win32_70x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -12395,6 +12460,7 @@ tasks:
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_win32_70x_fips"
   - name: e2e_tests_win32_70x
     tags: ["e2e-test"]
     depends_on:
@@ -12414,6 +12480,7 @@ tasks:
           mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_win32_70x"
   - name: e2e_tests_win32_60x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -12433,6 +12500,7 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_win32_60x_fips"
   - name: e2e_tests_win32_60x
     tags: ["e2e-test"]
     depends_on:
@@ -12452,6 +12520,7 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          task_name: "e2e_tests_win32_60x"
   - name: perf_tests_win32
     tags: ["perf-test"]
     depends_on:
