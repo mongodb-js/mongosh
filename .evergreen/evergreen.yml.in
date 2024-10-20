@@ -1232,7 +1232,7 @@ tasks:
           mongosh_server_test_version: "<% out(mVersion) %>-enterprise"
           mongosh_test_e2e_force_fips: "<% out(fipsVariant === 'fips' ? '1' : '') %>"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
-          task_name" ${task_name}
+          task_name: ${task_name}"
   <% } } %>
   - name: perf_tests_<% out(executableOsId.replace(/-/g, '_')) %>
     tags: ["perf-test"]
