@@ -19,7 +19,7 @@ if [[ -n "$MONOGDB_DRIVER_VERSION_OVERRIDE" ]]; then
 fi
 
 # Needed to ensure Python 3.6 support which is the oldest one that's available out-of-the-box on the rhel70 hosts.
-if [[ "${DISTRO_ID}" =~ ^(rhel) ]] && [[ "$NODE_JS_VERSION" =~ ^20 ]]; then
+if [[ "${DISTRO_ID}" =~ ^(rhel) ]]; then
   npm install node-gyp@9 --verbose --force
 fi
 
