@@ -160,12 +160,12 @@ export default class Collection extends ShellApiWithMongoClass {
    */
   async aggregate(
     pipeline: Document[],
-    options: AggregateOptions & { explain?: never }
-  ): Promise<AggregationCursor>;
-  async aggregate(
-    pipeline: Document[],
     options: AggregateOptions & { explain: ExplainVerbosityLike }
   ): Promise<Document>;
+  async aggregate(
+    pipeline: Document[],
+    options: AggregateOptions
+  ): Promise<AggregationCursor>;
   async aggregate(...stages: Document[]): Promise<AggregationCursor>;
   @returnsPromise
   @returnType('AggregationCursor')
