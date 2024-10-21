@@ -26,3 +26,6 @@ mongocryptd.pid
 .sbom
 .nvm
 snapshot.blob
+.logs/*
+!.logs
+!.logs/test.xml
