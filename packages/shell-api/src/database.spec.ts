@@ -401,12 +401,25 @@ describe('Database', function () {
       });
 
       it('supports a single aggregation stage', async function () {
-        await database.aggregate({ $piplelineStage: {} }, { options: true });
+        await database.aggregate({ $piplelineStage: {} });
 
         expect(serviceProvider.aggregateDb).to.have.been.calledWith(
           database._name,
           [{ $piplelineStage: {} }],
-          { options: true }
+          {}
+        );
+      });
+
+      it('supports passing args as aggregation stages', async function () {
+        await database.aggregate(
+          { $piplelineStage: {} },
+          { $piplelineStage2: {} }
+        );
+
+        expect(serviceProvider.aggregateDb).to.have.been.calledWith(
+          database._name,
+          [{ $piplelineStage: {} }, { $piplelineStage2: {} }],
+          {}
         );
       });
 
