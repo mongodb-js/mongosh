@@ -2904,7 +2904,9 @@ describe('Database', function () {
       it('runs a $sql aggregation', async function () {
         const serviceProviderCursor = stubInterface<ServiceProviderAggCursor>();
         serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
-        await database.sql('SELECT * FROM somecollection;', { options: true });
+        await database.sql('SELECT * FROM somecollection;', {
+          serializeFunctions: true,
+        });
         expect(serviceProvider.aggregateDb).to.have.been.calledWith(
           database._name,
           [
@@ -2917,7 +2919,7 @@ describe('Database', function () {
               },
             },
           ],
-          { options: true }
+          { serializeFunctions: true }
         );
       });
 
