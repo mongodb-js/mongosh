@@ -1128,6 +1128,7 @@ tasks:
           mongosh_skip_node_version_check: "<% out(skipNodeVersionCheck) %>"
           mongosh_test_id: "<% out(id) %>"
           mongosh_run_only_in_package: "<% out(packageName) %>"
+          task_name: ${task_name}
   <% } %>
 
   ###
@@ -1158,6 +1159,7 @@ tasks:
       - func: test_connectivity
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          task_name: ${task_name}
   - name: test_apistrict
     tags: ["extra-integration-test"]
     depends_on:
@@ -1173,6 +1175,7 @@ tasks:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           mongosh_server_test_version: "latest-alpha-enterprise"
           mongosh_test_force_api_strict: "1"
+          task_name: ${task_name}
   - name: compile_artifact
     tags: ["compile-artifact"]
     depends_on:

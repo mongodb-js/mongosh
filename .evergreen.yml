@@ -7292,6 +7292,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n20_arg_parser"
           mongosh_run_only_in_package: "arg-parser"
+          task_name: ${task_name}
   - name: test_n16_arg_parser
     tags: ["unit-test"]
     depends_on:
@@ -7309,6 +7310,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_arg_parser"
           mongosh_run_only_in_package: "arg-parser"
+          task_name: ${task_name}
   - name: test_n20_async_rewriter2
     tags: ["unit-test"]
     depends_on:
@@ -7326,6 +7328,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n20_async_rewriter2"
           mongosh_run_only_in_package: "async-rewriter2"
+          task_name: ${task_name}
   - name: test_n16_async_rewriter2
     tags: ["unit-test"]
     depends_on:
@@ -7343,6 +7346,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_async_rewriter2"
           mongosh_run_only_in_package: "async-rewriter2"
+          task_name: ${task_name}
   - name: test_n20_autocomplete
     tags: ["unit-test"]
     depends_on:
@@ -7360,6 +7364,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n20_autocomplete"
           mongosh_run_only_in_package: "autocomplete"
+          task_name: ${task_name}
   - name: test_n16_autocomplete
     tags: ["unit-test"]
     depends_on:
@@ -7377,6 +7382,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_autocomplete"
           mongosh_run_only_in_package: "autocomplete"
+          task_name: ${task_name}
   - name: test_n20_browser_repl
     tags: ["unit-test"]
     depends_on:
@@ -7394,6 +7400,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n20_browser_repl"
           mongosh_run_only_in_package: "browser-repl"
+          task_name: ${task_name}
   - name: test_n16_browser_repl
     tags: ["unit-test"]
     depends_on:
@@ -7411,6 +7418,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_browser_repl"
           mongosh_run_only_in_package: "browser-repl"
+          task_name: ${task_name}
   - name: test_n20_browser_runtime_core
     tags: ["unit-test"]
     depends_on:
@@ -7428,6 +7436,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n20_browser_runtime_core"
           mongosh_run_only_in_package: "browser-runtime-core"
+          task_name: ${task_name}
   - name: test_n16_browser_runtime_core
     tags: ["unit-test"]
     depends_on:
@@ -7445,6 +7454,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_browser_runtime_core"
           mongosh_run_only_in_package: "browser-runtime-core"
+          task_name: ${task_name}
   - name: test_n20_browser_runtime_electron
     tags: ["unit-test"]
     depends_on:
@@ -7462,6 +7472,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n20_browser_runtime_electron"
           mongosh_run_only_in_package: "browser-runtime-electron"
+          task_name: ${task_name}
   - name: test_n16_browser_runtime_electron
     tags: ["unit-test"]
     depends_on:
@@ -7479,6 +7490,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_browser_runtime_electron"
           mongosh_run_only_in_package: "browser-runtime-electron"
+          task_name: ${task_name}
   - name: test_n20_build
     tags: ["unit-test"]
     depends_on:
@@ -7496,6 +7508,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n20_build"
           mongosh_run_only_in_package: "build"
+          task_name: ${task_name}
   - name: test_n16_build
     tags: ["unit-test"]
     depends_on:
@@ -7513,6 +7526,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_build"
           mongosh_run_only_in_package: "build"
+          task_name: ${task_name}
   - name: test_m42xc_n20_cli_repl
     tags: ["unit-test"]
     depends_on:
@@ -7530,6 +7544,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xc_n20_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
+          task_name: ${task_name}
   - name: test_m42xe_n20_cli_repl
     tags: ["unit-test"]
     depends_on:
@@ -7547,6 +7562,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xe_n20_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
+          task_name: ${task_name}
   - name: test_m44xc_n20_cli_repl
     tags: ["unit-test"]
     depends_on:
@@ -7564,6 +7580,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xc_n20_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
+          task_name: ${task_name}
   - name: test_m44xe_n20_cli_repl
     tags: ["unit-test"]
     depends_on:
@@ -7581,6 +7598,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xe_n20_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
+          task_name: ${task_name}
   - name: test_m50xc_n20_cli_repl
     tags: ["unit-test"]
     depends_on:
@@ -7598,6 +7616,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xc_n20_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
+          task_name: ${task_name}
   - name: test_m50xe_n20_cli_repl
     tags: ["unit-test"]
     depends_on:
@@ -7615,6 +7634,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xe_n20_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
+          task_name: ${task_name}
   - name: test_m60xc_n20_cli_repl
     tags: ["unit-test"]
     depends_on:
@@ -7632,6 +7652,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xc_n20_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
+          task_name: ${task_name}
   - name: test_m60xe_n20_cli_repl
     tags: ["unit-test"]
     depends_on:
@@ -7649,6 +7670,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xe_n20_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
+          task_name: ${task_name}
   - name: test_m70xc_n20_cli_repl
     tags: ["unit-test"]
     depends_on:
@@ -7666,6 +7688,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m70xc_n20_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
+          task_name: ${task_name}
   - name: test_m70xe_n20_cli_repl
     tags: ["unit-test"]
     depends_on:
@@ -7683,6 +7706,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m70xe_n20_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
+          task_name: ${task_name}
   - name: test_m80xc_n20_cli_repl
     tags: ["unit-test"]
     depends_on:
@@ -7700,6 +7724,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n20_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
+          task_name: ${task_name}
   - name: test_m80xe_n20_cli_repl
     tags: ["unit-test"]
     depends_on:
@@ -7717,6 +7742,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n20_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
+          task_name: ${task_name}
   - name: test_mlatest_n20_cli_repl
     tags: ["unit-test","mlatest"]
     depends_on:
@@ -7734,6 +7760,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n20_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
+          task_name: ${task_name}
   - name: test_m42xc_n16_cli_repl
     tags: ["unit-test"]
     depends_on:
@@ -7751,6 +7778,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xc_n16_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
+          task_name: ${task_name}
   - name: test_m42xe_n16_cli_repl
     tags: ["unit-test"]
     depends_on:
@@ -7768,6 +7796,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xe_n16_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
+          task_name: ${task_name}
   - name: test_m44xc_n16_cli_repl
     tags: ["unit-test"]
     depends_on:
@@ -7785,6 +7814,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xc_n16_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
+          task_name: ${task_name}
   - name: test_m44xe_n16_cli_repl
     tags: ["unit-test"]
     depends_on:
@@ -7802,6 +7832,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xe_n16_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
+          task_name: ${task_name}
   - name: test_m50xc_n16_cli_repl
     tags: ["unit-test"]
     depends_on:
@@ -7819,6 +7850,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xc_n16_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
+          task_name: ${task_name}
   - name: test_m50xe_n16_cli_repl
     tags: ["unit-test"]
     depends_on:
@@ -7836,6 +7868,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xe_n16_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
+          task_name: ${task_name}
   - name: test_m60xc_n16_cli_repl
     tags: ["unit-test"]
     depends_on:
@@ -7853,6 +7886,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xc_n16_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
+          task_name: ${task_name}
   - name: test_m60xe_n16_cli_repl
     tags: ["unit-test"]
     depends_on:
@@ -7870,6 +7904,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xe_n16_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
+          task_name: ${task_name}
   - name: test_m70xc_n16_cli_repl
     tags: ["unit-test"]
     depends_on:
@@ -7887,6 +7922,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m70xc_n16_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
+          task_name: ${task_name}
   - name: test_m70xe_n16_cli_repl
     tags: ["unit-test"]
     depends_on:
@@ -7904,6 +7940,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m70xe_n16_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
+          task_name: ${task_name}
   - name: test_m80xc_n16_cli_repl
     tags: ["unit-test"]
     depends_on:
@@ -7921,6 +7958,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n16_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
+          task_name: ${task_name}
   - name: test_m80xe_n16_cli_repl
     tags: ["unit-test"]
     depends_on:
@@ -7938,6 +7976,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n16_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
+          task_name: ${task_name}
   - name: test_mlatest_n16_cli_repl
     tags: ["unit-test","mlatest"]
     depends_on:
@@ -7955,6 +7994,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n16_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
+          task_name: ${task_name}
   - name: test_n20_connectivity_tests
     tags: ["unit-test"]
     depends_on:
@@ -7972,6 +8012,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n20_connectivity_tests"
           mongosh_run_only_in_package: "connectivity-tests"
+          task_name: ${task_name}
   - name: test_n16_connectivity_tests
     tags: ["unit-test"]
     depends_on:
@@ -7989,6 +8030,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_connectivity_tests"
           mongosh_run_only_in_package: "connectivity-tests"
+          task_name: ${task_name}
   - name: test_m42xc_n20_e2e_tests
     tags: ["unit-test"]
     depends_on:
@@ -8006,6 +8048,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xc_n20_e2e_tests"
           mongosh_run_only_in_package: "e2e-tests"
+          task_name: ${task_name}
   - name: test_m42xe_n20_e2e_tests
     tags: ["unit-test"]
     depends_on:
@@ -8023,6 +8066,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xe_n20_e2e_tests"
           mongosh_run_only_in_package: "e2e-tests"
+          task_name: ${task_name}
   - name: test_m44xc_n20_e2e_tests
     tags: ["unit-test"]
     depends_on:
@@ -8040,6 +8084,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xc_n20_e2e_tests"
           mongosh_run_only_in_package: "e2e-tests"
+          task_name: ${task_name}
   - name: test_m44xe_n20_e2e_tests
     tags: ["unit-test"]
     depends_on:
@@ -8057,6 +8102,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xe_n20_e2e_tests"
           mongosh_run_only_in_package: "e2e-tests"
+          task_name: ${task_name}
   - name: test_m50xc_n20_e2e_tests
     tags: ["unit-test"]
     depends_on:
@@ -8074,6 +8120,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xc_n20_e2e_tests"
           mongosh_run_only_in_package: "e2e-tests"
+          task_name: ${task_name}
   - name: test_m50xe_n20_e2e_tests
     tags: ["unit-test"]
     depends_on:
@@ -8091,6 +8138,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xe_n20_e2e_tests"
           mongosh_run_only_in_package: "e2e-tests"
+          task_name: ${task_name}
   - name: test_m60xc_n20_e2e_tests
     tags: ["unit-test"]
     depends_on:
@@ -8108,6 +8156,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xc_n20_e2e_tests"
           mongosh_run_only_in_package: "e2e-tests"
+          task_name: ${task_name}
   - name: test_m60xe_n20_e2e_tests
     tags: ["unit-test"]
     depends_on:
@@ -8125,6 +8174,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xe_n20_e2e_tests"
           mongosh_run_only_in_package: "e2e-tests"
+          task_name: ${task_name}
   - name: test_m70xc_n20_e2e_tests
     tags: ["unit-test"]
     depends_on:
@@ -8142,6 +8192,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m70xc_n20_e2e_tests"
           mongosh_run_only_in_package: "e2e-tests"
+          task_name: ${task_name}
   - name: test_m70xe_n20_e2e_tests
     tags: ["unit-test"]
     depends_on:
@@ -8159,6 +8210,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m70xe_n20_e2e_tests"
           mongosh_run_only_in_package: "e2e-tests"
+          task_name: ${task_name}
   - name: test_m80xc_n20_e2e_tests
     tags: ["unit-test"]
     depends_on:
@@ -8176,6 +8228,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n20_e2e_tests"
           mongosh_run_only_in_package: "e2e-tests"
+          task_name: ${task_name}
   - name: test_m80xe_n20_e2e_tests
     tags: ["unit-test"]
     depends_on:
@@ -8193,6 +8246,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n20_e2e_tests"
           mongosh_run_only_in_package: "e2e-tests"
+          task_name: ${task_name}
   - name: test_mlatest_n20_e2e_tests
     tags: ["unit-test","mlatest"]
     depends_on:
@@ -8210,6 +8264,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n20_e2e_tests"
           mongosh_run_only_in_package: "e2e-tests"
+          task_name: ${task_name}
   - name: test_m42xc_n16_e2e_tests
     tags: ["unit-test"]
     depends_on:
@@ -8227,6 +8282,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xc_n16_e2e_tests"
           mongosh_run_only_in_package: "e2e-tests"
+          task_name: ${task_name}
   - name: test_m42xe_n16_e2e_tests
     tags: ["unit-test"]
     depends_on:
@@ -8244,6 +8300,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xe_n16_e2e_tests"
           mongosh_run_only_in_package: "e2e-tests"
+          task_name: ${task_name}
   - name: test_m44xc_n16_e2e_tests
     tags: ["unit-test"]
     depends_on:
@@ -8261,6 +8318,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xc_n16_e2e_tests"
           mongosh_run_only_in_package: "e2e-tests"
+          task_name: ${task_name}
   - name: test_m44xe_n16_e2e_tests
     tags: ["unit-test"]
     depends_on:
@@ -8278,6 +8336,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xe_n16_e2e_tests"
           mongosh_run_only_in_package: "e2e-tests"
+          task_name: ${task_name}
   - name: test_m50xc_n16_e2e_tests
     tags: ["unit-test"]
     depends_on:
@@ -8295,6 +8354,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xc_n16_e2e_tests"
           mongosh_run_only_in_package: "e2e-tests"
+          task_name: ${task_name}
   - name: test_m50xe_n16_e2e_tests
     tags: ["unit-test"]
     depends_on:
@@ -8312,6 +8372,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xe_n16_e2e_tests"
           mongosh_run_only_in_package: "e2e-tests"
+          task_name: ${task_name}
   - name: test_m60xc_n16_e2e_tests
     tags: ["unit-test"]
     depends_on:
@@ -8329,6 +8390,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xc_n16_e2e_tests"
           mongosh_run_only_in_package: "e2e-tests"
+          task_name: ${task_name}
   - name: test_m60xe_n16_e2e_tests
     tags: ["unit-test"]
     depends_on:
@@ -8346,6 +8408,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xe_n16_e2e_tests"
           mongosh_run_only_in_package: "e2e-tests"
+          task_name: ${task_name}
   - name: test_m70xc_n16_e2e_tests
     tags: ["unit-test"]
     depends_on:
@@ -8363,6 +8426,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m70xc_n16_e2e_tests"
           mongosh_run_only_in_package: "e2e-tests"
+          task_name: ${task_name}
   - name: test_m70xe_n16_e2e_tests
     tags: ["unit-test"]
     depends_on:
@@ -8380,6 +8444,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m70xe_n16_e2e_tests"
           mongosh_run_only_in_package: "e2e-tests"
+          task_name: ${task_name}
   - name: test_m80xc_n16_e2e_tests
     tags: ["unit-test"]
     depends_on:
@@ -8397,6 +8462,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n16_e2e_tests"
           mongosh_run_only_in_package: "e2e-tests"
+          task_name: ${task_name}
   - name: test_m80xe_n16_e2e_tests
     tags: ["unit-test"]
     depends_on:
@@ -8414,6 +8480,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n16_e2e_tests"
           mongosh_run_only_in_package: "e2e-tests"
+          task_name: ${task_name}
   - name: test_mlatest_n16_e2e_tests
     tags: ["unit-test","mlatest"]
     depends_on:
@@ -8431,6 +8498,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n16_e2e_tests"
           mongosh_run_only_in_package: "e2e-tests"
+          task_name: ${task_name}
   - name: test_n20_editor
     tags: ["unit-test"]
     depends_on:
@@ -8448,6 +8516,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n20_editor"
           mongosh_run_only_in_package: "editor"
+          task_name: ${task_name}
   - name: test_n16_editor
     tags: ["unit-test"]
     depends_on:
@@ -8465,6 +8534,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_editor"
           mongosh_run_only_in_package: "editor"
+          task_name: ${task_name}
   - name: test_n20_errors
     tags: ["unit-test"]
     depends_on:
@@ -8482,6 +8552,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n20_errors"
           mongosh_run_only_in_package: "errors"
+          task_name: ${task_name}
   - name: test_n16_errors
     tags: ["unit-test"]
     depends_on:
@@ -8499,6 +8570,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_errors"
           mongosh_run_only_in_package: "errors"
+          task_name: ${task_name}
   - name: test_n20_history
     tags: ["unit-test"]
     depends_on:
@@ -8516,6 +8588,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n20_history"
           mongosh_run_only_in_package: "history"
+          task_name: ${task_name}
   - name: test_n16_history
     tags: ["unit-test"]
     depends_on:
@@ -8533,6 +8606,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_history"
           mongosh_run_only_in_package: "history"
+          task_name: ${task_name}
   - name: test_n20_i18n
     tags: ["unit-test"]
     depends_on:
@@ -8550,6 +8624,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n20_i18n"
           mongosh_run_only_in_package: "i18n"
+          task_name: ${task_name}
   - name: test_n16_i18n
     tags: ["unit-test"]
     depends_on:
@@ -8567,6 +8642,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_i18n"
           mongosh_run_only_in_package: "i18n"
+          task_name: ${task_name}
   - name: test_m42xc_n20_java_shell
     tags: ["unit-test"]
     depends_on:
@@ -8584,6 +8660,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xc_n20_java_shell"
           mongosh_run_only_in_package: "java-shell"
+          task_name: ${task_name}
   - name: test_m42xe_n20_java_shell
     tags: ["unit-test"]
     depends_on:
@@ -8601,6 +8678,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xe_n20_java_shell"
           mongosh_run_only_in_package: "java-shell"
+          task_name: ${task_name}
   - name: test_m44xc_n20_java_shell
     tags: ["unit-test"]
     depends_on:
@@ -8618,6 +8696,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xc_n20_java_shell"
           mongosh_run_only_in_package: "java-shell"
+          task_name: ${task_name}
   - name: test_m44xe_n20_java_shell
     tags: ["unit-test"]
     depends_on:
@@ -8635,6 +8714,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xe_n20_java_shell"
           mongosh_run_only_in_package: "java-shell"
+          task_name: ${task_name}
   - name: test_m50xc_n20_java_shell
     tags: ["unit-test"]
     depends_on:
@@ -8652,6 +8732,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xc_n20_java_shell"
           mongosh_run_only_in_package: "java-shell"
+          task_name: ${task_name}
   - name: test_m50xe_n20_java_shell
     tags: ["unit-test"]
     depends_on:
@@ -8669,6 +8750,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xe_n20_java_shell"
           mongosh_run_only_in_package: "java-shell"
+          task_name: ${task_name}
   - name: test_m60xc_n20_java_shell
     tags: ["unit-test"]
     depends_on:
@@ -8686,6 +8768,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xc_n20_java_shell"
           mongosh_run_only_in_package: "java-shell"
+          task_name: ${task_name}
   - name: test_m60xe_n20_java_shell
     tags: ["unit-test"]
     depends_on:
@@ -8703,6 +8786,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xe_n20_java_shell"
           mongosh_run_only_in_package: "java-shell"
+          task_name: ${task_name}
   - name: test_m70xc_n20_java_shell
     tags: ["unit-test"]
     depends_on:
@@ -8720,6 +8804,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m70xc_n20_java_shell"
           mongosh_run_only_in_package: "java-shell"
+          task_name: ${task_name}
   - name: test_m70xe_n20_java_shell
     tags: ["unit-test"]
     depends_on:
@@ -8737,6 +8822,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m70xe_n20_java_shell"
           mongosh_run_only_in_package: "java-shell"
+          task_name: ${task_name}
   - name: test_m80xc_n20_java_shell
     tags: ["unit-test"]
     depends_on:
@@ -8754,6 +8840,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n20_java_shell"
           mongosh_run_only_in_package: "java-shell"
+          task_name: ${task_name}
   - name: test_m80xe_n20_java_shell
     tags: ["unit-test"]
     depends_on:
@@ -8771,6 +8858,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n20_java_shell"
           mongosh_run_only_in_package: "java-shell"
+          task_name: ${task_name}
   - name: test_mlatest_n20_java_shell
     tags: ["unit-test","mlatest"]
     depends_on:
@@ -8788,6 +8876,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n20_java_shell"
           mongosh_run_only_in_package: "java-shell"
+          task_name: ${task_name}
   - name: test_m42xc_n16_java_shell
     tags: ["unit-test"]
     depends_on:
@@ -8805,6 +8894,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xc_n16_java_shell"
           mongosh_run_only_in_package: "java-shell"
+          task_name: ${task_name}
   - name: test_m42xe_n16_java_shell
     tags: ["unit-test"]
     depends_on:
@@ -8822,6 +8912,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xe_n16_java_shell"
           mongosh_run_only_in_package: "java-shell"
+          task_name: ${task_name}
   - name: test_m44xc_n16_java_shell
     tags: ["unit-test"]
     depends_on:
@@ -8839,6 +8930,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xc_n16_java_shell"
           mongosh_run_only_in_package: "java-shell"
+          task_name: ${task_name}
   - name: test_m44xe_n16_java_shell
     tags: ["unit-test"]
     depends_on:
@@ -8856,6 +8948,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xe_n16_java_shell"
           mongosh_run_only_in_package: "java-shell"
+          task_name: ${task_name}
   - name: test_m50xc_n16_java_shell
     tags: ["unit-test"]
     depends_on:
@@ -8873,6 +8966,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xc_n16_java_shell"
           mongosh_run_only_in_package: "java-shell"
+          task_name: ${task_name}
   - name: test_m50xe_n16_java_shell
     tags: ["unit-test"]
     depends_on:
@@ -8890,6 +8984,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xe_n16_java_shell"
           mongosh_run_only_in_package: "java-shell"
+          task_name: ${task_name}
   - name: test_m60xc_n16_java_shell
     tags: ["unit-test"]
     depends_on:
@@ -8907,6 +9002,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xc_n16_java_shell"
           mongosh_run_only_in_package: "java-shell"
+          task_name: ${task_name}
   - name: test_m60xe_n16_java_shell
     tags: ["unit-test"]
     depends_on:
@@ -8924,6 +9020,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xe_n16_java_shell"
           mongosh_run_only_in_package: "java-shell"
+          task_name: ${task_name}
   - name: test_m70xc_n16_java_shell
     tags: ["unit-test"]
     depends_on:
@@ -8941,6 +9038,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m70xc_n16_java_shell"
           mongosh_run_only_in_package: "java-shell"
+          task_name: ${task_name}
   - name: test_m70xe_n16_java_shell
     tags: ["unit-test"]
     depends_on:
@@ -8958,6 +9056,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m70xe_n16_java_shell"
           mongosh_run_only_in_package: "java-shell"
+          task_name: ${task_name}
   - name: test_m80xc_n16_java_shell
     tags: ["unit-test"]
     depends_on:
@@ -8975,6 +9074,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n16_java_shell"
           mongosh_run_only_in_package: "java-shell"
+          task_name: ${task_name}
   - name: test_m80xe_n16_java_shell
     tags: ["unit-test"]
     depends_on:
@@ -8992,6 +9092,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n16_java_shell"
           mongosh_run_only_in_package: "java-shell"
+          task_name: ${task_name}
   - name: test_mlatest_n16_java_shell
     tags: ["unit-test","mlatest"]
     depends_on:
@@ -9009,6 +9110,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n16_java_shell"
           mongosh_run_only_in_package: "java-shell"
+          task_name: ${task_name}
   - name: test_n20_js_multiline_to_singleline
     tags: ["unit-test"]
     depends_on:
@@ -9026,6 +9128,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n20_js_multiline_to_singleline"
           mongosh_run_only_in_package: "js-multiline-to-singleline"
+          task_name: ${task_name}
   - name: test_n16_js_multiline_to_singleline
     tags: ["unit-test"]
     depends_on:
@@ -9043,6 +9146,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_js_multiline_to_singleline"
           mongosh_run_only_in_package: "js-multiline-to-singleline"
+          task_name: ${task_name}
   - name: test_n20_logging
     tags: ["unit-test"]
     depends_on:
@@ -9060,6 +9164,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n20_logging"
           mongosh_run_only_in_package: "logging"
+          task_name: ${task_name}
   - name: test_n16_logging
     tags: ["unit-test"]
     depends_on:
@@ -9077,6 +9182,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_logging"
           mongosh_run_only_in_package: "logging"
+          task_name: ${task_name}
   - name: test_m42xc_n20_mongosh
     tags: ["unit-test"]
     depends_on:
@@ -9094,6 +9200,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xc_n20_mongosh"
           mongosh_run_only_in_package: "mongosh"
+          task_name: ${task_name}
   - name: test_m42xe_n20_mongosh
     tags: ["unit-test"]
     depends_on:
@@ -9111,6 +9218,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xe_n20_mongosh"
           mongosh_run_only_in_package: "mongosh"
+          task_name: ${task_name}
   - name: test_m44xc_n20_mongosh
     tags: ["unit-test"]
     depends_on:
@@ -9128,6 +9236,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xc_n20_mongosh"
           mongosh_run_only_in_package: "mongosh"
+          task_name: ${task_name}
   - name: test_m44xe_n20_mongosh
     tags: ["unit-test"]
     depends_on:
@@ -9145,6 +9254,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xe_n20_mongosh"
           mongosh_run_only_in_package: "mongosh"
+          task_name: ${task_name}
   - name: test_m50xc_n20_mongosh
     tags: ["unit-test"]
     depends_on:
@@ -9162,6 +9272,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xc_n20_mongosh"
           mongosh_run_only_in_package: "mongosh"
+          task_name: ${task_name}
   - name: test_m50xe_n20_mongosh
     tags: ["unit-test"]
     depends_on:
@@ -9179,6 +9290,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xe_n20_mongosh"
           mongosh_run_only_in_package: "mongosh"
+          task_name: ${task_name}
   - name: test_m60xc_n20_mongosh
     tags: ["unit-test"]
     depends_on:
@@ -9196,6 +9308,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xc_n20_mongosh"
           mongosh_run_only_in_package: "mongosh"
+          task_name: ${task_name}
   - name: test_m60xe_n20_mongosh
     tags: ["unit-test"]
     depends_on:
@@ -9213,6 +9326,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xe_n20_mongosh"
           mongosh_run_only_in_package: "mongosh"
+          task_name: ${task_name}
   - name: test_m70xc_n20_mongosh
     tags: ["unit-test"]
     depends_on:
@@ -9230,6 +9344,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m70xc_n20_mongosh"
           mongosh_run_only_in_package: "mongosh"
+          task_name: ${task_name}
   - name: test_m70xe_n20_mongosh
     tags: ["unit-test"]
     depends_on:
@@ -9247,6 +9362,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m70xe_n20_mongosh"
           mongosh_run_only_in_package: "mongosh"
+          task_name: ${task_name}
   - name: test_m80xc_n20_mongosh
     tags: ["unit-test"]
     depends_on:
@@ -9264,6 +9380,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n20_mongosh"
           mongosh_run_only_in_package: "mongosh"
+          task_name: ${task_name}
   - name: test_m80xe_n20_mongosh
     tags: ["unit-test"]
     depends_on:
@@ -9281,6 +9398,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n20_mongosh"
           mongosh_run_only_in_package: "mongosh"
+          task_name: ${task_name}
   - name: test_mlatest_n20_mongosh
     tags: ["unit-test","mlatest"]
     depends_on:
@@ -9298,6 +9416,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n20_mongosh"
           mongosh_run_only_in_package: "mongosh"
+          task_name: ${task_name}
   - name: test_m42xc_n16_mongosh
     tags: ["unit-test"]
     depends_on:
@@ -9315,6 +9434,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xc_n16_mongosh"
           mongosh_run_only_in_package: "mongosh"
+          task_name: ${task_name}
   - name: test_m42xe_n16_mongosh
     tags: ["unit-test"]
     depends_on:
@@ -9332,6 +9452,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xe_n16_mongosh"
           mongosh_run_only_in_package: "mongosh"
+          task_name: ${task_name}
   - name: test_m44xc_n16_mongosh
     tags: ["unit-test"]
     depends_on:
@@ -9349,6 +9470,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xc_n16_mongosh"
           mongosh_run_only_in_package: "mongosh"
+          task_name: ${task_name}
   - name: test_m44xe_n16_mongosh
     tags: ["unit-test"]
     depends_on:
@@ -9366,6 +9488,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xe_n16_mongosh"
           mongosh_run_only_in_package: "mongosh"
+          task_name: ${task_name}
   - name: test_m50xc_n16_mongosh
     tags: ["unit-test"]
     depends_on:
@@ -9383,6 +9506,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xc_n16_mongosh"
           mongosh_run_only_in_package: "mongosh"
+          task_name: ${task_name}
   - name: test_m50xe_n16_mongosh
     tags: ["unit-test"]
     depends_on:
@@ -9400,6 +9524,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xe_n16_mongosh"
           mongosh_run_only_in_package: "mongosh"
+          task_name: ${task_name}
   - name: test_m60xc_n16_mongosh
     tags: ["unit-test"]
     depends_on:
@@ -9417,6 +9542,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xc_n16_mongosh"
           mongosh_run_only_in_package: "mongosh"
+          task_name: ${task_name}
   - name: test_m60xe_n16_mongosh
     tags: ["unit-test"]
     depends_on:
@@ -9434,6 +9560,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xe_n16_mongosh"
           mongosh_run_only_in_package: "mongosh"
+          task_name: ${task_name}
   - name: test_m70xc_n16_mongosh
     tags: ["unit-test"]
     depends_on:
@@ -9451,6 +9578,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m70xc_n16_mongosh"
           mongosh_run_only_in_package: "mongosh"
+          task_name: ${task_name}
   - name: test_m70xe_n16_mongosh
     tags: ["unit-test"]
     depends_on:
@@ -9468,6 +9596,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m70xe_n16_mongosh"
           mongosh_run_only_in_package: "mongosh"
+          task_name: ${task_name}
   - name: test_m80xc_n16_mongosh
     tags: ["unit-test"]
     depends_on:
@@ -9485,6 +9614,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n16_mongosh"
           mongosh_run_only_in_package: "mongosh"
+          task_name: ${task_name}
   - name: test_m80xe_n16_mongosh
     tags: ["unit-test"]
     depends_on:
@@ -9502,6 +9632,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n16_mongosh"
           mongosh_run_only_in_package: "mongosh"
+          task_name: ${task_name}
   - name: test_mlatest_n16_mongosh
     tags: ["unit-test","mlatest"]
     depends_on:
@@ -9519,6 +9650,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n16_mongosh"
           mongosh_run_only_in_package: "mongosh"
+          task_name: ${task_name}
   - name: test_m42xc_n20_node_runtime_worker_thread
     tags: ["unit-test"]
     depends_on:
@@ -9536,6 +9668,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xc_n20_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
+          task_name: ${task_name}
   - name: test_m42xe_n20_node_runtime_worker_thread
     tags: ["unit-test"]
     depends_on:
@@ -9553,6 +9686,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xe_n20_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
+          task_name: ${task_name}
   - name: test_m44xc_n20_node_runtime_worker_thread
     tags: ["unit-test"]
     depends_on:
@@ -9570,6 +9704,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xc_n20_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
+          task_name: ${task_name}
   - name: test_m44xe_n20_node_runtime_worker_thread
     tags: ["unit-test"]
     depends_on:
@@ -9587,6 +9722,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xe_n20_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
+          task_name: ${task_name}
   - name: test_m50xc_n20_node_runtime_worker_thread
     tags: ["unit-test"]
     depends_on:
@@ -9604,6 +9740,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xc_n20_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
+          task_name: ${task_name}
   - name: test_m50xe_n20_node_runtime_worker_thread
     tags: ["unit-test"]
     depends_on:
@@ -9621,6 +9758,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xe_n20_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
+          task_name: ${task_name}
   - name: test_m60xc_n20_node_runtime_worker_thread
     tags: ["unit-test"]
     depends_on:
@@ -9638,6 +9776,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xc_n20_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
+          task_name: ${task_name}
   - name: test_m60xe_n20_node_runtime_worker_thread
     tags: ["unit-test"]
     depends_on:
@@ -9655,6 +9794,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xe_n20_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
+          task_name: ${task_name}
   - name: test_m70xc_n20_node_runtime_worker_thread
     tags: ["unit-test"]
     depends_on:
@@ -9672,6 +9812,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m70xc_n20_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
+          task_name: ${task_name}
   - name: test_m70xe_n20_node_runtime_worker_thread
     tags: ["unit-test"]
     depends_on:
@@ -9689,6 +9830,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m70xe_n20_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
+          task_name: ${task_name}
   - name: test_m80xc_n20_node_runtime_worker_thread
     tags: ["unit-test"]
     depends_on:
@@ -9706,6 +9848,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n20_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
+          task_name: ${task_name}
   - name: test_m80xe_n20_node_runtime_worker_thread
     tags: ["unit-test"]
     depends_on:
@@ -9723,6 +9866,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n20_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
+          task_name: ${task_name}
   - name: test_mlatest_n20_node_runtime_worker_thread
     tags: ["unit-test","mlatest"]
     depends_on:
@@ -9740,6 +9884,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n20_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
+          task_name: ${task_name}
   - name: test_m42xc_n16_node_runtime_worker_thread
     tags: ["unit-test"]
     depends_on:
@@ -9757,6 +9902,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xc_n16_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
+          task_name: ${task_name}
   - name: test_m42xe_n16_node_runtime_worker_thread
     tags: ["unit-test"]
     depends_on:
@@ -9774,6 +9920,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xe_n16_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
+          task_name: ${task_name}
   - name: test_m44xc_n16_node_runtime_worker_thread
     tags: ["unit-test"]
     depends_on:
@@ -9791,6 +9938,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xc_n16_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
+          task_name: ${task_name}
   - name: test_m44xe_n16_node_runtime_worker_thread
     tags: ["unit-test"]
     depends_on:
@@ -9808,6 +9956,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xe_n16_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
+          task_name: ${task_name}
   - name: test_m50xc_n16_node_runtime_worker_thread
     tags: ["unit-test"]
     depends_on:
@@ -9825,6 +9974,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xc_n16_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
+          task_name: ${task_name}
   - name: test_m50xe_n16_node_runtime_worker_thread
     tags: ["unit-test"]
     depends_on:
@@ -9842,6 +9992,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xe_n16_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
+          task_name: ${task_name}
   - name: test_m60xc_n16_node_runtime_worker_thread
     tags: ["unit-test"]
     depends_on:
@@ -9859,6 +10010,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xc_n16_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
+          task_name: ${task_name}
   - name: test_m60xe_n16_node_runtime_worker_thread
     tags: ["unit-test"]
     depends_on:
@@ -9876,6 +10028,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xe_n16_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
+          task_name: ${task_name}
   - name: test_m70xc_n16_node_runtime_worker_thread
     tags: ["unit-test"]
     depends_on:
@@ -9893,6 +10046,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m70xc_n16_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
+          task_name: ${task_name}
   - name: test_m70xe_n16_node_runtime_worker_thread
     tags: ["unit-test"]
     depends_on:
@@ -9910,6 +10064,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m70xe_n16_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
+          task_name: ${task_name}
   - name: test_m80xc_n16_node_runtime_worker_thread
     tags: ["unit-test"]
     depends_on:
@@ -9927,6 +10082,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n16_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
+          task_name: ${task_name}
   - name: test_m80xe_n16_node_runtime_worker_thread
     tags: ["unit-test"]
     depends_on:
@@ -9944,6 +10100,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n16_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
+          task_name: ${task_name}
   - name: test_mlatest_n16_node_runtime_worker_thread
     tags: ["unit-test","mlatest"]
     depends_on:
@@ -9961,6 +10118,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n16_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
+          task_name: ${task_name}
   - name: test_n20_service_provider_core
     tags: ["unit-test"]
     depends_on:
@@ -9978,6 +10136,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n20_service_provider_core"
           mongosh_run_only_in_package: "service-provider-core"
+          task_name: ${task_name}
   - name: test_n16_service_provider_core
     tags: ["unit-test"]
     depends_on:
@@ -9995,6 +10154,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_service_provider_core"
           mongosh_run_only_in_package: "service-provider-core"
+          task_name: ${task_name}
   - name: test_m42xc_n20_service_provider_server
     tags: ["unit-test"]
     depends_on:
@@ -10012,6 +10172,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xc_n20_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
+          task_name: ${task_name}
   - name: test_m42xe_n20_service_provider_server
     tags: ["unit-test"]
     depends_on:
@@ -10029,6 +10190,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xe_n20_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
+          task_name: ${task_name}
   - name: test_m44xc_n20_service_provider_server
     tags: ["unit-test"]
     depends_on:
@@ -10046,6 +10208,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xc_n20_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
+          task_name: ${task_name}
   - name: test_m44xe_n20_service_provider_server
     tags: ["unit-test"]
     depends_on:
@@ -10063,6 +10226,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xe_n20_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
+          task_name: ${task_name}
   - name: test_m50xc_n20_service_provider_server
     tags: ["unit-test"]
     depends_on:
@@ -10080,6 +10244,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xc_n20_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
+          task_name: ${task_name}
   - name: test_m50xe_n20_service_provider_server
     tags: ["unit-test"]
     depends_on:
@@ -10097,6 +10262,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xe_n20_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
+          task_name: ${task_name}
   - name: test_m60xc_n20_service_provider_server
     tags: ["unit-test"]
     depends_on:
@@ -10114,6 +10280,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xc_n20_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
+          task_name: ${task_name}
   - name: test_m60xe_n20_service_provider_server
     tags: ["unit-test"]
     depends_on:
@@ -10131,6 +10298,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xe_n20_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
+          task_name: ${task_name}
   - name: test_m70xc_n20_service_provider_server
     tags: ["unit-test"]
     depends_on:
@@ -10148,6 +10316,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m70xc_n20_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
+          task_name: ${task_name}
   - name: test_m70xe_n20_service_provider_server
     tags: ["unit-test"]
     depends_on:
@@ -10165,6 +10334,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m70xe_n20_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
+          task_name: ${task_name}
   - name: test_m80xc_n20_service_provider_server
     tags: ["unit-test"]
     depends_on:
@@ -10182,6 +10352,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n20_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
+          task_name: ${task_name}
   - name: test_m80xe_n20_service_provider_server
     tags: ["unit-test"]
     depends_on:
@@ -10199,6 +10370,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n20_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
+          task_name: ${task_name}
   - name: test_mlatest_n20_service_provider_server
     tags: ["unit-test","mlatest"]
     depends_on:
@@ -10216,6 +10388,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n20_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
+          task_name: ${task_name}
   - name: test_m42xc_n16_service_provider_server
     tags: ["unit-test"]
     depends_on:
@@ -10233,6 +10406,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xc_n16_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
+          task_name: ${task_name}
   - name: test_m42xe_n16_service_provider_server
     tags: ["unit-test"]
     depends_on:
@@ -10250,6 +10424,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xe_n16_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
+          task_name: ${task_name}
   - name: test_m44xc_n16_service_provider_server
     tags: ["unit-test"]
     depends_on:
@@ -10267,6 +10442,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xc_n16_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
+          task_name: ${task_name}
   - name: test_m44xe_n16_service_provider_server
     tags: ["unit-test"]
     depends_on:
@@ -10284,6 +10460,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xe_n16_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
+          task_name: ${task_name}
   - name: test_m50xc_n16_service_provider_server
     tags: ["unit-test"]
     depends_on:
@@ -10301,6 +10478,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xc_n16_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
+          task_name: ${task_name}
   - name: test_m50xe_n16_service_provider_server
     tags: ["unit-test"]
     depends_on:
@@ -10318,6 +10496,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xe_n16_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
+          task_name: ${task_name}
   - name: test_m60xc_n16_service_provider_server
     tags: ["unit-test"]
     depends_on:
@@ -10335,6 +10514,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xc_n16_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
+          task_name: ${task_name}
   - name: test_m60xe_n16_service_provider_server
     tags: ["unit-test"]
     depends_on:
@@ -10352,6 +10532,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xe_n16_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
+          task_name: ${task_name}
   - name: test_m70xc_n16_service_provider_server
     tags: ["unit-test"]
     depends_on:
@@ -10369,6 +10550,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m70xc_n16_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
+          task_name: ${task_name}
   - name: test_m70xe_n16_service_provider_server
     tags: ["unit-test"]
     depends_on:
@@ -10386,6 +10568,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m70xe_n16_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
+          task_name: ${task_name}
   - name: test_m80xc_n16_service_provider_server
     tags: ["unit-test"]
     depends_on:
@@ -10403,6 +10586,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n16_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
+          task_name: ${task_name}
   - name: test_m80xe_n16_service_provider_server
     tags: ["unit-test"]
     depends_on:
@@ -10420,6 +10604,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n16_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
+          task_name: ${task_name}
   - name: test_mlatest_n16_service_provider_server
     tags: ["unit-test","mlatest"]
     depends_on:
@@ -10437,6 +10622,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n16_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
+          task_name: ${task_name}
   - name: test_m42xc_n20_shell_api
     tags: ["unit-test"]
     depends_on:
@@ -10454,6 +10640,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xc_n20_shell_api"
           mongosh_run_only_in_package: "shell-api"
+          task_name: ${task_name}
   - name: test_m42xe_n20_shell_api
     tags: ["unit-test"]
     depends_on:
@@ -10471,6 +10658,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xe_n20_shell_api"
           mongosh_run_only_in_package: "shell-api"
+          task_name: ${task_name}
   - name: test_m44xc_n20_shell_api
     tags: ["unit-test"]
     depends_on:
@@ -10488,6 +10676,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xc_n20_shell_api"
           mongosh_run_only_in_package: "shell-api"
+          task_name: ${task_name}
   - name: test_m44xe_n20_shell_api
     tags: ["unit-test"]
     depends_on:
@@ -10505,6 +10694,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xe_n20_shell_api"
           mongosh_run_only_in_package: "shell-api"
+          task_name: ${task_name}
   - name: test_m50xc_n20_shell_api
     tags: ["unit-test"]
     depends_on:
@@ -10522,6 +10712,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xc_n20_shell_api"
           mongosh_run_only_in_package: "shell-api"
+          task_name: ${task_name}
   - name: test_m50xe_n20_shell_api
     tags: ["unit-test"]
     depends_on:
@@ -10539,6 +10730,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xe_n20_shell_api"
           mongosh_run_only_in_package: "shell-api"
+          task_name: ${task_name}
   - name: test_m60xc_n20_shell_api
     tags: ["unit-test"]
     depends_on:
@@ -10556,6 +10748,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xc_n20_shell_api"
           mongosh_run_only_in_package: "shell-api"
+          task_name: ${task_name}
   - name: test_m60xe_n20_shell_api
     tags: ["unit-test"]
     depends_on:
@@ -10573,6 +10766,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xe_n20_shell_api"
           mongosh_run_only_in_package: "shell-api"
+          task_name: ${task_name}
   - name: test_m70xc_n20_shell_api
     tags: ["unit-test"]
     depends_on:
@@ -10590,6 +10784,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m70xc_n20_shell_api"
           mongosh_run_only_in_package: "shell-api"
+          task_name: ${task_name}
   - name: test_m70xe_n20_shell_api
     tags: ["unit-test"]
     depends_on:
@@ -10607,6 +10802,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m70xe_n20_shell_api"
           mongosh_run_only_in_package: "shell-api"
+          task_name: ${task_name}
   - name: test_m80xc_n20_shell_api
     tags: ["unit-test"]
     depends_on:
@@ -10624,6 +10820,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n20_shell_api"
           mongosh_run_only_in_package: "shell-api"
+          task_name: ${task_name}
   - name: test_m80xe_n20_shell_api
     tags: ["unit-test"]
     depends_on:
@@ -10641,6 +10838,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n20_shell_api"
           mongosh_run_only_in_package: "shell-api"
+          task_name: ${task_name}
   - name: test_mlatest_n20_shell_api
     tags: ["unit-test","mlatest"]
     depends_on:
@@ -10658,6 +10856,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n20_shell_api"
           mongosh_run_only_in_package: "shell-api"
+          task_name: ${task_name}
   - name: test_m42xc_n16_shell_api
     tags: ["unit-test"]
     depends_on:
@@ -10675,6 +10874,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xc_n16_shell_api"
           mongosh_run_only_in_package: "shell-api"
+          task_name: ${task_name}
   - name: test_m42xe_n16_shell_api
     tags: ["unit-test"]
     depends_on:
@@ -10692,6 +10892,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xe_n16_shell_api"
           mongosh_run_only_in_package: "shell-api"
+          task_name: ${task_name}
   - name: test_m44xc_n16_shell_api
     tags: ["unit-test"]
     depends_on:
@@ -10709,6 +10910,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xc_n16_shell_api"
           mongosh_run_only_in_package: "shell-api"
+          task_name: ${task_name}
   - name: test_m44xe_n16_shell_api
     tags: ["unit-test"]
     depends_on:
@@ -10726,6 +10928,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xe_n16_shell_api"
           mongosh_run_only_in_package: "shell-api"
+          task_name: ${task_name}
   - name: test_m50xc_n16_shell_api
     tags: ["unit-test"]
     depends_on:
@@ -10743,6 +10946,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xc_n16_shell_api"
           mongosh_run_only_in_package: "shell-api"
+          task_name: ${task_name}
   - name: test_m50xe_n16_shell_api
     tags: ["unit-test"]
     depends_on:
@@ -10760,6 +10964,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xe_n16_shell_api"
           mongosh_run_only_in_package: "shell-api"
+          task_name: ${task_name}
   - name: test_m60xc_n16_shell_api
     tags: ["unit-test"]
     depends_on:
@@ -10777,6 +10982,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xc_n16_shell_api"
           mongosh_run_only_in_package: "shell-api"
+          task_name: ${task_name}
   - name: test_m60xe_n16_shell_api
     tags: ["unit-test"]
     depends_on:
@@ -10794,6 +11000,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xe_n16_shell_api"
           mongosh_run_only_in_package: "shell-api"
+          task_name: ${task_name}
   - name: test_m70xc_n16_shell_api
     tags: ["unit-test"]
     depends_on:
@@ -10811,6 +11018,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m70xc_n16_shell_api"
           mongosh_run_only_in_package: "shell-api"
+          task_name: ${task_name}
   - name: test_m70xe_n16_shell_api
     tags: ["unit-test"]
     depends_on:
@@ -10828,6 +11036,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m70xe_n16_shell_api"
           mongosh_run_only_in_package: "shell-api"
+          task_name: ${task_name}
   - name: test_m80xc_n16_shell_api
     tags: ["unit-test"]
     depends_on:
@@ -10845,6 +11054,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xc_n16_shell_api"
           mongosh_run_only_in_package: "shell-api"
+          task_name: ${task_name}
   - name: test_m80xe_n16_shell_api
     tags: ["unit-test"]
     depends_on:
@@ -10862,6 +11072,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m80xe_n16_shell_api"
           mongosh_run_only_in_package: "shell-api"
+          task_name: ${task_name}
   - name: test_mlatest_n16_shell_api
     tags: ["unit-test","mlatest"]
     depends_on:
@@ -10879,6 +11090,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n16_shell_api"
           mongosh_run_only_in_package: "shell-api"
+          task_name: ${task_name}
   - name: test_n20_shell_evaluator
     tags: ["unit-test"]
     depends_on:
@@ -10896,6 +11108,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n20_shell_evaluator"
           mongosh_run_only_in_package: "shell-evaluator"
+          task_name: ${task_name}
   - name: test_n16_shell_evaluator
     tags: ["unit-test"]
     depends_on:
@@ -10913,6 +11126,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_shell_evaluator"
           mongosh_run_only_in_package: "shell-evaluator"
+          task_name: ${task_name}
   - name: test_n20_snippet_manager
     tags: ["unit-test"]
     depends_on:
@@ -10930,6 +11144,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n20_snippet_manager"
           mongosh_run_only_in_package: "snippet-manager"
+          task_name: ${task_name}
   - name: test_n16_snippet_manager
     tags: ["unit-test"]
     depends_on:
@@ -10947,6 +11162,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_snippet_manager"
           mongosh_run_only_in_package: "snippet-manager"
+          task_name: ${task_name}
   - name: test_n20_types
     tags: ["unit-test"]
     depends_on:
@@ -10964,6 +11180,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n20_types"
           mongosh_run_only_in_package: "types"
+          task_name: ${task_name}
   - name: test_n16_types
     tags: ["unit-test"]
     depends_on:
@@ -10981,6 +11198,7 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_types"
           mongosh_run_only_in_package: "types"
+          task_name: ${task_name}
 
   ###
   # INTEGRATION TESTS
@@ -11010,6 +11228,7 @@ tasks:
       - func: test_connectivity
         vars:
           node_js_version: "20.18.0"
+          task_name: ${task_name}
   - name: test_apistrict
     tags: ["extra-integration-test"]
     depends_on:
@@ -11025,6 +11244,7 @@ tasks:
           node_js_version: "20.18.0"
           mongosh_server_test_version: "latest-alpha-enterprise"
           mongosh_test_force_api_strict: "1"
+          task_name: ${task_name}
   - name: compile_artifact
     tags: ["compile-artifact"]
     depends_on:
