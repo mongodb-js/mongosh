@@ -18,6 +18,14 @@ if [[ -n "$MONOGDB_DRIVER_VERSION_OVERRIDE" ]]; then
   npm i --verbose --force
 fi
 
+# Needed to ensure Python 3.6 support which is the oldest one that's available out-of-the-box on the rhel70 hosts.
+if [[ "${DISTRO_ID}" =~ ^(rhel7) ]] && [[ "$NODE_JS_VERSION" =~ ^20 ]]; then
+  export REPLACE_PACKAGE="node-gyp:9.0.0"
+  npm run replace-package
+
+  npm i --verbose --force
+fi
+
 # if we rewrote this script in javascript using just builtin node modules we could skip the npm ci above
 npm run mark-ci-required-optional-dependencies
 
