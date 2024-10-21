@@ -7,11 +7,6 @@ export PATH="/cygdrive/c/python/Python311/Scripts:/cygdrive/c/python/Python311:/
 export MONGOSH_TEST_ONLY_MAX_LOG_FILE_COUNT=100000
 export IS_MONGOSH_EVERGREEN_CI=1
 export DEBUG="mongodb*,$DEBUG"
-export TASK_NAME=${E2E_TASK_NAME}
-
-echo "Task name attempts"
-echo $TASK_NAME
-echo $E2E_TASK_NAME
 
 if [ "$OS" != "Windows_NT" ]; then
   if which realpath; then             # No realpath on macOS, but also not needed there

@@ -267,6 +267,7 @@ functions:
           MONGOSH_RUN_ONLY_IN_PACKAGE: ${mongosh_run_only_in_package}
           AWS_AUTH_IAM_ACCESS_KEY_ID: ${devtools_ci_aws_key}
           AWS_AUTH_IAM_SECRET_ACCESS_KEY: ${devtools_ci_aws_secret}
+          TASK_NAME: ${task_name}
     - command: s3.put
       params:
         aws_key: ${aws_key}
@@ -520,7 +521,7 @@ functions:
           AWS_AUTH_IAM_ACCESS_KEY_ID: ${devtools_ci_aws_key}
           AWS_AUTH_IAM_SECRET_ACCESS_KEY: ${devtools_ci_aws_secret}
           DISABLE_OPENSSL_SHARED_CONFIG_FOR_BUNDLED_OPENSSL: ${disable_openssl_shared_config_for_bundled_openssl}
-          E2E_TASK_NAME: ${task_name}
+          TASK_NAME: ${task_name}
 
   ###
   # PACKAGING AND UPLOADING
