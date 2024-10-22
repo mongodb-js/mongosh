@@ -11023,8 +11023,6 @@ tasks:
           mongosh_test_force_api_strict: "1"
   - name: compile_artifact
     tags: ["compile-artifact"]
-    vars:
-      distro_id: ${distro_id}
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -11036,7 +11034,6 @@ tasks:
       - func: compile_artifact
         vars:
           node_js_version: "20.18.0"
-          distro_id: ${distro_id}
       - func: upload_compiled_artifact
         vars:
           node_js_version: "20.18.0"

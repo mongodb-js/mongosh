@@ -1,7 +1,6 @@
 set -e
 set -x
 
-echo "DISTRO ID: ${DISTRO_ID}"
 if [[ "${DISTRO_ID}" =~ ^(rhel) ]]; then
   # force because of issues with peer deps and semver pre-releases,
   # install rather than ci because `npm ci` can only install packages when your
