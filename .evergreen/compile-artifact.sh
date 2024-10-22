@@ -17,12 +17,18 @@ if uname -a | grep -q 'Linux.*x86_64'; then
   export CXX="$PWD/tmp/.sccache/sccache g++"
 fi
 
+# Needed to ensure Python 3.6 support which is the oldest one that's available out-of-the-box on the rhel70 hosts.
+if [[ "${DISTRO_ID}" =~ ^(rhel) ]]; then
+  echo "RUNNING NODE-GYP@9"
+  npm install node-gyp@9 --verbose --force
+fi
+
 rm -rf /tmp/m && mkdir -pv /tmp/m # Node.js compilation can fail on long path prefixes
 trap "rm -rf /tmp/m" EXIT
 export TMP=/tmp/m
 export TMPDIR=/tmp/m
 
-if [ `uname` = Darwin ]; then
+if [ $(uname) = Darwin ]; then
   # match what Node.js 20 does on their own builder machines
   export CFLAGS='-mmacosx-version-min=10.15'
   export CXXFLAGS='-mmacosx-version-min=10.15'

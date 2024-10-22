@@ -5,8 +5,6 @@ npm ci --verbose
 
 echo "MONOGDB_DRIVER_VERSION_OVERRIDE:$MONOGDB_DRIVER_VERSION_OVERRIDE"
 
-echo "DISTRO ID IS: $DISTRO_ID"
-
 # if MONOGDB_DRIVER_VERSION_OVERRIDE is set, then we want to replace the package version
 if [[ -n "$MONOGDB_DRIVER_VERSION_OVERRIDE" ]]; then
   export REPLACE_PACKAGE="mongodb:$MONOGDB_DRIVER_VERSION_OVERRIDE"
@@ -18,11 +16,6 @@ if [[ -n "$MONOGDB_DRIVER_VERSION_OVERRIDE" ]]; then
   # can be installed on them. That's why we only run on linux x64 platforms when
   # we set MONOGDB_DRIVER_VERSION_OVERRIDE=nightly in CI
   npm i --verbose --force
-fi
-
-# Needed to ensure Python 3.6 support which is the oldest one that's available out-of-the-box on the rhel70 hosts.
-if [[ "${DISTRO_ID}" =~ ^(rhel) ]]; then
-  npm install node-gyp@9 --verbose --force
 fi
 
 # if we rewrote this script in javascript using just builtin node modules we could skip the npm ci above
