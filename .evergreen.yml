@@ -7240,6 +7240,7 @@ tasks:
       - func: compile_ts
         vars:
           node_js_version: "20.18.0"
+          distro_id: ${distro_id}
 
   - name: check
     depends_on:

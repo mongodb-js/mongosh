@@ -5,6 +5,8 @@ npm ci --verbose
 
 echo "MONOGDB_DRIVER_VERSION_OVERRIDE:$MONOGDB_DRIVER_VERSION_OVERRIDE"
 
+echo "DISTRO ID IS: $DISTRO_ID"
+
 # if MONOGDB_DRIVER_VERSION_OVERRIDE is set, then we want to replace the package version
 if [[ -n "$MONOGDB_DRIVER_VERSION_OVERRIDE" ]]; then
   export REPLACE_PACKAGE="mongodb:$MONOGDB_DRIVER_VERSION_OVERRIDE"
