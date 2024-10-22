@@ -3,19 +3,16 @@ set -x
 
 echo "DISTRO ID: ${DISTRO_ID}"
 if [[ "${DISTRO_ID}" =~ ^(rhel) ]]; then
-  export REPLACE_PACKAGE="node-gyp:9.0.0"
-  npm run replace-package
   # force because of issues with peer deps and semver pre-releases,
   # install rather than ci because `npm ci` can only install packages when your
   # package.json and package-lock.json or npm-shrinkwrap.json are in sync.
   # NOTE: this won't work on some more exotic platforms because not every dep
   # can be installed on them. That's why we only run on linux x64 platforms when
   # we set MONOGDB_DRIVER_VERSION_OVERRIDE=nightly in CI
-  npm i --verbose --force
-else
-  npm ci --verbose
+  npm i node-gyp@9 --verbose --force
 fi
 
+npm ci --verbose
 echo "MONOGDB_DRIVER_VERSION_OVERRIDE:$MONOGDB_DRIVER_VERSION_OVERRIDE"
 
 # if MONOGDB_DRIVER_VERSION_OVERRIDE is set, then we want to replace the package version
