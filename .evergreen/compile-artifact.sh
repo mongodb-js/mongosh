@@ -3,7 +3,7 @@ set -e
 set -x
 
 cd $(pwd)
-
+export DISTRO_ID={$DISTRO_ID}
 source .evergreen/setup-env.sh
 
 echo "DISTRO ID IS: $DISTRO_ID"
