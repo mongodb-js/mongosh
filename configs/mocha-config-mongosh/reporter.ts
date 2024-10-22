@@ -10,7 +10,6 @@ export class MochaReporter extends reporters.Base {
   constructor(runner: Runner, options: MochaOptions) {
     super(runner, options);
     const suiteName = process.env.TASK_NAME ?? path.basename(process.cwd());
-    console.info(`MOCHAREPORTER:${suiteName}`);
 
     new Spec(runner);
 
