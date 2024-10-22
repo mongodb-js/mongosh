@@ -1,16 +1,22 @@
 set -e
 set -x
 
-npm ci --verbose
+echo "DISTRO ID: ${DISTRO_ID}"
+if [[ "${DISTRO_ID}" =~ ^(rhel) ]]; then
+  export REPLACE_PACKAGE="node-gyp:9.0.0"
+  npm run replace-package
+  # force because of issues with peer deps and semver pre-releases,
+  # install rather than ci because `npm ci` can only install packages when your
+  # package.json and package-lock.json or npm-shrinkwrap.json are in sync.
+  # NOTE: this won't work on some more exotic platforms because not every dep
+  # can be installed on them. That's why we only run on linux x64 platforms when
+  # we set MONOGDB_DRIVER_VERSION_OVERRIDE=nightly in CI
+  npm ci --verbose --force
+else
+  npm ci --verbose
+fi
 
 echo "MONOGDB_DRIVER_VERSION_OVERRIDE:$MONOGDB_DRIVER_VERSION_OVERRIDE"
-
-echo "DISTRO ID: $DISTRO_ID"
-# Needed to ensure Python 3.6 support which is the oldest one that's available out-of-the-box on the rhel70 hosts.
-if [[ "${DISTRO_ID}" =~ ^(rhel) ]]; then
-  echo "RUNNING NODE-GYP@9"
-  npm install node-gyp@9 --verbose --force
-fi
 
 # if MONOGDB_DRIVER_VERSION_OVERRIDE is set, then we want to replace the package version
 if [[ -n "$MONOGDB_DRIVER_VERSION_OVERRIDE" ]]; then
