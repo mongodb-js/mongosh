@@ -62,7 +62,7 @@ post:
       optional: true
   - command: attach.xunit_results
     params:
-      files: src/.logs/*.xml
+      file: src/.logs/*.xml
 
 
 # Functions are any command that can be run.
