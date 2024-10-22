@@ -6,6 +6,8 @@ cd $(pwd)
 
 source .evergreen/setup-env.sh
 
+echo "DISTRO ID IS: $DISTRO_ID"
+
 # make sure our .sbom files are freshly created
 rm -vrf .sbom && mkdir -vp .sbom
 
