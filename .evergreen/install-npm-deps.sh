@@ -5,6 +5,13 @@ npm ci --verbose
 
 echo "MONOGDB_DRIVER_VERSION_OVERRIDE:$MONOGDB_DRIVER_VERSION_OVERRIDE"
 
+echo "DISTRO ID: $DISTRO_ID"
+# Needed to ensure Python 3.6 support which is the oldest one that's available out-of-the-box on the rhel70 hosts.
+if [[ "${DISTRO_ID}" =~ ^(rhel) ]]; then
+  echo "RUNNING NODE-GYP@9"
+  npm install node-gyp@9 --verbose --force
+fi
+
 # if MONOGDB_DRIVER_VERSION_OVERRIDE is set, then we want to replace the package version
 if [[ -n "$MONOGDB_DRIVER_VERSION_OVERRIDE" ]]; then
   export REPLACE_PACKAGE="mongodb:$MONOGDB_DRIVER_VERSION_OVERRIDE"

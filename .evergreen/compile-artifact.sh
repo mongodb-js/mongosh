@@ -3,10 +3,8 @@ set -e
 set -x
 
 cd $(pwd)
-export DISTRO_ID={$DISTRO_ID}
-source .evergreen/setup-env.sh
 
-echo "DISTRO ID IS: $DISTRO_ID"
+source .evergreen/setup-env.sh
 
 # make sure our .sbom files are freshly created
 rm -vrf .sbom && mkdir -vp .sbom
@@ -17,12 +15,6 @@ if uname -a | grep -q 'Linux.*x86_64'; then
   curl -L https://github.com/mozilla/sccache/releases/download/0.2.13/sccache-0.2.13-x86_64-unknown-linux-musl.tar.gz | tar -C "tmp/.sccache" -xzvf - --strip=1 sccache-0.2.13-x86_64-unknown-linux-musl/sccache
   export CC="$PWD/tmp/.sccache/sccache gcc"
   export CXX="$PWD/tmp/.sccache/sccache g++"
-fi
-
-# Needed to ensure Python 3.6 support which is the oldest one that's available out-of-the-box on the rhel70 hosts.
-if [[ "${DISTRO_ID}" =~ ^(rhel) ]]; then
-  echo "RUNNING NODE-GYP@9"
-  npm install node-gyp@9 --verbose --force
 fi
 
 rm -rf /tmp/m && mkdir -pv /tmp/m # Node.js compilation can fail on long path prefixes
