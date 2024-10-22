@@ -678,7 +678,6 @@ export async function getPrintableShardStatus(
     ).toArray()) as ShardedDataDistribution;
   } catch (e) {
     // Pass, most likely an older version.
-    console.error('shardedDataDistribution Errored:', e);
   }
 
   result.shardedDataDistribution = shardedDataDistribution;
