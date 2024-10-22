@@ -431,7 +431,7 @@ export default class Database extends ShellApiWithMongoClass {
   @returnsPromise
   @returnType('AggregationCursor')
   @apiVersions([1])
-  async aggregate(...args: unknown[]): Promise<AggregationCursor> {
+  async aggregate(...args: unknown[]): Promise<AggregationCursor | Document> {
     let options: AggregateOptions;
     let pipeline: Document[];
     if (args.length === 0 || Array.isArray(args[0])) {
