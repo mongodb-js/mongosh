@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { CliServiceProvider } from '../../service-provider-server'; // avoid cyclic dep just for test
+import { NodeDriverServiceProvider } from '../../service-provider-node-driver'; // avoid cyclic dep just for test
 import ShellInstanceState from './shell-instance-state';
 import type Cursor from './cursor';
 import Explainable from './explainable';
@@ -33,7 +33,7 @@ const compileExpr = (templ: TemplateStringsArray, ...subs: string[]): any => {
 describe('Shell API (integration)', function () {
   const testServer = startSharedTestServer();
   this.timeout(60000);
-  let serviceProvider: CliServiceProvider;
+  let serviceProvider: NodeDriverServiceProvider;
 
   const getIndexNames = async (
     dbName: string,
@@ -209,7 +209,7 @@ describe('Shell API (integration)', function () {
   };
 
   before(async function () {
-    serviceProvider = await CliServiceProvider.connect(
+    serviceProvider = await NodeDriverServiceProvider.connect(
       await testServer.connectionString(),
       dummyOptions,
       {},

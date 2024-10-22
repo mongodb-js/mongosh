@@ -5,7 +5,7 @@ import type { MongoshBus } from '@mongosh/types';
 import { startSharedTestServer } from '../../../testing/integration-testing-hooks';
 import { WorkerRuntime } from '../dist/index';
 
-import type { DevtoolsConnectOptions } from '@mongosh/service-provider-server';
+import type { DevtoolsConnectOptions } from '@mongosh/service-provider-node-driver';
 
 export const dummyOptions: DevtoolsConnectOptions = Object.freeze({
   productName: 'Test Product',

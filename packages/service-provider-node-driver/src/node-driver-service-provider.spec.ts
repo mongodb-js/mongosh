@@ -5,8 +5,8 @@ import { Collection, Db, MongoClient } from 'mongodb';
 import sinonChai from 'sinon-chai';
 import type { StubbedInstance } from 'ts-sinon';
 import sinon, { stubInterface } from 'ts-sinon';
-import type { DevtoolsConnectOptions } from './cli-service-provider';
-import CliServiceProvider from './cli-service-provider';
+import type { DevtoolsConnectOptions } from './node-driver-service-provider';
+import { NodeDriverServiceProvider } from './node-driver-service-provider';
 import ConnectionString from 'mongodb-connection-string-url';
 import { EventEmitter } from 'events';
 import type {
@@ -47,21 +47,21 @@ const createClientStub = (
   return clientStub;
 };
 
-describe('CliServiceProvider', function () {
-  let serviceProvider: CliServiceProvider;
+describe('NodeDriverServiceProvider', function () {
+  let serviceProvider: NodeDriverServiceProvider;
   let collectionStub: StubbedInstance<Collection>;
   let bus: EventEmitter;
 
   beforeEach(function () {
     bus = new EventEmitter();
     collectionStub = stubInterface<Collection>();
-    serviceProvider = new CliServiceProvider({} as any, bus, dummyOptions);
+    serviceProvider = new NodeDriverServiceProvider({} as any, bus, dummyOptions);
   });
 
   describe('#constructor', function () {
     const mongoClient: any = sinon.spy();
     beforeEach(function () {
-      serviceProvider = new CliServiceProvider(mongoClient, bus, dummyOptions);
+      serviceProvider = new NodeDriverServiceProvider(mongoClient, bus, dummyOptions);
     });
 
     it('sets the mongo client on the instance', function () {
@@ -78,7 +78,7 @@ describe('CliServiceProvider', function () {
       collectionStub.aggregate.returns({
         toArray: () => Promise.resolve(aggResult),
       } as any);
-      serviceProvider = new CliServiceProvider(
+      serviceProvider = new NodeDriverServiceProvider(
         createClientStub(collectionStub),
         bus,
         dummyOptions
@@ -100,7 +100,7 @@ describe('CliServiceProvider', function () {
     beforeEach(function () {
       collectionStub = stubInterface<Collection>();
       collectionStub.bulkWrite.resolves(commandResult as any);
-      serviceProvider = new CliServiceProvider(
+      serviceProvider = new NodeDriverServiceProvider(
         createClientStub(collectionStub),
         bus,
         dummyOptions
@@ -124,7 +124,7 @@ describe('CliServiceProvider', function () {
     beforeEach(function () {
       collectionStub = stubInterface<Collection>();
       collectionStub.countDocuments.resolves(countResult);
-      serviceProvider = new CliServiceProvider(
+      serviceProvider = new NodeDriverServiceProvider(
         createClientStub(collectionStub),
         bus,
         dummyOptions
@@ -144,7 +144,7 @@ describe('CliServiceProvider', function () {
     beforeEach(function () {
       collectionStub = stubInterface<Collection>();
       collectionStub.deleteMany.resolves(commandResult as any);
-      serviceProvider = new CliServiceProvider(
+      serviceProvider = new NodeDriverServiceProvider(
         createClientStub(collectionStub),
         bus,
         dummyOptions
@@ -164,7 +164,7 @@ describe('CliServiceProvider', function () {
     beforeEach(function () {
       collectionStub = stubInterface<Collection>();
       collectionStub.deleteOne.resolves(commandResult as any);
-      serviceProvider = new CliServiceProvider(
+      serviceProvider = new NodeDriverServiceProvider(
         createClientStub(collectionStub),
         bus,
         dummyOptions
@@ -184,7 +184,7 @@ describe('CliServiceProvider', function () {
     beforeEach(function () {
       collectionStub = stubInterface<Collection>();
       collectionStub.distinct.resolves(distinctResult);
-      serviceProvider = new CliServiceProvider(
+      serviceProvider = new NodeDriverServiceProvider(
         createClientStub(collectionStub),
         bus,
         dummyOptions
@@ -208,7 +208,7 @@ describe('CliServiceProvider', function () {
     beforeEach(function () {
       collectionStub = stubInterface<Collection>();
       collectionStub.estimatedDocumentCount.resolves(countResult);
-      serviceProvider = new CliServiceProvider(
+      serviceProvider = new NodeDriverServiceProvider(
         createClientStub(collectionStub),
         bus,
         dummyOptions
@@ -236,7 +236,7 @@ describe('CliServiceProvider', function () {
       collectionStub.find.returns({
         toArray: () => Promise.resolve(findResult),
       } as any);
-      serviceProvider = new CliServiceProvider(
+      serviceProvider = new NodeDriverServiceProvider(
         createClientStub(collectionStub),
         bus,
         dummyOptions
@@ -265,7 +265,7 @@ describe('CliServiceProvider', function () {
       collectionStub.find.returns({
         toArray: () => Promise.resolve(findResult),
       } as any);
-      serviceProvider = new CliServiceProvider(
+      serviceProvider = new NodeDriverServiceProvider(
         createClientStub(collectionStub),
         bus,
         dummyOptions
@@ -291,7 +291,7 @@ describe('CliServiceProvider', function () {
     beforeEach(function () {
       collectionStub = stubInterface<Collection>();
       collectionStub.findOneAndDelete.resolves(commandResult as any);
-      serviceProvider = new CliServiceProvider(
+      serviceProvider = new NodeDriverServiceProvider(
         createClientStub(collectionStub),
         bus,
         dummyOptions
@@ -317,7 +317,7 @@ describe('CliServiceProvider', function () {
     beforeEach(function () {
       collectionStub = stubInterface<Collection>();
       collectionStub.findOneAndReplace.resolves(commandResult as any);
-      serviceProvider = new CliServiceProvider(
+      serviceProvider = new NodeDriverServiceProvider(
         createClientStub(collectionStub),
         bus,
         dummyOptions
@@ -347,7 +347,7 @@ describe('CliServiceProvider', function () {
     beforeEach(function () {
       collectionStub = stubInterface<Collection>();
       collectionStub.findOneAndUpdate.resolves(commandResult as any);
-      serviceProvider = new CliServiceProvider(
+      serviceProvider = new NodeDriverServiceProvider(
         createClientStub(collectionStub),
         bus,
         dummyOptions
@@ -376,7 +376,7 @@ describe('CliServiceProvider', function () {
     beforeEach(function () {
       collectionStub = stubInterface<Collection>();
       collectionStub.insertMany.resolves(commandResult as any);
-      serviceProvider = new CliServiceProvider(
+      serviceProvider = new NodeDriverServiceProvider(
         createClientStub(collectionStub),
         bus,
         dummyOptions
@@ -397,7 +397,7 @@ describe('CliServiceProvider', function () {
     beforeEach(function () {
       collectionStub = stubInterface<Collection>();
       collectionStub.insertOne.resolves(commandResult as any);
-      serviceProvider = new CliServiceProvider(
+      serviceProvider = new NodeDriverServiceProvider(
         createClientStub(collectionStub),
         bus,
         dummyOptions
@@ -419,7 +419,7 @@ describe('CliServiceProvider', function () {
     beforeEach(function () {
       collectionStub = stubInterface<Collection>();
       collectionStub.replaceOne.resolves(commandResult);
-      serviceProvider = new CliServiceProvider(
+      serviceProvider = new NodeDriverServiceProvider(
         createClientStub(collectionStub),
         bus,
         dummyOptions
@@ -451,7 +451,7 @@ describe('CliServiceProvider', function () {
       clientStub = stubInterface<MongoClient>();
       dbStub.command.resolves(commandResult);
       clientStub.db.returns(dbStub);
-      serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
+      serviceProvider = new NodeDriverServiceProvider(clientStub, bus, dummyOptions);
     });
 
     it('executes the command against the database', async function () {
@@ -471,7 +471,7 @@ describe('CliServiceProvider', function () {
       clientStub = stubInterface<MongoClient>();
       dbStub.command.resolves(commandResult);
       clientStub.db.returns(dbStub);
-      serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
+      serviceProvider = new NodeDriverServiceProvider(clientStub, bus, dummyOptions);
     });
 
     it('executes the command against the database and throws if ok: 0', async function () {
@@ -497,7 +497,7 @@ describe('CliServiceProvider', function () {
       clientStub = stubInterface<MongoClient>();
       dbStub.runCursorCommand.returns(commandResult);
       clientStub.db.returns(dbStub);
-      serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
+      serviceProvider = new NodeDriverServiceProvider(clientStub, bus, dummyOptions);
     });
 
     it('executes the command against the database', function () {
@@ -519,7 +519,7 @@ describe('CliServiceProvider', function () {
     beforeEach(function () {
       collectionStub = stubInterface<Collection>();
       collectionStub.updateOne.resolves(commandResult as any);
-      serviceProvider = new CliServiceProvider(
+      serviceProvider = new NodeDriverServiceProvider(
         createClientStub(collectionStub),
         bus,
         dummyOptions
@@ -546,7 +546,7 @@ describe('CliServiceProvider', function () {
     beforeEach(function () {
       collectionStub = stubInterface<Collection>();
       collectionStub.updateMany.resolves(commandResult as any);
-      serviceProvider = new CliServiceProvider(
+      serviceProvider = new NodeDriverServiceProvider(
         createClientStub(collectionStub),
         bus,
         dummyOptions
@@ -574,7 +574,7 @@ describe('CliServiceProvider', function () {
       clientStub = stubInterface<MongoClient>();
       clientStub.db.returns(dbStub);
 
-      serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
+      serviceProvider = new NodeDriverServiceProvider(clientStub, bus, dummyOptions);
     });
 
     it('returns ok: 1 if dropped', async function () {
@@ -624,7 +624,7 @@ describe('CliServiceProvider', function () {
 
       collectionStub = stubInterface<Collection>();
       collectionStub.createIndexes.resolves(nativeMethodResult);
-      serviceProvider = new CliServiceProvider(
+      serviceProvider = new NodeDriverServiceProvider(
         createClientStub(collectionStub),
         bus,
         dummyOptions
@@ -656,7 +656,7 @@ describe('CliServiceProvider', function () {
       collectionStub = stubInterface<Collection>();
       collectionStub.listIndexes.returns(nativeMethodResult);
 
-      serviceProvider = new CliServiceProvider(
+      serviceProvider = new NodeDriverServiceProvider(
         createClientStub(collectionStub),
         bus,
         dummyOptions
@@ -690,7 +690,7 @@ describe('CliServiceProvider', function () {
         },
       } as any);
       clientStub.db.returns(dbStub);
-      serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
+      serviceProvider = new NodeDriverServiceProvider(clientStub, bus, dummyOptions);
     });
 
     it('executes the command', async function () {
@@ -718,7 +718,7 @@ describe('CliServiceProvider', function () {
       clientStub = stubInterface<MongoClient>();
       dbStub.renameCollection.resolves({ ok: 1 } as any);
       clientStub.db.returns(dbStub);
-      serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
+      serviceProvider = new NodeDriverServiceProvider(clientStub, bus, dummyOptions);
     });
 
     it('executes the command against the database', async function () {
@@ -751,7 +751,7 @@ describe('CliServiceProvider', function () {
       clientStub = stubInterface<MongoClient>();
       dbStub.createCollection.resolves({} as any);
       clientStub.db.returns(dbStub);
-      serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
+      serviceProvider = new NodeDriverServiceProvider(clientStub, bus, dummyOptions);
     });
 
     it('executes the command', async function () {
@@ -791,7 +791,7 @@ describe('CliServiceProvider', function () {
       dbStub = stubInterface<Db>();
       clientStub = stubInterface<MongoClient>();
       clientStub.db.returns(dbStub);
-      serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
+      serviceProvider = new NodeDriverServiceProvider(clientStub, bus, dummyOptions);
       libmongoc = stubInterface<ClientEncryption>();
     });
 
@@ -827,12 +827,12 @@ describe('CliServiceProvider', function () {
 
   describe('sessions', function () {
     let clientStub: StubbedInstance<MongoClient>;
-    let serviceProvider: CliServiceProvider;
+    let serviceProvider: NodeDriverServiceProvider;
     let db: StubbedInstance<Db>;
     let driverSession: ClientSession;
     beforeEach(function () {
       clientStub = stubInterface<MongoClient>();
-      serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
+      serviceProvider = new NodeDriverServiceProvider(clientStub, bus, dummyOptions);
       driverSession = { dSession: 1 } as any;
       clientStub.startSession.returns(driverSession);
       db = stubInterface<Db>();
@@ -889,7 +889,7 @@ describe('CliServiceProvider', function () {
         watch: watchMock as any,
       }) as any;
 
-      serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
+      serviceProvider = new NodeDriverServiceProvider(clientStub, bus, dummyOptions);
     });
 
     it('executes watch on MongoClient', function () {
@@ -938,7 +938,7 @@ describe('CliServiceProvider', function () {
           }),
         },
       };
-      serviceProvider = new CliServiceProvider(
+      serviceProvider = new NodeDriverServiceProvider(
         clientStub,
         bus,
         dummyOptions,
@@ -962,7 +962,7 @@ describe('CliServiceProvider', function () {
 
     context('when connected to an Atlas deployment', function () {
       it('correctly gathers info on the fake deployment', async function () {
-        const serviceProvider = new CliServiceProvider(
+        const serviceProvider = new NodeDriverServiceProvider(
           clientStub,
           bus,
           dummyOptions,
@@ -979,7 +979,7 @@ describe('CliServiceProvider', function () {
 
     context('when connected to a DocumentDB deployment', function () {
       it('correctly gathers info on the fake deployment', async function () {
-        const serviceProvider = new CliServiceProvider(
+        const serviceProvider = new NodeDriverServiceProvider(
           clientStub,
           bus,
           dummyOptions,
@@ -996,7 +996,7 @@ describe('CliServiceProvider', function () {
 
     context('when connected to a CosmosDB deployment', function () {
       it('correctly gathers info on the fake deployment', async function () {
-        const serviceProvider = new CliServiceProvider(
+        const serviceProvider = new NodeDriverServiceProvider(
           clientStub,
           bus,
           dummyOptions,
@@ -1014,7 +1014,7 @@ describe('CliServiceProvider', function () {
 
   // Security-relevant tests -- description covered in e2e-oidc tests.
   describe('processDriverOptions', function () {
-    it('shares user configuration options from an existing CliServiceProvider instance', function () {
+    it('shares user configuration options from an existing NodeDriverServiceProvider instance', function () {
       const cloneableOidcOptions = {
         redirectURI: 'http://localhost',
         openBrowser: { command: '/usr/bin/browser' },
@@ -1026,7 +1026,7 @@ describe('CliServiceProvider', function () {
         productName: 'test',
       };
       expect(
-        CliServiceProvider.prototype.processDriverOptions.call(
+        NodeDriverServiceProvider.prototype.processDriverOptions.call(
           {
             currentClientOptions: {
               oidc: {
@@ -1051,7 +1051,7 @@ describe('CliServiceProvider', function () {
       const parentState: any = {};
 
       expect(
-        CliServiceProvider.prototype.processDriverOptions.call(
+        NodeDriverServiceProvider.prototype.processDriverOptions.call(
           {
             uri: new ConnectionString('mongodb://localhost/'),
             currentClientOptions: {
@@ -1069,7 +1069,7 @@ describe('CliServiceProvider', function () {
       const parentState: any = {};
 
       expect(
-        CliServiceProvider.prototype.processDriverOptions.call(
+        NodeDriverServiceProvider.prototype.processDriverOptions.call(
           {
             uri: new ConnectionString('mongodb://localhost/'),
             currentClientOptions: {
@@ -1087,7 +1087,7 @@ describe('CliServiceProvider', function () {
       const parentState: any = {};
 
       expect(
-        CliServiceProvider.prototype.processDriverOptions.call(
+        NodeDriverServiceProvider.prototype.processDriverOptions.call(
           {
             uri: new ConnectionString('mongodb://localhost/'),
             currentClientOptions: {
@@ -1120,7 +1120,7 @@ describe('CliServiceProvider', function () {
 
       collectionStub = stubInterface<Collection>();
       collectionStub.listSearchIndexes.returns(nativeMethodResult);
-      serviceProvider = new CliServiceProvider(
+      serviceProvider = new NodeDriverServiceProvider(
         createClientStub(collectionStub),
         bus,
         dummyOptions
@@ -1173,7 +1173,7 @@ describe('CliServiceProvider', function () {
 
       collectionStub = stubInterface<Collection>();
       collectionStub.createSearchIndexes.resolves(nativeMethodResult);
-      serviceProvider = new CliServiceProvider(
+      serviceProvider = new NodeDriverServiceProvider(
         createClientStub(collectionStub),
         bus,
         dummyOptions
@@ -1201,7 +1201,7 @@ describe('CliServiceProvider', function () {
 
       collectionStub = stubInterface<Collection>();
       collectionStub.dropSearchIndex.resolves();
-      serviceProvider = new CliServiceProvider(
+      serviceProvider = new NodeDriverServiceProvider(
         createClientStub(collectionStub),
         bus,
         dummyOptions
@@ -1230,7 +1230,7 @@ describe('CliServiceProvider', function () {
       collectionStub = stubInterface<Collection>();
 
       collectionStub.updateSearchIndex.resolves();
-      serviceProvider = new CliServiceProvider(
+      serviceProvider = new NodeDriverServiceProvider(
         createClientStub(collectionStub),
         bus,
         dummyOptions

@@ -29,7 +29,7 @@ import ConnectionString from 'mongodb-connection-string-url';
 import type { CliReplOptions } from './cli-repl';
 import { CliRepl } from './cli-repl';
 import { CliReplErrors } from './error-codes';
-import type { DevtoolsConnectOptions } from '@mongosh/service-provider-server';
+import type { DevtoolsConnectOptions } from '@mongosh/service-provider-node-driver';
 import type { AddressInfo } from 'net';
 const { EJSON } = bson;
 

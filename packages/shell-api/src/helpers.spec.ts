@@ -11,8 +11,8 @@ import { Database, Mongo, ShellInstanceState } from './index';
 import constructShellBson from './shell-bson';
 import type { ServiceProvider } from '@mongosh/service-provider-core';
 import { bson } from '@mongosh/service-provider-core';
-import type { DevtoolsConnectOptions } from '../../service-provider-server';
-import { CliServiceProvider } from '../../service-provider-server'; // avoid cyclic dep just for test
+import type { DevtoolsConnectOptions } from '../../service-provider-node-driver';
+import { NodeDriverServiceProvider } from '../../service-provider-node-driver'; // avoid cyclic dep just for test
 import { startSharedTestServer } from '../../../testing/integration-testing-hooks';
 import { makeFakeConfigDatabase } from '../test/shard-test-fake-data';
 import sinon from 'ts-sinon';
@@ -134,7 +134,7 @@ describe('getPrintableShardStatus', function () {
   let inBalancerRound = false;
 
   beforeEach(async function () {
-    serviceProvider = await CliServiceProvider.connect(
+    serviceProvider = await NodeDriverServiceProvider.connect(
       await testServer.connectionString(),
       dummyOptions,
       {},
