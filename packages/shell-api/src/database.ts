@@ -52,6 +52,8 @@ import type {
   CreateEncryptedCollectionOptions,
   CheckMetadataConsistencyOptions,
   RunCommandOptions,
+  ExplainVerbosityLike,
+  AggregateOptions,
 } from '@mongosh/service-provider-core';
 
 export type CollectionNamesWithTypes = {
@@ -413,27 +415,38 @@ export default class Database extends ShellApiWithMongoClass {
   }
 
   /**
-   * Run an aggregation against the db.
+   * Run an aggregation against the database. Accepts array pipeline and options object OR stages as individual arguments.
    *
-   * @param pipeline
-   * @param options
    * @returns {Promise} The promise of aggregation results.
    */
+  async aggregate(
+    pipeline: Document[],
+    options: AggregateOptions & { explain: ExplainVerbosityLike }
+  ): Promise<Document>;
+  async aggregate(
+    pipeline: Document[],
+    options?: AggregateOptions
+  ): Promise<AggregationCursor>;
+  async aggregate(...stages: Document[]): Promise<AggregationCursor>;
   @returnsPromise
   @returnType('AggregationCursor')
   @apiVersions([1])
-  async aggregate(
-    pipelineOrSingleStage: Document | Document[],
-    options?: Document
-  ): Promise<AggregationCursor> {
-    if ('background' in (options ?? {})) {
+  async aggregate(...args: unknown[]): Promise<AggregationCursor | Document> {
+    let options: AggregateOptions;
+    let pipeline: Document[];
+    if (args.length === 0 || Array.isArray(args[0])) {
+      options = args[1] || {};
+      pipeline = (args[0] as Document[]) || [];
+    } else {
+      options = {};
+      pipeline = (args as Document[]) || [];
+    }
+
+    if ('background' in options) {
       await this._instanceState.printWarning(
         aggregateBackgroundOptionNotSupportedHelp
       );
     }
-    const pipeline: Document[] = Array.isArray(pipelineOrSingleStage)
-      ? pipelineOrSingleStage
-      : [pipelineOrSingleStage];
 
     assertArgsDefinedType([pipeline], [true], 'Database.aggregate');
 
@@ -1731,7 +1744,10 @@ export default class Database extends ShellApiWithMongoClass {
   @serverVersions(['4.4.0', ServerVersions.latest])
   @returnsPromise
   @returnType('AggregationCursor')
-  async sql(sqlString: string, options?: Document): Promise<AggregationCursor> {
+  async sql(
+    sqlString: string,
+    options?: AggregateOptions
+  ): Promise<AggregationCursor> {
     this._emitDatabaseApiCall('sql', { sqlString: sqlString, options });
     await this._instanceState.shellApi.print(
       'Note: this is an experimental feature that may be subject to change in future releases.'
