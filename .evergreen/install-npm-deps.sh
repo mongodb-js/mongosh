@@ -11,7 +11,7 @@ if [[ "${DISTRO_ID}" =~ ^(rhel) ]]; then
   # NOTE: this won't work on some more exotic platforms because not every dep
   # can be installed on them. That's why we only run on linux x64 platforms when
   # we set MONOGDB_DRIVER_VERSION_OVERRIDE=nightly in CI
-  npm ci --verbose --force
+  npm i --verbose --force
 else
   npm ci --verbose
 fi
