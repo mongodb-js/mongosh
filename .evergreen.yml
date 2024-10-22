@@ -11036,6 +11036,7 @@ tasks:
       - func: compile_artifact
         vars:
           node_js_version: "20.18.0"
+          distro_id: ${distro_id}
       - func: upload_compiled_artifact
         vars:
           node_js_version: "20.18.0"
