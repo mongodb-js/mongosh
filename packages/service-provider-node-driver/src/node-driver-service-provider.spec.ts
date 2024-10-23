@@ -55,13 +55,21 @@ describe('NodeDriverServiceProvider', function () {
   beforeEach(function () {
     bus = new EventEmitter();
     collectionStub = stubInterface<Collection>();
-    serviceProvider = new NodeDriverServiceProvider({} as any, bus, dummyOptions);
+    serviceProvider = new NodeDriverServiceProvider(
+      {} as any,
+      bus,
+      dummyOptions
+    );
   });
 
   describe('#constructor', function () {
     const mongoClient: any = sinon.spy();
     beforeEach(function () {
-      serviceProvider = new NodeDriverServiceProvider(mongoClient, bus, dummyOptions);
+      serviceProvider = new NodeDriverServiceProvider(
+        mongoClient,
+        bus,
+        dummyOptions
+      );
     });
 
     it('sets the mongo client on the instance', function () {
@@ -451,7 +459,11 @@ describe('NodeDriverServiceProvider', function () {
       clientStub = stubInterface<MongoClient>();
       dbStub.command.resolves(commandResult);
       clientStub.db.returns(dbStub);
-      serviceProvider = new NodeDriverServiceProvider(clientStub, bus, dummyOptions);
+      serviceProvider = new NodeDriverServiceProvider(
+        clientStub,
+        bus,
+        dummyOptions
+      );
     });
 
     it('executes the command against the database', async function () {
@@ -471,7 +483,11 @@ describe('NodeDriverServiceProvider', function () {
       clientStub = stubInterface<MongoClient>();
       dbStub.command.resolves(commandResult);
       clientStub.db.returns(dbStub);
-      serviceProvider = new NodeDriverServiceProvider(clientStub, bus, dummyOptions);
+      serviceProvider = new NodeDriverServiceProvider(
+        clientStub,
+        bus,
+        dummyOptions
+      );
     });
 
     it('executes the command against the database and throws if ok: 0', async function () {
@@ -497,7 +513,11 @@ describe('NodeDriverServiceProvider', function () {
       clientStub = stubInterface<MongoClient>();
       dbStub.runCursorCommand.returns(commandResult);
       clientStub.db.returns(dbStub);
-      serviceProvider = new NodeDriverServiceProvider(clientStub, bus, dummyOptions);
+      serviceProvider = new NodeDriverServiceProvider(
+        clientStub,
+        bus,
+        dummyOptions
+      );
     });
 
     it('executes the command against the database', function () {
@@ -574,7 +594,11 @@ describe('NodeDriverServiceProvider', function () {
       clientStub = stubInterface<MongoClient>();
       clientStub.db.returns(dbStub);
 
-      serviceProvider = new NodeDriverServiceProvider(clientStub, bus, dummyOptions);
+      serviceProvider = new NodeDriverServiceProvider(
+        clientStub,
+        bus,
+        dummyOptions
+      );
     });
 
     it('returns ok: 1 if dropped', async function () {
@@ -690,7 +714,11 @@ describe('NodeDriverServiceProvider', function () {
         },
       } as any);
       clientStub.db.returns(dbStub);
-      serviceProvider = new NodeDriverServiceProvider(clientStub, bus, dummyOptions);
+      serviceProvider = new NodeDriverServiceProvider(
+        clientStub,
+        bus,
+        dummyOptions
+      );
     });
 
     it('executes the command', async function () {
@@ -718,7 +746,11 @@ describe('NodeDriverServiceProvider', function () {
       clientStub = stubInterface<MongoClient>();
       dbStub.renameCollection.resolves({ ok: 1 } as any);
       clientStub.db.returns(dbStub);
-      serviceProvider = new NodeDriverServiceProvider(clientStub, bus, dummyOptions);
+      serviceProvider = new NodeDriverServiceProvider(
+        clientStub,
+        bus,
+        dummyOptions
+      );
     });
 
     it('executes the command against the database', async function () {
@@ -751,7 +783,11 @@ describe('NodeDriverServiceProvider', function () {
       clientStub = stubInterface<MongoClient>();
       dbStub.createCollection.resolves({} as any);
       clientStub.db.returns(dbStub);
-      serviceProvider = new NodeDriverServiceProvider(clientStub, bus, dummyOptions);
+      serviceProvider = new NodeDriverServiceProvider(
+        clientStub,
+        bus,
+        dummyOptions
+      );
     });
 
     it('executes the command', async function () {
@@ -791,7 +827,11 @@ describe('NodeDriverServiceProvider', function () {
       dbStub = stubInterface<Db>();
       clientStub = stubInterface<MongoClient>();
       clientStub.db.returns(dbStub);
-      serviceProvider = new NodeDriverServiceProvider(clientStub, bus, dummyOptions);
+      serviceProvider = new NodeDriverServiceProvider(
+        clientStub,
+        bus,
+        dummyOptions
+      );
       libmongoc = stubInterface<ClientEncryption>();
     });
 
@@ -832,7 +872,11 @@ describe('NodeDriverServiceProvider', function () {
     let driverSession: ClientSession;
     beforeEach(function () {
       clientStub = stubInterface<MongoClient>();
-      serviceProvider = new NodeDriverServiceProvider(clientStub, bus, dummyOptions);
+      serviceProvider = new NodeDriverServiceProvider(
+        clientStub,
+        bus,
+        dummyOptions
+      );
       driverSession = { dSession: 1 } as any;
       clientStub.startSession.returns(driverSession);
       db = stubInterface<Db>();
@@ -889,7 +933,11 @@ describe('NodeDriverServiceProvider', function () {
         watch: watchMock as any,
       }) as any;
 
-      serviceProvider = new NodeDriverServiceProvider(clientStub, bus, dummyOptions);
+      serviceProvider = new NodeDriverServiceProvider(
+        clientStub,
+        bus,
+        dummyOptions
+      );
     });
 
     it('executes watch on MongoClient', function () {

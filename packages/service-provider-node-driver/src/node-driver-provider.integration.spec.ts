@@ -174,7 +174,11 @@ describe('NodeDriverServiceProvider [integration]', function () {
 
     context('when the optional uri has not been passed', function () {
       it("returns the connection's info", async function () {
-        const instance = new NodeDriverServiceProvider(client, bus, dummyOptions);
+        const instance = new NodeDriverServiceProvider(
+          client,
+          bus,
+          dummyOptions
+        );
         const connectionInfo = await instance.getConnectionInfo();
 
         expect(Object.keys(connectionInfo)).to.deep.equal([
