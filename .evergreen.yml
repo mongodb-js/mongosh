@@ -1194,8 +1194,8 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin_unit-m60xc_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m60xc_n20_service_provider_server.tgz
+        local_file: src/nyc-output-darwin_unit-m60xc_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m60xc_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -1203,13 +1203,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-darwin_unit-m60xc_n20_service_provider_server.tgz
+          tar xvzf nyc-output-darwin_unit-m60xc_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin_unit-m60xe_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m60xe_n20_service_provider_server.tgz
+        local_file: src/nyc-output-darwin_unit-m60xe_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m60xe_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -1217,13 +1217,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-darwin_unit-m60xe_n20_service_provider_server.tgz
+          tar xvzf nyc-output-darwin_unit-m60xe_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin_unit-m70xc_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m70xc_n20_service_provider_server.tgz
+        local_file: src/nyc-output-darwin_unit-m70xc_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m70xc_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -1231,13 +1231,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-darwin_unit-m70xc_n20_service_provider_server.tgz
+          tar xvzf nyc-output-darwin_unit-m70xc_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin_unit-m70xe_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m70xe_n20_service_provider_server.tgz
+        local_file: src/nyc-output-darwin_unit-m70xe_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m70xe_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -1245,13 +1245,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-darwin_unit-m70xe_n20_service_provider_server.tgz
+          tar xvzf nyc-output-darwin_unit-m70xe_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin_unit-m80xc_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m80xc_n20_service_provider_server.tgz
+        local_file: src/nyc-output-darwin_unit-m80xc_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m80xc_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -1259,13 +1259,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-darwin_unit-m80xc_n20_service_provider_server.tgz
+          tar xvzf nyc-output-darwin_unit-m80xc_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin_unit-m80xe_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m80xe_n20_service_provider_server.tgz
+        local_file: src/nyc-output-darwin_unit-m80xe_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m80xe_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -1273,13 +1273,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-darwin_unit-m80xe_n20_service_provider_server.tgz
+          tar xvzf nyc-output-darwin_unit-m80xe_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin_unit-mlatest_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-mlatest_n20_service_provider_server.tgz
+        local_file: src/nyc-output-darwin_unit-mlatest_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-mlatest_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -1287,13 +1287,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-darwin_unit-mlatest_n20_service_provider_server.tgz
+          tar xvzf nyc-output-darwin_unit-mlatest_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin_unit-m60xc_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m60xc_n16_service_provider_server.tgz
+        local_file: src/nyc-output-darwin_unit-m60xc_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m60xc_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -1301,13 +1301,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-darwin_unit-m60xc_n16_service_provider_server.tgz
+          tar xvzf nyc-output-darwin_unit-m60xc_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin_unit-m60xe_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m60xe_n16_service_provider_server.tgz
+        local_file: src/nyc-output-darwin_unit-m60xe_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m60xe_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -1315,13 +1315,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-darwin_unit-m60xe_n16_service_provider_server.tgz
+          tar xvzf nyc-output-darwin_unit-m60xe_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin_unit-m70xc_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m70xc_n16_service_provider_server.tgz
+        local_file: src/nyc-output-darwin_unit-m70xc_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m70xc_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -1329,13 +1329,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-darwin_unit-m70xc_n16_service_provider_server.tgz
+          tar xvzf nyc-output-darwin_unit-m70xc_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin_unit-m70xe_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m70xe_n16_service_provider_server.tgz
+        local_file: src/nyc-output-darwin_unit-m70xe_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m70xe_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -1343,13 +1343,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-darwin_unit-m70xe_n16_service_provider_server.tgz
+          tar xvzf nyc-output-darwin_unit-m70xe_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin_unit-m80xc_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m80xc_n16_service_provider_server.tgz
+        local_file: src/nyc-output-darwin_unit-m80xc_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m80xc_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -1357,13 +1357,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-darwin_unit-m80xc_n16_service_provider_server.tgz
+          tar xvzf nyc-output-darwin_unit-m80xc_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin_unit-m80xe_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m80xe_n16_service_provider_server.tgz
+        local_file: src/nyc-output-darwin_unit-m80xe_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m80xe_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -1371,13 +1371,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-darwin_unit-m80xe_n16_service_provider_server.tgz
+          tar xvzf nyc-output-darwin_unit-m80xe_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin_unit-mlatest_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-mlatest_n16_service_provider_server.tgz
+        local_file: src/nyc-output-darwin_unit-mlatest_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-mlatest_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -1385,7 +1385,7 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-darwin_unit-mlatest_n16_service_provider_server.tgz
+          tar xvzf nyc-output-darwin_unit-mlatest_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -3378,8 +3378,8 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m42xc_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m42xc_n20_service_provider_server.tgz
+        local_file: src/nyc-output-linux_unit-m42xc_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m42xc_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3387,13 +3387,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux_unit-m42xc_n20_service_provider_server.tgz
+          tar xvzf nyc-output-linux_unit-m42xc_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m44xc_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m44xc_n20_service_provider_server.tgz
+        local_file: src/nyc-output-linux_unit-m44xc_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m44xc_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3401,13 +3401,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux_unit-m44xc_n20_service_provider_server.tgz
+          tar xvzf nyc-output-linux_unit-m44xc_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m44xe_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m44xe_n20_service_provider_server.tgz
+        local_file: src/nyc-output-linux_unit-m44xe_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m44xe_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3415,13 +3415,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux_unit-m44xe_n20_service_provider_server.tgz
+          tar xvzf nyc-output-linux_unit-m44xe_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m50xc_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m50xc_n20_service_provider_server.tgz
+        local_file: src/nyc-output-linux_unit-m50xc_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m50xc_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3429,13 +3429,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux_unit-m50xc_n20_service_provider_server.tgz
+          tar xvzf nyc-output-linux_unit-m50xc_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m50xe_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m50xe_n20_service_provider_server.tgz
+        local_file: src/nyc-output-linux_unit-m50xe_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m50xe_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3443,13 +3443,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux_unit-m50xe_n20_service_provider_server.tgz
+          tar xvzf nyc-output-linux_unit-m50xe_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m60xc_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m60xc_n20_service_provider_server.tgz
+        local_file: src/nyc-output-linux_unit-m60xc_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m60xc_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3457,13 +3457,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux_unit-m60xc_n20_service_provider_server.tgz
+          tar xvzf nyc-output-linux_unit-m60xc_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m60xe_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m60xe_n20_service_provider_server.tgz
+        local_file: src/nyc-output-linux_unit-m60xe_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m60xe_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3471,13 +3471,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux_unit-m60xe_n20_service_provider_server.tgz
+          tar xvzf nyc-output-linux_unit-m60xe_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m70xc_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m70xc_n20_service_provider_server.tgz
+        local_file: src/nyc-output-linux_unit-m70xc_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m70xc_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3485,13 +3485,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux_unit-m70xc_n20_service_provider_server.tgz
+          tar xvzf nyc-output-linux_unit-m70xc_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m70xe_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m70xe_n20_service_provider_server.tgz
+        local_file: src/nyc-output-linux_unit-m70xe_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m70xe_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3499,13 +3499,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux_unit-m70xe_n20_service_provider_server.tgz
+          tar xvzf nyc-output-linux_unit-m70xe_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m80xc_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m80xc_n20_service_provider_server.tgz
+        local_file: src/nyc-output-linux_unit-m80xc_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m80xc_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3513,13 +3513,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux_unit-m80xc_n20_service_provider_server.tgz
+          tar xvzf nyc-output-linux_unit-m80xc_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m80xe_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m80xe_n20_service_provider_server.tgz
+        local_file: src/nyc-output-linux_unit-m80xe_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m80xe_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3527,13 +3527,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux_unit-m80xe_n20_service_provider_server.tgz
+          tar xvzf nyc-output-linux_unit-m80xe_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-mlatest_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-mlatest_n20_service_provider_server.tgz
+        local_file: src/nyc-output-linux_unit-mlatest_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-mlatest_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3541,13 +3541,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux_unit-mlatest_n20_service_provider_server.tgz
+          tar xvzf nyc-output-linux_unit-mlatest_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m42xc_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m42xc_n16_service_provider_server.tgz
+        local_file: src/nyc-output-linux_unit-m42xc_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m42xc_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3555,13 +3555,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux_unit-m42xc_n16_service_provider_server.tgz
+          tar xvzf nyc-output-linux_unit-m42xc_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m44xc_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m44xc_n16_service_provider_server.tgz
+        local_file: src/nyc-output-linux_unit-m44xc_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m44xc_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3569,13 +3569,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux_unit-m44xc_n16_service_provider_server.tgz
+          tar xvzf nyc-output-linux_unit-m44xc_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m44xe_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m44xe_n16_service_provider_server.tgz
+        local_file: src/nyc-output-linux_unit-m44xe_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m44xe_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3583,13 +3583,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux_unit-m44xe_n16_service_provider_server.tgz
+          tar xvzf nyc-output-linux_unit-m44xe_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m50xc_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m50xc_n16_service_provider_server.tgz
+        local_file: src/nyc-output-linux_unit-m50xc_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m50xc_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3597,13 +3597,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux_unit-m50xc_n16_service_provider_server.tgz
+          tar xvzf nyc-output-linux_unit-m50xc_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m50xe_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m50xe_n16_service_provider_server.tgz
+        local_file: src/nyc-output-linux_unit-m50xe_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m50xe_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3611,13 +3611,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux_unit-m50xe_n16_service_provider_server.tgz
+          tar xvzf nyc-output-linux_unit-m50xe_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m60xc_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m60xc_n16_service_provider_server.tgz
+        local_file: src/nyc-output-linux_unit-m60xc_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m60xc_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3625,13 +3625,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux_unit-m60xc_n16_service_provider_server.tgz
+          tar xvzf nyc-output-linux_unit-m60xc_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m60xe_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m60xe_n16_service_provider_server.tgz
+        local_file: src/nyc-output-linux_unit-m60xe_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m60xe_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3639,13 +3639,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux_unit-m60xe_n16_service_provider_server.tgz
+          tar xvzf nyc-output-linux_unit-m60xe_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m70xc_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m70xc_n16_service_provider_server.tgz
+        local_file: src/nyc-output-linux_unit-m70xc_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m70xc_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3653,13 +3653,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux_unit-m70xc_n16_service_provider_server.tgz
+          tar xvzf nyc-output-linux_unit-m70xc_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m70xe_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m70xe_n16_service_provider_server.tgz
+        local_file: src/nyc-output-linux_unit-m70xe_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m70xe_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3667,13 +3667,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux_unit-m70xe_n16_service_provider_server.tgz
+          tar xvzf nyc-output-linux_unit-m70xe_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m80xc_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m80xc_n16_service_provider_server.tgz
+        local_file: src/nyc-output-linux_unit-m80xc_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m80xc_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3681,13 +3681,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux_unit-m80xc_n16_service_provider_server.tgz
+          tar xvzf nyc-output-linux_unit-m80xc_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m80xe_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m80xe_n16_service_provider_server.tgz
+        local_file: src/nyc-output-linux_unit-m80xe_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m80xe_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3695,13 +3695,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux_unit-m80xe_n16_service_provider_server.tgz
+          tar xvzf nyc-output-linux_unit-m80xe_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-mlatest_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-mlatest_n16_service_provider_server.tgz
+        local_file: src/nyc-output-linux_unit-mlatest_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-mlatest_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3709,7 +3709,7 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux_unit-mlatest_n16_service_provider_server.tgz
+          tar xvzf nyc-output-linux_unit-mlatest_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -5590,8 +5590,8 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32_unit-m42xc_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m42xc_n20_service_provider_server.tgz
+        local_file: src/nyc-output-win32_unit-m42xc_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m42xc_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -5599,13 +5599,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-win32_unit-m42xc_n20_service_provider_server.tgz
+          tar xvzf nyc-output-win32_unit-m42xc_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32_unit-m42xe_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m42xe_n20_service_provider_server.tgz
+        local_file: src/nyc-output-win32_unit-m42xe_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m42xe_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -5613,13 +5613,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-win32_unit-m42xe_n20_service_provider_server.tgz
+          tar xvzf nyc-output-win32_unit-m42xe_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32_unit-m44xc_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m44xc_n20_service_provider_server.tgz
+        local_file: src/nyc-output-win32_unit-m44xc_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m44xc_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -5627,13 +5627,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-win32_unit-m44xc_n20_service_provider_server.tgz
+          tar xvzf nyc-output-win32_unit-m44xc_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32_unit-m44xe_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m44xe_n20_service_provider_server.tgz
+        local_file: src/nyc-output-win32_unit-m44xe_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m44xe_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -5641,13 +5641,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-win32_unit-m44xe_n20_service_provider_server.tgz
+          tar xvzf nyc-output-win32_unit-m44xe_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32_unit-m50xc_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m50xc_n20_service_provider_server.tgz
+        local_file: src/nyc-output-win32_unit-m50xc_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m50xc_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -5655,13 +5655,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-win32_unit-m50xc_n20_service_provider_server.tgz
+          tar xvzf nyc-output-win32_unit-m50xc_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32_unit-m50xe_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m50xe_n20_service_provider_server.tgz
+        local_file: src/nyc-output-win32_unit-m50xe_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m50xe_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -5669,13 +5669,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-win32_unit-m50xe_n20_service_provider_server.tgz
+          tar xvzf nyc-output-win32_unit-m50xe_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32_unit-m60xc_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m60xc_n20_service_provider_server.tgz
+        local_file: src/nyc-output-win32_unit-m60xc_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m60xc_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -5683,13 +5683,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-win32_unit-m60xc_n20_service_provider_server.tgz
+          tar xvzf nyc-output-win32_unit-m60xc_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32_unit-m60xe_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m60xe_n20_service_provider_server.tgz
+        local_file: src/nyc-output-win32_unit-m60xe_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m60xe_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -5697,13 +5697,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-win32_unit-m60xe_n20_service_provider_server.tgz
+          tar xvzf nyc-output-win32_unit-m60xe_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32_unit-m70xc_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m70xc_n20_service_provider_server.tgz
+        local_file: src/nyc-output-win32_unit-m70xc_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m70xc_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -5711,13 +5711,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-win32_unit-m70xc_n20_service_provider_server.tgz
+          tar xvzf nyc-output-win32_unit-m70xc_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32_unit-m70xe_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m70xe_n20_service_provider_server.tgz
+        local_file: src/nyc-output-win32_unit-m70xe_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m70xe_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -5725,13 +5725,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-win32_unit-m70xe_n20_service_provider_server.tgz
+          tar xvzf nyc-output-win32_unit-m70xe_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32_unit-m80xc_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m80xc_n20_service_provider_server.tgz
+        local_file: src/nyc-output-win32_unit-m80xc_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m80xc_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -5739,13 +5739,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-win32_unit-m80xc_n20_service_provider_server.tgz
+          tar xvzf nyc-output-win32_unit-m80xc_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32_unit-m80xe_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m80xe_n20_service_provider_server.tgz
+        local_file: src/nyc-output-win32_unit-m80xe_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m80xe_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -5753,13 +5753,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-win32_unit-m80xe_n20_service_provider_server.tgz
+          tar xvzf nyc-output-win32_unit-m80xe_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32_unit-mlatest_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-mlatest_n20_service_provider_server.tgz
+        local_file: src/nyc-output-win32_unit-mlatest_n20_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-mlatest_n20_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -5767,13 +5767,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-win32_unit-mlatest_n20_service_provider_server.tgz
+          tar xvzf nyc-output-win32_unit-mlatest_n20_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32_unit-m42xc_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m42xc_n16_service_provider_server.tgz
+        local_file: src/nyc-output-win32_unit-m42xc_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m42xc_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -5781,13 +5781,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-win32_unit-m42xc_n16_service_provider_server.tgz
+          tar xvzf nyc-output-win32_unit-m42xc_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32_unit-m42xe_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m42xe_n16_service_provider_server.tgz
+        local_file: src/nyc-output-win32_unit-m42xe_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m42xe_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -5795,13 +5795,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-win32_unit-m42xe_n16_service_provider_server.tgz
+          tar xvzf nyc-output-win32_unit-m42xe_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32_unit-m44xc_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m44xc_n16_service_provider_server.tgz
+        local_file: src/nyc-output-win32_unit-m44xc_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m44xc_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -5809,13 +5809,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-win32_unit-m44xc_n16_service_provider_server.tgz
+          tar xvzf nyc-output-win32_unit-m44xc_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32_unit-m44xe_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m44xe_n16_service_provider_server.tgz
+        local_file: src/nyc-output-win32_unit-m44xe_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m44xe_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -5823,13 +5823,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-win32_unit-m44xe_n16_service_provider_server.tgz
+          tar xvzf nyc-output-win32_unit-m44xe_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32_unit-m50xc_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m50xc_n16_service_provider_server.tgz
+        local_file: src/nyc-output-win32_unit-m50xc_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m50xc_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -5837,13 +5837,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-win32_unit-m50xc_n16_service_provider_server.tgz
+          tar xvzf nyc-output-win32_unit-m50xc_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32_unit-m50xe_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m50xe_n16_service_provider_server.tgz
+        local_file: src/nyc-output-win32_unit-m50xe_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m50xe_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -5851,13 +5851,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-win32_unit-m50xe_n16_service_provider_server.tgz
+          tar xvzf nyc-output-win32_unit-m50xe_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32_unit-m60xc_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m60xc_n16_service_provider_server.tgz
+        local_file: src/nyc-output-win32_unit-m60xc_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m60xc_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -5865,13 +5865,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-win32_unit-m60xc_n16_service_provider_server.tgz
+          tar xvzf nyc-output-win32_unit-m60xc_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32_unit-m60xe_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m60xe_n16_service_provider_server.tgz
+        local_file: src/nyc-output-win32_unit-m60xe_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m60xe_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -5879,13 +5879,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-win32_unit-m60xe_n16_service_provider_server.tgz
+          tar xvzf nyc-output-win32_unit-m60xe_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32_unit-m70xc_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m70xc_n16_service_provider_server.tgz
+        local_file: src/nyc-output-win32_unit-m70xc_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m70xc_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -5893,13 +5893,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-win32_unit-m70xc_n16_service_provider_server.tgz
+          tar xvzf nyc-output-win32_unit-m70xc_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32_unit-m70xe_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m70xe_n16_service_provider_server.tgz
+        local_file: src/nyc-output-win32_unit-m70xe_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m70xe_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -5907,13 +5907,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-win32_unit-m70xe_n16_service_provider_server.tgz
+          tar xvzf nyc-output-win32_unit-m70xe_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32_unit-m80xc_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m80xc_n16_service_provider_server.tgz
+        local_file: src/nyc-output-win32_unit-m80xc_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m80xc_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -5921,13 +5921,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-win32_unit-m80xc_n16_service_provider_server.tgz
+          tar xvzf nyc-output-win32_unit-m80xc_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32_unit-m80xe_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m80xe_n16_service_provider_server.tgz
+        local_file: src/nyc-output-win32_unit-m80xe_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m80xe_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -5935,13 +5935,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-win32_unit-m80xe_n16_service_provider_server.tgz
+          tar xvzf nyc-output-win32_unit-m80xe_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32_unit-mlatest_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-mlatest_n16_service_provider_server.tgz
+        local_file: src/nyc-output-win32_unit-mlatest_n16_service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-mlatest_n16_service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -5949,7 +5949,7 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-win32_unit-mlatest_n16_service_provider_server.tgz
+          tar xvzf nyc-output-win32_unit-mlatest_n16_service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -16669,20 +16669,20 @@ buildvariants:
       - name: test_mlatest_n16_node_runtime_worker_thread
       - name: test_n20_service_provider_core
       - name: test_n16_service_provider_core
-      - name: test_m60xc_n20_service_provider_server
-      - name: test_m60xe_n20_service_provider_server
-      - name: test_m70xc_n20_service_provider_server
-      - name: test_m70xe_n20_service_provider_server
-      - name: test_m80xc_n20_service_provider_server
-      - name: test_m80xe_n20_service_provider_server
-      - name: test_mlatest_n20_service_provider_server
-      - name: test_m60xc_n16_service_provider_server
-      - name: test_m60xe_n16_service_provider_server
-      - name: test_m70xc_n16_service_provider_server
-      - name: test_m70xe_n16_service_provider_server
-      - name: test_m80xc_n16_service_provider_server
-      - name: test_m80xe_n16_service_provider_server
-      - name: test_mlatest_n16_service_provider_server
+      - name: test_m60xc_n20_service_provider_node_driver
+      - name: test_m60xe_n20_service_provider_node_driver
+      - name: test_m70xc_n20_service_provider_node_driver
+      - name: test_m70xe_n20_service_provider_node_driver
+      - name: test_m80xc_n20_service_provider_node_driver
+      - name: test_m80xe_n20_service_provider_node_driver
+      - name: test_mlatest_n20_service_provider_node_driver
+      - name: test_m60xc_n16_service_provider_node_driver
+      - name: test_m60xe_n16_service_provider_node_driver
+      - name: test_m70xc_n16_service_provider_node_driver
+      - name: test_m70xe_n16_service_provider_node_driver
+      - name: test_m80xc_n16_service_provider_node_driver
+      - name: test_m80xe_n16_service_provider_node_driver
+      - name: test_mlatest_n16_service_provider_node_driver
       - name: test_m60xc_n20_shell_api
       - name: test_m60xe_n20_shell_api
       - name: test_m70xc_n20_shell_api
@@ -16853,30 +16853,30 @@ buildvariants:
       - name: test_mlatest_n16_node_runtime_worker_thread
       - name: test_n20_service_provider_core
       - name: test_n16_service_provider_core
-      - name: test_m42xc_n20_service_provider_server
-      - name: test_m44xc_n20_service_provider_server
-      - name: test_m44xe_n20_service_provider_server
-      - name: test_m50xc_n20_service_provider_server
-      - name: test_m50xe_n20_service_provider_server
-      - name: test_m60xc_n20_service_provider_server
-      - name: test_m60xe_n20_service_provider_server
-      - name: test_m70xc_n20_service_provider_server
-      - name: test_m70xe_n20_service_provider_server
-      - name: test_m80xc_n20_service_provider_server
-      - name: test_m80xe_n20_service_provider_server
-      - name: test_mlatest_n20_service_provider_server
-      - name: test_m42xc_n16_service_provider_server
-      - name: test_m44xc_n16_service_provider_server
-      - name: test_m44xe_n16_service_provider_server
-      - name: test_m50xc_n16_service_provider_server
-      - name: test_m50xe_n16_service_provider_server
-      - name: test_m60xc_n16_service_provider_server
-      - name: test_m60xe_n16_service_provider_server
-      - name: test_m70xc_n16_service_provider_server
-      - name: test_m70xe_n16_service_provider_server
-      - name: test_m80xc_n16_service_provider_server
-      - name: test_m80xe_n16_service_provider_server
-      - name: test_mlatest_n16_service_provider_server
+      - name: test_m42xc_n20_service_provider_node_driver
+      - name: test_m44xc_n20_service_provider_node_driver
+      - name: test_m44xe_n20_service_provider_node_driver
+      - name: test_m50xc_n20_service_provider_node_driver
+      - name: test_m50xe_n20_service_provider_node_driver
+      - name: test_m60xc_n20_service_provider_node_driver
+      - name: test_m60xe_n20_service_provider_node_driver
+      - name: test_m70xc_n20_service_provider_node_driver
+      - name: test_m70xe_n20_service_provider_node_driver
+      - name: test_m80xc_n20_service_provider_node_driver
+      - name: test_m80xe_n20_service_provider_node_driver
+      - name: test_mlatest_n20_service_provider_node_driver
+      - name: test_m42xc_n16_service_provider_node_driver
+      - name: test_m44xc_n16_service_provider_node_driver
+      - name: test_m44xe_n16_service_provider_node_driver
+      - name: test_m50xc_n16_service_provider_node_driver
+      - name: test_m50xe_n16_service_provider_node_driver
+      - name: test_m60xc_n16_service_provider_node_driver
+      - name: test_m60xe_n16_service_provider_node_driver
+      - name: test_m70xc_n16_service_provider_node_driver
+      - name: test_m70xe_n16_service_provider_node_driver
+      - name: test_m80xc_n16_service_provider_node_driver
+      - name: test_m80xe_n16_service_provider_node_driver
+      - name: test_mlatest_n16_service_provider_node_driver
       - name: test_m42xc_n20_shell_api
       - name: test_m44xc_n20_shell_api
       - name: test_m44xe_n20_shell_api
@@ -17427,32 +17427,32 @@ buildvariants:
       - name: test_mlatest_n16_node_runtime_worker_thread
       - name: test_n20_service_provider_core
       - name: test_n16_service_provider_core
-      - name: test_m42xc_n20_service_provider_server
-      - name: test_m42xe_n20_service_provider_server
-      - name: test_m44xc_n20_service_provider_server
-      - name: test_m44xe_n20_service_provider_server
-      - name: test_m50xc_n20_service_provider_server
-      - name: test_m50xe_n20_service_provider_server
-      - name: test_m60xc_n20_service_provider_server
-      - name: test_m60xe_n20_service_provider_server
-      - name: test_m70xc_n20_service_provider_server
-      - name: test_m70xe_n20_service_provider_server
-      - name: test_m80xc_n20_service_provider_server
-      - name: test_m80xe_n20_service_provider_server
-      - name: test_mlatest_n20_service_provider_server
-      - name: test_m42xc_n16_service_provider_server
-      - name: test_m42xe_n16_service_provider_server
-      - name: test_m44xc_n16_service_provider_server
-      - name: test_m44xe_n16_service_provider_server
-      - name: test_m50xc_n16_service_provider_server
-      - name: test_m50xe_n16_service_provider_server
-      - name: test_m60xc_n16_service_provider_server
-      - name: test_m60xe_n16_service_provider_server
-      - name: test_m70xc_n16_service_provider_server
-      - name: test_m70xe_n16_service_provider_server
-      - name: test_m80xc_n16_service_provider_server
-      - name: test_m80xe_n16_service_provider_server
-      - name: test_mlatest_n16_service_provider_server
+      - name: test_m42xc_n20_service_provider_node_driver
+      - name: test_m42xe_n20_service_provider_node_driver
+      - name: test_m44xc_n20_service_provider_node_driver
+      - name: test_m44xe_n20_service_provider_node_driver
+      - name: test_m50xc_n20_service_provider_node_driver
+      - name: test_m50xe_n20_service_provider_node_driver
+      - name: test_m60xc_n20_service_provider_node_driver
+      - name: test_m60xe_n20_service_provider_node_driver
+      - name: test_m70xc_n20_service_provider_node_driver
+      - name: test_m70xe_n20_service_provider_node_driver
+      - name: test_m80xc_n20_service_provider_node_driver
+      - name: test_m80xe_n20_service_provider_node_driver
+      - name: test_mlatest_n20_service_provider_node_driver
+      - name: test_m42xc_n16_service_provider_node_driver
+      - name: test_m42xe_n16_service_provider_node_driver
+      - name: test_m44xc_n16_service_provider_node_driver
+      - name: test_m44xe_n16_service_provider_node_driver
+      - name: test_m50xc_n16_service_provider_node_driver
+      - name: test_m50xe_n16_service_provider_node_driver
+      - name: test_m60xc_n16_service_provider_node_driver
+      - name: test_m60xe_n16_service_provider_node_driver
+      - name: test_m70xc_n16_service_provider_node_driver
+      - name: test_m70xe_n16_service_provider_node_driver
+      - name: test_m80xc_n16_service_provider_node_driver
+      - name: test_m80xe_n16_service_provider_node_driver
+      - name: test_mlatest_n16_service_provider_node_driver
       - name: test_m42xc_n20_shell_api
       - name: test_m42xe_n20_shell_api
       - name: test_m44xc_n20_shell_api

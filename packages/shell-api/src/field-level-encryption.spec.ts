@@ -28,7 +28,7 @@ import type { ClientSideFieldLevelEncryptionOptions } from './field-level-encryp
 import { ClientEncryption, KeyVault } from './field-level-encryption';
 import Mongo from './mongo';
 import ShellInstanceState from './shell-instance-state';
-import { CliServiceProvider } from '../../service-provider-server';
+import { NodeDriverServiceProvider } from '../../service-provider-node-driver';
 import { startSharedTestServer } from '../../../testing/integration-testing-hooks';
 import {
   makeFakeHTTPConnection,
@@ -762,7 +762,7 @@ describe('Field Level Encryption', function () {
     beforeEach(async function () {
       dbname = `test_fle_${Date.now()}`;
       uri = await testServer.connectionString();
-      serviceProvider = await CliServiceProvider.connect(
+      serviceProvider = await NodeDriverServiceProvider.connect(
         uri,
         dummyOptions,
         {},

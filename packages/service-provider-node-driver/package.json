@@ -1,5 +1,5 @@
 {
-  "name": "@mongosh/service-provider-server",
+  "name": "@mongosh/service-provider-node-driver",
   "version": "0.0.0-dev.0",
   "description": "MongoDB Shell Server Service Provider Package",
   "main": "lib/index.js",

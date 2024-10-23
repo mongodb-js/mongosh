@@ -1,6 +1,6 @@
-import type { DropDatabaseResult } from './cli-service-provider';
-import CliServiceProvider from './cli-service-provider';
-import CompassServiceProvider from './compass/compass-service-provider';
+import type { DropDatabaseResult } from './node-driver-service-provider';
+import { NodeDriverServiceProvider } from './node-driver-service-provider';
+import { CompassServiceProvider } from './compass/compass-service-provider';
 import { expect } from 'chai';
 import { EventEmitter } from 'events';
 import { MongoClient } from 'mongodb';
@@ -24,12 +24,12 @@ import type {
   MongoClientOptions,
 } from '@mongosh/service-provider-core';
 import ConnectionString from 'mongodb-connection-string-url';
-import { dummyOptions } from './cli-service-provider.spec';
+import { dummyOptions } from './node-driver-service-provider.spec';
 
-describe('CliServiceProvider [integration]', function () {
+describe('NodeDriverServiceProvider [integration]', function () {
   const testServer = startSharedTestServer();
 
-  let serviceProvider: CliServiceProvider;
+  let serviceProvider: NodeDriverServiceProvider;
   let client: MongoClient;
   let dbName: string;
   let db: Db;
@@ -46,7 +46,7 @@ describe('CliServiceProvider [integration]', function () {
     dbName = `test-db-${Date.now()}`;
     db = client.db(dbName);
     bus = new EventEmitter();
-    serviceProvider = new CliServiceProvider(
+    serviceProvider = new NodeDriverServiceProvider(
       client,
       bus,
       dummyOptions,
@@ -59,9 +59,9 @@ describe('CliServiceProvider [integration]', function () {
   });
 
   describe('.connect', function () {
-    let instance: CliServiceProvider;
+    let instance: NodeDriverServiceProvider;
     beforeEach(async function () {
-      instance = await CliServiceProvider.connect(
+      instance = await NodeDriverServiceProvider.connect(
         connectionString,
         dummyOptions,
         {},
@@ -73,13 +73,13 @@ describe('CliServiceProvider [integration]', function () {
       await instance.close(true);
     });
 
-    it('returns a CliServiceProvider', function () {
-      expect(instance).to.be.instanceOf(CliServiceProvider);
+    it('returns a NodeDriverServiceProvider', function () {
+      expect(instance).to.be.instanceOf(NodeDriverServiceProvider);
     });
   });
 
   describe('.getNewConnection', function () {
-    let instance: CliServiceProvider;
+    let instance: NodeDriverServiceProvider;
 
     beforeEach(async function () {
       instance = await serviceProvider.getNewConnection(connectionString);
@@ -89,17 +89,17 @@ describe('CliServiceProvider [integration]', function () {
       await instance.close(true);
     });
 
-    it('returns a CliServiceProvider', function () {
-      expect(instance).to.be.instanceOf(CliServiceProvider);
+    it('returns a NodeDriverServiceProvider', function () {
+      expect(instance).to.be.instanceOf(NodeDriverServiceProvider);
     });
 
-    it('differs from the original CliServiceProvider', function () {
+    it('differs from the original NodeDriverServiceProvider', function () {
       expect(instance).to.not.equal(serviceProvider);
     });
   });
 
   describe('.suspend', function () {
-    it('allows disconnecting and reconnecting the CliServiceProvider', async function () {
+    it('allows disconnecting and reconnecting the NodeDriverServiceProvider', async function () {
       await serviceProvider.runCommandWithCheck('admin', { ping: 1 });
       const reconnect = await serviceProvider.suspend();
       try {
@@ -155,7 +155,7 @@ describe('CliServiceProvider [integration]', function () {
   describe('.getConnectionInfo', function () {
     context('when a uri has been passed', function () {
       it("returns the connection's info", async function () {
-        const instance = new CliServiceProvider(
+        const instance = new NodeDriverServiceProvider(
           client,
           bus,
           dummyOptions,
@@ -174,7 +174,11 @@ describe('CliServiceProvider [integration]', function () {
 
     context('when the optional uri has not been passed', function () {
       it("returns the connection's info", async function () {
-        const instance = new CliServiceProvider(client, bus, dummyOptions);
+        const instance = new NodeDriverServiceProvider(
+          client,
+          bus,
+          dummyOptions
+        );
         const connectionInfo = await instance.getConnectionInfo();
 
         expect(Object.keys(connectionInfo)).to.deep.equal([
@@ -816,7 +820,7 @@ describe('CliServiceProvider [integration]', function () {
   });
 
   describe('CompassServiceProvider', function () {
-    let instance: CliServiceProvider;
+    let instance: NodeDriverServiceProvider;
 
     afterEach(async function () {
       await instance?.close(true);

@@ -13,7 +13,7 @@ import {
 } from './enums';
 import type { ChangeStream, Document } from '@mongosh/service-provider-core';
 import { startTestCluster } from '../../../testing/integration-testing-hooks';
-import { CliServiceProvider } from '../../service-provider-server/lib';
+import { NodeDriverServiceProvider } from '../../service-provider-node-driver';
 import ShellInstanceState from './shell-instance-state';
 import Mongo from './mongo';
 import { ensureMaster, ensureResult } from '../test/helpers';
@@ -121,7 +121,7 @@ describe('ChangeStreamCursor', function () {
     const [srv0] = startTestCluster('change-stream-cursor', {
       topology: 'replset',
     });
-    let serviceProvider: CliServiceProvider;
+    let serviceProvider: NodeDriverServiceProvider;
     let instanceState: ShellInstanceState;
     let mongo: Mongo;
     let db: Database;
@@ -130,7 +130,7 @@ describe('ChangeStreamCursor', function () {
 
     before(async function () {
       this.timeout(100_000);
-      serviceProvider = await CliServiceProvider.connect(
+      serviceProvider = await NodeDriverServiceProvider.connect(
         await srv0.connectionString(),
         dummyOptions,
         {},
