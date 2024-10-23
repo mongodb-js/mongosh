@@ -17,7 +17,6 @@ import {
   assertArgsDefinedType,
   getConfigDB,
   getPrintableShardStatus,
-  ShardedDataDistribution,
 } from './helpers';
 import { ServerVersions, asPrintable } from './enums';
 import type { UpdateResult } from './result';
