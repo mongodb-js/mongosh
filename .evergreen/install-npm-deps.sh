@@ -1,7 +1,7 @@
 set -e
 set -x
 
-if [[ "${DISTRO_ID}" =~ ^(rhel) ]]; then
+if [[ "${DISTRO_ID}" =~ ^(rhel|ubuntu1804) ]]; then
   # force because of issues with peer deps and semver pre-releases,
   # install rather than ci because `npm ci` can only install packages when your
   # package.json and package-lock.json or npm-shrinkwrap.json are in sync.
