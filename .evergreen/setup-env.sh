@@ -9,7 +9,7 @@ export IS_MONGOSH_EVERGREEN_CI=1
 export DEBUG="mongodb*,$DEBUG"
 
 if [ "$OS" != "Windows_NT" ]; then
-  if which realpath; then             # No realpath on macOS, but also not needed there
+  if which realpath; then # No realpath on macOS, but also not needed there
     export HOME="$(realpath "$HOME")" # Needed to de-confuse nvm when /home is a symlink
   fi
   export NVM_DIR="$BASEDIR/.nvm"
@@ -42,7 +42,7 @@ if [ "$OS" == "Windows_NT" ]; then
 fi
 
 # On RHEL hosts, we run as root for some reason
-if [ $(uname) = Linux ]; then
+if [ `uname` = Linux ]; then
   export npm_config_unsafe_perm=true
 fi
 
@@ -68,9 +68,6 @@ fi
 
 echo "Running on:"
 uname -a
-
-echo "Running task"
-echo $TASK_NAME
 
 echo "Full path:"
 echo $PATH
