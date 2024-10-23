@@ -2935,7 +2935,7 @@ describe('Shard', function () {
           it('returns correct shardedDataDistribution', async function () {
             const expectedShardedDataDistribution: ShardedDataDistribution = [
               {
-                ns: 'shard-stats-test.test',
+                ns,
                 shards: [
                   {
                     shardName: 'rs-shard0-0',
