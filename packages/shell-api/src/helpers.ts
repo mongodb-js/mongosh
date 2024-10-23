@@ -671,7 +671,7 @@ export async function getPrintableShardStatus(
   let shardedDataDistribution: ShardedDataDistribution | undefined;
 
   try {
-    // Available since 6.0.3
+    // Available since >= 6.0.3
     const adminDb = db.getSiblingDB('admin');
     shardedDataDistribution = (await (
       await adminDb.aggregate([{ $shardedDataDistribution: {} }])
@@ -686,7 +686,7 @@ export async function getPrintableShardStatus(
   return result;
 }
 
-type ShardingStatusResult = {
+export type ShardingStatusResult = {
   shardingVersion: {
     _id: number;
     clusterId: ObjectId;
@@ -697,6 +697,7 @@ type ShardingStatusResult = {
     _id: string;
     host: string;
     state: number;
+    tags: string[];
     topologyTime: Timestamp;
     replSetConfigVersion: Long;
   }[];

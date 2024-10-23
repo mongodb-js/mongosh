@@ -32,6 +32,7 @@ import {
 import Database from './database';
 import { inspect } from 'util';
 import { dummyOptions } from './helpers.spec';
+import type { ShardedDataDistribution } from './helpers';
 
 describe('Shard', function () {
   skipIfApiStrict();
@@ -2121,7 +2122,7 @@ describe('Shard', function () {
         expect(
           (await sh.status()).value.databases.find(
             (d: Document) => d.database._id === 'test'
-          ).collections[ns].shardKey
+          )?.collections[ns].shardKey
         ).to.deep.equal({ key: 1 });
 
         const db = instanceState.currentDb.getSiblingDB(dbName);
@@ -2166,13 +2167,13 @@ describe('Shard', function () {
     describe('tags', function () {
       it('creates a zone', async function () {
         expect((await sh.addShardTag(`${shardId}-1`, 'zone1')).ok).to.equal(1);
-        expect((await sh.status()).value.shards[1].tags).to.deep.equal([
+        expect((await sh.status()).value.shards[1]?.tags).to.deep.equal([
           'zone1',
         ]);
         expect((await sh.addShardToZone(`${shardId}-0`, 'zone0')).ok).to.equal(
           1
         );
-        expect((await sh.status()).value.shards[0].tags).to.deep.equal([
+        expect((await sh.status()).value.shards[0]?.tags).to.deep.equal([
           'zone0',
         ]);
       });
@@ -2241,7 +2242,7 @@ describe('Shard', function () {
 
         const tags = (await sh.status()).value.databases.find(
           (d: Document) => d.database._id === 'test'
-        ).collections[ns].tags;
+        )?.collections[ns].tags;
         expect(tags.length).to.equal(19);
       });
       it('cuts a tag list when there are more than 20 tags', async function () {
@@ -2251,7 +2252,7 @@ describe('Shard', function () {
 
         const tags = (await sh.status()).value.databases.find(
           (d: Document) => d.database._id === 'test'
-        ).collections[ns].tags;
+        )?.collections[ns].tags;
         expect(tags.length).to.equal(21);
         expect(
           tags.indexOf(
@@ -2885,6 +2886,87 @@ describe('Shard', function () {
         });
       });
     });
+
+    describe('collection.status()', function () {
+      let db: Database;
+
+      const dbName = 'shard-stats-test';
+      const ns = `${dbName}.test`;
+
+      beforeEach(async function () {
+        db = sh._database.getSiblingDB(dbName);
+        await db.getCollection('test').insertOne({ key: 1 });
+        await db.getCollection('test').createIndex({ key: 1 });
+      });
+      afterEach(async function () {
+        await db.dropDatabase();
+      });
+      describe('unsharded collections', function () {
+        describe('with >= 6.0.3', function () {
+          skipIfServerVersion(mongos, '< 6.0.3');
+
+          it('returns shardedDataDistribution as an empty array', async function () {
+            const status = await sh.status();
+            expect(status.value.shardedDataDistribution).deep.equals([]);
+          });
+        });
+
+        describe('with < 6.0.3', function () {
+          skipIfServerVersion(mongos, '>= 6.0.3');
+
+          it('returns shardedDataDistribution as undefined', async function () {
+            const status = await sh.status();
+            expect(status.value.shardedDataDistribution).equals(undefined);
+          });
+        });
+      });
+
+      describe('sharded collections', function () {
+        beforeEach(async function () {
+          expect((await sh.enableSharding(dbName)).ok).to.equal(1);
+          expect(
+            (await sh.shardCollection(ns, { key: 1 })).collectionsharded
+          ).to.equal(ns);
+        });
+
+        describe('with >= 6.0.3', function () {
+          skipIfServerVersion(mongos, '< 6.0.3');
+
+          it('returns correct shardedDataDistribution', async function () {
+            const expectedShardedDataDistribution: ShardedDataDistribution = [
+              {
+                ns: 'shard-stats-test.test',
+                shards: [
+                  {
+                    shardName: 'rs-shard0-0',
+                    numOrphanedDocs: 0,
+                    numOwnedDocuments: 1,
+                    ownedSizeBytes: 31,
+                    orphanedSizeBytes: 0,
+                  },
+                ],
+              },
+            ];
+
+            const status = await sh.status();
+
+            expect(status.value.shardedDataDistribution).deep.equals(
+              expectedShardedDataDistribution
+            );
+          });
+        });
+
+        describe('with < 6.0.3', function () {
+          skipIfServerVersion(mongos, '>= 6.0.3');
+
+          it('returns shardedDataDistribution as undefined', async function () {
+            const status = await sh.status();
+            expect(status.value.shardedDataDistribution).equals(undefined);
+          });
+        });
+      });
+    });
+
     describe('collection.isCapped', function () {
       it('returns true for config.changelog', async function () {
         const ret = await sh._database
@@ -2929,7 +3011,7 @@ describe('Shard', function () {
           (item: Document) => item.database._id === 'db'
         );
         // Cannot get strict guarantees about the value of this field since SERVER-63983
-        expect(databasesDbItem.database.partitioned).to.be.oneOf([
+        expect(databasesDbItem?.database.partitioned).to.be.oneOf([
           false,
           undefined,
         ]);
@@ -2937,7 +3019,7 @@ describe('Shard', function () {
           (item: Document) => item.database._id === 'dbSh'
         );
         // Cannot get strict guarantees about the value of this field since SERVER-60926 and SERVER-63983
-        expect(databasesDbShItem.database.partitioned).to.be.oneOf([
+        expect(databasesDbShItem?.database.partitioned).to.be.oneOf([
           true,
           false,
           undefined,
@@ -3051,7 +3133,7 @@ describe('Shard', function () {
       }
       const chunks = (await sh.status()).value.databases.find(
         (d: Document) => d.database._id === 'test'
-      ).collections[ns].chunks;
+      )?.collections[ns].chunks;
       expect(chunks.length).to.equal(20);
     });
 
@@ -3059,7 +3141,7 @@ describe('Shard', function () {
       await sh.splitAt(ns, { key: 20 });
       const chunks = (await sh.status()).value.databases.find(
         (d: Document) => d.database._id === 'test'
-      ).collections[ns].chunks;
+      )?.collections[ns].chunks;
       expect(chunks.length).to.equal(21);
       expect(
         chunks.indexOf(
