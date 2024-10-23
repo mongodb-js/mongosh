@@ -71,7 +71,7 @@
     "@mongosh/js-multiline-to-singleline": "0.0.0-dev.0",
     "@mongosh/logging": "0.0.0-dev.0",
     "@mongosh/service-provider-core": "0.0.0-dev.0",
-    "@mongosh/service-provider-server": "0.0.0-dev.0",
+    "@mongosh/service-provider-node-driver": "0.0.0-dev.0",
     "@mongosh/shell-api": "0.0.0-dev.0",
     "@mongosh/shell-evaluator": "0.0.0-dev.0",
     "@mongosh/snippet-manager": "0.0.0-dev.0",

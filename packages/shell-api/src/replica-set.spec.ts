@@ -22,7 +22,7 @@ import {
   startTestCluster,
   skipIfApiStrict,
 } from '../../../testing/integration-testing-hooks';
-import { CliServiceProvider } from '../../service-provider-server';
+import { NodeDriverServiceProvider } from '../../service-provider-node-driver';
 import Database from './database';
 import {
   ADMIN_DB,
@@ -830,7 +830,7 @@ describe('ReplicaSet', function () {
 
     let cfg: Partial<ReplSetConfig>;
     let additionalServer: MongodSetup;
-    let serviceProvider: CliServiceProvider;
+    let serviceProvider: NodeDriverServiceProvider;
     let instanceState: ShellInstanceState;
     let db: Database;
     let rs: ReplicaSet;
@@ -847,7 +847,7 @@ describe('ReplicaSet', function () {
       };
       additionalServer = srv3;
 
-      serviceProvider = await CliServiceProvider.connect(
+      serviceProvider = await NodeDriverServiceProvider.connect(
         `${await srv0.connectionString()}?directConnection=true`,
         dummyOptions,
         {},
@@ -1103,10 +1103,10 @@ describe('ReplicaSet', function () {
       { args: ['--replSet', replId] }
     );
 
-    let serviceProvider: CliServiceProvider;
+    let serviceProvider: NodeDriverServiceProvider;
 
     beforeEach(async function () {
-      serviceProvider = await CliServiceProvider.connect(
+      serviceProvider = await NodeDriverServiceProvider.connect(
         `${await srv0.connectionString()}?directConnection=true`,
         dummyOptions,
         {},

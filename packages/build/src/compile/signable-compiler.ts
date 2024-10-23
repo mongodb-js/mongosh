@@ -10,7 +10,7 @@ import { compileJSFileAsBinary } from 'boxednode';
 async function preCompileHook(nodeSourceTree: string) {
   const fleAddonVersion = require(path.join(
     await findModulePath(
-      'service-provider-server',
+      'service-provider-node-driver',
       'mongodb-client-encryption'
     ),
     'package.json'
@@ -108,17 +108,20 @@ export class SignableCompiler {
   async compile(): Promise<void> {
     const fleAddon = {
       path: await findModulePath(
-        'service-provider-server',
+        'service-provider-node-driver',
         'mongodb-client-encryption'
       ),
       requireRegexp: /\bmongocrypt\.node$/,
     };
     const kerberosAddon = {
-      path: await findModulePath('service-provider-server', 'kerberos'),
+      path: await findModulePath('service-provider-node-driver', 'kerberos'),
       requireRegexp: /\bkerberos\.node$/,
     };
     const osDnsAddon = {
-      path: await findModulePath('service-provider-server', 'os-dns-native'),
+      path: await findModulePath(
+        'service-provider-node-driver',
+        'os-dns-native'
+      ),
       requireRegexp: /\bos_dns_native\.node$/,
     };
     const cryptLibraryVersionAddon = {
@@ -130,7 +133,7 @@ export class SignableCompiler {
       requireRegexp: /\bglibc_version\.node$/,
     };
     // Warning! Until https://jira.mongodb.org/browse/MONGOSH-990,
-    // packages/service-provider-server *also* has a copy of these.
+    // packages/service-provider-node-driver *also* has a copy of these.
     // We use the versions included in packages/cli-repl here, so these
     // should be kept in sync!
     const winCAAddon =

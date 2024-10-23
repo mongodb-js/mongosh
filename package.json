@@ -149,7 +149,7 @@
     "packages/logging",
     "packages/service-provider-core",
     "packages/arg-parser",
-    "packages/service-provider-server",
+    "packages/service-provider-node-driver",
     "packages/shell-api",
     "packages/autocomplete",
     "packages/shell-evaluator",

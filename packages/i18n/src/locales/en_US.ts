@@ -128,7 +128,7 @@ const translations: Catalog = {
   },
   'service-provider-browser': {},
   'service-provider-core': {},
-  'service-provider-server': {},
+  'service-provider-node-driver': {},
   'shell-api': {
     classes: {
       ShellApi: {
