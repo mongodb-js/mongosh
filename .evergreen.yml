@@ -10155,7 +10155,7 @@ tasks:
           mongosh_test_id: "n16_service_provider_core"
           mongosh_run_only_in_package: "service-provider-core"
           task_name: ${task_name}
-  - name: test_m42xc_n20_service_provider_server
+  - name: test_m42xc_n20_service_provider_node_driver
     tags: ["unit-test"]
     depends_on:
       - name: compile_ts
@@ -10170,10 +10170,10 @@ tasks:
           mongosh_server_test_version: "4.2.x"
           node_js_version: "20.18.0"
           mongosh_skip_node_version_check: ""
-          mongosh_test_id: "m42xc_n20_service_provider_server"
-          mongosh_run_only_in_package: "service-provider-server"
+          mongosh_test_id: "m42xc_n20_service_provider_node_driver"
+          mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
-  - name: test_m42xe_n20_service_provider_server
+  - name: test_m42xe_n20_service_provider_node_driver
     tags: ["unit-test"]
     depends_on:
       - name: compile_ts
@@ -10188,10 +10188,10 @@ tasks:
           mongosh_server_test_version: "4.2.x-enterprise"
           node_js_version: "20.18.0"
           mongosh_skip_node_version_check: ""
-          mongosh_test_id: "m42xe_n20_service_provider_server"
-          mongosh_run_only_in_package: "service-provider-server"
+          mongosh_test_id: "m42xe_n20_service_provider_node_driver"
+          mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
-  - name: test_m44xc_n20_service_provider_server
+  - name: test_m44xc_n20_service_provider_node_driver
     tags: ["unit-test"]
     depends_on:
       - name: compile_ts
@@ -10206,10 +10206,10 @@ tasks:
           mongosh_server_test_version: "4.4.x"
           node_js_version: "20.18.0"
           mongosh_skip_node_version_check: ""
-          mongosh_test_id: "m44xc_n20_service_provider_server"
-          mongosh_run_only_in_package: "service-provider-server"
+          mongosh_test_id: "m44xc_n20_service_provider_node_driver"
+          mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
-  - name: test_m44xe_n20_service_provider_server
+  - name: test_m44xe_n20_service_provider_node_driver
     tags: ["unit-test"]
     depends_on:
       - name: compile_ts
@@ -10224,10 +10224,10 @@ tasks:
           mongosh_server_test_version: "4.4.x-enterprise"
           node_js_version: "20.18.0"
           mongosh_skip_node_version_check: ""
-          mongosh_test_id: "m44xe_n20_service_provider_server"
-          mongosh_run_only_in_package: "service-provider-server"
+          mongosh_test_id: "m44xe_n20_service_provider_node_driver"
+          mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
-  - name: test_m50xc_n20_service_provider_server
+  - name: test_m50xc_n20_service_provider_node_driver
     tags: ["unit-test"]
     depends_on:
       - name: compile_ts
@@ -10242,10 +10242,10 @@ tasks:
           mongosh_server_test_version: "5.0.x"
           node_js_version: "20.18.0"
           mongosh_skip_node_version_check: ""
-          mongosh_test_id: "m50xc_n20_service_provider_server"
-          mongosh_run_only_in_package: "service-provider-server"
+          mongosh_test_id: "m50xc_n20_service_provider_node_driver"
+          mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
-  - name: test_m50xe_n20_service_provider_server
+  - name: test_m50xe_n20_service_provider_node_driver
     tags: ["unit-test"]
     depends_on:
       - name: compile_ts
@@ -10260,10 +10260,10 @@ tasks:
           mongosh_server_test_version: "5.0.x-enterprise"
           node_js_version: "20.18.0"
           mongosh_skip_node_version_check: ""
-          mongosh_test_id: "m50xe_n20_service_provider_server"
-          mongosh_run_only_in_package: "service-provider-server"
+          mongosh_test_id: "m50xe_n20_service_provider_node_driver"
+          mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
-  - name: test_m60xc_n20_service_provider_server
+  - name: test_m60xc_n20_service_provider_node_driver
     tags: ["unit-test"]
     depends_on:
       - name: compile_ts
@@ -10278,10 +10278,10 @@ tasks:
           mongosh_server_test_version: "6.0.x"
           node_js_version: "20.18.0"
           mongosh_skip_node_version_check: ""
-          mongosh_test_id: "m60xc_n20_service_provider_server"
-          mongosh_run_only_in_package: "service-provider-server"
+          mongosh_test_id: "m60xc_n20_service_provider_node_driver"
+          mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
-  - name: test_m60xe_n20_service_provider_server
+  - name: test_m60xe_n20_service_provider_node_driver
     tags: ["unit-test"]
     depends_on:
       - name: compile_ts
@@ -10296,10 +10296,10 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           node_js_version: "20.18.0"
           mongosh_skip_node_version_check: ""
-          mongosh_test_id: "m60xe_n20_service_provider_server"
-          mongosh_run_only_in_package: "service-provider-server"
+          mongosh_test_id: "m60xe_n20_service_provider_node_driver"
+          mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
-  - name: test_m70xc_n20_service_provider_server
+  - name: test_m70xc_n20_service_provider_node_driver
     tags: ["unit-test"]
     depends_on:
       - name: compile_ts
@@ -10314,10 +10314,10 @@ tasks:
           mongosh_server_test_version: "7.0.x"
           node_js_version: "20.18.0"
           mongosh_skip_node_version_check: ""
-          mongosh_test_id: "m70xc_n20_service_provider_server"
-          mongosh_run_only_in_package: "service-provider-server"
+          mongosh_test_id: "m70xc_n20_service_provider_node_driver"
+          mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
-  - name: test_m70xe_n20_service_provider_server
+  - name: test_m70xe_n20_service_provider_node_driver
     tags: ["unit-test"]
     depends_on:
       - name: compile_ts
@@ -10332,10 +10332,10 @@ tasks:
           mongosh_server_test_version: "7.0.x-enterprise"
           node_js_version: "20.18.0"
           mongosh_skip_node_version_check: ""
-          mongosh_test_id: "m70xe_n20_service_provider_server"
-          mongosh_run_only_in_package: "service-provider-server"
+          mongosh_test_id: "m70xe_n20_service_provider_node_driver"
+          mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
-  - name: test_m80xc_n20_service_provider_server
+  - name: test_m80xc_n20_service_provider_node_driver
     tags: ["unit-test"]
     depends_on:
       - name: compile_ts
@@ -10350,10 +10350,10 @@ tasks:
           mongosh_server_test_version: "8.0.x"
           node_js_version: "20.18.0"
           mongosh_skip_node_version_check: ""
-          mongosh_test_id: "m80xc_n20_service_provider_server"
-          mongosh_run_only_in_package: "service-provider-server"
+          mongosh_test_id: "m80xc_n20_service_provider_node_driver"
+          mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
-  - name: test_m80xe_n20_service_provider_server
+  - name: test_m80xe_n20_service_provider_node_driver
     tags: ["unit-test"]
     depends_on:
       - name: compile_ts
@@ -10368,10 +10368,10 @@ tasks:
           mongosh_server_test_version: "8.0.x-enterprise"
           node_js_version: "20.18.0"
           mongosh_skip_node_version_check: ""
-          mongosh_test_id: "m80xe_n20_service_provider_server"
-          mongosh_run_only_in_package: "service-provider-server"
+          mongosh_test_id: "m80xe_n20_service_provider_node_driver"
+          mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
-  - name: test_mlatest_n20_service_provider_server
+  - name: test_mlatest_n20_service_provider_node_driver
     tags: ["unit-test","mlatest"]
     depends_on:
       - name: compile_ts
@@ -10386,10 +10386,10 @@ tasks:
           mongosh_server_test_version: "latest-alpha-enterprise"
           node_js_version: "20.18.0"
           mongosh_skip_node_version_check: ""
-          mongosh_test_id: "mlatest_n20_service_provider_server"
-          mongosh_run_only_in_package: "service-provider-server"
+          mongosh_test_id: "mlatest_n20_service_provider_node_driver"
+          mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
-  - name: test_m42xc_n16_service_provider_server
+  - name: test_m42xc_n16_service_provider_node_driver
     tags: ["unit-test"]
     depends_on:
       - name: compile_ts
@@ -10404,10 +10404,10 @@ tasks:
           mongosh_server_test_version: "4.2.x"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
-          mongosh_test_id: "m42xc_n16_service_provider_server"
-          mongosh_run_only_in_package: "service-provider-server"
+          mongosh_test_id: "m42xc_n16_service_provider_node_driver"
+          mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
-  - name: test_m42xe_n16_service_provider_server
+  - name: test_m42xe_n16_service_provider_node_driver
     tags: ["unit-test"]
     depends_on:
       - name: compile_ts
@@ -10422,10 +10422,10 @@ tasks:
           mongosh_server_test_version: "4.2.x-enterprise"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
-          mongosh_test_id: "m42xe_n16_service_provider_server"
-          mongosh_run_only_in_package: "service-provider-server"
+          mongosh_test_id: "m42xe_n16_service_provider_node_driver"
+          mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
-  - name: test_m44xc_n16_service_provider_server
+  - name: test_m44xc_n16_service_provider_node_driver
     tags: ["unit-test"]
     depends_on:
       - name: compile_ts
@@ -10440,10 +10440,10 @@ tasks:
           mongosh_server_test_version: "4.4.x"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
-          mongosh_test_id: "m44xc_n16_service_provider_server"
-          mongosh_run_only_in_package: "service-provider-server"
+          mongosh_test_id: "m44xc_n16_service_provider_node_driver"
+          mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
-  - name: test_m44xe_n16_service_provider_server
+  - name: test_m44xe_n16_service_provider_node_driver
     tags: ["unit-test"]
     depends_on:
       - name: compile_ts
@@ -10458,10 +10458,10 @@ tasks:
           mongosh_server_test_version: "4.4.x-enterprise"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
-          mongosh_test_id: "m44xe_n16_service_provider_server"
-          mongosh_run_only_in_package: "service-provider-server"
+          mongosh_test_id: "m44xe_n16_service_provider_node_driver"
+          mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
-  - name: test_m50xc_n16_service_provider_server
+  - name: test_m50xc_n16_service_provider_node_driver
     tags: ["unit-test"]
     depends_on:
       - name: compile_ts
@@ -10476,10 +10476,10 @@ tasks:
           mongosh_server_test_version: "5.0.x"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
-          mongosh_test_id: "m50xc_n16_service_provider_server"
-          mongosh_run_only_in_package: "service-provider-server"
+          mongosh_test_id: "m50xc_n16_service_provider_node_driver"
+          mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
-  - name: test_m50xe_n16_service_provider_server
+  - name: test_m50xe_n16_service_provider_node_driver
     tags: ["unit-test"]
     depends_on:
       - name: compile_ts
@@ -10494,10 +10494,10 @@ tasks:
           mongosh_server_test_version: "5.0.x-enterprise"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
-          mongosh_test_id: "m50xe_n16_service_provider_server"
-          mongosh_run_only_in_package: "service-provider-server"
+          mongosh_test_id: "m50xe_n16_service_provider_node_driver"
+          mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
-  - name: test_m60xc_n16_service_provider_server
+  - name: test_m60xc_n16_service_provider_node_driver
     tags: ["unit-test"]
     depends_on:
       - name: compile_ts
@@ -10512,10 +10512,10 @@ tasks:
           mongosh_server_test_version: "6.0.x"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
-          mongosh_test_id: "m60xc_n16_service_provider_server"
-          mongosh_run_only_in_package: "service-provider-server"
+          mongosh_test_id: "m60xc_n16_service_provider_node_driver"
+          mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
-  - name: test_m60xe_n16_service_provider_server
+  - name: test_m60xe_n16_service_provider_node_driver
     tags: ["unit-test"]
     depends_on:
       - name: compile_ts
@@ -10530,10 +10530,10 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
-          mongosh_test_id: "m60xe_n16_service_provider_server"
-          mongosh_run_only_in_package: "service-provider-server"
+          mongosh_test_id: "m60xe_n16_service_provider_node_driver"
+          mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
-  - name: test_m70xc_n16_service_provider_server
+  - name: test_m70xc_n16_service_provider_node_driver
     tags: ["unit-test"]
     depends_on:
       - name: compile_ts
@@ -10548,10 +10548,10 @@ tasks:
           mongosh_server_test_version: "7.0.x"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
-          mongosh_test_id: "m70xc_n16_service_provider_server"
-          mongosh_run_only_in_package: "service-provider-server"
+          mongosh_test_id: "m70xc_n16_service_provider_node_driver"
+          mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
-  - name: test_m70xe_n16_service_provider_server
+  - name: test_m70xe_n16_service_provider_node_driver
     tags: ["unit-test"]
     depends_on:
       - name: compile_ts
@@ -10566,10 +10566,10 @@ tasks:
           mongosh_server_test_version: "7.0.x-enterprise"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
-          mongosh_test_id: "m70xe_n16_service_provider_server"
-          mongosh_run_only_in_package: "service-provider-server"
+          mongosh_test_id: "m70xe_n16_service_provider_node_driver"
+          mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
-  - name: test_m80xc_n16_service_provider_server
+  - name: test_m80xc_n16_service_provider_node_driver
     tags: ["unit-test"]
     depends_on:
       - name: compile_ts
@@ -10584,10 +10584,10 @@ tasks:
           mongosh_server_test_version: "8.0.x"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
-          mongosh_test_id: "m80xc_n16_service_provider_server"
-          mongosh_run_only_in_package: "service-provider-server"
+          mongosh_test_id: "m80xc_n16_service_provider_node_driver"
+          mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
-  - name: test_m80xe_n16_service_provider_server
+  - name: test_m80xe_n16_service_provider_node_driver
     tags: ["unit-test"]
     depends_on:
       - name: compile_ts
@@ -10602,10 +10602,10 @@ tasks:
           mongosh_server_test_version: "8.0.x-enterprise"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
-          mongosh_test_id: "m80xe_n16_service_provider_server"
-          mongosh_run_only_in_package: "service-provider-server"
+          mongosh_test_id: "m80xe_n16_service_provider_node_driver"
+          mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
-  - name: test_mlatest_n16_service_provider_server
+  - name: test_mlatest_n16_service_provider_node_driver
     tags: ["unit-test","mlatest"]
     depends_on:
       - name: compile_ts
@@ -10620,8 +10620,8 @@ tasks:
           mongosh_server_test_version: "latest-alpha-enterprise"
           node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
-          mongosh_test_id: "mlatest_n16_service_provider_server"
-          mongosh_run_only_in_package: "service-provider-server"
+          mongosh_test_id: "mlatest_n16_service_provider_node_driver"
+          mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
   - name: test_m42xc_n20_shell_api
     tags: ["unit-test"]
@@ -11215,6 +11215,7 @@ tasks:
       - func: test_vscode
         vars:
           node_js_version: "20.18.0"
+          task_name: ${task_name}
   - name: test_connectivity
     tags: ["extra-integration-test"]
     depends_on:
@@ -12712,6 +12713,7 @@ tasks:
           node_js_version: "20.18.0"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.rocky8"
+          task_name: ${task_name}
   - name: executable_connectivity_test_linux_x64_ubuntu2004
     tags: ["connectivity-test"]
     depends_on:
@@ -12730,6 +12732,7 @@ tasks:
           node_js_version: "20.18.0"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.ubuntu2004"
+          task_name: ${task_name}
   - name: executable_connectivity_test_linux_x64_node20
     tags: ["connectivity-test"]
     depends_on:
@@ -12748,6 +12751,7 @@ tasks:
           node_js_version: "20.18.0"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.node20"
+          task_name: ${task_name}
   - name: executable_connectivity_test_linux_x64_rocky9
     tags: ["connectivity-test"]
     depends_on:
@@ -12766,6 +12770,7 @@ tasks:
           node_js_version: "20.18.0"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.rocky9"
+          task_name: ${task_name}
   - name: executable_connectivity_test_linux_x64_ubuntu2204
     tags: ["connectivity-test"]
     depends_on:
@@ -12784,6 +12789,7 @@ tasks:
           node_js_version: "20.18.0"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.ubuntu2204"
+          task_name: ${task_name}
   - name: executable_connectivity_test_linux_x64_openssl11_rocky8
     tags: ["connectivity-test"]
     depends_on:
@@ -12802,6 +12808,7 @@ tasks:
           node_js_version: "20.18.0"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.rocky8"
+          task_name: ${task_name}
   - name: executable_connectivity_test_linux_x64_openssl11_ubuntu2004
     tags: ["connectivity-test"]
     depends_on:
@@ -12820,6 +12827,7 @@ tasks:
           node_js_version: "20.18.0"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.ubuntu2004"
+          task_name: ${task_name}
   - name: executable_connectivity_test_linux_x64_openssl3_node20
     tags: ["connectivity-test"]
     depends_on:
@@ -12838,6 +12846,7 @@ tasks:
           node_js_version: "20.18.0"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.node20"
+          task_name: ${task_name}
   - name: executable_connectivity_test_linux_x64_openssl3_rocky9
     tags: ["connectivity-test"]
     depends_on:
@@ -12856,6 +12865,7 @@ tasks:
           node_js_version: "20.18.0"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.rocky9"
+          task_name: ${task_name}
   - name: executable_connectivity_test_linux_x64_openssl3_ubuntu2204
     tags: ["connectivity-test"]
     depends_on:
@@ -12874,6 +12884,7 @@ tasks:
           node_js_version: "20.18.0"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.ubuntu2204"
+          task_name: ${task_name}
   - name: executable_connectivity_test_linux_arm64_rocky8
     tags: ["connectivity-test"]
     depends_on:
@@ -12892,6 +12903,7 @@ tasks:
           node_js_version: "20.18.0"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.rocky8"
+          task_name: ${task_name}
   - name: executable_connectivity_test_linux_arm64_ubuntu2004
     tags: ["connectivity-test"]
     depends_on:
@@ -12910,6 +12922,7 @@ tasks:
           node_js_version: "20.18.0"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.ubuntu2004"
+          task_name: ${task_name}
   - name: executable_connectivity_test_linux_arm64_node20
     tags: ["connectivity-test"]
     depends_on:
@@ -12928,6 +12941,7 @@ tasks:
           node_js_version: "20.18.0"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.node20"
+          task_name: ${task_name}
   - name: executable_connectivity_test_linux_arm64_rocky9
     tags: ["connectivity-test"]
     depends_on:
@@ -12946,6 +12960,7 @@ tasks:
           node_js_version: "20.18.0"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.rocky9"
+          task_name: ${task_name}
   - name: executable_connectivity_test_linux_arm64_ubuntu2204
     tags: ["connectivity-test"]
     depends_on:
@@ -12964,6 +12979,7 @@ tasks:
           node_js_version: "20.18.0"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.ubuntu2204"
+          task_name: ${task_name}
   - name: executable_connectivity_test_linux_arm64_openssl11_rocky8
     tags: ["connectivity-test"]
     depends_on:
@@ -12982,6 +12998,7 @@ tasks:
           node_js_version: "20.18.0"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.rocky8"
+          task_name: ${task_name}
   - name: executable_connectivity_test_linux_arm64_openssl11_ubuntu2004
     tags: ["connectivity-test"]
     depends_on:
@@ -13000,6 +13017,7 @@ tasks:
           node_js_version: "20.18.0"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.ubuntu2004"
+          task_name: ${task_name}
   - name: executable_connectivity_test_linux_arm64_openssl3_node20
     tags: ["connectivity-test"]
     depends_on:
@@ -13018,6 +13036,7 @@ tasks:
           node_js_version: "20.18.0"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.node20"
+          task_name: ${task_name}
   - name: executable_connectivity_test_linux_arm64_openssl3_rocky9
     tags: ["connectivity-test"]
     depends_on:
@@ -13036,6 +13055,7 @@ tasks:
           node_js_version: "20.18.0"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.rocky9"
+          task_name: ${task_name}
   - name: executable_connectivity_test_linux_arm64_openssl3_ubuntu2204
     tags: ["connectivity-test"]
     depends_on:
@@ -13054,6 +13074,7 @@ tasks:
           node_js_version: "20.18.0"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.ubuntu2204"
+          task_name: ${task_name}
 
   ###
   # PACKAGING
@@ -15265,6 +15286,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: ubuntu20.04-tgz
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_ubuntu18_04_deb
     tags: ["smoke-test"]
     depends_on:
@@ -15284,6 +15306,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: ubuntu18.04-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_ubuntu20_04_deb
     tags: ["smoke-test"]
     depends_on:
@@ -15303,6 +15326,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: ubuntu20.04-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_ubuntu22_04_deb
     tags: ["smoke-test"]
     depends_on:
@@ -15322,6 +15346,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: ubuntu22.04-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_ubuntu22_04_nohome_deb
     tags: ["smoke-test"]
     depends_on:
@@ -15341,6 +15366,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: ubuntu22.04-nohome-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_ubuntu22_04_qemu_deb
     tags: ["smoke-test"]
     depends_on:
@@ -15360,6 +15386,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: ubuntu22.04-qemu-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_ubuntu24_04_deb
     tags: ["smoke-test"]
     depends_on:
@@ -15379,6 +15406,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: ubuntu24.04-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_debian10_deb
     tags: ["smoke-test"]
     depends_on:
@@ -15398,6 +15426,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: debian10-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_debian11_deb
     tags: ["smoke-test"]
     depends_on:
@@ -15417,6 +15446,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: debian11-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_debian12_deb
     tags: ["smoke-test"]
     depends_on:
@@ -15436,6 +15466,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: debian12-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_centos7_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -15455,6 +15486,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: centos7-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_amazonlinux2_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -15474,6 +15506,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: amazonlinux2-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_amazonlinux2023_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -15493,6 +15526,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: amazonlinux2023-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_rocky8_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -15512,6 +15546,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: rocky8-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_rocky9_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -15531,6 +15566,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: rocky9-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_fedora34_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -15550,6 +15586,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: fedora34-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_suse12_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -15569,6 +15606,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: suse12-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_suse15_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -15588,6 +15626,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: suse15-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_oraclelinux9_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -15607,6 +15646,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: oraclelinux9-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_openssl11_ubuntu20_04_deb
     tags: ["smoke-test"]
     depends_on:
@@ -15626,6 +15666,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: ubuntu20.04-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_openssl11_debian10_deb
     tags: ["smoke-test"]
     depends_on:
@@ -15645,6 +15686,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: debian10-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_openssl11_debian11_deb
     tags: ["smoke-test"]
     depends_on:
@@ -15664,6 +15706,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: debian11-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_openssl11_centos7_epel_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -15683,6 +15726,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: centos7-epel-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_openssl11_amazonlinux2_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -15702,6 +15746,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: amazonlinux2-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_openssl11_rocky8_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -15721,6 +15766,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: rocky8-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_openssl11_rocky9_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -15740,6 +15786,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: rocky9-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_openssl11_fedora34_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -15759,6 +15806,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: fedora34-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_openssl3_ubuntu22_04_deb
     tags: ["smoke-test"]
     depends_on:
@@ -15778,6 +15826,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: ubuntu22.04-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_openssl3_ubuntu22_04_fips_deb
     tags: ["smoke-test"]
     depends_on:
@@ -15797,6 +15846,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: ubuntu22.04-fips-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_openssl3_debian12_deb
     tags: ["smoke-test"]
     depends_on:
@@ -15816,6 +15866,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: debian12-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_openssl3_rocky8_epel_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -15835,6 +15886,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: rocky8-epel-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_openssl3_rocky9_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -15854,6 +15906,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: rocky9-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_openssl3_rocky9_fips_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -15873,6 +15926,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: rocky9-fips-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_openssl3_amazonlinux2023_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -15892,6 +15946,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: amazonlinux2023-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_linux_arm64_ubuntu20_04_tgz
     tags: ["smoke-test"]
     depends_on:
@@ -15911,6 +15966,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: ubuntu20.04-tgz
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_ubuntu18_04_deb
     tags: ["smoke-test"]
     depends_on:
@@ -15930,6 +15986,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: ubuntu18.04-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_ubuntu20_04_deb
     tags: ["smoke-test"]
     depends_on:
@@ -15949,6 +16006,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: ubuntu20.04-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_ubuntu22_04_deb
     tags: ["smoke-test"]
     depends_on:
@@ -15968,6 +16026,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: ubuntu22.04-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_ubuntu22_04_nohome_deb
     tags: ["smoke-test"]
     depends_on:
@@ -15987,6 +16046,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: ubuntu22.04-nohome-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_ubuntu22_04_qemu_deb
     tags: ["smoke-test"]
     depends_on:
@@ -16006,6 +16066,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: ubuntu22.04-qemu-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_ubuntu24_04_deb
     tags: ["smoke-test"]
     depends_on:
@@ -16025,6 +16086,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: ubuntu24.04-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_debian10_deb
     tags: ["smoke-test"]
     depends_on:
@@ -16044,6 +16106,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: debian10-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_debian11_deb
     tags: ["smoke-test"]
     depends_on:
@@ -16063,6 +16126,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: debian11-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_debian12_deb
     tags: ["smoke-test"]
     depends_on:
@@ -16082,6 +16146,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: debian12-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_rocky8_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -16101,6 +16166,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: rocky8-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_rocky9_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -16120,6 +16186,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: rocky9-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_fedora34_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -16139,6 +16206,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: fedora34-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_amazonlinux2_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -16158,6 +16226,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: amazonlinux2-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_amazonlinux2023_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -16177,6 +16246,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: amazonlinux2023-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_openssl11_ubuntu20_04_deb
     tags: ["smoke-test"]
     depends_on:
@@ -16196,6 +16266,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: ubuntu20.04-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_openssl11_debian10_deb
     tags: ["smoke-test"]
     depends_on:
@@ -16215,6 +16286,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: debian10-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_openssl11_debian11_deb
     tags: ["smoke-test"]
     depends_on:
@@ -16234,6 +16306,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: debian11-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_openssl11_rocky8_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -16253,6 +16326,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: rocky8-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_openssl11_rocky9_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -16272,6 +16346,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: rocky9-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_openssl11_fedora34_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -16291,6 +16366,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: fedora34-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_openssl11_amazonlinux2_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -16310,6 +16386,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: amazonlinux2-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_openssl3_ubuntu22_04_deb
     tags: ["smoke-test"]
     depends_on:
@@ -16329,6 +16406,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: ubuntu22.04-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_openssl3_ubuntu22_04_fips_deb
     tags: ["smoke-test"]
     depends_on:
@@ -16348,6 +16426,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: ubuntu22.04-fips-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_openssl3_debian12_deb
     tags: ["smoke-test"]
     depends_on:
@@ -16367,6 +16446,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: debian12-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_openssl3_rocky8_epel_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -16386,6 +16466,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: rocky8-epel-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_openssl3_rocky9_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -16405,6 +16486,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: rocky9-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_openssl3_rocky9_fips_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -16424,6 +16506,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: rocky9-fips-rpm
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_openssl3_amazonlinux2023_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -16443,6 +16526,7 @@ tasks:
         vars:
           node_js_version: "20.18.0"
           dockerfile: amazonlinux2023-rpm
+          task_name: ${task_name}
   - name: pkg_test_rpmextract_rpm_ppc64le
     tags: ["smoke-test"]
     depends_on:

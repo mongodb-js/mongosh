@@ -1146,6 +1146,7 @@ tasks:
       - func: test_vscode
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          task_name: ${task_name}
   - name: test_connectivity
     tags: ["extra-integration-test"]
     depends_on:
@@ -1280,6 +1281,7 @@ tasks:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.<% out(dockerFile) %>"
+          task_name: ${task_name}
   <% } } %>
 
   ###
@@ -1413,6 +1415,7 @@ tasks:
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           dockerfile: <% out(dockerfile) %>
+          task_name: ${task_name}
     <% }; break;
     // We don't have docker for platforms other than x64, so for those we just
     // extract the archives locally.
