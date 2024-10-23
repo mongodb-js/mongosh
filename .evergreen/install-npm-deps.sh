@@ -2,12 +2,7 @@ set -e
 set -x
 
 if [[ "${DISTRO_ID}" =~ ^(rhel|ubuntu1804) ]]; then
-  # force because of issues with peer deps and semver pre-releases,
-  # install rather than ci because `npm ci` can only install packages when your
-  # package.json and package-lock.json or npm-shrinkwrap.json are in sync.
-  # NOTE: this won't work on some more exotic platforms because not every dep
-  # can be installed on them. That's why we only run on linux x64 platforms when
-  # we set MONOGDB_DRIVER_VERSION_OVERRIDE=nightly in CI
+  # RHEL and Ubuntu 18.04 use Python 3.6 which isn't supported by newer node-gyp versions
   npm i node-gyp@9 --verbose --force
 fi
 
