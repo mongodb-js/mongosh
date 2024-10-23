@@ -2890,12 +2890,8 @@ describe('Shard', function () {
     describe('collection.status()', function () {
       let db: Database;
 
-      const dbName = 'shard-stats-test';
+      const dbName = 'shard-status-test';
       const ns = `${dbName}.test`;
-
-      before(async function () {
-        await db.dropDatabase();
-      });
 
       beforeEach(async function () {
         db = sh._database.getSiblingDB(dbName);
