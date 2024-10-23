@@ -66,6 +66,7 @@ import type {
   UpdateOptions,
   DropCollectionOptions,
   CheckMetadataConsistencyOptions,
+  AggregateOptions,
 } from '@mongosh/service-provider-core';
 import type { RunCommandCursor, Database } from './index';
 import {
@@ -159,26 +160,27 @@ export default class Collection extends ShellApiWithMongoClass {
    */
   async aggregate(
     pipeline: Document[],
-    options: Document & { explain?: never }
-  ): Promise<AggregationCursor>;
+    options: AggregateOptions & { explain: ExplainVerbosityLike }
+  ): Promise<Document>;
   async aggregate(
     pipeline: Document[],
-    options: Document & { explain: ExplainVerbosityLike }
-  ): Promise<Document>;
+    options?: AggregateOptions
+  ): Promise<AggregationCursor>;
   async aggregate(...stages: Document[]): Promise<AggregationCursor>;
   @returnsPromise
   @returnType('AggregationCursor')
   @apiVersions([1])
-  async aggregate(...args: any[]): Promise<any> {
-    let options;
-    let pipeline;
+  async aggregate(...args: unknown[]): Promise<AggregationCursor | Document> {
+    let options: AggregateOptions;
+    let pipeline: Document[];
     if (args.length === 0 || Array.isArray(args[0])) {
       options = args[1] || {};
-      pipeline = args[0] || [];
+      pipeline = (args[0] as Document[]) || [];
     } else {
       options = {};
-      pipeline = args || [];
+      pipeline = (args as Document[]) || [];
     }
+
     if ('background' in options) {
       await this._instanceState.printWarning(
         aggregateBackgroundOptionNotSupportedHelp

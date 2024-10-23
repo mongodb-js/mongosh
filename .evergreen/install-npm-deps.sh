@@ -1,8 +1,12 @@
 set -e
 set -x
 
-npm ci --verbose
+if [[ "${DISTRO_ID}" =~ ^(rhel|ubuntu1804) ]]; then
+  # RHEL and Ubuntu 18.04 use Python 3.6 which isn't supported by newer node-gyp versions
+  npm i node-gyp@9 --verbose --force
+fi
 
+npm ci --verbose
 echo "MONOGDB_DRIVER_VERSION_OVERRIDE:$MONOGDB_DRIVER_VERSION_OVERRIDE"
 
 # if MONOGDB_DRIVER_VERSION_OVERRIDE is set, then we want to replace the package version
