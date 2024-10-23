@@ -2893,6 +2893,10 @@ describe('Shard', function () {
       const dbName = 'shard-stats-test';
       const ns = `${dbName}.test`;
 
+      before(async function () {
+        await db.dropDatabase();
+      });
+
       beforeEach(async function () {
         db = sh._database.getSiblingDB(dbName);
         await db.getCollection('test').insertOne({ key: 1 });
