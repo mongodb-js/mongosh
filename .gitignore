@@ -27,3 +27,4 @@ mongocryptd.pid
 .nvm
 snapshot.blob
 .logs/*
+!.logs/empty.xml
