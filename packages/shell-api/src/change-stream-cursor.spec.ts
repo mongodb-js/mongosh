@@ -342,6 +342,7 @@ describe('ChangeStreamCursor', function () {
     it('isExhausted fails', function () {
       try {
         cursor.isExhausted();
+        expect.fail('missed exception');
       } catch (err: any) {
         expect(err.name).to.equal('MongoshInvalidInputError');
       }
