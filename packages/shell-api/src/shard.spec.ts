@@ -32,7 +32,6 @@ import {
 import Database from './database';
 import { inspect } from 'util';
 import { dummyOptions } from './helpers.spec';
-import type { ShardedDataDistribution } from './helpers';
 
 describe('Shard', function () {
   skipIfApiStrict();
