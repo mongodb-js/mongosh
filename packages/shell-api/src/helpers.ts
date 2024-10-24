@@ -224,12 +224,10 @@ export function processDigestPassword(
  * @param verbose
  */
 export async function getPrintableShardStatus(
-  db: Database,
+  configDB: Database,
   verbose: boolean
 ): Promise<ShardingStatusResult> {
   const result = {} as ShardingStatusResult;
-
-  const configDB = await getConfigDB(db);
 
   // configDB is a DB object that contains the sharding metadata of interest.
   const mongosColl = configDB.getCollection('mongos');
@@ -522,7 +520,7 @@ export async function getPrintableShardStatus(
   // All databases in config.databases + those implicitly referenced
   // by a sharded collection in config.collections
   // (could become a single pipeline using $unionWith when we drop 4.2 server support)
-  const [databases, collections] = await Promise.all([
+  const [databases, collections, shardedDataDistribution] = await Promise.all([
     (async () =>
       await (await configDB.getCollection('databases').find())
         .sort({ _id: 1 })
@@ -535,7 +533,22 @@ export async function getPrintableShardStatus(
       )
         .sort({ _id: 1 })
         .toArray())(),
+    (async () => {
+      try {
+        // $shardedDataDistribution is available since >= 6.0.3
+        const adminDB = configDB.getSiblingDB('admin');
+        return (await (
+          await adminDB.aggregate([{ $shardedDataDistribution: {} }])
+        ).toArray()) as ShardedDataDistribution;
+      } catch {
+        // Pass, most likely an older version.
+        return undefined;
+      }
+    })(),
   ]);
+
+  result.shardedDataDistribution = shardedDataDistribution;
+
   // Special case the config db, since it doesn't have a record in config.databases.
   databases.push({ _id: 'config', primary: 'config', partitioned: true });
 
@@ -665,20 +678,6 @@ export async function getPrintableShardStatus(
       })
     )
   ).filter((dbEntry) => !!dbEntry);
-
-  let shardedDataDistribution: ShardedDataDistribution | undefined;
-
-  try {
-    // Available since >= 6.0.3
-    const adminDb = db.getSiblingDB('admin');
-    shardedDataDistribution = (await (
-      await adminDb.aggregate([{ $shardedDataDistribution: {} }])
-    ).toArray()) as ShardedDataDistribution;
-  } catch {
-    // Pass, most likely an older version.
-  }
-
-  result.shardedDataDistribution = shardedDataDistribution;
 
   delete result.shardingVersion.currentVersion;
   return result;

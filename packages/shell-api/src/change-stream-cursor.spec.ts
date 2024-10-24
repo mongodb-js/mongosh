@@ -13,7 +13,6 @@ import {
 } from './enums';
 import type { ChangeStream, Document } from '@mongosh/service-provider-core';
 import { startTestCluster } from '../../../testing/integration-testing-hooks';
-import { CliServiceProvider } from '../../service-provider-server/lib';
 import ShellInstanceState from './shell-instance-state';
 import Mongo from './mongo';
 import { ensureMaster, ensureResult } from '../test/helpers';
@@ -22,6 +21,7 @@ import type Collection from './collection';
 import { MongoshUnimplementedError } from '@mongosh/errors';
 import { EventEmitter } from 'events';
 import { dummyOptions } from './helpers.spec';
+import CliServiceProvider from '../../service-provider-server/src/cli-service-provider';
 
 describe('ChangeStreamCursor', function () {
   describe('help', function () {
@@ -342,7 +342,6 @@ describe('ChangeStreamCursor', function () {
     it('isExhausted fails', function () {
       try {
         cursor.isExhausted();
-        expect.fail('missed exception');
       } catch (err: any) {
         expect(err.name).to.equal('MongoshInvalidInputError');
       }
