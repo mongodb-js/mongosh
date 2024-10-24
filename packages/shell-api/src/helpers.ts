@@ -343,7 +343,7 @@ export async function getPrintableShardStatus(
           balancerStatus: 1,
         });
         balancerRunning = balancerStatus.inBalancerRound ? 'yes' : 'no';
-      } catch (err) {
+      } catch {
         // pass, ignore all error messages
       }
       balancerRes['Currently running'] = balancerRunning;
@@ -370,9 +370,7 @@ export async function getPrintableShardStatus(
       if (activeLocks?.length > 0) {
         balancerRes['Collections with active migrations'] = activeLocks.map(
           (lock) => {
-            // This type assertion is necessary for the string literal type check
-            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-            return `${lock._id} started at ${lock.when}` as `${string} started at ${string}`;
+            return `${lock._id} started at ${lock.when}` as const;
           }
         );
       }
