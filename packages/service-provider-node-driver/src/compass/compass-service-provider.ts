@@ -1,5 +1,5 @@
-import type { DevtoolsConnectOptions } from '../cli-service-provider';
-import CliServiceProvider from '../cli-service-provider';
+import type { DevtoolsConnectOptions } from '../node-driver-service-provider';
+import { NodeDriverServiceProvider } from '../node-driver-service-provider';
 import type { MongoClient } from 'mongodb';
 import type { ReplPlatform } from '@mongosh/service-provider-core';
 import type ConnectionString from 'mongodb-connection-string-url';
@@ -8,7 +8,7 @@ import type { EventEmitter } from 'events';
 /**
  * A service provider that is meant to be used in compass.
  */
-class CompassServiceProvider extends CliServiceProvider {
+export class CompassServiceProvider extends NodeDriverServiceProvider {
   public readonly platform: ReplPlatform;
   /**
    * Instantiate a new CompassServiceProvider with the data-service's connected
@@ -28,5 +28,3 @@ class CompassServiceProvider extends CliServiceProvider {
     this.platform = 'Compass';
   }
 }
-
-export default CompassServiceProvider;

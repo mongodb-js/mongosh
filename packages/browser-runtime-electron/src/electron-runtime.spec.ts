@@ -5,20 +5,20 @@ import sinonChai from 'sinon-chai';
 chai.use(sinonChai);
 const { expect } = chai;
 
-import { CliServiceProvider } from '@mongosh/service-provider-server';
+import { NodeDriverServiceProvider } from '@mongosh/service-provider-node-driver';
 import { bson } from '@mongosh/service-provider-core';
 import { ElectronRuntime } from './electron-runtime';
 import { EventEmitter } from 'events';
 import type { RuntimeEvaluationListener } from '@mongosh/browser-runtime-core';
 
 describe('Electron runtime', function () {
-  let serviceProvider: SinonStubbedInstance<CliServiceProvider>;
+  let serviceProvider: SinonStubbedInstance<NodeDriverServiceProvider>;
   let messageBus: SinonStubbedInstance<EventEmitter>;
   let evaluationListener: SinonStubbedInstance<RuntimeEvaluationListener>;
   let electronRuntime: ElectronRuntime;
 
   beforeEach(function () {
-    serviceProvider = sinon.createStubInstance(CliServiceProvider);
+    serviceProvider = sinon.createStubInstance(NodeDriverServiceProvider);
     serviceProvider.bsonLibrary = bson;
     serviceProvider.getConnectionInfo.resolves({
       extraInfo: { uri: '' },

@@ -18,7 +18,7 @@ import {
   ALL_SERVER_VERSIONS,
   ALL_TOPOLOGIES,
 } from './enums';
-import { CliServiceProvider } from '../../service-provider-server';
+import { NodeDriverServiceProvider } from '../../service-provider-node-driver';
 import {
   startTestCluster,
   skipIfServerVersion,
@@ -178,7 +178,7 @@ describe('Session', function () {
   });
   describe('integration', function () {
     const [srv0] = startTestCluster('session', { topology: 'replset' });
-    let serviceProvider: CliServiceProvider;
+    let serviceProvider: NodeDriverServiceProvider;
     let instanceState: ShellInstanceState;
     let mongo: Mongo;
     let session: Session;
@@ -194,7 +194,7 @@ describe('Session', function () {
 
     beforeEach(async function () {
       databaseName = `test-${Date.now()}`;
-      serviceProvider = await CliServiceProvider.connect(
+      serviceProvider = await NodeDriverServiceProvider.connect(
         await srv0.connectionString(),
         dummyOptions,
         {},

@@ -23,7 +23,7 @@ import { bson } from '@mongosh/service-provider-core';
 import { EventEmitter } from 'events';
 import ShellInstanceState from './shell-instance-state';
 import { UpdateResult } from './result';
-import { CliServiceProvider } from '../../service-provider-server';
+import { NodeDriverServiceProvider } from '../../service-provider-node-driver';
 import {
   startTestCluster,
   skipIfServerVersion,
@@ -1987,7 +1987,7 @@ describe('Shard', function () {
   });
 
   describe('integration', function () {
-    let serviceProvider: CliServiceProvider;
+    let serviceProvider: NodeDriverServiceProvider;
     let instanceState: ShellInstanceState;
     let sh: Shard;
     const dbName = 'test';
@@ -2006,7 +2006,7 @@ describe('Shard', function () {
     );
 
     before(async function () {
-      serviceProvider = await CliServiceProvider.connect(
+      serviceProvider = await NodeDriverServiceProvider.connect(
         await mongos.connectionString(),
         dummyOptions,
         {},
@@ -2130,7 +2130,7 @@ describe('Shard', function () {
 
         before(async function () {
           try {
-            apiStrictServiceProvider = await CliServiceProvider.connect(
+            apiStrictServiceProvider = await NodeDriverServiceProvider.connect(
               await mongos.connectionString(),
               {
                 ...dummyOptions,
@@ -3052,7 +3052,7 @@ describe('Shard', function () {
   });
 
   describe('integration chunks', function () {
-    let serviceProvider: CliServiceProvider;
+    let serviceProvider: NodeDriverServiceProvider;
     let instanceState: ShellInstanceState;
     let sh: Shard;
     const dbName = 'test';
@@ -3071,7 +3071,7 @@ describe('Shard', function () {
     );
 
     before(async function () {
-      serviceProvider = await CliServiceProvider.connect(
+      serviceProvider = await NodeDriverServiceProvider.connect(
         await mongos.connectionString(),
         dummyOptions,
         {},

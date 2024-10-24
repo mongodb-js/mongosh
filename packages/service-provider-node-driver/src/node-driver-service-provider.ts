@@ -189,7 +189,7 @@ interface DependencyVersionInfo {
 /**
  * Encapsulates logic for the service provider for the mongosh CLI.
  */
-class CliServiceProvider
+export class NodeDriverServiceProvider
   extends ServiceProviderCore
   implements ServiceProvider
 {
@@ -203,12 +203,12 @@ class CliServiceProvider
    * @returns {Promise} The promise with cli service provider.
    */
   static async connect(
-    this: typeof CliServiceProvider,
+    this: typeof NodeDriverServiceProvider,
     uri: string,
     driverOptions: DevtoolsConnectOptions,
     cliOptions: { nodb?: boolean } = {},
     bus: MongoshBus = new EventEmitter() // TODO: Change VSCode to pass all arguments, then remove defaults
-  ): Promise<CliServiceProvider> {
+  ): Promise<NodeDriverServiceProvider> {
     const connectionString = new ConnectionString(uri || 'mongodb://nodb/');
     const clientOptions = this.processDriverOptions(
       null,
@@ -292,7 +292,7 @@ class CliServiceProvider
   private _lastSeenTopology: TopologyDescription | undefined;
 
   /**
-   * Instantiate a new CliServiceProvider with the Node driver's connected
+   * Instantiate a new NodeDriverServiceProvider with the Node driver's connected
    * MongoClient instance.
    *
    * @param {MongoClient} mongoClient - The Node drivers' MongoClient instance.
@@ -418,7 +418,7 @@ class CliServiceProvider
   async getNewConnection(
     uri: string,
     options: Partial<DevtoolsConnectOptions> = {}
-  ): Promise<CliServiceProvider> {
+  ): Promise<NodeDriverServiceProvider> {
     const connectionString = new ConnectionString(uri);
     const clientOptions = this.processDriverOptions(connectionString, options);
 
@@ -427,7 +427,7 @@ class CliServiceProvider
       clientOptions
     );
     clientOptions.parentState = state;
-    return new CliServiceProvider(
+    return new NodeDriverServiceProvider(
       client,
       this.bus,
       clientOptions,
@@ -1404,7 +1404,7 @@ class CliServiceProvider
 
   // Internal, only exposed for testing
   static processDriverOptions(
-    currentProviderInstance: CliServiceProvider | null,
+    currentProviderInstance: NodeDriverServiceProvider | null,
     uri: ConnectionString,
     opts: DevtoolsConnectOptions
   ): DevtoolsConnectOptions {
@@ -1469,7 +1469,7 @@ class CliServiceProvider
     uri: ConnectionString,
     opts: Partial<DevtoolsConnectOptions>
   ): DevtoolsConnectOptions {
-    return CliServiceProvider.processDriverOptions(this, uri, {
+    return NodeDriverServiceProvider.processDriverOptions(this, uri, {
       productName: this.currentClientOptions.productName,
       productDocsLink: this.currentClientOptions.productDocsLink,
       ...opts,
@@ -1533,5 +1533,4 @@ class CliServiceProvider
   }
 }
 
-export default CliServiceProvider;
 export { DevtoolsConnectOptions };

@@ -17,7 +17,7 @@ import {
   deserializeEvaluationResult,
   serializeConnectOptions,
 } from './serializer';
-import type { CompassServiceProvider } from '@mongosh/service-provider-server';
+import type { CompassServiceProvider } from '@mongosh/service-provider-node-driver';
 import type { InterruptHandle } from 'interruptor';
 import { interrupt as nativeInterrupt } from 'interruptor';
 import { WorkerThreadEvaluationListener } from './worker-thread-evaluation-listener';

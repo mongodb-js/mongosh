@@ -29,7 +29,7 @@ import {
   MongoshInternalError,
   MongoshUnimplementedError,
 } from '@mongosh/errors';
-import { CliServiceProvider } from '../../service-provider-server';
+import { NodeDriverServiceProvider } from '../../service-provider-node-driver';
 import {
   skipIfServerVersion,
   startSharedTestServer,
@@ -967,7 +967,7 @@ describe('Mongo', function () {
 
     beforeEach(async function () {
       uri = await testServer.connectionString();
-      serviceProvider = await CliServiceProvider.connect(
+      serviceProvider = await NodeDriverServiceProvider.connect(
         uri,
         dummyOptions,
         {},
