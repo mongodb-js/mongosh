@@ -1666,8 +1666,8 @@ buildvariants:
     tasks:
       - name: compile_artifact
   - name: linux_ppc64le_build
-    display_name: "RHEL 8.1 PPC (build)"
-    run_on: rhel81-power8-small
+    display_name: "RHEL 8 PPC (build)"
+    run_on: rhel8-power9-small
     expansions:
       executable_os_id: linux-ppc64le
     tasks:
@@ -1854,8 +1854,8 @@ buildvariants:
       - name: e2e_tests_linux_arm64
       - name: e2e_tests_linux_arm64_openssl3
   - name: e2e_rhel81_ppc64le
-    display_name: "RHEL 8.1 PPC (E2E Tests)"
-    run_on: rhel81-power8-small
+    display_name: "RHEL 8 PPC (E2E Tests)"
+    run_on: rhel8-power9-small
     tasks:
       - name: e2e_tests_linux_ppc64le
   - name: e2e_rhel72_s390x
@@ -2006,8 +2006,8 @@ buildvariants:
     tasks:
       - name: pkg_test_rpmextract_rpm_s390x
   - name: pkg_smoke_tests_rhel81_ppc64le
-    display_name: "package smoke tests (RHEL 8.1 ppc64le)"
-    run_on: rhel81-power8-small
+    display_name: "package smoke tests (RHEL 8 ppc64le)"
+    run_on: rhel8-power9-small
     tasks:
       - name: pkg_test_rpmextract_rpm_ppc64le
 
