@@ -167,34 +167,15 @@ describe('getPrintableShardStatus', function () {
     configDatabase = new Database(mongo, 'config_test');
     expect(configDatabase.getName()).to.equal('config_test');
 
-    const mockedAdminDb = {
-      aggregate: stub()
-        .withArgs([{ $shardedDataDistribution: {} }])
-        .resolves({
-          toArray: stub().resolves(mockedShardedDataDistribution),
-        }),
-    };
-    const getSiblingDB = stub();
-    getSiblingDB.withArgs('admin').returns(mockedAdminDb);
-    getSiblingDB.withArgs('config').returns(configDatabase);
-
-    configDatabase.getSiblingDB = getSiblingDB;
-    configDatabase._maybeCachedHello = stub().returns({ msg: 'isdbgrid' });
-
     const origRunCommandWithCheck = serviceProvider.runCommandWithCheck;
-    serviceProvider.runCommandWithCheck = async (configDatabase, cmd) => {
+    serviceProvider.runCommandWithCheck = async (db, cmd) => {
       if (cmd.hello) {
         return { ok: 1, msg: 'isdbgrid' };
       }
-      if (configDatabase === 'admin' && cmd.balancerStatus) {
+      if (db === 'admin' && cmd.balancerStatus) {
         return { ok: 1, inBalancerRound };
       }
-      return origRunCommandWithCheck.call(
-        serviceProvider,
-        configDatabase,
-        cmd,
-        {}
-      );
+      return origRunCommandWithCheck.call(serviceProvider, db, cmd, {});
     };
 
     await Promise.all(
@@ -222,6 +203,20 @@ describe('getPrintableShardStatus', function () {
   });
 
   it('returns an object with sharding information', async function () {
+    const mockedAdminDb = {
+      aggregate: stub()
+        .withArgs([{ $shardedDataDistribution: {} }])
+        .resolves({
+          toArray: stub().resolves(mockedShardedDataDistribution),
+        }),
+    };
+    const getSiblingDB = stub();
+    getSiblingDB.withArgs('admin').returns(mockedAdminDb);
+    getSiblingDB.withArgs('config').returns(configDatabase);
+
+    configDatabase.getSiblingDB = getSiblingDB;
+    configDatabase._maybeCachedHello = stub().returns({ msg: 'isdbgrid' });
+
     const status = await getPrintableShardStatus(configDatabase, false);
     expect(status.shardingVersion.clusterId).to.be.instanceOf(bson.ObjectId);
     expect(status.shards.map(({ host }: { host: string }) => host)).to.include(
