@@ -674,7 +674,7 @@ export async function getPrintableShardStatus(
     shardedDataDistribution = (await (
       await adminDb.aggregate([{ $shardedDataDistribution: {} }])
     ).toArray()) as ShardedDataDistribution;
-  } catch (e) {
+  } catch {
     // Pass, most likely an older version.
   }
 
