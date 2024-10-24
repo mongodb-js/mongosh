@@ -22,7 +22,6 @@ import type Collection from './collection';
 import { MongoshUnimplementedError } from '@mongosh/errors';
 import { EventEmitter } from 'events';
 import { dummyOptions } from './helpers.spec';
-import CliServiceProvider from '../../service-provider-server/src/cli-service-provider';
 
 describe('ChangeStreamCursor', function () {
   describe('help', function () {
