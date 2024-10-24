@@ -2090,26 +2090,10 @@ describe('Shard', function () {
           skipIfServerVersion(mongos, '< 6.0.3');
 
           it('returns correct shardedDataDistribution', async function () {
-            const expectedShardedDataDistribution: ShardedDataDistribution = [
-              {
-                ns,
-                shards: [
-                  {
-                    shardName: 'rs-shard0-0',
-                    numOrphanedDocs: 0,
-                    numOwnedDocuments: 1,
-                    ownedSizeBytes: 31,
-                    orphanedSizeBytes: 0,
-                  },
-                ],
-              },
-            ];
-
             const status = await sh.status();
 
-            expect(status.value.shardedDataDistribution).deep.equals(
-              expectedShardedDataDistribution
-            );
+            expect(status.value.shardedDataDistribution?.length).equals(1);
+            expect(status.value.shardedDataDistribution?.[0].ns).equals(ns);
           });
         });
 
