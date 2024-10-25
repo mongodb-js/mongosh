@@ -12,7 +12,7 @@ rm -rf "$test_root_dir" && mkdir -p "$test_root_dir"
 cd "$test_root_dir"
 git clone --depth=10 https://github.com/mongodb-js/vscode.git
 cd vscode
-git checkout gagik/mongosh-package-update
+git checkout origin/gagik/mongosh-package-update
 npm install --force
 rm -rf node_modules/@mongosh
 (cd node_modules && ln -s "$mongosh_root_dir/packages" @mongosh)
