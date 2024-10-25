@@ -23,7 +23,7 @@ import { bson } from '@mongosh/service-provider-core';
 import { EventEmitter } from 'events';
 import ShellInstanceState from './shell-instance-state';
 import { UpdateResult } from './result';
-import { CliServiceProvider } from '../../service-provider-server';
+import { NodeDriverServiceProvider } from '../../service-provider-node-driver';
 import {
   startTestCluster,
   skipIfServerVersion,
@@ -1986,7 +1986,7 @@ describe('Shard', function () {
   });
 
   describe('integration', function () {
-    let serviceProvider: CliServiceProvider;
+    let serviceProvider: NodeDriverServiceProvider;
     let instanceState: ShellInstanceState;
     let sh: Shard;
     const dbName = 'test';
@@ -2005,7 +2005,7 @@ describe('Shard', function () {
     );
 
     before(async function () {
-      serviceProvider = await CliServiceProvider.connect(
+      serviceProvider = await NodeDriverServiceProvider.connect(
         await mongos.connectionString(),
         dummyOptions,
         {},
@@ -2043,6 +2043,70 @@ describe('Shard', function () {
       return serviceProvider.close(true);
     });
 
+    describe('collection.status()', function () {
+      let db: Database;
+
+      const dbName = 'shard-status-test';
+      const ns = `${dbName}.test`;
+
+      beforeEach(async function () {
+        db = sh._database.getSiblingDB(dbName);
+        await db.getCollection('test').insertOne({ key: 1 });
+        await db.getCollection('test').createIndex({ key: 1 });
+      });
+      afterEach(async function () {
+        await db.dropDatabase();
+      });
+      describe('unsharded collections', function () {
+        describe('with >= 6.0.3', function () {
+          skipIfServerVersion(mongos, '< 6.0.3');
+
+          it('returns shardedDataDistribution as an empty array', async function () {
+            const status = await sh.status();
+            expect(status.value.shardedDataDistribution).deep.equals([]);
+          });
+        });
+
+        describe('with < 6.0.3', function () {
+          skipIfServerVersion(mongos, '>= 6.0.3');
+
+          it('returns shardedDataDistribution as undefined', async function () {
+            const status = await sh.status();
+            expect(status.value.shardedDataDistribution).equals(undefined);
+          });
+        });
+      });
+
+      describe('sharded collections', function () {
+        beforeEach(async function () {
+          expect((await sh.enableSharding(dbName)).ok).to.equal(1);
+          expect(
+            (await sh.shardCollection(ns, { key: 1 })).collectionsharded
+          ).to.equal(ns);
+        });
+
+        describe('with >= 6.0.3', function () {
+          skipIfServerVersion(mongos, '< 6.0.3');
+
+          it('returns correct shardedDataDistribution', async function () {
+            const status = await sh.status();
+
+            expect(status.value.shardedDataDistribution?.length).equals(1);
+            expect(status.value.shardedDataDistribution?.[0].ns).equals(ns);
+          });
+        });
+
+        describe('with < 6.0.3', function () {
+          skipIfServerVersion(mongos, '>= 6.0.3');
+
+          it('returns shardedDataDistribution as undefined', async function () {
+            const status = await sh.status();
+            expect(status.value.shardedDataDistribution).equals(undefined);
+          });
+        });
+      });
+    });
+
     describe('sharding info', function () {
       it('returns the status', async function () {
         const result = await sh.status();
@@ -2065,7 +2129,7 @@ describe('Shard', function () {
 
         before(async function () {
           try {
-            apiStrictServiceProvider = await CliServiceProvider.connect(
+            apiStrictServiceProvider = await NodeDriverServiceProvider.connect(
               await mongos.connectionString(),
               {
                 ...dummyOptions,
@@ -2121,7 +2185,7 @@ describe('Shard', function () {
         expect(
           (await sh.status()).value.databases.find(
             (d: Document) => d.database._id === 'test'
-          ).collections[ns].shardKey
+          )?.collections[ns].shardKey
         ).to.deep.equal({ key: 1 });
 
         const db = instanceState.currentDb.getSiblingDB(dbName);
@@ -2166,13 +2230,13 @@ describe('Shard', function () {
     describe('tags', function () {
       it('creates a zone', async function () {
         expect((await sh.addShardTag(`${shardId}-1`, 'zone1')).ok).to.equal(1);
-        expect((await sh.status()).value.shards[1].tags).to.deep.equal([
+        expect((await sh.status()).value.shards[1]?.tags).to.deep.equal([
           'zone1',
         ]);
         expect((await sh.addShardToZone(`${shardId}-0`, 'zone0')).ok).to.equal(
           1
         );
-        expect((await sh.status()).value.shards[0].tags).to.deep.equal([
+        expect((await sh.status()).value.shards[0]?.tags).to.deep.equal([
           'zone0',
         ]);
       });
@@ -2241,7 +2305,7 @@ describe('Shard', function () {
 
         const tags = (await sh.status()).value.databases.find(
           (d: Document) => d.database._id === 'test'
-        ).collections[ns].tags;
+        )?.collections[ns].tags;
         expect(tags.length).to.equal(19);
       });
       it('cuts a tag list when there are more than 20 tags', async function () {
@@ -2251,7 +2315,7 @@ describe('Shard', function () {
 
         const tags = (await sh.status()).value.databases.find(
           (d: Document) => d.database._id === 'test'
-        ).collections[ns].tags;
+        )?.collections[ns].tags;
         expect(tags.length).to.equal(21);
         expect(
           tags.indexOf(
@@ -2885,6 +2949,7 @@ describe('Shard', function () {
         });
       });
     });
+
     describe('collection.isCapped', function () {
       it('returns true for config.changelog', async function () {
         const ret = await sh._database
@@ -2929,7 +2994,7 @@ describe('Shard', function () {
           (item: Document) => item.database._id === 'db'
         );
         // Cannot get strict guarantees about the value of this field since SERVER-63983
-        expect(databasesDbItem.database.partitioned).to.be.oneOf([
+        expect(databasesDbItem?.database.partitioned).to.be.oneOf([
           false,
           undefined,
         ]);
@@ -2937,7 +3002,7 @@ describe('Shard', function () {
           (item: Document) => item.database._id === 'dbSh'
         );
         // Cannot get strict guarantees about the value of this field since SERVER-60926 and SERVER-63983
-        expect(databasesDbShItem.database.partitioned).to.be.oneOf([
+        expect(databasesDbShItem?.database.partitioned).to.be.oneOf([
           true,
           false,
           undefined,
@@ -2986,7 +3051,7 @@ describe('Shard', function () {
   });
 
   describe('integration chunks', function () {
-    let serviceProvider: CliServiceProvider;
+    let serviceProvider: NodeDriverServiceProvider;
     let instanceState: ShellInstanceState;
     let sh: Shard;
     const dbName = 'test';
@@ -3005,7 +3070,7 @@ describe('Shard', function () {
     );
 
     before(async function () {
-      serviceProvider = await CliServiceProvider.connect(
+      serviceProvider = await NodeDriverServiceProvider.connect(
         await mongos.connectionString(),
         dummyOptions,
         {},
@@ -3051,7 +3116,7 @@ describe('Shard', function () {
       }
       const chunks = (await sh.status()).value.databases.find(
         (d: Document) => d.database._id === 'test'
-      ).collections[ns].chunks;
+      )?.collections[ns].chunks;
       expect(chunks.length).to.equal(20);
     });
 
@@ -3059,7 +3124,7 @@ describe('Shard', function () {
       await sh.splitAt(ns, { key: 20 });
       const chunks = (await sh.status()).value.databases.find(
         (d: Document) => d.database._id === 'test'
-      ).collections[ns].chunks;
+      )?.collections[ns].chunks;
       expect(chunks.length).to.equal(21);
       expect(
         chunks.indexOf(

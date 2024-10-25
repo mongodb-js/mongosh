@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Sun Oct 20 2024.
+This document was automatically generated on Fri Oct 25 2024.
 
 ## List of dependencies
 
@@ -91,7 +91,7 @@ Package|Version|License
 **[@mongosh/js-multiline-to-singleline](#2dcbeb51aa76c387d04422e84b56be8b65a87471bf5be038ca68d82f13a5d839)**|0.0.0-dev.0|Apache-2.0
 **[@mongosh/logging](#a17a0e5de5551ca1d63cf325d510d17b6a0a1821718c63117a4dbccd2b1293e7)**|0.0.0-dev.0|Apache-2.0
 **[@mongosh/service-provider-core](#b179d40f2285db3339c362199a8bc0598efaff1c4c727364e26b21325764e981)**|0.0.0-dev.0|Apache-2.0
-**[@mongosh/service-provider-server](#b512a107cca2856de34b86ca46809ec1b31a5d964d47102efd920074c19a86c7)**|0.0.0-dev.0|Apache-2.0
+**[@mongosh/service-provider-node-driver](#48f5e5df1f8b3f9562c58f987046b55160319224cf59e0ced75ab2037ecf0de3)**|0.0.0-dev.0|Apache-2.0
 **[@mongosh/shell-api](#066d6484afa772c771ab73975e5fcac49bf481b96140400d853ecd0b2b9f3629)**|0.0.0-dev.0|Apache-2.0
 **[@mongosh/shell-evaluator](#f2b3f8a68c8c280f279921c6fe4cc918d362f7f44cc9b2c52a8e26b75a5b4bb5)**|0.0.0-dev.0|Apache-2.0
 **[@mongosh/snippet-manager](#006cfa776d20db3be61c3aa50333c13f27382e2b5a835f17fd767b3033ee8578)**|0.0.0-dev.0|Apache-2.0
@@ -9684,8 +9684,8 @@ License files:
          limitations under the License.
 
 
-<a id="b512a107cca2856de34b86ca46809ec1b31a5d964d47102efd920074c19a86c7"></a>
-### [@mongosh/service-provider-server](https://www.npmjs.com/package/@mongosh/service-provider-server) (version 0.0.0-dev.0)
+<a id="48f5e5df1f8b3f9562c58f987046b55160319224cf59e0ced75ab2037ecf0de3"></a>
+### [@mongosh/service-provider-node-driver](https://www.npmjs.com/package/@mongosh/service-provider-node-driver) (version 0.0.0-dev.0)
 License tags: Apache-2.0
 
 License files:
