@@ -10,7 +10,7 @@ test_root_dir=/tmp/mongosh-vscode-test
 export SEGMENT_KEY=GtEn04CBjn39g6A0BxldDf81YGFONOz7 # fresh from /dev/urandom
 rm -rf "$test_root_dir" && mkdir -p "$test_root_dir"
 cd "$test_root_dir"
-git clone -b origin/gagik/mongosh-package-update --depth=10 https://github.com/mongodb-js/vscode.git
+git clone -b gagik/mongosh-package-update --depth=10 https://github.com/mongodb-js/vscode.git
 cd vscode
 npm install --force
 rm -rf node_modules/@mongosh
