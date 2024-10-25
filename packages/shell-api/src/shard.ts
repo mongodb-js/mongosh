@@ -12,6 +12,7 @@ import type {
   Document,
   CheckMetadataConsistencyOptions,
 } from '@mongosh/service-provider-core';
+import type { ShardingStatusResult } from './helpers';
 import {
   assertArgsDefinedType,
   getConfigDB,
@@ -205,7 +206,7 @@ export default class Shard extends ShellApiWithMongoClass {
   async status(
     verbose = false,
     configDB?: Database
-  ): Promise<CommandResult<Document>> {
+  ): Promise<CommandResult<ShardingStatusResult>> {
     const result = await getPrintableShardStatus(
       configDB ?? (await getConfigDB(this._database)),
       verbose
