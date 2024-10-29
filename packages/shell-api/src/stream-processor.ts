@@ -62,6 +62,7 @@ export default class StreamProcessor extends ShellApiWithMongoClass {
    * modify can be used like so:
    *  Change the pipeline:
    *    sp.name.modify(pipeline)
+   *  Change the pipeline with additional options:
    *    sp.name.modify(pipeline, {resumeFromCheckpoint: false})
    *  For modify requests that don't change the pipeline:
    *    sp.name.modify({resumeFromCheckpoint: false})
