@@ -5,6 +5,7 @@ import type Mongo from './mongo';
 import Database from './database';
 import { Streams } from './streams';
 import { InterruptFlag, MongoshInterruptedError } from './interruptor';
+import { MongoshInvalidInputError } from '@mongosh/errors';
 
 describe('Streams', function () {
   let mongo: Mongo;
@@ -177,13 +178,17 @@ describe('Streams', function () {
       expect(runCmdStub.calledOnceWithExactly('admin', cmd, {})).to.be.true;
 
       // No arguments to modify.
-      const caught = await processor.modify().catch((e) => e);
+      const caught = await processor
+        .modify()
+        .catch((e: MongoshInvalidInputError) => e);
       expect(caught.message).to.contain(
         '[COMMON-10001] The first argument to modify must be an array or object.'
       );
 
       // A single numeric argument to modify.
-      const caught2 = await processor.modify(1).catch((e) => e);
+      const caught2 = await processor
+        .modify(1)
+        .catch((e: MongoshInvalidInputError) => e);
       expect(caught2.message).to.contain(
         '[COMMON-10001] The first argument to modify must be an array or object.'
       );
