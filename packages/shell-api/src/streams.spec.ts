@@ -5,7 +5,7 @@ import type Mongo from './mongo';
 import Database from './database';
 import { Streams } from './streams';
 import { InterruptFlag, MongoshInterruptedError } from './interruptor';
-import { MongoshInvalidInputError } from '@mongosh/errors';
+import type { MongoshInvalidInputError } from '@mongosh/errors';
 
 describe('Streams', function () {
   let mongo: Mongo;
