@@ -75,7 +75,7 @@ export default class StreamProcessor extends ShellApiWithMongoClass {
     if (Array.isArray(pipelineOrOptions)) {
       options['pipeline'] = pipelineOrOptions;
     } else if (typeof pipelineOrOptions === 'object') {
-      if (Object.keys(options).length != 0) {
+      if (Object.keys(options).length !== 0) {
         throw new MongoshInvalidInputError(
           'If the first argument to modify is an object, the second argument should not be specified.',
           CommonErrors.InvalidArgument
