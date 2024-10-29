@@ -192,6 +192,17 @@ describe('Streams', function () {
       expect(caught2.message).to.contain(
         '[COMMON-10001] The first argument to modify must be an array or object.'
       );
+
+      // Two object arguments to modify.
+      const caught3 = await processor
+        .modify(
+          { resumeFromCheckpoint: false },
+          { dlq: { connectionName: 'foo' } }
+        )
+        .catch((e: MongoshInvalidInputError) => e);
+      expect(caught3.message).to.contain(
+        '[COMMON-10001] If the first argument to modify is an object, the second argument should not be specified.'
+      );
     });
 
     it('works with pipeline and options arguments', async function () {
