@@ -1,4 +1,5 @@
 import type { Document } from '@mongosh/service-provider-core';
+import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 
 import type Mongo from './mongo';
 import { asPrintable } from './enums';
@@ -54,6 +55,31 @@ export default class StreamProcessor extends ShellApiWithMongoClass {
     return this._streams._runStreamCommand({
       getStreamProcessorStats: this.name,
       ...options,
+    });
+  }
+
+  /**
+   * modify can be used like so:
+   *  sp.name.modify(pipeline)
+   *  sp.name.modify(pipeline, {resumeFromCheckpoint: false})
+   *  sp.name.modify({resumeFromCheckpoint: false})
+   */
+  @returnsPromise
+  async modify(pipelineOrOptions: Document[] | Document, options: Document = {}) {
+    if (Array.isArray(pipelineOrOptions)) {
+      options["pipeline"] = pipelineOrOptions;
+    } else if (typeof pipelineOrOptions == "object") {
+      options = {...options, ...pipelineOrOptions};
+    } else {
+        throw new MongoshInvalidInputError(
+          "The first argument to modify must be an array or object.",
+          CommonErrors.InvalidArgument
+        );
+    }
+
+    return this._streams._runStreamCommand({
+      modifyStreamProcessor: this.name,
+      ...options
     });
   }
 
