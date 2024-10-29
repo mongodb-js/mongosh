@@ -73,7 +73,7 @@ export default class StreamProcessor extends ShellApiWithMongoClass {
   ) {
     if (Array.isArray(pipelineOrOptions)) {
       options['pipeline'] = pipelineOrOptions;
-    } else if (typeof pipelineOrOptions == 'object') {
+    } else if (typeof pipelineOrOptions === 'object') {
       options = { ...options, ...pipelineOrOptions };
     } else {
       throw new MongoshInvalidInputError(

@@ -177,13 +177,13 @@ describe('Streams', function () {
       expect(runCmdStub.calledOnceWithExactly('admin', cmd, {})).to.be.true;
 
       // No arguments to modify.
-      const caught = await processor.modify().catch((e: any) => e);
+      const caught = await processor.modify().catch((e) => e);
       expect(caught.message).to.contain(
         '[COMMON-10001] The first argument to modify must be an array or object.'
       );
 
       // A single numeric argument to modify.
-      const caught2 = await processor.modify(1).catch((e: any) => e);
+      const caught2 = await processor.modify(1).catch((e) => e);
       expect(caught2.message).to.contain(
         '[COMMON-10001] The first argument to modify must be an array or object.'
       );
