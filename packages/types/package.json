@@ -24,7 +24,7 @@
     "eslint": "eslint",
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "prepublish": "npm run compile",
-    "test": "mocha --timeout 15000 -r ts-node/register \"./src/*.spec.ts\"",
+    "test": "mocha --timeout 15000 -r ts-node/register --reporter \"../../configs/mocha-config-mongosh/reporter.ts\" \"./src/*.spec.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
@@ -44,9 +44,9 @@
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "depcheck": "^1.4.3",
+    "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
-    "mongodb": "^6.9.0",
+    "mongodb": "^6.10.0",
     "prettier": "^2.8.8"
   }
 }

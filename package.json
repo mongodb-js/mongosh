@@ -112,7 +112,7 @@
     "mocha": "^10.2.0",
     "mongodb": "^6.9.0",
     "mongodb-runner": "^5.7.0",
-    "node-gyp": "^9.0.0",
+    "node-gyp": "^9.0.0 || ^10.2.0",
     "nyc": "^15.1.0",
     "pkg-up": "^3.1.0",
     "rimraf": "^3.0.2",
@@ -128,7 +128,8 @@
     "webpack-bundle-analyzer": "^4.7.0",
     "webpack-cli": "^4.3.1",
     "which": "^2.0.2",
-    "yaml": "^1.10.0"
+    "yaml": "^1.10.0",
+    "depcheck": "^1.4.7"
   },
   "optionalDependencies": {
     "lerna": "^8.1.8"
@@ -148,7 +149,7 @@
     "packages/logging",
     "packages/service-provider-core",
     "packages/arg-parser",
-    "packages/service-provider-server",
+    "packages/service-provider-node-driver",
     "packages/shell-api",
     "packages/autocomplete",
     "packages/shell-evaluator",

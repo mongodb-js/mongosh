@@ -1,7 +1,7 @@
 import { inspect } from 'util';
 import { EJSON } from 'bson';
 import type { RuntimeEvaluationResult } from '@mongosh/browser-runtime-core';
-import type { DevtoolsConnectOptions } from '@mongosh/service-provider-server';
+import type { DevtoolsConnectOptions } from '@mongosh/service-provider-node-driver';
 
 function isPrimitive(
   val: any

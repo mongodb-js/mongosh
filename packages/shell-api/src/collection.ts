@@ -66,6 +66,7 @@ import type {
   UpdateOptions,
   DropCollectionOptions,
   CheckMetadataConsistencyOptions,
+  AggregateOptions,
 } from '@mongosh/service-provider-core';
 import type { RunCommandCursor, Database } from './index';
 import {
@@ -159,26 +160,27 @@ export default class Collection extends ShellApiWithMongoClass {
    */
   async aggregate(
     pipeline: Document[],
-    options: Document & { explain?: never }
-  ): Promise<AggregationCursor>;
+    options: AggregateOptions & { explain: ExplainVerbosityLike }
+  ): Promise<Document>;
   async aggregate(
     pipeline: Document[],
-    options: Document & { explain: ExplainVerbosityLike }
-  ): Promise<Document>;
+    options?: AggregateOptions
+  ): Promise<AggregationCursor>;
   async aggregate(...stages: Document[]): Promise<AggregationCursor>;
   @returnsPromise
   @returnType('AggregationCursor')
   @apiVersions([1])
-  async aggregate(...args: any[]): Promise<any> {
-    let options;
-    let pipeline;
+  async aggregate(...args: unknown[]): Promise<AggregationCursor | Document> {
+    let options: AggregateOptions;
+    let pipeline: Document[];
     if (args.length === 0 || Array.isArray(args[0])) {
       options = args[1] || {};
-      pipeline = args[0] || [];
+      pipeline = (args[0] as Document[]) || [];
     } else {
       options = {};
-      pipeline = args || [];
+      pipeline = (args as Document[]) || [];
     }
+
     if ('background' in options) {
       await this._instanceState.printWarning(
         aggregateBackgroundOptionNotSupportedHelp
@@ -1335,15 +1337,6 @@ export default class Collection extends ShellApiWithMongoClass {
         return all.sort((a, b) => b.nIndexesWas - a.nIndexesWas)[0];
       }
 
-      if (error?.codeName === 'IndexNotFound') {
-        return {
-          ok: error.ok,
-          errmsg: error.errmsg,
-          code: error.code,
-          codeName: error.codeName,
-        };
-      }
-
       throw error;
     }
   }
@@ -2135,12 +2128,14 @@ export default class Collection extends ShellApiWithMongoClass {
   @returnsPromise
   @topologies([Topologies.Sharded])
   @apiVersions([])
-  async getShardDistribution(): Promise<CommandResult> {
+  async getShardDistribution(): Promise<
+    CommandResult<GetShardDistributionResult>
+  > {
     this._emitCollectionApiCall('getShardDistribution', {});
 
     await getConfigDB(this._database); // Warns if not connected to mongos
 
-    const result = {} as Document;
+    const result = {} as GetShardDistributionResult;
     const config = this._mongo.getDB('config');
 
     const collStats = await (
@@ -2179,16 +2174,23 @@ export default class Collection extends ShellApiWithMongoClass {
               .findOne({ _id: extractedShardStats.shard }),
             config.getCollection('chunks').countDocuments(countChunksQuery),
           ]);
+
+          // Since 6.0, there can be orphan documents indicated by numOrphanDocs.
+          // These orphan documents need to be accounted for in the size calculation.
+          const orphanDocumentsSize =
+            (extractedShardStats.storageStats.numOrphanDocs ?? 0) *
+            (extractedShardStats.storageStats.avgObjSize ?? 0);
+          const ownedSize =
+            extractedShardStats.storageStats.size - orphanDocumentsSize;
+
           const shardStats = {
             shardId: shard,
             host: host !== null ? host.host : null,
-            size: extractedShardStats.storageStats.size,
+            size: ownedSize,
             count: extractedShardStats.storageStats.count,
             numChunks: numChunks,
             avgObjSize: extractedShardStats.storageStats.avgObjSize,
           };
-
-          const key = `Shard ${shardStats.shardId} at ${shardStats.host}`;
 
           // In sharded timeseries collections we do not have a count
           // so we intentionally pass NaN as a result to the client.
@@ -2203,7 +2205,7 @@ export default class Collection extends ShellApiWithMongoClass {
               ? 0
               : Math.floor(shardStatsCount / shardStats.numChunks);
 
-          result[key] = {
+          result[`Shard ${shardStats.shardId} at ${shardStats.host}`] = {
             data: dataFormat(coerceToJSNumber(shardStats.size)),
             docs: shardStatsCount,
             chunks: shardStats.numChunks,
@@ -2211,7 +2213,7 @@ export default class Collection extends ShellApiWithMongoClass {
             'estimated docs per chunk': estimatedDocsPerChunk,
           };
 
-          totals.size += coerceToJSNumber(shardStats.size);
+          totals.size += coerceToJSNumber(ownedSize);
           totals.count += coerceToJSNumber(shardStatsCount);
           totals.numChunks += coerceToJSNumber(shardStats.numChunks);
 
@@ -2224,7 +2226,7 @@ export default class Collection extends ShellApiWithMongoClass {
       data: dataFormat(totals.size),
       docs: totals.count,
       chunks: totals.numChunks,
-    } as Document;
+    } as GetShardDistributionResult['Totals'];
 
     for (const shardStats of conciseShardsStats) {
       const estDataPercent =
@@ -2243,7 +2245,8 @@ export default class Collection extends ShellApiWithMongoClass {
       ];
     }
     result.Totals = totalValue;
-    return new CommandResult('StatsResult', result);
+
+    return new CommandResult<GetShardDistributionResult>('StatsResult', result);
   }
 
   @serverVersions(['3.1.0', ServerVersions.latest])
@@ -2467,3 +2470,24 @@ export default class Collection extends ShellApiWithMongoClass {
     );
   }
 }
+
+export type GetShardDistributionResult = {
+  Totals: {
+    data: string;
+    docs: number;
+    chunks: number;
+  } & {
+    [individualShardDistribution: `Shard ${string}`]: [
+      `${number} % data`,
+      `${number} % docs in cluster`,
+      `${string} avg obj size on shard`
+    ];
+  };
+  [individualShardResult: `Shard ${string} at ${string}`]: {
+    data: string;
+    docs: number;
+    chunks: number;
+    'estimated data per chunk': string;
+    'estimated docs per chunk': number;
+  };
+};

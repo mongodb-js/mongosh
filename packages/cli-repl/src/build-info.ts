@@ -1,5 +1,5 @@
 import os from 'os';
-import { CliServiceProvider } from '@mongosh/service-provider-server';
+import { NodeDriverServiceProvider } from '@mongosh/service-provider-node-driver';
 
 export interface BuildInfo {
   version: string;
@@ -16,7 +16,7 @@ export interface BuildInfo {
   sharedOpenssl: boolean;
   segmentApiKey?: string;
   runtimeGlibcVersion: string;
-  deps: ReturnType<typeof CliServiceProvider.getVersionInformation>;
+  deps: ReturnType<typeof NodeDriverServiceProvider.getVersionInformation>;
 }
 
 function getSystemArch(): (typeof process)['arch'] {
@@ -79,7 +79,7 @@ export async function buildInfo({
   withSegmentApiKey?: boolean;
 } = {}): Promise<BuildInfo> {
   const dependencyVersionInfo: BuildInfo['deps'] = {
-    ...CliServiceProvider.getVersionInformation(),
+    ...NodeDriverServiceProvider.getVersionInformation(),
   };
 
   const buildInfo = { ...baseBuildInfo(), deps: { ...dependencyVersionInfo } };

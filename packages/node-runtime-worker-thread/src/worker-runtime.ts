@@ -9,7 +9,7 @@ import type {
 } from '@mongosh/browser-runtime-core';
 import { ElectronRuntime } from '@mongosh/browser-runtime-electron';
 import type { ServiceProvider } from '@mongosh/service-provider-core';
-import { CompassServiceProvider } from '@mongosh/service-provider-server';
+import { CompassServiceProvider } from '@mongosh/service-provider-node-driver';
 import { exposeAll, createCaller } from './rpc';
 import {
   serializeEvaluationResult,

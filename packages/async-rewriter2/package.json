@@ -6,7 +6,7 @@
   "scripts": {
     "pretest": "npm run compile",
     "benchmark": "node -r ts-node/register benchmark/index.ts",
-    "test": "mocha --experimental-vm-modules -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
+    "test": "mocha --experimental-vm-modules -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\" --reporter \"../../configs/mocha-config-mongosh/reporter.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
@@ -51,7 +51,7 @@
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@types/babel__core": "^7.20.1",
-    "depcheck": "^1.4.3",
+    "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
     "prettier": "^2.8.8"
   }

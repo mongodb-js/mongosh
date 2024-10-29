@@ -7,7 +7,7 @@ import { redactURICredentials } from '@mongosh/history';
 import i18n from '@mongosh/i18n';
 import type { AutoEncryptionOptions } from '@mongosh/service-provider-core';
 import { bson } from '@mongosh/service-provider-core';
-import { CliServiceProvider } from '@mongosh/service-provider-server';
+import { NodeDriverServiceProvider } from '@mongosh/service-provider-node-driver';
 import type { CliOptions, DevtoolsConnectOptions } from '@mongosh/arg-parser';
 import { SnippetManager } from '@mongosh/snippet-manager';
 import { Editor } from '@mongosh/editor';
@@ -288,6 +288,14 @@ export class CliRepl implements MongoshIOProvider {
       if (this.isPasswordMissingURI(cs)) {
         cs.password = encodeURIComponent(await this.requirePassword());
       }
+
+      if (await this.isTlsKeyFilePasswordMissingURI(searchParams)) {
+        const keyFilePassword = encodeURIComponent(
+          await this.requirePassword('Enter TLS key file password')
+        );
+        searchParams.set('tlsCertificateKeyFilePassword', keyFilePassword);
+      }
+
       this.ensurePasswordFieldIsPresentInAuth(driverOptions);
       driverUri = cs.toString();
     }
@@ -821,7 +829,7 @@ export class CliRepl implements MongoshIOProvider {
   async connect(
     driverUri: string,
     driverOptions: DevtoolsConnectOptions
-  ): Promise<CliServiceProvider> {
+  ): Promise<NodeDriverServiceProvider> {
     const { quiet } = CliRepl.getFileAndEvalInfo(this.cliOptions);
     if (!this.cliOptions.nodb && !quiet) {
       this.output.write(
@@ -831,7 +839,7 @@ export class CliRepl implements MongoshIOProvider {
           '\n'
       );
     }
-    return await CliServiceProvider.connect(
+    return await NodeDriverServiceProvider.connect(
       driverUri,
       driverOptions,
       this.cliOptions,
@@ -1008,6 +1016,28 @@ export class CliRepl implements MongoshIOProvider {
     );
   }
 
+  async isTlsKeyFilePasswordMissingURI(
+    searchParams: ReturnType<
+      typeof ConnectionString.prototype.typedSearchParams<DevtoolsConnectOptions>
+    >
+  ): Promise<boolean> {
+    const tlsCertificateKeyFile = searchParams.get('tlsCertificateKeyFile');
+    const tlsCertificateKeyFilePassword = searchParams.get(
+      'tlsCertificateKeyFilePassword'
+    );
+
+    if (tlsCertificateKeyFile && !tlsCertificateKeyFilePassword) {
+      const { contents } = await this.readFileUTF8(tlsCertificateKeyFile);
+
+      // Matches standard encrypted key formats for PKCS#12/PKCS#8 and PKCS#1
+      return (
+        contents.search(/(ENCRYPTED PRIVATE KEY|Proc-Type: 4,ENCRYPTED)/) !== -1
+      );
+    }
+
+    return false;
+  }
+
   /**
    * Sets the auth.password field to undefined in the driverOptions if the auth
    * object is present with a truthy username. This is required by the driver, e.g.
@@ -1028,13 +1058,13 @@ export class CliRepl implements MongoshIOProvider {
   /**
    * Require the user to enter a password.
    */
-  async requirePassword(): Promise<string> {
+  async requirePassword(passwordPrompt = 'Enter password'): Promise<string> {
     const passwordPromise = askpassword({
       input: this.input,
       output: this.promptOutput,
       replacementCharacter: '*',
     });
-    this.promptOutput.write('Enter password: ');
+    this.promptOutput.write(`${passwordPrompt}: `);
     try {
       try {
         return (await passwordPromise).toString();

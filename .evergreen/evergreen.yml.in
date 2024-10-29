@@ -130,6 +130,9 @@ post:
       visibility: signed
       content_type: application/x-gzip
       optional: true
+  - command: attach.xunit_results
+    params:
+      file: src/.logs/*.xml
 
 
 # Functions are any command that can be run.
@@ -264,6 +267,7 @@ functions:
           MONGOSH_RUN_ONLY_IN_PACKAGE: ${mongosh_run_only_in_package}
           AWS_AUTH_IAM_ACCESS_KEY_ID: ${devtools_ci_aws_key}
           AWS_AUTH_IAM_SECRET_ACCESS_KEY: ${devtools_ci_aws_secret}
+          TASK_NAME: ${task_name}
     - command: s3.put
       params:
         aws_key: ${aws_key}
@@ -517,7 +521,7 @@ functions:
           AWS_AUTH_IAM_ACCESS_KEY_ID: ${devtools_ci_aws_key}
           AWS_AUTH_IAM_SECRET_ACCESS_KEY: ${devtools_ci_aws_secret}
           DISABLE_OPENSSL_SHARED_CONFIG_FOR_BUNDLED_OPENSSL: ${disable_openssl_shared_config_for_bundled_openssl}
-          E2E_TASK_NAME: ${task_name}
+          TASK_NAME: ${task_name}
 
   ###
   # PACKAGING AND UPLOADING
@@ -1124,6 +1128,7 @@ tasks:
           mongosh_skip_node_version_check: "<% out(skipNodeVersionCheck) %>"
           mongosh_test_id: "<% out(id) %>"
           mongosh_run_only_in_package: "<% out(packageName) %>"
+          task_name: ${task_name}
   <% } %>
 
   ###
@@ -1141,6 +1146,7 @@ tasks:
       - func: test_vscode
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          task_name: ${task_name}
   - name: test_connectivity
     tags: ["extra-integration-test"]
     depends_on:
@@ -1154,6 +1160,7 @@ tasks:
       - func: test_connectivity
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          task_name: ${task_name}
   - name: test_apistrict
     tags: ["extra-integration-test"]
     depends_on:
@@ -1169,6 +1176,7 @@ tasks:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           mongosh_server_test_version: "latest-alpha-enterprise"
           mongosh_test_force_api_strict: "1"
+          task_name: ${task_name}
   - name: compile_artifact
     tags: ["compile-artifact"]
     depends_on:
@@ -1273,6 +1281,7 @@ tasks:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.<% out(dockerFile) %>"
+          task_name: ${task_name}
   <% } } %>
 
   ###
@@ -1406,6 +1415,7 @@ tasks:
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           dockerfile: <% out(dockerfile) %>
+          task_name: ${task_name}
     <% }; break;
     // We don't have docker for platforms other than x64, so for those we just
     // extract the archives locally.

@@ -400,6 +400,29 @@ describe('Database', function () {
         );
       });
 
+      it('supports a single aggregation stage', async function () {
+        await database.aggregate({ $piplelineStage: {} });
+
+        expect(serviceProvider.aggregateDb).to.have.been.calledWith(
+          database._name,
+          [{ $piplelineStage: {} }],
+          {}
+        );
+      });
+
+      it('supports passing args as aggregation stages', async function () {
+        await database.aggregate(
+          { $piplelineStage: {} },
+          { $piplelineStage2: {} }
+        );
+
+        expect(serviceProvider.aggregateDb).to.have.been.calledWith(
+          database._name,
+          [{ $piplelineStage: {} }, { $piplelineStage2: {} }],
+          {}
+        );
+      });
+
       it('calls serviceProvider.aggregateDb with explicit batchSize', async function () {
         await database.aggregate([{ $piplelineStage: {} }], {
           options: true,
@@ -1796,10 +1819,11 @@ describe('Database', function () {
         },
       });
 
-      const READ_PREFERENCE = {
+      const AGGREGATE_OPTIONS = {
         $readPreference: {
           mode: 'primaryPreferred',
         },
+        bsonRegExp: true,
       };
 
       beforeEach(function () {
@@ -1824,7 +1848,7 @@ describe('Database', function () {
               })
             );
             expect(serviceProvider.aggregateDb.firstCall.args[2]).to.deep.equal(
-              READ_PREFERENCE
+              AGGREGATE_OPTIONS
             );
           }
         });
@@ -1846,7 +1870,7 @@ describe('Database', function () {
             })
           );
           expect(serviceProvider.aggregateDb.firstCall.args[2]).to.deep.equal(
-            READ_PREFERENCE
+            AGGREGATE_OPTIONS
           );
         });
       });
@@ -1868,7 +1892,7 @@ describe('Database', function () {
           );
           expect(matchStage).to.deep.equals({ $match: {} });
           expect(serviceProvider.aggregateDb.firstCall.args[2]).to.deep.equal(
-            READ_PREFERENCE
+            AGGREGATE_OPTIONS
           );
         });
       });
@@ -1890,7 +1914,7 @@ describe('Database', function () {
           );
           expect(matchStage).to.deep.equals({ $match: {} });
           expect(serviceProvider.aggregateDb.firstCall.args[2]).to.deep.equal(
-            READ_PREFERENCE
+            AGGREGATE_OPTIONS
           );
         });
       });
@@ -1914,7 +1938,7 @@ describe('Database', function () {
             );
             expect(matchStage).to.deep.equals({ $match: {} });
             expect(serviceProvider.aggregateDb.firstCall.args[2]).to.deep.equal(
-              READ_PREFERENCE
+              AGGREGATE_OPTIONS
             );
           });
         }
@@ -1945,7 +1969,7 @@ describe('Database', function () {
               $match: { waitingForLock: true },
             });
             expect(serviceProvider.aggregateDb.firstCall.args[2]).to.deep.equal(
-              READ_PREFERENCE
+              AGGREGATE_OPTIONS
             );
           });
 
@@ -2880,7 +2904,9 @@ describe('Database', function () {
       it('runs a $sql aggregation', async function () {
         const serviceProviderCursor = stubInterface<ServiceProviderAggCursor>();
         serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
-        await database.sql('SELECT * FROM somecollection;', { options: true });
+        await database.sql('SELECT * FROM somecollection;', {
+          serializeFunctions: true,
+        });
         expect(serviceProvider.aggregateDb).to.have.been.calledWith(
           database._name,
           [
@@ -2893,7 +2919,7 @@ describe('Database', function () {
               },
             },
           ],
-          { options: true }
+          { serializeFunctions: true }
         );
       });
 
