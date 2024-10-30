@@ -1863,7 +1863,7 @@ buildvariants:
     tasks:
       - name: e2e_tests_linux_arm64
       - name: e2e_tests_linux_arm64_openssl3
-  - name: e2e_rhel81_ppc64le
+  - name: e2e_rhel8_ppc64le
     display_name: "RHEL 8 PPC (E2E Tests)"
     run_on: rhel8-power-small
     tasks:
@@ -2015,7 +2015,7 @@ buildvariants:
     run_on: rhel8-zseries-small
     tasks:
       - name: pkg_test_rpmextract_rpm_s390x
-  - name: pkg_smoke_tests_rhel81_ppc64le
+  - name: pkg_smoke_tests_rhel8_ppc64le
     display_name: "package smoke tests (RHEL 8 ppc64le)"
     run_on: rhel8-power-small
     tasks:
