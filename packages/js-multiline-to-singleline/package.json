@@ -36,13 +36,13 @@
   },
   "dependencies": {
     "@babel/core": "^7.16.12",
-    "@babel/types": "^7.22.5"
+    "@babel/types": "^7.21.2"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "@types/babel__core": "^7.20.1",
+    "@types/babel__core": "^7.1.18",
     "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
     "prettier": "^2.8.8"
