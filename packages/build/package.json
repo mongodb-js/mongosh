@@ -71,10 +71,10 @@
     "download": "^8.0.0",
     "es-aggregate-error": "^1.0.9",
     "nock": "^13.0.11",
-    "node-fetch": "2.6.12",
+    "node-fetch": "^3.3.2",
     "pkg-up": "^3.1.0",
     "rimraf": "^3.0.2",
-    "semver": "^7.5.3",
+    "semver": "^7.5.4",
     "tar": "^6.1.15",
     "tar-fs": "^2.1.0",
     "tmp-promise": "^3.0.2"
