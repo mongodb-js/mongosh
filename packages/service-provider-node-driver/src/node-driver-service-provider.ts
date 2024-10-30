@@ -439,7 +439,7 @@ export class NodeDriverServiceProvider
   _getHostnameForConnection(
     topology?: TopologyDescription
   ): string | undefined {
-    return topology?.servers?.values().next().value.hostAddress.host;
+    return topology?.servers?.values().next().value?.hostAddress.host;
   }
 
   async getConnectionInfo(): Promise<ConnectionInfo> {
