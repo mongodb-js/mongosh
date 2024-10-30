@@ -1683,8 +1683,8 @@ buildvariants:
     tasks:
       - name: compile_artifact
   - name: linux_s390x_build
-    display_name: "RHEL 7.2 s390x (build)"
-    run_on: rhel72-zseries-large
+    display_name: "RHEL 7 s390x (build)"
+    run_on: rhel7-zseries-large
     expansions:
       executable_os_id: linux-s390x
     tasks:
@@ -1868,14 +1868,14 @@ buildvariants:
     run_on: rhel8-power-small
     tasks:
       - name: e2e_tests_linux_ppc64le
-  - name: e2e_rhel72_s390x
-    display_name: "RHEL 7.2 s390x (E2E Tests)"
-    run_on: rhel72-zseries-large
+  - name: e2e_rhel7_s390x
+    display_name: "RHEL 7 s390x (E2E Tests)"
+    run_on: rhel7-zseries-large
     tasks:
       - name: e2e_tests_linux_s390x_60x
-  - name: e2e_rhel83_s390x
-    display_name: "RHEL 8.3 s390x (E2E Tests)"
-    run_on: rhel83-zseries-small
+  - name: e2e_rhel8_s390x
+    display_name: "RHEL 8 s390x (E2E Tests)"
+    run_on: rhel8-zseries-small
     tasks:
       - name: e2e_tests_linux_s390x
   - name: e2e_macos14_x64
@@ -2003,16 +2003,16 @@ buildvariants:
     run_on: macos-14-arm64
     tasks:
       - name: pkg_test_macos_darwin_arm64
-  - name: pkg_smoke_tests_rhel72_s390x
-    display_name: "package smoke tests (RHEL 7.2 s390x)"
-    run_on: rhel72-zseries-small
+  - name: pkg_smoke_tests_rhel7_s390x
+    display_name: "package smoke tests (RHEL 7 s390x)"
+    run_on: rhel7-zseries-small
     expansions:
       no_automatic_encryption_support: 1
     tasks:
       - name: pkg_test_rpmextract_rpm_s390x
-  - name: pkg_smoke_tests_rhel83_s390x
-    display_name: "package smoke tests (RHEL 8.3 s390x)"
-    run_on: rhel83-zseries-small
+  - name: pkg_smoke_tests_rhel8_s390x
+    display_name: "package smoke tests (RHEL 8 s390x)"
+    run_on: rhel8-zseries-small
     tasks:
       - name: pkg_test_rpmextract_rpm_s390x
   - name: pkg_smoke_tests_rhel81_ppc64le
