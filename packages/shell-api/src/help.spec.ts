@@ -7,7 +7,7 @@ describe('Help', function () {
   let translate: (str: string) => string;
 
   beforeEach(function () {
-    translate = sinon.fake((x) => `translated: ${x}`);
+    translate = sinon.fake((x: string) => `translated: ${x}`);
   });
 
   describe('#toShellResult', function () {
