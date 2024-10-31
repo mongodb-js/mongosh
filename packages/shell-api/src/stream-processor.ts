@@ -64,24 +64,21 @@ export default class StreamProcessor extends ShellApiWithMongoClass {
    *    sp.name.modify(newPipeline)
    *  Keep the same pipeline, change other options:
    *   sp.name.modify({resumeFromCheckpoint: false})
+   *  Change the pipeline and set additional options:
+   *    sp.name.modify(newPipeline, {resumeFromCheckpoint: false})
    */
   async modify(options: Document): Promise<Document>;
   async modify(pipeline: Document[], options?: Document): Promise<Document>;
 
-  /**
-   * modify is used to modify a stream processor definition, like below:
-   *  Change the pipeline and set additional options:
-   *    sp.name.modify(newPipeline, {resumeFromCheckpoint: false})
-   */
   @returnsPromise
   async modify(
     pipelineOrOptions: Document[] | Document,
-    options: Document = {}
+    options?: Document
   ): Promise<Document> {
     if (Array.isArray(pipelineOrOptions)) {
       options = { ...options, pipeline: pipelineOrOptions };
     } else if (typeof pipelineOrOptions === 'object') {
-      if (Object.keys(options).length !== 0) {
+      if (options) {
         throw new MongoshInvalidInputError(
           'If the first argument to modify is an object, the second argument should not be specified.',
           CommonErrors.InvalidArgument
