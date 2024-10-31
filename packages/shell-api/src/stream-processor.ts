@@ -65,7 +65,8 @@ export default class StreamProcessor extends ShellApiWithMongoClass {
    *  Keep the same pipeline, change other options:
    *   sp.name.modify({resumeFromCheckpoint: false})
    */
-  async modify(pipelineOrOptions: Document[] | Document): Promise<Document>;
+  async modify(options: Document): Promise<Document>;
+  async modify(pipeline: Document[], options?: Document): Promise<Document>;
 
   /**
    * modify is used to modify a stream processor definition, like below:
