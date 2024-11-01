@@ -5,6 +5,7 @@ import type Mongo from './mongo';
 import Database from './database';
 import { Streams } from './streams';
 import { InterruptFlag, MongoshInterruptedError } from './interruptor';
+import type { MongoshInvalidInputError } from '@mongosh/errors';
 
 describe('Streams', function () {
   let mongo: Mongo;
@@ -157,6 +158,114 @@ describe('Streams', function () {
         runCmdStub.calledWithExactly(
           'admin',
           { dropStreamProcessor: spmName },
+          {}
+        )
+      ).to.be.true;
+    });
+  });
+
+  describe('modify', function () {
+    it('throws with invalid parameters', async function () {
+      // Create the stream processor.
+      const runCmdStub = sinon
+        .stub(mongo._serviceProvider, 'runCommand')
+        .resolves({ ok: 1 });
+      const name = 'p1';
+      const pipeline = [{ $match: { foo: 'bar' } }];
+      const processor = await streams.createStreamProcessor(name, pipeline);
+      expect(processor).to.eql(streams.getProcessor(name));
+      const cmd = { createStreamProcessor: name, pipeline };
+      expect(runCmdStub.calledOnceWithExactly('admin', cmd, {})).to.be.true;
+
+      // No arguments to modify.
+      const caught = await processor
+        .modify()
+        .catch((e: MongoshInvalidInputError) => e);
+      expect(caught.message).to.contain(
+        '[COMMON-10001] The first argument to modify must be an array or object.'
+      );
+
+      // A single numeric argument to modify.
+      const caught2 = await processor
+        .modify(1)
+        .catch((e: MongoshInvalidInputError) => e);
+      expect(caught2.message).to.contain(
+        '[COMMON-10001] The first argument to modify must be an array or object.'
+      );
+
+      // Two object arguments to modify.
+      const caught3 = await processor
+        .modify(
+          { resumeFromCheckpoint: false },
+          { dlq: { connectionName: 'foo' } }
+        )
+        .catch((e: MongoshInvalidInputError) => e);
+      expect(caught3.message).to.contain(
+        '[COMMON-10001] If the first argument to modify is an object, the second argument should not be specified.'
+      );
+    });
+
+    it('works with pipeline and options arguments', async function () {
+      const runCmdStub = sinon
+        .stub(mongo._serviceProvider, 'runCommand')
+        .resolves({ ok: 1 });
+
+      // Create the stream processor.
+      const name = 'p1';
+      const pipeline = [{ $match: { foo: 'bar' } }];
+      const processor = await streams.createStreamProcessor(name, pipeline);
+      expect(processor).to.eql(streams.getProcessor(name));
+      const cmd = { createStreamProcessor: name, pipeline };
+      expect(runCmdStub.calledOnceWithExactly('admin', cmd, {})).to.be.true;
+
+      // Start the stream processor.
+      await processor.start();
+      expect(
+        runCmdStub.calledWithExactly(
+          'admin',
+          { startStreamProcessor: name },
+          {}
+        )
+      ).to.be.true;
+
+      // Stop the stream processor.
+      await processor.stop();
+      expect(
+        runCmdStub.calledWithExactly('admin', { stopStreamProcessor: name }, {})
+      ).to.be.true;
+
+      // Modify the stream processor.
+      const pipeline2 = [{ $match: { foo: 'baz' } }];
+      processor.modify(pipeline2);
+      expect(
+        runCmdStub.calledWithExactly(
+          'admin',
+          { modifyStreamProcessor: name, pipeline: pipeline2 },
+          {}
+        )
+      ).to.be.true;
+
+      // Modify the stream processor with extra options.
+      const pipeline3 = [{ $match: { foo: 'bat' } }];
+      processor.modify(pipeline3, { resumeFromCheckpoint: false });
+      expect(
+        runCmdStub.calledWithExactly(
+          'admin',
+          {
+            modifyStreamProcessor: name,
+            pipeline: pipeline3,
+            resumeFromCheckpoint: false,
+          },
+          {}
+        )
+      ).to.be.true;
+
+      // Modify the stream processor without changing pipeline.
+      processor.modify({ resumeFromCheckpoint: false });
+      expect(
+        runCmdStub.calledWithExactly(
+          'admin',
+          { modifyStreamProcessor: name, resumeFromCheckpoint: false },
           {}
         )
       ).to.be.true;
