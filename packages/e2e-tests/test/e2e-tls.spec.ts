@@ -347,9 +347,9 @@ describe('e2e TLS', function () {
       });
 
       it('works with matching CA (system certs)', async function () {
-        //if (process.platform !== 'linux') {
-        //  return this.skip();
-        //}
+        if (process.platform !== 'linux') {
+          return this.skip();
+        }
         await fs.mkdir(path.join(tmpdir.path, 'certs'), { recursive: true });
         await fs.copyFile(
           PARTIAL_TRUST_CHAIN_CA,
