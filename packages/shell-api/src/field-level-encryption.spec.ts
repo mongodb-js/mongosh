@@ -778,7 +778,7 @@ describe('Field Level Encryption', function () {
       sinon.replace(
         require('tls'),
         'connect',
-        sinon.fake((options, onConnect) => {
+        sinon.fake((options: any, onConnect: Function) => {
           if (options.host === 'kmip.example.com') {
             // KMIP is not http(s)-based, we don't implement strong fakes for it
             // and instead only verify that a connection has occurred.
