@@ -1,4 +1,4 @@
-import { assert, expect } from 'chai';
+import { expect } from 'chai';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
@@ -20,6 +20,10 @@ const INVALID_CLIENT_CERT = getCertPath('invalid-client.bundle.pem');
 const SERVER_KEY = getCertPath('server.bundle.pem');
 const SERVER_INVALIDHOST_KEY = getCertPath('server-invalidhost.bundle.pem');
 const CRL_INCLUDING_SERVER = getCertPath('ca-server.crl');
+const PARTIAL_TRUST_CHAIN_CA = getCertPath('partial-trust-chain/ca.pem');
+const PARTIAL_TRUST_CHAIN_KEY_AND_CERT = getCertPath(
+  'partial-trust-chain/key-and-cert.pem'
+);
 
 /**
  * @securityTest TLS End-to-End Tests
@@ -35,13 +39,19 @@ describe('e2e TLS', function () {
   const tmpdir = useTmpdir();
 
   before(async function () {
-    assert((await fs.stat(CA_CERT)).isFile());
-    assert((await fs.stat(NON_CA_CERT)).isFile());
-    assert((await fs.stat(CLIENT_CERT)).isFile());
-    assert((await fs.stat(CLIENT_CERT_PFX)).isFile());
-    assert((await fs.stat(INVALID_CLIENT_CERT)).isFile());
-    assert((await fs.stat(SERVER_KEY)).isFile());
-    assert((await fs.stat(CRL_INCLUDING_SERVER)).isFile());
+    for (const file of [
+      CA_CERT,
+      NON_CA_CERT,
+      CLIENT_CERT,
+      CLIENT_CERT_PFX,
+      INVALID_CLIENT_CERT,
+      SERVER_KEY,
+      CRL_INCLUDING_SERVER,
+      PARTIAL_TRUST_CHAIN_CA,
+      PARTIAL_TRUST_CHAIN_KEY_AND_CERT,
+    ]) {
+      expect((await fs.stat(file)).isFile()).to.be.true;
+    }
 
     const homeInfo = setTemporaryHomeDirectory();
     homedir = homeInfo.homedir;
@@ -300,6 +310,68 @@ describe('e2e TLS', function () {
         const logPath = path.join(logBasePath, `${shell.logId}_log`);
         const logContents = await readReplLogfile(logPath);
         expect(logContents.find((line) => line.id === 1_000_000_049)).to.exist;
+      });
+    }
+  );
+
+  // Certificate fixtures and general concept mirrors
+  // https://github.com/nodejs/node/blob/1b3420274ea8d8cca339a1f10301d2e80f577c4c/test/parallel/test-tls-client-allow-partial-trust-chain.js
+  // This basically tests that we pass allowPartialTrustChain: true in the TLS options
+  context(
+    'connecting without client cert to server with only partial trust chain',
+    function () {
+      const server = startTestServer('e2e-tls-partial-trust-chain', {
+        args: [
+          '--tlsMode',
+          'requireTLS',
+          '--tlsCertificateKeyFile',
+          PARTIAL_TRUST_CHAIN_KEY_AND_CERT,
+          '--tlsAllowConnectionsWithoutCertificates',
+          '--tlsCAFile',
+          PARTIAL_TRUST_CHAIN_CA,
+        ],
+      });
+
+      it('works with matching CA (connection string)', async function () {
+        const shell = this.startTestShell({
+          args: [
+            await connectionStringWithLocalhost(server, {
+              tls: 'true',
+              tlsCAFile: PARTIAL_TRUST_CHAIN_KEY_AND_CERT,
+              tlsAllowInvalidHostnames: 'true',
+            }),
+          ],
+        });
+        const result = await shell.waitForPromptOrExit();
+        expect(result.state).to.equal('prompt');
+      });
+
+      it('works with matching CA (system certs)', async function () {
+        //if (process.platform !== 'linux') {
+        //  return this.skip();
+        //}
+        await fs.mkdir(path.join(tmpdir.path, 'certs'), { recursive: true });
+        await fs.copyFile(
+          PARTIAL_TRUST_CHAIN_CA,
+          path.join(tmpdir.path, 'certs', 'somefilename.crt')
+        );
+
+        const shell = this.startTestShell({
+          args: [
+            await connectionStringWithLocalhost(server, {
+              serverSelectionTimeoutMS: '1500',
+              tlsAllowInvalidHostnames: 'true',
+            }),
+            '--tls',
+          ],
+          env: {
+            ...env,
+            SSL_CERT_FILE: path.join(tmpdir.path, 'certs', 'somefilename.crt'),
+          },
+        });
+
+        const prompt = await shell.waitForPromptOrExit();
+        expect(prompt.state).to.equal('prompt');
       });
     }
   );
