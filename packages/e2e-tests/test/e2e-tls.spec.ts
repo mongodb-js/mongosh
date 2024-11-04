@@ -320,6 +320,11 @@ describe('e2e TLS', function () {
   context(
     'connecting without client cert to server with only partial trust chain',
     function () {
+      before(function () {
+        // TODO(MONGOSH-1898): Drop Node.js 16 entirely
+        if (process.version.startsWith('v16.')) return this.skip();
+      });
+
       const server = startTestServer('e2e-tls-partial-trust-chain', {
         args: [
           '--tlsMode',
