@@ -1112,7 +1112,7 @@ tasks:
   ###
   <% for (const { id, nShort, nVersion, mShort, mVersion, skipNodeVersionCheck, packageName } of ALL_UNIT_TESTS) { %>
   - name: test_<% out(id) %>
-    tags: <% out(["unit-test", ...(mShort === 'latest' ? ["mlatest"] : [])]) %>
+    tags: <% out(["assigned_to_jira_team_mongosh_mongosh", "unit-test", ...(mShort === 'latest' ? ["mlatest"] : [])]) %>
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -1148,7 +1148,7 @@ tasks:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           task_name: ${task_name}
   - name: test_connectivity
-    tags: ["extra-integration-test"]
+    tags: ["extra-integration-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -1162,7 +1162,7 @@ tasks:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           task_name: ${task_name}
   - name: test_apistrict
-    tags: ["extra-integration-test"]
+    tags: ["extra-integration-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
       - name: compile_ts
         variant: linux_unit

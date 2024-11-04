@@ -7276,7 +7276,7 @@ tasks:
   # E.g. test_m60xc_n16 stands for mongod 6.0.x, community edition, Node.js 16
   ###
   - name: test_n20_arg_parser
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7294,7 +7294,7 @@ tasks:
           mongosh_run_only_in_package: "arg-parser"
           task_name: ${task_name}
   - name: test_n16_arg_parser
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7312,7 +7312,7 @@ tasks:
           mongosh_run_only_in_package: "arg-parser"
           task_name: ${task_name}
   - name: test_n20_async_rewriter2
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7330,7 +7330,7 @@ tasks:
           mongosh_run_only_in_package: "async-rewriter2"
           task_name: ${task_name}
   - name: test_n16_async_rewriter2
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7348,7 +7348,7 @@ tasks:
           mongosh_run_only_in_package: "async-rewriter2"
           task_name: ${task_name}
   - name: test_n20_autocomplete
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7366,7 +7366,7 @@ tasks:
           mongosh_run_only_in_package: "autocomplete"
           task_name: ${task_name}
   - name: test_n16_autocomplete
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7384,7 +7384,7 @@ tasks:
           mongosh_run_only_in_package: "autocomplete"
           task_name: ${task_name}
   - name: test_n20_browser_repl
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7402,7 +7402,7 @@ tasks:
           mongosh_run_only_in_package: "browser-repl"
           task_name: ${task_name}
   - name: test_n16_browser_repl
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7420,7 +7420,7 @@ tasks:
           mongosh_run_only_in_package: "browser-repl"
           task_name: ${task_name}
   - name: test_n20_browser_runtime_core
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7438,7 +7438,7 @@ tasks:
           mongosh_run_only_in_package: "browser-runtime-core"
           task_name: ${task_name}
   - name: test_n16_browser_runtime_core
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7456,7 +7456,7 @@ tasks:
           mongosh_run_only_in_package: "browser-runtime-core"
           task_name: ${task_name}
   - name: test_n20_browser_runtime_electron
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7474,7 +7474,7 @@ tasks:
           mongosh_run_only_in_package: "browser-runtime-electron"
           task_name: ${task_name}
   - name: test_n16_browser_runtime_electron
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7492,7 +7492,7 @@ tasks:
           mongosh_run_only_in_package: "browser-runtime-electron"
           task_name: ${task_name}
   - name: test_n20_build
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7510,7 +7510,7 @@ tasks:
           mongosh_run_only_in_package: "build"
           task_name: ${task_name}
   - name: test_n16_build
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7528,7 +7528,7 @@ tasks:
           mongosh_run_only_in_package: "build"
           task_name: ${task_name}
   - name: test_m42xc_n20_cli_repl
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7546,7 +7546,7 @@ tasks:
           mongosh_run_only_in_package: "cli-repl"
           task_name: ${task_name}
   - name: test_m42xe_n20_cli_repl
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7564,7 +7564,7 @@ tasks:
           mongosh_run_only_in_package: "cli-repl"
           task_name: ${task_name}
   - name: test_m44xc_n20_cli_repl
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7582,7 +7582,7 @@ tasks:
           mongosh_run_only_in_package: "cli-repl"
           task_name: ${task_name}
   - name: test_m44xe_n20_cli_repl
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7600,7 +7600,7 @@ tasks:
           mongosh_run_only_in_package: "cli-repl"
           task_name: ${task_name}
   - name: test_m50xc_n20_cli_repl
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7618,7 +7618,7 @@ tasks:
           mongosh_run_only_in_package: "cli-repl"
           task_name: ${task_name}
   - name: test_m50xe_n20_cli_repl
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7636,7 +7636,7 @@ tasks:
           mongosh_run_only_in_package: "cli-repl"
           task_name: ${task_name}
   - name: test_m60xc_n20_cli_repl
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7654,7 +7654,7 @@ tasks:
           mongosh_run_only_in_package: "cli-repl"
           task_name: ${task_name}
   - name: test_m60xe_n20_cli_repl
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7672,7 +7672,7 @@ tasks:
           mongosh_run_only_in_package: "cli-repl"
           task_name: ${task_name}
   - name: test_m70xc_n20_cli_repl
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7690,7 +7690,7 @@ tasks:
           mongosh_run_only_in_package: "cli-repl"
           task_name: ${task_name}
   - name: test_m70xe_n20_cli_repl
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7708,7 +7708,7 @@ tasks:
           mongosh_run_only_in_package: "cli-repl"
           task_name: ${task_name}
   - name: test_m80xc_n20_cli_repl
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7726,7 +7726,7 @@ tasks:
           mongosh_run_only_in_package: "cli-repl"
           task_name: ${task_name}
   - name: test_m80xe_n20_cli_repl
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7744,7 +7744,7 @@ tasks:
           mongosh_run_only_in_package: "cli-repl"
           task_name: ${task_name}
   - name: test_mlatest_n20_cli_repl
-    tags: ["unit-test","mlatest"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test","mlatest"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7762,7 +7762,7 @@ tasks:
           mongosh_run_only_in_package: "cli-repl"
           task_name: ${task_name}
   - name: test_m42xc_n16_cli_repl
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7780,7 +7780,7 @@ tasks:
           mongosh_run_only_in_package: "cli-repl"
           task_name: ${task_name}
   - name: test_m42xe_n16_cli_repl
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7798,7 +7798,7 @@ tasks:
           mongosh_run_only_in_package: "cli-repl"
           task_name: ${task_name}
   - name: test_m44xc_n16_cli_repl
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7816,7 +7816,7 @@ tasks:
           mongosh_run_only_in_package: "cli-repl"
           task_name: ${task_name}
   - name: test_m44xe_n16_cli_repl
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7834,7 +7834,7 @@ tasks:
           mongosh_run_only_in_package: "cli-repl"
           task_name: ${task_name}
   - name: test_m50xc_n16_cli_repl
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7852,7 +7852,7 @@ tasks:
           mongosh_run_only_in_package: "cli-repl"
           task_name: ${task_name}
   - name: test_m50xe_n16_cli_repl
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7870,7 +7870,7 @@ tasks:
           mongosh_run_only_in_package: "cli-repl"
           task_name: ${task_name}
   - name: test_m60xc_n16_cli_repl
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7888,7 +7888,7 @@ tasks:
           mongosh_run_only_in_package: "cli-repl"
           task_name: ${task_name}
   - name: test_m60xe_n16_cli_repl
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7906,7 +7906,7 @@ tasks:
           mongosh_run_only_in_package: "cli-repl"
           task_name: ${task_name}
   - name: test_m70xc_n16_cli_repl
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7924,7 +7924,7 @@ tasks:
           mongosh_run_only_in_package: "cli-repl"
           task_name: ${task_name}
   - name: test_m70xe_n16_cli_repl
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7942,7 +7942,7 @@ tasks:
           mongosh_run_only_in_package: "cli-repl"
           task_name: ${task_name}
   - name: test_m80xc_n16_cli_repl
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7960,7 +7960,7 @@ tasks:
           mongosh_run_only_in_package: "cli-repl"
           task_name: ${task_name}
   - name: test_m80xe_n16_cli_repl
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7978,7 +7978,7 @@ tasks:
           mongosh_run_only_in_package: "cli-repl"
           task_name: ${task_name}
   - name: test_mlatest_n16_cli_repl
-    tags: ["unit-test","mlatest"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test","mlatest"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -7996,7 +7996,7 @@ tasks:
           mongosh_run_only_in_package: "cli-repl"
           task_name: ${task_name}
   - name: test_n20_connectivity_tests
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8014,7 +8014,7 @@ tasks:
           mongosh_run_only_in_package: "connectivity-tests"
           task_name: ${task_name}
   - name: test_n16_connectivity_tests
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8032,7 +8032,7 @@ tasks:
           mongosh_run_only_in_package: "connectivity-tests"
           task_name: ${task_name}
   - name: test_m42xc_n20_e2e_tests
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8050,7 +8050,7 @@ tasks:
           mongosh_run_only_in_package: "e2e-tests"
           task_name: ${task_name}
   - name: test_m42xe_n20_e2e_tests
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8068,7 +8068,7 @@ tasks:
           mongosh_run_only_in_package: "e2e-tests"
           task_name: ${task_name}
   - name: test_m44xc_n20_e2e_tests
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8086,7 +8086,7 @@ tasks:
           mongosh_run_only_in_package: "e2e-tests"
           task_name: ${task_name}
   - name: test_m44xe_n20_e2e_tests
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8104,7 +8104,7 @@ tasks:
           mongosh_run_only_in_package: "e2e-tests"
           task_name: ${task_name}
   - name: test_m50xc_n20_e2e_tests
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8122,7 +8122,7 @@ tasks:
           mongosh_run_only_in_package: "e2e-tests"
           task_name: ${task_name}
   - name: test_m50xe_n20_e2e_tests
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8140,7 +8140,7 @@ tasks:
           mongosh_run_only_in_package: "e2e-tests"
           task_name: ${task_name}
   - name: test_m60xc_n20_e2e_tests
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8158,7 +8158,7 @@ tasks:
           mongosh_run_only_in_package: "e2e-tests"
           task_name: ${task_name}
   - name: test_m60xe_n20_e2e_tests
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8176,7 +8176,7 @@ tasks:
           mongosh_run_only_in_package: "e2e-tests"
           task_name: ${task_name}
   - name: test_m70xc_n20_e2e_tests
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8194,7 +8194,7 @@ tasks:
           mongosh_run_only_in_package: "e2e-tests"
           task_name: ${task_name}
   - name: test_m70xe_n20_e2e_tests
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8212,7 +8212,7 @@ tasks:
           mongosh_run_only_in_package: "e2e-tests"
           task_name: ${task_name}
   - name: test_m80xc_n20_e2e_tests
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8230,7 +8230,7 @@ tasks:
           mongosh_run_only_in_package: "e2e-tests"
           task_name: ${task_name}
   - name: test_m80xe_n20_e2e_tests
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8248,7 +8248,7 @@ tasks:
           mongosh_run_only_in_package: "e2e-tests"
           task_name: ${task_name}
   - name: test_mlatest_n20_e2e_tests
-    tags: ["unit-test","mlatest"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test","mlatest"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8266,7 +8266,7 @@ tasks:
           mongosh_run_only_in_package: "e2e-tests"
           task_name: ${task_name}
   - name: test_m42xc_n16_e2e_tests
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8284,7 +8284,7 @@ tasks:
           mongosh_run_only_in_package: "e2e-tests"
           task_name: ${task_name}
   - name: test_m42xe_n16_e2e_tests
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8302,7 +8302,7 @@ tasks:
           mongosh_run_only_in_package: "e2e-tests"
           task_name: ${task_name}
   - name: test_m44xc_n16_e2e_tests
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8320,7 +8320,7 @@ tasks:
           mongosh_run_only_in_package: "e2e-tests"
           task_name: ${task_name}
   - name: test_m44xe_n16_e2e_tests
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8338,7 +8338,7 @@ tasks:
           mongosh_run_only_in_package: "e2e-tests"
           task_name: ${task_name}
   - name: test_m50xc_n16_e2e_tests
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8356,7 +8356,7 @@ tasks:
           mongosh_run_only_in_package: "e2e-tests"
           task_name: ${task_name}
   - name: test_m50xe_n16_e2e_tests
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8374,7 +8374,7 @@ tasks:
           mongosh_run_only_in_package: "e2e-tests"
           task_name: ${task_name}
   - name: test_m60xc_n16_e2e_tests
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8392,7 +8392,7 @@ tasks:
           mongosh_run_only_in_package: "e2e-tests"
           task_name: ${task_name}
   - name: test_m60xe_n16_e2e_tests
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8410,7 +8410,7 @@ tasks:
           mongosh_run_only_in_package: "e2e-tests"
           task_name: ${task_name}
   - name: test_m70xc_n16_e2e_tests
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8428,7 +8428,7 @@ tasks:
           mongosh_run_only_in_package: "e2e-tests"
           task_name: ${task_name}
   - name: test_m70xe_n16_e2e_tests
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8446,7 +8446,7 @@ tasks:
           mongosh_run_only_in_package: "e2e-tests"
           task_name: ${task_name}
   - name: test_m80xc_n16_e2e_tests
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8464,7 +8464,7 @@ tasks:
           mongosh_run_only_in_package: "e2e-tests"
           task_name: ${task_name}
   - name: test_m80xe_n16_e2e_tests
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8482,7 +8482,7 @@ tasks:
           mongosh_run_only_in_package: "e2e-tests"
           task_name: ${task_name}
   - name: test_mlatest_n16_e2e_tests
-    tags: ["unit-test","mlatest"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test","mlatest"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8500,7 +8500,7 @@ tasks:
           mongosh_run_only_in_package: "e2e-tests"
           task_name: ${task_name}
   - name: test_n20_editor
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8518,7 +8518,7 @@ tasks:
           mongosh_run_only_in_package: "editor"
           task_name: ${task_name}
   - name: test_n16_editor
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8536,7 +8536,7 @@ tasks:
           mongosh_run_only_in_package: "editor"
           task_name: ${task_name}
   - name: test_n20_errors
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8554,7 +8554,7 @@ tasks:
           mongosh_run_only_in_package: "errors"
           task_name: ${task_name}
   - name: test_n16_errors
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8572,7 +8572,7 @@ tasks:
           mongosh_run_only_in_package: "errors"
           task_name: ${task_name}
   - name: test_n20_history
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8590,7 +8590,7 @@ tasks:
           mongosh_run_only_in_package: "history"
           task_name: ${task_name}
   - name: test_n16_history
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8608,7 +8608,7 @@ tasks:
           mongosh_run_only_in_package: "history"
           task_name: ${task_name}
   - name: test_n20_i18n
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8626,7 +8626,7 @@ tasks:
           mongosh_run_only_in_package: "i18n"
           task_name: ${task_name}
   - name: test_n16_i18n
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8644,7 +8644,7 @@ tasks:
           mongosh_run_only_in_package: "i18n"
           task_name: ${task_name}
   - name: test_m42xc_n20_java_shell
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8662,7 +8662,7 @@ tasks:
           mongosh_run_only_in_package: "java-shell"
           task_name: ${task_name}
   - name: test_m42xe_n20_java_shell
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8680,7 +8680,7 @@ tasks:
           mongosh_run_only_in_package: "java-shell"
           task_name: ${task_name}
   - name: test_m44xc_n20_java_shell
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8698,7 +8698,7 @@ tasks:
           mongosh_run_only_in_package: "java-shell"
           task_name: ${task_name}
   - name: test_m44xe_n20_java_shell
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8716,7 +8716,7 @@ tasks:
           mongosh_run_only_in_package: "java-shell"
           task_name: ${task_name}
   - name: test_m50xc_n20_java_shell
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8734,7 +8734,7 @@ tasks:
           mongosh_run_only_in_package: "java-shell"
           task_name: ${task_name}
   - name: test_m50xe_n20_java_shell
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8752,7 +8752,7 @@ tasks:
           mongosh_run_only_in_package: "java-shell"
           task_name: ${task_name}
   - name: test_m60xc_n20_java_shell
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8770,7 +8770,7 @@ tasks:
           mongosh_run_only_in_package: "java-shell"
           task_name: ${task_name}
   - name: test_m60xe_n20_java_shell
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8788,7 +8788,7 @@ tasks:
           mongosh_run_only_in_package: "java-shell"
           task_name: ${task_name}
   - name: test_m70xc_n20_java_shell
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8806,7 +8806,7 @@ tasks:
           mongosh_run_only_in_package: "java-shell"
           task_name: ${task_name}
   - name: test_m70xe_n20_java_shell
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8824,7 +8824,7 @@ tasks:
           mongosh_run_only_in_package: "java-shell"
           task_name: ${task_name}
   - name: test_m80xc_n20_java_shell
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8842,7 +8842,7 @@ tasks:
           mongosh_run_only_in_package: "java-shell"
           task_name: ${task_name}
   - name: test_m80xe_n20_java_shell
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8860,7 +8860,7 @@ tasks:
           mongosh_run_only_in_package: "java-shell"
           task_name: ${task_name}
   - name: test_mlatest_n20_java_shell
-    tags: ["unit-test","mlatest"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test","mlatest"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8878,7 +8878,7 @@ tasks:
           mongosh_run_only_in_package: "java-shell"
           task_name: ${task_name}
   - name: test_m42xc_n16_java_shell
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8896,7 +8896,7 @@ tasks:
           mongosh_run_only_in_package: "java-shell"
           task_name: ${task_name}
   - name: test_m42xe_n16_java_shell
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8914,7 +8914,7 @@ tasks:
           mongosh_run_only_in_package: "java-shell"
           task_name: ${task_name}
   - name: test_m44xc_n16_java_shell
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8932,7 +8932,7 @@ tasks:
           mongosh_run_only_in_package: "java-shell"
           task_name: ${task_name}
   - name: test_m44xe_n16_java_shell
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8950,7 +8950,7 @@ tasks:
           mongosh_run_only_in_package: "java-shell"
           task_name: ${task_name}
   - name: test_m50xc_n16_java_shell
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8968,7 +8968,7 @@ tasks:
           mongosh_run_only_in_package: "java-shell"
           task_name: ${task_name}
   - name: test_m50xe_n16_java_shell
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -8986,7 +8986,7 @@ tasks:
           mongosh_run_only_in_package: "java-shell"
           task_name: ${task_name}
   - name: test_m60xc_n16_java_shell
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9004,7 +9004,7 @@ tasks:
           mongosh_run_only_in_package: "java-shell"
           task_name: ${task_name}
   - name: test_m60xe_n16_java_shell
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9022,7 +9022,7 @@ tasks:
           mongosh_run_only_in_package: "java-shell"
           task_name: ${task_name}
   - name: test_m70xc_n16_java_shell
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9040,7 +9040,7 @@ tasks:
           mongosh_run_only_in_package: "java-shell"
           task_name: ${task_name}
   - name: test_m70xe_n16_java_shell
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9058,7 +9058,7 @@ tasks:
           mongosh_run_only_in_package: "java-shell"
           task_name: ${task_name}
   - name: test_m80xc_n16_java_shell
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9076,7 +9076,7 @@ tasks:
           mongosh_run_only_in_package: "java-shell"
           task_name: ${task_name}
   - name: test_m80xe_n16_java_shell
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9094,7 +9094,7 @@ tasks:
           mongosh_run_only_in_package: "java-shell"
           task_name: ${task_name}
   - name: test_mlatest_n16_java_shell
-    tags: ["unit-test","mlatest"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test","mlatest"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9112,7 +9112,7 @@ tasks:
           mongosh_run_only_in_package: "java-shell"
           task_name: ${task_name}
   - name: test_n20_js_multiline_to_singleline
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9130,7 +9130,7 @@ tasks:
           mongosh_run_only_in_package: "js-multiline-to-singleline"
           task_name: ${task_name}
   - name: test_n16_js_multiline_to_singleline
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9148,7 +9148,7 @@ tasks:
           mongosh_run_only_in_package: "js-multiline-to-singleline"
           task_name: ${task_name}
   - name: test_n20_logging
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9166,7 +9166,7 @@ tasks:
           mongosh_run_only_in_package: "logging"
           task_name: ${task_name}
   - name: test_n16_logging
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9184,7 +9184,7 @@ tasks:
           mongosh_run_only_in_package: "logging"
           task_name: ${task_name}
   - name: test_m42xc_n20_mongosh
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9202,7 +9202,7 @@ tasks:
           mongosh_run_only_in_package: "mongosh"
           task_name: ${task_name}
   - name: test_m42xe_n20_mongosh
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9220,7 +9220,7 @@ tasks:
           mongosh_run_only_in_package: "mongosh"
           task_name: ${task_name}
   - name: test_m44xc_n20_mongosh
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9238,7 +9238,7 @@ tasks:
           mongosh_run_only_in_package: "mongosh"
           task_name: ${task_name}
   - name: test_m44xe_n20_mongosh
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9256,7 +9256,7 @@ tasks:
           mongosh_run_only_in_package: "mongosh"
           task_name: ${task_name}
   - name: test_m50xc_n20_mongosh
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9274,7 +9274,7 @@ tasks:
           mongosh_run_only_in_package: "mongosh"
           task_name: ${task_name}
   - name: test_m50xe_n20_mongosh
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9292,7 +9292,7 @@ tasks:
           mongosh_run_only_in_package: "mongosh"
           task_name: ${task_name}
   - name: test_m60xc_n20_mongosh
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9310,7 +9310,7 @@ tasks:
           mongosh_run_only_in_package: "mongosh"
           task_name: ${task_name}
   - name: test_m60xe_n20_mongosh
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9328,7 +9328,7 @@ tasks:
           mongosh_run_only_in_package: "mongosh"
           task_name: ${task_name}
   - name: test_m70xc_n20_mongosh
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9346,7 +9346,7 @@ tasks:
           mongosh_run_only_in_package: "mongosh"
           task_name: ${task_name}
   - name: test_m70xe_n20_mongosh
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9364,7 +9364,7 @@ tasks:
           mongosh_run_only_in_package: "mongosh"
           task_name: ${task_name}
   - name: test_m80xc_n20_mongosh
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9382,7 +9382,7 @@ tasks:
           mongosh_run_only_in_package: "mongosh"
           task_name: ${task_name}
   - name: test_m80xe_n20_mongosh
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9400,7 +9400,7 @@ tasks:
           mongosh_run_only_in_package: "mongosh"
           task_name: ${task_name}
   - name: test_mlatest_n20_mongosh
-    tags: ["unit-test","mlatest"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test","mlatest"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9418,7 +9418,7 @@ tasks:
           mongosh_run_only_in_package: "mongosh"
           task_name: ${task_name}
   - name: test_m42xc_n16_mongosh
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9436,7 +9436,7 @@ tasks:
           mongosh_run_only_in_package: "mongosh"
           task_name: ${task_name}
   - name: test_m42xe_n16_mongosh
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9454,7 +9454,7 @@ tasks:
           mongosh_run_only_in_package: "mongosh"
           task_name: ${task_name}
   - name: test_m44xc_n16_mongosh
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9472,7 +9472,7 @@ tasks:
           mongosh_run_only_in_package: "mongosh"
           task_name: ${task_name}
   - name: test_m44xe_n16_mongosh
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9490,7 +9490,7 @@ tasks:
           mongosh_run_only_in_package: "mongosh"
           task_name: ${task_name}
   - name: test_m50xc_n16_mongosh
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9508,7 +9508,7 @@ tasks:
           mongosh_run_only_in_package: "mongosh"
           task_name: ${task_name}
   - name: test_m50xe_n16_mongosh
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9526,7 +9526,7 @@ tasks:
           mongosh_run_only_in_package: "mongosh"
           task_name: ${task_name}
   - name: test_m60xc_n16_mongosh
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9544,7 +9544,7 @@ tasks:
           mongosh_run_only_in_package: "mongosh"
           task_name: ${task_name}
   - name: test_m60xe_n16_mongosh
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9562,7 +9562,7 @@ tasks:
           mongosh_run_only_in_package: "mongosh"
           task_name: ${task_name}
   - name: test_m70xc_n16_mongosh
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9580,7 +9580,7 @@ tasks:
           mongosh_run_only_in_package: "mongosh"
           task_name: ${task_name}
   - name: test_m70xe_n16_mongosh
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9598,7 +9598,7 @@ tasks:
           mongosh_run_only_in_package: "mongosh"
           task_name: ${task_name}
   - name: test_m80xc_n16_mongosh
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9616,7 +9616,7 @@ tasks:
           mongosh_run_only_in_package: "mongosh"
           task_name: ${task_name}
   - name: test_m80xe_n16_mongosh
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9634,7 +9634,7 @@ tasks:
           mongosh_run_only_in_package: "mongosh"
           task_name: ${task_name}
   - name: test_mlatest_n16_mongosh
-    tags: ["unit-test","mlatest"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test","mlatest"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9652,7 +9652,7 @@ tasks:
           mongosh_run_only_in_package: "mongosh"
           task_name: ${task_name}
   - name: test_m42xc_n20_node_runtime_worker_thread
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9670,7 +9670,7 @@ tasks:
           mongosh_run_only_in_package: "node-runtime-worker-thread"
           task_name: ${task_name}
   - name: test_m42xe_n20_node_runtime_worker_thread
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9688,7 +9688,7 @@ tasks:
           mongosh_run_only_in_package: "node-runtime-worker-thread"
           task_name: ${task_name}
   - name: test_m44xc_n20_node_runtime_worker_thread
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9706,7 +9706,7 @@ tasks:
           mongosh_run_only_in_package: "node-runtime-worker-thread"
           task_name: ${task_name}
   - name: test_m44xe_n20_node_runtime_worker_thread
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9724,7 +9724,7 @@ tasks:
           mongosh_run_only_in_package: "node-runtime-worker-thread"
           task_name: ${task_name}
   - name: test_m50xc_n20_node_runtime_worker_thread
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9742,7 +9742,7 @@ tasks:
           mongosh_run_only_in_package: "node-runtime-worker-thread"
           task_name: ${task_name}
   - name: test_m50xe_n20_node_runtime_worker_thread
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9760,7 +9760,7 @@ tasks:
           mongosh_run_only_in_package: "node-runtime-worker-thread"
           task_name: ${task_name}
   - name: test_m60xc_n20_node_runtime_worker_thread
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9778,7 +9778,7 @@ tasks:
           mongosh_run_only_in_package: "node-runtime-worker-thread"
           task_name: ${task_name}
   - name: test_m60xe_n20_node_runtime_worker_thread
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9796,7 +9796,7 @@ tasks:
           mongosh_run_only_in_package: "node-runtime-worker-thread"
           task_name: ${task_name}
   - name: test_m70xc_n20_node_runtime_worker_thread
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9814,7 +9814,7 @@ tasks:
           mongosh_run_only_in_package: "node-runtime-worker-thread"
           task_name: ${task_name}
   - name: test_m70xe_n20_node_runtime_worker_thread
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9832,7 +9832,7 @@ tasks:
           mongosh_run_only_in_package: "node-runtime-worker-thread"
           task_name: ${task_name}
   - name: test_m80xc_n20_node_runtime_worker_thread
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9850,7 +9850,7 @@ tasks:
           mongosh_run_only_in_package: "node-runtime-worker-thread"
           task_name: ${task_name}
   - name: test_m80xe_n20_node_runtime_worker_thread
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9868,7 +9868,7 @@ tasks:
           mongosh_run_only_in_package: "node-runtime-worker-thread"
           task_name: ${task_name}
   - name: test_mlatest_n20_node_runtime_worker_thread
-    tags: ["unit-test","mlatest"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test","mlatest"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9886,7 +9886,7 @@ tasks:
           mongosh_run_only_in_package: "node-runtime-worker-thread"
           task_name: ${task_name}
   - name: test_m42xc_n16_node_runtime_worker_thread
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9904,7 +9904,7 @@ tasks:
           mongosh_run_only_in_package: "node-runtime-worker-thread"
           task_name: ${task_name}
   - name: test_m42xe_n16_node_runtime_worker_thread
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9922,7 +9922,7 @@ tasks:
           mongosh_run_only_in_package: "node-runtime-worker-thread"
           task_name: ${task_name}
   - name: test_m44xc_n16_node_runtime_worker_thread
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9940,7 +9940,7 @@ tasks:
           mongosh_run_only_in_package: "node-runtime-worker-thread"
           task_name: ${task_name}
   - name: test_m44xe_n16_node_runtime_worker_thread
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9958,7 +9958,7 @@ tasks:
           mongosh_run_only_in_package: "node-runtime-worker-thread"
           task_name: ${task_name}
   - name: test_m50xc_n16_node_runtime_worker_thread
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9976,7 +9976,7 @@ tasks:
           mongosh_run_only_in_package: "node-runtime-worker-thread"
           task_name: ${task_name}
   - name: test_m50xe_n16_node_runtime_worker_thread
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9994,7 +9994,7 @@ tasks:
           mongosh_run_only_in_package: "node-runtime-worker-thread"
           task_name: ${task_name}
   - name: test_m60xc_n16_node_runtime_worker_thread
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10012,7 +10012,7 @@ tasks:
           mongosh_run_only_in_package: "node-runtime-worker-thread"
           task_name: ${task_name}
   - name: test_m60xe_n16_node_runtime_worker_thread
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10030,7 +10030,7 @@ tasks:
           mongosh_run_only_in_package: "node-runtime-worker-thread"
           task_name: ${task_name}
   - name: test_m70xc_n16_node_runtime_worker_thread
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10048,7 +10048,7 @@ tasks:
           mongosh_run_only_in_package: "node-runtime-worker-thread"
           task_name: ${task_name}
   - name: test_m70xe_n16_node_runtime_worker_thread
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10066,7 +10066,7 @@ tasks:
           mongosh_run_only_in_package: "node-runtime-worker-thread"
           task_name: ${task_name}
   - name: test_m80xc_n16_node_runtime_worker_thread
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10084,7 +10084,7 @@ tasks:
           mongosh_run_only_in_package: "node-runtime-worker-thread"
           task_name: ${task_name}
   - name: test_m80xe_n16_node_runtime_worker_thread
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10102,7 +10102,7 @@ tasks:
           mongosh_run_only_in_package: "node-runtime-worker-thread"
           task_name: ${task_name}
   - name: test_mlatest_n16_node_runtime_worker_thread
-    tags: ["unit-test","mlatest"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test","mlatest"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10120,7 +10120,7 @@ tasks:
           mongosh_run_only_in_package: "node-runtime-worker-thread"
           task_name: ${task_name}
   - name: test_n20_service_provider_core
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10138,7 +10138,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-core"
           task_name: ${task_name}
   - name: test_n16_service_provider_core
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10156,7 +10156,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-core"
           task_name: ${task_name}
   - name: test_m42xc_n20_service_provider_node_driver
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10174,7 +10174,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
   - name: test_m42xe_n20_service_provider_node_driver
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10192,7 +10192,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
   - name: test_m44xc_n20_service_provider_node_driver
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10210,7 +10210,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
   - name: test_m44xe_n20_service_provider_node_driver
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10228,7 +10228,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
   - name: test_m50xc_n20_service_provider_node_driver
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10246,7 +10246,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
   - name: test_m50xe_n20_service_provider_node_driver
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10264,7 +10264,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
   - name: test_m60xc_n20_service_provider_node_driver
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10282,7 +10282,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
   - name: test_m60xe_n20_service_provider_node_driver
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10300,7 +10300,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
   - name: test_m70xc_n20_service_provider_node_driver
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10318,7 +10318,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
   - name: test_m70xe_n20_service_provider_node_driver
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10336,7 +10336,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
   - name: test_m80xc_n20_service_provider_node_driver
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10354,7 +10354,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
   - name: test_m80xe_n20_service_provider_node_driver
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10372,7 +10372,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
   - name: test_mlatest_n20_service_provider_node_driver
-    tags: ["unit-test","mlatest"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test","mlatest"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10390,7 +10390,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
   - name: test_m42xc_n16_service_provider_node_driver
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10408,7 +10408,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
   - name: test_m42xe_n16_service_provider_node_driver
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10426,7 +10426,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
   - name: test_m44xc_n16_service_provider_node_driver
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10444,7 +10444,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
   - name: test_m44xe_n16_service_provider_node_driver
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10462,7 +10462,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
   - name: test_m50xc_n16_service_provider_node_driver
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10480,7 +10480,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
   - name: test_m50xe_n16_service_provider_node_driver
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10498,7 +10498,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
   - name: test_m60xc_n16_service_provider_node_driver
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10516,7 +10516,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
   - name: test_m60xe_n16_service_provider_node_driver
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10534,7 +10534,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
   - name: test_m70xc_n16_service_provider_node_driver
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10552,7 +10552,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
   - name: test_m70xe_n16_service_provider_node_driver
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10570,7 +10570,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
   - name: test_m80xc_n16_service_provider_node_driver
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10588,7 +10588,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
   - name: test_m80xe_n16_service_provider_node_driver
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10606,7 +10606,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
   - name: test_mlatest_n16_service_provider_node_driver
-    tags: ["unit-test","mlatest"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test","mlatest"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10624,7 +10624,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
   - name: test_m42xc_n20_shell_api
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10642,7 +10642,7 @@ tasks:
           mongosh_run_only_in_package: "shell-api"
           task_name: ${task_name}
   - name: test_m42xe_n20_shell_api
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10660,7 +10660,7 @@ tasks:
           mongosh_run_only_in_package: "shell-api"
           task_name: ${task_name}
   - name: test_m44xc_n20_shell_api
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10678,7 +10678,7 @@ tasks:
           mongosh_run_only_in_package: "shell-api"
           task_name: ${task_name}
   - name: test_m44xe_n20_shell_api
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10696,7 +10696,7 @@ tasks:
           mongosh_run_only_in_package: "shell-api"
           task_name: ${task_name}
   - name: test_m50xc_n20_shell_api
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10714,7 +10714,7 @@ tasks:
           mongosh_run_only_in_package: "shell-api"
           task_name: ${task_name}
   - name: test_m50xe_n20_shell_api
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10732,7 +10732,7 @@ tasks:
           mongosh_run_only_in_package: "shell-api"
           task_name: ${task_name}
   - name: test_m60xc_n20_shell_api
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10750,7 +10750,7 @@ tasks:
           mongosh_run_only_in_package: "shell-api"
           task_name: ${task_name}
   - name: test_m60xe_n20_shell_api
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10768,7 +10768,7 @@ tasks:
           mongosh_run_only_in_package: "shell-api"
           task_name: ${task_name}
   - name: test_m70xc_n20_shell_api
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10786,7 +10786,7 @@ tasks:
           mongosh_run_only_in_package: "shell-api"
           task_name: ${task_name}
   - name: test_m70xe_n20_shell_api
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10804,7 +10804,7 @@ tasks:
           mongosh_run_only_in_package: "shell-api"
           task_name: ${task_name}
   - name: test_m80xc_n20_shell_api
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10822,7 +10822,7 @@ tasks:
           mongosh_run_only_in_package: "shell-api"
           task_name: ${task_name}
   - name: test_m80xe_n20_shell_api
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10840,7 +10840,7 @@ tasks:
           mongosh_run_only_in_package: "shell-api"
           task_name: ${task_name}
   - name: test_mlatest_n20_shell_api
-    tags: ["unit-test","mlatest"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test","mlatest"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10858,7 +10858,7 @@ tasks:
           mongosh_run_only_in_package: "shell-api"
           task_name: ${task_name}
   - name: test_m42xc_n16_shell_api
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10876,7 +10876,7 @@ tasks:
           mongosh_run_only_in_package: "shell-api"
           task_name: ${task_name}
   - name: test_m42xe_n16_shell_api
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10894,7 +10894,7 @@ tasks:
           mongosh_run_only_in_package: "shell-api"
           task_name: ${task_name}
   - name: test_m44xc_n16_shell_api
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10912,7 +10912,7 @@ tasks:
           mongosh_run_only_in_package: "shell-api"
           task_name: ${task_name}
   - name: test_m44xe_n16_shell_api
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10930,7 +10930,7 @@ tasks:
           mongosh_run_only_in_package: "shell-api"
           task_name: ${task_name}
   - name: test_m50xc_n16_shell_api
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10948,7 +10948,7 @@ tasks:
           mongosh_run_only_in_package: "shell-api"
           task_name: ${task_name}
   - name: test_m50xe_n16_shell_api
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10966,7 +10966,7 @@ tasks:
           mongosh_run_only_in_package: "shell-api"
           task_name: ${task_name}
   - name: test_m60xc_n16_shell_api
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -10984,7 +10984,7 @@ tasks:
           mongosh_run_only_in_package: "shell-api"
           task_name: ${task_name}
   - name: test_m60xe_n16_shell_api
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -11002,7 +11002,7 @@ tasks:
           mongosh_run_only_in_package: "shell-api"
           task_name: ${task_name}
   - name: test_m70xc_n16_shell_api
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -11020,7 +11020,7 @@ tasks:
           mongosh_run_only_in_package: "shell-api"
           task_name: ${task_name}
   - name: test_m70xe_n16_shell_api
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -11038,7 +11038,7 @@ tasks:
           mongosh_run_only_in_package: "shell-api"
           task_name: ${task_name}
   - name: test_m80xc_n16_shell_api
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -11056,7 +11056,7 @@ tasks:
           mongosh_run_only_in_package: "shell-api"
           task_name: ${task_name}
   - name: test_m80xe_n16_shell_api
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -11074,7 +11074,7 @@ tasks:
           mongosh_run_only_in_package: "shell-api"
           task_name: ${task_name}
   - name: test_mlatest_n16_shell_api
-    tags: ["unit-test","mlatest"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test","mlatest"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -11092,7 +11092,7 @@ tasks:
           mongosh_run_only_in_package: "shell-api"
           task_name: ${task_name}
   - name: test_n20_shell_evaluator
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -11110,7 +11110,7 @@ tasks:
           mongosh_run_only_in_package: "shell-evaluator"
           task_name: ${task_name}
   - name: test_n16_shell_evaluator
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -11128,7 +11128,7 @@ tasks:
           mongosh_run_only_in_package: "shell-evaluator"
           task_name: ${task_name}
   - name: test_n20_snippet_manager
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -11146,7 +11146,7 @@ tasks:
           mongosh_run_only_in_package: "snippet-manager"
           task_name: ${task_name}
   - name: test_n16_snippet_manager
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -11164,7 +11164,7 @@ tasks:
           mongosh_run_only_in_package: "snippet-manager"
           task_name: ${task_name}
   - name: test_n20_types
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -11182,7 +11182,7 @@ tasks:
           mongosh_run_only_in_package: "types"
           task_name: ${task_name}
   - name: test_n16_types
-    tags: ["unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -11217,7 +11217,7 @@ tasks:
           node_js_version: "20.18.0"
           task_name: ${task_name}
   - name: test_connectivity
-    tags: ["extra-integration-test"]
+    tags: ["extra-integration-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -11231,7 +11231,7 @@ tasks:
           node_js_version: "20.18.0"
           task_name: ${task_name}
   - name: test_apistrict
-    tags: ["extra-integration-test"]
+    tags: ["extra-integration-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
