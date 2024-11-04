@@ -8,7 +8,7 @@ NVM_DIR="$EVGDIR/.nvm"
 ORIGINAL_PATH="${PATH}"
 
 OS_ARCH="$(uname "-m")"
-if [ "$OS_ARCH" = "aarch64" ] || [ "$OS_ARCH" = "arm64" ] ; then
+if [ "$OS_ARCH" = "ppc64le" ] || [ "$OS_ARCH" = "ppc64" ] ; then
     echo "[INFO] Choosing v4 because OS_ARCH is $OS_ARCH"
     export TOOLCHAIN_PATH='/opt/mongodbtoolchain/v4/bin'
 else
