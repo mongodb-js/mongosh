@@ -323,6 +323,10 @@ describe('e2e TLS', function () {
       before(function () {
         // TODO(MONGOSH-1898): Drop Node.js 16 entirely
         if (process.version.startsWith('v16.')) return this.skip();
+        // The Windows crypto libraries don't accept the particular certificate setup here
+        // ('CertAddCertificateContextToStore Failed  The object or property already exists'),
+        // so will not let us start a mongod server
+        if (process.platform === 'win32') return this.skip();
       });
 
       const server = startTestServer('e2e-tls-partial-trust-chain', {
