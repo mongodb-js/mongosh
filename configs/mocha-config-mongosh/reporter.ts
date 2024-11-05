@@ -15,7 +15,7 @@ export class MochaReporter extends reporters.Base {
 
     runner.on('suite', (suite) => {
       if (suite.parent?.root) {
-        suite.title = `${suiteName}__${suite.title}`;
+        suite.title = `${suite.title}`;
       }
     });
 
