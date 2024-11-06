@@ -173,10 +173,12 @@ export interface EditorReadVscodeExtensionsFailedEvent {
 export interface FetchingUpdateMetadataEvent {
   updateURL: string;
   localFilePath: string;
+  currentVersion: string;
 }
 
 export interface FetchingUpdateMetadataCompleteEvent {
   latest: string | null;
+  currentVersion: string;
 }
 
 export interface SessionStartedEvent {
