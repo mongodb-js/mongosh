@@ -179,6 +179,7 @@ export interface FetchingUpdateMetadataEvent {
 export interface FetchingUpdateMetadataCompleteEvent {
   latest: string | null;
   currentVersion: string;
+  hasGreetingCTA: boolean;
 }
 
 export interface SessionStartedEvent {

@@ -184,9 +184,13 @@ export class UpdateNotificationManager {
       latestKnownMongoshVersion: this.latestKnownMongoshVersion,
       cta: {
         [currentVersion]: this.currentVersionGreetingCTA,
-        ...(this.latestKnownMongoshVersion && {
-          [this.latestKnownMongoshVersion]: latestKnownVersionCTA,
-        }),
+
+        // Add the latest known version's CTA if we're not already on latest. This could be used
+        // next time we start mongosh if the user has updated to latest.
+        ...(this.latestKnownMongoshVersion &&
+          this.latestKnownMongoshVersion !== currentVersion && {
+            [this.latestKnownMongoshVersion]: latestKnownVersionCTA,
+          }),
       },
     };
     await fs.writeFile(localFilePath, JSON.stringify(localFileContents));

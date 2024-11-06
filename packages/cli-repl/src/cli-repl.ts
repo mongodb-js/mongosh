@@ -1287,6 +1287,8 @@ export class CliRepl implements MongoshIOProvider {
         latest:
           await this.updateNotificationManager.getLatestVersionIfMoreRecent(''),
         currentVersion,
+        hasGreetingCTA:
+          !!(await this.updateNotificationManager.getGreetingCTAForCurrentVersion()),
       });
     } catch (err: any) {
       this.bus.emit('mongosh:error', err, 'startup');
