@@ -6,10 +6,11 @@ import { triggerRelease } from './local';
 import type { ReleaseCommand } from './release';
 import { release } from './release';
 import type { Config, PackageVariant } from './config';
+import { updateJsonFeedCTA, UpdateCTAConfig } from './download-center';
 
 export { getArtifactUrl, downloadMongoDb };
 
-const validCommands: (ReleaseCommand | 'trigger-release')[] = [
+const validCommands: (ReleaseCommand | 'trigger-release' | 'update-cta')[] = [
   'bump',
   'compile',
   'package',
@@ -20,11 +21,12 @@ const validCommands: (ReleaseCommand | 'trigger-release')[] = [
   'download-crypt-shared-library',
   'download-and-list-artifacts',
   'trigger-release',
+  'update-cta',
 ] as const;
 
 const isValidCommand = (
   cmd: string
-): cmd is ReleaseCommand | 'trigger-release' =>
+): cmd is ReleaseCommand | 'trigger-release' | 'update-cta' =>
   (validCommands as string[]).includes(cmd);
 
 if (require.main === module) {
@@ -38,29 +40,46 @@ if (require.main === module) {
       );
     }
 
-    if (command === 'trigger-release') {
-      await triggerRelease(process.argv.slice(3));
-    } else {
-      const config: Config = require(path.join(
-        __dirname,
-        '..',
-        '..',
-        '..',
-        'config',
-        'build.conf.js'
-      ));
+    switch (command) {
+      case 'trigger-release':
+        await triggerRelease(process.argv.slice(3));
+        break;
+      case 'update-cta':
+        const ctaConfig: UpdateCTAConfig = require(path.join(
+          __dirname,
+          '..',
+          '..',
+          '..',
+          'config',
+          'cta.conf.js'
+        ));
 
-      const cliBuildVariant = process.argv
-        .map((arg) => /^--build-variant=(.+)$/.exec(arg))
-        .filter(Boolean)[0];
-      if (cliBuildVariant) {
-        config.packageVariant = cliBuildVariant[1] as PackageVariant;
-        validatePackageVariant(config.packageVariant);
-      }
+        ctaConfig.isDryRun ||= process.argv.includes('--dry-run');
 
-      config.isDryRun ||= process.argv.includes('--dry-run');
+        await updateJsonFeedCTA(ctaConfig);
+        break;
+      default:
+        const config: Config = require(path.join(
+          __dirname,
+          '..',
+          '..',
+          '..',
+          'config',
+          'build.conf.js'
+        ));
 
-      await release(command, config);
+        const cliBuildVariant = process.argv
+          .map((arg) => /^--build-variant=(.+)$/.exec(arg))
+          .filter(Boolean)[0];
+        if (cliBuildVariant) {
+          config.packageVariant = cliBuildVariant[1] as PackageVariant;
+          validatePackageVariant(config.packageVariant);
+        }
+
+        config.isDryRun ||= process.argv.includes('--dry-run');
+
+        await release(command, config);
+        break;
     }
   })().then(
     () => process.exit(0),

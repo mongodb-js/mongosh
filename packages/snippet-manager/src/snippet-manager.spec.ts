@@ -341,7 +341,7 @@ describe('SnippetManager', function () {
     await eventually(async () => {
       // This can fail when an index fetch is being written while we are removing
       // the directory; hence, try again.
-      await fs.rmdir(tmpdir, { recursive: true });
+      await fs.rm(tmpdir, { recursive: true });
     });
     httpServer.close();
   });

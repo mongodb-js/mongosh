@@ -182,7 +182,7 @@ class MongoshNodeRepl implements EvaluationListener {
    */
   async initialize(
     serviceProvider: ServiceProvider,
-    greeting: GreetingDetails
+    greeting?: GreetingDetails
   ): Promise<InitializationToken> {
     const usePlainVMContext = this.shellCliOptions.jsContext === 'plain-vm';
 
@@ -582,7 +582,10 @@ class MongoshNodeRepl implements EvaluationListener {
   /**
    * The greeting for the shell, showing server and shell version.
    */
-  async greet(mongodVersion: string, greeting: GreetingDetails): Promise<void> {
+  async greet(
+    mongodVersion: string,
+    greeting?: GreetingDetails
+  ): Promise<void> {
     this.output.write('sadfasdfasdfassafsa');
     this.output.write(JSON.stringify({ mongodVersion, greeting }) + '\n');
 
@@ -598,7 +601,7 @@ class MongoshNodeRepl implements EvaluationListener {
       'Using Mongosh',
       'mongosh:section-header'
     )}:\t\t${version}\n`;
-    if (greeting.moreRecentMongoshVersion) {
+    if (greeting?.moreRecentMongoshVersion) {
       text += `mongosh ${this.clr(
         greeting.moreRecentMongoshVersion,
         'bold'
@@ -608,7 +611,7 @@ class MongoshNodeRepl implements EvaluationListener {
       )}\n`;
     }
 
-    if (greeting.currentVersionCTA) {
+    if (greeting?.currentVersionCTA) {
       for (const run of greeting.currentVersionCTA) {
         text += this.clr(run.text, run.style);
       }

@@ -21,6 +21,7 @@ interface MongoshVersionsContents {
     version: string;
     cta?: GreetingCTADetails;
   }[];
+  cta?: GreetingCTADetails;
 }
 
 interface MongoshUpdateLocalFileContents {
@@ -169,13 +170,14 @@ export class UpdateNotificationManager {
       ?.filter((v) => !semver.prerelease(v))
       ?.sort(semver.rcompare)?.[0];
 
-    this.currentVersionGreetingCTA = jsonContents?.versions?.filter(
-      (v) => v.version === currentVersion
-    )?.[0]?.cta;
+    this.currentVersionGreetingCTA =
+      jsonContents?.versions?.filter((v) => v.version === currentVersion)?.[0]
+        ?.cta ?? jsonContents?.cta;
 
-    const latestKnownVersionCTA = jsonContents?.versions?.filter(
-      (v) => v.version === this.latestKnownMongoshVersion
-    )?.[0]?.cta;
+    const latestKnownVersionCTA =
+      jsonContents?.versions?.filter(
+        (v) => v.version === this.latestKnownMongoshVersion
+      )?.[0]?.cta ?? jsonContents?.cta;
 
     localFileContents = {
       updateURL,
