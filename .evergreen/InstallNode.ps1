@@ -20,7 +20,7 @@ Get-ChildItem -Path $PSScriptRoot
 Set-Location -Path $node_dir
 Remove-Item .\npm
 Remove-Item .\npm.cmd
-Remove-Item .\npm.ps1
+if (Test-Path .\npm.ps1) { Remove-Item .\npm.ps1 }
 Remove-Item .\npx
 Remove-Item .\npx.cmd
 Move-Item .\node_modules\npm -Destination .\node_modules\npm2
