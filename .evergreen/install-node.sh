@@ -2,11 +2,7 @@ set -e
 set -x
 export BASEDIR="$PWD/.evergreen"
 
-if echo $NODE_JS_VERSION | grep -q ^20 ; then
-  NPM_VERSION=10.8.3 # 10.9.0 does not install well on Windows
-else
-  NPM_VERSION=10.9.0
-fi
+NPM_VERSION=10.8.3 # 10.9.0 does not install well on Windows
 
 if [ "$OS" == "Windows_NT" ]; then
   powershell "$(cygpath -w "$BASEDIR")"/InstallNode.ps1
