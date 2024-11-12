@@ -323,7 +323,7 @@ async function ask(prompt: string): Promise<string> {
  */
 function suppressExperimentalWarnings() {
   const nodeMajorVersion = process.versions.node.split('.').map(Number)[0];
-  if (nodeMajorVersion >= 23) {
+  if (nodeMajorVersion >= 24) {
     const originalEmit = process.emitWarning;
     process.emitWarning = (warning, ...args: any[]): void => {
       if (args[0] === 'ExperimentalWarning') {
