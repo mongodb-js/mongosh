@@ -29,5 +29,5 @@ jobs:
         with:
           key: ${{ matrix.runner }}-node-${{ matrix.node }}-${{ hashFiles('package-lock.json') }}
           path: ${{ steps.npm-cache-dir.outputs.dir }}
-      - run: npm ci
+      - run: npm ci --loglevel verbose
       - run: npm run test-smoke
