@@ -337,7 +337,7 @@ function suppressExperimentalWarnings() {
         return;
       }
 
-      originalEmit(warning, ...args);
+      return originalEmit(warning, ...args);
     };
   }
 }
