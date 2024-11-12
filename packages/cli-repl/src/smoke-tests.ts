@@ -397,7 +397,7 @@ async function runSmokeTest({
   // eslint-disable-next-line
   const { spawn } = require('child_process') as typeof import('child_process');
   const proc = spawn(executable, [...args], {
-    stdio: ['pipe', 'pipe', includeStderr ? 'pipe' : 'inherit'],
+    stdio: 'pipe',
   });
   let stdout = '';
   let stderr = '';
@@ -420,13 +420,14 @@ async function runSmokeTest({
     input,
     output,
     stdout,
-    stderr,
+    stderr: includeStderr ? stderr : '',
     executable,
     actualExitCode,
     args: args.map((arg) => redactURICredentials(arg)),
   };
   try {
     assert.match(includeStderr ? `${stdout}\n${stderr}` : stdout, output);
+    assert.doesNotMatch(stderr, /ExperimentalWarning/);
     if (exitCode !== undefined) {
       assert.strictEqual(actualExitCode, exitCode);
     }

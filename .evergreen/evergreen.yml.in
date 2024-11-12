@@ -967,7 +967,7 @@ functions:
           {
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
-          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
+          export PUPPETEER_SKIP_DOWNLOAD="true"
           npm run evergreen-release draft
           }
 
@@ -985,7 +985,7 @@ functions:
           node_js_version: ${node_js_version}
         script: |
           set -e
-          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
+          export PUPPETEER_SKIP_DOWNLOAD="true"
           .evergreen/run-evergreen-release.sh download-and-list-artifacts
     - command: shell.exec
       params:
@@ -1014,7 +1014,7 @@ functions:
           node_js_version: ${node_js_version}
         script: |
           set -e
-          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
+          export PUPPETEER_SKIP_DOWNLOAD="true"
           .evergreen/run-evergreen-release.sh publish -- --dry-run
 
   release_publish:
@@ -1033,7 +1033,7 @@ functions:
           node_js_version: ${node_js_version}
         script: |
           set -e
-          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
+          export PUPPETEER_SKIP_DOWNLOAD="true"
           .evergreen/run-evergreen-release.sh publish
 
   run_perf_tests:
