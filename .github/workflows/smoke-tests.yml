@@ -19,14 +19,19 @@ jobs:
     timeout-minutes: 15
     env:
       npm_config_loglevel: verbose
-      npm_config_foreground_scripts: true
-      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
+      npm_config_foreground_scripts: "true"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
           cache: "npm"
-      - run: npm install -g npm@10
-      - run: npm ci
-      - run: npm run test-smoke
+
+      - name: Install npm@10
+        run: npm install -g npm@10
+
+      - name: Bootstrap
+        run: npm run bootstrap
+
+      - name: Run smoke tests
+        run: npm run test-smoke
