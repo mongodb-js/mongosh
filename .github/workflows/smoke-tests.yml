@@ -7,13 +7,13 @@ on:
 
 jobs:
   smoke-tests:
-    name: Test on ${{ matrix.runner }} with node@${{ matrix.node }}
+    name: "OS: ${{ matrix.runner }}, node@${{ matrix.node }}"
     strategy:
       matrix:
-        runner: [ubuntu-latest, macos-latest, windows-latest]
+        runner: [ubuntu, macos, windows]
         node: [20.x, 22.x, 23.x]
       fail-fast: false
-    runs-on: ${{ matrix.runner }}
+    runs-on: ${{ matrix.runner }}-latest
     timeout-minutes: 15
     env:
       npm_config_loglevel: verbose
