@@ -1059,13 +1059,6 @@ describe('e2e', function () {
     });
 
     it('reads and runs the vscode extension example playground', async function () {
-      if (
-        process.platform === 'win32' &&
-        process.versions.node.startsWith('22')
-      ) {
-        // This test fails on Windows with node 22 likely due to https://github.com/nodejs/node/issues/51766
-        return this.skip();
-      }
       createReadStream(
         path.resolve(__dirname, 'fixtures', 'exampleplayground.js')
       ).pipe(shell.process.stdin);

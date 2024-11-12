@@ -55,6 +55,10 @@ pushd "${NODE_JS_SOURCE_PATH}"
 # patch directory
 patch -p1 < "${ROOT_DIR}/scripts/nodejs-patches/001-configure-bz2.patch"
 
+if [[ "$NODE_JS_VERSION" == "22"* ]]; then
+    patch -p1 < "${ROOT_DIR}/scripts/nodejs-patches/005-win-almost-fix-race-detecting-esrch-in-uv-kill.patch"
+fi
+
 ./configure --prefix "${NODE_JS_INSTALL_DIR}"
 
 ncpu=$(expr $(nproc 2> /dev/null || echo 5) - 1)
