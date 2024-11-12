@@ -7,6 +7,7 @@ on:
 
 jobs:
   smoke-test-homebrew:
+    name: Test on ${{ matrix.runner }}
     runs-on: ${{ matrix.runner}}
     strategy:
       matrix:
