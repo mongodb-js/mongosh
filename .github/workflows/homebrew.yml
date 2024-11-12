@@ -16,8 +16,8 @@ jobs:
       - run: brew install mongosh
       - run: mongosh --smokeTests
       - name: Report failure
-        # TODO: invert if-check below to only send on failure
-        if: !failure()
+        # TODO: replace with failure()
+        if: ${{ success() }}
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_MONGOSH_DEVEL_WEBHOOK_URL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
