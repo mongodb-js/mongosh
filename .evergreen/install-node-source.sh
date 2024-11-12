@@ -56,7 +56,7 @@ pushd "${NODE_JS_SOURCE_PATH}"
 patch -p1 < "${ROOT_DIR}/scripts/nodejs-patches/001-configure-bz2.patch"
 
 if [[ "$NODE_JS_VERSION" == "22"* ]]; then
-    patch -p1 < "${ROOT_DIR}/scripts/nodejs-patches/v22/005-win-almost-fix-race-detecting-esrch-in-uv-kill.patch"
+    patch -p1 < "${ROOT_DIR}/scripts/nodejs22-patches/005-win-almost-fix-race-detecting-esrch-in-uv-kill.patch"
 fi
 
 ./configure --prefix "${NODE_JS_INSTALL_DIR}"
