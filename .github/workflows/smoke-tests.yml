@@ -16,18 +16,16 @@ jobs:
         node: [20.x, 22.x, 23.x]
       fail-fast: false
     runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+    env:
+      npm_config_loglevel: verbose
+      npm_config_foreground_scripts: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
-      - name: Get npm cache directory
-        id: npm-cache-dir
-        shell: bash
-        run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
-      - uses: actions/cache@v4
-        with:
-          key: ${{ matrix.runner }}-node-${{ matrix.node }}-${{ hashFiles('package-lock.json') }}
-          path: ${{ steps.npm-cache-dir.outputs.dir }}
-      - run: npm ci --loglevel verbose
+          cache: "npm"
+      - run: npm install -g npm@10
+      - run: npm ci
       - run: npm run test-smoke
