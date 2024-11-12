@@ -1,0 +1,17 @@
+name: "Smoke Test Homebrew install"
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  pull_request:
+
+jobs:
+  smoke-test-homebrew:
+    runs-on: ${{ matrix.runner}}
+    strategy:
+      matrix:
+        runner: [macos-13, macos-14, macos-15]
+      fail-fast: false
+    steps:
+      - run: brew install mongosh
+      - run: mongosh --smokeTests
