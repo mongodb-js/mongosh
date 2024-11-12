@@ -21,6 +21,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
-          cache: npm
+      - name: Get npm cache directory
+        id: npm-cache-dir
+        shell: bash
+        run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
+      - uses: actions/cache@v4
+        with:
+          key: ${{ matrix.runner }}-node-${{ matrix.node }}-${{ hashFiles('package-lock.json') }}
+          path: ${{ steps.npm-cache-dir.outputs.dir }}
       - run: npm ci
       - run: npm run test-smoke
