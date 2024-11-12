@@ -3,7 +3,7 @@ name: "Smoke Test Homebrew install"
 on:
   schedule:
     - cron: "0 0 * * *"
-  pull_request:
+  pull_request: # TODO: remove pull_request trigger
 
 jobs:
   smoke-test-homebrew:
@@ -15,3 +15,24 @@ jobs:
     steps:
       - run: brew install mongosh
       - run: mongosh --smokeTests
+      - name: Report failure
+        # TODO: invert if-check below to only send on failure
+        if: !failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_MONGOSH_DEVEL_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+        uses: slackapi/slack-github-action@v1.27.0
+        with:
+          payload: |
+            {
+              "text": "Homebrew smoke test failed on macOS ${{ matrix.runner }}"
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "Failed run: [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+                  }
+                }
+              ]
+            }
