@@ -26,6 +26,7 @@
     "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
     "test-apistrict-ci": "cross-env MONGOSH_TEST_FORCE_API_STRICT=1 npm run test-ci",
+    "test-smoke": "node bin/mongosh.js --smokeTests",
     "eslint": "eslint",
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "check": "npm run lint && npm run depcheck",
@@ -61,7 +62,7 @@
     }
   },
   "dependencies": {
-    "@mongodb-js/devtools-proxy-support": "^0.4.1",
+    "@mongodb-js/devtools-proxy-support": "^0.4.2",
     "@mongosh/arg-parser": "0.0.0-dev.0",
     "@mongosh/autocomplete": "0.0.0-dev.0",
     "@mongosh/editor": "0.0.0-dev.0",
