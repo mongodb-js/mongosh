@@ -1046,6 +1046,8 @@ describe('e2e', function () {
     });
 
     it('reads and runs code from stdin, with .end()', async function () {
+      skipDueToEPermErrors(this);
+
       const dbName = `test-${Date.now()}`;
       shell.process.stdin.end(`
       use ${dbName};
