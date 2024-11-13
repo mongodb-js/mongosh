@@ -1,4 +1,5 @@
 import type { Document } from '@mongosh/service-provider-core';
+import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 
 import type Mongo from './mongo';
 import { asPrintable } from './enums';
@@ -53,6 +54,46 @@ export default class StreamProcessor extends ShellApiWithMongoClass {
   async stats(options: Document = {}) {
     return this._streams._runStreamCommand({
       getStreamProcessorStats: this.name,
+      ...options,
+    });
+  }
+
+  /**
+   * modify is used to modify a stream processor definition, like below:
+   *  Change the pipeline:
+   *    sp.name.modify(newPipeline)
+   *  Keep the same pipeline, change other options:
+   *   sp.name.modify({resumeFromCheckpoint: false})
+   *  Change the pipeline and set additional options:
+   *    sp.name.modify(newPipeline, {resumeFromCheckpoint: false})
+   */
+  async modify(options: Document): Promise<Document>;
+  async modify(pipeline: Document[], options?: Document): Promise<Document>;
+
+  @returnsPromise
+  async modify(
+    pipelineOrOptions: Document[] | Document,
+    options?: Document
+  ): Promise<Document> {
+    if (Array.isArray(pipelineOrOptions)) {
+      options = { ...options, pipeline: pipelineOrOptions };
+    } else if (typeof pipelineOrOptions === 'object') {
+      if (options) {
+        throw new MongoshInvalidInputError(
+          'If the first argument to modify is an object, the second argument should not be specified.',
+          CommonErrors.InvalidArgument
+        );
+      }
+      options = { ...pipelineOrOptions };
+    } else {
+      throw new MongoshInvalidInputError(
+        'The first argument to modify must be an array or object.',
+        CommonErrors.InvalidArgument
+      );
+    }
+
+    return this._streams._runStreamCommand({
+      modifyStreamProcessor: this.name,
       ...options,
     });
   }

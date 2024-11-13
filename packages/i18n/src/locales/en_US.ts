@@ -2771,6 +2771,9 @@ const translations: Catalog = {
               description:
                 'Return stats captured from a named stream processor.',
             },
+            modify: {
+              description: 'Modify a stream processor definition.',
+            },
           },
         },
       },
