@@ -22,7 +22,7 @@ jobs:
 
       - name: Report failure
         # TODO: replace with failure()
-        if: ${{ success() }}
+        if: ${{ matrix.runner == 'macos-15' }}
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_MONGOSH_DEVEL_WEBHOOK_URL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
@@ -36,7 +36,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "Failed run: [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+                    "text": "Homebrew smoke test failed on macOS ${{ matrix.runner }}: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ github.job }})|${{ github.run_id }}>"
                   }
                 }
               ]
