@@ -14,8 +14,12 @@ jobs:
         runner: [macos-13, macos-14, macos-15]
       fail-fast: false
     steps:
-      - run: brew install mongosh
-      - run: mongosh --smokeTests
+      - name: Install mongosh
+        run: brew install mongosh
+
+      - name: Run smoke tests
+        run: npx --yes mongodb-runner exec -- sh -c 'env MONGOSH_SMOKE_TEST_SERVER=$MONGODB_URI mongosh --smokeTests'
+
       - name: Report failure
         # TODO: replace with failure()
         if: ${{ success() }}
