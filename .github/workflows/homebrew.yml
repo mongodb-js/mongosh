@@ -30,7 +30,7 @@ jobs:
         with:
           payload: |
             {
-              "text": "Homebrew smoke test failed on macOS ${{ matrix.runner }}"
+              "text": "Homebrew smoke test failed on macOS ${{ matrix.runner }}",
               "blocks": [
                 {
                   "type": "section",
