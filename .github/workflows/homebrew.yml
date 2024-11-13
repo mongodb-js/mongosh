@@ -3,7 +3,6 @@ name: "Smoke Test Homebrew install"
 on:
   schedule:
     - cron: "0 0 * * *"
-  pull_request: # TODO: remove pull_request trigger
 
 jobs:
   smoke-test-homebrew:
@@ -21,8 +20,7 @@ jobs:
         run: npx --yes mongodb-runner exec -- sh -c 'env MONGOSH_SMOKE_TEST_SERVER=$MONGODB_URI mongosh --smokeTests'
 
       - name: Report failure
-        # TODO: replace with failure()
-        if: ${{ matrix.runner == 'macos-15' }}
+        if: ${{ failure() }}
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_MONGOSH_DEVEL_WEBHOOK_URL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
@@ -30,13 +28,13 @@ jobs:
         with:
           payload: |
             {
-              "text": "Homebrew smoke test failed on macOS ${{ matrix.runner }}",
+              "text": "Homebrew smoke test failed on ${{ matrix.runner }}",
               "blocks": [
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "Homebrew smoke test failed on macOS ${{ matrix.runner }}: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ github.job }})|${{ github.run_id }}>"
+                    "text": "Homebrew smoke test failed on ${{ matrix.runner }}: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.run_id }}>"
                   }
                 }
               ]
