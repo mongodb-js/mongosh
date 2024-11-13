@@ -13,12 +13,6 @@ export class MochaReporter extends reporters.Base {
 
     new Spec(runner);
 
-    runner.on('suite', (suite) => {
-      if (suite.parent?.root) {
-        suite.title = `${suite.title}`;
-      }
-    });
-
     new XUnit(runner, {
       reporterOptions: {
         suiteName,
