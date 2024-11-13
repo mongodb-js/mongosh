@@ -7,16 +7,16 @@ import type {
   Response,
 } from '@mongodb-js/devtools-proxy-support';
 import { createFetch } from '@mongodb-js/devtools-proxy-support';
-import { StyleDefinition } from './clr';
+import type { StyleDefinition } from './clr';
 
 interface GreetingCTADetails {
   chunks: {
     text: string;
-    style: StyleDefinition;
+    style?: StyleDefinition;
   }[];
 }
 
-interface MongoshVersionsContents {
+export interface MongoshVersionsContents {
   versions: {
     version: string;
     cta?: GreetingCTADetails;
@@ -72,7 +72,7 @@ export class UpdateNotificationManager {
   async getGreetingCTAForCurrentVersion(): Promise<
     | {
         text: string;
-        style: StyleDefinition;
+        style?: StyleDefinition;
       }[]
     | undefined
   > {

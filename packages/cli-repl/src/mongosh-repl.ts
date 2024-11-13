@@ -116,7 +116,7 @@ type MongoshRuntimeState = {
 
 type GreetingDetails = {
   moreRecentMongoshVersion?: string | null;
-  currentVersionCTA?: { text: string; style: StyleDefinition }[];
+  currentVersionCTA?: { text: string; style?: StyleDefinition }[];
 };
 
 /* Utility, inverse of Readonly<T> */

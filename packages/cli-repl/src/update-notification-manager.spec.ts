@@ -7,6 +7,7 @@ import type { AddressInfo } from 'net';
 import os from 'os';
 import path from 'path';
 import { UpdateNotificationManager } from './update-notification-manager';
+import type { MongoshVersionsContents } from './update-notification-manager';
 import sinon from 'sinon';
 
 describe('UpdateNotificationManager', function () {
@@ -121,5 +122,74 @@ describe('UpdateNotificationManager', function () {
     expect(
       await manager.getLatestVersionIfMoreRecent('1.0.0-alpha.0')
     ).to.equal(null);
+  });
+
+  it('figures out the greeting CTA when set on a global level', async function () {
+    const response: MongoshVersionsContents = {
+      versions: [
+        { version: '1.0.0' },
+        {
+          version: '1.1.0',
+          cta: { chunks: [{ text: "Don't use 1.1.0, downgrade!!" }] },
+        },
+      ],
+      cta: {
+        chunks: [{ text: 'Vote for your favorite feature!', style: 'bold' }],
+      },
+    };
+    reqHandler.callsFake((req, res) => {
+      res.end(JSON.stringify(response));
+    });
+
+    const manager = new UpdateNotificationManager();
+    await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
+
+    const cta = await manager.getGreetingCTAForCurrentVersion();
+    expect(cta).to.not.be.undefined;
+    expect(cta?.length).to.equal(1);
+    expect(cta![0]?.text).to.equal('Vote for your favorite feature!');
+    expect(cta![0]?.style).to.equal('bold');
+  });
+
+  it('figures out the greeting CTA when set on a per-version basis', async function () {
+    const response: MongoshVersionsContents = {
+      versions: [
+        {
+          version: '1.0.0',
+          cta: {
+            chunks: [
+              { text: "Don't use 1.0.0, upgrade!! " },
+              {
+                text: 'https://downloads.mongodb.com/mongosh/1.1.0/',
+                style: 'mongosh:uri',
+              },
+            ],
+          },
+        },
+        {
+          version: '1.1.0',
+          cta: { chunks: [{ text: 'This version is very safe!' }] },
+        },
+      ],
+      cta: {
+        chunks: [{ text: 'Vote for your favorite feature!', style: 'bold' }],
+      },
+    };
+    reqHandler.callsFake((req, res) => {
+      res.end(JSON.stringify(response));
+    });
+
+    const manager = new UpdateNotificationManager();
+    await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
+
+    const cta = await manager.getGreetingCTAForCurrentVersion();
+    expect(cta).to.not.be.undefined;
+    expect(cta?.length).to.equal(2);
+    expect(cta![0]?.text).to.equal("Don't use 1.0.0, upgrade!! ");
+    expect(cta![0]?.style).to.be.undefined;
+    expect(cta![1]?.text).to.equal(
+      'https://downloads.mongodb.com/mongosh/1.1.0/'
+    );
+    expect(cta![1]?.style).to.equal('mongosh:uri');
   });
 });

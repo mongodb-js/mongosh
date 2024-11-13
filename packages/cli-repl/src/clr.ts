@@ -14,7 +14,7 @@ export type StyleDefinition =
 /** Optionally colorize a string, given a set of style definition(s). */
 export default function colorize(
   text: string,
-  style: StyleDefinition,
+  style: StyleDefinition | undefined,
   options: { colors: boolean }
 ): string {
   if (options.colors) {
