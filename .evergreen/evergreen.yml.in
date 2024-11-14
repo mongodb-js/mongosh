@@ -44,7 +44,7 @@ const defaultVariants = ['darwin', 'linux', 'win32'];
 for (const { shortName: nShort, versionSpec: nVersion, skipNodeVersionCheck } of NODE_VERSIONS) {
   for (const platform of defaultVariants) {
   ALL_UNIT_TEST_BUILD_VARIANTS.push({
-          name: `${platform}_unit-n${nShort}`,
+          name: `${platform}-n${nShort}`,
           unitTestsOnly: true,
           platform, nShort, nVersion, skipNodeVersionCheck,
           ...platformToDetails[platform]
@@ -59,7 +59,7 @@ for (const { shortName: nShort, versionSpec: nVersion, skipNodeVersionCheck } of
           continue;
         }
         ALL_UNIT_TEST_BUILD_VARIANTS.push({
-          name: `${platform}_unit-m${mShort}_n${nShort}`,
+          name: `${platform}-m${mShort}_n${nShort}`,
           unitTestsOnly: false,
           platform,
           nShort, nVersion, mShort, mVersion, skipNodeVersionCheck,
@@ -1541,7 +1541,7 @@ buildvariants:
       mongosh_skip_node_version_check: "<% out(variant.skipNodeVersionCheck) %>"
     tasks:
      <% for (const test of ALL_UNIT_TESTS) { %>
-      - name: test_unit_<% out(test.id) %>
+      - name: test_<% out(test.id) %>
       <% } %>
   <% } %>
   - name: darwin
