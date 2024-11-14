@@ -69,6 +69,7 @@ if ((v8 as any)?.startupSnapshot?.isBuildingSnapshot?.()) {
 // eslint-disable-next-line complexity
 async function main() {
   markTime(TimingCategories.Main, 'entered main');
+  suppressExperimentalWarnings();
   if (process.env.MONGOSH_RUN_NODE_SCRIPT) {
     // For uncompiled mongosh: node /path/to/this/file script ... -> node script ...
     // FOr compiled mongosh: mongosh mongosh script ... -> mongosh script ...
@@ -309,5 +310,34 @@ async function ask(prompt: string): Promise<string> {
     return ''; // Unreachable
   } finally {
     process.stdin.unpipe(stdinCopy);
+  }
+}
+
+/**
+ * Helper to suppress experimental warnings emitted by node if necessary.
+ *
+ * In Node.js 23 require()ing ESM modules will work, but emit an experimental warning like
+ * CommonJS module ABC is loading ES Module XYZ using require(). This is causing problems for
+ * the way we import fetch - see relevant comments here:
+ * https://github.com/mongodb-js/devtools-shared/blob/29ceeb5f51d29883d4a69c83e68ad37b0965d49e/packages/devtools-proxy-support/src/fetch.ts#L12-L17
+ */
+function suppressExperimentalWarnings() {
+  const nodeMajorVersion = process.versions.node.split('.').map(Number)[0];
+  if (nodeMajorVersion >= 23) {
+    const originalEmit = process.emitWarning;
+    process.emitWarning = (warning, ...args: any[]): void => {
+      if (args[0] === 'ExperimentalWarning') {
+        return;
+      }
+
+      if (
+        typeof args[0] === 'object' &&
+        args[0].type === 'ExperimentalWarning'
+      ) {
+        return;
+      }
+
+      return originalEmit(warning, ...args);
+    };
   }
 }

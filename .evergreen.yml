@@ -7580,7 +7580,7 @@ functions:
           {
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
-          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
+          export PUPPETEER_SKIP_DOWNLOAD="true"
           npm run evergreen-release draft
           }
 
@@ -7598,7 +7598,7 @@ functions:
           node_js_version: ${node_js_version}
         script: |
           set -e
-          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
+          export PUPPETEER_SKIP_DOWNLOAD="true"
           .evergreen/run-evergreen-release.sh download-and-list-artifacts
     - command: shell.exec
       params:
@@ -7627,7 +7627,7 @@ functions:
           node_js_version: ${node_js_version}
         script: |
           set -e
-          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
+          export PUPPETEER_SKIP_DOWNLOAD="true"
           .evergreen/run-evergreen-release.sh publish -- --dry-run
 
   release_publish:
@@ -7646,7 +7646,7 @@ functions:
           node_js_version: ${node_js_version}
         script: |
           set -e
-          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
+          export PUPPETEER_SKIP_DOWNLOAD="true"
           .evergreen/run-evergreen-release.sh publish
 
   run_perf_tests:
@@ -16325,8 +16325,8 @@ buildvariants:
     tasks:
       - name: compile_artifact
   - name: linux_ppc64le_build
-    display_name: "RHEL 8.1 PPC (build)"
-    run_on: rhel81-power8-small
+    display_name: "RHEL 8 PPC (build)"
+    run_on: rhel8-power-small
     expansions:
       executable_os_id: linux-ppc64le
     tasks:
@@ -16512,9 +16512,9 @@ buildvariants:
     tasks:
       - name: e2e_tests_linux_arm64
       - name: e2e_tests_linux_arm64_openssl3
-  - name: e2e_rhel81_ppc64le
-    display_name: "RHEL 8.1 PPC (E2E Tests)"
-    run_on: rhel81-power8-small
+  - name: e2e_rhel8_ppc64le
+    display_name: "RHEL 8 PPC (E2E Tests)"
+    run_on: rhel8-power-small
     tasks:
       - name: e2e_tests_linux_ppc64le
   - name: e2e_rhel7_s390x
@@ -16722,9 +16722,9 @@ buildvariants:
     run_on: rhel8-zseries-small
     tasks:
       - name: pkg_test_rpmextract_rpm_s390x
-  - name: pkg_smoke_tests_rhel81_ppc64le
-    display_name: "package smoke tests (RHEL 8.1 ppc64le)"
-    run_on: rhel81-power8-small
+  - name: pkg_smoke_tests_rhel8_ppc64le
+    display_name: "package smoke tests (RHEL 8 ppc64le)"
+    run_on: rhel8-power-small
     tasks:
       - name: pkg_test_rpmextract_rpm_ppc64le
 

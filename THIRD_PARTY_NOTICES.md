@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Sun Nov 03 2024.
+This document was automatically generated on Wed Nov 13 2024.
 
 ## List of dependencies
 
@@ -202,7 +202,7 @@ Package|Version|License
 **[cookie](#bde361a738adb8c6192392882be351044a7c3288371719294b61bf796e2a8126)**|0.7.2|MIT
 **[core-util-is](#ab5cbd313ac7ce6a02ce0c800c05b4e77771c80c411d95438946ce15408bbd4f)**|1.0.2|MIT
 **[cpu-features](#fa992e00865a6ed732ac63bbf64c89ee2da4ec39944684e6002a3a34b5adb65c)**|0.0.9|MIT
-**[cross-spawn](#67de3a765808182ee1018c35bc07d7a023a8d645e98cc32814dcac2fc2c427ff)**|7.0.3|MIT
+**[cross-spawn](#18650458ca35439e7a812c8f7c2ed7a891653f9c6686fd1f0456eb4f645d367d)**|7.0.5|MIT
 **[data-uri-to-buffer](#496bb13aeb7c14308e5c8c3e20ea81509260ff27a35abfc39b316ced3c5d6860)**|4.0.1|MIT
 **[data-uri-to-buffer](#639ac74ee96dfbd31300c6ba10258377dafb6c2f9caa5bf388c099153953624c)**|5.0.1|MIT
 **[debug](#233219ced46fb5b84e28859835e97775eb9d0181f4cb85d6aa5cecb61e595947)**|2.6.9|MIT
@@ -312,7 +312,7 @@ Package|Version|License
 **[lodash.merge](#996e40d63a94f1b8693d7c81e0cdfb874c6432d6bbd675976fc1b6b13652c8db)**|4.6.2|MIT
 **[lodash](#adaac4144887ebc2c1b682380ff385210f681fc58b4bc1ef3986148cf8dcd28a)**|4.17.21|MIT
 **[lowlight](#6efc5090c0eda3b461d933d6b79bddcdf8165a10aea9f39ac76620ce5fb05bf5)**|1.17.0|MIT
-**[lru-cache](#8d10f71b6ab389fdca1b55e9aa96d77790f776843bd42ca91804a40a0d543f19)**|11.0.1|ISC
+**[lru-cache](#4ffd8f3438230331a92ccdb6752beda91852dc2a361669f3b26ef0b8829e9b26)**|11.0.2|ISC
 **[lru-cache](#fe7f0a2f2cf4c92f13c3a2a63f14f80f20f6919979306dc054e4f947c1234651)**|5.1.1|ISC
 **[lru-cache](#938513411a6603ce29334db15563fb94b7d52f839d32b9bd78c18f5d3f98aa5a)**|6.0.0|ISC
 **[media-typer](#fa74be298a38f8f9351484e9124aba4a4086182a4cba24449f195219a2843784)**|0.3.0|MIT
@@ -21732,8 +21732,8 @@ License files:
       IN THE SOFTWARE.
 
 
-<a id="67de3a765808182ee1018c35bc07d7a023a8d645e98cc32814dcac2fc2c427ff"></a>
-### [cross-spawn](https://www.npmjs.com/package/cross-spawn) (version 7.0.3)
+<a id="18650458ca35439e7a812c8f7c2ed7a891653f9c6686fd1f0456eb4f645d367d"></a>
+### [cross-spawn](https://www.npmjs.com/package/cross-spawn) (version 7.0.5)
 License tags: MIT
 
 License files:
@@ -25822,8 +25822,8 @@ License files:
       
 
 
-<a id="8d10f71b6ab389fdca1b55e9aa96d77790f776843bd42ca91804a40a0d543f19"></a>
-### [lru-cache](https://www.npmjs.com/package/lru-cache) (version 11.0.1)
+<a id="4ffd8f3438230331a92ccdb6752beda91852dc2a361669f3b26ef0b8829e9b26"></a>
+### [lru-cache](https://www.npmjs.com/package/lru-cache) (version 11.0.2)
 License tags: ISC
 
 License files:

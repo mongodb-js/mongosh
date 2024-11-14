@@ -9,7 +9,7 @@
   "author": "Compass Team <compass@mongodb.com>",
   "scripts": {
     "bootstrap-with-chromium": "npm install && npm run compile",
-    "bootstrap": "npx cross-env PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 npm install && npm run compile",
+    "bootstrap": "npx cross-env PUPPETEER_SKIP_DOWNLOAD=1 npm install && npm run compile",
     "clean": "lerna clean -y && rm -Rf node_modules",
     "check": "lerna run check --since HEAD --exclude-dependents",
     "check-ci": "npm run check --workspaces --if-present",
@@ -26,6 +26,8 @@
     "test-evergreen-expansions": "bash .evergreen/compilation-context-expansions.test.sh",
     "replace-package": "node scripts/replace-package.js",
     "test-nodedriver": "bash .evergreen/test-node-driver.sh",
+    "pretest-smoke": "npm run compile-cli",
+    "test-smoke": "npm run test-smoke -w @mongosh/cli-repl",
     "compile": "npm run compile --workspaces --if-present",
     "compile-cli": "lerna run compile --scope @mongosh/cli-repl --include-dependencies",
     "prestart-cli": "npm run compile-cli",
