@@ -32,39 +32,57 @@ const MONGOSH_PACKAGES = fs.readdirSync(pathToPackages, { withFileTypes: true })
     ...(JSON.parse(fs.readFileSync(path.join(pathToPackages, d.name, 'package.json'))).mongosh || {})
   }));
 
+const ALL_UNIT_TEST_BUILD_VARIANTS = [];
 const ALL_UNIT_TESTS = [];
-for (const packageInfo of MONGOSH_PACKAGES) {
-  for (const { shortName: nShort, versionSpec: nVersion, skipNodeVersionCheck } of NODE_VERSIONS) {
-    const defaultVariants = ['darwin', 'linux', 'win32'];
-    if (packageInfo.unitTestsOnly) {
-      const id = `n${nShort}_${packageInfo.name.replace(/-/g, '_')}`;
-      ALL_UNIT_TESTS.push({
-        id, nShort, nVersion, skipNodeVersionCheck,
-        packageName: packageInfo.name,
-        variants: packageInfo.variants ?? defaultVariants
-      });
-    } else {
-      for (const { shortName: mShort, versionSpec: mVersion } of MONGODB_VERSIONS) {
-        let variants = packageInfo.variants ?? defaultVariants;
-        variants = (mShort === '42xe') ?
+const platformToDetails = {
+  'darwin': { displayName: 'MacOS 14 arm64', runOn: 'macos-14-arm64', executableOsId: 'darwin-arm64' },
+  'linux': { displayName: 'Ubuntu 20.04 x64', runOn: 'ubuntu2004-small', executableOsId: 'darwin-arm64', tags: ["nightly-driver"]},
+  'win32': { displayName: 'Windows', runOn: 'windows-vsCurrent-small', executableOsId: 'win32' },
+}
+const defaultVariants = ['darwin', 'linux', 'win32'];
+
+for (const { shortName: nShort, versionSpec: nVersion, skipNodeVersionCheck } of NODE_VERSIONS) {
+  for (const platform of defaultVariants) {
+  ALL_UNIT_TEST_BUILD_VARIANTS.push({
+          name: `${platform}_unit-n${nShort}`,
+          unitTestsOnly: true,
+          platform, nShort, nVersion, skipNodeVersionCheck,
+          ...platformToDetails[platform]
+        });
+  for (const { shortName: mShort, versionSpec: mVersion } of MONGODB_VERSIONS) {
+
+
+        if (mShort === '42xe' && (platform === 'linux' || platform === 'darwin')) {
           // The MongoDB 4.2 enterprise server does not work on Ubuntu 20.04 or arm64 macOS
-          variants.filter(v => v !== 'linux' && v !== 'darwin') :
+          continue;
+        }
+        if (['42xc', '42xe', '44xc', '44xe', '50xc', '50xe'].includes(mShort) && (platform === 'darwin')) {
           // Unit tests on macOS use arm64 and therefore require 6.0+
-          (['42xc', '42xe', '44xc', '44xe', '50xc', '50xe'].includes(mShort)) ?
-          variants.filter(v => v !== 'darwin') :
-          variants;
-        const id = `m${mShort}_n${nShort}_${packageInfo.name.replace(/-/g, '_')}`;
-        ALL_UNIT_TESTS.push({
-          id, nShort, nVersion, mShort, mVersion, skipNodeVersionCheck,
-          packageName: packageInfo.name,
-          variants
+          continue;
+        }
+        ALL_UNIT_TEST_BUILD_VARIANTS.push({
+          name: `${platform}_unit-m${mShort}_n${nShort}`,
+          unitTestsOnly: false,
+          platform,
+          nShort, nVersion, mShort, mVersion, skipNodeVersionCheck,
+          ...platformToDetails[platform]
         });
       }
-    }
   }
 }
 
-const ALL_UNIT_TEST_BUILD_VARIANTS = ['darwin_unit', 'linux_unit', 'win32_unit'];
+for (const packageInfo of MONGOSH_PACKAGES) {
+  const id = `${packageInfo.name.replace(/-/g, '_')}`;
+
+  const variants = packageInfo.variants ?? defaultVariants
+  ALL_UNIT_TESTS.push({
+    id,
+    packageName: packageInfo.name,
+    unitTestsOnly: packageInfo.unitTestsOnly,
+    variants,
+  });
+}
+
 
 const { RELEASE_PACKAGE_MATRIX } = require('../config/release-package-matrix');
 
@@ -280,14 +298,16 @@ functions:
         content_type: application/x-gzip
 
   check_coverage:
-    <% for (let buildVariant of ALL_UNIT_TEST_BUILD_VARIANTS) {
-        for (let unitTest of ALL_UNIT_TESTS.filter(t => t.variants.includes(buildVariant.replace(/_unit$/, '')))) { %>
+    <% for (let variant of ALL_UNIT_TEST_BUILD_VARIANTS) {
+        for (let unitTest of ALL_UNIT_TESTS.filter(t => t.variants.includes(variant.platform) && (!t.unitTestsOnly || (t.unitTestsOnly && variant.unitTestsOnly)))) {
+        let buildVariant = variant.name;
+         %>
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-<% out(buildVariant) %>-<% out(unitTest.id) %>.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-<% out(buildVariant) %>-<% out(unitTest.id) %>.tgz
+        local_file: src/nyc-output-<% out(buildVariant) %>_<% out(unitTest.id) %>.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-<% out(buildVariant) %>_<% out(unitTest.id) %>.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -295,7 +315,7 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-<% out(buildVariant) %>-<% out(unitTest.id) %>.tgz
+          tar xvzf nyc-output-<% out(buildVariant) %>_<% out(unitTest.id) %>.tgz
     <% } } %>
     - command: shell.exec
       params:
@@ -1110,9 +1130,9 @@ tasks:
   # UNIT TESTS
   # E.g. test_m60xc_n16 stands for mongod 6.0.x, community edition, Node.js 16
   ###
-  <% for (const { id, nShort, nVersion, mShort, mVersion, skipNodeVersionCheck, packageName } of ALL_UNIT_TESTS) { %>
+  <% for (const { id, packageName } of ALL_UNIT_TESTS) { %>
   - name: test_<% out(id) %>
-    tags: <% out(["assigned_to_jira_team_mongosh_mongosh", "unit-test", ...(mShort === 'latest' ? ["mlatest"] : [])]) %>
+    tags: <% out(["assigned_to_jira_team_mongosh_mongosh", "unit-test"]) %>
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -1120,12 +1140,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(nVersion) %>"
+          node_js_version: ${nVersion}
       - func: test
         vars:
-          mongosh_server_test_version: "<% out(mVersion || '') %>"
-          node_js_version: "<% out(nVersion) %>"
-          mongosh_skip_node_version_check: "<% out(skipNodeVersionCheck) %>"
+          mongosh_server_test_version: ${mVersion}
+          node_js_version: ${nVersion}
+          mongosh_skip_node_version_check: ${skipNodeVersionCheck}
           mongosh_test_id: "<% out(id) %>"
           mongosh_run_only_in_package: "<% out(packageName) %>"
           task_name: ${task_name}
@@ -1511,16 +1531,21 @@ tasks:
 
 # Need to run builds for every possible build variant.
 buildvariants:
-  - name: darwin_unit
-    display_name: "MacOS 14 arm64 (Unit tests)"
-    run_on: macos-14-arm64
+  <% for (const variant of ALL_UNIT_TEST_BUILD_VARIANTS) { %>
+  - name: <% out(variant.name) %>
+    display_name: "<% out(variant.displayName) %> m<% out(variant.mShort) %> n<% out(variant.nShort) %> (Unit tests)"
+    run_on: <% out(variant.runOn) %>
+    tags: <% out([...(variant.tags ?? []), ...(variant.mShort === 'latest' ? ["mlatest"] : [])]) %>
     expansions:
-      executable_os_id: darwin-arm64
+      executable_os_id: <% out(variant.executableOsId) %>
+      mongosh_server_test_version: "<% out(variant.mVersion || '') %>"
+      node_js_version: "<% out(variant.nVersion) %>"
+      mongosh_skip_node_version_check: "<% out(variant.skipNodeVersionCheck) %>"
     tasks:
-      - name: check
-      <% for (const test of ALL_UNIT_TESTS.filter(t => t.variants.includes('darwin'))) { %>
-      - name: test_<% out(test.id) %>
+     <% for (const test of ALL_UNIT_TESTS) { %>
+      - name: test_unit_<% out(test.id) %>
       <% } %>
+  <% } %>
   - name: darwin
     display_name: "MacOS Big Sur"
     run_on: macos-11
@@ -1542,16 +1567,14 @@ buildvariants:
       - name: compile_artifact
       - name: e2e_tests_darwin_arm64
 
-  - name: linux_unit
-    display_name: "Ubuntu 20.04 x64 (Unit tests)"
+  - name: linux_other
+    display_name: "Ubuntu 20.04 x64 (Other tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     tasks:
       - name: compile_ts
       - name: check
-      <% for (const test of ALL_UNIT_TESTS.filter(t => t.variants.includes('linux'))) { %>
-      - name: test_<% out(test.id) %>
-      <% } %>
+      - name: test
       - name: test_vscode
       - name: test_connectivity
       - name: test_apistrict
@@ -1892,17 +1915,6 @@ buildvariants:
       executable_os_id: darwin-arm64
     tasks:
       - name: e2e_tests_darwin_arm64
-
-  - name: win32_unit
-    display_name: "Windows (Unit tests)"
-    run_on: windows-vsCurrent-small
-    expansions:
-      executable_os_id: win32
-    tasks:
-      - name: check
-      <% for (const test of ALL_UNIT_TESTS.filter(t => t.variants.includes('win32'))) { %>
-      - name: test_<% out(test.id) %>
-      <% } %>
   - name: win32
     display_name: "Windows VS 2022"
     run_on: windows-vsCurrent-small
