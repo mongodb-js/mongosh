@@ -7732,7 +7732,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: ${nVersion}
+          node_js_version: ${node_js_version}
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -7750,7 +7750,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: ${nVersion}
+          node_js_version: ${node_js_version}
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -7768,7 +7768,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: ${nVersion}
+          node_js_version: ${node_js_version}
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -7786,7 +7786,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: ${nVersion}
+          node_js_version: ${node_js_version}
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -7804,7 +7804,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: ${nVersion}
+          node_js_version: ${node_js_version}
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -7822,7 +7822,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: ${nVersion}
+          node_js_version: ${node_js_version}
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -7840,7 +7840,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: ${nVersion}
+          node_js_version: ${node_js_version}
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -7858,7 +7858,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: ${nVersion}
+          node_js_version: ${node_js_version}
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -7876,7 +7876,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: ${nVersion}
+          node_js_version: ${node_js_version}
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -7894,7 +7894,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: ${nVersion}
+          node_js_version: ${node_js_version}
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -7912,7 +7912,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: ${nVersion}
+          node_js_version: ${node_js_version}
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -7930,7 +7930,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: ${nVersion}
+          node_js_version: ${node_js_version}
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -7948,7 +7948,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: ${nVersion}
+          node_js_version: ${node_js_version}
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -7966,7 +7966,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: ${nVersion}
+          node_js_version: ${node_js_version}
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -7984,7 +7984,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: ${nVersion}
+          node_js_version: ${node_js_version}
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -8002,7 +8002,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: ${nVersion}
+          node_js_version: ${node_js_version}
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -8020,7 +8020,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: ${nVersion}
+          node_js_version: ${node_js_version}
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -8038,7 +8038,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: ${nVersion}
+          node_js_version: ${node_js_version}
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -8056,7 +8056,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: ${nVersion}
+          node_js_version: ${node_js_version}
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -8074,7 +8074,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: ${nVersion}
+          node_js_version: ${node_js_version}
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -8092,7 +8092,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: ${nVersion}
+          node_js_version: ${node_js_version}
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -8110,7 +8110,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: ${nVersion}
+          node_js_version: ${node_js_version}
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -8128,7 +8128,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: ${nVersion}
+          node_js_version: ${node_js_version}
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -8146,7 +8146,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: ${nVersion}
+          node_js_version: ${node_js_version}
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -8164,7 +8164,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: ${nVersion}
+          node_js_version: ${node_js_version}
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
