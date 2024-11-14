@@ -2058,6 +2058,4 @@ buildvariants:
     display_name: "Performance Tests"
     run_on: rhel90-dbx-perf-large
     tasks:
-      - name: perf_tests
-    expansions: 
-      executable_os_id: linux_x64
+      - name: perf_tests_linux_x64
