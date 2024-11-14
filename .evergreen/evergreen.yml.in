@@ -50,8 +50,6 @@ for (const { shortName: nShort, versionSpec: nVersion, skipNodeVersionCheck } of
           ...platformToDetails[platform]
         });
   for (const { shortName: mShort, versionSpec: mVersion } of MONGODB_VERSIONS) {
-
-
         if (mShort === '42xe' && (platform === 'linux' || platform === 'darwin')) {
           // The MongoDB 4.2 enterprise server does not work on Ubuntu 20.04 or arm64 macOS
           continue;
@@ -1103,7 +1101,7 @@ tasks:
   - name: check
     depends_on:
       - name: compile_ts
-        variant: linux_unit
+        variant: linux_unit-n20
     commands:
       - func: checkout
       - func: install
@@ -1131,11 +1129,11 @@ tasks:
   # E.g. test_m60xc_n16 stands for mongod 6.0.x, community edition, Node.js 16
   ###
   <% for (const { id, packageName } of ALL_UNIT_TESTS) { %>
-  - name: test_<% out(id) %>
+  - name: test_unit_<% out(id) %>
     tags: <% out(["assigned_to_jira_team_mongosh_mongosh", "unit-test"]) %>
     depends_on:
       - name: compile_ts
-        variant: linux_unit
+        variant: linux_unit-n20
     commands:
       - func: checkout
       - func: install
@@ -1157,7 +1155,7 @@ tasks:
   - name: test_vscode
     depends_on:
       - name: compile_ts
-        variant: linux_unit
+        variant: linux_unit-n20
     commands:
       - func: checkout
       - func: install
@@ -1171,7 +1169,7 @@ tasks:
     tags: ["extra-integration-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
       - name: compile_ts
-        variant: linux_unit
+        variant: linux_unit-n20
     commands:
       - func: checkout
       - func: install
@@ -1185,7 +1183,7 @@ tasks:
     tags: ["extra-integration-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
       - name: compile_ts
-        variant: linux_unit
+        variant: linux_unit-n20
     commands:
       - func: checkout
       - func: install
@@ -1201,7 +1199,7 @@ tasks:
     tags: ["compile-artifact"]
     depends_on:
       - name: compile_ts
-        variant: linux_unit
+        variant: linux_unit-n20
     commands:
       - func: checkout
       - func: install
@@ -1221,7 +1219,7 @@ tasks:
     tags: ["extra-integration-test"]
     depends_on:
       - name: compile_ts
-        variant: linux_unit
+        variant: linux_unit-n20
     commands:
       - func: checkout
       - func: install
@@ -1513,7 +1511,7 @@ tasks:
     exec_timeout_secs: 86400
     depends_on:
       - name: compile_ts
-        variant: linux_unit
+        variant: linux_unit-n20
     commands:
       - func: checkout
       - func: install
