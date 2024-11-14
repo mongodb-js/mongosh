@@ -1101,7 +1101,7 @@ tasks:
   - name: check
     depends_on:
       - name: compile_ts
-        variant: linux_unit-n20
+        variant: linux_other
     commands:
       - func: checkout
       - func: install
@@ -1129,11 +1129,11 @@ tasks:
   # E.g. test_m60xc_n16 stands for mongod 6.0.x, community edition, Node.js 16
   ###
   <% for (const { id, packageName } of ALL_UNIT_TESTS) { %>
-  - name: test_unit_<% out(id) %>
+  - name: test_<% out(id) %>
     tags: <% out(["assigned_to_jira_team_mongosh_mongosh", "unit-test"]) %>
     depends_on:
       - name: compile_ts
-        variant: linux_unit-n20
+        variant: linux_other
     commands:
       - func: checkout
       - func: install
@@ -1155,7 +1155,7 @@ tasks:
   - name: test_vscode
     depends_on:
       - name: compile_ts
-        variant: linux_unit-n20
+        variant: linux_other
     commands:
       - func: checkout
       - func: install
@@ -1169,7 +1169,7 @@ tasks:
     tags: ["extra-integration-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
       - name: compile_ts
-        variant: linux_unit-n20
+        variant: linux_other
     commands:
       - func: checkout
       - func: install
@@ -1183,7 +1183,7 @@ tasks:
     tags: ["extra-integration-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
       - name: compile_ts
-        variant: linux_unit-n20
+        variant: linux_other
     commands:
       - func: checkout
       - func: install
@@ -1199,7 +1199,7 @@ tasks:
     tags: ["compile-artifact"]
     depends_on:
       - name: compile_ts
-        variant: linux_unit-n20
+        variant: linux_other
     commands:
       - func: checkout
       - func: install
@@ -1219,7 +1219,7 @@ tasks:
     tags: ["extra-integration-test"]
     depends_on:
       - name: compile_ts
-        variant: linux_unit-n20
+        variant: linux_other
     commands:
       - func: checkout
       - func: install
@@ -1511,7 +1511,7 @@ tasks:
     exec_timeout_secs: 86400
     depends_on:
       - name: compile_ts
-        variant: linux_unit-n20
+        variant: linux_other
     commands:
       - func: checkout
       - func: install
@@ -1572,7 +1572,6 @@ buildvariants:
     tasks:
       - name: compile_ts
       - name: check
-      - name: test
       - name: test_vscode
       - name: test_connectivity
       - name: test_apistrict
