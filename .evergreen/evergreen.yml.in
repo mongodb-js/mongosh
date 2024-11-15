@@ -43,12 +43,15 @@ const defaultVariants = ['darwin', 'linux', 'win32'];
 
 for (const { shortName: nShort, versionSpec: nVersion, skipNodeVersionCheck } of NODE_VERSIONS) {
   for (const platform of defaultVariants) {
+const platformDetails = platformToDetails[platform];
   ALL_UNIT_TEST_BUILD_VARIANTS.push({
+          ...platformDetails,
           name: `${platform}-n${nShort}`,
+          displayName: `${platformDetails.displayName} n${nShort} (Unit tests)`,
           id: `${platform}-n${nShort}`,
           runWithUnitTestsOnly: true,
+          tags: platformDetails.tags ?? [],
           platform, nShort, nVersion, skipNodeVersionCheck,
-          ...platformToDetails[platform]
         });
   for (const { shortName: mShort, versionSpec: mVersion } of MONGODB_VERSIONS) {
         if (mShort === '42xe' && (platform === 'linux' || platform === 'darwin')) {
@@ -59,7 +62,6 @@ for (const { shortName: nShort, versionSpec: nVersion, skipNodeVersionCheck } of
           // Unit tests on macOS use arm64 and therefore require 6.0+
           continue;
         }
-        const platformDetails = platformToDetails[platform];
         ALL_UNIT_TEST_BUILD_VARIANTS.push({
           ...platformDetails,
           name: `tests_${platform}-m${mShort}_n${nShort}`,
@@ -1536,9 +1538,9 @@ tasks:
 buildvariants:
   <% for (const variant of ALL_UNIT_TEST_BUILD_VARIANTS) { %>
   - name: <% out(variant.name) %>
-    display_name: "<% out(variant.displayName) %> m<% out(variant.mShort) %> n<% out(variant.nShort) %> (Unit tests)"
+    display_name: "<% out(variant.displayName) %>"
     run_on: <% out(variant.runOn) %>
-    tags: <% out([...(variant.tags ?? []), ...(variant.mShort === 'latest' ? ["mlatest"] : [])]) %>
+    tags: <% out(variant.tags) %>
     expansions:
       executable_os_id: <% out(variant.executableOsId) %>
       mongosh_server_test_version: "<% out(variant.mVersion || '') %>"

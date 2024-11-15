@@ -13651,7 +13651,7 @@ tasks:
 # Need to run builds for every possible build variant.
 buildvariants:
   - name: darwin-n20
-    display_name: "MacOS 14 arm64 mundefined n20 (Unit tests)"
+    display_name: "MacOS 14 arm64 n20 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
     expansions:
@@ -13686,7 +13686,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_darwin-m60xc_n20
-    display_name: "MacOS 14 arm64 m60xc n20 (Unit tests) m60xc n20 (Unit tests)"
+    display_name: "MacOS 14 arm64 m60xc n20 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
     expansions:
@@ -13721,7 +13721,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_darwin-m60xe_n20
-    display_name: "MacOS 14 arm64 m60xe n20 (Unit tests) m60xe n20 (Unit tests)"
+    display_name: "MacOS 14 arm64 m60xe n20 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
     expansions:
@@ -13756,7 +13756,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_darwin-m70xc_n20
-    display_name: "MacOS 14 arm64 m70xc n20 (Unit tests) m70xc n20 (Unit tests)"
+    display_name: "MacOS 14 arm64 m70xc n20 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
     expansions:
@@ -13791,7 +13791,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_darwin-m70xe_n20
-    display_name: "MacOS 14 arm64 m70xe n20 (Unit tests) m70xe n20 (Unit tests)"
+    display_name: "MacOS 14 arm64 m70xe n20 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
     expansions:
@@ -13826,7 +13826,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_darwin-m80xc_n20
-    display_name: "MacOS 14 arm64 m80xc n20 (Unit tests) m80xc n20 (Unit tests)"
+    display_name: "MacOS 14 arm64 m80xc n20 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
     expansions:
@@ -13861,7 +13861,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_darwin-m80xe_n20
-    display_name: "MacOS 14 arm64 m80xe n20 (Unit tests) m80xe n20 (Unit tests)"
+    display_name: "MacOS 14 arm64 m80xe n20 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
     expansions:
@@ -13896,9 +13896,9 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_darwin-mlatest_n20
-    display_name: "MacOS 14 arm64 mlatest n20 (Unit tests) mlatest n20 (Unit tests)"
+    display_name: "MacOS 14 arm64 mlatest n20 (Unit tests)"
     run_on: macos-14-arm64
-    tags: ["mlatest","mlatest"]
+    tags: ["mlatest"]
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "latest-alpha-enterprise"
@@ -13931,7 +13931,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: linux-n20
-    display_name: "Ubuntu 20.04 x64 mundefined n20 (Unit tests)"
+    display_name: "Ubuntu 20.04 x64 n20 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     expansions:
@@ -13966,7 +13966,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_linux-m42xc_n20
-    display_name: "Ubuntu 20.04 x64 m42xc n20 (Unit tests) m42xc n20 (Unit tests)"
+    display_name: "Ubuntu 20.04 x64 m42xc n20 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     expansions:
@@ -14001,7 +14001,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_linux-m44xc_n20
-    display_name: "Ubuntu 20.04 x64 m44xc n20 (Unit tests) m44xc n20 (Unit tests)"
+    display_name: "Ubuntu 20.04 x64 m44xc n20 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     expansions:
@@ -14036,7 +14036,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_linux-m44xe_n20
-    display_name: "Ubuntu 20.04 x64 m44xe n20 (Unit tests) m44xe n20 (Unit tests)"
+    display_name: "Ubuntu 20.04 x64 m44xe n20 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     expansions:
@@ -14071,7 +14071,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_linux-m50xc_n20
-    display_name: "Ubuntu 20.04 x64 m50xc n20 (Unit tests) m50xc n20 (Unit tests)"
+    display_name: "Ubuntu 20.04 x64 m50xc n20 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     expansions:
@@ -14106,7 +14106,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_linux-m50xe_n20
-    display_name: "Ubuntu 20.04 x64 m50xe n20 (Unit tests) m50xe n20 (Unit tests)"
+    display_name: "Ubuntu 20.04 x64 m50xe n20 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     expansions:
@@ -14141,7 +14141,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_linux-m60xc_n20
-    display_name: "Ubuntu 20.04 x64 m60xc n20 (Unit tests) m60xc n20 (Unit tests)"
+    display_name: "Ubuntu 20.04 x64 m60xc n20 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     expansions:
@@ -14176,7 +14176,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_linux-m60xe_n20
-    display_name: "Ubuntu 20.04 x64 m60xe n20 (Unit tests) m60xe n20 (Unit tests)"
+    display_name: "Ubuntu 20.04 x64 m60xe n20 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     expansions:
@@ -14211,7 +14211,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_linux-m70xc_n20
-    display_name: "Ubuntu 20.04 x64 m70xc n20 (Unit tests) m70xc n20 (Unit tests)"
+    display_name: "Ubuntu 20.04 x64 m70xc n20 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     expansions:
@@ -14246,7 +14246,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_linux-m70xe_n20
-    display_name: "Ubuntu 20.04 x64 m70xe n20 (Unit tests) m70xe n20 (Unit tests)"
+    display_name: "Ubuntu 20.04 x64 m70xe n20 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     expansions:
@@ -14281,7 +14281,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_linux-m80xc_n20
-    display_name: "Ubuntu 20.04 x64 m80xc n20 (Unit tests) m80xc n20 (Unit tests)"
+    display_name: "Ubuntu 20.04 x64 m80xc n20 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     expansions:
@@ -14316,7 +14316,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_linux-m80xe_n20
-    display_name: "Ubuntu 20.04 x64 m80xe n20 (Unit tests) m80xe n20 (Unit tests)"
+    display_name: "Ubuntu 20.04 x64 m80xe n20 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     expansions:
@@ -14351,9 +14351,9 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_linux-mlatest_n20
-    display_name: "Ubuntu 20.04 x64 mlatest n20 (Unit tests) mlatest n20 (Unit tests)"
+    display_name: "Ubuntu 20.04 x64 mlatest n20 (Unit tests)"
     run_on: ubuntu2004-small
-    tags: ["nightly-driver","mlatest","mlatest"]
+    tags: ["nightly-driver","mlatest"]
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "latest-alpha-enterprise"
@@ -14386,7 +14386,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: win32-n20
-    display_name: "Windows mundefined n20 (Unit tests)"
+    display_name: "Windows n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
@@ -14421,7 +14421,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_win32-m42xc_n20
-    display_name: "Windows m42xc n20 (Unit tests) m42xc n20 (Unit tests)"
+    display_name: "Windows m42xc n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
@@ -14456,7 +14456,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_win32-m42xe_n20
-    display_name: "Windows m42xe n20 (Unit tests) m42xe n20 (Unit tests)"
+    display_name: "Windows m42xe n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
@@ -14491,7 +14491,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_win32-m44xc_n20
-    display_name: "Windows m44xc n20 (Unit tests) m44xc n20 (Unit tests)"
+    display_name: "Windows m44xc n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
@@ -14526,7 +14526,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_win32-m44xe_n20
-    display_name: "Windows m44xe n20 (Unit tests) m44xe n20 (Unit tests)"
+    display_name: "Windows m44xe n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
@@ -14561,7 +14561,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_win32-m50xc_n20
-    display_name: "Windows m50xc n20 (Unit tests) m50xc n20 (Unit tests)"
+    display_name: "Windows m50xc n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
@@ -14596,7 +14596,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_win32-m50xe_n20
-    display_name: "Windows m50xe n20 (Unit tests) m50xe n20 (Unit tests)"
+    display_name: "Windows m50xe n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
@@ -14631,7 +14631,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_win32-m60xc_n20
-    display_name: "Windows m60xc n20 (Unit tests) m60xc n20 (Unit tests)"
+    display_name: "Windows m60xc n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
@@ -14666,7 +14666,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_win32-m60xe_n20
-    display_name: "Windows m60xe n20 (Unit tests) m60xe n20 (Unit tests)"
+    display_name: "Windows m60xe n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
@@ -14701,7 +14701,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_win32-m70xc_n20
-    display_name: "Windows m70xc n20 (Unit tests) m70xc n20 (Unit tests)"
+    display_name: "Windows m70xc n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
@@ -14736,7 +14736,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_win32-m70xe_n20
-    display_name: "Windows m70xe n20 (Unit tests) m70xe n20 (Unit tests)"
+    display_name: "Windows m70xe n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
@@ -14771,7 +14771,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_win32-m80xc_n20
-    display_name: "Windows m80xc n20 (Unit tests) m80xc n20 (Unit tests)"
+    display_name: "Windows m80xc n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
@@ -14806,7 +14806,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_win32-m80xe_n20
-    display_name: "Windows m80xe n20 (Unit tests) m80xe n20 (Unit tests)"
+    display_name: "Windows m80xe n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
@@ -14841,9 +14841,9 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_win32-mlatest_n20
-    display_name: "Windows mlatest n20 (Unit tests) mlatest n20 (Unit tests)"
+    display_name: "Windows mlatest n20 (Unit tests)"
     run_on: windows-vsCurrent-small
-    tags: ["mlatest","mlatest"]
+    tags: ["mlatest"]
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "latest-alpha-enterprise"
@@ -14876,7 +14876,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: darwin-n16
-    display_name: "MacOS 14 arm64 mundefined n16 (Unit tests)"
+    display_name: "MacOS 14 arm64 n16 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
     expansions:
@@ -14911,7 +14911,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_darwin-m60xc_n16
-    display_name: "MacOS 14 arm64 m60xc n16 (Unit tests) m60xc n16 (Unit tests)"
+    display_name: "MacOS 14 arm64 m60xc n16 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
     expansions:
@@ -14946,7 +14946,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_darwin-m60xe_n16
-    display_name: "MacOS 14 arm64 m60xe n16 (Unit tests) m60xe n16 (Unit tests)"
+    display_name: "MacOS 14 arm64 m60xe n16 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
     expansions:
@@ -14981,7 +14981,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_darwin-m70xc_n16
-    display_name: "MacOS 14 arm64 m70xc n16 (Unit tests) m70xc n16 (Unit tests)"
+    display_name: "MacOS 14 arm64 m70xc n16 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
     expansions:
@@ -15016,7 +15016,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_darwin-m70xe_n16
-    display_name: "MacOS 14 arm64 m70xe n16 (Unit tests) m70xe n16 (Unit tests)"
+    display_name: "MacOS 14 arm64 m70xe n16 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
     expansions:
@@ -15051,7 +15051,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_darwin-m80xc_n16
-    display_name: "MacOS 14 arm64 m80xc n16 (Unit tests) m80xc n16 (Unit tests)"
+    display_name: "MacOS 14 arm64 m80xc n16 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
     expansions:
@@ -15086,7 +15086,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_darwin-m80xe_n16
-    display_name: "MacOS 14 arm64 m80xe n16 (Unit tests) m80xe n16 (Unit tests)"
+    display_name: "MacOS 14 arm64 m80xe n16 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
     expansions:
@@ -15121,9 +15121,9 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_darwin-mlatest_n16
-    display_name: "MacOS 14 arm64 mlatest n16 (Unit tests) mlatest n16 (Unit tests)"
+    display_name: "MacOS 14 arm64 mlatest n16 (Unit tests)"
     run_on: macos-14-arm64
-    tags: ["mlatest","mlatest"]
+    tags: ["mlatest"]
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "latest-alpha-enterprise"
@@ -15156,7 +15156,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: linux-n16
-    display_name: "Ubuntu 20.04 x64 mundefined n16 (Unit tests)"
+    display_name: "Ubuntu 20.04 x64 n16 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     expansions:
@@ -15191,7 +15191,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_linux-m42xc_n16
-    display_name: "Ubuntu 20.04 x64 m42xc n16 (Unit tests) m42xc n16 (Unit tests)"
+    display_name: "Ubuntu 20.04 x64 m42xc n16 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     expansions:
@@ -15226,7 +15226,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_linux-m44xc_n16
-    display_name: "Ubuntu 20.04 x64 m44xc n16 (Unit tests) m44xc n16 (Unit tests)"
+    display_name: "Ubuntu 20.04 x64 m44xc n16 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     expansions:
@@ -15261,7 +15261,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_linux-m44xe_n16
-    display_name: "Ubuntu 20.04 x64 m44xe n16 (Unit tests) m44xe n16 (Unit tests)"
+    display_name: "Ubuntu 20.04 x64 m44xe n16 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     expansions:
@@ -15296,7 +15296,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_linux-m50xc_n16
-    display_name: "Ubuntu 20.04 x64 m50xc n16 (Unit tests) m50xc n16 (Unit tests)"
+    display_name: "Ubuntu 20.04 x64 m50xc n16 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     expansions:
@@ -15331,7 +15331,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_linux-m50xe_n16
-    display_name: "Ubuntu 20.04 x64 m50xe n16 (Unit tests) m50xe n16 (Unit tests)"
+    display_name: "Ubuntu 20.04 x64 m50xe n16 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     expansions:
@@ -15366,7 +15366,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_linux-m60xc_n16
-    display_name: "Ubuntu 20.04 x64 m60xc n16 (Unit tests) m60xc n16 (Unit tests)"
+    display_name: "Ubuntu 20.04 x64 m60xc n16 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     expansions:
@@ -15401,7 +15401,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_linux-m60xe_n16
-    display_name: "Ubuntu 20.04 x64 m60xe n16 (Unit tests) m60xe n16 (Unit tests)"
+    display_name: "Ubuntu 20.04 x64 m60xe n16 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     expansions:
@@ -15436,7 +15436,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_linux-m70xc_n16
-    display_name: "Ubuntu 20.04 x64 m70xc n16 (Unit tests) m70xc n16 (Unit tests)"
+    display_name: "Ubuntu 20.04 x64 m70xc n16 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     expansions:
@@ -15471,7 +15471,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_linux-m70xe_n16
-    display_name: "Ubuntu 20.04 x64 m70xe n16 (Unit tests) m70xe n16 (Unit tests)"
+    display_name: "Ubuntu 20.04 x64 m70xe n16 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     expansions:
@@ -15506,7 +15506,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_linux-m80xc_n16
-    display_name: "Ubuntu 20.04 x64 m80xc n16 (Unit tests) m80xc n16 (Unit tests)"
+    display_name: "Ubuntu 20.04 x64 m80xc n16 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     expansions:
@@ -15541,7 +15541,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_linux-m80xe_n16
-    display_name: "Ubuntu 20.04 x64 m80xe n16 (Unit tests) m80xe n16 (Unit tests)"
+    display_name: "Ubuntu 20.04 x64 m80xe n16 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     expansions:
@@ -15576,9 +15576,9 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_linux-mlatest_n16
-    display_name: "Ubuntu 20.04 x64 mlatest n16 (Unit tests) mlatest n16 (Unit tests)"
+    display_name: "Ubuntu 20.04 x64 mlatest n16 (Unit tests)"
     run_on: ubuntu2004-small
-    tags: ["nightly-driver","mlatest","mlatest"]
+    tags: ["nightly-driver","mlatest"]
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "latest-alpha-enterprise"
@@ -15611,7 +15611,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: win32-n16
-    display_name: "Windows mundefined n16 (Unit tests)"
+    display_name: "Windows n16 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
@@ -15646,7 +15646,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_win32-m42xc_n16
-    display_name: "Windows m42xc n16 (Unit tests) m42xc n16 (Unit tests)"
+    display_name: "Windows m42xc n16 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
@@ -15681,7 +15681,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_win32-m42xe_n16
-    display_name: "Windows m42xe n16 (Unit tests) m42xe n16 (Unit tests)"
+    display_name: "Windows m42xe n16 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
@@ -15716,7 +15716,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_win32-m44xc_n16
-    display_name: "Windows m44xc n16 (Unit tests) m44xc n16 (Unit tests)"
+    display_name: "Windows m44xc n16 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
@@ -15751,7 +15751,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_win32-m44xe_n16
-    display_name: "Windows m44xe n16 (Unit tests) m44xe n16 (Unit tests)"
+    display_name: "Windows m44xe n16 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
@@ -15786,7 +15786,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_win32-m50xc_n16
-    display_name: "Windows m50xc n16 (Unit tests) m50xc n16 (Unit tests)"
+    display_name: "Windows m50xc n16 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
@@ -15821,7 +15821,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_win32-m50xe_n16
-    display_name: "Windows m50xe n16 (Unit tests) m50xe n16 (Unit tests)"
+    display_name: "Windows m50xe n16 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
@@ -15856,7 +15856,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_win32-m60xc_n16
-    display_name: "Windows m60xc n16 (Unit tests) m60xc n16 (Unit tests)"
+    display_name: "Windows m60xc n16 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
@@ -15891,7 +15891,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_win32-m60xe_n16
-    display_name: "Windows m60xe n16 (Unit tests) m60xe n16 (Unit tests)"
+    display_name: "Windows m60xe n16 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
@@ -15926,7 +15926,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_win32-m70xc_n16
-    display_name: "Windows m70xc n16 (Unit tests) m70xc n16 (Unit tests)"
+    display_name: "Windows m70xc n16 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
@@ -15961,7 +15961,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_win32-m70xe_n16
-    display_name: "Windows m70xe n16 (Unit tests) m70xe n16 (Unit tests)"
+    display_name: "Windows m70xe n16 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
@@ -15996,7 +15996,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_win32-m80xc_n16
-    display_name: "Windows m80xc n16 (Unit tests) m80xc n16 (Unit tests)"
+    display_name: "Windows m80xc n16 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
@@ -16031,7 +16031,7 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_win32-m80xe_n16
-    display_name: "Windows m80xe n16 (Unit tests) m80xe n16 (Unit tests)"
+    display_name: "Windows m80xe n16 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
@@ -16066,9 +16066,9 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_win32-mlatest_n16
-    display_name: "Windows mlatest n16 (Unit tests) mlatest n16 (Unit tests)"
+    display_name: "Windows mlatest n16 (Unit tests)"
     run_on: windows-vsCurrent-small
-    tags: ["mlatest","mlatest"]
+    tags: ["mlatest"]
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "latest-alpha-enterprise"
