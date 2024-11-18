@@ -40,7 +40,7 @@
     "@mongosh/shell-api": "0.0.0-dev.0",
     "@mongosh/types": "0.0.0-dev.0",
     "bson": "^6.9.0",
-    "cross-spawn": "^7.0.3",
+    "cross-spawn": "^7.0.5",
     "escape-string-regexp": "^4.0.0",
     "joi": "^17.4.0",
     "tar": "^6.1.15"
@@ -49,7 +49,7 @@
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "@types/cross-spawn": "^6.0.2",
+    "@types/cross-spawn": "^6.0.6",
     "@types/tar": "^4.0.4",
     "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
