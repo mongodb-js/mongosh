@@ -450,6 +450,22 @@ describe('arg-mapper.mapCliToDriver', function () {
     });
   });
 
+  context('when cli args have oidcNoNonce', function () {
+    const cliOptions: CliOptions = {
+      oidcNoNonce: true,
+    };
+
+    it('maps to oidc skipNonceInAuthCodeRequest', function () {
+      expect(optionsTest(cliOptions)).to.deep.equal({
+        driver: {
+          oidc: {
+            skipNonceInAuthCodeRequest: true,
+          },
+        },
+      });
+    });
+  });
+
   context('when cli args have browser', function () {
     it('maps to oidc command', function () {
       expect(optionsTest({ browser: '/usr/bin/browser' })).to.deep.equal({
