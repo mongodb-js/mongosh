@@ -1547,7 +1547,7 @@ buildvariants:
       node_js_version: "<% out(variant.nVersion) %>"
       mongosh_skip_node_version_check: "<% out(variant.skipNodeVersionCheck) %>"
     tasks:
-     <% for (const test of ALL_UNIT_TESTS) { %>
+     <% for (const test of ALL_UNIT_TESTS.filter(test => test.variants.includes(variant.platform))) { %>
       - name: test_<% out(test.id) %>
       <% } %>
   <% } %>
