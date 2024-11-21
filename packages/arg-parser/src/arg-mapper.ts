@@ -29,7 +29,7 @@ function setServerApi<Key extends keyof ServerApi>(
   const serverApi =
     typeof previousServerApi === 'string'
       ? { version: previousServerApi }
-      : { ...previousServerApi } ?? {};
+      : { ...previousServerApi };
   serverApi[key] = value;
   return setDriver(i, 'serverApi', serverApi as Required<ServerApi>);
 }
@@ -237,6 +237,7 @@ const MAPPINGS: {
       v.split(',').filter(Boolean) as OIDCOptions['allowedFlows']
     ),
   oidcIdTokenAsAccessToken: (i, v) => setOIDC(i, 'passIdTokenAsAccessToken', v),
+  oidcNoNonce: (i, v) => setOIDC(i, 'skipNonceInAuthCodeRequest', v),
   browser: (i, v) =>
     setOIDC(i, 'openBrowser', typeof v === 'string' ? { command: v } : v),
 };

@@ -152,6 +152,9 @@ export const USAGE = `
         --oidcDumpTokens[=mode]                ${i18n.__(
           'cli-repl.args.oidcDumpTokens'
         )}
+        --oidcNoNonce                          ${i18n.__(
+          'cli-repl.args.oidcNoNonce'
+        )}
 
   ${clr(i18n.__('cli-repl.args.dbAddressOptions'), 'mongosh:section-header')}
 
