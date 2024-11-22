@@ -15,6 +15,7 @@ cd vscode
 npm install --force
 rm -rf node_modules/@mongosh
 (cd node_modules && ln -s "$mongosh_root_dir/packages" @mongosh)
-npm test
+# This test can require a lot of memory so we bump the maximum size.
+NODE_OPTIONS=--max-old-space-size=4096 npm test
 cd /tmp
 rm -rf "$test_root_dir"
