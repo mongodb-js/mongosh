@@ -65,6 +65,7 @@ const OPTIONS = {
     'norc',
     'oidcTrustedEndpoint',
     'oidcIdTokenAsAccessToken',
+    'oidcNoNonce',
     'perfTests',
     'quiet',
     'retryWrites',

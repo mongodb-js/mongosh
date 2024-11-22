@@ -75,6 +75,7 @@ of mongosh, visit https://www.mongodb.com/try/download/shell.
         --oidcTrustedEndpoint                  Treat the cluster/database mongosh as a trusted endpoint
         --oidcIdTokenAsAccessToken             Use ID tokens in place of access tokens for auth
         --oidcDumpTokens[=mode]                Debug OIDC by printing tokens to mongosh's output [full|include-secrets]
+        --oidcNoNonce                          Don't send a nonce argument in the OIDC auth request
 
   DB Address Examples:
 
