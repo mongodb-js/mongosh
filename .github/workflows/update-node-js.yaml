@@ -18,7 +18,7 @@ jobs:
 
           # this is important so git log can pick up on
           # the whole history to generate the list of AUTHORS
-          fetch-depth: '0'
+          fetch-depth: "0"
 
       - name: Setup git
         run: |
@@ -28,7 +28,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 16.x
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install npm@8.19.4
         run: |
@@ -38,16 +38,14 @@ jobs:
         run: |
           npm run update-node-js-versions
           npm run update-evergreen-config
-          git add .
-          git commit --no-allow-empty -m "chore: update node.js version" || true
 
       - name: Create Pull Request
         id: cpr
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # 7.0.5
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: 'chore: update node.js'
+          token: ${{ secrets.SVC_DEVTOOLSBOT_TOKEN }}
+          commit-message: "chore: update node.js version"
           branch: ci/update-node-js-versions
-          title: 'chore: update node.js'
+          title: "chore: update node.js"
           body: |
             - Update node.js
