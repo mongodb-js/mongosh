@@ -7,7 +7,6 @@ npm -v
 # we pick a target directory that is not affected by the mongosh node_modules directory
 mongosh_root_dir=$PWD
 test_root_dir=/tmp/mongosh-vscode-test
-export NODE_OPTIONS=--max-old-space-size=4096
 export SEGMENT_KEY=GtEn04CBjn39g6A0BxldDf81YGFONOz7 # fresh from /dev/urandom
 rm -rf "$test_root_dir" && mkdir -p "$test_root_dir"
 cd "$test_root_dir"
@@ -16,6 +15,7 @@ cd vscode
 npm install --force
 rm -rf node_modules/@mongosh
 (cd node_modules && ln -s "$mongosh_root_dir/packages" @mongosh)
+# This test can require a lot of memory so we bump the maximum size.
 NODE_OPTIONS=--max-old-space-size=4096 npm test
 cd /tmp
 rm -rf "$test_root_dir"
