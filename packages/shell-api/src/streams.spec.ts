@@ -164,19 +164,24 @@ describe('Streams', function () {
     });
   });
 
+  // Create a stream processor.
+  const createProcessor = async (name: string) => {
+    const runCmdStub = sinon
+      .stub(mongo._serviceProvider, 'runCommand')
+      .resolves({ ok: 1 });
+    const pipeline = [{ $match: { foo: 'bar' } }];
+    const processor = await streams.createStreamProcessor(name, pipeline);
+    expect(processor).to.eql(streams.getProcessor(name));
+    const cmd = { createStreamProcessor: name, pipeline };
+    expect(runCmdStub.calledOnceWithExactly('admin', cmd, {})).to.be.true;
+    return { runCmdStub, processor };
+  };
+
   // Validate supplying options in start,stop, and drop commands.
   describe('options', function () {
     it('supplies options in start, stop, and drop', async function () {
-      // Create the stream processor.
-      const runCmdStub = sinon
-        .stub(mongo._serviceProvider, 'runCommand')
-        .resolves({ ok: 1 });
-      const name = 'optionsTest';
-      const pipeline = [{ $match: { foo: 'bar' } }];
-      const processor = await streams.createStreamProcessor(name, pipeline);
-      expect(processor).to.eql(streams.getProcessor(name));
-      const cmd = { createStreamProcessor: name, pipeline };
-      expect(runCmdStub.calledOnceWithExactly('admin', cmd, {})).to.be.true;
+      const name = 'testOptions';
+      const { runCmdStub, processor } = await createProcessor(name);
 
       // Start the stream processor with an extra option.
       await processor.start({ resumeFromCheckpoint: false });
@@ -219,16 +224,7 @@ describe('Streams', function () {
 
   describe('modify', function () {
     it('throws with invalid parameters', async function () {
-      // Create the stream processor.
-      const runCmdStub = sinon
-        .stub(mongo._serviceProvider, 'runCommand')
-        .resolves({ ok: 1 });
-      const name = 'p1';
-      const pipeline = [{ $match: { foo: 'bar' } }];
-      const processor = await streams.createStreamProcessor(name, pipeline);
-      expect(processor).to.eql(streams.getProcessor(name));
-      const cmd = { createStreamProcessor: name, pipeline };
-      expect(runCmdStub.calledOnceWithExactly('admin', cmd, {})).to.be.true;
+      const { processor } = await createProcessor('testModify');
 
       // No arguments to modify.
       const caught = await processor
@@ -259,17 +255,8 @@ describe('Streams', function () {
     });
 
     it('works with pipeline and options arguments', async function () {
-      const runCmdStub = sinon
-        .stub(mongo._serviceProvider, 'runCommand')
-        .resolves({ ok: 1 });
-
-      // Create the stream processor.
-      const name = 'p1';
-      const pipeline = [{ $match: { foo: 'bar' } }];
-      const processor = await streams.createStreamProcessor(name, pipeline);
-      expect(processor).to.eql(streams.getProcessor(name));
-      const cmd = { createStreamProcessor: name, pipeline };
-      expect(runCmdStub.calledOnceWithExactly('admin', cmd, {})).to.be.true;
+      const name = 'testModify';
+      const { runCmdStub, processor } = await createProcessor(name);
 
       // Start the stream processor.
       await processor.start();
