@@ -7,7 +7,7 @@ import { Streams } from './streams';
 import { InterruptFlag, MongoshInterruptedError } from './interruptor';
 import type { MongoshInvalidInputError } from '@mongosh/errors';
 
-describe('Streams', function () {
+describe.only('Streams', function () {
   let mongo: Mongo;
   let streams: Streams;
   const identity = (a: unknown) => a;
@@ -158,6 +158,59 @@ describe('Streams', function () {
         runCmdStub.calledWithExactly(
           'admin',
           { dropStreamProcessor: spmName },
+          {}
+        )
+      ).to.be.true;
+    });
+  });
+
+  // Validate supplying options in start,stop, and drop commands.
+  describe('options', function () {
+    it('supplies options in start, stop, and drop', async function () {
+      // Create the stream processor.
+      const runCmdStub = sinon
+        .stub(mongo._serviceProvider, 'runCommand')
+        .resolves({ ok: 1 });
+      const name = 'optionsTest';
+      const pipeline = [{ $match: { foo: 'bar' } }];
+      const processor = await streams.createStreamProcessor(name, pipeline);
+      expect(processor).to.eql(streams.getProcessor(name));
+      const cmd = { createStreamProcessor: name, pipeline };
+      expect(runCmdStub.calledOnceWithExactly('admin', cmd, {})).to.be.true;
+
+      // Start the stream processor with an extra option.
+      await processor.start({ resumeFromCheckpoint: false });
+      expect(
+        runCmdStub.calledWithExactly(
+          'admin',
+          { startStreamProcessor: name, resumeFromCheckpoint: false },
+          {}
+        )
+      ).to.be.true;
+
+      // Stop the stream processor with an extra option.
+      await processor.stop({ force: true });
+      expect(
+        runCmdStub.calledWithExactly(
+          'admin',
+          { stopStreamProcessor: name, force: true },
+          {}
+        )
+      ).to.be.true;
+
+      // Drop the stream processor with a few extra options.
+      const opts = {
+        force: true,
+        ttl: { unit: 'day', size: 30 },
+      };
+      await processor.drop(opts);
+      expect(
+        runCmdStub.calledWithExactly(
+          'admin',
+          {
+            dropStreamProcessor: name,
+            ...opts,
+          },
           {}
         )
       ).to.be.true;
