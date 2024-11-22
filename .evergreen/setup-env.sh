@@ -76,7 +76,7 @@ if [ "$OS" == "Windows_NT" ]; then
 fi
 
 export DOCKER_CONFIG="$BASEDIR/docker-config/config.json"
-export PATH="BASEDIR/docker-config/bin:$PATH"
+export PATH="$BASEDIR/docker-config/bin:$PATH"
 
 echo "Running on:"
 uname -a
