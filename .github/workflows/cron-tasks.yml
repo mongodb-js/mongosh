@@ -21,6 +21,7 @@ jobs:
           # this is important so git log can pick up on
           # the whole history to generate the list of AUTHORS
           fetch-depth: "0"
+          token: ${{ secrets.SVC_DEVTOOLSBOT_TOKEN }}
 
       - name: Set up Git
         run: |
