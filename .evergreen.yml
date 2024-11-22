@@ -6907,6 +6907,8 @@ functions:
         shell: bash
         env:
           NODE_JS_VERSION: ${node_js_version}
+          DOCKERHUB_USERNAME: ${dockerhub_username}
+          DOCKERHUB_PASSWORD: ${dockerhub_password}
         script: |
           set -e
           {
@@ -6930,6 +6932,8 @@ functions:
           NODE_JS_VERSION: ${node_js_version}
           TEST_MONGOSH_EXECUTABLE: ${test_mongosh_executable|}
           KERBEROS_JUMPHOST_DOCKERFILE: ${kerberos_jumphost_dockerfile|}
+          DOCKERHUB_USERNAME: ${dockerhub_username}
+          DOCKERHUB_PASSWORD: ${dockerhub_password}
         script: |
           set -e
           {
@@ -7329,6 +7333,8 @@ functions:
         shell: bash
         env:
           NODE_JS_VERSION: ${node_js_version}
+          DOCKERHUB_USERNAME: ${dockerhub_username}
+          DOCKERHUB_PASSWORD: ${dockerhub_password}
         script: |
           set -e
           set -x
@@ -7343,6 +7349,8 @@ functions:
         shell: bash
         env:
           NODE_JS_VERSION: ${node_js_version}
+          DOCKERHUB_USERNAME: ${dockerhub_username}
+          DOCKERHUB_PASSWORD: ${dockerhub_password}
         script: |
           set -e
           set -x
