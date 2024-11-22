@@ -7,7 +7,7 @@ import { Streams } from './streams';
 import { InterruptFlag, MongoshInterruptedError } from './interruptor';
 import type { MongoshInvalidInputError } from '@mongosh/errors';
 
-describe.only('Streams', function () {
+describe('Streams', function () {
   let mongo: Mongo;
   let streams: Streams;
   const identity = (a: unknown) => a;
