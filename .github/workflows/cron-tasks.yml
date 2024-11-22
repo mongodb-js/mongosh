@@ -13,24 +13,24 @@ jobs:
     name: Update automatically generated files
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           # don't checkout a detatched HEAD
           ref: ${{ github.head_ref }}
 
           # this is important so git log can pick up on
           # the whole history to generate the list of AUTHORS
-          fetch-depth: '0'
+          fetch-depth: "0"
 
       - name: Set up Git
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v4
         with:
           node-version: ^16.x
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install npm@8
         run: |
@@ -50,7 +50,6 @@ jobs:
         run: |
           npm run update-authors
           git add AUTHORS \*/AUTHORS
-          git commit --no-allow-empty -m "chore: update AUTHORS" || true
 
       - name: Generate Error Documentation
         run: |
@@ -58,25 +57,21 @@ jobs:
           mv error-overview.md error-overview.rst packages/errors/generated/
           npm run reformat
           git add packages/errors/generated
-          git commit --no-allow-empty -m "chore: update error documentation" || true
 
       - name: Regenerate Evergreen Config
         run: |
           npm run update-evergreen-config
           git add .evergreen.yml
-          git commit --no-allow-empty -m "chore: update evergreen config" || true
 
       - name: Update Security Test Summary
         run: |
           npm run update-security-test-summary
           git add docs/security-test-summary.md
-          git commit --no-allow-empty -m "chore: update security test summary" || true
 
       - name: Regenerate CLI usage text in README files
         run: |
           npm run update-cli-usage-text packages/*/*.md *.md
           git add packages/*/*.md *.md
-          git commit --no-allow-empty -m "chore: update CLI usage text" || true
 
       - name: Create pull request
         id: cpr
@@ -84,7 +79,7 @@ jobs:
         with:
           commit-message: Update auto-generated files
           branch: ci/cron-tasks-update-files
-          title: 'chore: update auto-generated files'
+          title: "chore: update auto-generated files"
           body: |
             - Update auto-generated files
 

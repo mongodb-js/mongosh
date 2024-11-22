@@ -180,20 +180,30 @@ describe('OIDC auth e2e', function () {
     );
   }
 
-  it('can successfully authenticate using OIDC Auth Code Flow', async function () {
-    shell = this.startTestShell({
-      args: [
-        await testServer.connectionString(),
-        '--authenticationMechanism=MONGODB-OIDC',
-        '--oidcRedirectUri=http://localhost:0/',
-        `--browser=${fetchBrowserFixture}`,
-      ],
-    });
-    await shell.waitForPrompt();
+  for (const useNonce of [true, false]) {
+    describe(`with nonce=${useNonce}`, function () {
+      it('can successfully authenticate using OIDC Auth Code Flow', async function () {
+        const args = [
+          await testServer.connectionString(),
+          '--authenticationMechanism=MONGODB-OIDC',
+          '--oidcRedirectUri=http://localhost:0/',
+          `--browser=${fetchBrowserFixture}`,
+        ];
 
-    await verifyUser(shell, 'testuser', 'testServer-group');
-    shell.assertNoErrors();
-  });
+        if (!useNonce) {
+          args.push('--oidcNoNonce');
+        }
+
+        shell = this.startTestShell({
+          args,
+        });
+        await shell.waitForPrompt();
+
+        await verifyUser(shell, 'testuser', 'testServer-group');
+        shell.assertNoErrors();
+      });
+    });
+  }
 
   it('can successfully authenticate using OIDC Auth Code Flow when a username is specified', async function () {
     shell = this.startTestShell({
