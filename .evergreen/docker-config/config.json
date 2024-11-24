@@ -1,9 +1,5 @@
 {
   "credHelpers": {
-    "registry.hub.docker.com": "from-env",
-    "docker.io": "from-env",
-    "docker.io/library": "from-env",
-		"index.docker.io/v1": "from-env",
-		"index.docker.io": "from-env"
+    "registry.hub.docker.com": "from-env"
   }
 }
