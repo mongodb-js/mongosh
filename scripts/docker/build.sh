@@ -7,7 +7,7 @@ cd "$(dirname "$0")"
 [ -x node_modules/mongodb-crypt-library-version ] || ((cd ../.. && npm ci) && cp -r ../../node_modules node_modules)
 
 # we don't have credentials for registry.suse.com and docker now requires them due to our config
-if [[ "$1" == suse* ]]
+if [[ "$1" == suse* ]]; then
   unset DOCKER_CONFIG
 fi
 
