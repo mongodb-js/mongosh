@@ -12,6 +12,10 @@ jobs:
   update_generated_files:
     name: Update automatically generated files
     runs-on: ubuntu-latest
+    env:
+      npm_config_loglevel: verbose
+      npm_config_foreground_scripts: "true"
+      PUPPETEER_SKIP_DOWNLOAD: "true"
     steps:
       - uses: actions/checkout@v4
         with:
