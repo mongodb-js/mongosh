@@ -39,7 +39,6 @@ jobs:
           # the whole history to generate the list of AUTHORS
           fetch-depth: "0"
           token: ${{ steps.app-token.outputs.token }}
-          persist-credentials: false
 
       - name: Set up Git
         run: |
