@@ -27,7 +27,7 @@
     "depcheck": "depcheck",
     "compile": "tsc -p tsconfig.json",
     "prepublish": "npm run compile",
-    "generate-error-overview": "ts-node scripts/extract-errors.ts .. ../../error-overview.md ../../error-overview.rst",
+    "generate-error-overview": "ts-node scripts/extract-errors.ts .. generated/error-overview.md generated/error-overview.rst && npm run reformat",
     "prettier": "prettier",
     "reformat": "npm run prettier -- --write . && npm run eslint --fix"
   },
