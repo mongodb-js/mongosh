@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch: # This should be removed once the workflow is tested and working
 
 jobs:
   update_generated_files:
@@ -17,6 +18,18 @@ jobs:
       npm_config_foreground_scripts: "true"
       PUPPETEER_SKIP_DOWNLOAD: "true"
     steps:
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
+          private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
+
+      - name: Get GitHub App User ID
+        id: get-user-id
+        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
       - uses: actions/checkout@v4
         with:
           # don't checkout a detatched HEAD
@@ -25,12 +38,13 @@ jobs:
           # this is important so git log can pick up on
           # the whole history to generate the list of AUTHORS
           fetch-depth: "0"
-          token: ${{ secrets.SVC_DEVTOOLSBOT_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: false
 
       - name: Set up Git
         run: |
-          git config --local user.email "devtoolsbot@users.noreply.github.com"
-          git config --local user.name "devtoolsbot"
+          git config --global user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
+          git config --global user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com>'
 
       - uses: actions/setup-node@v4
         with:
@@ -59,8 +73,6 @@ jobs:
       - name: Generate Error Documentation
         run: |
           npm run generate-error-overview
-          mv error-overview.md error-overview.rst packages/errors/generated/
-          npm run reformat
           git add packages/errors/generated
 
       - name: Regenerate Evergreen Config
