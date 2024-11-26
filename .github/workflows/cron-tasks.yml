@@ -7,7 +7,6 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch: # This should be removed once the workflow is tested and working
 
 jobs:
   update_generated_files:
@@ -39,7 +38,6 @@ jobs:
           # the whole history to generate the list of AUTHORS
           fetch-depth: "0"
           token: ${{ steps.app-token.outputs.token }}
-          persist-credentials: false
 
       - name: Set up Git
         run: |
@@ -92,5 +90,5 @@ jobs:
 
       - name: Commit and push
         run: |
-          git commit --no-allow-empty -m "chore: update auto-generated files" || true
+          git commit --no-allow-empty -m "chore: update auto-generated files [skip actions]" || true
           git push
