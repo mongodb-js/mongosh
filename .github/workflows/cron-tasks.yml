@@ -7,7 +7,6 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch: # This should be removed once the workflow is tested and working
 
 jobs:
   update_generated_files:
@@ -33,7 +32,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           # don't checkout a detatched HEAD
-          ref: main # TODO: change to {{ github.head_ref }}
+          ref: ${{ github.head_ref }}
 
           # this is important so git log can pick up on
           # the whole history to generate the list of AUTHORS
@@ -91,5 +90,5 @@ jobs:
 
       - name: Commit and push
         run: |
-          git commit --no-allow-empty -m "chore: update auto-generated files" || true
+          git commit --no-allow-empty -m "chore: update auto-generated files [skip actions]" || true
           git push
