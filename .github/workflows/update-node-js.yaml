@@ -11,19 +11,16 @@ jobs:
     name: Update Node.js versions
     runs-on: ubuntu-latest
     steps:
+      - uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
+        id: app-token
+        with:
+          app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
+          private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
+
       - uses: actions/checkout@v4
         with:
           # don't checkout a detatched HEAD
           ref: ${{ github.head_ref }}
-
-          # this is important so git log can pick up on
-          # the whole history to generate the list of AUTHORS
-          fetch-depth: "0"
-
-      - name: Setup git
-        run: |
-          git config --local user.email "devtoolsbot@users.noreply.github.com"
-          git config --local user.name "devtoolsbot"
 
       - uses: actions/setup-node@v4
         with:
@@ -42,7 +39,7 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # 7.0.5
         with:
-          token: ${{ secrets.SVC_DEVTOOLSBOT_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
           commit-message: "chore: update node.js version"
           branch: ci/update-node-js-versions
           title: "chore: update node.js"
