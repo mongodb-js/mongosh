@@ -127,13 +127,17 @@ interface ShellProps {
    */
   initialHistory: readonly string[];
 
+  /**
+   * A boolean so we can keep the isOperationInProgress state between sessions.
+   */
+  isOperationInProgress?: boolean;
+
   darkMode?: boolean;
 
   className?: string;
 }
 
 interface ShellState {
-  operationInProgress: boolean;
   output: readonly ShellOutputEntry[];
   history: readonly string[];
   passwordPrompt: string;
@@ -153,14 +157,6 @@ const normalizeInitialEvaluate = (initialEvaluate: string | string[]) => {
   });
 };
 
-const isInitialEvaluateEmpty = (
-  initialEvaluate?: string | string[] | undefined
-) => {
-  return (
-    !initialEvaluate || normalizeInitialEvaluate(initialEvaluate).length === 0
-  );
-};
-
 /**
  * The browser-repl Shell component
  */
@@ -175,6 +171,7 @@ export class _Shell extends Component<ShellProps, ShellState> {
     initialInput: '',
     initialOutput: [],
     initialHistory: [],
+    isOperationInProgress: false,
   };
 
   private shellInputElement: HTMLElement | null = null;
@@ -183,7 +180,6 @@ export class _Shell extends Component<ShellProps, ShellState> {
   private onCancelPasswordPrompt: () => void = noop;
 
   readonly state: ShellState = {
-    operationInProgress: !isInitialEvaluateEmpty(this.props.initialEvaluate),
     output: this.props.initialOutput.slice(-this.props.maxOutputLength),
     history: this.props.initialHistory.slice(0, this.props.maxHistoryLength),
     passwordPrompt: '',
@@ -357,17 +353,16 @@ export class _Shell extends Component<ShellProps, ShellState> {
 
     let output = this.addEntriesToOutput([inputLine]);
     this.setState({
-      operationInProgress: true,
       output,
     });
     this.props.onOutputChanged(output);
 
+    // TODO: what if we switch away from the shell while this is ongoing?
     const outputLine = await this.evaluate(code);
 
     output = this.addEntriesToOutput([outputLine]);
     const history = this.addEntryToHistory(code);
     this.setState({
-      operationInProgress: false,
       output,
       history,
     });
@@ -411,7 +406,7 @@ export class _Shell extends Component<ShellProps, ShellState> {
 
   private onSigInt = (): Promise<boolean> => {
     if (
-      this.state.operationInProgress &&
+      this.props.isOperationInProgress &&
       (this.props.runtime as WorkerRuntime).interrupt
     ) {
       return (this.props.runtime as WorkerRuntime).interrupt();
@@ -440,7 +435,7 @@ export class _Shell extends Component<ShellProps, ShellState> {
         history={this.state.history}
         onClearCommand={this.onClearCommand}
         onInput={this.onInput}
-        operationInProgress={this.state.operationInProgress}
+        operationInProgress={this.props.isOperationInProgress}
         editorRef={this.setEditor}
         onSigInt={this.onSigInt}
       />
