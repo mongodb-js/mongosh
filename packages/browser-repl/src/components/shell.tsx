@@ -357,7 +357,6 @@ export class _Shell extends Component<ShellProps, ShellState> {
     });
     this.props.onOutputChanged(output);
 
-    // TODO: what if we switch away from the shell while this is ongoing?
     const outputLine = await this.evaluate(code);
 
     output = this.addEntriesToOutput([outputLine]);
