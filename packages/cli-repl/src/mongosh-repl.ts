@@ -586,9 +586,6 @@ class MongoshNodeRepl implements EvaluationListener {
     mongodVersion: string,
     greeting?: GreetingDetails
   ): Promise<void> {
-    this.output.write('sadfasdfasdfassafsa');
-    this.output.write(JSON.stringify({ mongodVersion, greeting }) + '\n');
-
     if (this.shellCliOptions.quiet) {
       return;
     }

@@ -241,20 +241,20 @@ export function createVersionConfig(
 interface GreetingCTADetails {
   chunks: {
     text: string;
-    style: string; // TODO: this is actually clr.ts/StyleDefinition
+    style?: string; // TODO: this is actually clr.ts/StyleDefinition
   }[];
 }
 
 export interface UpdateCTAConfig {
   ctas: {
-    [version: string]: GreetingCTADetails;
+    [version: string | '*']: GreetingCTADetails;
   };
   awsAccessKeyId: string;
   awsSecretAccessKey: string;
   isDryRun: boolean;
 }
 
-interface JsonFeed {
+export interface JsonFeed {
   versions: JsonFeedVersionEntry[];
   cta?: GreetingCTADetails;
 }

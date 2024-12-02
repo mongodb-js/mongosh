@@ -7,12 +7,12 @@ module.exports = {
         // Define the ctas per version here. '*' is the default cta which will be shown if there's no specific cta
         // for the current version.
         // '*': {
-        //     runs: [
+        //     chunks: [
         //         { text: 'Example', style: 'bold' },
         //     ]
         // },
         // '1.2.3': {
-        //     runs: [
+        //     chunks: [
         //         { text: 'Example', style: 'mongosh:uri' },
         //     ]
         // }
