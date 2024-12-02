@@ -26,6 +26,7 @@ if [ `uname` = Darwin ]; then
   # match what Node.js 20 does on their own builder machines
   export CFLAGS='-mmacosx-version-min=10.15'
   export CXXFLAGS='-mmacosx-version-min=10.15'
+  export MACOSX_DEPLOYMENT_TARGET=10.15
 fi
 
 # The CI machines we have for Windows and x64 macOS are not
@@ -73,7 +74,7 @@ elif [ -n "$MONGOSH_SHARED_OPENSSL" ]; then
   export LD_LIBRARY_PATH=/tmp/m/opt/lib
 fi
 
-export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
+export PUPPETEER_SKIP_DOWNLOAD="true"
 npm run evergreen-release compile
 dist/mongosh --version
 dist/mongosh --build-info
