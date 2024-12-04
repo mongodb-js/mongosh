@@ -1494,12 +1494,14 @@ describe('e2e', function () {
               `connect(${JSON.stringify(connectionString)})`
             )
           ).to.include('test');
-          const log = await readLogfile();
-          expect(
-            log.filter(
-              (logEntry) => typeof logEntry.attr?.driver?.version === 'string'
-            )
-          ).to.have.lengthOf(1);
+          await eventually(async () => {
+            const log = await readLogfile();
+            expect(
+              log.filter(
+                (logEntry) => typeof logEntry.attr?.driver?.version === 'string'
+              )
+            ).to.have.lengthOf(1);
+          });
         });
       });
 
