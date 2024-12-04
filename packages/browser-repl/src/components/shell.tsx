@@ -111,7 +111,7 @@ interface ShellProps {
   /**
    * A set of input strings to evaluate right after shell is mounted
    */
-  initialEvaluate?: string | string[]; // TODO: rename
+  initialEvaluate?: string | string[];
 
   /**
    * Initial value in the shell input field
