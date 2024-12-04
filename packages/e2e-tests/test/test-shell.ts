@@ -199,40 +199,46 @@ export class TestShell {
     });
   }
 
-  async waitForPrompt(start = 0): Promise<void> {
-    await eventually(() => {
-      const output = this._output.slice(start);
-      const lines = output.split('\n');
-      const found = !!lines
-        .filter((l) => PROMPT_PATTERN.exec(l)) // a line that is the prompt must at least match the pattern
-        .find((l) => {
-          // in some situations the prompt occurs multiple times in the line (but only in tests!)
-          const prompts = l
-            .trim()
-            .replace(/>$/g, '')
-            .split('>')
-            .map((m) => m.trim());
-          // if there are multiple prompt parts they must all equal
-          if (prompts.length > 1) {
-            for (const p of prompts) {
-              if (p !== prompts[0]) {
-                return false;
+  async waitForPrompt(
+    start = 0,
+    opts: { timeout?: number } = {}
+  ): Promise<void> {
+    await eventually(
+      () => {
+        const output = this._output.slice(start);
+        const lines = output.split('\n');
+        const found = !!lines
+          .filter((l) => PROMPT_PATTERN.exec(l)) // a line that is the prompt must at least match the pattern
+          .find((l) => {
+            // in some situations the prompt occurs multiple times in the line (but only in tests!)
+            const prompts = l
+              .trim()
+              .replace(/>$/g, '')
+              .split('>')
+              .map((m) => m.trim());
+            // if there are multiple prompt parts they must all equal
+            if (prompts.length > 1) {
+              for (const p of prompts) {
+                if (p !== prompts[0]) {
+                  return false;
+                }
               }
             }
-          }
-          return true;
-        });
-      if (!found) {
-        throw new assert.AssertionError({
-          message: 'expected prompt',
-          expected: PROMPT_PATTERN.toString(),
-          actual:
-            this._output.slice(0, start) +
-            '[prompt search starts here]' +
-            output,
-        });
-      }
-    });
+            return true;
+          });
+        if (!found) {
+          throw new assert.AssertionError({
+            message: 'expected prompt',
+            expected: PROMPT_PATTERN.toString(),
+            actual:
+              this._output.slice(0, start) +
+              '[prompt search starts here]' +
+              output,
+          });
+        }
+      },
+      { ...opts }
+    );
   }
 
   waitForExit(): Promise<number> {
@@ -248,9 +254,13 @@ export class TestShell {
     return this.output;
   }
 
-  async waitForPromptOrExit(): Promise<TestShellStartupResult> {
+  async waitForPromptOrExit(
+    opts: { timeout?: number; start?: number } = {}
+  ): Promise<TestShellStartupResult> {
     return Promise.race([
-      this.waitForPrompt().then(() => ({ state: 'prompt' } as const)),
+      this.waitForPrompt(opts.start ?? 0, opts).then(
+        () => ({ state: 'prompt' } as const)
+      ),
       this.waitForExit().then((c) => ({ state: 'exit', exitCode: c } as const)),
     ]);
   }
