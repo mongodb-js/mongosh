@@ -7,7 +7,6 @@ import {
   skipIfApiStrict,
   startSharedTestServer,
 } from '../../../testing/integration-testing-hooks';
-import { skipDueToEPermErrors } from './util-helpers';
 
 type AssertUserExists = (opts?: Document, username?: string) => Promise<void>;
 function createAssertUserExists(db: Db, dbName: string): AssertUserExists {
@@ -1054,8 +1053,6 @@ describe('Auth e2e', function () {
         shell.assertNoErrors();
       });
       it('cannot auth when authenticationMechanism mismatches (sha256 -> sha1)', async function () {
-        skipDueToEPermErrors(this);
-
         const connectionString = await testServer.connectionString();
         shell = this.startTestShell({
           args: [
@@ -1077,8 +1074,6 @@ describe('Auth e2e', function () {
         });
       });
       it('cannot auth when authenticationMechanism mismatches (sha1 -> sha256)', async function () {
-        skipDueToEPermErrors(this);
-
         const connectionString = await testServer.connectionString();
         shell = this.startTestShell({
           args: [

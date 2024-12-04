@@ -21,7 +21,7 @@ import { createServer as createHTTPServer } from 'http';
 import { once } from 'events';
 import type { AddressInfo } from 'net';
 const { EJSON } = bson;
-import { skipDueToEPermErrors, sleep } from './util-helpers';
+import { sleep } from './util-helpers';
 
 const jsContextFlagCombinations: `--jsContext=${'plain-vm' | 'repl'}`[][] = [
   [],
@@ -1046,8 +1046,6 @@ describe('e2e', function () {
     });
 
     it('reads and runs code from stdin, with .end()', async function () {
-      skipDueToEPermErrors(this);
-
       const dbName = `test-${Date.now()}`;
       shell.process.stdin.end(`
       use ${dbName};
@@ -1061,7 +1059,6 @@ describe('e2e', function () {
     });
 
     it('reads and runs the vscode extension example playground', async function () {
-      skipDueToEPermErrors(this);
       createReadStream(
         path.resolve(__dirname, 'fixtures', 'exampleplayground.js')
       ).pipe(shell.process.stdin);
