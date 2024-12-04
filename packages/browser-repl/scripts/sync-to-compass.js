@@ -25,7 +25,23 @@ console.log({ packageDir, srcDir, libDir, destDir });
 
 const compileAndCopy = debounce(
   function () {
-    child_process.execFileSync('npm', ['run', 'compile'], { cwd: packageDir });
+    try {
+      child_process.execFileSync('npm', ['run', 'compile'], {
+        cwd: packageDir,
+      });
+    } catch (err) {
+      if (err.code) {
+        // Spawning child process failed
+        console.error(err.code);
+      } else {
+        // Child was spawned but exited with non-zero exit code
+        // Error contains any stdout and stderr from the child
+        const { stdout, stderr } = err;
+
+        console.log(stdout.toString());
+        console.error(stderr.toString());
+      }
+    }
     fs.cpSync(libDir, destDir, { recursive: true });
     console.log('done.');
   },

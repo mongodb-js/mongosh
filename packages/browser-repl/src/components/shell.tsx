@@ -1,4 +1,6 @@
-import React, { Component } from 'react';
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type { EditorRef } from '@mongodb-js/compass-editor';
 import {
   css,
@@ -7,7 +9,11 @@ import {
   useDarkMode,
   cx,
 } from '@mongodb-js/compass-components';
-import type { Runtime } from '@mongosh/browser-runtime-core';
+import type {
+  Runtime,
+  RuntimeEvaluationListener,
+  RuntimeEvaluationResult,
+} from '@mongosh/browser-runtime-core';
 import { changeHistory } from '@mongosh/history';
 import type { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
 import { PasswordPrompt } from './password-prompt';
@@ -59,21 +65,9 @@ interface ShellProps {
    */
   runtime: Runtime | WorkerRuntime;
 
-  /* A function called each time the output changes with an array of
-   * ShellOutputEntryes.
-   */
-  onOutputChanged: (output: readonly ShellOutputEntry[]) => void;
+  darkMode?: boolean;
 
-  /* A function called each time the history changes
-   * with an array of history entries ordered from the most recent to
-   * the oldest entry.
-   */
-  onHistoryChanged: (history: readonly string[]) => void;
-
-  /**
-   * A function called each time the text in the shell input is changed
-   */
-  onInputChanged?: (input: string) => void;
+  className?: string;
 
   /* If set, the shell will omit or redact entries containing sensitive
    * info from history. Defaults to `false`.
@@ -83,30 +77,46 @@ interface ShellProps {
   /* The maxiumum number of lines to keep in the output.
    * Defaults to `1000`.
    */
-  maxOutputLength: number;
+  maxOutputLength?: number;
 
   /* The maxiumum number of lines to keep in the history.
    * Defaults to `1000`.
    */
-  maxHistoryLength: number;
+  maxHistoryLength?: number;
+
+  /**
+   * A function called each time the text in the shell input is changed
+   */
+  onInputChanged?: (input: string) => void;
+
+  /* A function called each time the output changes with an array of
+   * ShellOutputEntries.
+   */
+  onOutputChanged?: (output: ShellOutputEntry[]) => void;
+
+  /* A function called each time the history changes
+   * with an array of history entries ordered from the most recent to
+   * the oldest entry.
+   */
+  onHistoryChanged?: (history: string[]) => void;
 
   /* A function called when an operation has begun.
    */
-  onOperationStarted: () => void;
+  onOperationStarted?: () => void;
 
   /* A function called when an operation has completed (both error and success).
    */
-  onOperationEnd: () => void;
-
-  /**
-   * Initial value in the shell input field
-   */
-  initialInput?: string;
+  onOperationEnd?: () => void;
 
   /**
    * A set of input strings to evaluate right after shell is mounted
    */
-  initialEvaluate?: string | string[];
+  initialEvaluate?: string | string[]; // TODO: rename
+
+  /**
+   * Initial value in the shell input field
+   */
+  inputText?: string;
 
   /* An array of entries to be displayed in the output area.
    *
@@ -115,7 +125,7 @@ interface ShellProps {
    *
    * Note: new entries will not be appended to the array.
    */
-  initialOutput: readonly ShellOutputEntry[];
+  output?: ShellOutputEntry[];
 
   /* An array of history entries to prepopulate the history.
    *
@@ -125,31 +135,24 @@ interface ShellProps {
    *
    * Note: new entries will not be appended to the array.
    */
-  initialHistory: readonly string[];
+  history?: string[];
 
   /**
    * Initial value of the isOperationInProgress field.
    *
    * Can be used to restore the value between sessions.
    */
-  initialIsOperationInProgress?: boolean;
+  isOperationInProgress?: boolean;
 
-  darkMode?: boolean;
-
-  className?: string;
+  /**
+   *
+   * A function called when the editor ref changes.
+   *
+   * Use this to keep track of the editor ref in order to call methods on the
+   * editor.
+   */
+  onEditorChanged?: (editor: EditorRef | null) => void;
 }
-
-interface ShellState {
-  output: readonly ShellOutputEntry[];
-  history: readonly string[];
-  isOperationInProgress: boolean;
-  passwordPrompt: string;
-  shellPrompt: string;
-}
-
-const noop = (): void => {
-  /* */
-};
 
 const normalizeInitialEvaluate = (initialEvaluate: string | string[]) => {
   return (
@@ -160,89 +163,115 @@ const normalizeInitialEvaluate = (initialEvaluate: string | string[]) => {
   });
 };
 
-/**
- * The browser-repl Shell component
- */
-export class _Shell extends Component<ShellProps, ShellState> {
-  static defaultProps = {
-    onHistoryChanged: noop,
-    onOperationStarted: noop,
-    onOperationEnd: noop,
-    onOutputChanged: noop,
-    maxOutputLength: 1000,
-    maxHistoryLength: 1000,
-    initialInput: '',
-    initialOutput: [],
-    initialHistory: [],
-    initialIsOperationInProgress: false,
-  };
+const noop = (): void => {
+  /* */
+};
 
-  private shellInputElement: HTMLElement | null = null;
-  private editor?: EditorRef | null = null;
-  private onFinishPasswordPrompt: (input: string) => void = noop;
-  private onCancelPasswordPrompt: () => void = noop;
+const capLength = (elements: unknown[], maxLength: number) => {
+  elements.splice(0, elements.length - maxLength);
+};
 
-  readonly state: ShellState = {
-    output: this.props.initialOutput.slice(-this.props.maxOutputLength),
-    history: this.props.initialHistory.slice(0, this.props.maxHistoryLength),
-    isOperationInProgress: !!this.props.initialIsOperationInProgress,
-    passwordPrompt: '',
-    shellPrompt: '>',
-  };
+// eslint-disable-next-line react/display-name
+export const Shell = ({
+  runtime,
+  className,
+  redactInfo,
+  maxOutputLength = 1000,
+  maxHistoryLength = 1000,
+  onInputChanged,
+  onOutputChanged,
+  onHistoryChanged,
+  onOperationStarted,
+  onOperationEnd,
+  initialEvaluate,
+  inputText,
+  output,
+  history,
+  isOperationInProgress = false,
+  onEditorChanged,
+}: ShellProps) => {
+  const darkMode = useDarkMode();
 
-  componentDidMount(): void {
-    // Store the intial prop value on mount so that we're not using potentially
-    // updated one when actually running the lines
-    let evalLines: string[] = [];
-    if (this.props.initialEvaluate) {
-      evalLines = normalizeInitialEvaluate(this.props.initialEvaluate);
-    }
-    this.scrollToBottom();
-    void this.updateShellPrompt().then(async () => {
-      for (const input of evalLines) {
-        await this.onInput(input);
-      }
-    });
-  }
+  const [editor, setEditor] = useState<EditorRef | null>(null);
+  const [passwordPrompt, setPasswordPrompt] = useState('');
+  const [shellPrompt, setShellPrompt] = useState('>');
+  const [shellInputElement, setShellInputElement] =
+    useState<HTMLElement | null>(null);
+  const [onFinishPasswordPrompt, setOnFinishPasswordPrompt] =
+    useState<(input: string) => void>(noop);
+  const [onCancelPasswordPrompt, setOnCancelPasswordPrompt] =
+    useState<() => void>(noop);
 
-  componentDidUpdate(): void {
-    this.scrollToBottom();
-  }
+  const focusEditor = useCallback(() => {
+    editor?.focus();
+  }, [editor]);
 
-  private evaluate = async (code: string): Promise<ShellOutputEntry> => {
-    let outputLine: ShellOutputEntry;
+  const editorChanged = useCallback(
+    (editor: EditorRef | null) => {
+      setEditor(editor);
+      onEditorChanged?.(editor);
+    },
+    [onEditorChanged]
+  );
 
-    try {
-      this.setState({ isOperationInProgress: true });
-      this.props.onOperationStarted();
+  const listener = useMemo(() => {
+    const evaluationListener: RuntimeEvaluationListener = {
+      onPrint: (result: RuntimeEvaluationResult[]): void => {
+        const newOutput = [
+          ...(output ?? []),
+          ...result.map(
+            (entry): ShellOutputEntry => ({
+              format: 'output',
+              type: entry.type,
+              value: entry.printable,
+            })
+          ),
+        ];
 
-      this.props.runtime.setEvaluationListener(this);
-      const result = await this.props.runtime.evaluate(code);
-      outputLine = {
-        format: 'output',
-        type: result.type,
-        value: result.printable,
-      };
-    } catch (error) {
-      outputLine = {
-        format: 'error',
-        value: error,
-      };
-    } finally {
-      await this.updateShellPrompt();
-      this.setState({ isOperationInProgress: false });
-      this.props.onOperationEnd();
-    }
+        capLength(newOutput, maxOutputLength);
+        onOutputChanged?.(newOutput);
+      },
+      onPrompt: async (
+        question: string,
+        type: 'password' | 'yesno'
+      ): Promise<string> => {
+        if (type !== 'password') {
+          throw new Error('yes/no prompts not implemented yet');
+        }
 
-    return outputLine;
-  };
+        const reset = () => {
+          setOnFinishPasswordPrompt(noop);
+          setOnCancelPasswordPrompt(noop);
+          setPasswordPrompt('');
+          setTimeout(focusEditor, 1);
+        };
 
-  private async updateShellPrompt(): Promise<void> {
-    let shellPrompt = '>';
+        const ret = new Promise<string>((resolve, reject) => {
+          setOnFinishPasswordPrompt((result: string) => {
+            reset();
+            resolve(result);
+          });
+          setOnCancelPasswordPrompt(() => {
+            reset();
+            reject(new Error('Canceled by user'));
+          });
+        });
+
+        return ret;
+      },
+      onClearCommand: (): void => {
+        onOutputChanged?.([]);
+      },
+    };
+    return evaluationListener;
+  }, [focusEditor, maxOutputLength, onOutputChanged, output]);
+
+  const updateShellPrompt = useCallback(async (): Promise<void> => {
+    let newShellPrompt = '>';
     let hasCustomPrompt = false;
     try {
-      this.props.runtime.setEvaluationListener(this);
-      const promptResult = await this.props.runtime.evaluate(`
+      runtime.setEvaluationListener(listener);
+      const promptResult = await runtime.evaluate(`
       (() => {
         switch (typeof prompt) {
           case 'function':
@@ -255,7 +284,7 @@ export class _Shell extends Component<ShellProps, ShellState> {
         promptResult.type === null &&
         typeof promptResult.printable === 'string'
       ) {
-        shellPrompt = promptResult.printable;
+        newShellPrompt = promptResult.printable;
         hasCustomPrompt = true;
       }
     } catch {
@@ -263,225 +292,166 @@ export class _Shell extends Component<ShellProps, ShellState> {
     }
     if (!hasCustomPrompt) {
       try {
-        shellPrompt = (await this.props.runtime.getShellPrompt()) ?? '>';
+        newShellPrompt = (await runtime.getShellPrompt()) ?? '>';
       } catch {
         // Just ignore errors when getting the prompt...
       }
     }
-    this.setState({ shellPrompt });
-  }
+    setShellPrompt(newShellPrompt);
+  }, [listener, runtime]);
 
-  private addEntryToHistory(code: string): readonly string[] {
-    const history = [code, ...this.state.history];
+  const evaluate = useCallback(
+    async (code: string): Promise<ShellOutputEntry> => {
+      let outputLine: ShellOutputEntry;
 
-    changeHistory(
+      try {
+        onOperationStarted?.();
+
+        runtime.setEvaluationListener(listener);
+        const result = await runtime.evaluate(code);
+        outputLine = {
+          format: 'output',
+          type: result.type,
+          value: result.printable,
+        };
+      } catch (error) {
+        outputLine = {
+          format: 'error',
+          value: error,
+        };
+      } finally {
+        await updateShellPrompt();
+        onOperationEnd?.();
+      }
+
+      return outputLine;
+    },
+    [listener, onOperationEnd, onOperationStarted, runtime, updateShellPrompt]
+  );
+
+  const onInput = useCallback(
+    async (code: string) => {
+      const newOutput = (output ?? []).slice();
+      const newHistory = (history ?? []).slice();
+
+      if (!code || code.trim() === '') {
+        newOutput.push({
+          format: 'input',
+          value: ' ',
+        });
+        capLength(newOutput, maxOutputLength);
+        onOutputChanged?.(newOutput);
+        return;
+      }
+
+      newOutput.push({
+        format: 'input',
+        value: code,
+      });
+      onOutputChanged?.(newOutput);
+
+      const outputLine = await evaluate(code);
+      newOutput.push(outputLine);
+      onOutputChanged?.(newOutput);
+
+      newHistory.unshift(code);
+      changeHistory(
+        newHistory,
+        redactInfo ? 'redact-sensitive-data' : 'keep-sensitive-data'
+      );
+      capLength(newHistory, maxHistoryLength);
+      onHistoryChanged?.(newHistory);
+    },
+    [
+      output,
       history,
-      this.props.redactInfo ? 'redact-sensitive-data' : 'keep-sensitive-data'
-    );
-    history.splice(this.props.maxHistoryLength);
+      onOutputChanged,
+      evaluate,
+      redactInfo,
+      maxHistoryLength,
+      onHistoryChanged,
+      maxOutputLength,
+    ]
+  );
 
-    Object.freeze(history);
-
-    return history;
-  }
-
-  private addEntriesToOutput(
-    entries: readonly ShellOutputEntry[]
-  ): readonly ShellOutputEntry[] {
-    const output = [...this.state.output, ...entries];
-
-    output.splice(0, output.length - this.props.maxOutputLength);
-
-    Object.freeze(output);
-
-    return output;
-  }
-
-  onClearCommand = (): void => {
-    const output: [] = [];
-
-    Object.freeze(output);
-
-    this.setState({ output });
-    this.props.onOutputChanged(output);
-  };
-
-  onPrint = (result: { type: string | null; printable: any }[]): void => {
-    const output = this.addEntriesToOutput(
-      result.map((entry) => ({
-        format: 'output',
-        type: entry.type,
-        value: entry.printable,
-      }))
-    );
-    this.setState({ output });
-    this.props.onOutputChanged(output);
-  };
-
-  onPrompt = (
-    question: string,
-    type: 'password' | 'yesno'
-  ): Promise<string> => {
-    if (type !== 'password') {
-      return Promise.reject(new Error('yes/no prompts not implemented yet'));
-    }
-    const reset = () => {
-      this.onFinishPasswordPrompt = noop;
-      this.onCancelPasswordPrompt = noop;
-      this.setState({ passwordPrompt: '' });
-      setTimeout(this.focusEditor, 1);
-    };
-
-    const ret = new Promise<string>((resolve, reject) => {
-      this.onFinishPasswordPrompt = (result: string) => {
-        reset();
-        resolve(result);
-      };
-      this.onCancelPasswordPrompt = () => {
-        reset();
-        reject(new Error('Canceled by user'));
-      };
-    });
-    this.setState({ passwordPrompt: question });
-    return ret;
-  };
-
-  private onInput = async (code: string): Promise<void> => {
-    if (!code || code.trim() === '') {
-      this.appendEmptyInput();
+  const scrollToBottom = useCallback(() => {
+    if (!shellInputElement) {
       return;
     }
 
-    const inputLine: ShellOutputEntry = {
-      format: 'input',
-      value: code,
-    };
+    shellInputElement.scrollIntoView();
+  }, [shellInputElement]);
 
-    let output = this.addEntriesToOutput([inputLine]);
-    this.setState({
-      output,
-    });
-    this.props.onOutputChanged(output);
+  useEffect(() => {
+    scrollToBottom();
 
-    const outputLine = await this.evaluate(code);
-
-    output = this.addEntriesToOutput([outputLine]);
-    const history = this.addEntryToHistory(code);
-    this.setState({
-      output,
-      history,
-    });
-    this.props.onOutputChanged(output);
-    this.props.onHistoryChanged(history);
-  };
-
-  private appendEmptyInput(): void {
-    const inputLine: ShellOutputEntry = {
-      format: 'input',
-      value: ' ',
-    };
-
-    const output = this.addEntriesToOutput([inputLine]);
-
-    this.setState({ output });
-  }
-
-  private scrollToBottom(): void {
-    if (!this.shellInputElement) {
-      return;
+    if (initialEvaluate) {
+      const evalLines = normalizeInitialEvaluate(initialEvaluate);
+      void updateShellPrompt().then(async () => {
+        for (const input of evalLines) {
+          await onInput(input);
+        }
+      });
     }
+  }, [initialEvaluate, onInput, scrollToBottom, updateShellPrompt, output]);
 
-    this.shellInputElement.scrollIntoView();
-  }
+  const onShellClicked = useCallback(
+    (event: React.MouseEvent): void => {
+      // Focus on input when clicking the shell background (not clicking output).
+      if (event.currentTarget === event.target) {
+        focusEditor();
+      }
+    },
+    [focusEditor]
+  );
 
-  private onShellClicked = (event: React.MouseEvent): void => {
-    // Focus on input when clicking the shell background (not clicking output).
-    if (event.currentTarget === event.target) {
-      this.focusEditor();
-    }
-  };
-
-  private setEditor = (editor: any | null) => {
-    this.editor = editor;
-  };
-
-  focusEditor = (): void => {
-    this.editor?.focus();
-  };
-
-  private onSigInt = (): Promise<boolean> => {
-    if (
-      this.state.isOperationInProgress &&
-      (this.props.runtime as WorkerRuntime).interrupt
-    ) {
-      return (this.props.runtime as WorkerRuntime).interrupt();
+  const onSigInt = useCallback((): Promise<boolean> => {
+    if (isOperationInProgress && (runtime as WorkerRuntime).interrupt) {
+      return (runtime as WorkerRuntime).interrupt();
     }
 
     return Promise.resolve(false);
-  };
+  }, [isOperationInProgress, runtime]);
 
-  renderInput(): JSX.Element {
-    if (this.state.passwordPrompt) {
-      return (
-        <PasswordPrompt
-          onFinish={this.onFinishPasswordPrompt}
-          onCancel={this.onCancelPasswordPrompt}
-          prompt={this.state.passwordPrompt}
-        />
-      );
-    }
-
-    return (
-      <ShellInput
-        initialText={this.props.initialInput}
-        onTextChange={this.props.onInputChanged}
-        prompt={this.state.shellPrompt}
-        autocompleter={this.props.runtime}
-        history={this.state.history}
-        onClearCommand={this.onClearCommand}
-        onInput={this.onInput}
-        operationInProgress={this.state.isOperationInProgress}
-        editorRef={this.setEditor}
-        onSigInt={this.onSigInt}
-      />
-    );
-  }
-
-  render(): JSX.Element {
-    return (
-      <div
-        data-testid="shell"
-        className={cx(
-          shellContainer,
-          this.props.darkMode
-            ? shellContainerDarkModeStyles
-            : shellContainerLightModeStyles,
-          this.props.className
-        )}
-        onClick={this.onShellClicked}
-      >
-        <div>
-          <ShellOutput output={this.state.output} />
-        </div>
-        <div
-          ref={(el): void => {
-            this.shellInputElement = el;
-          }}
-        >
-          {this.renderInput()}
-        </div>
+  return (
+    <div
+      data-testid="shell"
+      className={cx(
+        shellContainer,
+        darkMode ? shellContainerDarkModeStyles : shellContainerLightModeStyles,
+        className
+      )}
+      onClick={onShellClicked}
+    >
+      <div>
+        <ShellOutput output={output ?? []} />
       </div>
-    );
-  }
-}
-
-type DefaultProps = keyof (typeof _Shell)['defaultProps'];
-
-export const Shell = React.forwardRef<
-  _Shell,
-  Omit<ShellProps, DefaultProps | 'darkMode'> &
-    Partial<Pick<ShellProps, DefaultProps>>
->(function ShellWithDarkMode(props, ref) {
-  const darkMode = useDarkMode();
-  return <_Shell darkMode={darkMode} ref={ref} {...props}></_Shell>;
-});
+      <div
+        ref={(el): void => {
+          setShellInputElement(el);
+        }}
+      >
+        {passwordPrompt ? (
+          <PasswordPrompt
+            onFinish={onFinishPasswordPrompt}
+            onCancel={onCancelPasswordPrompt}
+            prompt={passwordPrompt}
+          />
+        ) : (
+          <ShellInput
+            initialText={inputText}
+            onTextChange={onInputChanged}
+            prompt={shellPrompt}
+            autocompleter={runtime}
+            history={history}
+            onClearCommand={listener.onClearCommand}
+            onInput={onInput}
+            operationInProgress={isOperationInProgress}
+            editorRef={editorChanged}
+            onSigInt={onSigInt}
+          />
+        )}
+      </div>
+    </div>
+  );
+};
