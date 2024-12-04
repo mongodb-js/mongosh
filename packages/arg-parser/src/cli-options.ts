@@ -56,5 +56,6 @@ export interface CliOptions {
   oidcTrustedEndpoint?: boolean;
   oidcIdTokenAsAccessToken?: boolean;
   oidcDumpTokens?: boolean | 'redacted' | 'include-secrets';
+  oidcNoNonce?: boolean;
   browser?: string | false;
 }

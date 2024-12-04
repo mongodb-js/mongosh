@@ -1,7 +1,7 @@
 {
-  "version": "22.11.0",
+  "version": "22.12.0",
   "major": 22,
-  "minor": 11,
+  "minor": 12,
   "patch": 0,
   "tag": "",
   "codename": "jod",
@@ -10,7 +10,7 @@
   "lts": "2024-10-29T00:00:00.000Z",
   "maintenance": "2025-10-21T00:00:00.000Z",
   "end": "2027-04-30T00:00:00.000Z",
-  "releaseDate": "2024-10-29T00:00:00.000Z",
+  "releaseDate": "2024-12-02T00:00:00.000Z",
   "isLts": true,
   "files": [
     "aix-ppc64",
@@ -38,7 +38,7 @@
   "dependencies": {
     "npm": "10.9.0",
     "v8": "12.4.254.21",
-    "uv": "1.48.0",
+    "uv": "1.49.1",
     "zlib": "1.3.0.1-motley",
     "openssl": "3.0.15+quic"
   }

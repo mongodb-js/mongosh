@@ -75,6 +75,9 @@ if [ "$OS" == "Windows_NT" ]; then
   export npm_config_logs_dir="$(cygpath -w "$npm_config_logs_dir")"
 fi
 
+export DOCKER_CONFIG="$BASEDIR/docker-config"
+export PATH="$BASEDIR/docker-config/bin:$PATH"
+
 echo "Running on:"
 uname -a
 

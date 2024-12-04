@@ -709,7 +709,11 @@ export default class Mongo extends ShellApiClass {
       }
     }
 
-    const allSessionOptions = ['causalConsistency', 'snapshot'] as const;
+    const allSessionOptions = [
+      'causalConsistency',
+      'snapshot',
+      'defaultTimeoutMS',
+    ] as const;
     function assertAllSessionOptionsUsed(
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       _options: (typeof allSessionOptions)[number] | 'defaultTransactionOptions'

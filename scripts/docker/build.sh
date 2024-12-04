@@ -6,6 +6,11 @@ cd "$(dirname "$0")"
 # Used for verifying that we actually have a working csfle shared library
 [ -x node_modules/mongodb-crypt-library-version ] || ((cd ../.. && npm ci) && cp -r ../../node_modules node_modules)
 
+# we don't have credentials for registry.suse.com and docker now requires them due to our config
+if [[ "$1" == suse* ]]; then
+  unset DOCKER_CONFIG
+fi
+
 if [ x"$ARTIFACT_URL" = x"" ]; then
   SHA=`git rev-parse origin/main`
   VERSION=`git show ${SHA}:../../lerna.json | grep version | cut -d ":" -f 2 | cut -d '"' -f 2`

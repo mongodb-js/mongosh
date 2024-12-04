@@ -392,6 +392,10 @@ export default function constructShellBson(
         'prototype',
         'createFromBase64',
         'createFromHexString',
+        'fromInt8Array',
+        'fromFloat32Array',
+        'fromPackedBits',
+        'fromBits',
         'BUFFER_SIZE',
         'SUBTYPE_DEFAULT',
         'SUBTYPE_FUNCTION',
@@ -402,7 +406,9 @@ export default function constructShellBson(
         'SUBTYPE_ENCRYPTED',
         'SUBTYPE_COLUMN',
         'SUBTYPE_SENSITIVE',
+        'SUBTYPE_VECTOR',
         'SUBTYPE_USER_DEFINED',
+        'VECTOR_TYPE',
       ])
     ),
     Double: assignAll(
