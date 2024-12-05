@@ -516,7 +516,17 @@ class MongoshNodeRepl implements EvaluationListener {
             // the multiline input are replaced at this point.
             const newHistoryEntry = makeMultilineJSIntoSingleLine(ev.input);
             if (newHistoryEntry.length > 0) {
-              originalHistory.unshift(newHistoryEntry);
+              const newLines = [newHistoryEntry];
+              /*
+              changeHistory(
+                newLines,
+                this.redactHistory === 'remove-redact'
+                  ? 'redact-sensitive-data'
+                  : 'keep-sensitive-data'
+              );
+              */
+
+              originalHistory.unshift(...newLines);
             }
             history.splice(0, history.length, ...originalHistory);
             originalHistory = null;
