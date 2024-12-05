@@ -93,6 +93,7 @@ module.exports = {
         ...common.testRules,
         ...extraJSRules,
         ...extraTypescriptRules,
+        '@typescript-eslint/no-non-null-assertion': 'off',
       },
     },
   ],
