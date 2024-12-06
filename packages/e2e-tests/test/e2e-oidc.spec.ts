@@ -16,6 +16,7 @@ import {
   commonOidcServerArgs,
   skipOIDCTestsDueToPlatformOrServerVersion,
 } from './oidc-helpers';
+import { createMongoDBOIDCPlugin } from '@mongodb-js/oidc-plugin';
 
 /**
  * @securityTest OIDC Authentication End-to-End Tests
@@ -527,5 +528,44 @@ describe('OIDC auth e2e', function () {
     shell.assertContainsOutput('"signature":');
     shell.assertContainsOutput('"lastServerIdPInfo":');
     shell.assertContainsOutput(/"refreshToken": "(?!debugid:)/);
+  });
+
+  it('can successfully authenticate using workload OIDC', async function () {
+    // Get a token from the OIDC server, store it to disk, then pass that to mongosh
+    const tokenFile = path.join(tmpdir.path, 'token');
+    let accessToken!: string;
+    const plugin = createMongoDBOIDCPlugin({
+      notifyDeviceFlow: () => {},
+      allowedFlows: ['device-auth'],
+    });
+    try {
+      ({ accessToken } =
+        await plugin.mongoClientOptions.authMechanismProperties.OIDC_HUMAN_CALLBACK(
+          {
+            version: 1,
+            idpInfo: { issuer: oidcMockProvider.issuer, clientId: 'workload' },
+          }
+        ));
+    } finally {
+      await plugin.destroy();
+    }
+    await fs.writeFile(tokenFile, accessToken);
+
+    shell = this.startTestShell({
+      args: [
+        await testServer.connectionString({
+          authMechanism: 'MONGODB-OIDC',
+          authMechanismProperties: 'ENVIRONMENT:k8s',
+        }),
+      ],
+      env: {
+        ...process.env,
+        AWS_WEB_IDENTITY_TOKEN_FILE: tokenFile,
+      },
+    });
+    await shell.waitForPrompt();
+
+    await verifyUser(shell, 'testuser', 'workload-group');
+    shell.assertNoErrors();
   });
 });

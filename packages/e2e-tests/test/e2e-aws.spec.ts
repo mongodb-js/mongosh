@@ -83,7 +83,11 @@ function getConnectionString(username?: string, password?: string): string {
 }
 
 describe('e2e AWS AUTH', function () {
-  this.timeout(60_000); // AWS auth tests can take longer than the default timeout in CI
+  // AWS auth tests can take longer than the default timeout in CI
+  // DNS resolution for many hosts in particular can be time-intensive in some
+  // CI environments
+  this.timeout(80_000);
+  const initialWaitForPromptTimeoutOptions = { timeout: 60_000 };
   let expectedAssumedRole: string;
 
   before(function () {
@@ -128,7 +132,9 @@ describe('e2e AWS AUTH', function () {
             AWS_SECRET_ACCESS_KEY,
           ],
         });
-        const result = await shell.waitForPromptOrExit();
+        const result = await shell.waitForPromptOrExit(
+          initialWaitForPromptTimeoutOptions
+        );
         expect(result.state).to.equal('prompt');
 
         const connectionStatus = await shell.executeLine(
@@ -150,7 +156,9 @@ describe('e2e AWS AUTH', function () {
             tokenDetails.token,
           ],
         });
-        const result = await shell.waitForPromptOrExit();
+        const result = await shell.waitForPromptOrExit(
+          initialWaitForPromptTimeoutOptions
+        );
         expect(result.state).to.equal('prompt');
 
         const connectionStatus = await shell.executeLine(
@@ -165,7 +173,9 @@ describe('e2e AWS AUTH', function () {
         const shell = this.startTestShell({
           args: [getConnectionString(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)],
         });
-        const result = await shell.waitForPromptOrExit();
+        const result = await shell.waitForPromptOrExit(
+          initialWaitForPromptTimeoutOptions
+        );
         expect(result.state).to.equal('prompt');
 
         const connectionStatus = await shell.executeLine(
@@ -186,7 +196,9 @@ describe('e2e AWS AUTH', function () {
             )}`,
           ],
         });
-        const result = await shell.waitForPromptOrExit();
+        const result = await shell.waitForPromptOrExit(
+          initialWaitForPromptTimeoutOptions
+        );
         expect(result.state).to.equal('prompt');
 
         const connectionStatus = await shell.executeLine(
@@ -208,7 +220,9 @@ describe('e2e AWS AUTH', function () {
             AWS_SECRET_ACCESS_KEY,
           },
         });
-        const result = await shell.waitForPromptOrExit();
+        const result = await shell.waitForPromptOrExit(
+          initialWaitForPromptTimeoutOptions
+        );
         expect(result.state).to.equal('prompt');
 
         const connectionStatus = await shell.executeLine(
@@ -228,7 +242,9 @@ describe('e2e AWS AUTH', function () {
             AWS_SESSION_TOKEN: tokenDetails.token,
           },
         });
-        const result = await shell.waitForPromptOrExit();
+        const result = await shell.waitForPromptOrExit(
+          initialWaitForPromptTimeoutOptions
+        );
         expect(result.state).to.equal('prompt');
 
         const connectionStatus = await shell.executeLine(
@@ -254,7 +270,9 @@ describe('e2e AWS AUTH', function () {
             AWS_SECRET_ACCESS_KEY: 'invalid',
           },
         });
-        const result = await shell.waitForPromptOrExit();
+        const result = await shell.waitForPromptOrExit(
+          initialWaitForPromptTimeoutOptions
+        );
         expect(result.state).to.equal('prompt');
 
         const connectionStatus = await shell.executeLine(
@@ -282,7 +300,9 @@ describe('e2e AWS AUTH', function () {
             AWS_SESSION_TOKEN: 'invalid',
           },
         });
-        const result = await shell.waitForPromptOrExit();
+        const result = await shell.waitForPromptOrExit(
+          initialWaitForPromptTimeoutOptions
+        );
         expect(result.state).to.equal('prompt');
 
         const connectionStatus = await shell.executeLine(
