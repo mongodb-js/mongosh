@@ -39,10 +39,11 @@ export class PasswordPrompt extends Component<PasswordPromptProps> {
 
   render(): JSX.Element {
     return (
-      <label id="password-promt-label" className={passwordPrompt}>
+      <label id="password-prompt-label" className={passwordPrompt}>
         {this.props.prompt}:&nbsp;
         <TextInput
-          aria-labelledby="password-promt-label"
+          data-testid="password-prompt"
+          aria-labelledby="password-prompt-label"
           type="password"
           onKeyDown={this.onKeyDown}
           className={passwordPropmtInputStyles}
