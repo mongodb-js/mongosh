@@ -167,8 +167,12 @@ const noop = (): void => {
   /* */
 };
 
-const capLength = (elements: unknown[], maxLength: number) => {
+const capLengthEnd = (elements: unknown[], maxLength: number) => {
   elements.splice(0, elements.length - maxLength);
+};
+
+const capLengthStart = (elements: unknown[], maxLength: number) => {
+  elements.splice(maxLength);
 };
 
 // eslint-disable-next-line react/display-name
@@ -197,10 +201,12 @@ export const Shell = ({
   const [shellPrompt, setShellPrompt] = useState('>');
   const [shellInputElement, setShellInputElement] =
     useState<HTMLElement | null>(null);
-  const [onFinishPasswordPrompt, setOnFinishPasswordPrompt] =
-    useState<(input: string) => void>(noop);
-  const [onCancelPasswordPrompt, setOnCancelPasswordPrompt] =
-    useState<() => void>(noop);
+  const [onFinishPasswordPrompt, setOnFinishPasswordPrompt] = useState<
+    () => (result: string) => void
+  >(() => noop);
+  const [onCancelPasswordPrompt, setOnCancelPasswordPrompt] = useState<
+    () => () => void
+  >(() => noop);
 
   const focusEditor = useCallback(() => {
     editor?.focus();
@@ -228,7 +234,7 @@ export const Shell = ({
           ),
         ];
 
-        capLength(newOutput, maxOutputLength);
+        capLengthEnd(newOutput, maxOutputLength);
         onOutputChanged?.(newOutput);
       },
       onPrompt: async (
@@ -240,22 +246,24 @@ export const Shell = ({
         }
 
         const reset = () => {
-          setOnFinishPasswordPrompt(noop);
-          setOnCancelPasswordPrompt(noop);
+          setOnFinishPasswordPrompt(() => noop);
+          setOnCancelPasswordPrompt(() => noop);
           setPasswordPrompt('');
           setTimeout(focusEditor, 1);
         };
 
         const ret = new Promise<string>((resolve, reject) => {
-          setOnFinishPasswordPrompt((result: string) => {
+          setOnFinishPasswordPrompt(() => (result: string) => {
             reset();
             resolve(result);
           });
-          setOnCancelPasswordPrompt(() => {
+          setOnCancelPasswordPrompt(() => () => {
             reset();
             reject(new Error('Canceled by user'));
           });
         });
+
+        setPasswordPrompt(question);
 
         return ret;
       },
@@ -334,32 +342,39 @@ export const Shell = ({
       const newOutput = (output ?? []).slice();
       const newHistory = (history ?? []).slice();
 
+      // don't evaluate empty input, but do add it to the output
       if (!code || code.trim() === '') {
         newOutput.push({
           format: 'input',
           value: ' ',
         });
-        capLength(newOutput, maxOutputLength);
+        capLengthEnd(newOutput, maxOutputLength);
         onOutputChanged?.(newOutput);
         return;
       }
 
+      // add input to output
       newOutput.push({
         format: 'input',
         value: code,
       });
+      capLengthEnd(newOutput, maxOutputLength);
       onOutputChanged?.(newOutput);
 
       const outputLine = await evaluate(code);
+
+      // add output to output
       newOutput.push(outputLine);
+      capLengthEnd(newOutput, maxOutputLength);
       onOutputChanged?.(newOutput);
 
+      // update history
       newHistory.unshift(code);
       changeHistory(
         newHistory,
         redactInfo ? 'redact-sensitive-data' : 'keep-sensitive-data'
       );
-      capLength(newHistory, maxHistoryLength);
+      capLengthStart(newHistory, maxHistoryLength);
       onHistoryChanged?.(newHistory);
     },
     [
@@ -385,14 +400,14 @@ export const Shell = ({
   useEffect(() => {
     scrollToBottom();
 
-    if (initialEvaluate) {
-      const evalLines = normalizeInitialEvaluate(initialEvaluate);
-      void updateShellPrompt().then(async () => {
+    void updateShellPrompt().then(async () => {
+      if (initialEvaluate) {
+        const evalLines = normalizeInitialEvaluate(initialEvaluate);
         for (const input of evalLines) {
           await onInput(input);
         }
-      });
-    }
+      }
+    });
   }, [initialEvaluate, onInput, scrollToBottom, updateShellPrompt, output]);
 
   const onShellClicked = useCallback(
