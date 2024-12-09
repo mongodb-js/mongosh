@@ -109,11 +109,12 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
   };
 
   private onEnter = async (): Promise<void> => {
+    const value = this.state.currentValue;
+    // clear the value before evaluating the input because it could take a long
+    // time
+    this.setState({ currentValue: '' });
+
     if (this.props.onInput) {
-      const value = this.state.currentValue;
-      // clear the value before evaluating the input because it could take a
-      // long time
-      this.setState({ currentValue: '' });
       await this.props.onInput(value);
     }
   };
