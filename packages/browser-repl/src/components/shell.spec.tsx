@@ -70,9 +70,9 @@ describe('shell', function () {
     expect(filterEvaluateCalls(fakeRuntime.evaluate.args)).to.be.empty;
   });
 
-  it('focuses on the input if the container is clicked', async function () {
+  it('focuses on the input if the container is clicked', function () {
     render(<ShellWrapper runtime={fakeRuntime} />);
-    await userEvent.click(screen.getByTestId('shell'));
+    userEvent.click(screen.getByTestId('shell'));
 
     expect(HTMLElement.prototype.focus).to.have.been.calledOnce;
   });
