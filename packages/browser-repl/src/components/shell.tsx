@@ -338,8 +338,8 @@ export const Shell = ({
 
   const onInput = useCallback(
     async (code: string) => {
-      const newOutput = (output ?? []).slice();
-      const newHistory = (history ?? []).slice();
+      const newOutput = [...output ?? []];
+      const newHistory = [...history ?? []];
 
       // don't evaluate empty input, but do add it to the output
       if (!code || code.trim() === '') {
