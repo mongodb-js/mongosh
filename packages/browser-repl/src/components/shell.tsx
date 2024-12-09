@@ -220,8 +220,8 @@ export const Shell = ({
     [onEditorChanged]
   );
 
-  const listener = useMemo(() => {
-    const evaluationListener: RuntimeEvaluationListener = {
+  const listener = useMemo<RuntimeEvaluationListener>(() => {
+    return {
       onPrint: (result: RuntimeEvaluationResult[]): void => {
         const newOutput = [
           ...(output ?? []),
