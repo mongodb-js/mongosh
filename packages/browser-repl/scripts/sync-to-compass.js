@@ -16,7 +16,7 @@ const libDir = path.resolve(__dirname, '..', 'lib');
 const destDir = path.dirname(
   child_process.execFileSync(
     'node',
-    ['-e', "console.log(require.resolve('@mongosh/browser-repl'))"],
+    ['-p', "require.resolve('@mongosh/browser-repl')"],
     { cwd: process.env.COMPASS_HOME, encoding: 'utf-8' }
   )
 );
