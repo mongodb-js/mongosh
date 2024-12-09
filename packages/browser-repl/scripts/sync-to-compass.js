@@ -28,6 +28,7 @@ const compileAndCopy = debounce(
     try {
       child_process.execFileSync('npm', ['run', 'compile'], {
         cwd: packageDir,
+        encoding: 'utf-8',
       });
     } catch (err) {
       if (err.code) {
@@ -38,8 +39,8 @@ const compileAndCopy = debounce(
         // Error contains any stdout and stderr from the child
         const { stdout, stderr } = err;
 
-        console.log(stdout.toString());
-        console.error(stderr.toString());
+        console.log(stdout);
+        console.error(stderr);
       }
     }
     fs.cpSync(libDir, destDir, { recursive: true });
