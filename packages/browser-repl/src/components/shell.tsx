@@ -271,7 +271,6 @@ export const Shell = ({
         onOutputChanged?.([]);
       },
     };
-    return evaluationListener;
   }, [focusEditor, maxOutputLength, onOutputChanged, output]);
 
   const updateShellPrompt = useCallback(async (): Promise<void> => {
