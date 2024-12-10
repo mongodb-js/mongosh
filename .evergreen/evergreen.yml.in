@@ -43,7 +43,7 @@ const defaultVariants = ['darwin', 'linux', 'win32'];
 
 for (const { shortName: nShort, versionSpec: nVersion, skipNodeVersionCheck } of NODE_VERSIONS) {
   for (const platform of defaultVariants) {
-const platformDetails = platformToDetails[platform];
+  const platformDetails = platformToDetails[platform];
   ALL_UNIT_TEST_BUILD_VARIANTS.push({
           ...platformDetails,
           name: `${platform}-n${nShort}`,
@@ -62,7 +62,6 @@ const platformDetails = platformToDetails[platform];
           // Unit tests on macOS use arm64 and therefore require 6.0+
           continue;
         }
-        const platformDetails = platformToDetails[platform];
         ALL_UNIT_TEST_BUILD_VARIANTS.push({
           ...platformDetails,
           name: `tests_${platform}-m${mShort}_n${nShort}`,
@@ -1601,7 +1600,7 @@ buildvariants:
   <% } %>
   <% for (const variant of ALL_E2E_TEST_BUILD_VARIANTS) { %>
   - name: <% out(variant.name) %>
-    display_name: "<% out(variant.displayName) %><% out(variant.mShort === undefined ? '' : ` m${variant.mShort}`) %> n<% out(variant.nShort) %> (Unit tests)"
+    display_name: "<% out(variant.displayName) %><% out(variant.mShort === undefined ? '' : ` m${variant.mShort}`) %> n<% out(variant.nShort) %> (E2E tests)"
     run_on: <% out(variant.runOn) %>
     tags: <% out([...(variant.tags ?? []), ...(variant.mShort === 'latest' ? ["mlatest"] : [])]) %>
     expansions:

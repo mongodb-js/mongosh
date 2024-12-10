@@ -8274,6 +8274,25 @@ tasks:
   ###
   # E2E TESTS
   ###
+
+  - name: e2e_tests
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: ${node_js_version}
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: ${executable_os_id}
+      - func: run_e2e_tests
+        vars:
+          node_js_version: ${node_js_version}
+          mongosh_server_test_version: ${mongosh_server_test_version}
+          mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_darwin_x64_fips
     tags: ["e2e-test"]
     depends_on:
@@ -8388,20 +8407,6 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
-  - name: perf_tests_darwin_x64
-    tags: ["perf-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: darwin
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "20.18.1"
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: darwin-x64
-      - func: run_perf_tests
   - name: e2e_tests_darwin_arm64_fips
     tags: ["e2e-test"]
     depends_on:
@@ -8516,20 +8521,6 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
-  - name: perf_tests_darwin_arm64
-    tags: ["perf-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: darwin_arm64
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "20.18.1"
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: darwin-arm64
-      - func: run_perf_tests
   - name: e2e_tests_linux_x64_fips
     tags: ["e2e-test"]
     depends_on:
@@ -8644,20 +8635,6 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
-  - name: perf_tests_linux_x64
-    tags: ["perf-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: linux_x64_build
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "20.18.1"
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-x64
-      - func: run_perf_tests
   - name: e2e_tests_linux_x64_openssl11_fips
     tags: ["e2e-test"]
     depends_on:
@@ -8772,20 +8749,6 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
-  - name: perf_tests_linux_x64_openssl11
-    tags: ["perf-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: linux_x64_build_openssl11
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "20.18.1"
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-x64-openssl11
-      - func: run_perf_tests
   - name: e2e_tests_linux_x64_openssl3_fips
     tags: ["e2e-test"]
     depends_on:
@@ -8900,20 +8863,6 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
-  - name: perf_tests_linux_x64_openssl3
-    tags: ["perf-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: linux_x64_build_openssl3
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "20.18.1"
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-x64-openssl3
-      - func: run_perf_tests
   - name: e2e_tests_linux_arm64_fips
     tags: ["e2e-test"]
     depends_on:
@@ -9028,20 +8977,6 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
-  - name: perf_tests_linux_arm64
-    tags: ["perf-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: linux_arm64_build
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "20.18.1"
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-arm64
-      - func: run_perf_tests
   - name: e2e_tests_linux_arm64_openssl11_fips
     tags: ["e2e-test"]
     depends_on:
@@ -9156,20 +9091,6 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
-  - name: perf_tests_linux_arm64_openssl11
-    tags: ["perf-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: linux_arm64_build_openssl11
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "20.18.1"
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-arm64-openssl11
-      - func: run_perf_tests
   - name: e2e_tests_linux_arm64_openssl3_fips
     tags: ["e2e-test"]
     depends_on:
@@ -9284,20 +9205,6 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
-  - name: perf_tests_linux_arm64_openssl3
-    tags: ["perf-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: linux_arm64_build_openssl3
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "20.18.1"
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-arm64-openssl3
-      - func: run_perf_tests
   - name: e2e_tests_linux_ppc64le_fips
     tags: ["e2e-test"]
     depends_on:
@@ -9412,20 +9319,6 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
-  - name: perf_tests_linux_ppc64le
-    tags: ["perf-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: linux_ppc64le_build
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "20.18.1"
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-ppc64le
-      - func: run_perf_tests
   - name: e2e_tests_linux_s390x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -9540,20 +9433,6 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
-  - name: perf_tests_linux_s390x
-    tags: ["perf-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: linux_s390x_build
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "20.18.1"
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-s390x
-      - func: run_perf_tests
   - name: e2e_tests_win32_fips
     tags: ["e2e-test"]
     depends_on:
@@ -9668,11 +9547,10 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
-  - name: perf_tests_win32
+  - name: perf_tests
     tags: ["perf-test"]
     depends_on:
       - name: compile_artifact
-        variant: win32_build
     commands:
       - func: checkout
       - func: install
@@ -9680,7 +9558,7 @@ tasks:
           node_js_version: "20.18.1"
       - func: download_compiled_artifact
         vars:
-          executable_os_id: win32
+          executable_os_id: ${executable_os_id}
       - func: run_perf_tests
 
   ###
@@ -15879,6 +15757,732 @@ buildvariants:
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
+  - name: e2e_tests_darwin_x64_fips
+    display_name: "undefined darwin_x64_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: darwin-x64
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_darwin_x64
+    display_name: "undefined darwin_x64 nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: darwin-x64
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_darwin_x64_70x_fips
+    display_name: "undefined darwin_x64_70x_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: darwin-x64
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "7.0.x-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_darwin_x64_70x
+    display_name: "undefined darwin_x64_70x nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: darwin-x64
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "7.0.x-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_darwin_x64_60x_fips
+    display_name: "undefined darwin_x64_60x_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: darwin-x64
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "6.0.x-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_darwin_x64_60x
+    display_name: "undefined darwin_x64_60x nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: darwin-x64
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "6.0.x-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_darwin_arm64_fips
+    display_name: "undefined darwin_arm64_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: darwin-arm64
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_darwin_arm64
+    display_name: "undefined darwin_arm64 nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: darwin-arm64
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_darwin_arm64_70x_fips
+    display_name: "undefined darwin_arm64_70x_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: darwin-arm64
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "7.0.x-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_darwin_arm64_70x
+    display_name: "undefined darwin_arm64_70x nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: darwin-arm64
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "7.0.x-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_darwin_arm64_60x_fips
+    display_name: "undefined darwin_arm64_60x_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: darwin-arm64
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "6.0.x-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_darwin_arm64_60x
+    display_name: "undefined darwin_arm64_60x nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: darwin-arm64
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "6.0.x-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_x64_fips
+    display_name: "undefined linux_x64_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-x64
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_x64
+    display_name: "undefined linux_x64 nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-x64
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_x64_70x_fips
+    display_name: "undefined linux_x64_70x_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-x64
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "7.0.x-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_x64_70x
+    display_name: "undefined linux_x64_70x nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-x64
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "7.0.x-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_x64_60x_fips
+    display_name: "undefined linux_x64_60x_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-x64
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "6.0.x-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_x64_60x
+    display_name: "undefined linux_x64_60x nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-x64
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "6.0.x-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_x64_openssl11_fips
+    display_name: "undefined linux_x64_openssl11_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-x64-openssl11
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_x64_openssl11
+    display_name: "undefined linux_x64_openssl11 nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-x64-openssl11
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_x64_openssl11_70x_fips
+    display_name: "undefined linux_x64_openssl11_70x_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-x64-openssl11
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "7.0.x-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_x64_openssl11_70x
+    display_name: "undefined linux_x64_openssl11_70x nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-x64-openssl11
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "7.0.x-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_x64_openssl11_60x_fips
+    display_name: "undefined linux_x64_openssl11_60x_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-x64-openssl11
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "6.0.x-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_x64_openssl11_60x
+    display_name: "undefined linux_x64_openssl11_60x nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-x64-openssl11
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "6.0.x-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_x64_openssl3_fips
+    display_name: "undefined linux_x64_openssl3_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-x64-openssl3
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_x64_openssl3
+    display_name: "undefined linux_x64_openssl3 nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-x64-openssl3
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_x64_openssl3_70x_fips
+    display_name: "undefined linux_x64_openssl3_70x_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-x64-openssl3
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "7.0.x-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_x64_openssl3_70x
+    display_name: "undefined linux_x64_openssl3_70x nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-x64-openssl3
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "7.0.x-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_x64_openssl3_60x_fips
+    display_name: "undefined linux_x64_openssl3_60x_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-x64-openssl3
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "6.0.x-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_x64_openssl3_60x
+    display_name: "undefined linux_x64_openssl3_60x nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-x64-openssl3
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "6.0.x-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_arm64_fips
+    display_name: "undefined linux_arm64_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-arm64
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_arm64
+    display_name: "undefined linux_arm64 nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-arm64
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_arm64_70x_fips
+    display_name: "undefined linux_arm64_70x_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-arm64
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "7.0.x-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_arm64_70x
+    display_name: "undefined linux_arm64_70x nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-arm64
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "7.0.x-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_arm64_60x_fips
+    display_name: "undefined linux_arm64_60x_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-arm64
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "6.0.x-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_arm64_60x
+    display_name: "undefined linux_arm64_60x nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-arm64
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "6.0.x-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_arm64_openssl11_fips
+    display_name: "undefined linux_arm64_openssl11_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-arm64-openssl11
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_arm64_openssl11
+    display_name: "undefined linux_arm64_openssl11 nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-arm64-openssl11
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_arm64_openssl11_70x_fips
+    display_name: "undefined linux_arm64_openssl11_70x_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-arm64-openssl11
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "7.0.x-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_arm64_openssl11_70x
+    display_name: "undefined linux_arm64_openssl11_70x nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-arm64-openssl11
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "7.0.x-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_arm64_openssl11_60x_fips
+    display_name: "undefined linux_arm64_openssl11_60x_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-arm64-openssl11
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "6.0.x-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_arm64_openssl11_60x
+    display_name: "undefined linux_arm64_openssl11_60x nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-arm64-openssl11
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "6.0.x-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_arm64_openssl3_fips
+    display_name: "undefined linux_arm64_openssl3_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-arm64-openssl3
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_arm64_openssl3
+    display_name: "undefined linux_arm64_openssl3 nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-arm64-openssl3
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_arm64_openssl3_70x_fips
+    display_name: "undefined linux_arm64_openssl3_70x_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-arm64-openssl3
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "7.0.x-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_arm64_openssl3_70x
+    display_name: "undefined linux_arm64_openssl3_70x nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-arm64-openssl3
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "7.0.x-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_arm64_openssl3_60x_fips
+    display_name: "undefined linux_arm64_openssl3_60x_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-arm64-openssl3
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "6.0.x-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_arm64_openssl3_60x
+    display_name: "undefined linux_arm64_openssl3_60x nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-arm64-openssl3
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "6.0.x-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_ppc64le_fips
+    display_name: "undefined linux_ppc64le_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-ppc64le
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_ppc64le
+    display_name: "undefined linux_ppc64le nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-ppc64le
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_ppc64le_70x_fips
+    display_name: "undefined linux_ppc64le_70x_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-ppc64le
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "7.0.x-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_ppc64le_70x
+    display_name: "undefined linux_ppc64le_70x nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-ppc64le
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "7.0.x-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_ppc64le_60x_fips
+    display_name: "undefined linux_ppc64le_60x_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-ppc64le
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "6.0.x-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_ppc64le_60x
+    display_name: "undefined linux_ppc64le_60x nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-ppc64le
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "6.0.x-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_s390x_fips
+    display_name: "undefined linux_s390x_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-s390x
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_s390x
+    display_name: "undefined linux_s390x nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-s390x
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_s390x_70x_fips
+    display_name: "undefined linux_s390x_70x_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-s390x
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "7.0.x-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_s390x_70x
+    display_name: "undefined linux_s390x_70x nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-s390x
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "7.0.x-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_s390x_60x_fips
+    display_name: "undefined linux_s390x_60x_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-s390x
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "6.0.x-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_linux_s390x_60x
+    display_name: "undefined linux_s390x_60x nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: linux-s390x
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "6.0.x-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_win32_fips
+    display_name: "undefined win32_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: win32
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_win32
+    display_name: "undefined win32 nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: win32
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_win32_70x_fips
+    display_name: "undefined win32_70x_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: win32
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "7.0.x-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_win32_70x
+    display_name: "undefined win32_70x nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: win32
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "7.0.x-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_win32_60x_fips
+    display_name: "undefined win32_60x_fips nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: win32
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "6.0.x-enterprise"
+      mongosh_test_e2e_force_fips: "1"
+    tasks:
+      - name: e2e_tests
+  - name: e2e_tests_win32_60x
+    display_name: "undefined win32_60x nundefined (E2E tests)"
+    run_on: undefined
+    tags: []
+    expansions:
+      executable_os_id: win32
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "6.0.x-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests
   - name: darwin
     display_name: "MacOS Big Sur"
     run_on: macos-11
@@ -16526,4 +17130,6 @@ buildvariants:
     display_name: "Performance Tests"
     run_on: rhel90-dbx-perf-large
     tasks:
-      - name: perf_tests_linux_x64
+      - name: perf_tests
+    expansions: 
+      executable_os_id: linux_x64
