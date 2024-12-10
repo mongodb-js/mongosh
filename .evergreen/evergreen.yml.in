@@ -62,6 +62,7 @@ const platformDetails = platformToDetails[platform];
           // Unit tests on macOS use arm64 and therefore require 6.0+
           continue;
         }
+        const platformDetails = platformToDetails[platform];
         ALL_UNIT_TEST_BUILD_VARIANTS.push({
           ...platformDetails,
           name: `tests_${platform}-m${mShort}_n${nShort}`,
@@ -74,6 +75,20 @@ const platformDetails = platformToDetails[platform];
         });
       }
   }
+}
+
+const { RELEASE_PACKAGE_MATRIX } = require('../config/release-package-matrix');
+
+const ALL_E2E_TEST_BUILD_VARIANTS = [];
+for (const { executableOsId, compileBuildVariant, description } of RELEASE_PACKAGE_MATRIX) {
+    for (const mVersion of ['stable', '7.0.x', '6.0.x']) {
+      for (const fipsVariant of ['fips', 'nofips']) {
+        ALL_E2E_TEST_BUILD_VARIANTS.push({ 
+        displayName: `${description} ${executableOsId.replace(/-/g, '_')}${(mVersion === 'stable' ? '' : '_' + mVersion.replace(/[^a-zA-Z0-9]/g, ''))}${(fipsVariant === 'fips' ? '_fips' : '')}`,
+        name: `e2e_tests_${executableOsId.replace(/-/g, '_')}${(mVersion === 'stable' ? '' : '_' + mVersion.replace(/[^a-zA-Z0-9]/g, ''))}${(fipsVariant === 'fips' ? '_fips' : '')}`,
+        executableOsId, compileBuildVariant, mVersion, fipsVariant });
+      }
+    }
 }
 
 for (const packageInfo of MONGOSH_PACKAGES) {
@@ -89,7 +104,6 @@ for (const packageInfo of MONGOSH_PACKAGES) {
 }
 
 
-const { RELEASE_PACKAGE_MATRIX } = require('../config/release-package-matrix');
 
 %>
 exec_timeout_secs: 10800
@@ -1256,7 +1270,26 @@ tasks:
   ###
   # E2E TESTS
   ###
-  <% for (const { executableOsId, compileBuildVariant } of RELEASE_PACKAGE_MATRIX) {
+
+  - name: e2e_tests
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: ${node_js_version}
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: ${executable_os_id}
+      - func: run_e2e_tests
+        vars:
+          node_js_version: ${node_js_version}
+          mongosh_server_test_version: ${mongosh_server_test_version}
+          mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+          <% for (const { executableOsId, compileBuildVariant } of RELEASE_PACKAGE_MATRIX) {
     for (const mVersion of ['stable', '7.0.x', '6.0.x']) {
       for (const fipsVariant of ['fips', 'nofips']) {
     %>
@@ -1279,12 +1312,11 @@ tasks:
           mongosh_server_test_version: "<% out(mVersion) %>-enterprise"
           mongosh_test_e2e_force_fips: "<% out(fipsVariant === 'fips' ? '1' : '') %>"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
-  <% } } %>
-  - name: perf_tests_<% out(executableOsId.replace(/-/g, '_')) %>
+  <% } } } %>
+  - name: perf_tests
     tags: ["perf-test"]
     depends_on:
       - name: compile_artifact
-        variant: <% out(compileBuildVariant) %>
     commands:
       - func: checkout
       - func: install
@@ -1292,9 +1324,8 @@ tasks:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
       - func: download_compiled_artifact
         vars:
-          executable_os_id: <% out(executableOsId) %>
+          executable_os_id: ${executable_os_id}
       - func: run_perf_tests
-  <% } %>
 
   ###
   # EXECUTABLE CONNECTIVITY TESTS
@@ -1567,6 +1598,19 @@ buildvariants:
      <% for (const test of ALL_UNIT_TESTS.filter(test => test.variants.includes(variant.platform))) { %>
       - name: test_<% out(test.id) %>
       <% } %>
+  <% } %>
+  <% for (const variant of ALL_E2E_TEST_BUILD_VARIANTS) { %>
+  - name: <% out(variant.name) %>
+    display_name: "<% out(variant.displayName) %><% out(variant.mShort === undefined ? '' : ` m${variant.mShort}`) %> n<% out(variant.nShort) %> (Unit tests)"
+    run_on: <% out(variant.runOn) %>
+    tags: <% out([...(variant.tags ?? []), ...(variant.mShort === 'latest' ? ["mlatest"] : [])]) %>
+    expansions:
+      executable_os_id: <% out(variant.executableOsId) %>
+      node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+      mongosh_server_test_version: "<% out(variant.mVersion) %>-enterprise"
+      mongosh_test_e2e_force_fips: "<% out(variant.fipsVariant === 'fips' ? '1' : '') %>"
+    tasks:
+      - name: e2e_tests
   <% } %>
   - name: darwin
     display_name: "MacOS Big Sur"
@@ -2078,4 +2122,6 @@ buildvariants:
     display_name: "Performance Tests"
     run_on: rhel90-dbx-perf-large
     tasks:
-      - name: perf_tests_linux_x64
+      - name: perf_tests
+    expansions: 
+      executable_os_id: linux_x64
