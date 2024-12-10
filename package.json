@@ -70,7 +70,8 @@
     "reformat": "npm run reformat --workspaces --if-present",
     "prepare": "husky",
     "precommit": "precommit",
-    "preinstall": "node scripts/sort-workspaces.js"
+    "preinstall": "node scripts/sort-workspaces.js",
+    "bump-packages": "bump-monorepo-packages"
   },
   "config": {
     "unsafe-perm": true

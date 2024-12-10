@@ -14,7 +14,7 @@ import {
 } from './evergreen';
 import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { publishToHomebrew } from './homebrew';
-import { bumpNpmPackages, publishNpmPackages } from './npm-packages';
+import { publishNpmPackages } from './npm-packages';
 import { runPackage } from './packaging';
 import { runDraft } from './run-draft';
 import { runPublish } from './run-publish';
@@ -53,12 +53,6 @@ export async function release(
     `mongosh: running command '${command}' with config:`,
     redactConfig(config)
   );
-
-  if (command === 'bump') {
-    // updates the version of internal packages to reflect the tagged one
-    await bumpNpmPackages(config.version);
-    return;
-  }
 
   const octokit = new Octokit({
     auth: config.githubToken,
