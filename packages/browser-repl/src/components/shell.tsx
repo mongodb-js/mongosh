@@ -65,8 +65,6 @@ interface ShellProps {
    */
   runtime: Runtime | WorkerRuntime;
 
-  darkMode?: boolean;
-
   className?: string;
 
   /* If set, the shell will omit or redact entries containing sensitive
