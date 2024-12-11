@@ -1002,7 +1002,6 @@ functions:
           {
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
-          export PUPPETEER_SKIP_DOWNLOAD="true"
           npm run evergreen-release draft
           }
 
@@ -1020,7 +1019,6 @@ functions:
           node_js_version: ${node_js_version}
         script: |
           set -e
-          export PUPPETEER_SKIP_DOWNLOAD="true"
           .evergreen/run-evergreen-release.sh download-and-list-artifacts
     - command: shell.exec
       params:
@@ -1049,7 +1047,6 @@ functions:
           node_js_version: ${node_js_version}
         script: |
           set -e
-          export PUPPETEER_SKIP_DOWNLOAD="true"
           .evergreen/run-evergreen-release.sh publish -- --dry-run
 
   release_publish:
@@ -1068,7 +1065,6 @@ functions:
           node_js_version: ${node_js_version}
         script: |
           set -e
-          export PUPPETEER_SKIP_DOWNLOAD="true"
           .evergreen/run-evergreen-release.sh publish
 
   run_perf_tests:
@@ -1147,7 +1143,7 @@ tasks:
   ###
   <% for (const { id, packageName } of ALL_UNIT_TESTS) { %>
   - name: test_<% out(id) %>
-    tags: <% out(["assigned_to_jira_team_mongosh_mongosh", "unit-test"]) %>
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -1165,6 +1161,17 @@ tasks:
           mongosh_run_only_in_package: "<% out(packageName) %>"
           task_name: ${task_name}
   <% } %>
+  # TODO: This is an always failing test to check Foliage. Should be removed afterwards.
+  - name: test_always_failing
+    tags: ["assigned_to_jira_team_mongosh_mongosh", "unit-test"]
+    commands: 
+      - command: shell.exec
+        type: setup
+        params:
+          working_dir: src
+          shell: bash
+          script: |
+            node -e "throw new Error()"
 
   ###
   # INTEGRATION TESTS
@@ -1597,6 +1604,7 @@ buildvariants:
       - name: test_vscode
       - name: test_connectivity
       - name: test_apistrict
+      - name: test_always_failing
   - name: linux_coverage
     display_name: "Ubuntu 20.04 x64 (Coverage and Static Analysis Check)"
     run_on: ubuntu2004-small
