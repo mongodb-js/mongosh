@@ -50,7 +50,7 @@ export class TestShell {
   /**
    * Starts a test shell.
    *
-   * Beware that the caller is responsible for calling {@link kill} (and potentially {@link waitForExit}).
+   * Beware that the caller is responsible for calling {@link kill} (and potentially {@link waitForAnyExit}).
    *
    * Consider calling the `startTestShell` function on a {@link Mocha.Context} instead, as that manages the lifetime the shell
    * and ensures it gets killed eventually.
@@ -101,7 +101,7 @@ export class TestShell {
 
     const shell = new TestShell(shellProcess, options.consumeStdio);
     TestShell._openShells.add(shell);
-    void shell.waitForExit().then(() => {
+    void shell.waitForAnyExit().then(() => {
       TestShell._openShells.delete(shell);
     });
 
@@ -241,16 +241,20 @@ export class TestShell {
     );
   }
 
-  waitForExit(): Promise<number> {
+  waitForAnyExit(): Promise<number> {
     return this._onClose;
+  }
+
+  async waitForSuccessfulExit(): Promise<void> {
+    assert.strictEqual(await this.waitForAnyExit(), 0);
+    this.assertNoErrors();
   }
 
   /**
    * Waits for the shell to exit, asserts no errors and returns the output.
    */
   async waitForCleanOutput(): Promise<string> {
-    await this.waitForExit();
-    this.assertNoErrors();
+    await this.waitForSuccessfulExit();
     return this.output;
   }
 
@@ -261,7 +265,9 @@ export class TestShell {
       this.waitForPrompt(opts.start ?? 0, opts).then(
         () => ({ state: 'prompt' } as const)
       ),
-      this.waitForExit().then((c) => ({ state: 'exit', exitCode: c } as const)),
+      this.waitForAnyExit().then(
+        (c) => ({ state: 'exit', exitCode: c } as const)
+      ),
     ]);
   }
 

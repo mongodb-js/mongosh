@@ -87,7 +87,7 @@ describe('snippet integration tests', function () {
       'config.set("snippetIndexSourceURLs", "http://localhost:1/")'
     );
     shell.writeInputLine('exit');
-    await shell.waitForExit();
+    await shell.waitForSuccessfulExit();
 
     shell = makeTestShell();
     await shell.waitForPrompt();
