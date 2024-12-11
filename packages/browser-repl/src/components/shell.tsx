@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable jsx-a11y/click-events-have-key-events */
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type { EditorRef } from '@mongodb-js/compass-editor';
 import {
@@ -425,6 +423,8 @@ export const Shell = ({
     return Promise.resolve(false);
   }, [isOperationInProgress, runtime]);
 
+  /* eslint-disable jsx-a11y/no-static-element-interactions */
+  /* eslint-disable jsx-a11y/click-events-have-key-events */
   return (
     <div
       data-testid="shell"
@@ -466,4 +466,6 @@ export const Shell = ({
       </div>
     </div>
   );
+  /* eslint-enable jsx-a11y/no-static-element-interactions */
+  /* eslint-enable jsx-a11y/click-events-have-key-events */
 };
