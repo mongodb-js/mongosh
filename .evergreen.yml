@@ -14514,7 +14514,7 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: compile_artifact
-  - name: build_build_linux_x64_rhel8
+  - name: build_linux_x64_rhel8
     display_name: "RHEL 8.0 x64 (build)"
     run_on: rhel80-build
     tags: []
@@ -14527,7 +14527,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
   - name: build_linux_x64_openssl11
-    display_name: "RHEL 7.0 x64 (build)"
+    display_name: "RHEL 7.0 x64 openssl11 (build)"
     run_on: rhel70-build
     tags: []
     expansions:
@@ -14538,8 +14538,8 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: compile_artifact
-  - name: build_linux_x64_build_rhel8
-    display_name: "RHEL 8.0 x64 (build)"
+  - name: build_linux_x64_build_rhel8_openssl11
+    display_name: "RHEL 8.0 x64 openssl11 (build)"
     run_on: rhel80-build
     tags: []
     expansions:
@@ -14551,7 +14551,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
   - name: build_linux_x64_openssl3
-    display_name: "RHEL 7.0 x64 (build)"
+    display_name: "RHEL 7.0 x64 openssl3 (build)"
     run_on: rhel70-build
     tags: []
     expansions:
@@ -14562,8 +14562,8 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: compile_artifact
-  - name: build_build_linux_x64_openssl3_rhel8
-    display_name: "RHEL 8.0 x64 (build)"
+  - name: build_linux_x64_openssl3_rhel8
+    display_name: "RHEL 8.0 x64 openssl3 (build)"
     run_on: rhel80-build
     tags: []
     expansions:
@@ -14587,7 +14587,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
   - name: build_linux_arm64_openssl11
-    display_name: "Amazon 2 arm64 (build)"
+    display_name: "Amazon 2 arm64 openssl11 (build)"
     run_on: amazon2-arm64-large
     tags: []
     expansions:
@@ -14599,7 +14599,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
   - name: build_linux_arm64_openssl3
-    display_name: "Amazon 2 arm64 (build)"
+    display_name: "Amazon 2 arm64 openssl3 (build)"
     run_on: amazon2-arm64-large
     tags: []
     expansions:
@@ -14647,6 +14647,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_rhel76_large_70x
     display_name: "RHEL 7.6 x64 m70x (E2E tests)"
     run_on: rhel76-large
@@ -14660,6 +14661,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_rhel80_small
     display_name: "RHEL 8.0 x64 (E2E tests)"
     run_on: rhel80-small
@@ -14673,6 +14675,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_rhel90_small_70x
     display_name: "RHEL 9.0 x64 m70x (E2E tests)"
     run_on: rhel90-small
@@ -14686,6 +14689,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_rhel93_small
     display_name: "RHEL 9.3 x64 (E2E tests)"
     run_on: rhel93-small
@@ -14699,6 +14703,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_rhel83_fips
     display_name: "RHEL 8.3 x64 (E2E tests)"
     run_on: rhel83-fips
@@ -14712,6 +14717,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_rhel83_fips_openssl11
     display_name: "RHEL 8.3 x64 openssl11 (E2E tests)"
     run_on: rhel83-fips
@@ -14725,6 +14731,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_rhel83_fips_openssl11_true
     display_name: "RHEL 8.3 x64 openssl11 FIPS (E2E tests)"
     run_on: rhel83-fips
@@ -14738,6 +14745,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_rhel93_fips
     display_name: "RHEL 9.3 x64 (E2E tests)"
     run_on: rhel93-fips
@@ -14751,6 +14759,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_rhel93_fips_openssl3
     display_name: "RHEL 9.3 x64 openssl3 (E2E tests)"
     run_on: rhel93-fips
@@ -14764,6 +14773,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_rhel93_fips_openssl3_true
     display_name: "RHEL 9.3 x64 openssl3 FIPS (E2E tests)"
     run_on: rhel93-fips
@@ -14777,6 +14787,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_ubuntu1804_large_60x
     display_name: "Ubuntu 18.04 x64 m60x (E2E tests)"
     run_on: ubuntu1804-large
@@ -14790,6 +14801,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_ubuntu2004_small
     display_name: "Ubuntu 20.04 x64 (E2E tests)"
     run_on: ubuntu2004-small
@@ -14803,6 +14815,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_ubuntu2004_small_openssl11
     display_name: "Ubuntu 20.04 x64 openssl11 (E2E tests)"
     run_on: ubuntu2004-small
@@ -14816,6 +14829,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_ubuntu2204_small
     display_name: "Ubuntu 22.04 x64 (E2E tests)"
     run_on: ubuntu2204-small
@@ -14829,6 +14843,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_ubuntu2204_small_openssl3
     display_name: "Ubuntu 22.04 x64 openssl3 (E2E tests)"
     run_on: ubuntu2204-small
@@ -14842,6 +14857,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_ubuntu2404_small
     display_name: "Ubuntu 24.04 x64 (E2E tests)"
     run_on: ubuntu2404-small
@@ -14855,6 +14871,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_ubuntu2404_small_openssl3
     display_name: "Ubuntu 24.04 x64 openssl3 (E2E tests)"
     run_on: ubuntu2404-small
@@ -14868,6 +14885,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_debian10_small_60x
     display_name: "Debian 10 x64 m60x (E2E tests)"
     run_on: debian10-small
@@ -14881,7 +14899,8 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
-  - name: e2e_tests_debian10_small_60x_openssl11
+      - name: perf_tests
+  - name: e2e_tests_debian10_small_openssl11_60x
     display_name: "Debian 10 x64 m60x openssl11 (E2E tests)"
     run_on: debian10-small
     tags: []
@@ -14894,6 +14913,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_debian11_small_70x
     display_name: "Debian 11 x64 m70x (E2E tests)"
     run_on: debian11-small
@@ -14907,7 +14927,8 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
-  - name: e2e_tests_debian11_small_70x_openssl11
+      - name: perf_tests
+  - name: e2e_tests_debian11_small_openssl11_70x
     display_name: "Debian 11 x64 m70x openssl11 (E2E tests)"
     run_on: debian11-small
     tags: []
@@ -14920,6 +14941,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_amazon2_large_70x
     display_name: "Amazon Linux 2 x64 m70x (E2E tests)"
     run_on: amazon2-large
@@ -14933,6 +14955,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_amazon2023.0_small
     display_name: "Amazon Linux 2023 x64 (E2E tests)"
     run_on: amazon2023.0-small
@@ -14946,6 +14969,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_suse12_sp5_large_70x
     display_name: "SLES 12 x64 m70x (E2E tests)"
     run_on: suse12-sp5-large
@@ -14959,6 +14983,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_suse15sp4_small
     display_name: "SLES 15 x64 (E2E tests)"
     run_on: suse15sp4-small
@@ -14972,6 +14997,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_ubuntu1804_arm64_large_60x
     display_name: "Ubuntu 18.04 arm64 m60x (E2E tests)"
     run_on: ubuntu1804-arm64-large
@@ -14985,6 +15011,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_ubuntu2004_arm64_small
     display_name: "Ubuntu 20.04 arm64 (E2E tests)"
     run_on: ubuntu2004-arm64-small
@@ -14998,6 +15025,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_ubuntu2004_arm64_small_openssl11
     display_name: "Ubuntu 20.04 arm64 openssl11 (E2E tests)"
     run_on: ubuntu2004-arm64-small
@@ -15011,6 +15039,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_ubuntu2204_arm64_small
     display_name: "Ubuntu 22.04 arm64 (E2E tests)"
     run_on: ubuntu2204-arm64-small
@@ -15024,6 +15053,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_ubuntu2204_arm64_small_openssl3
     display_name: "Ubuntu 22.04 arm64 openssl3 (E2E tests)"
     run_on: ubuntu2204-arm64-small
@@ -15037,6 +15067,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_ubuntu2404_arm64_small
     display_name: "Ubuntu 24.04 arm64 (E2E tests)"
     run_on: ubuntu2404-arm64-small
@@ -15050,6 +15081,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_ubuntu2404_arm64_small_openssl3
     display_name: "Ubuntu 24.04 arm64 openssl3 (E2E tests)"
     run_on: ubuntu2404-arm64-small
@@ -15063,6 +15095,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_amazon2_arm64_large_70x
     display_name: "Amazon Linux 2 arm64 m70x (E2E tests)"
     run_on: amazon2-arm64-large
@@ -15076,6 +15109,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_amazon2023.0_arm64_small
     display_name: "Amazon Linux 2023 arm64 (E2E tests)"
     run_on: amazon2023.0-arm64-small
@@ -15089,6 +15123,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_rhel82_arm64_small
     display_name: "RHEL 8.2 arm64 (E2E tests)"
     run_on: rhel82-arm64-small
@@ -15102,6 +15137,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_rhel90_arm64_small_70x
     display_name: "RHEL 9.0 arm64 m70x (E2E tests)"
     run_on: rhel90-arm64-small
@@ -15115,7 +15151,8 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
-  - name: e2e_tests_rhel90_arm64_small_70x_openssl3
+      - name: perf_tests
+  - name: e2e_tests_rhel90_arm64_small_openssl3_70x
     display_name: "RHEL 9.0 arm64 m70x openssl3 (E2E tests)"
     run_on: rhel90-arm64-small
     tags: []
@@ -15128,6 +15165,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_rhel93_arm64_small
     display_name: "RHEL 9.3 arm64 (E2E tests)"
     run_on: rhel93-arm64-small
@@ -15141,6 +15179,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_rhel93_arm64_small_openssl3
     display_name: "RHEL 9.3 arm64 openssl3 (E2E tests)"
     run_on: rhel93-arm64-small
@@ -15154,6 +15193,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_rhel8_power_small
     display_name: "RHEL 8 PPC (E2E tests)"
     run_on: rhel8-power-small
@@ -15167,6 +15207,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_rhel7_zseries_large_60x
     display_name: "RHEL 7 s390x m60x (E2E tests)"
     run_on: rhel7-zseries-large
@@ -15180,6 +15221,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_rhel8_zseries_small
     display_name: "RHEL 8 s390x (E2E tests)"
     run_on: rhel8-zseries-small
@@ -15193,6 +15235,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_darwin_x64
     display_name: "MacOS 14 x64 (E2E tests)"
     run_on: macos-14
@@ -15206,6 +15249,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: e2e_tests_darwin_arm64
     display_name: "MacOS 14 arm64 (E2E tests)"
     run_on: macos-14-arm64
@@ -15219,6 +15263,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests
+      - name: perf_tests
   - name: darwin
     display_name: "MacOS Big Sur"
     run_on: macos-11
