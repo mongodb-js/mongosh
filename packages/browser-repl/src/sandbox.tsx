@@ -158,7 +158,7 @@ const IframeRuntimeExample: React.FunctionComponent = () => {
   const [maxHistoryLength, setMaxHistoryLength] = useState(1000);
   const [initialEvaluate, setInitialEvaluate] = useState<string[]>([]);
 
-  const [inputText, setInputText] = useState('');
+  const [initialText, setInitialText] = useState('');
   const [output, setOutput] = useState<ShellOutputEntry[]>([
     { format: 'output', value: { foo: 1, bar: true, buz: function () {} } },
   ]);
@@ -189,12 +189,12 @@ const IframeRuntimeExample: React.FunctionComponent = () => {
             redactInfo={redactInfo}
             maxOutputLength={maxOutputLength}
             maxHistoryLength={maxHistoryLength}
-            inputText={inputText}
+            initialText={initialText}
             initialEvaluate={initialEvaluate.filter(Boolean)}
             output={output}
             history={history}
             isOperationInProgress={isOperationInProgress}
-            onInputChanged={setInputText}
+            onInputChanged={setInitialText}
             onOutputChanged={setOutput}
             onHistoryChanged={setHistory}
             onOperationStarted={() => setIsOperationInProgress(true)}
