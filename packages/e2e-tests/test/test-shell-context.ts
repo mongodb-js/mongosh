@@ -60,7 +60,7 @@ export function ensureTestShellAfterHook(
           if (shell.process.exitCode === null) {
             shell.kill();
           }
-          return shell.waitForExit();
+          return shell.waitForAnyExit();
         })
       );
     });

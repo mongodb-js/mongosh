@@ -998,7 +998,7 @@ describe('Auth e2e', function () {
             ],
           });
           if (
-            (await preTestShell.waitForExit()) === 1 &&
+            (await preTestShell.waitForAnyExit()) === 1 &&
             preTestShell.output.match(
               /digital envelope routines::unsupported|SSL routines::library has no ciphers/
             )
@@ -1022,7 +1022,7 @@ describe('Auth e2e', function () {
             'SCRAM-SHA-1',
           ],
         });
-        await shell.waitForExit();
+        await shell.waitForAnyExit();
         try {
           shell.assertContainsOutput(
             'Auth mechanism SCRAM-SHA-1 is not supported in FIPS mode'
@@ -1109,7 +1109,7 @@ describe('Auth e2e', function () {
             'GSSAPI',
           ],
         });
-        await shell.waitForExit();
+        await shell.waitForAnyExit();
         // Failing to auth with kerberos fails with different error messages on each OS.
         // Sometimes in CI, it also fails because the server received kerberos
         // credentials, most likely because of a successful login by another
