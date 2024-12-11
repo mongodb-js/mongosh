@@ -232,9 +232,7 @@ async function main() {
         process.env.TEST_USE_STDOUT_FOR_PASSWORD || process.stdout.isTTY
           ? process.stdout
           : process.stderr,
-      // Node.js 20.0.0 made p.exit(undefined) behave as p.exit(0) rather than p.exit()
-      onExit: (code?: number | undefined) =>
-        code === undefined ? process.exit() : process.exit(code),
+      onExit,
       shellHomePaths: shellHomePaths,
       globalConfigPaths: globalConfigPaths,
     });
@@ -339,5 +337,27 @@ function suppressExperimentalWarnings() {
 
       return originalEmit(warning, ...args);
     };
+  }
+}
+
+function onExit(code?: number): never {
+  // Node.js 20.0.0 made p.exit(undefined) behave as p.exit(0) rather than p.exit(): (code?: number | undefined): never => {
+  try {
+    try {
+      if (code === undefined) process.exit();
+      else process.exit(code);
+    } finally {
+      if (code === undefined) process.exit();
+      else process.exit(code);
+    }
+  } catch (err) {
+    process.stderr.write(String(err) + '\n');
+  } finally {
+    // Should never be reachable anyway, but nyc monkey-patches process.exit()
+    // internals so that it can always write coverage files as part of the application
+    // shutdown, and that can throw an exception if the filesystem call to write
+    // the coverage file fails.
+    process.stderr.write('process.exit() returned -- aborting\n');
+    process.abort();
   }
 }
