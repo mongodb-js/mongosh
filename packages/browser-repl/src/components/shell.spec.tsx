@@ -160,11 +160,11 @@ describe('shell', function () {
     expect(filterEvaluateCalls(fakeRuntime.evaluate.args)).to.have.length(1);
   });
 
-  it('takes inputText', function () {
-    const inputText = 'still typing';
+  it('takes initialText', function () {
+    const initialText = 'still typing';
 
-    render(<ShellWrapper runtime={fakeRuntime} inputText={inputText} />);
-    expect(screen.getByRole('textbox').textContent).to.equal(inputText);
+    render(<ShellWrapper runtime={fakeRuntime} initialText={initialText} />);
+    expect(screen.getByRole('textbox').textContent).to.equal(initialText);
     expect(filterEvaluateCalls(fakeRuntime.evaluate.args)).to.be.empty;
   });
 

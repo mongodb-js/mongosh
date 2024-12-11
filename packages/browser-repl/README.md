@@ -40,7 +40,7 @@ Shell is a React component with the following properties:
 - `maxOutputLength?: number`: The maxiumum number of lines to keep in the output. Defaults to `1000`.
 - `maxHistoryLength?: number`: The maxiumum number of lines to keep in the history. Defaults to `1000`.
 - `initialEvaluate?: string|string[]`: A set of input strings to evaluate right after shell is mounted.
-- `inputText?: string`: The text for the input field.
+- `initialText?: string`: The initial text for the input field.
 - `output?: ShellOutputEntry[]`: An array of entries to be displayed in the output area. Can be used to restore the output between sessions, or to setup a greeting message. **Note**: new entries will not be appended to the array.
 - `history?: readonly string[]`: An array of history entries to prepopulate the history.
   Can be used to restore the history between sessions. Entries must be ordered from the most recent to the oldest. Note: new entries will not be appended to the array.

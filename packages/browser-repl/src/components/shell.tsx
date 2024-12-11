@@ -112,7 +112,7 @@ interface ShellProps {
   /**
    * Initial value in the shell input field
    */
-  inputText?: string;
+  initialText?: string;
 
   /* An array of entries to be displayed in the output area.
    *
@@ -184,7 +184,7 @@ export const Shell = ({
   onOperationStarted,
   onOperationEnd,
   initialEvaluate,
-  inputText,
+  initialText,
   output,
   history,
   isOperationInProgress = false,
@@ -451,7 +451,7 @@ export const Shell = ({
           />
         ) : (
           <ShellInput
-            initialText={inputText}
+            initialText={initialText}
             onTextChange={onInputChanged}
             prompt={shellPrompt}
             autocompleter={runtime}
