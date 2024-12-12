@@ -1,10 +1,12 @@
 import React, {
   useCallback,
   useEffect,
+  useImperativeHandle,
   useMemo,
   useRef,
   useState,
 } from 'react';
+import type { ForwardRefRenderFunction } from 'react';
 import type { EditorRef } from '@mongodb-js/compass-editor';
 import {
   css,
@@ -177,29 +179,40 @@ const capLengthStart = (elements: unknown[], maxLength: number) => {
   elements.splice(maxLength);
 };
 
-export const Shell = ({
-  runtime,
-  className,
-  redactInfo,
-  maxOutputLength = 1000,
-  maxHistoryLength = 1000,
-  onInputChanged,
-  onOutputChanged,
-  onHistoryChanged,
-  onOperationStarted,
-  onOperationEnd,
-  initialEvaluate,
-  initialText,
-  output,
-  history,
-  isOperationInProgress = false,
-  onEditorChanged,
-}: ShellProps) => {
+const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
+  {
+    runtime,
+    className,
+    redactInfo,
+    maxOutputLength = 1000,
+    maxHistoryLength = 1000,
+    onInputChanged,
+    onOutputChanged,
+    onHistoryChanged,
+    onOperationStarted,
+    onOperationEnd,
+    initialEvaluate,
+    initialText,
+    output,
+    history,
+    isOperationInProgress = false,
+  },
+  ref
+) => {
   const darkMode = useDarkMode();
+
+  const editorRef = useRef<EditorRef | null>(null);
+
+  useImperativeHandle(
+    ref,
+    () => {
+      return editorRef.current as EditorRef;
+    },
+    []
+  );
 
   const shellInputContainerRef = useRef<HTMLDivElement>(null);
 
-  const [editor, setEditor] = useState<EditorRef | null>(null);
   const [passwordPrompt, setPasswordPrompt] = useState('');
   const [shellPrompt, setShellPrompt] = useState('>');
   const [onFinishPasswordPrompt, setOnFinishPasswordPrompt] = useState<
@@ -210,16 +223,8 @@ export const Shell = ({
   >(() => noop);
 
   const focusEditor = useCallback(() => {
-    editor?.focus();
-  }, [editor]);
-
-  const editorChanged = useCallback(
-    (editor: EditorRef | null) => {
-      setEditor(editor);
-      onEditorChanged?.(editor);
-    },
-    [onEditorChanged]
-  );
+    editorRef?.current?.focus();
+  }, [editorRef]);
 
   const listener = useMemo<RuntimeEvaluationListener>(() => {
     return {
@@ -389,6 +394,10 @@ export const Shell = ({
     ]
   );
 
+  const setEditorRef = useCallback((editor) => {
+    editorRef.current = editor;
+  }, []);
+
   const scrollToBottom = useCallback(() => {
     if (!shellInputContainerRef.current) {
       return;
@@ -460,7 +469,7 @@ export const Shell = ({
             onClearCommand={listener.onClearCommand}
             onInput={onInput}
             operationInProgress={isOperationInProgress}
-            editorRef={editorChanged}
+            editorRef={setEditorRef}
             onSigInt={onSigInt}
           />
         )}
@@ -470,3 +479,5 @@ export const Shell = ({
   /* eslint-enable jsx-a11y/no-static-element-interactions */
   /* eslint-enable jsx-a11y/click-events-have-key-events */
 };
+
+export const Shell = React.forwardRef(_Shell);
