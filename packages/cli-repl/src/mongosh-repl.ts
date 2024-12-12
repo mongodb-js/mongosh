@@ -126,6 +126,7 @@ type Mutable<T> = {
  */
 class MongoshNodeRepl implements EvaluationListener {
   _runtimeState: MongoshRuntimeState | null;
+  closeTrace?: string;
   input: Readable;
   lineByLineInput: LineByLineInput;
   output: Writable;
@@ -1028,7 +1029,13 @@ class MongoshNodeRepl implements EvaluationListener {
    */
   runtimeState(): MongoshRuntimeState {
     if (this._runtimeState === null) {
-      throw new MongoshInternalError('Mongosh not initialized yet');
+      // This error can be really hard to debug, so we always attach stack traces
+      // from both when .close() was called and when
+      throw new MongoshInternalError(
+        `mongosh not initialized yet\nCurrent trace: ${
+          new Error().stack
+        }\nClose trace: ${this.closeTrace}\n`
+      );
     }
     return this._runtimeState;
   }
@@ -1043,6 +1050,7 @@ class MongoshNodeRepl implements EvaluationListener {
     const rs = this._runtimeState;
     if (rs) {
       this._runtimeState = null;
+      this.closeTrace = new Error().stack;
       rs.repl?.close();
       await rs.instanceState.close(true);
       await new Promise((resolve) => this.output.write('', resolve));
