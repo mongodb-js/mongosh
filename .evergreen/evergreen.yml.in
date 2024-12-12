@@ -1860,7 +1860,7 @@ buildvariants:
     tags: <% out([...(variant.tags ?? [])]) %>
     expansions:
       executable_os_id: "<% out(variant.executableOsId || '') %>"
-      disable_openssl_shared_config_for_bundled_openssl:  "<% out(variant.disabledOpenSslSharedConfig || '') %>"
+      disable_openssl_shared_config_for_bundled_openssl: <% out(variant.disabledOpenSslSharedConfig || false) %>
       node_js_version: "<% out(NODE_JS_VERSION_20) %>"
       mongosh_server_test_version: "<% out(variant.mVersion) %>-enterprise"
       mongosh_test_e2e_force_fips: "<% out(variant.fips ? '1' : '') %>"

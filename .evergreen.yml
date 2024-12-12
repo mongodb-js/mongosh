@@ -14508,7 +14508,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-x64"
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14520,7 +14520,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-x64"
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14532,7 +14532,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-x64-openssl11"
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14544,7 +14544,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-x64-openssl11"
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14556,7 +14556,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-x64-openssl3"
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14568,7 +14568,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-x64-openssl3"
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14580,7 +14580,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-arm64"
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14592,7 +14592,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-arm64-openssl11"
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14604,7 +14604,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-arm64-openssl3"
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14616,7 +14616,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-ppc64le"
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14628,7 +14628,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-s390x"
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14640,7 +14640,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14654,7 +14654,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14668,7 +14668,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14682,7 +14682,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  "true"
+      disable_openssl_shared_config_for_bundled_openssl: true
       node_js_version: "20.18.1"
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14696,7 +14696,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  "true"
+      disable_openssl_shared_config_for_bundled_openssl: true
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14710,7 +14710,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14724,7 +14724,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14738,7 +14738,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: "1"
@@ -14752,7 +14752,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14766,7 +14766,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14780,7 +14780,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: "1"
@@ -14794,7 +14794,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "6.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14808,7 +14808,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14822,7 +14822,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14836,7 +14836,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14850,7 +14850,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14864,7 +14864,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14878,7 +14878,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14892,7 +14892,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "6.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14906,7 +14906,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "6.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14920,7 +14920,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14934,7 +14934,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14948,7 +14948,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14962,7 +14962,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  "true"
+      disable_openssl_shared_config_for_bundled_openssl: true
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14976,7 +14976,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -14990,7 +14990,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -15004,7 +15004,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "6.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -15018,7 +15018,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -15032,7 +15032,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -15046,7 +15046,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -15060,7 +15060,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -15074,7 +15074,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -15088,7 +15088,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -15102,7 +15102,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -15116,7 +15116,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  "true"
+      disable_openssl_shared_config_for_bundled_openssl: true
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -15130,7 +15130,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -15144,7 +15144,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  "true"
+      disable_openssl_shared_config_for_bundled_openssl: true
       node_js_version: "20.18.1"
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -15158,7 +15158,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  "true"
+      disable_openssl_shared_config_for_bundled_openssl: true
       node_js_version: "20.18.1"
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -15172,7 +15172,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  "true"
+      disable_openssl_shared_config_for_bundled_openssl: true
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -15186,7 +15186,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  "true"
+      disable_openssl_shared_config_for_bundled_openssl: true
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -15200,7 +15200,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -15214,7 +15214,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "6.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -15228,7 +15228,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: ""
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -15242,7 +15242,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "darwin-x64"
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
@@ -15256,7 +15256,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "darwin-arm64"
-      disable_openssl_shared_config_for_bundled_openssl:  ""
+      disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
