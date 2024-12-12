@@ -1032,7 +1032,7 @@ class MongoshNodeRepl implements EvaluationListener {
       // This error can be really hard to debug, so we always attach stack traces
       // from both when .close() was called and when
       throw new MongoshInternalError(
-        `mongosh not initialized yet\nCurrentTrace: ${
+        `mongosh not initialized yet\nCurrent trace: ${
           new Error().stack
         }\nClose trace: ${this.closeTrace}\n`
       );

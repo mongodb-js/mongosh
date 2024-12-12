@@ -121,7 +121,7 @@ describe('MongoshNodeRepl', function () {
 
   it('throws an error if internal methods are used too early', function () {
     expect(() => mongoshRepl.runtimeState()).to.throw(
-      'Mongosh not initialized yet'
+      /mongosh not initialized yet\nCurrent trace/
     );
   });
 
