@@ -371,11 +371,11 @@ export const Shell = ({
 
       // update history
       newHistory.unshift(code);
+      capLengthStart(newHistory, maxHistoryLength);
       changeHistory(
         newHistory,
         redactInfo ? 'redact-sensitive-data' : 'keep-sensitive-data'
       );
-      capLengthStart(newHistory, maxHistoryLength);
       onHistoryChanged?.(newHistory);
     },
     [
