@@ -206,7 +206,29 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
   useImperativeHandle(
     ref,
     () => {
-      return editorRef.current as EditorRef;
+      return {
+        foldAll() {
+          return editorRef.current?.foldAll() ?? false;
+        },
+        unfoldAll() {
+          return editorRef.current?.unfoldAll() ?? false;
+        },
+        copyAll() {
+          return editorRef.current?.copyAll() ?? false;
+        },
+        prettify() {
+          return editorRef.current?.prettify() ?? false;
+        },
+        focus() {
+          return editorRef.current?.focus() ?? false;
+        },
+        applySnippet(template: string) {
+          return editorRef.current?.applySnippet(template) ?? false;
+        },
+        get editor() {
+          return editorRef.current?.editor ?? null;
+        },
+      };
     },
     []
   );
@@ -223,7 +245,7 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
   >(() => noop);
 
   const focusEditor = useCallback(() => {
-    editorRef?.current?.focus();
+    editorRef.current?.focus();
   }, [editorRef]);
 
   const listener = useMemo<RuntimeEvaluationListener>(() => {
@@ -406,19 +428,6 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
     shellInputContainerRef.current.scrollIntoView();
   }, [shellInputContainerRef]);
 
-  useEffect(() => {
-    scrollToBottom();
-
-    void updateShellPrompt().then(async () => {
-      if (initialEvaluate) {
-        const evalLines = normalizeInitialEvaluate(initialEvaluate);
-        for (const input of evalLines) {
-          await onInput(input);
-        }
-      }
-    });
-  }, [initialEvaluate, onInput, scrollToBottom, updateShellPrompt, output]);
-
   const onShellClicked = useCallback(
     (event: React.MouseEvent): void => {
       // Focus on input when clicking the shell background (not clicking output).
@@ -436,6 +445,21 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
 
     return Promise.resolve(false);
   }, [isOperationInProgress, runtime]);
+
+  const initialEvaluateRef = useRef(initialEvaluate);
+
+  useEffect(() => {
+    scrollToBottom();
+
+    void updateShellPrompt().then(async () => {
+      if (initialEvaluateRef.current) {
+        const evalLines = normalizeInitialEvaluate(initialEvaluateRef.current);
+        for (const input of evalLines) {
+          await onInput(input);
+        }
+      }
+    });
+  }, [onInput, scrollToBottom, updateShellPrompt]);
 
   /* eslint-disable jsx-a11y/no-static-element-interactions */
   /* eslint-disable jsx-a11y/click-events-have-key-events */

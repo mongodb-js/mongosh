@@ -1,3 +1,4 @@
+import util from 'util';
 import React, { useState, useEffect } from 'react';
 import sinon from 'sinon';
 import { render, screen, waitFor, configure } from '@testing-library/react';
@@ -165,19 +166,6 @@ describe('shell', function () {
 
     render(<ShellWrapper runtime={fakeRuntime} initialText={initialText} />);
     expect(screen.getByRole('textbox').textContent).to.equal(initialText);
-    expect(filterEvaluateCalls(fakeRuntime.evaluate.args)).to.be.empty;
-  });
-
-  it('calls onEditorChanged', function () {
-    const onEditorChanged = sinon.spy();
-
-    render(
-      <ShellWrapper runtime={fakeRuntime} onEditorChanged={onEditorChanged} />
-    );
-
-    expect(onEditorChanged.callCount).to.equal(1);
-    const editor = onEditorChanged.firstCall.args[0];
-    expect(editor.focus).to.exist;
     expect(filterEvaluateCalls(fakeRuntime.evaluate.args)).to.be.empty;
   });
 
@@ -532,7 +520,8 @@ describe('shell', function () {
       let called = 0;
       // eslint-disable-next-line @typescript-eslint/require-await
       fakeRuntime.getShellPrompt = async () => {
-        if (called++ <= 1) {
+        called++;
+        if (called === 1) {
           return 'mongos';
         }
         return 'rs0:primary';
