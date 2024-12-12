@@ -1,4 +1,3 @@
-import util from 'util';
 import React, { useState, useEffect } from 'react';
 import sinon from 'sinon';
 import { render, screen, waitFor, configure } from '@testing-library/react';
