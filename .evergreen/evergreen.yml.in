@@ -199,7 +199,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
     mVersion: "7.0.x"
   },
   {
-    displayName: "RHEL 9.3 x64",
+    displayName: "RHEL 9.3 x64 small",
     runOn: "rhel93-small",
     disabledOpenSslSharedConfig: true,
     executableOsId: "linux-x64",
@@ -346,61 +346,72 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
   {
     displayName: "Ubuntu 18.04 arm64",
     runOn: "ubuntu1804-arm64-large",
+    executableOsId: "linux-arm64",
     mVersion: "6.0.x"
   },
   {
     displayName: "Ubuntu 20.04 arm64",
     runOn: "ubuntu2004-arm64-small",
+    executableOsId: "linux-arm64",
     mVersion: "stable"
   },
   {
     displayName: "Ubuntu 20.04 arm64",
     runOn: "ubuntu2004-arm64-small",
     sharedOpenSsl: "openssl11",
+    executableOsId: "linux-arm64",
     mVersion: "stable"
   },
   {
     displayName: "Ubuntu 22.04 arm64",
     runOn: "ubuntu2204-arm64-small",
+    executableOsId: "linux-arm64",
     mVersion: "stable"
   },
   {
     displayName: "Ubuntu 22.04 arm64",
     runOn: "ubuntu2204-arm64-small",
     sharedOpenSsl: "openssl3",
+    executableOsId: "linux-arm64",
     mVersion: "stable"
   },
   {
     displayName: "Ubuntu 24.04 arm64",
     runOn: "ubuntu2404-arm64-small",
+    executableOsId: "linux-arm64",
     mVersion: "stable"
   },
   {
     displayName: "Ubuntu 24.04 arm64",
     runOn: "ubuntu2404-arm64-small",
     sharedOpenSsl: "openssl3",
+    executableOsId: "linux-arm64",
     mVersion: "stable"
   },
   {
     displayName: "Amazon Linux 2 arm64",
     runOn: "amazon2-arm64-large",
+    executableOsId: "linux-arm64",
     mVersion: "7.0.x"
   },
   {
     displayName: "Amazon Linux 2023 arm64",
     runOn: "amazon2023.0-arm64-small",
     disabledOpenSslSharedConfig: true,
+    executableOsId: "linux-arm64",
     mVersion: "stable"
   },
   {
     displayName: "RHEL 8.2 arm64",
     runOn: "rhel82-arm64-small",
+    executableOsId: "linux-arm64",
     mVersion: "stable"
   },
   {
     displayName: "RHEL 9.0 arm64",
     runOn: "rhel90-arm64-small",
     disabledOpenSslSharedConfig: true,
+    executableOsId: "linux-arm64",
     mVersion: "7.0.x"
   },
   {
@@ -408,12 +419,14 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
     runOn: "rhel90-arm64-small",
     disabledOpenSslSharedConfig: true,
     sharedOpenSsl: "openssl3",
+    executableOsId: "linux-arm64",
     mVersion: "7.0.x"
   },
   {
     displayName: "RHEL 9.3 arm64",
     runOn: "rhel93-arm64-small",
     disabledOpenSslSharedConfig: true,
+    executableOsId: "linux-arm64",
     mVersion: "stable"
   },
   {
@@ -421,21 +434,25 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
     runOn: "rhel93-arm64-small",
     disabledOpenSslSharedConfig: true,
     sharedOpenSsl: "openssl3",
+    executableOsId: "linux-arm64",
     mVersion: "stable"
   },
   {
     displayName: "RHEL 8 PPC",
     runOn: "rhel8-power-small",
+    executableOsId: "linux-x64",
     mVersion: "stable"
   },
   {
     displayName: "RHEL 7 s390x",
     runOn: "rhel7-zseries-large",
+    executableOsId: "linux-x64",
     mVersion: "6.0.x"
   },
   {
     displayName: "RHEL 8 s390x",
     runOn: "rhel8-zseries-small",
+    executableOsId: "linux-x64",
     mVersion: "stable"
   },
   {
@@ -1663,7 +1680,7 @@ tasks:
   # E2E TESTS
   ###
   # Some tests reuse the same compilation build variant, so we create those variations of tasks to set those dependencies.
-  <% for (const compileBuildVariant of ['', 'build_linux_x64', 'darwin', 'darwin_arm64', 'build_win32']) { %>
+  <% for (const compileBuildVariant of ['build_linux_x64', 'build_linux_arm64', 'darwin', 'darwin_arm64', 'build_win32']) { %>
   - name: e2e_tests<% out(compileBuildVariant ? `_${compileBuildVariant}` : '') %>
     tags: ["e2e-test"]
     depends_on:

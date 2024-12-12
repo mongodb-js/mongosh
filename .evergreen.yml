@@ -8275,37 +8275,6 @@ tasks:
   # E2E TESTS
   ###
   # Some tests reuse the same compilation build variant, so we create those variations of tasks to set those dependencies.
-  - name: e2e_tests
-    tags: ["e2e-test"]
-    depends_on:
-      - name: compile_artifact
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: ${node_js_version}
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: ${executable_os_id}
-      - func: run_e2e_tests
-        vars:
-          node_js_version: ${node_js_version}
-          mongosh_server_test_version: ${mongosh_server_test_version}
-          mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
-          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
-  - name: perf_tests
-    tags: ["perf-test"]
-    depends_on:
-      - name: compile_artifact
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "20.18.1"
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: ${executable_os_id}
-      - func: run_perf_tests
   - name: e2e_tests_build_linux_x64
     tags: ["e2e-test"]
     depends_on:
@@ -8330,6 +8299,39 @@ tasks:
     depends_on:
       - name: compile_artifact
         variant: build_linux_x64
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.18.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: ${executable_os_id}
+      - func: run_perf_tests
+  - name: e2e_tests_build_linux_arm64
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: build_linux_arm64
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: ${node_js_version}
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: ${executable_os_id}
+      - func: run_e2e_tests
+        vars:
+          node_js_version: ${node_js_version}
+          mongosh_server_test_version: ${mongosh_server_test_version}
+          mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
+  - name: perf_tests_build_linux_arm64
+    tags: ["perf-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: build_linux_arm64
     commands:
       - func: checkout
       - func: install
@@ -14820,7 +14822,7 @@ buildvariants:
       - name: e2e_tests_build_linux_x64
       - name: perf_tests_build_linux_x64
   - name: e2e_tests_rhel93_small
-    display_name: "RHEL 9.3 x64 (E2E tests)"
+    display_name: "RHEL 9.3 x64 small (E2E tests)"
     run_on: rhel93-small
     tags: []
     expansions:
@@ -15110,239 +15112,222 @@ buildvariants:
     run_on: ubuntu1804-arm64-large
     tags: []
     expansions:
-      executable_os_id: ""
+      executable_os_id: "linux-arm64"
       disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "6.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: compile_artifact
-      - name: e2e_tests
-      - name: perf_tests
+      - name: e2e_tests_build_linux_arm64
+      - name: perf_tests_build_linux_arm64
   - name: e2e_tests_ubuntu2004_arm64_small
     display_name: "Ubuntu 20.04 arm64 (E2E tests)"
     run_on: ubuntu2004-arm64-small
     tags: []
     expansions:
-      executable_os_id: ""
+      executable_os_id: "linux-arm64"
       disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: compile_artifact
-      - name: e2e_tests
-      - name: perf_tests
+      - name: e2e_tests_build_linux_arm64
+      - name: perf_tests_build_linux_arm64
   - name: e2e_tests_ubuntu2004_arm64_small_openssl11
     display_name: "Ubuntu 20.04 arm64 openssl11 (E2E tests)"
     run_on: ubuntu2004-arm64-small
     tags: []
     expansions:
-      executable_os_id: ""
+      executable_os_id: "linux-arm64"
       disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: compile_artifact
-      - name: e2e_tests
-      - name: perf_tests
+      - name: e2e_tests_build_linux_arm64
+      - name: perf_tests_build_linux_arm64
   - name: e2e_tests_ubuntu2204_arm64_small
     display_name: "Ubuntu 22.04 arm64 (E2E tests)"
     run_on: ubuntu2204-arm64-small
     tags: []
     expansions:
-      executable_os_id: ""
+      executable_os_id: "linux-arm64"
       disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: compile_artifact
-      - name: e2e_tests
-      - name: perf_tests
+      - name: e2e_tests_build_linux_arm64
+      - name: perf_tests_build_linux_arm64
   - name: e2e_tests_ubuntu2204_arm64_small_openssl3
     display_name: "Ubuntu 22.04 arm64 openssl3 (E2E tests)"
     run_on: ubuntu2204-arm64-small
     tags: []
     expansions:
-      executable_os_id: ""
+      executable_os_id: "linux-arm64"
       disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: compile_artifact
-      - name: e2e_tests
-      - name: perf_tests
+      - name: e2e_tests_build_linux_arm64
+      - name: perf_tests_build_linux_arm64
   - name: e2e_tests_ubuntu2404_arm64_small
     display_name: "Ubuntu 24.04 arm64 (E2E tests)"
     run_on: ubuntu2404-arm64-small
     tags: []
     expansions:
-      executable_os_id: ""
+      executable_os_id: "linux-arm64"
       disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: compile_artifact
-      - name: e2e_tests
-      - name: perf_tests
+      - name: e2e_tests_build_linux_arm64
+      - name: perf_tests_build_linux_arm64
   - name: e2e_tests_ubuntu2404_arm64_small_openssl3
     display_name: "Ubuntu 24.04 arm64 openssl3 (E2E tests)"
     run_on: ubuntu2404-arm64-small
     tags: []
     expansions:
-      executable_os_id: ""
+      executable_os_id: "linux-arm64"
       disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: compile_artifact
-      - name: e2e_tests
-      - name: perf_tests
+      - name: e2e_tests_build_linux_arm64
+      - name: perf_tests_build_linux_arm64
   - name: e2e_tests_amazon2_arm64_large_m70x
     display_name: "Amazon Linux 2 arm64 70x (E2E tests)"
     run_on: amazon2-arm64-large
     tags: []
     expansions:
-      executable_os_id: ""
+      executable_os_id: "linux-arm64"
       disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: compile_artifact
-      - name: e2e_tests
-      - name: perf_tests
+      - name: e2e_tests_build_linux_arm64
+      - name: perf_tests_build_linux_arm64
   - name: e2e_tests_amazon2023.0_arm64_small
     display_name: "Amazon Linux 2023 arm64 (E2E tests)"
     run_on: amazon2023.0-arm64-small
     tags: []
     expansions:
-      executable_os_id: ""
+      executable_os_id: "linux-arm64"
       disable_openssl_shared_config_for_bundled_openssl: true
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: compile_artifact
-      - name: e2e_tests
-      - name: perf_tests
+      - name: e2e_tests_build_linux_arm64
+      - name: perf_tests_build_linux_arm64
   - name: e2e_tests_rhel82_arm64_small
     display_name: "RHEL 8.2 arm64 (E2E tests)"
     run_on: rhel82-arm64-small
     tags: []
     expansions:
-      executable_os_id: ""
+      executable_os_id: "linux-arm64"
       disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: compile_artifact
-      - name: e2e_tests
-      - name: perf_tests
+      - name: e2e_tests_build_linux_arm64
+      - name: perf_tests_build_linux_arm64
   - name: e2e_tests_rhel90_arm64_small_m70x
     display_name: "RHEL 9.0 arm64 70x (E2E tests)"
     run_on: rhel90-arm64-small
     tags: []
     expansions:
-      executable_os_id: ""
+      executable_os_id: "linux-arm64"
       disable_openssl_shared_config_for_bundled_openssl: true
       node_js_version: "20.18.1"
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: compile_artifact
-      - name: e2e_tests
-      - name: perf_tests
+      - name: e2e_tests_build_linux_arm64
+      - name: perf_tests_build_linux_arm64
   - name: e2e_tests_rhel90_arm64_small_openssl3_m70x
     display_name: "RHEL 9.0 arm64 70x openssl3 (E2E tests)"
     run_on: rhel90-arm64-small
     tags: []
     expansions:
-      executable_os_id: ""
+      executable_os_id: "linux-arm64"
       disable_openssl_shared_config_for_bundled_openssl: true
       node_js_version: "20.18.1"
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: compile_artifact
-      - name: e2e_tests
-      - name: perf_tests
+      - name: e2e_tests_build_linux_arm64
+      - name: perf_tests_build_linux_arm64
   - name: e2e_tests_rhel93_arm64_small
     display_name: "RHEL 9.3 arm64 (E2E tests)"
     run_on: rhel93-arm64-small
     tags: []
     expansions:
-      executable_os_id: ""
+      executable_os_id: "linux-arm64"
       disable_openssl_shared_config_for_bundled_openssl: true
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: compile_artifact
-      - name: e2e_tests
-      - name: perf_tests
+      - name: e2e_tests_build_linux_arm64
+      - name: perf_tests_build_linux_arm64
   - name: e2e_tests_rhel93_arm64_small_openssl3
     display_name: "RHEL 9.3 arm64 openssl3 (E2E tests)"
     run_on: rhel93-arm64-small
     tags: []
     expansions:
-      executable_os_id: ""
+      executable_os_id: "linux-arm64"
       disable_openssl_shared_config_for_bundled_openssl: true
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: compile_artifact
-      - name: e2e_tests
-      - name: perf_tests
+      - name: e2e_tests_build_linux_arm64
+      - name: perf_tests_build_linux_arm64
   - name: e2e_tests_rhel8_power_small
     display_name: "RHEL 8 PPC (E2E tests)"
     run_on: rhel8-power-small
     tags: []
     expansions:
-      executable_os_id: ""
+      executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: compile_artifact
-      - name: e2e_tests
-      - name: perf_tests
+      - name: e2e_tests_build_linux_x64
+      - name: perf_tests_build_linux_x64
   - name: e2e_tests_rhel7_zseries_large_m60x
     display_name: "RHEL 7 s390x 60x (E2E tests)"
     run_on: rhel7-zseries-large
     tags: []
     expansions:
-      executable_os_id: ""
+      executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "6.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: compile_artifact
-      - name: e2e_tests
-      - name: perf_tests
+      - name: e2e_tests_build_linux_x64
+      - name: perf_tests_build_linux_x64
   - name: e2e_tests_rhel8_zseries_small
     display_name: "RHEL 8 s390x (E2E tests)"
     run_on: rhel8-zseries-small
     tags: []
     expansions:
-      executable_os_id: ""
+      executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: compile_artifact
-      - name: e2e_tests
-      - name: perf_tests
+      - name: e2e_tests_build_linux_x64
+      - name: perf_tests_build_linux_x64
   - name: e2e_tests_macos_14
     display_name: "MacOS 14 x64 (E2E tests)"
     run_on: macos-14
