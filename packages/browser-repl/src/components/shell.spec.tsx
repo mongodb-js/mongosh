@@ -121,7 +121,9 @@ describe('shell', function () {
     expect(filterEvaluateCalls(fakeRuntime.evaluate.args)).to.have.length(1);
 
     // scrolls to the bottom initially and every time it outputs
-    expect(Element.prototype.scrollIntoView).to.have.been.calledTwice;
+    await waitFor(() => {
+      expect(Element.prototype.scrollIntoView).to.have.been.calledTwice;
+    });
 
     // make sure we scroll to the bottom every time output changes
     rerender(
@@ -478,10 +480,8 @@ describe('shell', function () {
       render(<ShellWrapper runtime={fakeRuntime} />);
 
       await waitFor(() => {
-        expect(Element.prototype.scrollIntoView).to.have.been.calledTwice;
+        expect(screen.getByLabelText('Chevron Right Icon')).to.exist;
       });
-
-      expect(screen.getByLabelText('Chevron Right Icon')).to.exist;
     });
 
     it('initializes with the value of getShellPrompt', async function () {
@@ -492,10 +492,8 @@ describe('shell', function () {
       render(<ShellWrapper runtime={fakeRuntime} />);
 
       await waitFor(() => {
-        expect(Element.prototype.scrollIntoView).to.have.been.calledTwice;
+        expect(screen.getByText('$custom$')).to.exist;
       });
-
-      expect(screen.getByText('$custom$')).to.exist;
     });
 
     it('works with a custom user-provided prompt', async function () {
@@ -509,10 +507,8 @@ describe('shell', function () {
       render(<ShellWrapper runtime={fakeRuntime} />);
 
       await waitFor(() => {
-        expect(Element.prototype.scrollIntoView).to.have.been.calledTwice;
+        expect(screen.getByText('abc')).to.exist;
       });
-
-      expect(screen.getByText('abc')).to.exist;
     });
 
     it('updates after evaluation', async function () {

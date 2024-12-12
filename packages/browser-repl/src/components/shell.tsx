@@ -14,6 +14,7 @@ import {
   fontFamilies,
   useDarkMode,
   cx,
+  rafraf,
 } from '@mongodb-js/compass-components';
 import type {
   Runtime,
@@ -202,10 +203,7 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
   const darkMode = useDarkMode();
 
   const editorRef = useRef<EditorRef | null>(null);
-  const outputRef = useRef(output);
-  const historyRef = useRef(history);
   const shellInputContainerRef = useRef<HTMLDivElement>(null);
-  const initialEvaluateRef = useRef(initialEvaluate);
 
   useImperativeHandle(
     ref,
@@ -254,7 +252,7 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
     return {
       onPrint: (result: RuntimeEvaluationResult[]): void => {
         const newOutput = [
-          ...(outputRef.current ?? []),
+          ...(output ?? []),
           ...result.map(
             (entry): ShellOutputEntry => ({
               format: 'output',
@@ -301,7 +299,7 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
         onOutputChanged?.([]);
       },
     };
-  }, [focusEditor, maxOutputLength, onOutputChanged]);
+  }, [focusEditor, maxOutputLength, onOutputChanged, output]);
 
   const updateShellPrompt = useCallback(async (): Promise<void> => {
     let newShellPrompt = '>';
@@ -368,8 +366,8 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
 
   const onInput = useCallback(
     async (code: string) => {
-      const newOutput = [...(outputRef.current ?? [])];
-      const newHistory = [...(historyRef.current ?? [])];
+      const newOutput = [...(output ?? [])];
+      const newHistory = [...(history ?? [])];
 
       // don't evaluate empty input, but do add it to the output
       if (!code || code.trim() === '') {
@@ -407,6 +405,8 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
       onHistoryChanged?.(newHistory);
     },
     [
+      output,
+      history,
       onOutputChanged,
       evaluate,
       redactInfo,
@@ -446,19 +446,29 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
     return Promise.resolve(false);
   }, [isOperationInProgress, runtime]);
 
+  const [isFirstRun, setIsFirstRun] = useState(true);
+
   useEffect(() => {
+    if (!isFirstRun) {
+      return;
+    }
+
+    setIsFirstRun(false);
+
     void updateShellPrompt().then(async () => {
-      if (initialEvaluateRef.current) {
-        const evalLines = normalizeInitialEvaluate(initialEvaluateRef.current);
+      if (initialEvaluate) {
+        const evalLines = normalizeInitialEvaluate(initialEvaluate);
         for (const input of evalLines) {
           await onInput(input);
         }
       }
     });
-  }, [onInput, updateShellPrompt]);
+  }, [initialEvaluate, isFirstRun, onInput, updateShellPrompt]);
 
   useEffect(() => {
-    scrollToBottom();
+    rafraf(() => {
+      scrollToBottom();
+    });
   });
 
   /* eslint-disable jsx-a11y/no-static-element-interactions */
