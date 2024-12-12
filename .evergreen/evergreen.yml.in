@@ -78,294 +78,407 @@ for (const { shortName: nShort, versionSpec: nVersion, skipNodeVersionCheck } of
 
 const { RELEASE_PACKAGE_MATRIX } = require('../config/release-package-matrix');
 
-const ALL_E2E_TEST_BUILD_VARIANTS =  [{
-  displayName: "RHEL 7.0 x64",
-  runOn: "rhel70-build",
-  isBuild: true,
-  executableOsId: "linux-x64",
-  mVersion: "stable"
-}, {
-  displayName: "RHEL 8.0 x64",
-  name: 'linux_x64_rhel8',
-  runOn: "rhel80-build",
-  isBuild: true,
-  executableOsId: "linux-x64",
-  mVersion: "stable"
-}, {
-  displayName: "RHEL 7.0 x64",
-  runOn: "rhel70-build",
-  isBuild: true,
-  executableOsId: "linux-x64-openssl11",
-  sharedOpenSsl: "openssl11",
-  mVersion: "stable"
-}, {
-  displayName: "RHEL 8.0 x64",
-  runOn: "rhel80-build",
-  isBuild: true,
-  executableOsId: "linux-x64-openssl11",
-  sharedOpenSsl: "openssl11",
-  name: 'linux_x64_build_rhel8_openssl11',
-  mVersion: "stable"
-}, {
-  displayName: "RHEL 7.0 x64",
-  runOn: "rhel70-build",
-  isBuild: true,
-  executableOsId: "linux-x64-openssl3",
-  sharedOpenSsl: "openssl3",
-  mVersion: "stable"
-}, {
-  displayName: "RHEL 8.0 x64",
-  name: 'linux_x64_openssl3_rhel8',
-  runOn: "rhel80-build",
-  isBuild: true,
-  executableOsId: "linux-x64-openssl3",
-  sharedOpenSsl: "openssl3",
-  mVersion: "stable"
-}, {
-  displayName: "Amazon 2 arm64",
-  runOn: "amazon2-arm64-large",
-  isBuild: true,
-  executableOsId: "linux-arm64",
-  mVersion: "stable"
-}, {
-  displayName: "Amazon 2 arm64",
-  runOn: "amazon2-arm64-large",
-  isBuild: true,
-  executableOsId: "linux-arm64-openssl11",
-  sharedOpenSsl: "openssl11",
-  mVersion: "stable"
-}, {
-  displayName: "Amazon 2 arm64",
-  runOn: "amazon2-arm64-large",
-  isBuild: true,
-  executableOsId: "linux-arm64-openssl3",
-  sharedOpenSsl: "openssl3",
-  mVersion: "stable"
-}, {
-  displayName: "RHEL 8 PPC",
-  runOn: "rhel8-power-small",
-  isBuild: true,
-  executableOsId: "linux-ppc64le",
-  mVersion: "stable"
-}, {
-  displayName: "RHEL 7 s390x",
-  runOn: "rhel7-zseries-large",
-  isBuild: true,
-  executableOsId: "linux-s390x",
-  mVersion: "stable"
-}, {
-  displayName: "RHEL 7.0 x64",
-  runOn: "rhel70-large",
-  mVersion: "7.0.x"
-}, {
-  displayName: "RHEL 7.6 x64",
-  runOn: "rhel76-large",
-  mVersion: "7.0.x"
-}, {
-  displayName: "RHEL 8.0 x64",
-  runOn: "rhel80-small",
-  mVersion: "stable"
-}, {
-  displayName: "RHEL 9.0 x64",
-  runOn: "rhel90-small",
-  disabledOpenSslSharedConfig: true,
-  mVersion: "7.0.x"
-}, {
-  displayName: "RHEL 9.3 x64",
-  runOn: "rhel93-small",
-  disabledOpenSslSharedConfig: true,
-  mVersion: "stable"
-}, {
-  displayName: "RHEL 8.3 x64",
-  runOn: "rhel83-fips",
-  mVersion: "stable"
-}, {
-  displayName: "RHEL 8.3 x64",
-  runOn: "rhel83-fips",
-  sharedOpenSsl: "openssl11",
-  mVersion: "stable"
-}, {
-  displayName: "RHEL 8.3 x64",
-  runOn: "rhel83-fips",
-  fips: true,
-  sharedOpenSsl: "openssl11",
-  mVersion: "stable"
-}, {
-  displayName: "RHEL 9.3 x64",
-  runOn: "rhel93-fips",
-  mVersion: "stable"
-}, {
-  displayName: "RHEL 9.3 x64",
-  runOn: "rhel93-fips",
-  sharedOpenSsl: "openssl3",
-  mVersion: "stable"
-}, {
-  displayName: "RHEL 9.3 x64",
-  runOn: "rhel93-fips",
-  fips: true,
-  sharedOpenSsl: "openssl3",
-  mVersion: "stable"
-}, {
-  displayName: "Ubuntu 18.04 x64",
-  runOn: "ubuntu1804-large",
-  mVersion: "6.0.x"
-}, {
-  displayName: "Ubuntu 20.04 x64",
-  runOn: "ubuntu2004-small",
-  mVersion: "stable"
-}, {
-  displayName: "Ubuntu 20.04 x64",
-  runOn: "ubuntu2004-small",
-  sharedOpenSsl: "openssl11",
-  mVersion: "stable"
-}, {
-  displayName: "Ubuntu 22.04 x64",
-  runOn: "ubuntu2204-small",
-  mVersion: "stable"
-}, {
-  displayName: "Ubuntu 22.04 x64",
-  runOn: "ubuntu2204-small",
-  sharedOpenSsl: "openssl3",
-  mVersion: "stable"
-}, {
-  displayName: "Ubuntu 24.04 x64",
-  runOn: "ubuntu2404-small",
-  mVersion: "stable"
-}, {
-  displayName: "Ubuntu 24.04 x64",
-  runOn: "ubuntu2404-small",
-  sharedOpenSsl: "openssl3",
-  mVersion: "stable"
-}, {
-  displayName: "Debian 10 x64",
-  runOn: "debian10-small",
-  mVersion: "6.0.x"
-}, {
-  displayName: "Debian 10 x64",
-  runOn: "debian10-small",
-  sharedOpenSsl: "openssl11",
-  mVersion: "6.0.x"
-}, {
-  displayName: "Debian 11 x64",
-  runOn: "debian11-small",
-  mVersion: "7.0.x"
-}, {
-  displayName: "Debian 11 x64",
-  runOn: "debian11-small",
-  sharedOpenSsl: "openssl11",
-  mVersion: "7.0.x"
-}, {
-  displayName: "Amazon Linux 2 x64",
-  runOn: "amazon2-large",
-  mVersion: "7.0.x"
-}, {
-  displayName: "Amazon Linux 2023 x64",
-  runOn: "amazon2023.0-small",
-  disabledOpenSslSharedConfig: true,
-  mVersion: "stable"
-}, {
-  displayName: "SLES 12 x64",
-  runOn: "suse12-sp5-large",
-  mVersion: "7.0.x"
-}, {
-  displayName: "SLES 15 x64",
-  runOn: "suse15sp4-small",
-  mVersion: "stable"
-}, {
-  displayName: "Ubuntu 18.04 arm64",
-  runOn: "ubuntu1804-arm64-large",
-  mVersion: "6.0.x"
-}, {
-  displayName: "Ubuntu 20.04 arm64",
-  runOn: "ubuntu2004-arm64-small",
-  mVersion: "stable"
-}, {
-  displayName: "Ubuntu 20.04 arm64",
-  runOn: "ubuntu2004-arm64-small",
-  sharedOpenSsl: "openssl11",
-  mVersion: "stable"
-}, {
-  displayName: "Ubuntu 22.04 arm64",
-  runOn: "ubuntu2204-arm64-small",
-  mVersion: "stable"
-}, {
-  displayName: "Ubuntu 22.04 arm64",
-  runOn: "ubuntu2204-arm64-small",
-  sharedOpenSsl: "openssl3",
-  mVersion: "stable"
-}, {
-  displayName: "Ubuntu 24.04 arm64",
-  runOn: "ubuntu2404-arm64-small",
-  mVersion: "stable"
-}, {
-  displayName: "Ubuntu 24.04 arm64",
-  runOn: "ubuntu2404-arm64-small",
-  sharedOpenSsl: "openssl3",
-  mVersion: "stable"
-}, {
-  displayName: "Amazon Linux 2 arm64",
-  runOn: "amazon2-arm64-large",
-  mVersion: "7.0.x"
-}, {
-  displayName: "Amazon Linux 2023 arm64",
-  runOn: "amazon2023.0-arm64-small",
-  disabledOpenSslSharedConfig: true,
-  mVersion: "stable"
-}, {
-  displayName: "RHEL 8.2 arm64",
-  runOn: "rhel82-arm64-small",
-  mVersion: "stable"
-}, {
-  displayName: "RHEL 9.0 arm64",
-  runOn: "rhel90-arm64-small",
-  disabledOpenSslSharedConfig: true,
-  mVersion: "7.0.x"
-}, {
-  displayName: "RHEL 9.0 arm64",
-  runOn: "rhel90-arm64-small",
-  disabledOpenSslSharedConfig: true,
-  sharedOpenSsl: "openssl3",
-  mVersion: "7.0.x"
-}, {
-  displayName: "RHEL 9.3 arm64",
-  runOn: "rhel93-arm64-small",
-  disabledOpenSslSharedConfig: true,
-  mVersion: "stable"
-}, {
-  displayName: "RHEL 9.3 arm64",
-  runOn: "rhel93-arm64-small",
-  disabledOpenSslSharedConfig: true,
-  sharedOpenSsl: "openssl3",
-  mVersion: "stable"
-}, {
-  displayName: "RHEL 8 PPC",
-  runOn: "rhel8-power-small",
-  mVersion: "stable"
-}, {
-  displayName: "RHEL 7 s390x",
-  runOn: "rhel7-zseries-large",
-  mVersion: "6.0.x"
-}, {
-  displayName: "RHEL 8 s390x",
-  runOn: "rhel8-zseries-small",
-  mVersion: "stable"
-}, {
-  displayName: "MacOS 14 x64",
-  runOn: "macos-14",
-  executableOsId: "darwin-x64",
-  mVersion: "stable"
-}, {
-  displayName: "MacOS 14 arm64",
-  runOn: "macos-14-arm64",
-  executableOsId: "darwin-arm64",
-  mVersion: "stable"
-}].map(({displayName, ...rest}) => {
+const ALL_E2E_TEST_BUILD_VARIANTS =  [
+  {
+    displayName: "RHEL 7.0 x64",
+    runOn: "rhel70-build",
+    isBuild: true,
+    name: "linux_x64",
+    executableOsId: "linux-x64",
+    mVersion: "stable"
+  },
+  {
+    displayName: "RHEL 8.0 x64",
+    runOn: "rhel80-build",
+    isBuild: true,
+    name: "linux_x64_rhel8",
+    executableOsId: "linux-x64",
+    mVersion: "stable"
+  },
+  {
+    displayName: "RHEL 7.0 x64",
+    runOn: "rhel70-build",
+    isBuild: true,
+    name: "linux_x64_openssl11",
+    executableOsId: "linux-x64-openssl11",
+    sharedOpenSsl: "openssl11",
+    mVersion: "stable"
+  },
+  {
+    displayName: "RHEL 8.0 x64",
+    runOn: "rhel80-build",
+    isBuild: true,
+    name: "linux_x64_openssl11_rhel8",
+    executableOsId: "linux-x64-openssl11",
+    sharedOpenSsl: "openssl11",
+    mVersion: "stable"
+  },
+  {
+    displayName: "RHEL 7.0 x64",
+    runOn: "rhel70-build",
+    isBuild: true,
+    name: "linux_x64_openssl3",
+    executableOsId: "linux-x64-openssl3",
+    sharedOpenSsl: "openssl3",
+    mVersion: "stable"
+  },
+  {
+    displayName: "RHEL 8.0 x64",
+    runOn: "rhel80-build",
+    isBuild: true,
+    name: "linux_x64_openssl3_rhel8",
+    executableOsId: "linux-x64-openssl3",
+    sharedOpenSsl: "openssl3",
+    mVersion: "stable"
+  },
+  {
+    displayName: "Amazon 2 arm64",
+    runOn: "amazon2-arm64-large",
+    isBuild: true,
+    name: "linux_arm64",
+    executableOsId: "linux-arm64",
+    mVersion: "stable"
+  },
+  {
+    displayName: "Amazon 2 arm64",
+    runOn: "amazon2-arm64-large",
+    isBuild: true,
+    name: "linux_arm64_openssl11",
+    executableOsId: "linux-arm64-openssl11",
+    sharedOpenSsl: "openssl11",
+    mVersion: "stable"
+  },
+  {
+    displayName: "Amazon 2 arm64",
+    runOn: "amazon2-arm64-large",
+    isBuild: true,
+    name: "linux_arm64_openssl3",
+    executableOsId: "linux-arm64-openssl3",
+    sharedOpenSsl: "openssl3",
+    mVersion: "stable"
+  },
+  {
+    displayName: "RHEL 8 PPC",
+    runOn: "rhel8-power-small",
+    isBuild: true,
+    name: "linux_ppc64le",
+    executableOsId: "linux-ppc64le",
+    mVersion: "stable"
+  },
+  {
+    displayName: "RHEL 7 s390x",
+    runOn: "rhel7-zseries-large",
+    isBuild: true,
+    name: "linux_s390x",
+    executableOsId: "linux-s390x",
+    mVersion: "stable"
+  },
+  {
+    displayName: "RHEL 7.0 x64",
+    runOn: "rhel70-large",
+    executableOsId: "linux-x64",
+    mVersion: "7.0.x"
+  },
+  {
+    displayName: "RHEL 7.6 x64",
+    runOn: "rhel76-large",
+    executableOsId: "linux-x64",
+    mVersion: "7.0.x"
+  },
+  {
+    displayName: "RHEL 8.0 x64",
+    runOn: "rhel80-small",
+    executableOsId: "linux-x64",
+    mVersion: "stable"
+  },
+  {
+    displayName: "RHEL 9.0 x64",
+    runOn: "rhel90-small",
+    disabledOpenSslSharedConfig: true,
+    executableOsId: "linux-x64",
+    mVersion: "7.0.x"
+  },
+  {
+    displayName: "RHEL 9.3 x64",
+    runOn: "rhel93-small",
+    disabledOpenSslSharedConfig: true,
+    executableOsId: "linux-x64",
+    mVersion: "stable"
+  },
+  {
+    displayName: "RHEL 8.3 x64",
+    runOn: "rhel83-fips",
+    executableOsId: "linux-x64",
+    mVersion: "stable"
+  },
+  {
+    displayName: "RHEL 8.3 x64",
+    runOn: "rhel83-fips",
+    sharedOpenSsl: "openssl11",
+    executableOsId: "linux-x64",
+    mVersion: "stable"
+  },
+  {
+    displayName: "RHEL 8.3 x64",
+    runOn: "rhel83-fips",
+    fips: true,
+    sharedOpenSsl: "openssl11",
+    executableOsId: "linux-x64",
+    mVersion: "stable"
+  },
+  {
+    displayName: "RHEL 9.3 x64",
+    runOn: "rhel93-fips",
+    executableOsId: "linux-x64",
+    mVersion: "stable"
+  },
+  {
+    displayName: "RHEL 9.3 x64",
+    runOn: "rhel93-fips",
+    sharedOpenSsl: "openssl3",
+    executableOsId: "linux-x64",
+    mVersion: "stable"
+  },
+  {
+    displayName: "RHEL 9.3 x64",
+    runOn: "rhel93-fips",
+    fips: true,
+    sharedOpenSsl: "openssl3",
+    executableOsId: "linux-x64",
+    mVersion: "stable"
+  },
+  {
+    displayName: "Ubuntu 18.04 x64",
+    runOn: "ubuntu1804-large",
+    executableOsId: "linux-x64",
+    mVersion: "6.0.x"
+  },
+  {
+    displayName: "Ubuntu 20.04 x64",
+    runOn: "ubuntu2004-small",
+    executableOsId: "linux-x64",
+    mVersion: "stable"
+  },
+  {
+    displayName: "Ubuntu 20.04 x64",
+    runOn: "ubuntu2004-small",
+    sharedOpenSsl: "openssl11",
+    executableOsId: "linux-x64",
+    mVersion: "stable"
+  },
+  {
+    displayName: "Ubuntu 22.04 x64",
+    runOn: "ubuntu2204-small",
+    executableOsId: "linux-x64",
+    mVersion: "stable"
+  },
+  {
+    displayName: "Ubuntu 22.04 x64",
+    runOn: "ubuntu2204-small",
+    sharedOpenSsl: "openssl3",
+    executableOsId: "linux-x64",
+    mVersion: "stable"
+  },
+  {
+    displayName: "Ubuntu 24.04 x64",
+    runOn: "ubuntu2404-small",
+    executableOsId: "linux-x64",
+    mVersion: "stable"
+  },
+  {
+    displayName: "Ubuntu 24.04 x64",
+    runOn: "ubuntu2404-small",
+    sharedOpenSsl: "openssl3",
+    executableOsId: "linux-x64",
+    mVersion: "stable"
+  },
+  {
+    displayName: "Debian 10 x64",
+    runOn: "debian10-small",
+    executableOsId: "linux-x64",
+    mVersion: "6.0.x"
+  },
+  {
+    displayName: "Debian 10 x64",
+    runOn: "debian10-small",
+    sharedOpenSsl: "openssl11",
+    executableOsId: "linux-x64",
+    mVersion: "6.0.x"
+  },
+  {
+    displayName: "Debian 11 x64",
+    runOn: "debian11-small",
+    executableOsId: "linux-x64",
+    mVersion: "7.0.x"
+  },
+  {
+    displayName: "Debian 11 x64",
+    runOn: "debian11-small",
+    sharedOpenSsl: "openssl11",
+    executableOsId: "linux-x64",
+    mVersion: "7.0.x"
+  },
+  {
+    displayName: "Amazon Linux 2 x64",
+    runOn: "amazon2-large",
+    executableOsId: "linux-x64",
+    mVersion: "7.0.x"
+  },
+  {
+    displayName: "Amazon Linux 2023 x64",
+    runOn: "amazon2023.0-small",
+    disabledOpenSslSharedConfig: true,
+    executableOsId: "linux-x64",
+    mVersion: "stable"
+  },
+  {
+    displayName: "SLES 12 x64",
+    runOn: "suse12-sp5-large",
+    executableOsId: "linux-x64",
+    mVersion: "7.0.x"
+  },
+  {
+    displayName: "SLES 15 x64",
+    runOn: "suse15sp4-small",
+    executableOsId: "linux-x64",
+    mVersion: "stable"
+  },
+  {
+    displayName: "Ubuntu 18.04 arm64",
+    runOn: "ubuntu1804-arm64-large",
+    mVersion: "6.0.x"
+  },
+  {
+    displayName: "Ubuntu 20.04 arm64",
+    runOn: "ubuntu2004-arm64-small",
+    mVersion: "stable"
+  },
+  {
+    displayName: "Ubuntu 20.04 arm64",
+    runOn: "ubuntu2004-arm64-small",
+    sharedOpenSsl: "openssl11",
+    mVersion: "stable"
+  },
+  {
+    displayName: "Ubuntu 22.04 arm64",
+    runOn: "ubuntu2204-arm64-small",
+    mVersion: "stable"
+  },
+  {
+    displayName: "Ubuntu 22.04 arm64",
+    runOn: "ubuntu2204-arm64-small",
+    sharedOpenSsl: "openssl3",
+    mVersion: "stable"
+  },
+  {
+    displayName: "Ubuntu 24.04 arm64",
+    runOn: "ubuntu2404-arm64-small",
+    mVersion: "stable"
+  },
+  {
+    displayName: "Ubuntu 24.04 arm64",
+    runOn: "ubuntu2404-arm64-small",
+    sharedOpenSsl: "openssl3",
+    mVersion: "stable"
+  },
+  {
+    displayName: "Amazon Linux 2 arm64",
+    runOn: "amazon2-arm64-large",
+    mVersion: "7.0.x"
+  },
+  {
+    displayName: "Amazon Linux 2023 arm64",
+    runOn: "amazon2023.0-arm64-small",
+    disabledOpenSslSharedConfig: true,
+    mVersion: "stable"
+  },
+  {
+    displayName: "RHEL 8.2 arm64",
+    runOn: "rhel82-arm64-small",
+    mVersion: "stable"
+  },
+  {
+    displayName: "RHEL 9.0 arm64",
+    runOn: "rhel90-arm64-small",
+    disabledOpenSslSharedConfig: true,
+    mVersion: "7.0.x"
+  },
+  {
+    displayName: "RHEL 9.0 arm64",
+    runOn: "rhel90-arm64-small",
+    disabledOpenSslSharedConfig: true,
+    sharedOpenSsl: "openssl3",
+    mVersion: "7.0.x"
+  },
+  {
+    displayName: "RHEL 9.3 arm64",
+    runOn: "rhel93-arm64-small",
+    disabledOpenSslSharedConfig: true,
+    mVersion: "stable"
+  },
+  {
+    displayName: "RHEL 9.3 arm64",
+    runOn: "rhel93-arm64-small",
+    disabledOpenSslSharedConfig: true,
+    sharedOpenSsl: "openssl3",
+    mVersion: "stable"
+  },
+  {
+    displayName: "RHEL 8 PPC",
+    runOn: "rhel8-power-small",
+    mVersion: "stable"
+  },
+  {
+    displayName: "RHEL 7 s390x",
+    runOn: "rhel7-zseries-large",
+    mVersion: "6.0.x"
+  },
+  {
+    displayName: "RHEL 8 s390x",
+    runOn: "rhel8-zseries-small",
+    mVersion: "stable"
+  },
+  {
+    displayName: "MacOS 14 x64",
+    runOn: "macos-14",
+    executableOsId: "darwin-x64",
+    mVersion: "stable"
+  },
+  {
+    displayName: "MacOS 14 arm64",
+    runOn: "macos-14-arm64",
+    executableOsId: "darwin-arm64",
+    mVersion: "stable"
+  }
+].map(({displayName, ...rest}) => {
   const {fips, sharedOpenSsl, isBuild, mVersion, runOn, executableOsId, name} = rest;
-  const id = (name ?? executableOsId ?? runOn).replaceAll('-', '_');
+  const id = (name ?? runOn ?? executableOsId).replaceAll('-', '_');
+
+  const variantName =  [
+    isBuild ? `build` : 'e2e_tests',
+    id,
+    !id.includes('openssl') ? sharedOpenSsl : undefined,
+    mVersion != 'stable' ? `m${mVersion.replaceAll('.', '')}` : undefined,
+    fips,
+  ].filter(text => text).join('_');
+
+  const formattedDisplayName = [
+    displayName,
+    mVersion != 'stable' ? mVersion.replaceAll('.', '') : undefined,
+    sharedOpenSsl,
+    fips ? 'FIPS' : undefined,
+    isBuild ? '(Build)' : '(E2E tests)'
+  ].filter(text => text).join(' ');
+
+  let compileBuildVariant = RELEASE_PACKAGE_MATRIX.find((pkg) => pkg.executableOsId == executableOsId)?.compileBuildVariant;
+  // We have a separate build variant for win32
+  if (compileBuildVariant == 'win32') compileBuildVariant = 'build_win32';
+
   return ({
     ...rest,
-    name: `${isBuild ? `build` : 'e2e_tests'}_${id}${sharedOpenSsl && !id.includes('openssl') ? `_${sharedOpenSsl}` : ''}${mVersion != 'stable' ? `_${mVersion.replaceAll('.', '')}` : ''}${fips ? `_${fips}` : ''}`,
-    displayName: `${displayName}${mVersion != 'stable' ? ` m${mVersion.replaceAll('.', '')}` : ''}${sharedOpenSsl ? ` ${sharedOpenSsl}` : ''}${fips ? ' FIPS' : ''} (${isBuild ? 'build' : 'E2E tests'})`
+    displayName: formattedDisplayName,
+    name: variantName,
+    compileBuildVariant,
   });
 });
 
@@ -1549,10 +1662,15 @@ tasks:
   ###
   # E2E TESTS
   ###
-  - name: e2e_tests
+  # Some tests reuse the same compilation build variant, so we create those variations of tasks to set those dependencies.
+  <% for (const compileBuildVariant of ['', 'build_linux_x64', 'darwin', 'darwin_arm64', 'build_win32']) { %>
+  - name: e2e_tests<% out(compileBuildVariant ? `_${compileBuildVariant}` : '') %>
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
+      <% if (compileBuildVariant != '') { %>
+        variant: <% out(compileBuildVariant) %>
+      <% } %>
     commands:
       - func: checkout
       - func: install
@@ -1567,10 +1685,13 @@ tasks:
           mongosh_server_test_version: ${mongosh_server_test_version}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
-  - name: perf_tests
+  - name: perf_tests<% out(compileBuildVariant ? `_${compileBuildVariant}` : '') %>
     tags: ["perf-test"]
     depends_on:
       - name: compile_artifact
+      <% if (compileBuildVariant != '') { %>
+        variant: <% out(compileBuildVariant) %>
+      <% } %>
     commands:
       - func: checkout
       - func: install
@@ -1580,7 +1701,8 @@ tasks:
         vars:
           executable_os_id: ${executable_os_id}
       - func: run_perf_tests
-
+  <% } %>
+  
   ###
   # EXECUTABLE CONNECTIVITY TESTS
   ###
@@ -1865,7 +1987,16 @@ buildvariants:
       mongosh_server_test_version: "<% out(variant.mVersion) %>-enterprise"
       mongosh_test_e2e_force_fips: "<% out(variant.fips ? '1' : '') %>"
     tasks:
-      <% for (const task of variant.isBuild ?  ['compile_artifact'] : ['compile_artifact', 'e2e_tests', 'perf_tests']) { %>
+      <% 
+      let tasks = [];
+      if (variant.isBuild || !variant.compileBuildVariant || variant.compileBuildVariant == variant.name) {
+        tasks.push('compile_artifact');
+      }
+      if (!variant.isBuild) {
+        tasks.push(`e2e_tests${variant.compileBuildVariant ? `_${variant.compileBuildVariant}` : ''}`)
+        tasks.push(`perf_tests${variant.compileBuildVariant ? `_${variant.compileBuildVariant}` : ''}`)
+      }
+      for (const task of tasks) { %>
       - name: <% out(task) %>
       <% } %>
   <% } %>
@@ -1876,7 +2007,7 @@ buildvariants:
       executable_os_id: darwin-x64
     tasks:
       - name: compile_artifact
-      - name: e2e_tests_darwin_x64
+      - name: e2e_tests_darwin
       - name: package_artifact_darwin_x64
       - name: sign_artifact_darwin_x64
       - name: package_artifact_darwin_arm64
@@ -1957,7 +2088,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
     tasks:
-      - name: e2e_tests_win32
+      - name: e2e_tests_build_win32
       - name: package_artifact_win32_x64
       - name: package_artifact_win32msi_x64
   - name: build_win32
@@ -2087,6 +2218,6 @@ buildvariants:
     display_name: "Performance Tests"
     run_on: rhel90-dbx-perf-large
     tasks:
-      - name: perf_tests
+      - name: perf_tests_build_linux_x64
     expansions: 
       executable_os_id: linux_x64
