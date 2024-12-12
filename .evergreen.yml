@@ -8274,7 +8274,7 @@ tasks:
   ###
   # E2E TESTS
   ###
-  # Some tests reuse the same compilation build variant, so we create those variations of tasks to set those dependencies.
+  # Tests reuse the same compilation build variant, so we create those variations based on this.
   - name: e2e_tests_build_linux_x64
     tags: ["e2e-test"]
     depends_on:
@@ -8294,20 +8294,6 @@ tasks:
           mongosh_server_test_version: ${mongosh_server_test_version}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
-  - name: perf_tests_build_linux_x64
-    tags: ["perf-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: build_linux_x64
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "20.18.1"
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: ${executable_os_id}
-      - func: run_perf_tests
   - name: e2e_tests_build_linux_arm64
     tags: ["e2e-test"]
     depends_on:
@@ -8327,20 +8313,6 @@ tasks:
           mongosh_server_test_version: ${mongosh_server_test_version}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
-  - name: perf_tests_build_linux_arm64
-    tags: ["perf-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: build_linux_arm64
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "20.18.1"
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: ${executable_os_id}
-      - func: run_perf_tests
   - name: e2e_tests_darwin
     tags: ["e2e-test"]
     depends_on:
@@ -8360,20 +8332,6 @@ tasks:
           mongosh_server_test_version: ${mongosh_server_test_version}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
-  - name: perf_tests_darwin
-    tags: ["perf-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: darwin
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "20.18.1"
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: ${executable_os_id}
-      - func: run_perf_tests
   - name: e2e_tests_darwin_arm64
     tags: ["e2e-test"]
     depends_on:
@@ -8393,20 +8351,6 @@ tasks:
           mongosh_server_test_version: ${mongosh_server_test_version}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
-  - name: perf_tests_darwin_arm64
-    tags: ["perf-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: darwin_arm64
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "20.18.1"
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: ${executable_os_id}
-      - func: run_perf_tests
   - name: e2e_tests_build_win32
     tags: ["e2e-test"]
     depends_on:
@@ -8426,11 +8370,11 @@ tasks:
           mongosh_server_test_version: ${mongosh_server_test_version}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
-  - name: perf_tests_build_win32
+  - name: perf_tests
     tags: ["perf-test"]
     depends_on:
       - name: compile_artifact
-        variant: build_win32
+        variant: build_linux_x64
     commands:
       - func: checkout
       - func: install
@@ -8438,7 +8382,7 @@ tasks:
           node_js_version: "20.18.1"
       - func: download_compiled_artifact
         vars:
-          executable_os_id: ${executable_os_id}
+          executable_os_id: "linux-x64"
       - func: run_perf_tests
   
   ###
@@ -14781,7 +14725,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_x64
-      - name: perf_tests_build_linux_x64
   - name: e2e_tests_rhel76_large_m70x
     display_name: "RHEL 7.6 x64 70x (E2E tests)"
     run_on: rhel76-large
@@ -14794,7 +14737,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_x64
-      - name: perf_tests_build_linux_x64
   - name: e2e_tests_rhel80_small
     display_name: "RHEL 8.0 x64 (E2E tests)"
     run_on: rhel80-small
@@ -14807,7 +14749,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_x64
-      - name: perf_tests_build_linux_x64
   - name: e2e_tests_rhel90_small_m70x
     display_name: "RHEL 9.0 x64 70x (E2E tests)"
     run_on: rhel90-small
@@ -14820,7 +14761,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_x64
-      - name: perf_tests_build_linux_x64
   - name: e2e_tests_rhel93_small
     display_name: "RHEL 9.3 x64 small (E2E tests)"
     run_on: rhel93-small
@@ -14833,7 +14773,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_x64
-      - name: perf_tests_build_linux_x64
   - name: e2e_tests_rhel83_fips
     display_name: "RHEL 8.3 x64 (E2E tests)"
     run_on: rhel83-fips
@@ -14846,7 +14785,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_x64
-      - name: perf_tests_build_linux_x64
   - name: e2e_tests_rhel83_fips_openssl11
     display_name: "RHEL 8.3 x64 openssl11 (E2E tests)"
     run_on: rhel83-fips
@@ -14859,7 +14797,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_x64
-      - name: perf_tests_build_linux_x64
   - name: e2e_tests_rhel83_fips_openssl11_true
     display_name: "RHEL 8.3 x64 openssl11 FIPS (E2E tests)"
     run_on: rhel83-fips
@@ -14872,7 +14809,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: "1"
     tasks:
       - name: e2e_tests_build_linux_x64
-      - name: perf_tests_build_linux_x64
   - name: e2e_tests_rhel93_fips
     display_name: "RHEL 9.3 x64 (E2E tests)"
     run_on: rhel93-fips
@@ -14885,7 +14821,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_x64
-      - name: perf_tests_build_linux_x64
   - name: e2e_tests_rhel93_fips_openssl3
     display_name: "RHEL 9.3 x64 openssl3 (E2E tests)"
     run_on: rhel93-fips
@@ -14898,7 +14833,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_x64
-      - name: perf_tests_build_linux_x64
   - name: e2e_tests_rhel93_fips_openssl3_true
     display_name: "RHEL 9.3 x64 openssl3 FIPS (E2E tests)"
     run_on: rhel93-fips
@@ -14911,7 +14845,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: "1"
     tasks:
       - name: e2e_tests_build_linux_x64
-      - name: perf_tests_build_linux_x64
   - name: e2e_tests_ubuntu1804_large_m60x
     display_name: "Ubuntu 18.04 x64 60x (E2E tests)"
     run_on: ubuntu1804-large
@@ -14924,7 +14857,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_x64
-      - name: perf_tests_build_linux_x64
   - name: e2e_tests_ubuntu2004_small
     display_name: "Ubuntu 20.04 x64 (E2E tests)"
     run_on: ubuntu2004-small
@@ -14937,7 +14869,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_x64
-      - name: perf_tests_build_linux_x64
   - name: e2e_tests_ubuntu2004_small_openssl11
     display_name: "Ubuntu 20.04 x64 openssl11 (E2E tests)"
     run_on: ubuntu2004-small
@@ -14950,7 +14881,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_x64
-      - name: perf_tests_build_linux_x64
   - name: e2e_tests_ubuntu2204_small
     display_name: "Ubuntu 22.04 x64 (E2E tests)"
     run_on: ubuntu2204-small
@@ -14963,7 +14893,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_x64
-      - name: perf_tests_build_linux_x64
   - name: e2e_tests_ubuntu2204_small_openssl3
     display_name: "Ubuntu 22.04 x64 openssl3 (E2E tests)"
     run_on: ubuntu2204-small
@@ -14976,7 +14905,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_x64
-      - name: perf_tests_build_linux_x64
   - name: e2e_tests_ubuntu2404_small
     display_name: "Ubuntu 24.04 x64 (E2E tests)"
     run_on: ubuntu2404-small
@@ -14989,7 +14917,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_x64
-      - name: perf_tests_build_linux_x64
   - name: e2e_tests_ubuntu2404_small_openssl3
     display_name: "Ubuntu 24.04 x64 openssl3 (E2E tests)"
     run_on: ubuntu2404-small
@@ -15002,7 +14929,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_x64
-      - name: perf_tests_build_linux_x64
   - name: e2e_tests_debian10_small_m60x
     display_name: "Debian 10 x64 60x (E2E tests)"
     run_on: debian10-small
@@ -15015,7 +14941,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_x64
-      - name: perf_tests_build_linux_x64
   - name: e2e_tests_debian10_small_openssl11_m60x
     display_name: "Debian 10 x64 60x openssl11 (E2E tests)"
     run_on: debian10-small
@@ -15028,7 +14953,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_x64
-      - name: perf_tests_build_linux_x64
   - name: e2e_tests_debian11_small_m70x
     display_name: "Debian 11 x64 70x (E2E tests)"
     run_on: debian11-small
@@ -15041,7 +14965,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_x64
-      - name: perf_tests_build_linux_x64
   - name: e2e_tests_debian11_small_openssl11_m70x
     display_name: "Debian 11 x64 70x openssl11 (E2E tests)"
     run_on: debian11-small
@@ -15054,7 +14977,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_x64
-      - name: perf_tests_build_linux_x64
   - name: e2e_tests_amazon2_large_m70x
     display_name: "Amazon Linux 2 x64 70x (E2E tests)"
     run_on: amazon2-large
@@ -15067,7 +14989,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_x64
-      - name: perf_tests_build_linux_x64
   - name: e2e_tests_amazon2023.0_small
     display_name: "Amazon Linux 2023 x64 (E2E tests)"
     run_on: amazon2023.0-small
@@ -15080,7 +15001,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_x64
-      - name: perf_tests_build_linux_x64
   - name: e2e_tests_suse12_sp5_large_m70x
     display_name: "SLES 12 x64 70x (E2E tests)"
     run_on: suse12-sp5-large
@@ -15093,7 +15013,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_x64
-      - name: perf_tests_build_linux_x64
   - name: e2e_tests_suse15sp4_small
     display_name: "SLES 15 x64 (E2E tests)"
     run_on: suse15sp4-small
@@ -15106,7 +15025,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_x64
-      - name: perf_tests_build_linux_x64
   - name: e2e_tests_ubuntu1804_arm64_large_m60x
     display_name: "Ubuntu 18.04 arm64 60x (E2E tests)"
     run_on: ubuntu1804-arm64-large
@@ -15119,7 +15037,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_arm64
-      - name: perf_tests_build_linux_arm64
   - name: e2e_tests_ubuntu2004_arm64_small
     display_name: "Ubuntu 20.04 arm64 (E2E tests)"
     run_on: ubuntu2004-arm64-small
@@ -15132,7 +15049,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_arm64
-      - name: perf_tests_build_linux_arm64
   - name: e2e_tests_ubuntu2004_arm64_small_openssl11
     display_name: "Ubuntu 20.04 arm64 openssl11 (E2E tests)"
     run_on: ubuntu2004-arm64-small
@@ -15145,7 +15061,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_arm64
-      - name: perf_tests_build_linux_arm64
   - name: e2e_tests_ubuntu2204_arm64_small
     display_name: "Ubuntu 22.04 arm64 (E2E tests)"
     run_on: ubuntu2204-arm64-small
@@ -15158,7 +15073,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_arm64
-      - name: perf_tests_build_linux_arm64
   - name: e2e_tests_ubuntu2204_arm64_small_openssl3
     display_name: "Ubuntu 22.04 arm64 openssl3 (E2E tests)"
     run_on: ubuntu2204-arm64-small
@@ -15171,7 +15085,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_arm64
-      - name: perf_tests_build_linux_arm64
   - name: e2e_tests_ubuntu2404_arm64_small
     display_name: "Ubuntu 24.04 arm64 (E2E tests)"
     run_on: ubuntu2404-arm64-small
@@ -15184,7 +15097,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_arm64
-      - name: perf_tests_build_linux_arm64
   - name: e2e_tests_ubuntu2404_arm64_small_openssl3
     display_name: "Ubuntu 24.04 arm64 openssl3 (E2E tests)"
     run_on: ubuntu2404-arm64-small
@@ -15197,7 +15109,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_arm64
-      - name: perf_tests_build_linux_arm64
   - name: e2e_tests_amazon2_arm64_large_m70x
     display_name: "Amazon Linux 2 arm64 70x (E2E tests)"
     run_on: amazon2-arm64-large
@@ -15210,7 +15121,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_arm64
-      - name: perf_tests_build_linux_arm64
   - name: e2e_tests_amazon2023.0_arm64_small
     display_name: "Amazon Linux 2023 arm64 (E2E tests)"
     run_on: amazon2023.0-arm64-small
@@ -15223,7 +15133,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_arm64
-      - name: perf_tests_build_linux_arm64
   - name: e2e_tests_rhel82_arm64_small
     display_name: "RHEL 8.2 arm64 (E2E tests)"
     run_on: rhel82-arm64-small
@@ -15236,7 +15145,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_arm64
-      - name: perf_tests_build_linux_arm64
   - name: e2e_tests_rhel90_arm64_small_m70x
     display_name: "RHEL 9.0 arm64 70x (E2E tests)"
     run_on: rhel90-arm64-small
@@ -15249,7 +15157,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_arm64
-      - name: perf_tests_build_linux_arm64
   - name: e2e_tests_rhel90_arm64_small_openssl3_m70x
     display_name: "RHEL 9.0 arm64 70x openssl3 (E2E tests)"
     run_on: rhel90-arm64-small
@@ -15262,7 +15169,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_arm64
-      - name: perf_tests_build_linux_arm64
   - name: e2e_tests_rhel93_arm64_small
     display_name: "RHEL 9.3 arm64 (E2E tests)"
     run_on: rhel93-arm64-small
@@ -15275,7 +15181,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_arm64
-      - name: perf_tests_build_linux_arm64
   - name: e2e_tests_rhel93_arm64_small_openssl3
     display_name: "RHEL 9.3 arm64 openssl3 (E2E tests)"
     run_on: rhel93-arm64-small
@@ -15288,7 +15193,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_arm64
-      - name: perf_tests_build_linux_arm64
   - name: e2e_tests_rhel8_power_small
     display_name: "RHEL 8 PPC (E2E tests)"
     run_on: rhel8-power-small
@@ -15301,7 +15205,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_x64
-      - name: perf_tests_build_linux_x64
   - name: e2e_tests_rhel7_zseries_large_m60x
     display_name: "RHEL 7 s390x 60x (E2E tests)"
     run_on: rhel7-zseries-large
@@ -15314,7 +15217,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_x64
-      - name: perf_tests_build_linux_x64
   - name: e2e_tests_rhel8_zseries_small
     display_name: "RHEL 8 s390x (E2E tests)"
     run_on: rhel8-zseries-small
@@ -15327,7 +15229,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_build_linux_x64
-      - name: perf_tests_build_linux_x64
   - name: e2e_tests_macos_14
     display_name: "MacOS 14 x64 (E2E tests)"
     run_on: macos-14
@@ -15340,7 +15241,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_darwin
-      - name: perf_tests_darwin
   - name: e2e_tests_macos_14_arm64
     display_name: "MacOS 14 arm64 (E2E tests)"
     run_on: macos-14-arm64
@@ -15353,7 +15253,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_darwin_arm64
-      - name: perf_tests_darwin_arm64
   - name: darwin
     display_name: "MacOS Big Sur"
     run_on: macos-11
@@ -15709,6 +15608,4 @@ buildvariants:
     display_name: "Performance Tests"
     run_on: rhel90-dbx-perf-large
     tasks:
-      - name: perf_tests_build_linux_x64
-    expansions: 
-      executable_os_id: linux_x64
+      - name: perf_tests

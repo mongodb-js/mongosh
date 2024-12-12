@@ -1679,7 +1679,7 @@ tasks:
   ###
   # E2E TESTS
   ###
-  # Some tests reuse the same compilation build variant, so we create those variations of tasks to set those dependencies.
+  # Tests reuse the same compilation build variant, so we create those variations based on this.
   <% for (const compileBuildVariant of ['build_linux_x64', 'build_linux_arm64', 'darwin', 'darwin_arm64', 'build_win32']) { %>
   - name: e2e_tests<% out(compileBuildVariant ? `_${compileBuildVariant}` : '') %>
     tags: ["e2e-test"]
@@ -1702,13 +1702,12 @@ tasks:
           mongosh_server_test_version: ${mongosh_server_test_version}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
-  - name: perf_tests<% out(compileBuildVariant ? `_${compileBuildVariant}` : '') %>
+  <% } %>
+  - name: perf_tests
     tags: ["perf-test"]
     depends_on:
       - name: compile_artifact
-      <% if (compileBuildVariant != '') { %>
-        variant: <% out(compileBuildVariant) %>
-      <% } %>
+        variant: build_linux_x64
     commands:
       - func: checkout
       - func: install
@@ -1716,9 +1715,8 @@ tasks:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
       - func: download_compiled_artifact
         vars:
-          executable_os_id: ${executable_os_id}
+          executable_os_id: "linux-x64"
       - func: run_perf_tests
-  <% } %>
   
   ###
   # EXECUTABLE CONNECTIVITY TESTS
@@ -2011,7 +2009,6 @@ buildvariants:
       }
       if (!variant.isBuild) {
         tasks.push(`e2e_tests${variant.compileBuildVariant ? `_${variant.compileBuildVariant}` : ''}`)
-        tasks.push(`perf_tests${variant.compileBuildVariant ? `_${variant.compileBuildVariant}` : ''}`)
       }
       for (const task of tasks) { %>
       - name: <% out(task) %>
@@ -2235,6 +2232,4 @@ buildvariants:
     display_name: "Performance Tests"
     run_on: rhel90-dbx-perf-large
     tasks:
-      - name: perf_tests_build_linux_x64
-    expansions: 
-      executable_os_id: linux_x64
+      - name: perf_tests
