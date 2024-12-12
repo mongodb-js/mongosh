@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type { EditorRef } from '@mongodb-js/compass-editor';
 import {
   css,
@@ -192,11 +198,11 @@ export const Shell = ({
 }: ShellProps) => {
   const darkMode = useDarkMode();
 
+  const shellInputContainerRef = useRef<HTMLDivElement>(null);
+
   const [editor, setEditor] = useState<EditorRef | null>(null);
   const [passwordPrompt, setPasswordPrompt] = useState('');
   const [shellPrompt, setShellPrompt] = useState('>');
-  const [shellInputElement, setShellInputElement] =
-    useState<HTMLElement | null>(null);
   const [onFinishPasswordPrompt, setOnFinishPasswordPrompt] = useState<
     () => (result: string) => void
   >(() => noop);
@@ -385,12 +391,12 @@ export const Shell = ({
   );
 
   const scrollToBottom = useCallback(() => {
-    if (!shellInputElement) {
+    if (!shellInputContainerRef.current) {
       return;
     }
 
-    shellInputElement.scrollIntoView();
-  }, [shellInputElement]);
+    shellInputContainerRef.current.scrollIntoView();
+  }, [shellInputContainerRef]);
 
   useEffect(() => {
     scrollToBottom();
@@ -438,11 +444,7 @@ export const Shell = ({
       <div>
         <ShellOutput output={output ?? []} />
       </div>
-      <div
-        ref={(el): void => {
-          setShellInputElement(el);
-        }}
-      >
+      <div ref={shellInputContainerRef}>
         {passwordPrompt ? (
           <PasswordPrompt
             onFinish={onFinishPasswordPrompt}
