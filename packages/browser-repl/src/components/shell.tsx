@@ -159,7 +159,11 @@ interface ShellProps {
   onEditorChanged?: (editor: EditorRef | null) => void;
 }
 
-const normalizeInitialEvaluate = (initialEvaluate: string | string[]) => {
+const normalizeInitialEvaluate = (initialEvaluate?: string | string[]) => {
+  if (!initialEvaluate) {
+    return [];
+  }
+
   return (
     Array.isArray(initialEvaluate) ? initialEvaluate : [initialEvaluate]
   ).filter((line) => {
@@ -455,18 +459,22 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
 
     setIsFirstRun(false);
 
-    void updateShellPrompt().then(async () => {
-      if (initialEvaluate) {
-        const evalLines = normalizeInitialEvaluate(initialEvaluate);
+    const evalLines = normalizeInitialEvaluate(initialEvaluate);
+    if (evalLines.length) {
+      void (async () => {
         for (const input of evalLines) {
           await onInput(input);
         }
-      }
-    });
+      })();
+    } else {
+      void updateShellPrompt();
+    }
   }, [initialEvaluate, isFirstRun, onInput, updateShellPrompt]);
 
   useEffect(() => {
     rafraf(() => {
+      // Scroll to the bottom every time we render so the input/output will be
+      // in view.
       scrollToBottom();
     });
   });

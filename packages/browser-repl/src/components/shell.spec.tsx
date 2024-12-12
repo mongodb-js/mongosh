@@ -526,7 +526,7 @@ describe('shell', function () {
         return {};
       };
 
-      const initialEvaluate = 'my command';
+      const initialEvaluate = ['command 1', 'command 2'];
       const onOutputChanged = sinon.spy();
       render(
         <ShellWrapper
@@ -537,10 +537,8 @@ describe('shell', function () {
       );
 
       await waitFor(() => {
-        expect(onOutputChanged).to.have.been.called;
+        expect(screen.getByText('rs0:primary')).to.exist;
       });
-
-      expect(screen.getByText('rs0:primary')).to.exist;
     });
   });
 });
