@@ -202,6 +202,10 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
   const darkMode = useDarkMode();
 
   const editorRef = useRef<EditorRef | null>(null);
+  const outputRef = useRef(output);
+  const historyRef = useRef(history);
+  const shellInputContainerRef = useRef<HTMLDivElement>(null);
+  const initialEvaluateRef = useRef(initialEvaluate);
 
   useImperativeHandle(
     ref,
@@ -233,8 +237,6 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
     []
   );
 
-  const shellInputContainerRef = useRef<HTMLDivElement>(null);
-
   const [passwordPrompt, setPasswordPrompt] = useState('');
   const [shellPrompt, setShellPrompt] = useState('>');
   const [onFinishPasswordPrompt, setOnFinishPasswordPrompt] = useState<
@@ -252,7 +254,7 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
     return {
       onPrint: (result: RuntimeEvaluationResult[]): void => {
         const newOutput = [
-          ...(output ?? []),
+          ...(outputRef.current ?? []),
           ...result.map(
             (entry): ShellOutputEntry => ({
               format: 'output',
@@ -299,7 +301,7 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
         onOutputChanged?.([]);
       },
     };
-  }, [focusEditor, maxOutputLength, onOutputChanged, output]);
+  }, [focusEditor, maxOutputLength, onOutputChanged]);
 
   const updateShellPrompt = useCallback(async (): Promise<void> => {
     let newShellPrompt = '>';
@@ -366,8 +368,8 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
 
   const onInput = useCallback(
     async (code: string) => {
-      const newOutput = [...(output ?? [])];
-      const newHistory = [...(history ?? [])];
+      const newOutput = [...(outputRef.current ?? [])];
+      const newHistory = [...(historyRef.current ?? [])];
 
       // don't evaluate empty input, but do add it to the output
       if (!code || code.trim() === '') {
@@ -405,8 +407,6 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
       onHistoryChanged?.(newHistory);
     },
     [
-      output,
-      history,
       onOutputChanged,
       evaluate,
       redactInfo,
@@ -446,11 +446,7 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
     return Promise.resolve(false);
   }, [isOperationInProgress, runtime]);
 
-  const initialEvaluateRef = useRef(initialEvaluate);
-
   useEffect(() => {
-    scrollToBottom();
-
     void updateShellPrompt().then(async () => {
       if (initialEvaluateRef.current) {
         const evalLines = normalizeInitialEvaluate(initialEvaluateRef.current);
@@ -459,7 +455,11 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
         }
       }
     });
-  }, [onInput, scrollToBottom, updateShellPrompt]);
+  }, [onInput, updateShellPrompt]);
+
+  useEffect(() => {
+    scrollToBottom();
+  });
 
   /* eslint-disable jsx-a11y/no-static-element-interactions */
   /* eslint-disable jsx-a11y/click-events-have-key-events */

@@ -120,8 +120,8 @@ describe('shell', function () {
 
     expect(filterEvaluateCalls(fakeRuntime.evaluate.args)).to.have.length(1);
 
-    // scrolls to the bottom initially
-    expect(Element.prototype.scrollIntoView).to.have.been.calledOnce;
+    // scrolls to the bottom initially and every time it outputs
+    expect(Element.prototype.scrollIntoView).to.have.been.calledTwice;
 
     // make sure we scroll to the bottom every time output changes
     rerender(
@@ -133,7 +133,7 @@ describe('shell', function () {
       />
     );
     await waitFor(() => {
-      expect(Element.prototype.scrollIntoView).to.have.been.calledTwice;
+      expect(Element.prototype.scrollIntoView).to.have.been.calledThrice;
     });
   });
 
@@ -478,7 +478,7 @@ describe('shell', function () {
       render(<ShellWrapper runtime={fakeRuntime} />);
 
       await waitFor(() => {
-        expect(Element.prototype.scrollIntoView).to.have.been.calledOnce;
+        expect(Element.prototype.scrollIntoView).to.have.been.calledTwice;
       });
 
       expect(screen.getByLabelText('Chevron Right Icon')).to.exist;
@@ -492,7 +492,7 @@ describe('shell', function () {
       render(<ShellWrapper runtime={fakeRuntime} />);
 
       await waitFor(() => {
-        expect(Element.prototype.scrollIntoView).to.have.been.calledOnce;
+        expect(Element.prototype.scrollIntoView).to.have.been.calledTwice;
       });
 
       expect(screen.getByText('$custom$')).to.exist;
@@ -509,7 +509,7 @@ describe('shell', function () {
       render(<ShellWrapper runtime={fakeRuntime} />);
 
       await waitFor(() => {
-        expect(Element.prototype.scrollIntoView).to.have.been.calledOnce;
+        expect(Element.prototype.scrollIntoView).to.have.been.calledTwice;
       });
 
       expect(screen.getByText('abc')).to.exist;
