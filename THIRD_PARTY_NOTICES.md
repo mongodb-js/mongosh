@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Wed Dec 11 2024.
+This document was automatically generated on Fri Dec 13 2024.
 
 ## List of dependencies
 
@@ -241,7 +241,7 @@ Package|Version|License
 **[execa](#a0c2c672c3fccddd8bd85ffff34f8f18d893b9f136946e6225b9abc9a8fae10e)**|5.0.0|MIT
 **[execa](#099ba5f976333854bfd5aa2237fd12d883c4477af76007a7963109833edef012)**|7.2.0|MIT
 **[expand-template](#46d3e73ca0d4a8c14e99252386f0a5c1a4fd8b2747331373d7b4da97105c15bb)**|2.0.3|(MIT OR WTFPL)
-**[express](#96b5945aa9b5ba9189eb3e9f50f6522e976d90a93dc42f2f3aa13cbcffb434a2)**|4.21.1|MIT
+**[express](#4d2041a77bd4922bcebeb1bb80240f087b10510d23d4a3142db7206a9feb739a)**|4.21.2|MIT
 **[fast-xml-parser](#ebbe8cacbca0e6da2c884ade309dddffc2df1cf8f3532ffda03e31aa6d3a9a3b)**|4.4.1|MIT
 **[fault](#387740fc7544e813d0a9ad480550d0bb536270783b1ce8c1ee83cd7d18b1472e)**|1.0.4|MIT
 **[fetch-blob](#9a40c73e2482c1cc651991133722a6fedd12dc752d2858a21da24395e6fc8461)**|3.2.0|MIT
@@ -375,7 +375,7 @@ Package|Version|License
 **[parseurl](#c3fdd1b6fb725cb30e8fed82cf929953b46129d347d8404a4a51b633389fbae8)**|1.3.3|MIT
 **[path-key](#e1a2a032096ace66b422351e00b11b0229e42e4b49c2146f439f8fe442218451)**|3.1.1|MIT
 **[path-key](#8e0734b8abb76579df2174822606e692914e985fc58363a78e6ad4b2a4a5831f)**|4.0.0|MIT
-**[path-to-regexp](#96d230365f414cce8d80ceb9d99d855685dfa922f931b49ea01952a1efe64266)**|0.1.10|MIT
+**[path-to-regexp](#a36c8f7aea129a341c589b7722e2c873fab8a2d01a0c3e2e426f5b28ba793621)**|0.1.12|MIT
 **[path-to-regexp](#571cfd74ecd5ea999273383b83a44bf35d4a62383c67a63fef169cc42eb2d859)**|1.9.0|MIT
 **[picocolors](#f964752f1f8cfd947506fd51ce1c148469ecf3b6f531d826511b720670e556f1)**|1.1.0|ISC
 **[prebuild-install](#93d13a9b3a51a6a802fcd35aa031d3ae7369aa6fd47d3a89f28a6d31ea3c9dc5)**|7.1.2|MIT
@@ -22956,8 +22956,8 @@ License files:
       THE SOFTWARE.
 
 
-<a id="96b5945aa9b5ba9189eb3e9f50f6522e976d90a93dc42f2f3aa13cbcffb434a2"></a>
-### [express](https://www.npmjs.com/package/express) (version 4.21.1)
+<a id="4d2041a77bd4922bcebeb1bb80240f087b10510d23d4a3142db7206a9feb739a"></a>
+### [express](https://www.npmjs.com/package/express) (version 4.21.2)
 License tags: MIT
 
 License files:
@@ -28860,8 +28860,8 @@ License files:
       
 
 
-<a id="96d230365f414cce8d80ceb9d99d855685dfa922f931b49ea01952a1efe64266"></a>
-### [path-to-regexp](https://www.npmjs.com/package/path-to-regexp) (version 0.1.10)
+<a id="a36c8f7aea129a341c589b7722e2c873fab8a2d01a0c3e2e426f5b28ba793621"></a>
+### [path-to-regexp](https://www.npmjs.com/package/path-to-regexp) (version 0.1.12)
 License tags: MIT
 
 License files:
