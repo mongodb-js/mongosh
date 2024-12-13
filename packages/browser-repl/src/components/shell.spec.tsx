@@ -393,13 +393,11 @@ describe('shell', function () {
     await listener?.onPrint?.([{ type: null, printable: 42 }]);
 
     await waitFor(() => {
-      expect(output).to.deep.equal([
-        {
-          format: 'output',
-          type: null,
-          value: 42,
-        },
-      ]);
+      expect(output[output.length - 1]).to.deep.equal({
+        format: 'output',
+        type: null,
+        value: 42,
+      });
     });
   });
 

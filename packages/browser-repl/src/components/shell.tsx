@@ -208,6 +208,9 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
 
   const editorRef = useRef<EditorRef | null>(null);
   const shellInputContainerRef = useRef<HTMLDivElement>(null);
+  const initialEvaluateRef = useRef(initialEvaluate);
+  const outputRef = useRef(output);
+  const historyRef = useRef(history);
 
   useImperativeHandle(
     ref,
@@ -256,7 +259,7 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
     return {
       onPrint: (result: RuntimeEvaluationResult[]): void => {
         const newOutput = [
-          ...(output ?? []),
+          ...(outputRef.current ?? []),
           ...result.map(
             (entry): ShellOutputEntry => ({
               format: 'output',
@@ -267,6 +270,7 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
         ];
 
         capLengthEnd(newOutput, maxOutputLength);
+        outputRef.current = newOutput;
         onOutputChanged?.(newOutput);
       },
       onPrompt: async (
@@ -300,10 +304,11 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
         return ret;
       },
       onClearCommand: (): void => {
+        outputRef.current = [];
         onOutputChanged?.([]);
       },
     };
-  }, [focusEditor, maxOutputLength, onOutputChanged, output]);
+  }, [focusEditor, maxOutputLength, onOutputChanged]);
 
   const updateShellPrompt = useCallback(async (): Promise<void> => {
     let newShellPrompt = '>';
@@ -370,8 +375,8 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
 
   const onInput = useCallback(
     async (code: string) => {
-      const newOutput = [...(output ?? [])];
-      const newHistory = [...(history ?? [])];
+      const newOutput = [...(outputRef.current ?? [])];
+      const newHistory = [...(historyRef.current ?? [])];
 
       // don't evaluate empty input, but do add it to the output
       if (!code || code.trim() === '') {
@@ -380,6 +385,7 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
           value: ' ',
         });
         capLengthEnd(newOutput, maxOutputLength);
+        outputRef.current = newOutput;
         onOutputChanged?.(newOutput);
         return;
       }
@@ -390,6 +396,7 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
         value: code,
       });
       capLengthEnd(newOutput, maxOutputLength);
+      outputRef.current = newOutput;
       onOutputChanged?.(newOutput);
 
       const outputLine = await evaluate(code);
@@ -397,6 +404,7 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
       // add output to output
       newOutput.push(outputLine);
       capLengthEnd(newOutput, maxOutputLength);
+      outputRef.current = newOutput;
       onOutputChanged?.(newOutput);
 
       // update history
@@ -406,11 +414,10 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
         newHistory,
         redactInfo ? 'redact-sensitive-data' : 'keep-sensitive-data'
       );
+      historyRef.current = newHistory;
       onHistoryChanged?.(newHistory);
     },
     [
-      output,
-      history,
       onOutputChanged,
       evaluate,
       redactInfo,
@@ -450,16 +457,8 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
     return Promise.resolve(false);
   }, [isOperationInProgress, runtime]);
 
-  const [isFirstRun, setIsFirstRun] = useState(true);
-
   useEffect(() => {
-    if (!isFirstRun) {
-      return;
-    }
-
-    setIsFirstRun(false);
-
-    const evalLines = normalizeInitialEvaluate(initialEvaluate);
+    const evalLines = normalizeInitialEvaluate(initialEvaluateRef.current);
     if (evalLines.length) {
       void (async () => {
         for (const input of evalLines) {
@@ -469,7 +468,7 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
     } else {
       void updateShellPrompt();
     }
-  }, [initialEvaluate, isFirstRun, onInput, updateShellPrompt]);
+  }, [onInput, updateShellPrompt]);
 
   useEffect(() => {
     rafraf(() => {
