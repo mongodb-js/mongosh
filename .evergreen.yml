@@ -8275,7 +8275,7 @@ tasks:
   # E2E TESTS
   ###
   # Tests reuse the same compilation build variant, so we create those variations based on this.
-  - name: e2e_tests_build_linux_x64
+  - name: e2e_tests_linux_x64
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -8294,7 +8294,7 @@ tasks:
           mongosh_server_test_version: ${mongosh_server_test_version}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
-  - name: e2e_tests_build_linux_arm64
+  - name: e2e_tests_linux_arm64
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -8351,7 +8351,7 @@ tasks:
           mongosh_server_test_version: ${mongosh_server_test_version}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
-  - name: e2e_tests_build_win32
+  - name: e2e_tests_win32
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -14724,7 +14724,7 @@ buildvariants:
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_x64
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_rhel76_large_m70x
     display_name: "RHEL 7.6 x64 70x (E2E tests)"
     run_on: rhel76-large
@@ -14736,7 +14736,7 @@ buildvariants:
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_x64
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_rhel80_small
     display_name: "RHEL 8.0 x64 (E2E tests)"
     run_on: rhel80-small
@@ -14748,7 +14748,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_x64
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_rhel90_small_m70x
     display_name: "RHEL 9.0 x64 70x (E2E tests)"
     run_on: rhel90-small
@@ -14760,7 +14760,7 @@ buildvariants:
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_x64
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_rhel93_small
     display_name: "RHEL 9.3 x64 small (E2E tests)"
     run_on: rhel93-small
@@ -14772,7 +14772,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_x64
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_rhel83_fips
     display_name: "RHEL 8.3 x64 (E2E tests)"
     run_on: rhel83-fips
@@ -14784,7 +14784,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_x64
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_rhel83_fips_openssl11
     display_name: "RHEL 8.3 x64 openssl11 (E2E tests)"
     run_on: rhel83-fips
@@ -14796,7 +14796,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_x64
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_rhel83_fips_openssl11_true
     display_name: "RHEL 8.3 x64 openssl11 FIPS (E2E tests)"
     run_on: rhel83-fips
@@ -14808,7 +14808,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: "1"
     tasks:
-      - name: e2e_tests_build_linux_x64
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_rhel93_fips
     display_name: "RHEL 9.3 x64 (E2E tests)"
     run_on: rhel93-fips
@@ -14820,7 +14820,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_x64
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_rhel93_fips_openssl3
     display_name: "RHEL 9.3 x64 openssl3 (E2E tests)"
     run_on: rhel93-fips
@@ -14832,7 +14832,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_x64
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_rhel93_fips_openssl3_true
     display_name: "RHEL 9.3 x64 openssl3 FIPS (E2E tests)"
     run_on: rhel93-fips
@@ -14844,7 +14844,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: "1"
     tasks:
-      - name: e2e_tests_build_linux_x64
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_ubuntu1804_large_m60x
     display_name: "Ubuntu 18.04 x64 60x (E2E tests)"
     run_on: ubuntu1804-large
@@ -14856,7 +14856,7 @@ buildvariants:
       mongosh_server_test_version: "6.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_x64
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_ubuntu2004_small
     display_name: "Ubuntu 20.04 x64 (E2E tests)"
     run_on: ubuntu2004-small
@@ -14868,7 +14868,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_x64
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_ubuntu2004_small_openssl11
     display_name: "Ubuntu 20.04 x64 openssl11 (E2E tests)"
     run_on: ubuntu2004-small
@@ -14880,7 +14880,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_x64
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_ubuntu2204_small
     display_name: "Ubuntu 22.04 x64 (E2E tests)"
     run_on: ubuntu2204-small
@@ -14892,7 +14892,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_x64
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_ubuntu2204_small_openssl3
     display_name: "Ubuntu 22.04 x64 openssl3 (E2E tests)"
     run_on: ubuntu2204-small
@@ -14904,7 +14904,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_x64
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_ubuntu2404_small
     display_name: "Ubuntu 24.04 x64 (E2E tests)"
     run_on: ubuntu2404-small
@@ -14916,7 +14916,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_x64
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_ubuntu2404_small_openssl3
     display_name: "Ubuntu 24.04 x64 openssl3 (E2E tests)"
     run_on: ubuntu2404-small
@@ -14928,7 +14928,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_x64
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_debian10_small_m60x
     display_name: "Debian 10 x64 60x (E2E tests)"
     run_on: debian10-small
@@ -14940,7 +14940,7 @@ buildvariants:
       mongosh_server_test_version: "6.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_x64
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_debian10_small_openssl11_m60x
     display_name: "Debian 10 x64 60x openssl11 (E2E tests)"
     run_on: debian10-small
@@ -14952,7 +14952,7 @@ buildvariants:
       mongosh_server_test_version: "6.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_x64
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_debian11_small_m70x
     display_name: "Debian 11 x64 70x (E2E tests)"
     run_on: debian11-small
@@ -14964,7 +14964,7 @@ buildvariants:
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_x64
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_debian11_small_openssl11_m70x
     display_name: "Debian 11 x64 70x openssl11 (E2E tests)"
     run_on: debian11-small
@@ -14976,7 +14976,7 @@ buildvariants:
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_x64
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_amazon2_large_m70x
     display_name: "Amazon Linux 2 x64 70x (E2E tests)"
     run_on: amazon2-large
@@ -14988,7 +14988,7 @@ buildvariants:
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_x64
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_amazon2023.0_small
     display_name: "Amazon Linux 2023 x64 (E2E tests)"
     run_on: amazon2023.0-small
@@ -15000,7 +15000,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_x64
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_suse12_sp5_large_m70x
     display_name: "SLES 12 x64 70x (E2E tests)"
     run_on: suse12-sp5-large
@@ -15012,7 +15012,7 @@ buildvariants:
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_x64
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_suse15sp4_small
     display_name: "SLES 15 x64 (E2E tests)"
     run_on: suse15sp4-small
@@ -15024,7 +15024,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_x64
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_ubuntu1804_arm64_large_m60x
     display_name: "Ubuntu 18.04 arm64 60x (E2E tests)"
     run_on: ubuntu1804-arm64-large
@@ -15036,7 +15036,7 @@ buildvariants:
       mongosh_server_test_version: "6.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_arm64
+      - name: e2e_tests_linux_arm64
   - name: e2e_tests_ubuntu2004_arm64_small
     display_name: "Ubuntu 20.04 arm64 (E2E tests)"
     run_on: ubuntu2004-arm64-small
@@ -15048,7 +15048,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_arm64
+      - name: e2e_tests_linux_arm64
   - name: e2e_tests_ubuntu2004_arm64_small_openssl11
     display_name: "Ubuntu 20.04 arm64 openssl11 (E2E tests)"
     run_on: ubuntu2004-arm64-small
@@ -15060,7 +15060,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_arm64
+      - name: e2e_tests_linux_arm64
   - name: e2e_tests_ubuntu2204_arm64_small
     display_name: "Ubuntu 22.04 arm64 (E2E tests)"
     run_on: ubuntu2204-arm64-small
@@ -15072,7 +15072,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_arm64
+      - name: e2e_tests_linux_arm64
   - name: e2e_tests_ubuntu2204_arm64_small_openssl3
     display_name: "Ubuntu 22.04 arm64 openssl3 (E2E tests)"
     run_on: ubuntu2204-arm64-small
@@ -15084,7 +15084,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_arm64
+      - name: e2e_tests_linux_arm64
   - name: e2e_tests_ubuntu2404_arm64_small
     display_name: "Ubuntu 24.04 arm64 (E2E tests)"
     run_on: ubuntu2404-arm64-small
@@ -15096,7 +15096,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_arm64
+      - name: e2e_tests_linux_arm64
   - name: e2e_tests_ubuntu2404_arm64_small_openssl3
     display_name: "Ubuntu 24.04 arm64 openssl3 (E2E tests)"
     run_on: ubuntu2404-arm64-small
@@ -15108,7 +15108,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_arm64
+      - name: e2e_tests_linux_arm64
   - name: e2e_tests_amazon2_arm64_large_m70x
     display_name: "Amazon Linux 2 arm64 70x (E2E tests)"
     run_on: amazon2-arm64-large
@@ -15120,7 +15120,7 @@ buildvariants:
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_arm64
+      - name: e2e_tests_linux_arm64
   - name: e2e_tests_amazon2023.0_arm64_small
     display_name: "Amazon Linux 2023 arm64 (E2E tests)"
     run_on: amazon2023.0-arm64-small
@@ -15132,7 +15132,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_arm64
+      - name: e2e_tests_linux_arm64
   - name: e2e_tests_rhel82_arm64_small
     display_name: "RHEL 8.2 arm64 (E2E tests)"
     run_on: rhel82-arm64-small
@@ -15144,7 +15144,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_arm64
+      - name: e2e_tests_linux_arm64
   - name: e2e_tests_rhel90_arm64_small_m70x
     display_name: "RHEL 9.0 arm64 70x (E2E tests)"
     run_on: rhel90-arm64-small
@@ -15156,7 +15156,7 @@ buildvariants:
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_arm64
+      - name: e2e_tests_linux_arm64
   - name: e2e_tests_rhel90_arm64_small_openssl3_m70x
     display_name: "RHEL 9.0 arm64 70x openssl3 (E2E tests)"
     run_on: rhel90-arm64-small
@@ -15168,7 +15168,7 @@ buildvariants:
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_arm64
+      - name: e2e_tests_linux_arm64
   - name: e2e_tests_rhel93_arm64_small
     display_name: "RHEL 9.3 arm64 (E2E tests)"
     run_on: rhel93-arm64-small
@@ -15180,7 +15180,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_arm64
+      - name: e2e_tests_linux_arm64
   - name: e2e_tests_rhel93_arm64_small_openssl3
     display_name: "RHEL 9.3 arm64 openssl3 (E2E tests)"
     run_on: rhel93-arm64-small
@@ -15192,7 +15192,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_arm64
+      - name: e2e_tests_linux_arm64
   - name: e2e_tests_rhel8_power_small
     display_name: "RHEL 8 PPC (E2E tests)"
     run_on: rhel8-power-small
@@ -15204,7 +15204,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_x64
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_rhel7_zseries_large_m60x
     display_name: "RHEL 7 s390x 60x (E2E tests)"
     run_on: rhel7-zseries-large
@@ -15216,7 +15216,7 @@ buildvariants:
       mongosh_server_test_version: "6.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_x64
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_rhel8_zseries_small
     display_name: "RHEL 8 s390x (E2E tests)"
     run_on: rhel8-zseries-small
@@ -15228,7 +15228,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_build_linux_x64
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_macos_14
     display_name: "MacOS 14 x64 (E2E tests)"
     run_on: macos-14
@@ -15409,7 +15409,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
     tasks:
-      - name: e2e_tests_build_win32
+      - name: e2e_tests_win32
       - name: package_artifact_win32_x64
       - name: package_artifact_win32msi_x64
   - name: build_win32
