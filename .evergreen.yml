@@ -8276,7 +8276,7 @@ tasks:
   ###
   # Tests reuse the same compilation build variant, so we create those variations based on this.
   - name: e2e_tests_linux_x64
-    tags: ["e2e-test"]
+    tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
       - name: compile_artifact
         variant: build_linux_x64
@@ -8295,7 +8295,7 @@ tasks:
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
   - name: e2e_tests_linux_arm64
-    tags: ["e2e-test"]
+    tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
       - name: compile_artifact
         variant: build_linux_arm64
@@ -8314,7 +8314,7 @@ tasks:
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
   - name: e2e_tests_darwin
-    tags: ["e2e-test"]
+    tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
       - name: compile_artifact
         variant: darwin
@@ -8333,7 +8333,7 @@ tasks:
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
   - name: e2e_tests_darwin_arm64
-    tags: ["e2e-test"]
+    tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
       - name: compile_artifact
         variant: darwin_arm64
@@ -8352,7 +8352,7 @@ tasks:
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
   - name: e2e_tests_win32
-    tags: ["e2e-test"]
+    tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
       - name: compile_artifact
         variant: build_win32
@@ -14584,7 +14584,7 @@ buildvariants:
   - name: build_linux_x64
     display_name: "RHEL 7.0 x64 (Build)"
     run_on: rhel70-build
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: false
@@ -14596,7 +14596,7 @@ buildvariants:
   - name: build_linux_x64_rhel8
     display_name: "RHEL 8.0 x64 (Build)"
     run_on: rhel80-build
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: false
@@ -14608,7 +14608,7 @@ buildvariants:
   - name: build_linux_x64_openssl11
     display_name: "RHEL 7.0 x64 openssl11 (Build)"
     run_on: rhel70-build
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64-openssl11"
       disable_openssl_shared_config_for_bundled_openssl: false
@@ -14620,7 +14620,7 @@ buildvariants:
   - name: build_linux_x64_openssl11_rhel8
     display_name: "RHEL 8.0 x64 openssl11 (Build)"
     run_on: rhel80-build
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64-openssl11"
       disable_openssl_shared_config_for_bundled_openssl: false
@@ -14632,7 +14632,7 @@ buildvariants:
   - name: build_linux_x64_openssl3
     display_name: "RHEL 7.0 x64 openssl3 (Build)"
     run_on: rhel70-build
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64-openssl3"
       disable_openssl_shared_config_for_bundled_openssl: false
@@ -14644,7 +14644,7 @@ buildvariants:
   - name: build_linux_x64_openssl3_rhel8
     display_name: "RHEL 8.0 x64 openssl3 (Build)"
     run_on: rhel80-build
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64-openssl3"
       disable_openssl_shared_config_for_bundled_openssl: false
@@ -14716,7 +14716,7 @@ buildvariants:
   - name: e2e_tests_rhel70_large_m70x
     display_name: "RHEL 7.0 x64 70x (E2E tests)"
     run_on: rhel70-large
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: false
@@ -14728,7 +14728,7 @@ buildvariants:
   - name: e2e_tests_rhel76_large_m70x
     display_name: "RHEL 7.6 x64 70x (E2E tests)"
     run_on: rhel76-large
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: false
@@ -14740,7 +14740,7 @@ buildvariants:
   - name: e2e_tests_rhel80_small
     display_name: "RHEL 8.0 x64 (E2E tests)"
     run_on: rhel80-small
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: false
@@ -14752,7 +14752,7 @@ buildvariants:
   - name: e2e_tests_rhel90_small_m70x
     display_name: "RHEL 9.0 x64 70x (E2E tests)"
     run_on: rhel90-small
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: true
@@ -14762,9 +14762,9 @@ buildvariants:
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_tests_rhel93_small
-    display_name: "RHEL 9.3 x64 small (E2E tests)"
+    display_name: "RHEL 9.3 x64 (E2E tests)"
     run_on: rhel93-small
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: true
@@ -14776,7 +14776,7 @@ buildvariants:
   - name: e2e_tests_rhel83_fips
     display_name: "RHEL 8.3 x64 (E2E tests)"
     run_on: rhel83-fips
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: false
@@ -14788,7 +14788,7 @@ buildvariants:
   - name: e2e_tests_rhel83_fips_openssl11
     display_name: "RHEL 8.3 x64 openssl11 (E2E tests)"
     run_on: rhel83-fips
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: false
@@ -14800,7 +14800,7 @@ buildvariants:
   - name: e2e_tests_rhel83_fips_openssl11_true
     display_name: "RHEL 8.3 x64 openssl11 FIPS (E2E tests)"
     run_on: rhel83-fips
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: false
@@ -14812,7 +14812,7 @@ buildvariants:
   - name: e2e_tests_rhel93_fips
     display_name: "RHEL 9.3 x64 (E2E tests)"
     run_on: rhel93-fips
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: false
@@ -14824,7 +14824,7 @@ buildvariants:
   - name: e2e_tests_rhel93_fips_openssl3
     display_name: "RHEL 9.3 x64 openssl3 (E2E tests)"
     run_on: rhel93-fips
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: false
@@ -14836,7 +14836,7 @@ buildvariants:
   - name: e2e_tests_rhel93_fips_openssl3_true
     display_name: "RHEL 9.3 x64 openssl3 FIPS (E2E tests)"
     run_on: rhel93-fips
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: false
@@ -14848,7 +14848,7 @@ buildvariants:
   - name: e2e_tests_ubuntu1804_large_m60x
     display_name: "Ubuntu 18.04 x64 60x (E2E tests)"
     run_on: ubuntu1804-large
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: false
@@ -14860,7 +14860,7 @@ buildvariants:
   - name: e2e_tests_ubuntu2004_small
     display_name: "Ubuntu 20.04 x64 (E2E tests)"
     run_on: ubuntu2004-small
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: false
@@ -14872,7 +14872,7 @@ buildvariants:
   - name: e2e_tests_ubuntu2004_small_openssl11
     display_name: "Ubuntu 20.04 x64 openssl11 (E2E tests)"
     run_on: ubuntu2004-small
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: false
@@ -14884,7 +14884,7 @@ buildvariants:
   - name: e2e_tests_ubuntu2204_small
     display_name: "Ubuntu 22.04 x64 (E2E tests)"
     run_on: ubuntu2204-small
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: false
@@ -14896,7 +14896,7 @@ buildvariants:
   - name: e2e_tests_ubuntu2204_small_openssl3
     display_name: "Ubuntu 22.04 x64 openssl3 (E2E tests)"
     run_on: ubuntu2204-small
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: false
@@ -14908,7 +14908,7 @@ buildvariants:
   - name: e2e_tests_ubuntu2404_small
     display_name: "Ubuntu 24.04 x64 (E2E tests)"
     run_on: ubuntu2404-small
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: false
@@ -14920,7 +14920,7 @@ buildvariants:
   - name: e2e_tests_ubuntu2404_small_openssl3
     display_name: "Ubuntu 24.04 x64 openssl3 (E2E tests)"
     run_on: ubuntu2404-small
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: false
@@ -14932,7 +14932,7 @@ buildvariants:
   - name: e2e_tests_debian10_small_m60x
     display_name: "Debian 10 x64 60x (E2E tests)"
     run_on: debian10-small
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: false
@@ -14944,7 +14944,7 @@ buildvariants:
   - name: e2e_tests_debian10_small_openssl11_m60x
     display_name: "Debian 10 x64 60x openssl11 (E2E tests)"
     run_on: debian10-small
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: false
@@ -14956,7 +14956,7 @@ buildvariants:
   - name: e2e_tests_debian11_small_m70x
     display_name: "Debian 11 x64 70x (E2E tests)"
     run_on: debian11-small
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: false
@@ -14968,7 +14968,7 @@ buildvariants:
   - name: e2e_tests_debian11_small_openssl11_m70x
     display_name: "Debian 11 x64 70x openssl11 (E2E tests)"
     run_on: debian11-small
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: false
@@ -14980,7 +14980,7 @@ buildvariants:
   - name: e2e_tests_amazon2_large_m70x
     display_name: "Amazon Linux 2 x64 70x (E2E tests)"
     run_on: amazon2-large
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: false
@@ -14992,7 +14992,7 @@ buildvariants:
   - name: e2e_tests_amazon2023.0_small
     display_name: "Amazon Linux 2023 x64 (E2E tests)"
     run_on: amazon2023.0-small
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: true
@@ -15004,7 +15004,7 @@ buildvariants:
   - name: e2e_tests_suse12_sp5_large_m70x
     display_name: "SLES 12 x64 70x (E2E tests)"
     run_on: suse12-sp5-large
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: false
@@ -15016,7 +15016,7 @@ buildvariants:
   - name: e2e_tests_suse15sp4_small
     display_name: "SLES 15 x64 (E2E tests)"
     run_on: suse15sp4-small
-    tags: []
+    tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
       disable_openssl_shared_config_for_bundled_openssl: false

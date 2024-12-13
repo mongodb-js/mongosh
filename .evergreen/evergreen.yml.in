@@ -82,6 +82,9 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
   {
     displayName: "RHEL 7.0 x64",
     runOn: "rhel70-build",
+    tags: [
+      "nightly-driver"
+    ],
     isBuild: true,
     name: "linux_x64",
     executableOsId: "linux-x64",
@@ -90,6 +93,9 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
   {
     displayName: "RHEL 8.0 x64",
     runOn: "rhel80-build",
+    tags: [
+      "nightly-driver"
+    ],
     isBuild: true,
     name: "linux_x64_rhel8",
     executableOsId: "linux-x64",
@@ -98,6 +104,9 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
   {
     displayName: "RHEL 7.0 x64",
     runOn: "rhel70-build",
+    tags: [
+      "nightly-driver"
+    ],
     isBuild: true,
     name: "linux_x64_openssl11",
     executableOsId: "linux-x64-openssl11",
@@ -107,6 +116,9 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
   {
     displayName: "RHEL 8.0 x64",
     runOn: "rhel80-build",
+    tags: [
+      "nightly-driver"
+    ],
     isBuild: true,
     name: "linux_x64_openssl11_rhel8",
     executableOsId: "linux-x64-openssl11",
@@ -116,6 +128,9 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
   {
     displayName: "RHEL 7.0 x64",
     runOn: "rhel70-build",
+    tags: [
+      "nightly-driver"
+    ],
     isBuild: true,
     name: "linux_x64_openssl3",
     executableOsId: "linux-x64-openssl3",
@@ -125,6 +140,9 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
   {
     displayName: "RHEL 8.0 x64",
     runOn: "rhel80-build",
+    tags: [
+      "nightly-driver"
+    ],
     isBuild: true,
     name: "linux_x64_openssl3_rhel8",
     executableOsId: "linux-x64-openssl3",
@@ -176,31 +194,46 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
   {
     displayName: "RHEL 7.0 x64",
     runOn: "rhel70-large",
+    tags: [
+      "nightly-driver"
+    ],
     executableOsId: "linux-x64",
     mVersion: "7.0.x"
   },
   {
     displayName: "RHEL 7.6 x64",
     runOn: "rhel76-large",
+    tags: [
+      "nightly-driver"
+    ],
     executableOsId: "linux-x64",
     mVersion: "7.0.x"
   },
   {
     displayName: "RHEL 8.0 x64",
     runOn: "rhel80-small",
+    tags: [
+      "nightly-driver"
+    ],
     executableOsId: "linux-x64",
     mVersion: "stable"
   },
   {
     displayName: "RHEL 9.0 x64",
     runOn: "rhel90-small",
+    tags: [
+      "nightly-driver"
+    ],
     disabledOpenSslSharedConfig: true,
     executableOsId: "linux-x64",
     mVersion: "7.0.x"
   },
   {
-    displayName: "RHEL 9.3 x64 small",
+    displayName: "RHEL 9.3 x64",
     runOn: "rhel93-small",
+    tags: [
+      "nightly-driver"
+    ],
     disabledOpenSslSharedConfig: true,
     executableOsId: "linux-x64",
     mVersion: "stable"
@@ -208,12 +241,18 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
   {
     displayName: "RHEL 8.3 x64",
     runOn: "rhel83-fips",
+    tags: [
+      "nightly-driver"
+    ],
     executableOsId: "linux-x64",
     mVersion: "stable"
   },
   {
     displayName: "RHEL 8.3 x64",
     runOn: "rhel83-fips",
+    tags: [
+      "nightly-driver"
+    ],
     sharedOpenSsl: "openssl11",
     executableOsId: "linux-x64",
     mVersion: "stable"
@@ -221,6 +260,9 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
   {
     displayName: "RHEL 8.3 x64",
     runOn: "rhel83-fips",
+    tags: [
+      "nightly-driver"
+    ],
     fips: true,
     sharedOpenSsl: "openssl11",
     executableOsId: "linux-x64",
@@ -229,12 +271,18 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
   {
     displayName: "RHEL 9.3 x64",
     runOn: "rhel93-fips",
+    tags: [
+      "nightly-driver"
+    ],
     executableOsId: "linux-x64",
     mVersion: "stable"
   },
   {
     displayName: "RHEL 9.3 x64",
     runOn: "rhel93-fips",
+    tags: [
+      "nightly-driver"
+    ],
     sharedOpenSsl: "openssl3",
     executableOsId: "linux-x64",
     mVersion: "stable"
@@ -242,6 +290,9 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
   {
     displayName: "RHEL 9.3 x64",
     runOn: "rhel93-fips",
+    tags: [
+      "nightly-driver"
+    ],
     fips: true,
     sharedOpenSsl: "openssl3",
     executableOsId: "linux-x64",
@@ -250,18 +301,27 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
   {
     displayName: "Ubuntu 18.04 x64",
     runOn: "ubuntu1804-large",
+    tags: [
+      "nightly-driver"
+    ],
     executableOsId: "linux-x64",
     mVersion: "6.0.x"
   },
   {
     displayName: "Ubuntu 20.04 x64",
     runOn: "ubuntu2004-small",
+    tags: [
+      "nightly-driver"
+    ],
     executableOsId: "linux-x64",
     mVersion: "stable"
   },
   {
     displayName: "Ubuntu 20.04 x64",
     runOn: "ubuntu2004-small",
+    tags: [
+      "nightly-driver"
+    ],
     sharedOpenSsl: "openssl11",
     executableOsId: "linux-x64",
     mVersion: "stable"
@@ -269,12 +329,18 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
   {
     displayName: "Ubuntu 22.04 x64",
     runOn: "ubuntu2204-small",
+    tags: [
+      "nightly-driver"
+    ],
     executableOsId: "linux-x64",
     mVersion: "stable"
   },
   {
     displayName: "Ubuntu 22.04 x64",
     runOn: "ubuntu2204-small",
+    tags: [
+      "nightly-driver"
+    ],
     sharedOpenSsl: "openssl3",
     executableOsId: "linux-x64",
     mVersion: "stable"
@@ -282,12 +348,18 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
   {
     displayName: "Ubuntu 24.04 x64",
     runOn: "ubuntu2404-small",
+    tags: [
+      "nightly-driver"
+    ],
     executableOsId: "linux-x64",
     mVersion: "stable"
   },
   {
     displayName: "Ubuntu 24.04 x64",
     runOn: "ubuntu2404-small",
+    tags: [
+      "nightly-driver"
+    ],
     sharedOpenSsl: "openssl3",
     executableOsId: "linux-x64",
     mVersion: "stable"
@@ -295,12 +367,18 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
   {
     displayName: "Debian 10 x64",
     runOn: "debian10-small",
+    tags: [
+      "nightly-driver"
+    ],
     executableOsId: "linux-x64",
     mVersion: "6.0.x"
   },
   {
     displayName: "Debian 10 x64",
     runOn: "debian10-small",
+    tags: [
+      "nightly-driver"
+    ],
     sharedOpenSsl: "openssl11",
     executableOsId: "linux-x64",
     mVersion: "6.0.x"
@@ -308,12 +386,18 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
   {
     displayName: "Debian 11 x64",
     runOn: "debian11-small",
+    tags: [
+      "nightly-driver"
+    ],
     executableOsId: "linux-x64",
     mVersion: "7.0.x"
   },
   {
     displayName: "Debian 11 x64",
     runOn: "debian11-small",
+    tags: [
+      "nightly-driver"
+    ],
     sharedOpenSsl: "openssl11",
     executableOsId: "linux-x64",
     mVersion: "7.0.x"
@@ -321,12 +405,18 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
   {
     displayName: "Amazon Linux 2 x64",
     runOn: "amazon2-large",
+    tags: [
+      "nightly-driver"
+    ],
     executableOsId: "linux-x64",
     mVersion: "7.0.x"
   },
   {
     displayName: "Amazon Linux 2023 x64",
     runOn: "amazon2023.0-small",
+    tags: [
+      "nightly-driver"
+    ],
     disabledOpenSslSharedConfig: true,
     executableOsId: "linux-x64",
     mVersion: "stable"
@@ -334,12 +424,18 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
   {
     displayName: "SLES 12 x64",
     runOn: "suse12-sp5-large",
+    tags: [
+      "nightly-driver"
+    ],
     executableOsId: "linux-x64",
     mVersion: "7.0.x"
   },
   {
     displayName: "SLES 15 x64",
     runOn: "suse15sp4-small",
+    tags: [
+      "nightly-driver"
+    ],
     executableOsId: "linux-x64",
     mVersion: "stable"
   },
@@ -1682,7 +1778,7 @@ tasks:
   # Tests reuse the same compilation build variant, so we create those variations based on this.
   <% for (const compileBuildVariant of ['build_linux_x64', 'build_linux_arm64', 'darwin', 'darwin_arm64', 'build_win32']) { %>
   - name: e2e_tests<% out(compileBuildVariant ? `_${compileBuildVariant.replace('build_', '')}` : '') %>
-    tags: ["e2e-test"]
+    tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
       - name: compile_artifact
       <% if (compileBuildVariant != '') { %>
