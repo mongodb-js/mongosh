@@ -546,6 +546,7 @@ class MongoshNodeRepl implements EvaluationListener {
     });
 
     repl.on('exit', () => {
+      // repl is already closed, no need to close it again via this.close()
       if (this._runtimeState) this._runtimeState.repl = null;
       this.onExit().catch(() => {
         /* ... */
@@ -1036,7 +1037,7 @@ class MongoshNodeRepl implements EvaluationListener {
       throw new MongoshInternalError(
         `mongosh not initialized yet\nCurrent trace: ${
           new Error().stack
-        }\nClose trace: ${this.closeTrace}\n`
+        }\nClose trace: ${this.closeTrace}`
       );
     }
     return this._runtimeState;
@@ -1054,6 +1055,7 @@ class MongoshNodeRepl implements EvaluationListener {
       this._runtimeState = null;
       this.closeTrace = new Error().stack;
       if (rs.repl) {
+        // Can be null if the repl already emitted 'exit'
         rs.repl.close();
         await once(rs.repl, 'exit');
       }
