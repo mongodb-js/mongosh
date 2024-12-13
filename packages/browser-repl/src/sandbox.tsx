@@ -1,5 +1,5 @@
 import ReactDOM from 'react-dom';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   css,
   ThemeProvider,
@@ -156,18 +156,20 @@ const IframeRuntimeExample: React.FunctionComponent = () => {
   const [redactInfo, setRedactInfo] = useState(false);
   const [maxOutputLength, setMaxOutputLength] = useState(1000);
   const [maxHistoryLength, setMaxHistoryLength] = useState(1000);
-  const [initialInput, setInitialInput] = useState('');
   const [initialEvaluate, setInitialEvaluate] = useState<string[]>([]);
-  const [initialOutput] = useState<ShellOutputEntry[]>([
+
+  const [initialText, setInitialText] = useState('');
+  const [output, setOutput] = useState<ShellOutputEntry[]>([
     { format: 'output', value: { foo: 1, bar: true, buz: function () {} } },
   ]);
-  const [initialHistory, setInitialHistory] = useState([
+  const [history, setHistory] = useState([
     'show dbs',
     'db.coll.stats()',
     '{x: 1, y: {z: 2}, k: [1, 2, 3]}',
     'passwordPrompt()',
     '(() => { throw new Error("Whoops!"); })()',
   ]);
+  const [isOperationInProgress, setIsOperationInProgress] = useState(false);
 
   useEffect(() => {
     void runtime.initialize();
@@ -176,10 +178,6 @@ const IframeRuntimeExample: React.FunctionComponent = () => {
     };
   }, []);
 
-  const key = useMemo(() => {
-    return initialHistory.concat(initialInput, initialEvaluate).join('');
-  }, [initialHistory, initialInput, initialEvaluate]);
-
   return (
     <div className={sandboxContainer}>
       <div className={shellContainer}>
@@ -187,15 +185,20 @@ const IframeRuntimeExample: React.FunctionComponent = () => {
           theme={{ theme: darkMode ? Theme.Dark : Theme.Light, enabled: true }}
         >
           <Shell
-            key={key}
             runtime={runtime}
             redactInfo={redactInfo}
             maxOutputLength={maxOutputLength}
             maxHistoryLength={maxHistoryLength}
-            initialInput={initialInput}
+            initialText={initialText}
             initialEvaluate={initialEvaluate.filter(Boolean)}
-            initialOutput={initialOutput}
-            initialHistory={initialHistory.filter(Boolean)}
+            output={output}
+            history={history}
+            isOperationInProgress={isOperationInProgress}
+            onInputChanged={setInitialText}
+            onOutputChanged={setOutput}
+            onHistoryChanged={setHistory}
+            onOperationStarted={() => setIsOperationInProgress(true)}
+            onOperationEnd={() => setIsOperationInProgress(false)}
           />
         </ThemeProvider>
       </div>
@@ -265,42 +268,6 @@ const IframeRuntimeExample: React.FunctionComponent = () => {
             value={String(maxHistoryLength)}
             onChange={(evt) => {
               setMaxHistoryLength(Number(evt.currentTarget.value));
-            }}
-          />
-        </FormFieldContainer>
-
-        <FormFieldContainer className={formField}>
-          <Label id="initialHistoryLabel" htmlFor="initialHistory">
-            initialHistory
-          </Label>
-          <Description>
-            An array of history entries to prepopulate the history. Can be used
-            to restore the history between sessions. Entries must be ordered
-            from the most recent to the oldest.
-            <br />
-            Note: new entries will not be appended to the array
-          </Description>
-          <TextArea
-            aria-labelledby="initialHistory"
-            value={initialHistory.join('\n')}
-            onChange={(evt) => {
-              setInitialHistory(evt.currentTarget.value.split('\n'));
-            }}
-            className={cx(textarea, textInput)}
-          />
-        </FormFieldContainer>
-
-        <FormFieldContainer className={formField}>
-          <Label id="initialInputLabel" htmlFor="initialInput">
-            initialInput
-          </Label>
-          <Description>Initial value in the shell input field</Description>
-          <TextInput
-            className={textInput}
-            aria-labelledby="initialInputLabel"
-            value={initialInput}
-            onChange={(evt) => {
-              setInitialInput(evt.currentTarget.value);
             }}
           />
         </FormFieldContainer>
