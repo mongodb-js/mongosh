@@ -12,6 +12,7 @@ jobs:
   update_generated_files:
     name: Update automatically generated files
     runs-on: ubuntu-latest
+    if: "${{ github.event_name != 'push' || github.event.head_commit.message != 'chore: update auto-generated files' }}"
     env:
       npm_config_loglevel: verbose
       npm_config_foreground_scripts: "true"
@@ -79,5 +80,5 @@ jobs:
 
       - name: Commit and push
         run: |
-          git commit --no-allow-empty -m "chore: update auto-generated files [skip actions]" || true
+          git commit --no-allow-empty -m "chore: update auto-generated files" || true
           git push
