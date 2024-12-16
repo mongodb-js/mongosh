@@ -8179,17 +8179,6 @@ tasks:
           mongosh_test_id: "types"
           mongosh_run_only_in_package: "types"
           task_name: ${task_name}
-  # TODO: This is an always failing test to check Foliage. Should be removed afterwards.
-  - name: test_always_failing
-    tags: ["assigned_to_jira_team_mongosh_mongosh", "unit-test"]
-    commands: 
-      - command: shell.exec
-        type: setup
-        params:
-          working_dir: src
-          shell: bash
-          script: |
-            node -e "throw new Error()"
 
   ###
   # INTEGRATION TESTS
@@ -15289,7 +15278,6 @@ buildvariants:
       - name: test_vscode
       - name: test_connectivity
       - name: test_apistrict
-      - name: test_always_failing
   - name: linux_coverage
     display_name: "Ubuntu 20.04 x64 (Coverage and Static Analysis Check)"
     run_on: ubuntu2004-small

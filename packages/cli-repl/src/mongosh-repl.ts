@@ -127,6 +127,7 @@ type Mutable<T> = {
 class MongoshNodeRepl implements EvaluationListener {
   _runtimeState: MongoshRuntimeState | null;
   closeTrace?: string;
+  exitPromise?: Promise<never>;
   input: Readable;
   lineByLineInput: LineByLineInput;
   output: Writable;
@@ -545,6 +546,8 @@ class MongoshNodeRepl implements EvaluationListener {
     });
 
     repl.on('exit', () => {
+      // repl is already closed, no need to close it again via this.close()
+      if (this._runtimeState) this._runtimeState.repl = null;
       this.onExit().catch(() => {
         /* ... */
       });
@@ -1034,7 +1037,7 @@ class MongoshNodeRepl implements EvaluationListener {
       throw new MongoshInternalError(
         `mongosh not initialized yet\nCurrent trace: ${
           new Error().stack
-        }\nClose trace: ${this.closeTrace}\n`
+        }\nClose trace: ${this.closeTrace}`
       );
     }
     return this._runtimeState;
@@ -1051,7 +1054,11 @@ class MongoshNodeRepl implements EvaluationListener {
     if (rs) {
       this._runtimeState = null;
       this.closeTrace = new Error().stack;
-      rs.repl?.close();
+      if (rs.repl) {
+        // Can be null if the repl already emitted 'exit'
+        rs.repl.close();
+        await once(rs.repl, 'exit');
+      }
       await rs.instanceState.close(true);
       await new Promise((resolve) => this.output.write('', resolve));
     }
@@ -1063,8 +1070,10 @@ class MongoshNodeRepl implements EvaluationListener {
    * @param exitCode The user-specified exit code, if any.
    */
   async onExit(exitCode?: number): Promise<never> {
-    await this.close();
-    return this.ioProvider.exit(exitCode);
+    return (this.exitPromise ??= (async () => {
+      await this.close();
+      return this.ioProvider.exit(exitCode);
+    })());
   }
 
   /**
