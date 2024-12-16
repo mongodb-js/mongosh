@@ -572,6 +572,13 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
     mVersion: "stable",
   },
   {
+    displayName: "MacOS Big Sur",
+    name: "darwin",
+    runOn: "macos-11",
+    executableOsId: "darwin-x64",
+    mVersion: "stable",
+  },
+  {
     isBuildOnly: true,
     displayName: "MacOS Big Sur arm64",
     runOn: "macos-11-arm64",
@@ -631,8 +638,6 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
   ].filter(text => text).join(' ');
 
   let compileBuildVariant = RELEASE_PACKAGE_MATRIX.find((pkg) => pkg.executableOsId == executableOsId)?.compileBuildVariant;
-  // We have a separate build variant for win32
-  if (compileBuildVariant == 'win32') compileBuildVariant = 'build_win32';
 
   return ({
     ...rest,
