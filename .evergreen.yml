@@ -8476,7 +8476,7 @@ tasks:
     tags: ["connectivity-test"]
     depends_on:
       - name: compile_artifact
-        variant: build_linux_x64_openssl11
+        variant: build_linux_x64
     commands:
       - func: checkout
       - func: install
@@ -8495,7 +8495,7 @@ tasks:
     tags: ["connectivity-test"]
     depends_on:
       - name: compile_artifact
-        variant: build_linux_x64_openssl11
+        variant: build_linux_x64
     commands:
       - func: checkout
       - func: install
@@ -8514,7 +8514,7 @@ tasks:
     tags: ["connectivity-test"]
     depends_on:
       - name: compile_artifact
-        variant: build_linux_x64_openssl3
+        variant: build_linux_x64
     commands:
       - func: checkout
       - func: install
@@ -8533,7 +8533,7 @@ tasks:
     tags: ["connectivity-test"]
     depends_on:
       - name: compile_artifact
-        variant: build_linux_x64_openssl3
+        variant: build_linux_x64
     commands:
       - func: checkout
       - func: install
@@ -8552,7 +8552,7 @@ tasks:
     tags: ["connectivity-test"]
     depends_on:
       - name: compile_artifact
-        variant: build_linux_x64_openssl3
+        variant: build_linux_x64
     commands:
       - func: checkout
       - func: install
@@ -8666,7 +8666,7 @@ tasks:
     tags: ["connectivity-test"]
     depends_on:
       - name: compile_artifact
-        variant: build_linux_arm64_openssl11
+        variant: build_linux_arm64
     commands:
       - func: checkout
       - func: install
@@ -8685,7 +8685,7 @@ tasks:
     tags: ["connectivity-test"]
     depends_on:
       - name: compile_artifact
-        variant: build_linux_arm64_openssl11
+        variant: build_linux_arm64
     commands:
       - func: checkout
       - func: install
@@ -8704,7 +8704,7 @@ tasks:
     tags: ["connectivity-test"]
     depends_on:
       - name: compile_artifact
-        variant: build_linux_arm64_openssl3
+        variant: build_linux_arm64
     commands:
       - func: checkout
       - func: install
@@ -8723,7 +8723,7 @@ tasks:
     tags: ["connectivity-test"]
     depends_on:
       - name: compile_artifact
-        variant: build_linux_arm64_openssl3
+        variant: build_linux_arm64
     commands:
       - func: checkout
       - func: install
@@ -8742,7 +8742,7 @@ tasks:
     tags: ["connectivity-test"]
     depends_on:
       - name: compile_artifact
-        variant: build_linux_arm64_openssl3
+        variant: build_linux_arm64
     commands:
       - func: checkout
       - func: install
@@ -9180,7 +9180,7 @@ tasks:
     tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
-        variant: build_linux_x64_openssl11
+        variant: build_linux_x64
     commands:
       - func: checkout
       - func: install
@@ -9263,7 +9263,7 @@ tasks:
     tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
-        variant: build_linux_x64_openssl11
+        variant: build_linux_x64
     commands:
       - func: checkout
       - func: install
@@ -9346,7 +9346,7 @@ tasks:
     tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
-        variant: build_linux_x64_openssl11
+        variant: build_linux_x64
     commands:
       - func: checkout
       - func: install
@@ -9429,7 +9429,7 @@ tasks:
     tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
-        variant: build_linux_x64_openssl3
+        variant: build_linux_x64
     commands:
       - func: checkout
       - func: install
@@ -9512,7 +9512,7 @@ tasks:
     tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
-        variant: build_linux_x64_openssl3
+        variant: build_linux_x64
     commands:
       - func: checkout
       - func: install
@@ -9595,7 +9595,7 @@ tasks:
     tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
-        variant: build_linux_x64_openssl3
+        variant: build_linux_x64
     commands:
       - func: checkout
       - func: install
@@ -9927,7 +9927,7 @@ tasks:
     tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
-        variant: build_linux_arm64_openssl11
+        variant: build_linux_arm64
     commands:
       - func: checkout
       - func: install
@@ -10010,7 +10010,7 @@ tasks:
     tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
-        variant: build_linux_arm64_openssl11
+        variant: build_linux_arm64
     commands:
       - func: checkout
       - func: install
@@ -10093,7 +10093,7 @@ tasks:
     tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
-        variant: build_linux_arm64_openssl11
+        variant: build_linux_arm64
     commands:
       - func: checkout
       - func: install
@@ -10176,7 +10176,7 @@ tasks:
     tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
-        variant: build_linux_arm64_openssl3
+        variant: build_linux_arm64
     commands:
       - func: checkout
       - func: install
@@ -10259,7 +10259,7 @@ tasks:
     tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
-        variant: build_linux_arm64_openssl3
+        variant: build_linux_arm64
     commands:
       - func: checkout
       - func: install
@@ -10342,7 +10342,7 @@ tasks:
     tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
-        variant: build_linux_arm64_openssl3
+        variant: build_linux_arm64
     commands:
       - func: checkout
       - func: install
@@ -14623,7 +14623,7 @@ buildvariants:
     run_on: rhel70-build
     tags: ["nightly-driver"]
     expansions:
-      executable_os_id: "linux-x64-openssl3"
+      executable_os_id: "linux-x64-openssl3-openssl3"
       disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
@@ -14635,7 +14635,7 @@ buildvariants:
     run_on: rhel80-build
     tags: ["nightly-driver"]
     expansions:
-      executable_os_id: "linux-x64-openssl3"
+      executable_os_id: "linux-x64-openssl3-openssl3"
       disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
@@ -14671,7 +14671,7 @@ buildvariants:
     run_on: amazon2-arm64-large
     tags: []
     expansions:
-      executable_os_id: "linux-arm64-openssl3"
+      executable_os_id: "linux-arm64-openssl3-openssl3"
       disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
@@ -14785,7 +14785,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_linux_x64_openssl11
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_rhel83_fips_openssl11_true
     display_name: "RHEL 8.3 x64 openssl11 FIPS (E2E tests)"
     run_on: rhel83-fips
@@ -14797,7 +14797,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: "1"
     tasks:
-      - name: e2e_tests_linux_x64_openssl11
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_rhel93_fips
     display_name: "RHEL 9.3 x64 (E2E tests)"
     run_on: rhel93-fips
@@ -14821,7 +14821,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_linux_x64_openssl3
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_rhel93_fips_openssl3_true
     display_name: "RHEL 9.3 x64 openssl3 FIPS (E2E tests)"
     run_on: rhel93-fips
@@ -14833,7 +14833,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: "1"
     tasks:
-      - name: e2e_tests_linux_x64_openssl3
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_ubuntu1804_large_m60x
     display_name: "Ubuntu 18.04 x64 60x (E2E tests)"
     run_on: ubuntu1804-large
@@ -14869,7 +14869,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_linux_x64_openssl11
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_ubuntu2204_small
     display_name: "Ubuntu 22.04 x64 (E2E tests)"
     run_on: ubuntu2204-small
@@ -14893,7 +14893,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_linux_x64_openssl3
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_ubuntu2404_small
     display_name: "Ubuntu 24.04 x64 (E2E tests)"
     run_on: ubuntu2404-small
@@ -14917,7 +14917,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_linux_x64_openssl3
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_debian10_small_m60x
     display_name: "Debian 10 x64 60x (E2E tests)"
     run_on: debian10-small
@@ -14941,7 +14941,7 @@ buildvariants:
       mongosh_server_test_version: "6.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_linux_x64_openssl11
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_debian11_small_m70x
     display_name: "Debian 11 x64 70x (E2E tests)"
     run_on: debian11-small
@@ -14965,7 +14965,7 @@ buildvariants:
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_linux_x64_openssl11
+      - name: e2e_tests_linux_x64
   - name: e2e_tests_amazon2_large_m70x
     display_name: "Amazon Linux 2 x64 70x (E2E tests)"
     run_on: amazon2-large
@@ -15049,7 +15049,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_linux_arm64_openssl11
+      - name: e2e_tests_linux_arm64
   - name: e2e_tests_ubuntu2204_arm64_small
     display_name: "Ubuntu 22.04 arm64 (E2E tests)"
     run_on: ubuntu2204-arm64-small
@@ -15073,7 +15073,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_linux_arm64_openssl3
+      - name: e2e_tests_linux_arm64
   - name: e2e_tests_ubuntu2404_arm64_small
     display_name: "Ubuntu 24.04 arm64 (E2E tests)"
     run_on: ubuntu2404-arm64-small
@@ -15097,7 +15097,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_linux_arm64_openssl3
+      - name: e2e_tests_linux_arm64
   - name: e2e_tests_amazon2_arm64_large_m70x
     display_name: "Amazon Linux 2 arm64 70x (E2E tests)"
     run_on: amazon2-arm64-large
@@ -15157,7 +15157,7 @@ buildvariants:
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_linux_arm64_openssl3
+      - name: e2e_tests_linux_arm64
   - name: e2e_tests_rhel93_arm64_small
     display_name: "RHEL 9.3 arm64 (E2E tests)"
     run_on: rhel93-arm64-small
@@ -15181,7 +15181,7 @@ buildvariants:
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
-      - name: e2e_tests_linux_arm64_openssl3
+      - name: e2e_tests_linux_arm64
   - name: e2e_tests_rhel8_power_small
     display_name: "RHEL 8 PPC (E2E tests)"
     run_on: rhel8-power-small

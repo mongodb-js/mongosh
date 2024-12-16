@@ -133,7 +133,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
     ],
     isBuild: true,
     name: "linux_x64_openssl3",
-    executableOsId: "linux-x64-openssl3",
+    executableOsId: "linux-x64-openssl3-openssl3",
     sharedOpenSsl: "openssl3",
     mVersion: "stable"
   },
@@ -145,7 +145,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
     ],
     isBuild: true,
     name: "linux_x64_openssl3_rhel8",
-    executableOsId: "linux-x64-openssl3",
+    executableOsId: "linux-x64-openssl3-openssl3",
     sharedOpenSsl: "openssl3",
     mVersion: "stable"
   },
@@ -171,7 +171,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
     runOn: "amazon2-arm64-large",
     isBuild: true,
     name: "linux_arm64_openssl3",
-    executableOsId: "linux-arm64-openssl3",
+    executableOsId: "linux-arm64-openssl3-openssl3",
     sharedOpenSsl: "openssl3",
     mVersion: "stable"
   },
