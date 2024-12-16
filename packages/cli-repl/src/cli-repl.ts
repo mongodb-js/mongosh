@@ -129,7 +129,7 @@ export class CliRepl implements MongoshIOProvider {
   toggleableAnalytics: ToggleableAnalytics = new ToggleableAnalytics();
   warnedAboutInaccessibleFiles = false;
   onExit: (code?: number) => Promise<never>;
-  closing = false;
+  closingPromise?: Promise<void>;
   isContainerizedEnvironment = false;
   hasOnDiskTelemetryId = false;
   proxyOptions: DevtoolsProxyOptions = {
@@ -1092,56 +1092,54 @@ export class CliRepl implements MongoshIOProvider {
    * Close all open resources held by this REPL instance.
    */
   async close(): Promise<void> {
-    markTime(TimingCategories.REPLInstantiation, 'start closing');
-    if (this.closing) {
-      return;
-    }
-    this.agent?.destroy();
-    if (!this.output.destroyed) {
-      // Wait for output to be fully flushed before exiting.
-      if (this.output.writableEnded) {
-        // .end() has been called but not finished; 'close' will be emitted in that case.
-        // (This should not typically happen in the context of mongosh, but there's also
-        // no reason not to handle this case properly.)
-        try {
-          await once(this.output, 'close');
-        } catch {
-          /* ignore */
+    return (this.closingPromise ??= (async () => {
+      markTime(TimingCategories.REPLInstantiation, 'start closing');
+      this.agent?.destroy();
+      if (!this.output.destroyed) {
+        // Wait for output to be fully flushed before exiting.
+        if (this.output.writableEnded) {
+          // .end() has been called but not finished; 'close' will be emitted in that case.
+          // (This should not typically happen in the context of mongosh, but there's also
+          // no reason not to handle this case properly.)
+          try {
+            await once(this.output, 'close');
+          } catch {
+            /* ignore */
+          }
+        } else {
+          // .end() has not been called; write an empty chunk and wait for it to be fully written.
+          await new Promise((resolve) => this.output.write('', resolve));
         }
-      } else {
-        // .end() has not been called; write an empty chunk and wait for it to be fully written.
-        await new Promise((resolve) => this.output.write('', resolve));
       }
-    }
-    markTime(TimingCategories.REPLInstantiation, 'output flushed');
-    this.closing = true;
-    const analytics = this.toggleableAnalytics;
-    let flushError: string | null = null;
-    let flushDuration: number | null = null;
-    if (analytics) {
-      const flushStart = Date.now();
-      try {
-        await analytics.flush();
-        markTime(TimingCategories.Telemetry, 'flushed analytics');
-      } catch (err: any) {
-        flushError = err.message;
-      } finally {
-        flushDuration = Date.now() - flushStart;
+      markTime(TimingCategories.REPLInstantiation, 'output flushed');
+      const analytics = this.toggleableAnalytics;
+      let flushError: string | null = null;
+      let flushDuration: number | null = null;
+      if (analytics) {
+        const flushStart = Date.now();
+        try {
+          await analytics.flush();
+          markTime(TimingCategories.Telemetry, 'flushed analytics');
+        } catch (err: any) {
+          flushError = err.message;
+        } finally {
+          flushDuration = Date.now() - flushStart;
+        }
       }
-    }
-    this.logWriter?.info(
-      'MONGOSH',
-      mongoLogId(1_000_000_045),
-      'analytics',
-      'Flushed outstanding data',
-      {
-        flushError,
-        flushDuration,
-      }
-    );
-    await this.logWriter?.flush();
-    markTime(TimingCategories.Logging, 'flushed log writer');
-    this.bus.emit('mongosh:closed');
+      this.logWriter?.info(
+        'MONGOSH',
+        mongoLogId(1_000_000_045),
+        'analytics',
+        'Flushed outstanding data',
+        {
+          flushError,
+          flushDuration,
+        }
+      );
+      await this.logWriter?.flush();
+      markTime(TimingCategories.Logging, 'flushed log writer');
+      this.bus.emit('mongosh:closed');
+    })());
   }
 
   /**

@@ -344,7 +344,7 @@ describe('e2e direct connection', function () {
           const shell = this.startTestShell({
             args: ['--host', hostlist, 'admin'],
           });
-          await shell.waitForExit();
+          await shell.waitForAnyExit();
           shell.assertContainsOutput('MongoServerSelectionError');
         });
 

@@ -50,7 +50,7 @@ export class TestShell {
   /**
    * Starts a test shell.
    *
-   * Beware that the caller is responsible for calling {@link kill} (and potentially {@link waitForExit}).
+   * Beware that the caller is responsible for calling {@link kill} (and potentially {@link waitForAnyExit}).
    *
    * Consider calling the `startTestShell` function on a {@link Mocha.Context} instead, as that manages the lifetime the shell
    * and ensures it gets killed eventually.
@@ -101,7 +101,7 @@ export class TestShell {
 
     const shell = new TestShell(shellProcess, options.consumeStdio);
     TestShell._openShells.add(shell);
-    void shell.waitForExit().then(() => {
+    void shell.waitForAnyExit().then(() => {
       TestShell._openShells.delete(shell);
     });
 
@@ -199,59 +199,75 @@ export class TestShell {
     });
   }
 
-  async waitForPrompt(start = 0): Promise<void> {
-    await eventually(() => {
-      const output = this._output.slice(start);
-      const lines = output.split('\n');
-      const found = !!lines
-        .filter((l) => PROMPT_PATTERN.exec(l)) // a line that is the prompt must at least match the pattern
-        .find((l) => {
-          // in some situations the prompt occurs multiple times in the line (but only in tests!)
-          const prompts = l
-            .trim()
-            .replace(/>$/g, '')
-            .split('>')
-            .map((m) => m.trim());
-          // if there are multiple prompt parts they must all equal
-          if (prompts.length > 1) {
-            for (const p of prompts) {
-              if (p !== prompts[0]) {
-                return false;
+  async waitForPrompt(
+    start = 0,
+    opts: { timeout?: number } = {}
+  ): Promise<void> {
+    await eventually(
+      () => {
+        const output = this._output.slice(start);
+        const lines = output.split('\n');
+        const found = !!lines
+          .filter((l) => PROMPT_PATTERN.exec(l)) // a line that is the prompt must at least match the pattern
+          .find((l) => {
+            // in some situations the prompt occurs multiple times in the line (but only in tests!)
+            const prompts = l
+              .trim()
+              .replace(/>$/g, '')
+              .split('>')
+              .map((m) => m.trim());
+            // if there are multiple prompt parts they must all equal
+            if (prompts.length > 1) {
+              for (const p of prompts) {
+                if (p !== prompts[0]) {
+                  return false;
+                }
               }
             }
-          }
-          return true;
-        });
-      if (!found) {
-        throw new assert.AssertionError({
-          message: 'expected prompt',
-          expected: PROMPT_PATTERN.toString(),
-          actual:
-            this._output.slice(0, start) +
-            '[prompt search starts here]' +
-            output,
-        });
-      }
-    });
+            return true;
+          });
+        if (!found) {
+          throw new assert.AssertionError({
+            message: 'expected prompt',
+            expected: PROMPT_PATTERN.toString(),
+            actual:
+              this._output.slice(0, start) +
+              '[prompt search starts here]' +
+              output,
+          });
+        }
+      },
+      { ...opts }
+    );
   }
 
-  waitForExit(): Promise<number> {
+  waitForAnyExit(): Promise<number> {
     return this._onClose;
+  }
+
+  async waitForSuccessfulExit(): Promise<void> {
+    assert.strictEqual(await this.waitForAnyExit(), 0);
+    this.assertNoErrors();
   }
 
   /**
    * Waits for the shell to exit, asserts no errors and returns the output.
    */
   async waitForCleanOutput(): Promise<string> {
-    await this.waitForExit();
-    this.assertNoErrors();
+    await this.waitForSuccessfulExit();
     return this.output;
   }
 
-  async waitForPromptOrExit(): Promise<TestShellStartupResult> {
+  async waitForPromptOrExit(
+    opts: { timeout?: number; start?: number } = {}
+  ): Promise<TestShellStartupResult> {
     return Promise.race([
-      this.waitForPrompt().then(() => ({ state: 'prompt' } as const)),
-      this.waitForExit().then((c) => ({ state: 'exit', exitCode: c } as const)),
+      this.waitForPrompt(opts.start ?? 0, opts).then(
+        () => ({ state: 'prompt' } as const)
+      ),
+      this.waitForAnyExit().then(
+        (c) => ({ state: 'exit', exitCode: c } as const)
+      ),
     ]);
   }
 

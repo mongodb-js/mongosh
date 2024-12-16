@@ -131,6 +131,8 @@ type Mutable<T> = {
  */
 class MongoshNodeRepl implements EvaluationListener {
   _runtimeState: MongoshRuntimeState | null;
+  closeTrace?: string;
+  exitPromise?: Promise<never>;
   input: Readable;
   lineByLineInput: LineByLineInput;
   output: Writable;
@@ -549,6 +551,8 @@ class MongoshNodeRepl implements EvaluationListener {
     });
 
     repl.on('exit', () => {
+      // repl is already closed, no need to close it again via this.close()
+      if (this._runtimeState) this._runtimeState.repl = null;
       this.onExit().catch(() => {
         /* ... */
       });
@@ -1041,7 +1045,13 @@ class MongoshNodeRepl implements EvaluationListener {
    */
   runtimeState(): MongoshRuntimeState {
     if (this._runtimeState === null) {
-      throw new MongoshInternalError('Mongosh not initialized yet');
+      // This error can be really hard to debug, so we always attach stack traces
+      // from both when .close() was called and when
+      throw new MongoshInternalError(
+        `mongosh not initialized yet\nCurrent trace: ${
+          new Error().stack
+        }\nClose trace: ${this.closeTrace}`
+      );
     }
     return this._runtimeState;
   }
@@ -1056,7 +1066,12 @@ class MongoshNodeRepl implements EvaluationListener {
     const rs = this._runtimeState;
     if (rs) {
       this._runtimeState = null;
-      rs.repl?.close();
+      this.closeTrace = new Error().stack;
+      if (rs.repl) {
+        // Can be null if the repl already emitted 'exit'
+        rs.repl.close();
+        await once(rs.repl, 'exit');
+      }
       await rs.instanceState.close(true);
       await new Promise((resolve) => this.output.write('', resolve));
     }
@@ -1068,8 +1083,10 @@ class MongoshNodeRepl implements EvaluationListener {
    * @param exitCode The user-specified exit code, if any.
    */
   async onExit(exitCode?: number): Promise<never> {
-    await this.close();
-    return this.ioProvider.exit(exitCode);
+    return (this.exitPromise ??= (async () => {
+      await this.close();
+      return this.ioProvider.exit(exitCode);
+    })());
   }
 
   /**

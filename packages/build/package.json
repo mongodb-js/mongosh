@@ -64,7 +64,7 @@
     "@mongodb-js/devtools-github-repo": "^1.0.1",
     "@mongodb-js/dl-center": "^1.1.1",
     "@mongodb-js/mongodb-downloader": "^0.3.7",
-    "@mongodb-js/signing-utils": "^0.3.3",
+    "@mongodb-js/signing-utils": "^0.3.7",
     "@octokit/rest": "^17.9.0",
     "aws-sdk": "^2.674.0",
     "boxednode": "^2.4.3",

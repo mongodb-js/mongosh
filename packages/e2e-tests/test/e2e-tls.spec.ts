@@ -92,8 +92,8 @@ describe('e2e TLS', function () {
         });
         await shell.waitForPrompt();
         await shell.executeLine('db.shutdownServer({ force: true })');
-        shell.kill();
-        await shell.waitForExit();
+        shell.writeInputLine('exit');
+        await shell.waitForAnyExit(); // closing the server may lead to an error being displayed
       });
 
       const server = startTestServer('e2e-tls-no-cli-valid-srv', {
@@ -399,8 +399,8 @@ describe('e2e TLS', function () {
       });
       await shell.waitForPrompt();
       await shell.executeLine('db.shutdownServer({ force: true })');
-      shell.kill();
-      await shell.waitForExit();
+      shell.writeInputLine('exit');
+      await shell.waitForAnyExit(); // closing the server may lead to an error being displayed
     });
 
     const server = startTestServer('e2e-tls-valid-cli-valid-srv', {

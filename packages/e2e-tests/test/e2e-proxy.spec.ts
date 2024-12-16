@@ -271,7 +271,7 @@ describe('e2e proxy support', function () {
       },
     });
 
-    const code = await shell.waitForExit();
+    const code = await shell.waitForAnyExit();
     expect(code).to.equal(1);
   });
 
@@ -622,7 +622,7 @@ describe('e2e proxy support', function () {
         },
       });
 
-      await shell.waitForExit();
+      await shell.waitForAnyExit();
       // We cannot make the mongod server accept the mock IdP's certificate,
       // so the best we can verify here is that auth failed *on the server*
       shell.assertContainsOutput(/MongoServerError: Authentication failed/);

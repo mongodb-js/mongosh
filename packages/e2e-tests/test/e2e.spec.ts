@@ -35,9 +35,8 @@ describe('e2e', function () {
   describe('--version', function () {
     it('shows version', async function () {
       const shell = this.startTestShell({ args: ['--version'] });
-      await shell.waitForExit();
+      await shell.waitForSuccessfulExit();
 
-      shell.assertNoErrors();
       shell.assertContainsOutput(require('../package.json').version);
     });
   });
@@ -45,9 +44,8 @@ describe('e2e', function () {
   describe('--build-info', function () {
     it('shows build info in JSON format', async function () {
       const shell = this.startTestShell({ args: ['--build-info'] });
-      await shell.waitForExit();
+      await shell.waitForSuccessfulExit();
 
-      shell.assertNoErrors();
       const data = JSON.parse(shell.output);
       expect(Object.keys(data)).to.deep.equal([
         'version',
@@ -101,7 +99,7 @@ describe('e2e', function () {
             'process.report.getReport()',
           ],
         });
-        await shell.waitForExit();
+        await shell.waitForSuccessfulExit();
         processReport = JSON.parse(shell.output);
       }
       expect(data.runtimeGlibcVersion).to.equal(
@@ -118,8 +116,7 @@ describe('e2e', function () {
           '--nodb',
         ],
       });
-      await shell.waitForExit();
-      shell.assertNoErrors();
+      await shell.waitForSuccessfulExit();
       const deps = JSON.parse(shell.output);
       expect(deps.nodeDriverVersion).to.be.a('string');
       expect(deps.libmongocryptVersion).to.be.a('string');
@@ -176,34 +173,28 @@ describe('e2e', function () {
       });
     });
     it('closes the shell when "exit" is entered', async function () {
-      const onExit = shell.waitForExit();
       shell.writeInputLine('exit');
-      expect(await onExit).to.equal(0);
+      await shell.waitForSuccessfulExit();
     });
     it('closes the shell when "quit" is entered', async function () {
-      const onExit = shell.waitForExit();
       shell.writeInputLine('quit');
-      expect(await onExit).to.equal(0);
+      await shell.waitForSuccessfulExit();
     });
     it('closes the shell with the specified exit code when "exit(n)" is entered', async function () {
-      const onExit = shell.waitForExit();
       shell.writeInputLine('exit(42)');
-      expect(await onExit).to.equal(42);
+      expect(await shell.waitForAnyExit()).to.equal(42);
     });
     it('closes the shell with the specified exit code when "quit(n)" is entered', async function () {
-      const onExit = shell.waitForExit();
       shell.writeInputLine('quit(42)');
-      expect(await onExit).to.equal(42);
+      expect(await shell.waitForAnyExit()).to.equal(42);
     });
     it('closes the shell with the pre-specified exit code when "exit" is entered', async function () {
-      const onExit = shell.waitForExit();
       shell.writeInputLine('process.exitCode = 42; exit()');
-      expect(await onExit).to.equal(42);
+      expect(await shell.waitForAnyExit()).to.equal(42);
     });
     it('closes the shell with the pre-specified exit code when "quit" is entered', async function () {
-      const onExit = shell.waitForExit();
       shell.writeInputLine('process.exitCode = 42; quit()');
-      expect(await onExit).to.equal(42);
+      expect(await shell.waitForAnyExit()).to.equal(42);
     });
     it('decorates internal errors with bug reporting information', async function () {
       const err = await shell.executeLine(
@@ -300,10 +291,8 @@ describe('e2e', function () {
         'sleep(100);print([1,2,3,4,5,6,7,8,9,10].reduce(\n(a,b) => { return a*b; }, 1))\n\n\n\n',
         { end: true }
       );
-      const exitCode = await shell.waitForExit();
-      expect(exitCode).to.equal(0);
+      await shell.waitForSuccessfulExit();
       shell.assertContainsOutput('3628800');
-      shell.assertNoErrors();
     });
   });
 
@@ -1095,9 +1084,8 @@ describe('e2e', function () {
         '[db.hello()].reduce(\n() => { return 11111*11111; },0)\n\n\n',
         { end: true }
       );
-      await shell.waitForExit();
+      await shell.waitForSuccessfulExit();
       shell.assertContainsOutput('123454321');
-      shell.assertNoErrors();
     });
   });
 
@@ -1162,8 +1150,7 @@ describe('e2e', function () {
           // when run under coverage, as we currently specify the location of
           // coverage files via a relative path and nyc fails to write to that
           // when started from a changed cwd.
-          await shell.waitForExit();
-          shell.assertNoErrors();
+          await shell.waitForSuccessfulExit();
         });
 
         if (!jsContextFlags.includes('--jsContext=plain-vm')) {
@@ -1202,7 +1189,7 @@ describe('e2e', function () {
             await eventually(() => {
               shell.assertContainsOutput('Error: uh oh');
             });
-            expect(await shell.waitForExit()).to.equal(1);
+            expect(await shell.waitForAnyExit()).to.equal(1);
           });
         }
       });
@@ -1216,8 +1203,7 @@ describe('e2e', function () {
           await eventually(() => {
             shell.assertContainsOutput('hello one');
           });
-          expect(await shell.waitForExit()).to.equal(0);
-          shell.assertNoErrors();
+          await shell.waitForSuccessfulExit();
         });
 
         if (!jsContextFlags.includes('--jsContext=plain-vm')) {
@@ -1244,7 +1230,7 @@ describe('e2e', function () {
           await eventually(() => {
             shell.assertContainsOutput('Error: uh oh');
           });
-          expect(await shell.waitForExit()).to.equal(1);
+          expect(await shell.waitForAnyExit()).to.equal(1);
         });
 
         it('fails with the error if the loaded script throws asynchronously (setImmediate)', async function () {
@@ -1259,7 +1245,7 @@ describe('e2e', function () {
           await eventually(() => {
             shell.assertContainsOutput('Error: uh oh');
           });
-          expect(await shell.waitForExit()).to.equal(
+          expect(await shell.waitForAnyExit()).to.equal(
             jsContextFlags.includes('--jsContext=repl') ? 0 : 1
           );
         });
@@ -1276,7 +1262,7 @@ describe('e2e', function () {
           await eventually(() => {
             shell.assertContainsOutput('Error: uh oh');
           });
-          expect(await shell.waitForExit()).to.equal(
+          expect(await shell.waitForAnyExit()).to.equal(
             jsContextFlags.includes('--jsContext=repl') ? 0 : 1
           );
         });
@@ -1299,7 +1285,7 @@ describe('e2e', function () {
               script,
             ],
           });
-          expect(await shell.waitForExit()).to.equal(0);
+          await shell.waitForSuccessfulExit();
 
           // Check that:
           //  - the script runs in the expected environment
@@ -1494,12 +1480,14 @@ describe('e2e', function () {
               `connect(${JSON.stringify(connectionString)})`
             )
           ).to.include('test');
-          const log = await readLogfile();
-          expect(
-            log.filter(
-              (logEntry) => typeof logEntry.attr?.driver?.version === 'string'
-            )
-          ).to.have.lengthOf(1);
+          await eventually(async () => {
+            const log = await readLogfile();
+            expect(
+              log.filter(
+                (logEntry) => typeof logEntry.attr?.driver?.version === 'string'
+              )
+            ).to.have.lengthOf(1);
+          });
         });
       });
 
@@ -1510,7 +1498,7 @@ describe('e2e', function () {
           }
           await shell.executeLine('a = 42');
           shell.writeInput('.exit\n');
-          await shell.waitForExit();
+          await shell.waitForSuccessfulExit();
 
           shell = await startTestShell();
           // Arrow up twice to skip the .exit line
@@ -1519,7 +1507,7 @@ describe('e2e', function () {
             expect(shell.output).to.include('a = 42');
           });
           shell.writeInput('\n.exit\n');
-          await shell.waitForExit();
+          await shell.waitForSuccessfulExit();
 
           expect(await fs.readFile(historyPath, 'utf8')).to.match(/^a = 42$/m);
         });
@@ -1531,7 +1519,7 @@ describe('e2e', function () {
 
           await shell.executeLine('a = 42');
           shell.writeInput('.exit\n');
-          await shell.waitForExit();
+          await shell.waitForSuccessfulExit();
 
           expect((await fs.stat(historyPath)).mode & 0o077).to.equal(0);
         });
@@ -1542,7 +1530,7 @@ describe('e2e', function () {
           await shell.executeLine('a = 42');
           await shell.executeLine('foo = "bar"');
           shell.writeInput('.exit\n');
-          await shell.waitForExit();
+          await shell.waitForAnyExit(); // db.auth() call fails because of --nodb
 
           const contents = await fs.readFile(historyPath, 'utf8');
           expect(contents).to.not.match(/mypassword/);
@@ -1601,7 +1589,7 @@ describe('e2e', function () {
               `config.set("updateURL", ${JSON.stringify(httpServerUrl)})`
             );
             shell.writeInputLine('exit');
-            await shell.waitForExit();
+            await shell.waitForSuccessfulExit();
           }
 
           delete env.CI;
@@ -1621,13 +1609,13 @@ describe('e2e', function () {
               ).to.be.a('string');
             });
             shell.writeInputLine('exit');
-            await shell.waitForExit();
+            await shell.waitForSuccessfulExit();
           }
 
           {
             const shell = await startTestShell();
             shell.writeInputLine('exit');
-            await shell.waitForExit();
+            await shell.waitForSuccessfulExit();
             shell.assertContainsOutput(
               'mongosh 2023.4.15 is available for download: https://www.mongodb.com/try/download/shell'
             );
@@ -1797,7 +1785,7 @@ describe('e2e', function () {
             '.mongodb.net/',
         ],
       });
-      const exitCode = await shell.waitForExit();
+      const exitCode = await shell.waitForAnyExit();
       expect(exitCode).to.equal(1);
     });
 
@@ -1811,7 +1799,7 @@ describe('e2e', function () {
             '.mongodb.net/',
         ],
       });
-      const exitCode = await shell.waitForExit();
+      const exitCode = await shell.waitForAnyExit();
       expect(exitCode).to.equal(1);
     });
 
@@ -1902,7 +1890,7 @@ describe('e2e', function () {
       );
 
       shell.writeInputLine('exit');
-      await shell.waitForExit();
+      await shell.waitForSuccessfulExit();
       shell.assertNoErrors();
     });
   });
@@ -1935,7 +1923,7 @@ describe('e2e', function () {
         args: [filename],
         env: { ...process.env, MONGOSH_RUN_NODE_SCRIPT: '1' },
       });
-      expect(await shell.waitForExit()).to.equal(0);
+      await shell.waitForSuccessfulExit();
       shell.assertContainsOutput('610');
     });
   });
