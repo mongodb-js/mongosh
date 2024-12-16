@@ -224,7 +224,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
     tags: [
       "nightly-driver"
     ],
-    disabledOpenSslSharedConfig: true,
+    disableOpenSslSharedConfig: true,
     executableOsId: "linux-x64",
     mVersion: "7.0.x"
   },
@@ -234,7 +234,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
     tags: [
       "nightly-driver"
     ],
-    disabledOpenSslSharedConfig: true,
+    disableOpenSslSharedConfig: true,
     executableOsId: "linux-x64",
     mVersion: "stable"
   },
@@ -254,7 +254,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
       "nightly-driver"
     ],
     sharedOpenSsl: "openssl11",
-    executableOsId: "linux-x64",
+    executableOsId: "linux-x64-openssl11",
     mVersion: "stable"
   },
   {
@@ -265,7 +265,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
     ],
     fips: true,
     sharedOpenSsl: "openssl11",
-    executableOsId: "linux-x64",
+    executableOsId: "linux-x64-openssl11",
     mVersion: "stable"
   },
   {
@@ -284,7 +284,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
       "nightly-driver"
     ],
     sharedOpenSsl: "openssl3",
-    executableOsId: "linux-x64",
+    executableOsId: "linux-x64-openssl3",
     mVersion: "stable"
   },
   {
@@ -295,7 +295,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
     ],
     fips: true,
     sharedOpenSsl: "openssl3",
-    executableOsId: "linux-x64",
+    executableOsId: "linux-x64-openssl3",
     mVersion: "stable"
   },
   {
@@ -323,7 +323,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
       "nightly-driver"
     ],
     sharedOpenSsl: "openssl11",
-    executableOsId: "linux-x64",
+    executableOsId: "linux-x64-openssl11",
     mVersion: "stable"
   },
   {
@@ -342,7 +342,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
       "nightly-driver"
     ],
     sharedOpenSsl: "openssl3",
-    executableOsId: "linux-x64",
+    executableOsId: "linux-x64-openssl3",
     mVersion: "stable"
   },
   {
@@ -361,7 +361,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
       "nightly-driver"
     ],
     sharedOpenSsl: "openssl3",
-    executableOsId: "linux-x64",
+    executableOsId: "linux-x64-openssl3",
     mVersion: "stable"
   },
   {
@@ -380,7 +380,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
       "nightly-driver"
     ],
     sharedOpenSsl: "openssl11",
-    executableOsId: "linux-x64",
+    executableOsId: "linux-x64-openssl11",
     mVersion: "6.0.x"
   },
   {
@@ -399,7 +399,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
       "nightly-driver"
     ],
     sharedOpenSsl: "openssl11",
-    executableOsId: "linux-x64",
+    executableOsId: "linux-x64-openssl11",
     mVersion: "7.0.x"
   },
   {
@@ -417,7 +417,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
     tags: [
       "nightly-driver"
     ],
-    disabledOpenSslSharedConfig: true,
+    disableOpenSslSharedConfig: true,
     executableOsId: "linux-x64",
     mVersion: "stable"
   },
@@ -455,7 +455,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
     displayName: "Ubuntu 20.04 arm64",
     runOn: "ubuntu2004-arm64-small",
     sharedOpenSsl: "openssl11",
-    executableOsId: "linux-arm64",
+    executableOsId: "linux-arm64-openssl11",
     mVersion: "stable"
   },
   {
@@ -468,7 +468,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
     displayName: "Ubuntu 22.04 arm64",
     runOn: "ubuntu2204-arm64-small",
     sharedOpenSsl: "openssl3",
-    executableOsId: "linux-arm64",
+    executableOsId: "linux-arm64-openssl3",
     mVersion: "stable"
   },
   {
@@ -481,7 +481,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
     displayName: "Ubuntu 24.04 arm64",
     runOn: "ubuntu2404-arm64-small",
     sharedOpenSsl: "openssl3",
-    executableOsId: "linux-arm64",
+    executableOsId: "linux-arm64-openssl3",
     mVersion: "stable"
   },
   {
@@ -493,7 +493,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
   {
     displayName: "Amazon Linux 2023 arm64",
     runOn: "amazon2023.0-arm64-small",
-    disabledOpenSslSharedConfig: true,
+    disableOpenSslSharedConfig: true,
     executableOsId: "linux-arm64",
     mVersion: "stable"
   },
@@ -506,31 +506,31 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
   {
     displayName: "RHEL 9.0 arm64",
     runOn: "rhel90-arm64-small",
-    disabledOpenSslSharedConfig: true,
+    disableOpenSslSharedConfig: true,
     executableOsId: "linux-arm64",
     mVersion: "7.0.x"
   },
   {
     displayName: "RHEL 9.0 arm64",
     runOn: "rhel90-arm64-small",
-    disabledOpenSslSharedConfig: true,
+    disableOpenSslSharedConfig: true,
     sharedOpenSsl: "openssl3",
-    executableOsId: "linux-arm64",
+    executableOsId: "linux-arm64-openssl3",
     mVersion: "7.0.x"
   },
   {
     displayName: "RHEL 9.3 arm64",
     runOn: "rhel93-arm64-small",
-    disabledOpenSslSharedConfig: true,
+    disableOpenSslSharedConfig: true,
     executableOsId: "linux-arm64",
     mVersion: "stable"
   },
   {
     displayName: "RHEL 9.3 arm64",
     runOn: "rhel93-arm64-small",
-    disabledOpenSslSharedConfig: true,
+    disableOpenSslSharedConfig: true,
     sharedOpenSsl: "openssl3",
-    executableOsId: "linux-arm64",
+    executableOsId: "linux-arm64-openssl3",
     mVersion: "stable"
   },
   {
@@ -2082,7 +2082,7 @@ buildvariants:
     tags: <% out([...(variant.tags ?? [])]) %>
     expansions:
       executable_os_id: "<% out(variant.executableOsId || '') %>"
-      disable_openssl_shared_config_for_bundled_openssl: <% out(variant.disabledOpenSslSharedConfig || false) %>
+      disable_openssl_shared_config_for_bundled_openssl: <% out(variant.disableOpenSslSharedConfig || false) %>
       node_js_version: "<% out(NODE_JS_VERSION_20) %>"
       mongosh_server_test_version: "<% out(variant.mVersion) %>-enterprise"
       mongosh_test_e2e_force_fips: "<% out(variant.fips ? '1' : '') %>"
