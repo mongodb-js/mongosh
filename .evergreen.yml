@@ -14623,7 +14623,7 @@ buildvariants:
     run_on: rhel70-build
     tags: ["nightly-driver"]
     expansions:
-      executable_os_id: "linux-x64-openssl3-openssl3"
+      executable_os_id: "linux-x64-openssl3"
       disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
@@ -14635,7 +14635,7 @@ buildvariants:
     run_on: rhel80-build
     tags: ["nightly-driver"]
     expansions:
-      executable_os_id: "linux-x64-openssl3-openssl3"
+      executable_os_id: "linux-x64-openssl3"
       disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
@@ -14671,7 +14671,7 @@ buildvariants:
     run_on: amazon2-arm64-large
     tags: []
     expansions:
-      executable_os_id: "linux-arm64-openssl3-openssl3"
+      executable_os_id: "linux-arm64-openssl3"
       disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
