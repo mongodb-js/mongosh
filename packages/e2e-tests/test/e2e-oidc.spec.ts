@@ -249,7 +249,7 @@ describe('OIDC auth e2e', function () {
         '--browser=false',
       ],
     });
-    await shell.waitForExit();
+    await shell.waitForAnyExit();
     shell.assertContainsOutput(
       'Consider specifying --oidcFlows=auth-code,device-auth if you are running mongosh in an environment without browser access'
     );
@@ -405,7 +405,7 @@ describe('OIDC auth e2e', function () {
         MONGOSH_E2E_TEST_CURL_ALLOW_INVALID_TLS: '1',
       },
     });
-    await shell.waitForExit();
+    await shell.waitForAnyExit();
     // We cannot make the mongod server accept the mock IdP's certificate,
     // so the best we can verify here is that auth failed *on the server*
     shell.assertContainsOutput(/MongoServerError: Authentication failed/);
@@ -435,7 +435,7 @@ describe('OIDC auth e2e', function () {
       },
     });
 
-    await shell.waitForExit();
+    await shell.waitForAnyExit();
     // We cannot make the mongod server accept the mock IdP's certificate,
     // so the best we can verify here is that auth failed *on the server*
     shell.assertContainsOutput(/MongoServerError: Authentication failed/);
@@ -499,7 +499,7 @@ describe('OIDC auth e2e', function () {
         '--eval=42',
       ],
     });
-    await shell.waitForExit();
+    await shell.waitForSuccessfulExit();
 
     shell.assertContainsOutput('BEGIN OIDC TOKEN DUMP');
     shell.assertContainsOutput('"tokenType": "Bearer"');
@@ -519,7 +519,7 @@ describe('OIDC auth e2e', function () {
         '--eval=42',
       ],
     });
-    await shell.waitForExit();
+    await shell.waitForSuccessfulExit();
 
     shell.assertContainsOutput('BEGIN OIDC TOKEN DUMP');
     shell.assertContainsOutput('"tokenType": "Bearer"');
