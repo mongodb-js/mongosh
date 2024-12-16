@@ -50,7 +50,7 @@ const krbConnTestsOpenSSL3 = ['node20', 'rocky9', 'ubuntu2204'];
 exports.RELEASE_PACKAGE_MATRIX = [
   {
     executableOsId: 'darwin-x64',
-    compileBuildVariant: 'darwin',
+    compileBuildVariant: 'build_darwin',
     packages: [
       {
         name: 'darwin-x64',
@@ -64,7 +64,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
   },
   {
     executableOsId: 'darwin-arm64',
-    compileBuildVariant: 'darwin_arm64',
+    compileBuildVariant: 'build_darwin_arm64',
     packages: [
       {
         name: 'darwin-arm64',

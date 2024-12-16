@@ -85,7 +85,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
     tags: [
       "nightly-driver"
     ],
-    isBuild: true,
+    isBuildOnly: true,
     name: "linux_x64",
     executableOsId: "linux-x64",
     mVersion: "stable"
@@ -96,7 +96,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
     tags: [
       "nightly-driver"
     ],
-    isBuild: true,
+    isBuildOnly: true,
     name: "linux_x64_rhel8",
     executableOsId: "linux-x64",
     mVersion: "stable"
@@ -107,7 +107,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
     tags: [
       "nightly-driver"
     ],
-    isBuild: true,
+    isBuildOnly: true,
     name: "linux_x64_openssl11",
     executableOsId: "linux-x64-openssl11",
     sharedOpenSsl: "openssl11",
@@ -119,7 +119,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
     tags: [
       "nightly-driver"
     ],
-    isBuild: true,
+    isBuildOnly: true,
     name: "linux_x64_openssl11_rhel8",
     executableOsId: "linux-x64-openssl11",
     sharedOpenSsl: "openssl11",
@@ -131,7 +131,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
     tags: [
       "nightly-driver"
     ],
-    isBuild: true,
+    isBuildOnly: true,
     name: "linux_x64_openssl3",
     executableOsId: "linux-x64-openssl3",
     sharedOpenSsl: "openssl3",
@@ -143,7 +143,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
     tags: [
       "nightly-driver"
     ],
-    isBuild: true,
+    isBuildOnly: true,
     name: "linux_x64_openssl3_rhel8",
     executableOsId: "linux-x64-openssl3",
     sharedOpenSsl: "openssl3",
@@ -152,7 +152,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
   {
     displayName: "Amazon 2 arm64",
     runOn: "amazon2-arm64-large",
-    isBuild: true,
+    isBuildOnly: true,
     name: "linux_arm64",
     executableOsId: "linux-arm64",
     mVersion: "stable"
@@ -160,7 +160,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
   {
     displayName: "Amazon 2 arm64",
     runOn: "amazon2-arm64-large",
-    isBuild: true,
+    isBuildOnly: true,
     name: "linux_arm64_openssl11",
     executableOsId: "linux-arm64-openssl11",
     sharedOpenSsl: "openssl11",
@@ -169,7 +169,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
   {
     displayName: "Amazon 2 arm64",
     runOn: "amazon2-arm64-large",
-    isBuild: true,
+    isBuildOnly: true,
     name: "linux_arm64_openssl3",
     executableOsId: "linux-arm64-openssl3",
     sharedOpenSsl: "openssl3",
@@ -178,7 +178,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
   {
     displayName: "RHEL 8 PPC",
     runOn: "rhel8-power-small",
-    isBuild: true,
+    isBuildOnly: true,
     name: "linux_ppc64le",
     executableOsId: "linux-ppc64le",
     mVersion: "stable"
@@ -186,7 +186,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
   {
     displayName: "RHEL 7 s390x",
     runOn: "rhel7-zseries-large",
-    isBuild: true,
+    isBuildOnly: true,
     name: "linux_s390x",
     executableOsId: "linux-s390x",
     mVersion: "stable"
@@ -562,15 +562,62 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
     runOn: "macos-14-arm64",
     executableOsId: "darwin-arm64",
     mVersion: "stable"
-  }
+  },
+  {
+    isBuildOnly: true,
+    displayName: "MacOS Big Sur",
+    name: "darwin",
+    runOn: "macos-11",
+    executableOsId: "darwin-x64",
+    mVersion: "stable",
+  },
+  {
+    isBuildOnly: true,
+    displayName: "MacOS Big Sur arm64",
+    runOn: "macos-11-arm64",
+    name: "darwin_arm64",
+    executableOsId: "darwin-x64",
+    mVersion: "stable",
+  },
+  {
+    displayName: "MacOS Big Sur arm64",
+    runOn: "macos-11-arm64",
+    name: "darwin_arm64",
+    executableOsId: "darwin-arm64",
+    mVersion: "stable",
+    additionalTasks: [
+      "package_artifact_darwin_x64",
+      "sign_artifact_darwin_x64",
+      "package_artifact_darwin_arm64",
+      "sign_artifact_darwin_arm64"
+    ]
+  },
+  {
+    isBuildOnly: true,
+    name: "win32",
+    displayName: "Windows VS 2022",
+    runOn: "windows-vsCurrent-large",
+    executableOsId: "win32",
+    mVersion: "stable",
+  },
+  {
+    displayName: "Windows VS 2022",
+    runOn: "windows-vsCurrent-small",
+    executableOsId: "win32",
+    mVersion: "stable",
+    additionalTasks: [
+      "package_artifact_win32_x64",
+      "package_artifact_win32msi_x64",
+    ]
+  },
 ].map(({displayName, ...rest}) => {
-  const {fips, sharedOpenSsl, isBuild, mVersion, runOn, executableOsId, name} = rest;
+  const {fips, sharedOpenSsl, isBuildOnly, mVersion, runOn, executableOsId, name} = rest;
   const id = (name ?? runOn ?? executableOsId).replaceAll('-', '_');
 
   const variantName =  [
-    isBuild ? `build` : 'e2e_tests',
+    isBuildOnly ? `build` : 'e2e_tests',
     id,
-    !id.includes('openssl') ? sharedOpenSsl : undefined,
+    sharedOpenSsl,
     mVersion != 'stable' ? `m${mVersion.replaceAll('.', '')}` : undefined,
     fips,
   ].filter(text => text).join('_');
@@ -580,7 +627,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
     mVersion != 'stable' ? mVersion.replaceAll('.', '') : undefined,
     sharedOpenSsl,
     fips ? 'FIPS' : undefined,
-    isBuild ? '(Build)' : '(E2E tests)'
+    isBuildOnly ? '(Build)' : '(E2E tests)'
   ].filter(text => text).join(' ');
 
   let compileBuildVariant = RELEASE_PACKAGE_MATRIX.find((pkg) => pkg.executableOsId == executableOsId)?.compileBuildVariant;
@@ -589,6 +636,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
 
   return ({
     ...rest,
+    id,
     displayName: formattedDisplayName,
     name: variantName,
     compileBuildVariant,
@@ -1765,7 +1813,7 @@ tasks:
   # E2E TESTS
   ###
   # Tests reuse the same compilation build variant, so we create those variations based on this.
-  <% for (const compileBuildVariant of ['build_linux_x64', 'build_linux_arm64', 'darwin', 'darwin_arm64', 'build_win32']) { %>
+  <% for (const compileBuildVariant of ['build_linux_x64', 'build_linux_arm64', 'build_darwin', 'build_darwin_arm64', 'build_win32']) { %>
   - name: e2e_tests<% out(compileBuildVariant ? `_${compileBuildVariant.replace('build_', '')}` : '') %>
     tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
@@ -2089,42 +2137,19 @@ buildvariants:
     tasks:
       <% 
       let tasks = [];
-      if (variant.isBuild || !variant.compileBuildVariant || variant.compileBuildVariant == variant.name) {
+      if (variant.isBuildOnly || !variant.compileBuildVariant || variant.compileBuildVariant == variant.id) {
         tasks.push('compile_artifact');
       }
-      if (!variant.isBuild) {
+      if (!variant.isBuildOnly) {
         tasks.push(`e2e_tests${variant.compileBuildVariant ? `_${variant.compileBuildVariant.replace('build_', '')}` : ''}`)
+      }
+      if (variant.additionalTasks) {
+        tasks.push(...variant.additionalTasks);
       }
       for (const task of tasks) { %>
       - name: <% out(task) %>
       <% } %>
   <% } %>
-  - name: darwin
-    display_name: "MacOS Big Sur"
-    run_on: macos-11
-    expansions:
-      executable_os_id: darwin-x64
-      node_js_version: "<% out(NODE_JS_VERSION_20) %>"
-      mongosh_server_test_version: "stable-enterprise"
-      mongosh_test_e2e_force_fips: ""
-    tasks:
-      - name: compile_artifact
-      - name: e2e_tests_darwin
-      - name: package_artifact_darwin_x64
-      - name: sign_artifact_darwin_x64
-      - name: package_artifact_darwin_arm64
-      - name: sign_artifact_darwin_arm64
-  - name: darwin_arm64
-    display_name: "MacOS Big Sur (arm64)"
-    run_on: macos-11-arm64
-    expansions:
-      executable_os_id: darwin-arm64
-      node_js_version: "<% out(NODE_JS_VERSION_20) %>"
-      mongosh_server_test_version: "stable-enterprise"
-      mongosh_test_e2e_force_fips: ""
-    tasks:
-      - name: compile_artifact
-      - name: e2e_tests_darwin_arm64
 
   - name: linux_compile
     display_name: "Ubuntu 20.04 x64 (Compile and Check)"
@@ -2186,28 +2211,6 @@ buildvariants:
     tasks:
       - name: verify_artifact_darwin_arm64
       - name: verify_artifact_darwin_x64
-  - name: win32
-    display_name: "Windows VS 2022"
-    run_on: windows-vsCurrent-small
-    expansions:
-      executable_os_id: win32
-      node_js_version: "<% out(NODE_JS_VERSION_20) %>"
-      mongosh_server_test_version: "stable-enterprise"
-      mongosh_test_e2e_force_fips: ""
-    tasks:
-      - name: e2e_tests_win32
-      - name: package_artifact_win32_x64
-      - name: package_artifact_win32msi_x64
-  - name: build_win32
-    display_name: "Windows VS 2022 (build)"
-    run_on: windows-vsCurrent-large
-    expansions:
-      executable_os_id: win32
-      node_js_version: "<% out(NODE_JS_VERSION_20) %>"
-      mongosh_server_test_version: "stable-enterprise"
-      mongosh_test_e2e_force_fips: ""
-    tasks:
-      - name: compile_artifact
 
   - name: pkg_smoke_tests_docker_x64
     display_name: "package smoke (x64 Docker)"
