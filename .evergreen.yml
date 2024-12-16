@@ -15247,6 +15247,9 @@ buildvariants:
     run_on: macos-11
     expansions:
       executable_os_id: darwin-x64
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
     tasks:
       - name: compile_artifact
       - name: e2e_tests_darwin
@@ -15259,6 +15262,9 @@ buildvariants:
     run_on: macos-11-arm64
     expansions:
       executable_os_id: darwin-arm64
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
     tasks:
       - name: compile_artifact
       - name: e2e_tests_darwin_arm64
@@ -15396,6 +15402,9 @@ buildvariants:
     run_on: windows-vsCurrent-small
     expansions:
       executable_os_id: win32
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_win32
       - name: package_artifact_win32_x64
@@ -15405,6 +15414,9 @@ buildvariants:
     run_on: windows-vsCurrent-large
     expansions:
       executable_os_id: win32
+      node_js_version: "20.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
     tasks:
       - name: compile_artifact
 
