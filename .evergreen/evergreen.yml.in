@@ -1838,6 +1838,7 @@ tasks:
         vars:
           node_js_version: ${node_js_version}
           mongosh_server_test_version: ${mongosh_server_test_version}
+          mongosh_shared_openssl: ${mongosh_shared_openssl}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
   <% } %>
