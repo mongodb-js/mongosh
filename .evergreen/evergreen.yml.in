@@ -583,7 +583,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
     displayName: "MacOS Big Sur arm64",
     runOn: "macos-11-arm64",
     name: "darwin_arm64",
-    executableOsId: "darwin-arm64",
+    executableOsId: "darwin-x64",
     mVersion: "stable",
   },
   {
@@ -1818,8 +1818,11 @@ tasks:
   # E2E TESTS
   ###
   # Tests reuse the same compilation build variant, so we create those variations based on this.
-  <% for (const compileBuildVariant of ['build_linux_x64', 'build_linux_arm64', 'build_darwin', 'build_darwin_arm64', 'build_win32']) { %>
-  - name: e2e_tests<% out(compileBuildVariant ? `_${compileBuildVariant.replace('build_', '')}` : '') %>
+  <% for (const compileBuildVariant of ['build_linux_x64', 'build_linux_arm64', 'build_darwin', 'build_darwin_arm64', 'build_win32']) { 
+    const platformName = compileBuildVariant.replace('build_', '');
+    const executableOsId = platformName == 'darwin' ? 'darwin-x64' : platformName.replaceAll('_', '-');
+    %>
+  - name: e2e_tests_<% out(platformName) %>
     tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
       - name: compile_artifact
@@ -1833,7 +1836,7 @@ tasks:
           node_js_version: ${node_js_version}
       - func: download_compiled_artifact
         vars:
-          executable_os_id: <% out(compileBuildVariant) %>
+          executable_os_id: <% out(executableOsId) %>
       - func: run_e2e_tests
         vars:
           node_js_version: ${node_js_version}

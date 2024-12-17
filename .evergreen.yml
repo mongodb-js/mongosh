@@ -8276,7 +8276,7 @@ tasks:
           node_js_version: ${node_js_version}
       - func: download_compiled_artifact
         vars:
-          executable_os_id: build_linux_x64
+          executable_os_id: linux-x64
       - func: run_e2e_tests
         vars:
           node_js_version: ${node_js_version}
@@ -8296,7 +8296,7 @@ tasks:
           node_js_version: ${node_js_version}
       - func: download_compiled_artifact
         vars:
-          executable_os_id: build_linux_arm64
+          executable_os_id: linux-arm64
       - func: run_e2e_tests
         vars:
           node_js_version: ${node_js_version}
@@ -8316,7 +8316,7 @@ tasks:
           node_js_version: ${node_js_version}
       - func: download_compiled_artifact
         vars:
-          executable_os_id: build_darwin
+          executable_os_id: darwin-x64
       - func: run_e2e_tests
         vars:
           node_js_version: ${node_js_version}
@@ -8336,7 +8336,7 @@ tasks:
           node_js_version: ${node_js_version}
       - func: download_compiled_artifact
         vars:
-          executable_os_id: build_darwin_arm64
+          executable_os_id: darwin-arm64
       - func: run_e2e_tests
         vars:
           node_js_version: ${node_js_version}
@@ -8356,7 +8356,7 @@ tasks:
           node_js_version: ${node_js_version}
       - func: download_compiled_artifact
         vars:
-          executable_os_id: build_win32
+          executable_os_id: win32
       - func: run_e2e_tests
         vars:
           node_js_version: ${node_js_version}
@@ -15296,7 +15296,7 @@ buildvariants:
     run_on: macos-11-arm64
     tags: []
     expansions:
-      executable_os_id: "darwin-arm64"
+      executable_os_id: "darwin-x64"
       disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
