@@ -14604,6 +14604,7 @@ buildvariants:
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
+      mongosh_shared_openssl: "openssl11"
     tasks:
       - name: compile_artifact
   - name: build_linux_x64_openssl11_rhel8_openssl11
@@ -14616,6 +14617,7 @@ buildvariants:
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
+      mongosh_shared_openssl: "openssl11"
     tasks:
       - name: compile_artifact
   - name: build_linux_x64_openssl3_openssl3
@@ -14628,6 +14630,7 @@ buildvariants:
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
+      mongosh_shared_openssl: "openssl3"
     tasks:
       - name: compile_artifact
   - name: build_linux_x64_openssl3_rhel8_openssl3
@@ -14640,6 +14643,7 @@ buildvariants:
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
+      mongosh_shared_openssl: "openssl3"
     tasks:
       - name: compile_artifact
   - name: build_linux_arm64
@@ -14664,6 +14668,7 @@ buildvariants:
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
+      mongosh_shared_openssl: "openssl11"
     tasks:
       - name: compile_artifact
   - name: build_linux_arm64_openssl3_openssl3
@@ -14676,6 +14681,7 @@ buildvariants:
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
+      mongosh_shared_openssl: "openssl3"
     tasks:
       - name: compile_artifact
   - name: build_linux_ppc64le
@@ -14784,6 +14790,7 @@ buildvariants:
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
+      mongosh_shared_openssl: "openssl11"
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_tests_rhel83_fips_openssl11_true
@@ -14796,6 +14803,7 @@ buildvariants:
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: "1"
+      mongosh_shared_openssl: "openssl11"
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_tests_rhel93_fips
@@ -14820,6 +14828,7 @@ buildvariants:
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
+      mongosh_shared_openssl: "openssl3"
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_tests_rhel93_fips_openssl3_true
@@ -14832,6 +14841,7 @@ buildvariants:
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: "1"
+      mongosh_shared_openssl: "openssl3"
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_tests_ubuntu1804_large_m60x
@@ -14868,6 +14878,7 @@ buildvariants:
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
+      mongosh_shared_openssl: "openssl11"
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_tests_ubuntu2204_small
@@ -14892,6 +14903,7 @@ buildvariants:
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
+      mongosh_shared_openssl: "openssl3"
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_tests_ubuntu2404_small
@@ -14916,6 +14928,7 @@ buildvariants:
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
+      mongosh_shared_openssl: "openssl3"
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_tests_debian10_small_m60x
@@ -14940,6 +14953,7 @@ buildvariants:
       node_js_version: "20.18.1"
       mongosh_server_test_version: "6.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
+      mongosh_shared_openssl: "openssl11"
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_tests_debian11_small_m70x
@@ -14964,6 +14978,7 @@ buildvariants:
       node_js_version: "20.18.1"
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
+      mongosh_shared_openssl: "openssl11"
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_tests_amazon2_large_m70x
@@ -15048,6 +15063,7 @@ buildvariants:
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
+      mongosh_shared_openssl: "openssl11"
     tasks:
       - name: e2e_tests_linux_arm64
   - name: e2e_tests_ubuntu2204_arm64_small
@@ -15072,6 +15088,7 @@ buildvariants:
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
+      mongosh_shared_openssl: "openssl3"
     tasks:
       - name: e2e_tests_linux_arm64
   - name: e2e_tests_ubuntu2404_arm64_small
@@ -15096,6 +15113,7 @@ buildvariants:
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
+      mongosh_shared_openssl: "openssl3"
     tasks:
       - name: e2e_tests_linux_arm64
   - name: e2e_tests_amazon2_arm64_large_m70x
@@ -15156,6 +15174,7 @@ buildvariants:
       node_js_version: "20.18.1"
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
+      mongosh_shared_openssl: "openssl3"
     tasks:
       - name: e2e_tests_linux_arm64
   - name: e2e_tests_rhel93_arm64_small
@@ -15180,6 +15199,7 @@ buildvariants:
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
+      mongosh_shared_openssl: "openssl3"
     tasks:
       - name: e2e_tests_linux_arm64
   - name: e2e_tests_rhel8_power_small
