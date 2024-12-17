@@ -53,7 +53,7 @@
     "create-purls-file": "node scripts/create-purls.js .sbom/dependencies.json .sbom/node-js-dep.json > .sbom/purls.txt",
     "preupdate-third-party-notices": "npm run create-dependency-sbom-lists",
     "update-third-party-notices": "mongodb-sbom-tools generate-3rd-party-notices --product='mongosh' --dependencies=.sbom/dependencies.json > THIRD_PARTY_NOTICES.md",
-    "update-node-js-versions": "npx @pkgjs/nv ls v20 > .evergreen/node-20-latest.json && npx @pkgjs/nv ls v16 > .evergreen/node-16-latest.json",
+    "update-node-js-versions": "npx @pkgjs/nv ls v20 > .evergreen/node-20-latest.json",
     "update-evergreen-config": "npm run test-evergreen-expansions && node .evergreen/generate-evergreen-yml.js .evergreen/evergreen.yml.in > .evergreen.yml",
     "update-cli-usage-text": "node scripts/update-cli-usage-text.js",
     "update-security-test-summary": "ts-node scripts/generate-security-test-summary.ts > docs/security-test-summary.md",
@@ -107,7 +107,6 @@
     "@types/which": "^1.3.2",
     "chai": "^4.2.0",
     "cross-env": "^6.0.3",
-    "depcheck": "^1.4.7",
     "duplexpair": "^1.0.2",
     "find-up": "^5.0.0",
     "glob": "^10.3.12",
@@ -131,7 +130,9 @@
     "webpack-bundle-analyzer": "^4.7.0",
     "webpack-cli": "^4.3.1",
     "which": "^2.0.2",
-    "yaml": "^1.10.0"
+    "yaml": "^1.10.0",
+    "depcheck": "^1.4.7",
+    "@pkgjs/nv": "^0.2.2"
   },
   "optionalDependencies": {
     "lerna": "^8.1.8"

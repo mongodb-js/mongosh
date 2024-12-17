@@ -2,7 +2,6 @@
 const path = require('path');
 
 const NODE_JS_VERSION_20 = require('./node-20-latest.json').version;
-const NODE_JS_VERSION_16 = require('./node-16-latest.json').version;
 
 const MONGODB_VERSIONS = [
   { shortName: '42xc', versionSpec: '4.2.x' },
@@ -20,8 +19,7 @@ const MONGODB_VERSIONS = [
   { shortName: 'latest', versionSpec: 'latest-alpha-enterprise' }
 ];
 const NODE_VERSIONS = [
-  { shortName: '20', versionSpec: NODE_JS_VERSION_20, skipNodeVersionCheck: '' },
-  { shortName: '16', versionSpec: NODE_JS_VERSION_16, skipNodeVersionCheck: '' }
+  { shortName: '20', versionSpec: NODE_JS_VERSION_20, skipNodeVersionCheck: '' }
 ];
 
 const pathToPackages = path.join(__dirname, '..', 'packages');
@@ -1143,7 +1141,7 @@ tasks:
 
   ###
   # UNIT TESTS
-  # E.g. test_m60xc_n16 stands for mongod 6.0.x, community edition, Node.js 16
+  # E.g. test_m60xc_n20 stands for mongod 6.0.x, community edition, Node.js 20
   ###
   <% for (const { id, packageName } of UNIT_TESTS) { %>
   - name: test_<% out(id) %>
