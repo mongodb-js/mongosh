@@ -583,7 +583,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
     displayName: "MacOS Big Sur arm64",
     runOn: "macos-11-arm64",
     name: "darwin_arm64",
-    executableOsId: "darwin-x64",
+    executableOsId: "darwin-arm64",
     mVersion: "stable",
   },
   {
@@ -1833,7 +1833,7 @@ tasks:
           node_js_version: ${node_js_version}
       - func: download_compiled_artifact
         vars:
-          executable_os_id: ${executable_os_id}
+          executable_os_id: <% out(compileBuildVariant) %>
       - func: run_e2e_tests
         vars:
           node_js_version: ${node_js_version}

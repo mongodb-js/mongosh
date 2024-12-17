@@ -8276,11 +8276,12 @@ tasks:
           node_js_version: ${node_js_version}
       - func: download_compiled_artifact
         vars:
-          executable_os_id: ${executable_os_id}
+          executable_os_id: build_linux_x64
       - func: run_e2e_tests
         vars:
           node_js_version: ${node_js_version}
           mongosh_server_test_version: ${mongosh_server_test_version}
+          mongosh_shared_openssl: ${mongosh_shared_openssl}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
   - name: e2e_tests_linux_arm64
@@ -8295,11 +8296,12 @@ tasks:
           node_js_version: ${node_js_version}
       - func: download_compiled_artifact
         vars:
-          executable_os_id: ${executable_os_id}
+          executable_os_id: build_linux_arm64
       - func: run_e2e_tests
         vars:
           node_js_version: ${node_js_version}
           mongosh_server_test_version: ${mongosh_server_test_version}
+          mongosh_shared_openssl: ${mongosh_shared_openssl}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
   - name: e2e_tests_darwin
@@ -8314,11 +8316,12 @@ tasks:
           node_js_version: ${node_js_version}
       - func: download_compiled_artifact
         vars:
-          executable_os_id: ${executable_os_id}
+          executable_os_id: build_darwin
       - func: run_e2e_tests
         vars:
           node_js_version: ${node_js_version}
           mongosh_server_test_version: ${mongosh_server_test_version}
+          mongosh_shared_openssl: ${mongosh_shared_openssl}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
   - name: e2e_tests_darwin_arm64
@@ -8333,11 +8336,12 @@ tasks:
           node_js_version: ${node_js_version}
       - func: download_compiled_artifact
         vars:
-          executable_os_id: ${executable_os_id}
+          executable_os_id: build_darwin_arm64
       - func: run_e2e_tests
         vars:
           node_js_version: ${node_js_version}
           mongosh_server_test_version: ${mongosh_server_test_version}
+          mongosh_shared_openssl: ${mongosh_shared_openssl}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
   - name: e2e_tests_win32
@@ -8352,11 +8356,12 @@ tasks:
           node_js_version: ${node_js_version}
       - func: download_compiled_artifact
         vars:
-          executable_os_id: ${executable_os_id}
+          executable_os_id: build_win32
       - func: run_e2e_tests
         vars:
           node_js_version: ${node_js_version}
           mongosh_server_test_version: ${mongosh_server_test_version}
+          mongosh_shared_openssl: ${mongosh_shared_openssl}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
   - name: perf_tests
@@ -15291,7 +15296,7 @@ buildvariants:
     run_on: macos-11-arm64
     tags: []
     expansions:
-      executable_os_id: "darwin-x64"
+      executable_os_id: "darwin-arm64"
       disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"
