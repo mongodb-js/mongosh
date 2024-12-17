@@ -297,19 +297,19 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
   {
     displayName: "RHEL 8 PPC",
     runOn: "rhel8-power-small",
-    executableOsId: "linux-x64",
+    executableOsId: "linux-ppc64le",
     mVersion: "stable",
   },
   {
     displayName: "RHEL 7 s390x",
     runOn: "rhel7-zseries-large",
-    executableOsId: "linux-x64",
+    executableOsId: "linux-s390x",
     mVersion: "6.0.x",
   },
   {
     displayName: "RHEL 8 s390x",
     runOn: "rhel8-zseries-small",
-    executableOsId: "linux-x64",
+    executableOsId: "linux-s390x",
     mVersion: "stable",
   },
   {

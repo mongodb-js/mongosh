@@ -135,7 +135,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
   },
   {
     executableOsId: 'linux-x64-openssl11',
-    compileBuildVariant: 'build_linux_x64',
+    compileBuildVariant: 'build_linux_x64_openssl11',
     kerberosConnectivityTestDockerfiles: [...krbConnTestsOpenSSL11],
     packages: [
       {
@@ -178,7 +178,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
   },
   {
     executableOsId: 'linux-x64-openssl3',
-    compileBuildVariant: 'build_linux_x64',
+    compileBuildVariant: 'build_linux_x64_openssl3',
     kerberosConnectivityTestDockerfiles: [...krbConnTestsOpenSSL3],
     packages: [
       {
@@ -273,7 +273,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
   },
   {
     executableOsId: 'linux-arm64-openssl11',
-    compileBuildVariant: 'build_linux_arm64',
+    compileBuildVariant: 'build_linux_arm64_openssl11',
     kerberosConnectivityTestDockerfiles: [...krbConnTestsOpenSSL11],
     packages: [
       {
@@ -315,7 +315,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
   },
   {
     executableOsId: 'linux-arm64-openssl3',
-    compileBuildVariant: 'build_linux_arm64',
+    compileBuildVariant: 'build_linux_arm64_openssl3',
     kerberosConnectivityTestDockerfiles: [...krbConnTestsOpenSSL3],
     packages: [
       {

@@ -88,8 +88,8 @@ for (const packageInfo of MONGOSH_PACKAGES) {
   });
 }
 
-const { E2E_TESTS_BUILD_VARIANTS } = require('./variants/e2e-tests-build-variants')
-const { COMPILE_BUILD_VARIANTS } = require('./variants/compile-build-variants')
+const { E2E_TESTS_BUILD_VARIANTS } = require('./build-variants/e2e-tests-build-variants')
+const { COMPILE_BUILD_VARIANTS } = require('./build-variants/compile-build-variants')
 const { RELEASE_PACKAGE_MATRIX } = require('../config/release-package-matrix')
 
 
