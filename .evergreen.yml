@@ -15296,7 +15296,7 @@ buildvariants:
     run_on: macos-11-arm64
     tags: []
     expansions:
-      executable_os_id: "darwin-x64"
+      executable_os_id: "darwin-arm64"
       disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.18.1"
       mongosh_server_test_version: "stable-enterprise"

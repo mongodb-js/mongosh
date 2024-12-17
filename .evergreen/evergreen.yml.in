@@ -583,7 +583,7 @@ const ALL_E2E_TEST_BUILD_VARIANTS =  [
     displayName: "MacOS Big Sur arm64",
     runOn: "macos-11-arm64",
     name: "darwin_arm64",
-    executableOsId: "darwin-x64",
+    executableOsId: "darwin-arm64",
     mVersion: "stable",
   },
   {
