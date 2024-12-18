@@ -1,0 +1,33 @@
+{
+  "versions": [
+    {
+      "version": "1.10.3",
+      "cta": {
+        "chunks": [
+          {
+            "text": "Critical update available: 1.10.4 ",
+            "style": "bold"
+          },
+          {
+            "text": "https://www.mongodb.com/try/download/shell",
+            "style": "mongosh:uri"
+          }
+        ]
+      }
+    },
+    {
+      "version": "1.10.4"
+    }
+  ],
+  "cta": {
+    "chunks": [
+      {
+        "text": "Vote for your favorite feature in mongosh "
+      },
+      {
+        "text": "https://mongodb.com/surveys/shell/2024-Q4",
+        "style": "mongosh:uri"
+      }
+    ]
+  }
+}

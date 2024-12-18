@@ -39,6 +39,7 @@
     "compile-all": "npm run compile-compass && npm run compile-exec",
     "evergreen-release": "cd packages/build && npm run evergreen-release --",
     "release": "cd packages/build && npm run release --",
+    "update-cta": "cd packages/build && npm run update-cta --",
     "report-missing-help": "npm run report-missing-help --workspace @mongosh/shell-api",
     "report-supported-api": "npm run report-supported-api --workspace @mongosh/shell-api",
     "post-process-nyc": "ts-node scripts/nyc/post-process-nyc-output.ts",

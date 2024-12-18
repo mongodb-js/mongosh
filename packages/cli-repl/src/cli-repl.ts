@@ -414,7 +414,11 @@ export class CliRepl implements MongoshIOProvider {
     markTime(TimingCategories.DriverSetup, 'completed SP setup');
     const initialized = await this.mongoshRepl.initialize(
       initialServiceProvider,
-      await this.getMoreRecentMongoshVersion()
+      {
+        moreRecentMongoshVersion: await this.getMoreRecentMongoshVersion(),
+        currentVersionCTA:
+          await this.updateNotificationManager.getGreetingCTAForCurrentVersion(),
+      }
     );
     markTime(TimingCategories.REPLInstantiation, 'initialized mongosh repl');
     this.injectReplFunctions();
@@ -1262,6 +1266,7 @@ export class CliRepl implements MongoshIOProvider {
       const updateURL = (await this.getConfig('updateURL')).trim();
       if (!updateURL) return;
 
+      const { version: currentVersion } = require('../package.json');
       const localFilePath = this.shellHomeDirectory.localPath(
         'update-metadata.json'
       );
@@ -1269,14 +1274,19 @@ export class CliRepl implements MongoshIOProvider {
       this.bus.emit('mongosh:fetching-update-metadata', {
         updateURL,
         localFilePath,
+        currentVersion,
       });
       await this.updateNotificationManager.fetchUpdateMetadata(
         updateURL,
-        localFilePath
+        localFilePath,
+        currentVersion
       );
       this.bus.emit('mongosh:fetching-update-metadata-complete', {
         latest:
           await this.updateNotificationManager.getLatestVersionIfMoreRecent(''),
+        currentVersion,
+        hasGreetingCTA:
+          !!(await this.updateNotificationManager.getGreetingCTAForCurrentVersion()),
       });
     } catch (err: any) {
       this.bus.emit('mongosh:error', err, 'startup');
