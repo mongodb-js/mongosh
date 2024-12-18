@@ -37,8 +37,8 @@ describe('npm-packages publishNpmPackages', function () {
 
   it('fails if packages have placeholder versions', function () {
     listNpmPackages.returns([
-      { name: 'packageA', version: '0.0.0-dev.0' },
-      { name: 'packageB', version: '0.0.0-dev.0' },
+      { name: 'packageA', version: '2.3.7' },
+      { name: 'packageB', version: '2.3.7' },
     ]);
     try {
       publishNpmPackages(
