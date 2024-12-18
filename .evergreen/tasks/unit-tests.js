@@ -1,0 +1,38 @@
+// @ts-check
+const path = require('path');
+const fs = require('fs');
+const { PLATFORMS } = require('../constants');
+
+const UNIT_TESTS = [];
+
+const pathToPackages = path.join(__dirname, '..', '..', 'packages');
+const MONGOSH_PACKAGES = fs
+  .readdirSync(pathToPackages, { withFileTypes: true })
+  .filter(
+    (d) =>
+      d.isDirectory() &&
+      fs.existsSync(path.join(pathToPackages, d.name, 'package.json'))
+  )
+  .map((d) => ({
+    name: d.name,
+    ...(JSON.parse(
+      fs.readFileSync(
+        path.join(pathToPackages, d.name, 'package.json'),
+        'utf-8'
+      )
+    ).mongosh || {}),
+  }));
+
+for (const packageInfo of MONGOSH_PACKAGES) {
+  const id = `${packageInfo.name.replace(/-/g, '_')}`;
+
+  const variants = packageInfo.variants ?? PLATFORMS;
+  UNIT_TESTS.push({
+    id,
+    packageName: packageInfo.name,
+    unitTestsOnly: packageInfo.unitTestsOnly,
+    variants,
+  });
+}
+
+exports.UNIT_TESTS = UNIT_TESTS;
