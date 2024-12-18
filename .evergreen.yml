@@ -214,7 +214,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-n20_arg_parser.tgz
+        local_file: src/nyc-output-darwin-n20-arg_parser.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n20-arg_parser.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -228,7 +228,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-n20_async_rewriter2.tgz
+        local_file: src/nyc-output-darwin-n20-async_rewriter2.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n20-async_rewriter2.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -242,7 +242,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-n20_autocomplete.tgz
+        local_file: src/nyc-output-darwin-n20-autocomplete.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n20-autocomplete.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -256,7 +256,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-n20_browser_repl.tgz
+        local_file: src/nyc-output-darwin-n20-browser_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n20-browser_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -270,7 +270,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-n20_browser_runtime_core.tgz
+        local_file: src/nyc-output-darwin-n20-browser_runtime_core.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n20-browser_runtime_core.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -284,7 +284,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-n20_browser_runtime_electron.tgz
+        local_file: src/nyc-output-darwin-n20-browser_runtime_electron.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n20-browser_runtime_electron.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -298,7 +298,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-n20_build.tgz
+        local_file: src/nyc-output-darwin-n20-build.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n20-build.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -312,7 +312,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-n20_cli_repl.tgz
+        local_file: src/nyc-output-darwin-n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -326,7 +326,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-n20_e2e_tests.tgz
+        local_file: src/nyc-output-darwin-n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -340,7 +340,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-n20_editor.tgz
+        local_file: src/nyc-output-darwin-n20-editor.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n20-editor.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -354,7 +354,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-n20_errors.tgz
+        local_file: src/nyc-output-darwin-n20-errors.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n20-errors.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -368,7 +368,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-n20_history.tgz
+        local_file: src/nyc-output-darwin-n20-history.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n20-history.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -382,7 +382,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-n20_i18n.tgz
+        local_file: src/nyc-output-darwin-n20-i18n.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n20-i18n.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -396,7 +396,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-n20_js_multiline_to_singleline.tgz
+        local_file: src/nyc-output-darwin-n20-js_multiline_to_singleline.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n20-js_multiline_to_singleline.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -410,7 +410,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-n20_logging.tgz
+        local_file: src/nyc-output-darwin-n20-logging.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n20-logging.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -424,7 +424,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-darwin-n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -438,7 +438,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-n20_service_provider_core.tgz
+        local_file: src/nyc-output-darwin-n20-service_provider_core.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n20-service_provider_core.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -452,7 +452,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-darwin-n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -466,7 +466,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-n20_shell_api.tgz
+        local_file: src/nyc-output-darwin-n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -480,7 +480,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-n20_shell_evaluator.tgz
+        local_file: src/nyc-output-darwin-n20-shell_evaluator.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n20-shell_evaluator.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -494,7 +494,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-n20_snippet_manager.tgz
+        local_file: src/nyc-output-darwin-n20-snippet_manager.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n20-snippet_manager.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -508,7 +508,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-n20_types.tgz
+        local_file: src/nyc-output-darwin-n20-types.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n20-types.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -522,7 +522,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m60xc_n20_cli_repl.tgz
+        local_file: src/nyc-output-darwin-m60xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m60xc_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -536,7 +536,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m60xc_n20_e2e_tests.tgz
+        local_file: src/nyc-output-darwin-m60xc_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m60xc_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -550,7 +550,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m60xc_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-darwin-m60xc_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m60xc_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -564,7 +564,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m60xc_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-darwin-m60xc_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m60xc_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -578,7 +578,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m60xc_n20_shell_api.tgz
+        local_file: src/nyc-output-darwin-m60xc_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m60xc_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -592,7 +592,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m60xe_n20_cli_repl.tgz
+        local_file: src/nyc-output-darwin-m60xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m60xe_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -606,7 +606,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m60xe_n20_e2e_tests.tgz
+        local_file: src/nyc-output-darwin-m60xe_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m60xe_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -620,7 +620,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m60xe_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-darwin-m60xe_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m60xe_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -634,7 +634,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m60xe_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-darwin-m60xe_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m60xe_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -648,7 +648,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m60xe_n20_shell_api.tgz
+        local_file: src/nyc-output-darwin-m60xe_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m60xe_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -662,7 +662,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m70xc_n20_cli_repl.tgz
+        local_file: src/nyc-output-darwin-m70xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m70xc_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -676,7 +676,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m70xc_n20_e2e_tests.tgz
+        local_file: src/nyc-output-darwin-m70xc_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m70xc_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -690,7 +690,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m70xc_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-darwin-m70xc_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m70xc_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -704,7 +704,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m70xc_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-darwin-m70xc_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m70xc_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -718,7 +718,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m70xc_n20_shell_api.tgz
+        local_file: src/nyc-output-darwin-m70xc_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m70xc_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -732,7 +732,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m70xe_n20_cli_repl.tgz
+        local_file: src/nyc-output-darwin-m70xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m70xe_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -746,7 +746,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m70xe_n20_e2e_tests.tgz
+        local_file: src/nyc-output-darwin-m70xe_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m70xe_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -760,7 +760,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m70xe_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-darwin-m70xe_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m70xe_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -774,7 +774,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m70xe_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-darwin-m70xe_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m70xe_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -788,7 +788,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m70xe_n20_shell_api.tgz
+        local_file: src/nyc-output-darwin-m70xe_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m70xe_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -802,7 +802,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m80xc_n20_cli_repl.tgz
+        local_file: src/nyc-output-darwin-m80xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m80xc_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -816,7 +816,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m80xc_n20_e2e_tests.tgz
+        local_file: src/nyc-output-darwin-m80xc_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m80xc_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -830,7 +830,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m80xc_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-darwin-m80xc_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m80xc_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -844,7 +844,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m80xc_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-darwin-m80xc_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m80xc_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -858,7 +858,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m80xc_n20_shell_api.tgz
+        local_file: src/nyc-output-darwin-m80xc_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m80xc_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -872,7 +872,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m80xe_n20_cli_repl.tgz
+        local_file: src/nyc-output-darwin-m80xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m80xe_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -886,7 +886,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m80xe_n20_e2e_tests.tgz
+        local_file: src/nyc-output-darwin-m80xe_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m80xe_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -900,7 +900,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m80xe_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-darwin-m80xe_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m80xe_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -914,7 +914,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m80xe_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-darwin-m80xe_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m80xe_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -928,7 +928,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-m80xe_n20_shell_api.tgz
+        local_file: src/nyc-output-darwin-m80xe_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-m80xe_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -942,7 +942,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-mlatest_n20_cli_repl.tgz
+        local_file: src/nyc-output-darwin-mlatest_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-mlatest_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -956,7 +956,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-mlatest_n20_e2e_tests.tgz
+        local_file: src/nyc-output-darwin-mlatest_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-mlatest_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -970,7 +970,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-mlatest_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-darwin-mlatest_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-mlatest_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -984,7 +984,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-mlatest_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-darwin-mlatest_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-mlatest_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -998,7 +998,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-mlatest_n20_shell_api.tgz
+        local_file: src/nyc-output-darwin-mlatest_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-mlatest_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1012,7 +1012,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-n20_arg_parser.tgz
+        local_file: src/nyc-output-linux-n20-arg_parser.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n20-arg_parser.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1026,7 +1026,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-n20_async_rewriter2.tgz
+        local_file: src/nyc-output-linux-n20-async_rewriter2.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n20-async_rewriter2.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1040,7 +1040,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-n20_autocomplete.tgz
+        local_file: src/nyc-output-linux-n20-autocomplete.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n20-autocomplete.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1054,7 +1054,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-n20_browser_runtime_core.tgz
+        local_file: src/nyc-output-linux-n20-browser_runtime_core.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n20-browser_runtime_core.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1068,7 +1068,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-n20_browser_runtime_electron.tgz
+        local_file: src/nyc-output-linux-n20-browser_runtime_electron.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n20-browser_runtime_electron.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1082,7 +1082,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-n20_build.tgz
+        local_file: src/nyc-output-linux-n20-build.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n20-build.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1096,7 +1096,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-n20_cli_repl.tgz
+        local_file: src/nyc-output-linux-n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1110,7 +1110,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-n20_e2e_tests.tgz
+        local_file: src/nyc-output-linux-n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1124,7 +1124,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-n20_editor.tgz
+        local_file: src/nyc-output-linux-n20-editor.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n20-editor.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1138,7 +1138,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-n20_errors.tgz
+        local_file: src/nyc-output-linux-n20-errors.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n20-errors.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1152,7 +1152,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-n20_history.tgz
+        local_file: src/nyc-output-linux-n20-history.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n20-history.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1166,7 +1166,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-n20_i18n.tgz
+        local_file: src/nyc-output-linux-n20-i18n.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n20-i18n.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1180,7 +1180,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-n20_java_shell.tgz
+        local_file: src/nyc-output-linux-n20-java_shell.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n20-java_shell.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1194,7 +1194,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-n20_js_multiline_to_singleline.tgz
+        local_file: src/nyc-output-linux-n20-js_multiline_to_singleline.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n20-js_multiline_to_singleline.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1208,7 +1208,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-n20_logging.tgz
+        local_file: src/nyc-output-linux-n20-logging.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n20-logging.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1222,7 +1222,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-linux-n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1236,7 +1236,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-n20_service_provider_core.tgz
+        local_file: src/nyc-output-linux-n20-service_provider_core.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n20-service_provider_core.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1250,7 +1250,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-linux-n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1264,7 +1264,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-n20_shell_api.tgz
+        local_file: src/nyc-output-linux-n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1278,7 +1278,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-n20_shell_evaluator.tgz
+        local_file: src/nyc-output-linux-n20-shell_evaluator.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n20-shell_evaluator.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1292,7 +1292,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-n20_snippet_manager.tgz
+        local_file: src/nyc-output-linux-n20-snippet_manager.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n20-snippet_manager.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1306,7 +1306,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-n20_types.tgz
+        local_file: src/nyc-output-linux-n20-types.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n20-types.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1320,7 +1320,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m42xc_n20_cli_repl.tgz
+        local_file: src/nyc-output-linux-m42xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m42xc_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1334,7 +1334,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m42xc_n20_e2e_tests.tgz
+        local_file: src/nyc-output-linux-m42xc_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m42xc_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1348,7 +1348,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m42xc_n20_java_shell.tgz
+        local_file: src/nyc-output-linux-m42xc_n20-java_shell.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m42xc_n20-java_shell.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1362,7 +1362,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m42xc_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-linux-m42xc_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m42xc_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1376,7 +1376,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m42xc_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-linux-m42xc_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m42xc_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1390,7 +1390,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m42xc_n20_shell_api.tgz
+        local_file: src/nyc-output-linux-m42xc_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m42xc_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1404,7 +1404,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m44xc_n20_cli_repl.tgz
+        local_file: src/nyc-output-linux-m44xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m44xc_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1418,7 +1418,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m44xc_n20_e2e_tests.tgz
+        local_file: src/nyc-output-linux-m44xc_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m44xc_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1432,7 +1432,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m44xc_n20_java_shell.tgz
+        local_file: src/nyc-output-linux-m44xc_n20-java_shell.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m44xc_n20-java_shell.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1446,7 +1446,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m44xc_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-linux-m44xc_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m44xc_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1460,7 +1460,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m44xc_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-linux-m44xc_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m44xc_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1474,7 +1474,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m44xc_n20_shell_api.tgz
+        local_file: src/nyc-output-linux-m44xc_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m44xc_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1488,7 +1488,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m44xe_n20_cli_repl.tgz
+        local_file: src/nyc-output-linux-m44xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m44xe_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1502,7 +1502,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m44xe_n20_e2e_tests.tgz
+        local_file: src/nyc-output-linux-m44xe_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m44xe_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1516,7 +1516,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m44xe_n20_java_shell.tgz
+        local_file: src/nyc-output-linux-m44xe_n20-java_shell.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m44xe_n20-java_shell.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1530,7 +1530,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m44xe_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-linux-m44xe_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m44xe_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1544,7 +1544,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m44xe_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-linux-m44xe_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m44xe_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1558,7 +1558,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m44xe_n20_shell_api.tgz
+        local_file: src/nyc-output-linux-m44xe_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m44xe_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1572,7 +1572,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m50xc_n20_cli_repl.tgz
+        local_file: src/nyc-output-linux-m50xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m50xc_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1586,7 +1586,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m50xc_n20_e2e_tests.tgz
+        local_file: src/nyc-output-linux-m50xc_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m50xc_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1600,7 +1600,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m50xc_n20_java_shell.tgz
+        local_file: src/nyc-output-linux-m50xc_n20-java_shell.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m50xc_n20-java_shell.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1614,7 +1614,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m50xc_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-linux-m50xc_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m50xc_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1628,7 +1628,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m50xc_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-linux-m50xc_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m50xc_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1642,7 +1642,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m50xc_n20_shell_api.tgz
+        local_file: src/nyc-output-linux-m50xc_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m50xc_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1656,7 +1656,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m50xe_n20_cli_repl.tgz
+        local_file: src/nyc-output-linux-m50xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m50xe_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1670,7 +1670,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m50xe_n20_e2e_tests.tgz
+        local_file: src/nyc-output-linux-m50xe_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m50xe_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1684,7 +1684,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m50xe_n20_java_shell.tgz
+        local_file: src/nyc-output-linux-m50xe_n20-java_shell.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m50xe_n20-java_shell.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1698,7 +1698,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m50xe_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-linux-m50xe_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m50xe_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1712,7 +1712,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m50xe_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-linux-m50xe_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m50xe_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1726,7 +1726,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m50xe_n20_shell_api.tgz
+        local_file: src/nyc-output-linux-m50xe_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m50xe_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1740,7 +1740,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m60xc_n20_cli_repl.tgz
+        local_file: src/nyc-output-linux-m60xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m60xc_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1754,7 +1754,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m60xc_n20_e2e_tests.tgz
+        local_file: src/nyc-output-linux-m60xc_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m60xc_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1768,7 +1768,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m60xc_n20_java_shell.tgz
+        local_file: src/nyc-output-linux-m60xc_n20-java_shell.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m60xc_n20-java_shell.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1782,7 +1782,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m60xc_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-linux-m60xc_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m60xc_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1796,7 +1796,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m60xc_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-linux-m60xc_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m60xc_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1810,7 +1810,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m60xc_n20_shell_api.tgz
+        local_file: src/nyc-output-linux-m60xc_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m60xc_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1824,7 +1824,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m60xe_n20_cli_repl.tgz
+        local_file: src/nyc-output-linux-m60xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m60xe_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1838,7 +1838,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m60xe_n20_e2e_tests.tgz
+        local_file: src/nyc-output-linux-m60xe_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m60xe_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1852,7 +1852,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m60xe_n20_java_shell.tgz
+        local_file: src/nyc-output-linux-m60xe_n20-java_shell.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m60xe_n20-java_shell.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1866,7 +1866,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m60xe_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-linux-m60xe_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m60xe_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1880,7 +1880,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m60xe_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-linux-m60xe_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m60xe_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1894,7 +1894,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m60xe_n20_shell_api.tgz
+        local_file: src/nyc-output-linux-m60xe_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m60xe_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1908,7 +1908,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m70xc_n20_cli_repl.tgz
+        local_file: src/nyc-output-linux-m70xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m70xc_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1922,7 +1922,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m70xc_n20_e2e_tests.tgz
+        local_file: src/nyc-output-linux-m70xc_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m70xc_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1936,7 +1936,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m70xc_n20_java_shell.tgz
+        local_file: src/nyc-output-linux-m70xc_n20-java_shell.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m70xc_n20-java_shell.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1950,7 +1950,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m70xc_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-linux-m70xc_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m70xc_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1964,7 +1964,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m70xc_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-linux-m70xc_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m70xc_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1978,7 +1978,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m70xc_n20_shell_api.tgz
+        local_file: src/nyc-output-linux-m70xc_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m70xc_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -1992,7 +1992,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m70xe_n20_cli_repl.tgz
+        local_file: src/nyc-output-linux-m70xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m70xe_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2006,7 +2006,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m70xe_n20_e2e_tests.tgz
+        local_file: src/nyc-output-linux-m70xe_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m70xe_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2020,7 +2020,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m70xe_n20_java_shell.tgz
+        local_file: src/nyc-output-linux-m70xe_n20-java_shell.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m70xe_n20-java_shell.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2034,7 +2034,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m70xe_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-linux-m70xe_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m70xe_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2048,7 +2048,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m70xe_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-linux-m70xe_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m70xe_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2062,7 +2062,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m70xe_n20_shell_api.tgz
+        local_file: src/nyc-output-linux-m70xe_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m70xe_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2076,7 +2076,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m80xc_n20_cli_repl.tgz
+        local_file: src/nyc-output-linux-m80xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m80xc_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2090,7 +2090,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m80xc_n20_e2e_tests.tgz
+        local_file: src/nyc-output-linux-m80xc_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m80xc_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2104,7 +2104,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m80xc_n20_java_shell.tgz
+        local_file: src/nyc-output-linux-m80xc_n20-java_shell.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m80xc_n20-java_shell.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2118,7 +2118,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m80xc_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-linux-m80xc_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m80xc_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2132,7 +2132,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m80xc_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-linux-m80xc_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m80xc_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2146,7 +2146,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m80xc_n20_shell_api.tgz
+        local_file: src/nyc-output-linux-m80xc_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m80xc_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2160,7 +2160,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m80xe_n20_cli_repl.tgz
+        local_file: src/nyc-output-linux-m80xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m80xe_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2174,7 +2174,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m80xe_n20_e2e_tests.tgz
+        local_file: src/nyc-output-linux-m80xe_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m80xe_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2188,7 +2188,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m80xe_n20_java_shell.tgz
+        local_file: src/nyc-output-linux-m80xe_n20-java_shell.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m80xe_n20-java_shell.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2202,7 +2202,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m80xe_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-linux-m80xe_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m80xe_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2216,7 +2216,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m80xe_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-linux-m80xe_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m80xe_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2230,7 +2230,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m80xe_n20_shell_api.tgz
+        local_file: src/nyc-output-linux-m80xe_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m80xe_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2244,7 +2244,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-mlatest_n20_cli_repl.tgz
+        local_file: src/nyc-output-linux-mlatest_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-mlatest_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2258,7 +2258,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-mlatest_n20_e2e_tests.tgz
+        local_file: src/nyc-output-linux-mlatest_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-mlatest_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2272,7 +2272,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-mlatest_n20_java_shell.tgz
+        local_file: src/nyc-output-linux-mlatest_n20-java_shell.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-mlatest_n20-java_shell.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2286,7 +2286,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-mlatest_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-linux-mlatest_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-mlatest_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2300,7 +2300,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-mlatest_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-linux-mlatest_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-mlatest_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2314,7 +2314,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-mlatest_n20_shell_api.tgz
+        local_file: src/nyc-output-linux-mlatest_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-mlatest_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2328,7 +2328,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-n20_arg_parser.tgz
+        local_file: src/nyc-output-win32-n20-arg_parser.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-n20-arg_parser.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2342,7 +2342,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-n20_async_rewriter2.tgz
+        local_file: src/nyc-output-win32-n20-async_rewriter2.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-n20-async_rewriter2.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2356,7 +2356,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-n20_autocomplete.tgz
+        local_file: src/nyc-output-win32-n20-autocomplete.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-n20-autocomplete.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2370,7 +2370,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-n20_browser_runtime_core.tgz
+        local_file: src/nyc-output-win32-n20-browser_runtime_core.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-n20-browser_runtime_core.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2384,7 +2384,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-n20_browser_runtime_electron.tgz
+        local_file: src/nyc-output-win32-n20-browser_runtime_electron.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-n20-browser_runtime_electron.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2398,7 +2398,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-n20_build.tgz
+        local_file: src/nyc-output-win32-n20-build.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-n20-build.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2412,7 +2412,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-n20_cli_repl.tgz
+        local_file: src/nyc-output-win32-n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2426,7 +2426,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-n20_e2e_tests.tgz
+        local_file: src/nyc-output-win32-n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2440,7 +2440,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-n20_editor.tgz
+        local_file: src/nyc-output-win32-n20-editor.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-n20-editor.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2454,7 +2454,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-n20_errors.tgz
+        local_file: src/nyc-output-win32-n20-errors.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-n20-errors.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2468,7 +2468,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-n20_history.tgz
+        local_file: src/nyc-output-win32-n20-history.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-n20-history.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2482,7 +2482,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-n20_i18n.tgz
+        local_file: src/nyc-output-win32-n20-i18n.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-n20-i18n.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2496,7 +2496,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-n20_js_multiline_to_singleline.tgz
+        local_file: src/nyc-output-win32-n20-js_multiline_to_singleline.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-n20-js_multiline_to_singleline.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2510,7 +2510,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-n20_logging.tgz
+        local_file: src/nyc-output-win32-n20-logging.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-n20-logging.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2524,7 +2524,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-win32-n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2538,7 +2538,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-n20_service_provider_core.tgz
+        local_file: src/nyc-output-win32-n20-service_provider_core.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-n20-service_provider_core.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2552,7 +2552,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-win32-n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2566,7 +2566,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-n20_shell_api.tgz
+        local_file: src/nyc-output-win32-n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2580,7 +2580,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-n20_shell_evaluator.tgz
+        local_file: src/nyc-output-win32-n20-shell_evaluator.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-n20-shell_evaluator.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2594,7 +2594,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-n20_snippet_manager.tgz
+        local_file: src/nyc-output-win32-n20-snippet_manager.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-n20-snippet_manager.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2608,7 +2608,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-n20_types.tgz
+        local_file: src/nyc-output-win32-n20-types.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-n20-types.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2622,7 +2622,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m42xc_n20_cli_repl.tgz
+        local_file: src/nyc-output-win32-m42xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m42xc_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2636,7 +2636,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m42xc_n20_e2e_tests.tgz
+        local_file: src/nyc-output-win32-m42xc_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m42xc_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2650,7 +2650,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m42xc_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-win32-m42xc_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m42xc_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2664,7 +2664,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m42xc_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-win32-m42xc_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m42xc_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2678,7 +2678,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m42xc_n20_shell_api.tgz
+        local_file: src/nyc-output-win32-m42xc_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m42xc_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2692,7 +2692,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m42xe_n20_cli_repl.tgz
+        local_file: src/nyc-output-win32-m42xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m42xe_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2706,7 +2706,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m42xe_n20_e2e_tests.tgz
+        local_file: src/nyc-output-win32-m42xe_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m42xe_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2720,7 +2720,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m42xe_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-win32-m42xe_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m42xe_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2734,7 +2734,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m42xe_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-win32-m42xe_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m42xe_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2748,7 +2748,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m42xe_n20_shell_api.tgz
+        local_file: src/nyc-output-win32-m42xe_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m42xe_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2762,7 +2762,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m44xc_n20_cli_repl.tgz
+        local_file: src/nyc-output-win32-m44xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m44xc_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2776,7 +2776,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m44xc_n20_e2e_tests.tgz
+        local_file: src/nyc-output-win32-m44xc_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m44xc_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2790,7 +2790,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m44xc_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-win32-m44xc_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m44xc_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2804,7 +2804,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m44xc_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-win32-m44xc_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m44xc_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2818,7 +2818,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m44xc_n20_shell_api.tgz
+        local_file: src/nyc-output-win32-m44xc_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m44xc_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2832,7 +2832,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m44xe_n20_cli_repl.tgz
+        local_file: src/nyc-output-win32-m44xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m44xe_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2846,7 +2846,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m44xe_n20_e2e_tests.tgz
+        local_file: src/nyc-output-win32-m44xe_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m44xe_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2860,7 +2860,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m44xe_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-win32-m44xe_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m44xe_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2874,7 +2874,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m44xe_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-win32-m44xe_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m44xe_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2888,7 +2888,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m44xe_n20_shell_api.tgz
+        local_file: src/nyc-output-win32-m44xe_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m44xe_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2902,7 +2902,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m50xc_n20_cli_repl.tgz
+        local_file: src/nyc-output-win32-m50xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m50xc_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2916,7 +2916,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m50xc_n20_e2e_tests.tgz
+        local_file: src/nyc-output-win32-m50xc_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m50xc_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2930,7 +2930,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m50xc_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-win32-m50xc_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m50xc_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2944,7 +2944,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m50xc_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-win32-m50xc_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m50xc_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2958,7 +2958,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m50xc_n20_shell_api.tgz
+        local_file: src/nyc-output-win32-m50xc_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m50xc_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2972,7 +2972,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m50xe_n20_cli_repl.tgz
+        local_file: src/nyc-output-win32-m50xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m50xe_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -2986,7 +2986,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m50xe_n20_e2e_tests.tgz
+        local_file: src/nyc-output-win32-m50xe_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m50xe_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3000,7 +3000,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m50xe_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-win32-m50xe_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m50xe_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3014,7 +3014,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m50xe_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-win32-m50xe_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m50xe_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3028,7 +3028,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m50xe_n20_shell_api.tgz
+        local_file: src/nyc-output-win32-m50xe_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m50xe_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3042,7 +3042,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m60xc_n20_cli_repl.tgz
+        local_file: src/nyc-output-win32-m60xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m60xc_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3056,7 +3056,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m60xc_n20_e2e_tests.tgz
+        local_file: src/nyc-output-win32-m60xc_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m60xc_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3070,7 +3070,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m60xc_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-win32-m60xc_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m60xc_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3084,7 +3084,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m60xc_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-win32-m60xc_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m60xc_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3098,7 +3098,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m60xc_n20_shell_api.tgz
+        local_file: src/nyc-output-win32-m60xc_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m60xc_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3112,7 +3112,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m60xe_n20_cli_repl.tgz
+        local_file: src/nyc-output-win32-m60xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m60xe_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3126,7 +3126,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m60xe_n20_e2e_tests.tgz
+        local_file: src/nyc-output-win32-m60xe_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m60xe_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3140,7 +3140,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m60xe_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-win32-m60xe_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m60xe_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3154,7 +3154,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m60xe_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-win32-m60xe_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m60xe_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3168,7 +3168,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m60xe_n20_shell_api.tgz
+        local_file: src/nyc-output-win32-m60xe_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m60xe_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3182,7 +3182,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m70xc_n20_cli_repl.tgz
+        local_file: src/nyc-output-win32-m70xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m70xc_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3196,7 +3196,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m70xc_n20_e2e_tests.tgz
+        local_file: src/nyc-output-win32-m70xc_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m70xc_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3210,7 +3210,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m70xc_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-win32-m70xc_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m70xc_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3224,7 +3224,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m70xc_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-win32-m70xc_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m70xc_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3238,7 +3238,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m70xc_n20_shell_api.tgz
+        local_file: src/nyc-output-win32-m70xc_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m70xc_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3252,7 +3252,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m70xe_n20_cli_repl.tgz
+        local_file: src/nyc-output-win32-m70xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m70xe_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3266,7 +3266,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m70xe_n20_e2e_tests.tgz
+        local_file: src/nyc-output-win32-m70xe_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m70xe_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3280,7 +3280,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m70xe_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-win32-m70xe_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m70xe_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3294,7 +3294,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m70xe_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-win32-m70xe_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m70xe_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3308,7 +3308,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m70xe_n20_shell_api.tgz
+        local_file: src/nyc-output-win32-m70xe_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m70xe_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3322,7 +3322,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m80xc_n20_cli_repl.tgz
+        local_file: src/nyc-output-win32-m80xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m80xc_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3336,7 +3336,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m80xc_n20_e2e_tests.tgz
+        local_file: src/nyc-output-win32-m80xc_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m80xc_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3350,7 +3350,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m80xc_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-win32-m80xc_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m80xc_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3364,7 +3364,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m80xc_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-win32-m80xc_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m80xc_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3378,7 +3378,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m80xc_n20_shell_api.tgz
+        local_file: src/nyc-output-win32-m80xc_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m80xc_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3392,7 +3392,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m80xe_n20_cli_repl.tgz
+        local_file: src/nyc-output-win32-m80xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m80xe_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3406,7 +3406,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m80xe_n20_e2e_tests.tgz
+        local_file: src/nyc-output-win32-m80xe_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m80xe_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3420,7 +3420,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m80xe_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-win32-m80xe_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m80xe_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3434,7 +3434,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m80xe_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-win32-m80xe_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m80xe_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3448,7 +3448,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-m80xe_n20_shell_api.tgz
+        local_file: src/nyc-output-win32-m80xe_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-m80xe_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3462,7 +3462,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-mlatest_n20_cli_repl.tgz
+        local_file: src/nyc-output-win32-mlatest_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-mlatest_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3476,7 +3476,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-mlatest_n20_e2e_tests.tgz
+        local_file: src/nyc-output-win32-mlatest_n20-e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-mlatest_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3490,7 +3490,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-mlatest_n20_node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-win32-mlatest_n20-node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-mlatest_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3504,7 +3504,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-mlatest_n20_service_provider_node_driver.tgz
+        local_file: src/nyc-output-win32-mlatest_n20-service_provider_node_driver.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-mlatest_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
@@ -3518,7 +3518,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-mlatest_n20_shell_api.tgz
+        local_file: src/nyc-output-win32-mlatest_n20-shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-mlatest_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
