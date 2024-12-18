@@ -4396,8 +4396,480 @@ tasks:
 
   - name: check_coverage
     depends_on:
-      - name: ".unit-test"
-        variant: "*"
+      - name: test_arg_parser
+        variant: darwin-n20
+      - name: test_async_rewriter2
+        variant: darwin-n20
+      - name: test_autocomplete
+        variant: darwin-n20
+      - name: test_browser_repl
+        variant: darwin-n20
+      - name: test_browser_runtime_core
+        variant: darwin-n20
+      - name: test_browser_runtime_electron
+        variant: darwin-n20
+      - name: test_build
+        variant: darwin-n20
+      - name: test_cli_repl
+        variant: darwin-n20
+      - name: test_e2e_tests
+        variant: darwin-n20
+      - name: test_editor
+        variant: darwin-n20
+      - name: test_errors
+        variant: darwin-n20
+      - name: test_history
+        variant: darwin-n20
+      - name: test_i18n
+        variant: darwin-n20
+      - name: test_js_multiline_to_singleline
+        variant: darwin-n20
+      - name: test_logging
+        variant: darwin-n20
+      - name: test_node_runtime_worker_thread
+        variant: darwin-n20
+      - name: test_service_provider_core
+        variant: darwin-n20
+      - name: test_service_provider_node_driver
+        variant: darwin-n20
+      - name: test_shell_api
+        variant: darwin-n20
+      - name: test_shell_evaluator
+        variant: darwin-n20
+      - name: test_snippet_manager
+        variant: darwin-n20
+      - name: test_types
+        variant: darwin-n20
+      - name: test_cli_repl
+        variant: tests_darwin-m60xc_n20
+      - name: test_e2e_tests
+        variant: tests_darwin-m60xc_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_darwin-m60xc_n20
+      - name: test_service_provider_node_driver
+        variant: tests_darwin-m60xc_n20
+      - name: test_shell_api
+        variant: tests_darwin-m60xc_n20
+      - name: test_cli_repl
+        variant: tests_darwin-m60xe_n20
+      - name: test_e2e_tests
+        variant: tests_darwin-m60xe_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_darwin-m60xe_n20
+      - name: test_service_provider_node_driver
+        variant: tests_darwin-m60xe_n20
+      - name: test_shell_api
+        variant: tests_darwin-m60xe_n20
+      - name: test_cli_repl
+        variant: tests_darwin-m70xc_n20
+      - name: test_e2e_tests
+        variant: tests_darwin-m70xc_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_darwin-m70xc_n20
+      - name: test_service_provider_node_driver
+        variant: tests_darwin-m70xc_n20
+      - name: test_shell_api
+        variant: tests_darwin-m70xc_n20
+      - name: test_cli_repl
+        variant: tests_darwin-m70xe_n20
+      - name: test_e2e_tests
+        variant: tests_darwin-m70xe_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_darwin-m70xe_n20
+      - name: test_service_provider_node_driver
+        variant: tests_darwin-m70xe_n20
+      - name: test_shell_api
+        variant: tests_darwin-m70xe_n20
+      - name: test_cli_repl
+        variant: tests_darwin-m80xc_n20
+      - name: test_e2e_tests
+        variant: tests_darwin-m80xc_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_darwin-m80xc_n20
+      - name: test_service_provider_node_driver
+        variant: tests_darwin-m80xc_n20
+      - name: test_shell_api
+        variant: tests_darwin-m80xc_n20
+      - name: test_cli_repl
+        variant: tests_darwin-m80xe_n20
+      - name: test_e2e_tests
+        variant: tests_darwin-m80xe_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_darwin-m80xe_n20
+      - name: test_service_provider_node_driver
+        variant: tests_darwin-m80xe_n20
+      - name: test_shell_api
+        variant: tests_darwin-m80xe_n20
+      - name: test_cli_repl
+        variant: tests_darwin-mlatest_n20
+      - name: test_e2e_tests
+        variant: tests_darwin-mlatest_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_darwin-mlatest_n20
+      - name: test_service_provider_node_driver
+        variant: tests_darwin-mlatest_n20
+      - name: test_shell_api
+        variant: tests_darwin-mlatest_n20
+      - name: test_arg_parser
+        variant: linux-n20
+      - name: test_async_rewriter2
+        variant: linux-n20
+      - name: test_autocomplete
+        variant: linux-n20
+      - name: test_browser_runtime_core
+        variant: linux-n20
+      - name: test_browser_runtime_electron
+        variant: linux-n20
+      - name: test_build
+        variant: linux-n20
+      - name: test_cli_repl
+        variant: linux-n20
+      - name: test_e2e_tests
+        variant: linux-n20
+      - name: test_editor
+        variant: linux-n20
+      - name: test_errors
+        variant: linux-n20
+      - name: test_history
+        variant: linux-n20
+      - name: test_i18n
+        variant: linux-n20
+      - name: test_java_shell
+        variant: linux-n20
+      - name: test_js_multiline_to_singleline
+        variant: linux-n20
+      - name: test_logging
+        variant: linux-n20
+      - name: test_node_runtime_worker_thread
+        variant: linux-n20
+      - name: test_service_provider_core
+        variant: linux-n20
+      - name: test_service_provider_node_driver
+        variant: linux-n20
+      - name: test_shell_api
+        variant: linux-n20
+      - name: test_shell_evaluator
+        variant: linux-n20
+      - name: test_snippet_manager
+        variant: linux-n20
+      - name: test_types
+        variant: linux-n20
+      - name: test_cli_repl
+        variant: tests_linux-m42xc_n20
+      - name: test_e2e_tests
+        variant: tests_linux-m42xc_n20
+      - name: test_java_shell
+        variant: tests_linux-m42xc_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_linux-m42xc_n20
+      - name: test_service_provider_node_driver
+        variant: tests_linux-m42xc_n20
+      - name: test_shell_api
+        variant: tests_linux-m42xc_n20
+      - name: test_cli_repl
+        variant: tests_linux-m44xc_n20
+      - name: test_e2e_tests
+        variant: tests_linux-m44xc_n20
+      - name: test_java_shell
+        variant: tests_linux-m44xc_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_linux-m44xc_n20
+      - name: test_service_provider_node_driver
+        variant: tests_linux-m44xc_n20
+      - name: test_shell_api
+        variant: tests_linux-m44xc_n20
+      - name: test_cli_repl
+        variant: tests_linux-m44xe_n20
+      - name: test_e2e_tests
+        variant: tests_linux-m44xe_n20
+      - name: test_java_shell
+        variant: tests_linux-m44xe_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_linux-m44xe_n20
+      - name: test_service_provider_node_driver
+        variant: tests_linux-m44xe_n20
+      - name: test_shell_api
+        variant: tests_linux-m44xe_n20
+      - name: test_cli_repl
+        variant: tests_linux-m50xc_n20
+      - name: test_e2e_tests
+        variant: tests_linux-m50xc_n20
+      - name: test_java_shell
+        variant: tests_linux-m50xc_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_linux-m50xc_n20
+      - name: test_service_provider_node_driver
+        variant: tests_linux-m50xc_n20
+      - name: test_shell_api
+        variant: tests_linux-m50xc_n20
+      - name: test_cli_repl
+        variant: tests_linux-m50xe_n20
+      - name: test_e2e_tests
+        variant: tests_linux-m50xe_n20
+      - name: test_java_shell
+        variant: tests_linux-m50xe_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_linux-m50xe_n20
+      - name: test_service_provider_node_driver
+        variant: tests_linux-m50xe_n20
+      - name: test_shell_api
+        variant: tests_linux-m50xe_n20
+      - name: test_cli_repl
+        variant: tests_linux-m60xc_n20
+      - name: test_e2e_tests
+        variant: tests_linux-m60xc_n20
+      - name: test_java_shell
+        variant: tests_linux-m60xc_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_linux-m60xc_n20
+      - name: test_service_provider_node_driver
+        variant: tests_linux-m60xc_n20
+      - name: test_shell_api
+        variant: tests_linux-m60xc_n20
+      - name: test_cli_repl
+        variant: tests_linux-m60xe_n20
+      - name: test_e2e_tests
+        variant: tests_linux-m60xe_n20
+      - name: test_java_shell
+        variant: tests_linux-m60xe_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_linux-m60xe_n20
+      - name: test_service_provider_node_driver
+        variant: tests_linux-m60xe_n20
+      - name: test_shell_api
+        variant: tests_linux-m60xe_n20
+      - name: test_cli_repl
+        variant: tests_linux-m70xc_n20
+      - name: test_e2e_tests
+        variant: tests_linux-m70xc_n20
+      - name: test_java_shell
+        variant: tests_linux-m70xc_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_linux-m70xc_n20
+      - name: test_service_provider_node_driver
+        variant: tests_linux-m70xc_n20
+      - name: test_shell_api
+        variant: tests_linux-m70xc_n20
+      - name: test_cli_repl
+        variant: tests_linux-m70xe_n20
+      - name: test_e2e_tests
+        variant: tests_linux-m70xe_n20
+      - name: test_java_shell
+        variant: tests_linux-m70xe_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_linux-m70xe_n20
+      - name: test_service_provider_node_driver
+        variant: tests_linux-m70xe_n20
+      - name: test_shell_api
+        variant: tests_linux-m70xe_n20
+      - name: test_cli_repl
+        variant: tests_linux-m80xc_n20
+      - name: test_e2e_tests
+        variant: tests_linux-m80xc_n20
+      - name: test_java_shell
+        variant: tests_linux-m80xc_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_linux-m80xc_n20
+      - name: test_service_provider_node_driver
+        variant: tests_linux-m80xc_n20
+      - name: test_shell_api
+        variant: tests_linux-m80xc_n20
+      - name: test_cli_repl
+        variant: tests_linux-m80xe_n20
+      - name: test_e2e_tests
+        variant: tests_linux-m80xe_n20
+      - name: test_java_shell
+        variant: tests_linux-m80xe_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_linux-m80xe_n20
+      - name: test_service_provider_node_driver
+        variant: tests_linux-m80xe_n20
+      - name: test_shell_api
+        variant: tests_linux-m80xe_n20
+      - name: test_cli_repl
+        variant: tests_linux-mlatest_n20
+      - name: test_e2e_tests
+        variant: tests_linux-mlatest_n20
+      - name: test_java_shell
+        variant: tests_linux-mlatest_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_linux-mlatest_n20
+      - name: test_service_provider_node_driver
+        variant: tests_linux-mlatest_n20
+      - name: test_shell_api
+        variant: tests_linux-mlatest_n20
+      - name: test_arg_parser
+        variant: win32-n20
+      - name: test_async_rewriter2
+        variant: win32-n20
+      - name: test_autocomplete
+        variant: win32-n20
+      - name: test_browser_runtime_core
+        variant: win32-n20
+      - name: test_browser_runtime_electron
+        variant: win32-n20
+      - name: test_build
+        variant: win32-n20
+      - name: test_cli_repl
+        variant: win32-n20
+      - name: test_e2e_tests
+        variant: win32-n20
+      - name: test_editor
+        variant: win32-n20
+      - name: test_errors
+        variant: win32-n20
+      - name: test_history
+        variant: win32-n20
+      - name: test_i18n
+        variant: win32-n20
+      - name: test_js_multiline_to_singleline
+        variant: win32-n20
+      - name: test_logging
+        variant: win32-n20
+      - name: test_node_runtime_worker_thread
+        variant: win32-n20
+      - name: test_service_provider_core
+        variant: win32-n20
+      - name: test_service_provider_node_driver
+        variant: win32-n20
+      - name: test_shell_api
+        variant: win32-n20
+      - name: test_shell_evaluator
+        variant: win32-n20
+      - name: test_snippet_manager
+        variant: win32-n20
+      - name: test_types
+        variant: win32-n20
+      - name: test_cli_repl
+        variant: tests_win32-m42xc_n20
+      - name: test_e2e_tests
+        variant: tests_win32-m42xc_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_win32-m42xc_n20
+      - name: test_service_provider_node_driver
+        variant: tests_win32-m42xc_n20
+      - name: test_shell_api
+        variant: tests_win32-m42xc_n20
+      - name: test_cli_repl
+        variant: tests_win32-m42xe_n20
+      - name: test_e2e_tests
+        variant: tests_win32-m42xe_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_win32-m42xe_n20
+      - name: test_service_provider_node_driver
+        variant: tests_win32-m42xe_n20
+      - name: test_shell_api
+        variant: tests_win32-m42xe_n20
+      - name: test_cli_repl
+        variant: tests_win32-m44xc_n20
+      - name: test_e2e_tests
+        variant: tests_win32-m44xc_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_win32-m44xc_n20
+      - name: test_service_provider_node_driver
+        variant: tests_win32-m44xc_n20
+      - name: test_shell_api
+        variant: tests_win32-m44xc_n20
+      - name: test_cli_repl
+        variant: tests_win32-m44xe_n20
+      - name: test_e2e_tests
+        variant: tests_win32-m44xe_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_win32-m44xe_n20
+      - name: test_service_provider_node_driver
+        variant: tests_win32-m44xe_n20
+      - name: test_shell_api
+        variant: tests_win32-m44xe_n20
+      - name: test_cli_repl
+        variant: tests_win32-m50xc_n20
+      - name: test_e2e_tests
+        variant: tests_win32-m50xc_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_win32-m50xc_n20
+      - name: test_service_provider_node_driver
+        variant: tests_win32-m50xc_n20
+      - name: test_shell_api
+        variant: tests_win32-m50xc_n20
+      - name: test_cli_repl
+        variant: tests_win32-m50xe_n20
+      - name: test_e2e_tests
+        variant: tests_win32-m50xe_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_win32-m50xe_n20
+      - name: test_service_provider_node_driver
+        variant: tests_win32-m50xe_n20
+      - name: test_shell_api
+        variant: tests_win32-m50xe_n20
+      - name: test_cli_repl
+        variant: tests_win32-m60xc_n20
+      - name: test_e2e_tests
+        variant: tests_win32-m60xc_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_win32-m60xc_n20
+      - name: test_service_provider_node_driver
+        variant: tests_win32-m60xc_n20
+      - name: test_shell_api
+        variant: tests_win32-m60xc_n20
+      - name: test_cli_repl
+        variant: tests_win32-m60xe_n20
+      - name: test_e2e_tests
+        variant: tests_win32-m60xe_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_win32-m60xe_n20
+      - name: test_service_provider_node_driver
+        variant: tests_win32-m60xe_n20
+      - name: test_shell_api
+        variant: tests_win32-m60xe_n20
+      - name: test_cli_repl
+        variant: tests_win32-m70xc_n20
+      - name: test_e2e_tests
+        variant: tests_win32-m70xc_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_win32-m70xc_n20
+      - name: test_service_provider_node_driver
+        variant: tests_win32-m70xc_n20
+      - name: test_shell_api
+        variant: tests_win32-m70xc_n20
+      - name: test_cli_repl
+        variant: tests_win32-m70xe_n20
+      - name: test_e2e_tests
+        variant: tests_win32-m70xe_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_win32-m70xe_n20
+      - name: test_service_provider_node_driver
+        variant: tests_win32-m70xe_n20
+      - name: test_shell_api
+        variant: tests_win32-m70xe_n20
+      - name: test_cli_repl
+        variant: tests_win32-m80xc_n20
+      - name: test_e2e_tests
+        variant: tests_win32-m80xc_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_win32-m80xc_n20
+      - name: test_service_provider_node_driver
+        variant: tests_win32-m80xc_n20
+      - name: test_shell_api
+        variant: tests_win32-m80xc_n20
+      - name: test_cli_repl
+        variant: tests_win32-m80xe_n20
+      - name: test_e2e_tests
+        variant: tests_win32-m80xe_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_win32-m80xe_n20
+      - name: test_service_provider_node_driver
+        variant: tests_win32-m80xe_n20
+      - name: test_shell_api
+        variant: tests_win32-m80xe_n20
+      - name: test_cli_repl
+        variant: tests_win32-mlatest_n20
+      - name: test_e2e_tests
+        variant: tests_win32-mlatest_n20
+      - name: test_node_runtime_worker_thread
+        variant: tests_win32-mlatest_n20
+      - name: test_service_provider_node_driver
+        variant: tests_win32-mlatest_n20
+      - name: test_shell_api
+        variant: tests_win32-mlatest_n20
     commands:
       - func: checkout
       - func: install
