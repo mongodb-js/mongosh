@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { isShouldReportAsBugError } from '@mongosh/errors';
+import { css, cx, palette } from '@mongodb-js/compass-components';
 
 import { SimpleTypeOutput } from './simple-type-output';
 import { Expandable } from '../utils/expandable';
@@ -9,6 +10,14 @@ import type { MongoServerError } from 'mongodb';
 interface ErrorOutputProps {
   value: any;
 }
+
+const errInfo = css({
+  pre: {
+    borderLeft: '3px solid',
+    paddingLeft: '0px',
+    borderColor: palette.red.light2,
+  },
+});
 
 export class ErrorOutput extends Component<ErrorOutputProps> {
   static propTypes = {
@@ -87,7 +96,7 @@ export class ErrorOutput extends Component<ErrorOutputProps> {
     return (
       <div>
         {this.renderCollapsed(toggle)}
-        <div>
+        <div className={cx(errInfo)}>
           {this.formatErrorBugReportInfo()}
           {this.formatErrorInfo()}
           {this.formatErrorResult()}
