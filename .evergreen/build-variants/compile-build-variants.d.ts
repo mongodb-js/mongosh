@@ -1,4 +1,4 @@
-export type CompileBuildVariantDefinition = {
+export type CompileBuildVariant = {
   name: string;
   displayName: string;
   runOn: string;
@@ -6,3 +6,5 @@ export type CompileBuildVariantDefinition = {
   id?: string;
   sharedOpenSsl?: string;
 };
+
+export const COMPILE_BUILD_VARIANTS: CompileBuildVariant[];
