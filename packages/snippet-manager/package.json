@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/snippet-manager",
-  "version": "2.3.6",
+  "version": "2.3.7",
   "description": "MongoDB Shell Snippet Manager",
   "main": "./lib/index.js",
   "repository": {
