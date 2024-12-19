@@ -95,7 +95,7 @@ const { RELEASE_PACKAGE_MATRIX } = require('../config/release-package-matrix')
 
 const UNIT_TESTS_AND_VARIANTS = [];
 for (let variant of UNIT_TESTS_BUILD_VARIANTS) {
-      if (variant == 'linux')
+      if (variant.platform == 'linux')
       for (let unitTest of UNIT_TESTS.filter(t => t.variants.includes(variant.platform) && (!t.unitTestsOnly || (t.unitTestsOnly && variant.runWithUnitTestsOnly))))
       {
         UNIT_TESTS_AND_VARIANTS.push([variant, unitTest]); 
