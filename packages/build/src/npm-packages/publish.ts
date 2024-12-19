@@ -1,5 +1,5 @@
 import path from 'path';
-import { LERNA_BIN, PLACEHOLDER_VERSION, PROJECT_ROOT } from './constants';
+import { LERNA_BIN, PROJECT_ROOT } from './constants';
 import type { LernaPackageDescription } from './list';
 import { listNpmPackages as listNpmPackagesFn } from './list';
 import { spawnSync } from '../helpers/spawn-sync';
@@ -20,10 +20,6 @@ export function publishNpmPackages(
     );
   }
 
-  if (versions[0] === PLACEHOLDER_VERSION) {
-    throw new Error('Refusing to publish packages with placeholder version');
-  }
-
   // Lerna requires a clean repository for a publish from-package (--force-publish does not have any effect here)
   // we use git update-index --assume-unchanged on files we know have been bumped
   markBumpedFilesAsAssumeUnchangedFn(packages, true);
@@ -38,7 +34,6 @@ export function publishNpmPackages(
         '--no-push',
         '--exact',
         '--no-git-tag-version',
-        '--force-publish',
         '--yes',
         '--no-verify-access',
       ],
