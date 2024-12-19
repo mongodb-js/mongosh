@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/history",
-  "version": "2.3.7",
+  "version": "2.5.0",
   "description": "MongoDB Shell History Package",
   "main": "./lib/index.js",
   "repository": {
@@ -39,9 +39,9 @@
     "mongodb-redact": "^1.1.2"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-mongosh": "^1.0.0",
+    "@mongodb-js/eslint-config-mongosh": "^1.0.2",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
-    "@mongodb-js/tsconfig-mongosh": "^1.0.0",
+    "@mongodb-js/tsconfig-mongosh": "^1.0.2",
     "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
     "mongodb-connection-string-url": "^3.0.1",

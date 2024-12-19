@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/async-rewriter2",
-  "version": "2.3.7",
+  "version": "2.5.0",
   "description": "MongoDB Shell Async Rewriter Package",
   "main": "./lib/index.js",
   "scripts": {
@@ -47,9 +47,9 @@
     "@babel/types": "^7.22.5"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-mongosh": "^1.0.0",
+    "@mongodb-js/eslint-config-mongosh": "^1.0.2",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
-    "@mongodb-js/tsconfig-mongosh": "^1.0.0",
+    "@mongodb-js/tsconfig-mongosh": "^1.0.2",
     "@types/babel__core": "^7.20.1",
     "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
