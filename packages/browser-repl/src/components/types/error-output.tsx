@@ -11,12 +11,16 @@ interface ErrorOutputProps {
   value: any;
 }
 
-const errInfo = css({
-  pre: {
+const errInfoCss = css({
+  '&&': {
     borderLeft: '3px solid',
     paddingLeft: '0px',
-    borderColor: palette.red.light2,
+    borderColor: palette.red.light1,
   },
+});
+
+const messageCss = css({
+  color: palette.white,
 });
 
 export class ErrorOutput extends Component<ErrorOutputProps> {
@@ -39,7 +43,7 @@ export class ErrorOutput extends Component<ErrorOutputProps> {
           >
             {formattedName || 'Error'}:
           </a>{' '}
-          {message}
+          <span className={messageCss}>{message}</span>
         </pre>
       </div>
     );
@@ -96,11 +100,11 @@ export class ErrorOutput extends Component<ErrorOutputProps> {
     return (
       <div>
         {this.renderCollapsed(toggle)}
-        <div className={cx(errInfo)}>
+        <div className={messageCss}>
           {this.formatErrorBugReportInfo()}
           {this.formatErrorInfo()}
           {this.formatErrorResult()}
-          <pre>{this.formatStack()}</pre>
+          <pre className={errInfoCss}>{this.formatStack()}</pre>
         </div>
       </div>
     );
