@@ -18,7 +18,7 @@
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci"
   },
   "devDependencies": {
-    "@mongodb-js/tsconfig-mongosh": "^1.0.0",
+    "@mongodb-js/tsconfig-mongosh": "^1.0.2",
     "assert": "^1.5.0",
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.0",

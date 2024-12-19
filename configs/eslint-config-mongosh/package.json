@@ -1,6 +1,6 @@
 {
   "name": "@mongodb-js/eslint-config-mongosh",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "private": true,
   "description": "Shared Mongosh eslint configuration",
   "license": "SSPL",
