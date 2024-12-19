@@ -321,8 +321,8 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-<% out(buildVariant) %>-<% out(unitTest.id) %>.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-<% out(buildVariant) %>-<% out(unitTest.id) %>.tgz
+        local_file: src/nyc-output-tests_<% out(buildVariant) %>-<% out(unitTest.id) %>.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_<% out(buildVariant) %>-<% out(unitTest.id) %>.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -330,7 +330,7 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-<% out(buildVariant) %>-<% out(unitTest.id) %>.tgz
+          tar xvzf nyc-output-tests_<% out(buildVariant) %>-<% out(unitTest.id) %>.tgz
     <% } %>
     - command: shell.exec
       params:

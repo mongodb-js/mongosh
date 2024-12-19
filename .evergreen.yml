@@ -214,8 +214,8 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-n20-cli_repl.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n20-cli_repl.tgz
+        local_file: src/nyc-output-tests_linux-n20-cli_repl.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -223,13 +223,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux-n20-cli_repl.tgz
+          tar xvzf nyc-output-tests_linux-n20-cli_repl.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m42xc_n20-cli_repl.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m42xc_n20-cli_repl.tgz
+        local_file: src/nyc-output-tests_linux-m42xc_n20-cli_repl.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m42xc_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -237,13 +237,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux-m42xc_n20-cli_repl.tgz
+          tar xvzf nyc-output-tests_linux-m42xc_n20-cli_repl.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m44xc_n20-cli_repl.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m44xc_n20-cli_repl.tgz
+        local_file: src/nyc-output-tests_linux-m44xc_n20-cli_repl.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m44xc_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -251,13 +251,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux-m44xc_n20-cli_repl.tgz
+          tar xvzf nyc-output-tests_linux-m44xc_n20-cli_repl.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m44xe_n20-cli_repl.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m44xe_n20-cli_repl.tgz
+        local_file: src/nyc-output-tests_linux-m44xe_n20-cli_repl.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m44xe_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -265,13 +265,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux-m44xe_n20-cli_repl.tgz
+          tar xvzf nyc-output-tests_linux-m44xe_n20-cli_repl.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m50xc_n20-cli_repl.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m50xc_n20-cli_repl.tgz
+        local_file: src/nyc-output-tests_linux-m50xc_n20-cli_repl.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m50xc_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -279,13 +279,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux-m50xc_n20-cli_repl.tgz
+          tar xvzf nyc-output-tests_linux-m50xc_n20-cli_repl.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m50xe_n20-cli_repl.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m50xe_n20-cli_repl.tgz
+        local_file: src/nyc-output-tests_linux-m50xe_n20-cli_repl.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m50xe_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -293,13 +293,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux-m50xe_n20-cli_repl.tgz
+          tar xvzf nyc-output-tests_linux-m50xe_n20-cli_repl.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m60xc_n20-cli_repl.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m60xc_n20-cli_repl.tgz
+        local_file: src/nyc-output-tests_linux-m60xc_n20-cli_repl.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m60xc_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -307,13 +307,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux-m60xc_n20-cli_repl.tgz
+          tar xvzf nyc-output-tests_linux-m60xc_n20-cli_repl.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m60xe_n20-cli_repl.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m60xe_n20-cli_repl.tgz
+        local_file: src/nyc-output-tests_linux-m60xe_n20-cli_repl.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m60xe_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -321,13 +321,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux-m60xe_n20-cli_repl.tgz
+          tar xvzf nyc-output-tests_linux-m60xe_n20-cli_repl.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m70xc_n20-cli_repl.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m70xc_n20-cli_repl.tgz
+        local_file: src/nyc-output-tests_linux-m70xc_n20-cli_repl.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m70xc_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -335,13 +335,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux-m70xc_n20-cli_repl.tgz
+          tar xvzf nyc-output-tests_linux-m70xc_n20-cli_repl.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m70xe_n20-cli_repl.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m70xe_n20-cli_repl.tgz
+        local_file: src/nyc-output-tests_linux-m70xe_n20-cli_repl.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m70xe_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -349,13 +349,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux-m70xe_n20-cli_repl.tgz
+          tar xvzf nyc-output-tests_linux-m70xe_n20-cli_repl.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m80xc_n20-cli_repl.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m80xc_n20-cli_repl.tgz
+        local_file: src/nyc-output-tests_linux-m80xc_n20-cli_repl.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m80xc_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -363,13 +363,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux-m80xc_n20-cli_repl.tgz
+          tar xvzf nyc-output-tests_linux-m80xc_n20-cli_repl.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-m80xe_n20-cli_repl.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-m80xe_n20-cli_repl.tgz
+        local_file: src/nyc-output-tests_linux-m80xe_n20-cli_repl.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m80xe_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -377,13 +377,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux-m80xe_n20-cli_repl.tgz
+          tar xvzf nyc-output-tests_linux-m80xe_n20-cli_repl.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-mlatest_n20-cli_repl.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-mlatest_n20-cli_repl.tgz
+        local_file: src/nyc-output-tests_linux-mlatest_n20-cli_repl.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-mlatest_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -391,7 +391,7 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-linux-mlatest_n20-cli_repl.tgz
+          tar xvzf nyc-output-tests_linux-mlatest_n20-cli_repl.tgz
     - command: shell.exec
       params:
         working_dir: src
