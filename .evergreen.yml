@@ -214,8 +214,8 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-n20-cli_repl.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-n20-cli_repl.tgz
+        local_file: src/nyc-output-linux-n20-cli_repl.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -223,7 +223,7 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_linux-n20-cli_repl.tgz
+          tar xvzf nyc-output-linux-n20-cli_repl.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
