@@ -97,7 +97,6 @@ const UNIT_TESTS_AND_VARIANTS = [];
 for (let variant of UNIT_TESTS_BUILD_VARIANTS) {
       for (let unitTest of UNIT_TESTS.filter(t => t.variants.includes(variant.platform) && (!t.unitTestsOnly || (t.unitTestsOnly && variant.runWithUnitTestsOnly))))
       {
-      if (variant.platform == 'linux' && unitTest.id.includes('cli_repl'))
         UNIT_TESTS_AND_VARIANTS.push([variant, unitTest]); 
       }
 }
