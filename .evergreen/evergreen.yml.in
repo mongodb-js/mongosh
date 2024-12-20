@@ -93,6 +93,14 @@ const { COMPILE_BUILD_VARIANTS } = require('./build-variants/compile-build-varia
 const { RELEASE_PACKAGE_MATRIX } = require('../config/release-package-matrix')
 
 
+const UNIT_TESTS_AND_VARIANTS = [];
+for (let variant of UNIT_TESTS_BUILD_VARIANTS) {
+      for (let unitTest of UNIT_TESTS.filter(t => t.variants.includes(variant.platform) && (!t.unitTestsOnly || (t.unitTestsOnly && variant.runWithUnitTestsOnly))))
+      {
+        UNIT_TESTS_AND_VARIANTS.push([variant, unitTest]); 
+      }
+}
+
 %>
 exec_timeout_secs: 10800
 
@@ -305,16 +313,15 @@ functions:
         content_type: application/x-gzip
 
   check_coverage:
-    <% for (let variant of UNIT_TESTS_BUILD_VARIANTS) {
-        for (let unitTest of UNIT_TESTS.filter(t => t.variants.includes(variant.platform) && (!t.unitTestsOnly || (t.unitTestsOnly && variant.runWithUnitTestsOnly)))) {
-        let buildVariant = variant.id;
+    <% for (let [variant, unitTest] of UNIT_TESTS_AND_VARIANTS) {
+        let buildVariant = variant.name;
          %>
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-<% out(buildVariant) %>_<% out(unitTest.id) %>.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-<% out(buildVariant) %>_<% out(unitTest.id) %>.tgz
+        local_file: src/nyc-output-<% out(buildVariant) %>-<% out(unitTest.id) %>.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-<% out(buildVariant) %>-<% out(unitTest.id) %>.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -322,8 +329,8 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-<% out(buildVariant) %>_<% out(unitTest.id) %>.tgz
-    <% } } %>
+          tar xvzf nyc-output-<% out(buildVariant) %>-<% out(unitTest.id) %>.tgz
+    <% } %>
     - command: shell.exec
       params:
         working_dir: src
@@ -1128,8 +1135,11 @@ tasks:
 
   - name: check_coverage
     depends_on:
-      - name: ".unit-test"
-        variant: "*"
+      <% for (let [variant, unitTest] of UNIT_TESTS_AND_VARIANTS) {
+      %>
+      - name: test_<% out(unitTest.id) %>
+        variant: <% out(variant.name) %>
+      <% } %>
     commands:
       - func: checkout
       - func: install
