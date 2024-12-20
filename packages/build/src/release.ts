@@ -56,7 +56,7 @@ export async function release(
 
   if (command === 'bump') {
     // updates the version of internal packages to reflect the tagged one
-    await bumpNpmPackages(config.version);
+    bumpNpmPackages();
     return;
   }
 
