@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { isShouldReportAsBugError } from '@mongosh/errors';
-import { css, cx, palette } from '@mongodb-js/compass-components';
+import { css, palette } from '@mongodb-js/compass-components';
 
 import { SimpleTypeOutput } from './simple-type-output';
 import { Expandable } from '../utils/expandable';
