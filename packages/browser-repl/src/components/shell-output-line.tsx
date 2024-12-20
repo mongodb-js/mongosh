@@ -19,8 +19,8 @@ const shellOutputLine = css({
 });
 
 const shellOutputLineError = css({
-  backgroundColor: palette.red.light2,
-  color: palette.red.dark3,
+  backgroundColor: 'inherit',
+  color: palette.red.light1,
 });
 
 const shellOutputLineIcon = css({
