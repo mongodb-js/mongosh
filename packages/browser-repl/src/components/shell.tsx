@@ -26,7 +26,7 @@ import type { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
 import { PasswordPrompt } from './password-prompt';
 import { ShellInput } from './shell-input';
 import type { ShellOutputEntry } from './shell-output';
-import { ShellOutput } from './shell-output';
+import { ShellIOList } from './shell-output';
 
 const shellContainer = css({
   fontSize: '13px',
@@ -211,6 +211,7 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
   const initialEvaluateRef = useRef(initialEvaluate);
   const outputRef = useRef(output);
   const historyRef = useRef(history);
+  const virtualListScrollRef = useRef<HTMLDivElement | null>(null);
 
   useImperativeHandle(
     ref,
@@ -243,6 +244,7 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
   );
 
   const [passwordPrompt, setPasswordPrompt] = useState('');
+  const [passwordPromptValue, setPasswordPromptValue] = useState('');
   const [shellPrompt, setShellPrompt] = useState('>');
   const [onFinishPasswordPrompt, setOnFinishPasswordPrompt] = useState<
     () => (result: string) => void
@@ -250,10 +252,15 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
   const [onCancelPasswordPrompt, setOnCancelPasswordPrompt] = useState<
     () => () => void
   >(() => noop);
+  const passwordInputRef = useRef<HTMLInputElement | null>(null);
 
-  const focusEditor = useCallback(() => {
-    editorRef.current?.focus();
-  }, [editorRef]);
+  const focusInputPrompt = useCallback(() => {
+    if (passwordPrompt) {
+      passwordInputRef.current?.focus();
+    } else {
+      editorRef.current?.focus();
+    }
+  }, [editorRef, passwordInputRef, passwordPrompt]);
 
   const listener = useMemo<RuntimeEvaluationListener>(() => {
     return {
@@ -285,7 +292,8 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
           setOnFinishPasswordPrompt(() => noop);
           setOnCancelPasswordPrompt(() => noop);
           setPasswordPrompt('');
-          setTimeout(focusEditor, 1);
+          setPasswordPromptValue('');
+          setTimeout(focusInputPrompt, 1);
         };
 
         const ret = new Promise<string>((resolve, reject) => {
@@ -308,7 +316,7 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
         onOutputChanged?.([]);
       },
     };
-  }, [focusEditor, maxOutputLength, onOutputChanged]);
+  }, [focusInputPrompt, maxOutputLength, onOutputChanged]);
 
   const updateShellPrompt = useCallback(async (): Promise<void> => {
     let newShellPrompt = '>';
@@ -440,16 +448,35 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
     }
 
     shellInputContainerRef.current.scrollIntoView();
-  }, [shellInputContainerRef]);
+    focusInputPrompt();
+  }, [shellInputContainerRef, focusInputPrompt]);
 
   const onShellClicked = useCallback(
     (event: React.MouseEvent): void => {
-      // Focus on input when clicking the shell background (not clicking output).
-      if (event.currentTarget === event.target) {
-        focusEditor();
+      const path = event.nativeEvent.composedPath();
+      const isEditorClicked = path.some(
+        (el) => el === shellInputContainerRef.current
+      );
+      if (isEditorClicked) {
+        return focusInputPrompt();
+      }
+
+      // If a click originates from the virtualListScrollRef children (except for the last one),
+      // that means we have to ignore it. Or else, we set isClickedOutside to true.
+      const listItems: Array<Node> = [];
+      virtualListScrollRef.current?.firstChild?.childNodes.forEach((child) => {
+        listItems.push(child);
+      });
+      // Remove the last item where we render the input prompt.
+      listItems.pop();
+      const isClickedOutside = !path.some((el) =>
+        listItems.includes(el as Node)
+      );
+      if (isClickedOutside) {
+        focusInputPrompt();
       }
     },
-    [focusEditor]
+    [focusInputPrompt]
   );
 
   const onSigInt = useCallback((): Promise<boolean> => {
@@ -481,6 +508,37 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
     });
   });
 
+  const setScrollRef = useCallback((ref: HTMLDivElement) => {
+    virtualListScrollRef.current = ref;
+  }, []);
+
+  // Password prompt being part of VirtualList, we need to focus it manually
+  // or else if auto-focussed, it will not let user scroll up and will always
+  // scroll to the bottom, where its visible.
+  // As the password prompt is visible, we will focus it automatically.
+  useEffect(() => {
+    if (passwordPrompt && passwordInputRef.current) {
+      passwordInputRef.current.focus();
+    }
+  }, [passwordPrompt]);
+
+  // Focus the password input when it becomes visible
+  useEffect(() => {
+    if (!shellInputContainerRef.current) {
+      return;
+    }
+    const observer = new IntersectionObserver(([entry]) => {
+      if (
+        entry.target === shellInputContainerRef.current &&
+        entry.isIntersecting
+      ) {
+        passwordInputRef.current?.focus();
+      }
+    });
+    observer.observe(shellInputContainerRef.current);
+    return () => observer.disconnect();
+  }, [shellInputContainerRef]);
+
   /* eslint-disable jsx-a11y/no-static-element-interactions */
   /* eslint-disable jsx-a11y/click-events-have-key-events */
   return (
@@ -493,31 +551,37 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
       )}
       onClick={onShellClicked}
     >
-      <div>
-        <ShellOutput output={output ?? []} />
-      </div>
-      <div ref={shellInputContainerRef}>
-        {passwordPrompt ? (
-          <PasswordPrompt
-            onFinish={onFinishPasswordPrompt}
-            onCancel={onCancelPasswordPrompt}
-            prompt={passwordPrompt}
-          />
-        ) : (
-          <ShellInput
-            initialText={initialText}
-            onTextChange={onInputChanged}
-            prompt={shellPrompt}
-            autocompleter={runtime}
-            history={history}
-            onClearCommand={listener.onClearCommand}
-            onInput={onInput}
-            operationInProgress={isOperationInProgress}
-            editorRef={setEditorRef}
-            onSigInt={onSigInt}
-          />
-        )}
-      </div>
+      <ShellIOList
+        setScrollRef={setScrollRef}
+        output={output ?? []}
+        InputPrompt={
+          <div ref={shellInputContainerRef}>
+            {passwordPrompt ? (
+              <PasswordPrompt
+                prompt={passwordPrompt}
+                password={passwordPromptValue}
+                onCancel={onCancelPasswordPrompt}
+                onFinish={onFinishPasswordPrompt}
+                onChange={setPasswordPromptValue}
+                ref={passwordInputRef}
+              />
+            ) : (
+              <ShellInput
+                initialText={initialText}
+                onTextChange={onInputChanged}
+                prompt={shellPrompt}
+                autocompleter={runtime}
+                history={history}
+                onClearCommand={listener.onClearCommand}
+                onInput={onInput}
+                operationInProgress={isOperationInProgress}
+                editorRef={setEditorRef}
+                onSigInt={onSigInt}
+              />
+            )}
+          </div>
+        }
+      />
     </div>
   );
   /* eslint-enable jsx-a11y/no-static-element-interactions */
