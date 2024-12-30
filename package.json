@@ -71,7 +71,7 @@
     "prepare": "husky",
     "precommit": "precommit",
     "preinstall": "node scripts/sort-workspaces.js",
-    "bump-packages": "bump-monorepo-packages"
+    "bump-packages": "npm run bump --workspace @mongosh/build"
   },
   "config": {
     "unsafe-perm": true
