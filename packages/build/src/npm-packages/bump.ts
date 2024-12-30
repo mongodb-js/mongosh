@@ -4,7 +4,7 @@ import { PROJECT_ROOT } from './constants';
 const PACKAGES_TO_SKIP_BUMPING = ['mongosh', '@mongosh/cli-repl'];
 
 export function bumpNpmPackages() {
-  spawnSync('npm', ['run', 'bump-packages'], {
+  spawnSync('npx', ['bump-monorepo-packages'], {
     stdio: 'inherit',
     cwd: PROJECT_ROOT,
     encoding: 'utf8',
