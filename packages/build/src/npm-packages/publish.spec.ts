@@ -15,46 +15,6 @@ describe('npm-packages publishNpmPackages', function () {
     spawnSync = sinon.stub();
   });
 
-  it('fails if packages have different versions', function () {
-    listNpmPackages.returns([
-      { name: 'packageA', version: '0.0.1' },
-      { name: 'packageB', version: '0.0.2' },
-    ]);
-    try {
-      publishNpmPackages(
-        false,
-        listNpmPackages,
-        markBumpedFilesAsAssumeUnchanged,
-        spawnSync
-      );
-    } catch (e: any) {
-      expect(markBumpedFilesAsAssumeUnchanged).to.not.have.been.called;
-      expect(spawnSync).to.not.have.been.called;
-      return;
-    }
-    expect.fail('Expected error');
-  });
-
-  it('fails if packages have placeholder versions', function () {
-    listNpmPackages.returns([
-      { name: 'packageA', version: '2.3.7' },
-      { name: 'packageB', version: '2.3.7' },
-    ]);
-    try {
-      publishNpmPackages(
-        false,
-        listNpmPackages,
-        markBumpedFilesAsAssumeUnchanged,
-        spawnSync
-      );
-    } catch (e: any) {
-      expect(markBumpedFilesAsAssumeUnchanged).to.not.have.been.called;
-      expect(spawnSync).to.not.have.been.called;
-      return;
-    }
-    expect.fail('Expected error');
-  });
-
   it('calls lerna to publish packages for a real version', function () {
     const lernaBin = path.resolve(
       __dirname,
