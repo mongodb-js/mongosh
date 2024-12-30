@@ -22,9 +22,11 @@ import { runUpload } from './run-upload';
 import { runSign } from './packaging/run-sign';
 import { runDownloadAndListArtifacts } from './run-download-and-list-artifacts';
 import { runDownloadCryptLibrary } from './packaging/run-download-crypt-library';
+import { bumpMongosh } from './npm-packages/bump';
 
 export type ReleaseCommand =
   | 'bump'
+  | 'bump-packages'
   | 'compile'
   | 'package'
   | 'sign'
@@ -55,6 +57,10 @@ export async function release(
   );
 
   if (command === 'bump') {
+    await bumpMongosh(config.version);
+    bumpNpmPackages();
+    return;
+  } else if (command === 'bump-packages') {
     // updates the version of internal packages to reflect the tagged one
     bumpNpmPackages();
     return;
