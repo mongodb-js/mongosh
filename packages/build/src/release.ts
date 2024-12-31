@@ -27,7 +27,6 @@ import { publishAuxiliaryPackages } from './publish-auxiliary';
 
 export type ReleaseCommand =
   | 'bump'
-  | 'bump-packages'
   | 'compile'
   | 'package'
   | 'sign'
