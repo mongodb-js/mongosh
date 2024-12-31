@@ -47,9 +47,9 @@
     "@babel/types": "^7.22.5"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-mongosh": "^1.0.2",
+    "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
-    "@mongodb-js/tsconfig-mongosh": "^1.0.2",
+    "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@types/babel__core": "^7.20.1",
     "depcheck": "^1.4.7",
     "eslint": "^7.25.0",

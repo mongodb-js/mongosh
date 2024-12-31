@@ -25,7 +25,6 @@
     "depcheck": "depcheck",
     "evergreen-release": "ts-node -r ../../scripts/import-expansions.js src/index.ts",
     "release": "ts-node src/index.ts trigger-release",
-    "bump": "ts-node src/index.ts bump",
     "prettier": "prettier",
     "bump": "ts-node src/index.ts bump",
     "publish": "ts-node src/index.ts publish",
@@ -46,7 +45,7 @@
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
-    "@mongodb-js/tsconfig-mongosh": "^1.0.2",
+    "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@types/command-exists": "^1.2.0",
     "@types/cross-spawn": "^6.0.6",
     "@types/download": "^8.0.1",
