@@ -71,7 +71,8 @@
     "prepare": "husky",
     "precommit": "precommit",
     "preinstall": "node scripts/sort-workspaces.js",
-    "bump-packages": "npm run bump-packages --workspace @mongosh/build"
+    "bump-packages": "npm run bump-packages --workspace @mongosh/build",
+    "publish-packages": "lerna publish from-package --no-verify-access --no-push --no-git-tag-version --yes"
   },
   "config": {
     "unsafe-perm": true
