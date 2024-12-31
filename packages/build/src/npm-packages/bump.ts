@@ -1,21 +1,25 @@
+import { spawnSync } from '../helpers';
+import {
+  IGNORE_BUMP_PACKAGES,
+  MONGOSH_RELEASE_PACKAGES,
+  PROJECT_ROOT,
+} from './constants';
+
 import { promises as fs } from 'fs';
 import path from 'path';
-import { PLACEHOLDER_VERSION } from './constants';
 import { getPackagesInTopologicalOrder } from '@mongodb-js/monorepo-tools';
 
-export async function bumpNpmPackages(version: string): Promise<void> {
-  if (!version || version === PLACEHOLDER_VERSION) {
-    console.info(
-      'mongosh: Not bumping package version, keeping at placeholder'
-    );
-    return;
-  }
-
+/** Bumps only the main mongosh release packages to the set version. */
+export async function bumpMongoshReleasePackages(
+  version: string
+): Promise<void> {
   console.info(`mongosh: Bumping package versions to ${version}`);
   const monorepoRootPath = path.resolve(__dirname, '..', '..', '..', '..');
   const packages = await getPackagesInTopologicalOrder(monorepoRootPath);
 
-  const workspaceNames = packages.map((p) => p.name);
+  const workspaceNames = packages
+    .map((p) => p.name)
+    .filter((name) => MONGOSH_RELEASE_PACKAGES.includes(name));
 
   const locations = [monorepoRootPath, ...packages.map((p) => p.location)];
 
@@ -47,4 +51,20 @@ export async function bumpNpmPackages(version: string): Promise<void> {
       JSON.stringify(packageJson, null, 2) + '\n'
     );
   }
+}
+
+/** Bumps independent packages without setting a new version of mongosh. */
+export function bumpIndependentPackages() {
+  spawnSync('bump-monorepo-packages', [], {
+    stdio: 'inherit',
+    cwd: PROJECT_ROOT,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      SKIP_BUMP_PACKAGES: [
+        ...IGNORE_BUMP_PACKAGES,
+        ...MONGOSH_RELEASE_PACKAGES,
+      ].join(','),
+    },
+  });
 }
