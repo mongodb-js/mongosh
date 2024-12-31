@@ -1,5 +1,9 @@
 import { spawnSync } from '../helpers';
-import { MONGOSH_RELEASE_PACKAGES, PROJECT_ROOT } from './constants';
+import {
+  IGNORE_BUMP_PACKAGES,
+  MONGOSH_RELEASE_PACKAGES,
+  PROJECT_ROOT,
+} from './constants';
 
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -55,7 +59,10 @@ export function bumpNpmPackages() {
     encoding: 'utf8',
     env: {
       ...process.env,
-      SKIP_BUMP_PACKAGES: MONGOSH_RELEASE_PACKAGES.join(','),
+      SKIP_BUMP_PACKAGES: [
+        ...IGNORE_BUMP_PACKAGES,
+        ...MONGOSH_RELEASE_PACKAGES,
+      ].join(','),
     },
   });
 }
