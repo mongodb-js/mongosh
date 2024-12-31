@@ -9,8 +9,10 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { getPackagesInTopologicalOrder } from '@mongodb-js/monorepo-tools';
 
-/** This bumps only the main mongosh release packages to the set version. */
-export async function bumpMongosh(version: string): Promise<void> {
+/** Bumps only the main mongosh release packages to the set version. */
+export async function bumpMongoshReleasePackages(
+  version: string
+): Promise<void> {
   console.info(`mongosh: Bumping package versions to ${version}`);
   const monorepoRootPath = path.resolve(__dirname, '..', '..', '..', '..');
   const packages = await getPackagesInTopologicalOrder(monorepoRootPath);
@@ -51,8 +53,8 @@ export async function bumpMongosh(version: string): Promise<void> {
   }
 }
 
-/** Bump packages without setting a new version of mongosh. */
-export function bumpNpmPackages() {
+/** Bumps independent packages without setting a new version of mongosh. */
+export function bumpIndependentPackages() {
   spawnSync('bump-monorepo-packages', [], {
     stdio: 'inherit',
     cwd: PROJECT_ROOT,

@@ -1,2 +1,2 @@
-export { bumpNpmPackages } from './bump';
+export { bumpIndependentPackages } from './bump';
 export { publishNpmPackages } from './publish';

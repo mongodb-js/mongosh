@@ -14,7 +14,7 @@ import {
 } from './evergreen';
 import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { publishToHomebrew } from './homebrew';
-import { bumpNpmPackages, publishNpmPackages } from './npm-packages';
+import { bumpIndependentPackages, publishNpmPackages } from './npm-packages';
 import { runPackage } from './packaging';
 import { runDraft } from './run-draft';
 import { runPublish } from './run-publish';
@@ -22,7 +22,7 @@ import { runUpload } from './run-upload';
 import { runSign } from './packaging/run-sign';
 import { runDownloadAndListArtifacts } from './run-download-and-list-artifacts';
 import { runDownloadCryptLibrary } from './packaging/run-download-crypt-library';
-import { bumpMongosh } from './npm-packages/bump';
+import { bumpMongoshReleasePackages } from './npm-packages/bump';
 
 export type ReleaseCommand =
   | 'bump'
@@ -56,8 +56,8 @@ export async function release(
   );
 
   if (command === 'bump') {
-    await bumpMongosh(config.version);
-    bumpNpmPackages();
+    bumpIndependentPackages();
+    await bumpMongoshReleasePackages(config.version);
     return;
   }
 
