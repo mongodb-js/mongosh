@@ -18,15 +18,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Create Github App Token
+      uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
+      id: app-token
+      with:
+        app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
+        private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
+    
     - uses: actions/checkout@v4
       with:
         # don't checkout a detatched HEAD
         ref: ${{ github.head_ref }}
-
-    - name: Setup git
-      run: |
-        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
 
     - name: "Use Node.js 14"
       uses: actions/setup-node@v3
