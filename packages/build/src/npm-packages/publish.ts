@@ -12,14 +12,6 @@ export function publishNpmPackages(
 ): void {
   const packages = listNpmPackages();
 
-  const versions = Array.from(new Set(packages.map(({ version }) => version)));
-
-  if (versions.length !== 1) {
-    throw new Error(
-      `Refusing to publish packages with multiple versions: ${versions}`
-    );
-  }
-
   // Lerna requires a clean repository for a publish from-package (--force-publish does not have any effect here)
   // we use git update-index --assume-unchanged on files we know have been bumped
   markBumpedFilesAsAssumeUnchangedFn(packages, true);
@@ -34,6 +26,7 @@ export function publishNpmPackages(
         '--no-push',
         '--exact',
         '--no-git-tag-version',
+        '--force-publish',
         '--yes',
         '--no-verify-access',
       ],

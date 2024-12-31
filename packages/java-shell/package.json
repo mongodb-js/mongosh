@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/java-shell",
-  "version": "2.5.0",
+  "version": "0.0.0-dev.0",
   "private": true,
   "description": "Java application that uses mongosh-shell-api node module and MongoDB java driver to run mongo shell on JVM",
   "config": {
@@ -18,7 +18,7 @@
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci"
   },
   "devDependencies": {
-    "@mongodb-js/tsconfig-mongosh": "^1.0.2",
+    "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "assert": "^1.5.0",
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.0",

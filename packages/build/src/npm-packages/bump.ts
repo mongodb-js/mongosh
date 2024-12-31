@@ -1,12 +1,9 @@
 import { spawnSync } from '../helpers';
-import { PROJECT_ROOT } from './constants';
+import { MONGOSH_RELEASE_PACKAGES, PROJECT_ROOT } from './constants';
 
 import { promises as fs } from 'fs';
 import path from 'path';
 import { getPackagesInTopologicalOrder } from '@mongodb-js/monorepo-tools';
-
-/** Packages which get bumped only as part of the mongosh release. */
-const MONGOSH_RELEASE_PACKAGES = ['mongosh', '@mongosh/cli-repl'];
 
 /** This bumps only the main mongosh release packages to the set version. */
 export async function bumpMongosh(version: string): Promise<void> {

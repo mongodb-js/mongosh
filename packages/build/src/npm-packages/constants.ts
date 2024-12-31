@@ -7,3 +7,6 @@ export const LERNA_BIN = path.resolve(
   '.bin',
   'lerna'
 );
+
+/** Packages which get bumped only as part of the mongosh release. */
+export const MONGOSH_RELEASE_PACKAGES = ['mongosh', '@mongosh/cli-repl'];

@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/logging",
-  "version": "4.0.0",
+  "version": "0.0.0-dev.0",
   "description": "MongoDB Shell Logging Utilities Package",
   "homepage": "https://github.com/mongodb-js/mongosh",
   "license": "Apache-2.0",
@@ -18,16 +18,16 @@
   },
   "dependencies": {
     "@mongodb-js/devtools-connect": "^3.3.4",
-    "@mongosh/errors": "2.5.0",
-    "@mongosh/history": "2.5.0",
-    "@mongosh/types": "4.0.0",
+    "@mongosh/errors": "0.0.0-dev.0",
+    "@mongosh/history": "0.0.0-dev.0",
+    "@mongosh/types": "0.0.0-dev.0",
     "mongodb-log-writer": "^1.4.2",
     "mongodb-redact": "^1.1.2"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-mongosh": "^1.0.2",
+    "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
-    "@mongodb-js/tsconfig-mongosh": "^1.0.2",
+    "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
     "prettier": "^2.8.8"
