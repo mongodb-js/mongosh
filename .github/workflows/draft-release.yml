@@ -1,0 +1,94 @@
+name: Draft release
+
+on:
+  workflow_dispatch:
+    inputs:
+      versionBump:
+        description: 'Version bump'
+        type: choice
+        required: true
+        default: 'patch'
+        options:
+        - patch
+        - minor
+        - major
+        - exact-version
+
+      exactVersion:
+        description: 'Exact version: (Only effective selecting "exact-version" as version bump)'
+        required: false
+
+jobs:
+  prepare-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # NOTE: this is necessary to get the full history
+          # and check if tags are already present
+          fetch-depth: 0
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.18.1
+
+      - name: Determine Next Version
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+
+          VERSION_BUMP=${{ github.event.inputs.versionBump }}
+
+          if [[ "$VERSION_BUMP" == "major" || "$VERSION_BUMP" == "minor" || "$VERSION_BUMP" == "patch" ]]; then
+            PREV_VERSION_TAG=$(gh api repos/:owner/:repo/releases --jq '. | map(select(.draft == false)) | .[0] | .tag_name')
+            PREV_VERSION=$(npx semver --coerce ${PREV_VERSION_TAG})
+
+            NEXT_VERSION=$(npx semver -i $VERSION_BUMP $PREV_VERSION)
+          else
+            NEXT_VERSION=${{ github.event.inputs.exactVersion }}
+          fi
+
+          # Validates the version before using it
+          npx semver v"${NEXT_VERSION}"
+
+          npm version "${NEXT_VERSION}" --no-git-tag-version
+          echo "RELEASE_TAG=v${NEXT_VERSION}" >> "$GITHUB_ENV"
+
+      - name: Validate release tag
+        shell: bash
+        run: |
+          if [ -z "${RELEASE_TAG}" ]; then
+            echo "RELEASE_TAG is not set or is empty"
+            exit 1
+          fi
+
+          if git rev-parse "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "Error: Tag $RELEASE_TAG already exists"
+            echo "If you are trying to re-create a draft release with this version, please delete the release and the tag first."
+            echo "If this version has already been release consider using a different one."
+            exit 1
+          fi
+
+      - name: Bump mongosh and package versions
+        run: |
+          set -e
+          echo Bumping mongosh versions to ${RELEASE_TAG} and packages
+
+          MONGOSH_RELEASE_VERSION=${RELEASE_TAG} npm run bump
+
+      - name: Create Draft Release
+        run: |
+          set -e
+          echo Creating draft release for: "${RELEASE_TAG}"
+
+          git tag ${RELEASE_TAG}
+          git push origin ${RELEASE_TAG}
+
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
