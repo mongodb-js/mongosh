@@ -16,7 +16,6 @@ export PATH="/cygdrive/c/python/Python311/Scripts:/cygdrive/c/python/Python311:/
 export MONGOSH_TEST_ONLY_MAX_LOG_FILE_COUNT=100000
 export IS_MONGOSH_EVERGREEN_CI=1
 export DEBUG="mongodb*,$DEBUG"
-export PUPPETEER_SKIP_DOWNLOAD="true"
 
 if [ "$OS" != "Windows_NT" ]; then
   if which realpath; then # No realpath on macOS, but also not needed there
