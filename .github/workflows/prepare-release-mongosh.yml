@@ -1,4 +1,4 @@
-name: Prepare mongosh release
+name: Prepare mongosh Release
 
 on:
   workflow_dispatch:
@@ -67,7 +67,6 @@ jobs:
           # Validates the version before using it
           npx semver v"${NEXT_VERSION}"
 
-          npm version "${NEXT_VERSION}" --no-git-tag-version
           echo "RELEASE_TAG=v${NEXT_VERSION}" >> "$GITHUB_ENV"
 
       - name: Validate release tag
