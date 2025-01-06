@@ -5436,7 +5436,7 @@ tasks:
           node_js_version: ${node_js_version}
           mongosh_server_test_version: ${mongosh_server_test_version}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
-          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_x64_rhel8
     tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
@@ -5455,7 +5455,7 @@ tasks:
           node_js_version: ${node_js_version}
           mongosh_server_test_version: ${mongosh_server_test_version}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
-          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_x64_openssl11
     tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
@@ -5474,7 +5474,7 @@ tasks:
           node_js_version: ${node_js_version}
           mongosh_server_test_version: ${mongosh_server_test_version}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
-          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_x64_openssl11_rhel8
     tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
@@ -5493,7 +5493,7 @@ tasks:
           node_js_version: ${node_js_version}
           mongosh_server_test_version: ${mongosh_server_test_version}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
-          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_x64_openssl3
     tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
@@ -5512,7 +5512,7 @@ tasks:
           node_js_version: ${node_js_version}
           mongosh_server_test_version: ${mongosh_server_test_version}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
-          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_x64_openssl3_rhel8
     tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
@@ -5531,7 +5531,7 @@ tasks:
           node_js_version: ${node_js_version}
           mongosh_server_test_version: ${mongosh_server_test_version}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
-          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_arm64
     tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
@@ -5550,7 +5550,7 @@ tasks:
           node_js_version: ${node_js_version}
           mongosh_server_test_version: ${mongosh_server_test_version}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
-          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_arm64_openssl11
     tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
@@ -5569,7 +5569,7 @@ tasks:
           node_js_version: ${node_js_version}
           mongosh_server_test_version: ${mongosh_server_test_version}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
-          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_arm64_openssl3
     tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
@@ -5588,7 +5588,7 @@ tasks:
           node_js_version: ${node_js_version}
           mongosh_server_test_version: ${mongosh_server_test_version}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
-          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_ppc64le
     tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
@@ -5607,7 +5607,7 @@ tasks:
           node_js_version: ${node_js_version}
           mongosh_server_test_version: ${mongosh_server_test_version}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
-          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_s390x
     tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
@@ -5626,7 +5626,7 @@ tasks:
           node_js_version: ${node_js_version}
           mongosh_server_test_version: ${mongosh_server_test_version}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
-          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_darwin
     tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
@@ -5645,7 +5645,7 @@ tasks:
           node_js_version: ${node_js_version}
           mongosh_server_test_version: ${mongosh_server_test_version}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
-          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_darwin_arm64
     tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
@@ -5664,7 +5664,7 @@ tasks:
           node_js_version: ${node_js_version}
           mongosh_server_test_version: ${mongosh_server_test_version}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
-          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_win32
     tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
@@ -5683,8 +5683,8 @@ tasks:
           node_js_version: ${node_js_version}
           mongosh_server_test_version: ${mongosh_server_test_version}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
-          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
-  - name: perf_tests
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: perf_tests_linux_x64
     tags: ["perf-test"]
     depends_on:
       - name: compile_artifact
@@ -5698,7 +5698,7 @@ tasks:
         vars:
           executable_os_id: "linux-x64"
       - func: run_perf_tests
-  
+
   ###
   # EXECUTABLE CONNECTIVITY TESTS
   ###
@@ -11803,8 +11803,8 @@ buildvariants:
     tasks:
       - name: generate_license_and_vulnerability_report
 
-  - name: perf_tests
-    display_name: "Performance Tests"
+  - name: perf_tests_linux_x64
+    display_name: "Performance Tests (x64 Linux)"
     run_on: rhel90-dbx-perf-large
     tasks:
-      - name: perf_tests
+      - name: perf_tests_linux_x64
