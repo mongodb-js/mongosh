@@ -31,6 +31,7 @@ describe('npm-packages publishNpmPackages', function () {
 
     publishNpmPackages(
       false,
+      false,
       listNpmPackages,
       markBumpedFilesAsAssumeUnchanged,
       spawnSync
@@ -69,6 +70,7 @@ describe('npm-packages publishNpmPackages', function () {
 
     try {
       publishNpmPackages(
+        false,
         false,
         listNpmPackages,
         markBumpedFilesAsAssumeUnchanged,

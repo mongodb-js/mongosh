@@ -11,8 +11,8 @@ export const LERNA_BIN = path.resolve(
 /** Packages which get bumped only as part of the mongosh release. */
 export const MONGOSH_RELEASE_PACKAGES = ['mongosh', '@mongosh/cli-repl'];
 
-/** Packages which always get ignored when doing a release or bump */
-export const IGNORE_BUMP_PACKAGES = [
+/** Packages which always get excluded when doing a release or bump */
+export const EXCLUDE_RELEASE_PACKAGES = [
   '@mongodb-js/eslint-config-mongosh',
   '@mongodb-js/tsconfig-mongosh',
 ];

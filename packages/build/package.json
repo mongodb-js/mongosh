@@ -26,6 +26,10 @@
     "evergreen-release": "ts-node -r ../../scripts/import-expansions.js src/index.ts",
     "release": "ts-node src/index.ts trigger-release",
     "prettier": "prettier",
+    "bump": "ts-node src/index.ts bump",
+    "publish": "ts-node src/index.ts publish",
+    "bump-auxiliary": "ts-node src/index.ts bump --auxiliary",
+    "publish-auxiliary": "ts-node src/index.ts publish --auxiliary",
     "reformat": "npm run prettier -- --write . && npm run eslint --fix"
   },
   "license": "Apache-2.0",

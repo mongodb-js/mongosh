@@ -57,7 +57,9 @@ export async function release(
 
   if (command === 'bump') {
     bumpIndependentPackages();
-    await bumpMongoshReleasePackages(config.version);
+    if (!config.isAuxiliaryOnly) {
+      await bumpMongoshReleasePackages();
+    }
     return;
   }
 

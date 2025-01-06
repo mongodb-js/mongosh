@@ -1,6 +1,6 @@
 import { spawnSync } from '../helpers';
 import {
-  IGNORE_BUMP_PACKAGES,
+  MONGOSH_RELEASE_ONLY_PACKAGES,
   MONGOSH_RELEASE_PACKAGES,
   PROJECT_ROOT,
 } from './constants';
@@ -10,9 +10,13 @@ import path from 'path';
 import { getPackagesInTopologicalOrder } from '@mongodb-js/monorepo-tools';
 
 /** Bumps only the main mongosh release packages to the set version. */
-export async function bumpMongoshReleasePackages(
-  version: string
-): Promise<void> {
+export async function bumpMongoshReleasePackages(): Promise<void> {
+  const version = process.env.MONGOSH_RELEASE_VERSION;
+  if (!version) {
+    throw new Error(
+      'MONGOSH_RELEASE_VERSION version not specified during mongosh bump'
+    );
+  }
   console.info(`mongosh: Bumping package versions to ${version}`);
   const monorepoRootPath = path.resolve(__dirname, '..', '..', '..', '..');
   const packages = await getPackagesInTopologicalOrder(monorepoRootPath);
@@ -62,7 +66,7 @@ export function bumpIndependentPackages() {
     env: {
       ...process.env,
       SKIP_BUMP_PACKAGES: [
-        ...IGNORE_BUMP_PACKAGES,
+        ...MONGOSH_RELEASE_ONLY_PACKAGES,
         ...MONGOSH_RELEASE_PACKAGES,
       ].join(','),
     },
