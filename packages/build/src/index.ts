@@ -59,7 +59,7 @@ if (require.main === module) {
       }
 
       config.isDryRun ||= process.argv.includes('--dry-run');
-      config.isAuxiliaryOnly ||= process.argv.includes('--auxiliary');
+      config.useAuxiliaryPackagesOnly ||= process.argv.includes('--auxiliary');
 
       await release(command, config);
     }

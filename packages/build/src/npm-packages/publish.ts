@@ -7,15 +7,15 @@ import {
 } from './constants';
 import type { LernaPackageDescription } from './list';
 import { listNpmPackages as listNpmPackagesFn } from './list';
-import { spawnSync } from '../helpers/spawn-sync';
+import { spawnSync as spawnSyncFn } from '../helpers/spawn-sync';
 import type { SpawnSyncOptionsWithStringEncoding } from 'child_process';
 
 export function publishNpmPackages(
   isDryRun = false,
-  isAuxiliaryOnly = false,
+  useAuxiliaryPackagesOnly = false,
   listNpmPackages: typeof listNpmPackagesFn = listNpmPackagesFn,
   markBumpedFilesAsAssumeUnchangedFn: typeof markBumpedFilesAsAssumeUnchanged = markBumpedFilesAsAssumeUnchanged,
-  spawnSyncFn: typeof spawnSync = spawnSync
+  spawnSync: typeof spawnSyncFn = spawnSyncFn
 ): void {
   const commandOptions: SpawnSyncOptionsWithStringEncoding = {
     stdio: 'inherit',
@@ -30,7 +30,7 @@ export function publishNpmPackages(
     (packageConfig) => !EXCLUDE_RELEASE_PACKAGES.includes(packageConfig.name)
   );
 
-  if (isAuxiliaryOnly) {
+  if (useAuxiliaryPackagesOnly) {
     packages = packages.filter(
       (packageConfig) => !MONGOSH_RELEASE_PACKAGES.includes(packageConfig.name)
     );
@@ -39,7 +39,7 @@ export function publishNpmPackages(
   // we use git update-index --assume-unchanged on files we know have been bumped
   markBumpedFilesAsAssumeUnchangedFn(packages, true);
   try {
-    spawnSyncFn(
+    spawnSync(
       LERNA_BIN,
       [
         'publish',
@@ -48,7 +48,9 @@ export function publishNpmPackages(
         '--no-changelog',
         '--exact',
         // During mongosh releases we handle the tags manually
-        ...(!isAuxiliaryOnly ? ['--no-git-tag-version', '--no-push'] : []),
+        ...(!useAuxiliaryPackagesOnly
+          ? ['--no-git-tag-version', '--no-push']
+          : []),
         '--force-publish',
         '--yes',
         '--no-verify-access',
@@ -59,7 +61,7 @@ export function publishNpmPackages(
     markBumpedFilesAsAssumeUnchangedFn(packages, false);
   }
 
-  if (!isAuxiliaryOnly) {
+  if (!useAuxiliaryPackagesOnly) {
     const mongoshVersion = packages.find(
       (packageConfig) => packageConfig.name === 'mongosh'
     )?.version;
@@ -81,7 +83,7 @@ export function publishNpmPackages(
 export function markBumpedFilesAsAssumeUnchanged(
   packages: LernaPackageDescription[],
   assumeUnchanged: boolean,
-  spawnSyncFn: typeof spawnSync = spawnSync
+  spawnSync: typeof spawnSyncFn = spawnSyncFn
 ): void {
   const filesToAssume = [
     path.resolve(PROJECT_ROOT, 'lerna.json'),
@@ -93,7 +95,7 @@ export function markBumpedFilesAsAssumeUnchanged(
   }
 
   for (const f of filesToAssume) {
-    spawnSyncFn(
+    spawnSync(
       'git',
       [
         'update-index',

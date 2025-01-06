@@ -917,9 +917,9 @@ functions:
           {
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
-          git add .
-          git commit --no-allow-empty -m "chore(release): bump to prepare for mongosh release"
           npm run evergreen-release draft
+          git add .
+          git commit --no-allow-empty -m "chore(release): bump to prepare for mongosh release" 
           }
 
   release_publish_download_and_list_artifacts:

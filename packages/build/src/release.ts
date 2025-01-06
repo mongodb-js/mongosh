@@ -14,7 +14,7 @@ import {
 } from './evergreen';
 import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { publishToHomebrew } from './homebrew';
-import { bumpIndependentPackages, publishNpmPackages } from './npm-packages';
+import { bumpAuxiliaryPackages, publishNpmPackages } from './npm-packages';
 import { runPackage } from './packaging';
 import { runDraft } from './run-draft';
 import { runPublish } from './run-publish';
@@ -56,8 +56,8 @@ export async function release(
   );
 
   if (command === 'bump') {
-    bumpIndependentPackages();
-    if (!config.isAuxiliaryOnly) {
+    bumpAuxiliaryPackages();
+    if (!config.useAuxiliaryPackagesOnly) {
       await bumpMongoshReleasePackages();
     }
     return;
