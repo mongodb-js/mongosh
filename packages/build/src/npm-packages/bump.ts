@@ -1,6 +1,6 @@
 import { spawnSync } from '../helpers';
 import {
-  MONGOSH_RELEASE_ONLY_PACKAGES,
+  EXCLUDE_RELEASE_PACKAGES,
   MONGOSH_RELEASE_PACKAGES,
   PROJECT_ROOT,
 } from './constants';
@@ -66,7 +66,7 @@ export function bumpIndependentPackages() {
     env: {
       ...process.env,
       SKIP_BUMP_PACKAGES: [
-        ...MONGOSH_RELEASE_ONLY_PACKAGES,
+        ...EXCLUDE_RELEASE_PACKAGES,
         ...MONGOSH_RELEASE_PACKAGES,
       ].join(','),
     },

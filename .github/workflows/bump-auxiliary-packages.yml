@@ -1,4 +1,4 @@
-name: Bump auxiliary packages
+name: Bump Auxiliary Packages
 on:
   workflow_dispatch:
   push:
@@ -53,4 +53,4 @@ jobs:
           title: "chore(release): bump auxiliary packages"
           labels: no-title-validation
           body: |
-            - Bump package versions
+            - Bumps auxiliary package versions. Merging will trigger a release of these packages.

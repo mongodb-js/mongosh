@@ -13,7 +13,7 @@ jobs:
   publish:
     if: |
       github.event_name == 'workflow_dispatch' ||
-        startsWith(github.event.head_commit.message, 'chore(release): bump package versions')
+        startsWith(github.event.head_commit.message, 'chore(release): bump auxiliary package versions')
 
     runs-on: ubuntu-latest
 
@@ -51,5 +51,5 @@ jobs:
         npm config list
         echo "Publishing packages as $(npm whoami)"
         git update-index --assume-unchanged .npmrc
-        npm run publish-packages
+        npm run publish-auxiliary
 
