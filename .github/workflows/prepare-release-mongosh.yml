@@ -1,8 +1,12 @@
-name: Draft release
+name: Prepare mongosh release
 
 on:
   workflow_dispatch:
     inputs:
+      jiraTicket:
+        description: 'Jira ticket for the release, e.g. MONGOSH-1234'
+        required: true
+
       versionBump:
         description: 'Version bump'
         type: choice
@@ -22,6 +26,13 @@ jobs:
   prepare-release:
     runs-on: ubuntu-latest
     steps:
+      - name: Create Github App Token
+        uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
+        id: app-token
+        with:
+          app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
+          private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
+      
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -36,8 +47,6 @@ jobs:
 
       - name: Determine Next Version
         shell: bash
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
 
@@ -51,6 +60,9 @@ jobs:
           else
             NEXT_VERSION=${{ github.event.inputs.exactVersion }}
           fi
+          
+          # Remove the 'v' prefix from NEXT_VERSION if it exists
+          NEXT_VERSION="${NEXT_VERSION#v}"
 
           # Validates the version before using it
           npx semver v"${NEXT_VERSION}"
@@ -74,21 +86,26 @@ jobs:
           fi
 
       - name: Bump mongosh and package versions
-        run: |
-          set -e
-          echo Bumping mongosh versions to ${RELEASE_TAG} and packages
-
-          MONGOSH_RELEASE_VERSION=${RELEASE_TAG} npm run bump
-
-      - name: Create Draft Release
-        run: |
-          set -e
-          echo Creating draft release for: "${RELEASE_TAG}"
-
-          git tag ${RELEASE_TAG}
-          git push origin ${RELEASE_TAG}
-
         shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LAST_BUMP_COMMIT_MESSAGE: "chore(release): prepare for mongosh v${NEXT_VERSION} ${{ github.event.inputs.jiraTicket }}"
+        run: |
+          set -e
+          echo Bumping mongosh versions to ${NEXT_VERSION} and packages
 
+          MONGOSH_RELEASE_VERSION=${NEXT_VERSION} npm run bump
+            
+          git add .
+          git commit --no-allow-empty -m "$LAST_BUMP_COMMIT_MESSAGE" || true
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # 7.0.5
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          commit-message: "chore(release): prepare for mongosh v${NEXT_VERSION} ${{ github.event.inputs.jiraTicket }}"
+          branch: release/${NEXT_VERSION}
+          title: "chore(release): prepare for mongosh v${NEXT_VERSION} ${{ github.event.inputs.jiraTicket }}"
+          body: |
+            - [${{ github.event.inputs.jiraTicket }}](https://jira.mongodb.org/browse/${{ github.event.inputs.jiraTicket }})
+            - This PR is for the release of mongosh v${NEXT_VERSION}. 
+            - **Do not merge manually, use the Release mongosh action instead.**

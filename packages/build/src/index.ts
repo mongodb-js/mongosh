@@ -10,8 +10,7 @@ import type { Config, PackageVariant } from './config';
 export { getArtifactUrl, downloadMongoDb };
 
 const validCommands: (ReleaseCommand | 'trigger-release')[] = [
-  'bump-mongosh',
-  'bump-packages',
+  'bump',
   'compile',
   'package',
   'upload',

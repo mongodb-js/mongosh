@@ -1,0 +1,59 @@
+name: Release mongosh 
+on:
+  workflow_run:
+    workflows: ["CheckQL", "Run Smoke Tests", "evergreen"]
+    types: ["completed"]
+    branches: ["release/**"]
+  workflow_dispatch:
+
+jobs:
+  publish:
+    if: |
+        startsWith(github.head_ref, 'refs/heads/release/')
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Create Github App Token
+      uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
+      id: app-token
+      with:
+        app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
+        private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
+
+    - uses: actions/checkout@v4
+      with:
+        # don't checkout a detatched HEAD
+        ref: ${{ github.head_ref }}
+
+    - name: Extract version from the branch
+      run: |
+        set -e
+        export NEXT_VERSION=$(echo "${GITHUB_REF}" | sed -n 's/refs\/heads\/release\/\(.*\)/\1/p')
+
+        echo "NEXT_VERSION=${NEXT_VERSION}" >> "$GITHUB_ENV"
+        echo "RELEASE_TAG=v${NEXT_VERSION}" >> "$GITHUB_ENV"
+
+    - name: Validate release tag
+      shell: bash
+      run: |
+        if [ -z "${RELEASE_TAG}" ]; then
+          echo "RELEASE_TAG is not set or is empty"
+          exit 1
+        fi
+
+        if git rev-parse "$RELEASE_TAG" >/dev/null 2>&1; then
+          echo "Error: Tag $RELEASE_TAG already exists"
+          echo "If you are trying to re-create a draft release with this version, please delete the release and the tag first."
+          echo "If this version has already been released consider using a different one."
+          exit 1
+        fi
+
+    - name: "Publish what is not already in NPM"
+      env:
+        NPM_TOKEN: ${{ secrets.DEVTOOLSBOT_NPM_TOKEN }}
+      run: |
+        echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
+        npm config list
+        echo "Publishing packages as $(npm whoami)"
+        git update-index --assume-unchanged .npmrc
+        npm run publish-packages
