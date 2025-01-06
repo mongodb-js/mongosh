@@ -1,4 +1,4 @@
-name: Bump auxiliary package versions
+name: Bump auxiliary packages
 on:
   workflow_dispatch:
   push:
@@ -38,7 +38,7 @@ jobs:
 
       - name: Bump packages
         env:
-          LAST_BUMP_COMMIT_MESSAGE: "chore(release): bump auxiliary package versions"
+          LAST_BUMP_COMMIT_MESSAGE: "chore(release): bump auxiliary packages"
         run: |
           npm run bump-auxiliary
           git add .
@@ -48,9 +48,9 @@ jobs:
         uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # 7.0.5
         with:
           token: ${{ steps.app-token.outputs.token }}
-          commit-message: "chore(release): bump auxiliary package versions"
+          commit-message: "chore(release): bump auxiliary packages"
           branch: ci/bump-auxiliary-packages
-          title: "chore(release): bump auxiliary package versions"
+          title: "chore(release): bump auxiliary packages"
           labels: no-title-validation
           body: |
             - Bump package versions
