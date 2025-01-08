@@ -1,6 +1,9 @@
 import i18n from '@mongosh/i18n';
 import { colorizeForStderr as clr } from './clr';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+export const MONGOSH_VERSION: string = require('../package.json').version;
+
 export const TELEMETRY_GREETING_MESSAGE = `
 ${i18n.__('cli-repl.cli-repl.telemetry')}
 ${i18n.__('cli-repl.cli-repl.disableTelemetry')}${clr(

@@ -116,6 +116,9 @@ export interface EvaluationListener
    * options used to access it.
    */
   getCryptLibraryOptions?: () => Promise<AutoEncryptionOptions['extraOptions']>;
+
+  /** References the mongosh version used by the EvaluationListener */
+  version?: string;
 }
 
 /**

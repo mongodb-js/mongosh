@@ -22,6 +22,7 @@ import { once } from 'events';
 import type { AddressInfo } from 'net';
 const { EJSON } = bson;
 import { sleep } from './util-helpers';
+import { MONGOSH_VERSION } from '../../cli-repl/src/constants';
 
 const jsContextFlagCombinations: `--jsContext=${'plain-vm' | 'repl'}`[][] = [
   [],

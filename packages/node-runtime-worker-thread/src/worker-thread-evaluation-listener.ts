@@ -7,7 +7,10 @@ import type { RuntimeEvaluationListener } from '@mongosh/browser-runtime-core';
 export class WorkerThreadEvaluationListener {
   exposedListener: Exposed<
     Required<
-      Omit<RuntimeEvaluationListener, 'onLoad' | 'getCryptLibraryOptions'>
+      Omit<
+        RuntimeEvaluationListener,
+        'version' | 'onLoad' | 'getCryptLibraryOptions'
+      >
     >
   >;
 
@@ -56,6 +59,7 @@ export class WorkerThreadEvaluationListener {
             (Promise.resolve() as Promise<never>)
           );
         },
+        version: workerRuntime.evaluationListener?.version,
       },
       worker
     );
