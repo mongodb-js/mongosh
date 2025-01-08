@@ -59,7 +59,7 @@ export async function bumpMongoshReleasePackages(): Promise<void> {
 
 /** Bumps auxiliary packages without setting a new version of mongosh. */
 export function bumpAuxiliaryPackages() {
-  spawnSync('bump-monorepo-packages', [], {
+  spawnSync('npx', ['bump-monorepo-packages'], {
     stdio: 'inherit',
     cwd: PROJECT_ROOT,
     encoding: 'utf8',

@@ -47,10 +47,6 @@ export function publishNpmPackages(
         '--no-private',
         '--no-changelog',
         '--exact',
-        // During mongosh releases we handle the tags manually
-        ...(!useAuxiliaryPackagesOnly
-          ? ['--no-git-tag-version', '--no-push']
-          : []),
         '--force-publish',
         '--yes',
         '--no-verify-access',
