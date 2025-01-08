@@ -22,6 +22,7 @@ import { once } from 'events';
 import type { AddressInfo } from 'net';
 const { EJSON } = bson;
 import { sleep } from './util-helpers';
+import { MONGOSH_VERSION } from '../../cli-repl/src/constants';
 
 const jsContextFlagCombinations: `--jsContext=${'plain-vm' | 'repl'}`[][] = [
   [],
@@ -445,9 +446,19 @@ describe('e2e', function () {
     });
 
     it('version', async function () {
-      const expected = require('../package.json').version;
+      const expectedPackageVersion: string =
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        require('../package.json')['dependencies']['@mongosh/cli-repl'];
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      const expectedVersionFromRepl = MONGOSH_VERSION;
+
+      expect(expectedPackageVersion).not.null;
+      expect(expectedPackageVersion).equals(expectedVersionFromRepl);
+
       await shell.executeLine('version()');
-      shell.assertContainsOutput(expected);
+      shell.assertNoErrors();
+      shell.assertContainsOutput(expectedPackageVersion);
+      shell.assertContainsOutput(expectedVersionFromRepl);
     });
 
     it('fle addon is available', async function () {

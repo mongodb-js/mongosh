@@ -289,7 +289,10 @@ export default class ShellApi extends ShellApiClass {
   }
 
   version(): string {
-    const version = require('../package.json').version;
+    const version = this._instanceState.evaluationListener.version;
+    if (!version) {
+      throw new MongoshInternalError('mongosh version not known');
+    }
     return version;
   }
 
