@@ -11,7 +11,12 @@ if (
   typeof TextEncoder !== 'function'
 ) {
   // eslint-disable-next-line @typescript-eslint/no-implied-eval
-  Object.assign(Function('return this')(), textEncodingPolyfill());
+  const global =
+    (typeof globalThis === 'object' &&
+      globalThis?.Object === Object &&
+      globalThis) ||
+    Function('return this')();
+  Object.assign(global, textEncodingPolyfill());
 }
 
 // Basic encoder/decoder polyfill for java-shell environment (see above)
