@@ -10,11 +10,11 @@ if (
   // @ts-ignore
   typeof TextEncoder !== 'function'
 ) {
-  // eslint-disable-next-line @typescript-eslint/no-implied-eval
   const global =
     (typeof globalThis === 'object' &&
       globalThis?.Object === Object &&
       globalThis) ||
+    // eslint-disable-next-line @typescript-eslint/no-implied-eval
     Function('return this')();
   Object.assign(global, textEncodingPolyfill());
 }
