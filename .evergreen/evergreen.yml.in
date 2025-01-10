@@ -917,6 +917,7 @@ functions:
           {
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
+          export PUPPETEER_SKIP_DOWNLOAD="true"
           npm run evergreen-release draft
           git add .
           git commit --no-allow-empty -m "chore(release): bump to prepare for mongosh release" 
@@ -936,6 +937,7 @@ functions:
           node_js_version: ${node_js_version}
         script: |
           set -e
+          export PUPPETEER_SKIP_DOWNLOAD="true"
           .evergreen/run-evergreen-release.sh download-and-list-artifacts
     - command: shell.exec
       params:
@@ -964,6 +966,7 @@ functions:
           node_js_version: ${node_js_version}
         script: |
           set -e
+          export PUPPETEER_SKIP_DOWNLOAD="true"
           .evergreen/run-evergreen-release.sh publish -- --dry-run
 
   release_publish:
@@ -982,6 +985,7 @@ functions:
           node_js_version: ${node_js_version}
         script: |
           set -e
+          export PUPPETEER_SKIP_DOWNLOAD="true"
           .evergreen/run-evergreen-release.sh publish
 
   run_perf_tests:
@@ -1166,7 +1170,7 @@ tasks:
   # E2E TESTS
   ###
   # Tests reuse the same compilation build variant, so we create those variations based on this.
-  <% for (const compileBuildVariant of COMPILE_BUILD_VARIANTS) { 
+  <% for (const compileBuildVariant of COMPILE_BUILD_VARIANTS) {
     const platformName = compileBuildVariant.name.replace('build_', '');
     const executableOsId = platformName == 'darwin' ? 'darwin-x64' : platformName.replaceAll('_', '-');
     %>
@@ -1188,9 +1192,9 @@ tasks:
           node_js_version: ${node_js_version}
           mongosh_server_test_version: ${mongosh_server_test_version}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
-          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false} 
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   <% } %>
-  - name: perf_tests
+  - name: perf_tests_linux_x64
     tags: ["perf-test"]
     depends_on:
       - name: compile_artifact
@@ -1204,7 +1208,7 @@ tasks:
         vars:
           executable_os_id: "linux-x64"
       - func: run_perf_tests
-  
+
   ###
   # EXECUTABLE CONNECTIVITY TESTS
   ###
@@ -1502,7 +1506,7 @@ buildvariants:
       mongosh_server_test_version: "<% out(variant.mVersion) %>-enterprise"
       mongosh_test_e2e_force_fips: "<% out(variant.fips ? '1' : '') %>"
     tasks:
-      <% 
+      <%
       let tasks = [`e2e_tests_${variant.compileBuildVariant.replace('build_', '')}`, ...(variant.additionalTasks ?? [])];
       for (const task of tasks) { %>
       - name: <% out(task) %>
@@ -1685,8 +1689,8 @@ buildvariants:
     tasks:
       - name: generate_license_and_vulnerability_report
 
-  - name: perf_tests
-    display_name: "Performance Tests"
+  - name: perf_tests_linux_x64
+    display_name: "Performance Tests (x64 Linux)"
     run_on: rhel90-dbx-perf-large
     tasks:
-      - name: perf_tests
+      - name: perf_tests_linux_x64
