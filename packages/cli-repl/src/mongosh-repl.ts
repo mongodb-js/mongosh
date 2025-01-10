@@ -34,11 +34,7 @@ import { callbackify, promisify } from 'util';
 import * as asyncRepl from './async-repl';
 import type { StyleDefinition } from './clr';
 import clr from './clr';
-import {
-  MONGOSH_VERSION,
-  MONGOSH_WIKI,
-  TELEMETRY_GREETING_MESSAGE,
-} from './constants';
+import { MONGOSH_WIKI, TELEMETRY_GREETING_MESSAGE } from './constants';
 import formatOutput, { formatError } from './format-output';
 import { makeMultilineJSIntoSingleLine } from '@mongosh/js-multiline-to-singleline';
 import { LineByLineInput } from './line-by-line-input';
@@ -151,7 +147,6 @@ class MongoshNodeRepl implements EvaluationListener {
   loadNestingLevel = 0;
   redactHistory: 'keep' | 'remove' | 'remove-redact' = 'remove';
   rawValueToShellResult: WeakMap<any, ShellResult> = new WeakMap();
-  version: string = MONGOSH_VERSION;
 
   constructor(options: MongoshNodeReplOptions) {
     this.input = options.input;
