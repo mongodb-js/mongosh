@@ -27,7 +27,7 @@
     "node": ">=16.15.0"
   },
   "dependencies": {
-    "@mongosh/cli-repl": "2.3.7",
+    "@mongosh/cli-repl": "2.3.8",
     "@mongosh/service-provider-core": "2.3.7",
     "@mongodb-js/oidc-plugin": "^1.1.5",
     "strip-ansi": "^6.0.0"

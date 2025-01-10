@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/cli-repl",
-  "version": "2.3.7",
+  "version": "2.3.8",
   "description": "MongoDB Shell CLI REPL Package",
   "homepage": "https://github.com/mongodb-js/mongosh",
   "author": "Compass Team <compass@mongodb.com>",
