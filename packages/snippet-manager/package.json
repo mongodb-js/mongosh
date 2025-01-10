@@ -36,9 +36,9 @@
   },
   "dependencies": {
     "@mongodb-js/devtools-proxy-support": "^0.4.2",
-    "@mongosh/errors": "2.3.7",
-    "@mongosh/shell-api": "2.3.7",
-    "@mongosh/types": "2.3.7",
+    "@mongosh/errors": "2.3.8",
+    "@mongosh/shell-api": "2.3.8",
+    "@mongosh/types": "2.3.8",
     "bson": "^6.10.1",
     "cross-spawn": "^7.0.5",
     "escape-string-regexp": "^4.0.0",

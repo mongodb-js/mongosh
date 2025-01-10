@@ -18,9 +18,9 @@
   },
   "dependencies": {
     "@mongodb-js/devtools-connect": "^3.3.4",
-    "@mongosh/errors": "2.3.7",
-    "@mongosh/history": "2.3.7",
-    "@mongosh/types": "2.3.7",
+    "@mongosh/errors": "2.3.8",
+    "@mongosh/history": "2.3.8",
+    "@mongosh/types": "2.3.8",
     "mongodb-log-writer": "^1.4.2",
     "mongodb-redact": "^1.1.2"
   },

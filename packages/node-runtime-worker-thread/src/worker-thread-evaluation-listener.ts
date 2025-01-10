@@ -59,7 +59,6 @@ export class WorkerThreadEvaluationListener {
             (Promise.resolve() as Promise<never>)
           );
         },
-        version: workerRuntime.evaluationListener?.version,
       },
       worker
     );

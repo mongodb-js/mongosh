@@ -55,6 +55,36 @@ export async function bumpMongoshReleasePackages(): Promise<void> {
       JSON.stringify(packageJson, null, 2) + '\n'
     );
   }
+
+  await bumpShellApiMongoshVersion(version);
+}
+
+/** Sets the shell-api constant to match the mongosh version. */
+export async function bumpShellApiMongoshVersion(version: string) {
+  const shellApiVersionFilePath = path.join(
+    __dirname,
+    PROJECT_ROOT,
+    'packages',
+    'shell-api',
+    'src',
+    'mongosh-version.ts'
+  );
+
+  const versionFileContent = await fs.readFile(
+    shellApiVersionFilePath,
+    'utf-8'
+  );
+
+  // Write the updated content back to the mongosh-version file
+  await fs.writeFile(
+    shellApiVersionFilePath,
+    // Replace the version inside MONGOSH_VERSION = '...'
+    versionFileContent.replace(
+      /MONGOSH_VERSION = '.*'/,
+      `MONGOSH_VERSION = '${version}'`
+    ),
+    'utf-8'
+  );
 }
 
 /** Bumps auxiliary packages without setting a new version of mongosh. */
