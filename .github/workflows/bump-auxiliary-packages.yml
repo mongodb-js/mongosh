@@ -37,12 +37,10 @@ jobs:
           npm ci
 
       - name: Bump packages
-        env:
-          LAST_BUMP_COMMIT_MESSAGE: "chore(release): bump auxiliary packages"
         run: |
           npm run bump-auxiliary
           git add .
-          git commit --no-allow-empty -m "$LAST_BUMP_COMMIT_MESSAGE" || true
+          git commit --no-allow-empty -m "chore(release): bump auxiliary packages" || true
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # 7.0.5

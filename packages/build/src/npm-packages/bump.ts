@@ -56,11 +56,11 @@ export async function bumpMongoshReleasePackages(): Promise<void> {
     );
   }
 
-  await bumpShellApiMongoshVersion(version);
+  await updateShellApiMongoshVersion(version);
 }
 
-/** Sets the shell-api constant to match the mongosh version. */
-export async function bumpShellApiMongoshVersion(version: string) {
+/** Updates the shell-api constant to match the mongosh version. */
+export async function updateShellApiMongoshVersion(version: string) {
   const shellApiVersionFilePath = path.join(
     __dirname,
     PROJECT_ROOT,
