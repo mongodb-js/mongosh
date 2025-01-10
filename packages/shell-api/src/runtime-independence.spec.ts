@@ -23,9 +23,6 @@ describe('Runtime independence', function () {
     const allowedNodeBuiltins = ['crypto', 'util', 'events', 'path'];
     // Our TextDecoder/TextEncoder polyfills require this, unfortunately.
     context.Buffer = Buffer;
-    // lodash used by mongodb-redact used by @mongosh/history requires this Node.js-ism.
-    // Let's get rid of it: https://github.com/mongodb-js/devtools-shared/pull/497
-    vm.runInContext('globalThis.global = globalThis;', context);
 
     // Small CJS implementation, without __dirname or __filename
     const cache = Object.create(null);
