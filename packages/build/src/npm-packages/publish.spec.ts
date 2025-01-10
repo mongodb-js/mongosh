@@ -71,8 +71,14 @@ describe('npm-packages publishNpmPackages', function () {
       spawnSync
     );
 
-    expect(spawnSync).calledWith('git', ['tag', '-a', '1.2.0', '-m', '1.2.0']);
-    expect(spawnSync).calledWith('git', ['push', '--follow-tags']);
+    expect(spawnSync).not.calledWith('git', [
+      'tag',
+      '-a',
+      '1.2.0',
+      '-m',
+      '1.2.0',
+    ]);
+    expect(spawnSync).not.calledWith('git', ['push', '--follow-tags']);
   });
 
   it('calls lerna to publish packages for a real version', function () {

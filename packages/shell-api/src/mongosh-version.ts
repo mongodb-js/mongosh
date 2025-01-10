@@ -1,6 +1,6 @@
 /**
  *  NOTE: Do not manually modify this file.
- *  The MONGOSH_VERSION gets re-generated automatically with scripts/set-mongosh-version.ts
+ *  The MONGOSH_VERSION gets generated automatically during mongosh releases.
  **/
 
 /** Current mongosh cli-repl version. */

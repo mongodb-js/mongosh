@@ -22,7 +22,6 @@ import { once } from 'events';
 import type { AddressInfo } from 'net';
 const { EJSON } = bson;
 import { sleep } from './util-helpers';
-import { MONGOSH_VERSION } from '../../cli-repl/src/constants';
 
 const jsContextFlagCombinations: `--jsContext=${'plain-vm' | 'repl'}`[][] = [
   [],
@@ -34,11 +33,15 @@ describe('e2e', function () {
   const testServer = startSharedTestServer();
 
   describe('--version', function () {
-    it('shows version', async function () {
+    it('shows version which matches @mongosh/cli-repl', async function () {
+      const expectedPackageVersion: string =
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        require('../package.json')['dependencies']['@mongosh/cli-repl'];
+
       const shell = this.startTestShell({ args: ['--version'] });
       await shell.waitForSuccessfulExit();
 
-      shell.assertContainsOutput(require('../package.json').version);
+      shell.assertContainsOutput(expectedPackageVersion);
     });
   });
 
@@ -449,16 +452,18 @@ describe('e2e', function () {
       const expectedPackageVersion: string =
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         require('../package.json')['dependencies']['@mongosh/cli-repl'];
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      const expectedVersionFromRepl = MONGOSH_VERSION;
 
       expect(expectedPackageVersion).not.null;
-      expect(expectedPackageVersion).equals(expectedVersionFromRepl);
+
+      const versionShell = this.startTestShell({ args: ['--version'] });
+      await versionShell.waitForSuccessfulExit();
+
+      const versionFromShell = versionShell.output;
 
       await shell.executeLine('version()');
       shell.assertNoErrors();
       shell.assertContainsOutput(expectedPackageVersion);
-      shell.assertContainsOutput(expectedVersionFromRepl);
+      shell.assertContainsOutput(versionFromShell);
     });
 
     it('fle addon is available', async function () {
