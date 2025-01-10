@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/editor",
-  "version": "2.3.7",
+  "version": "0.0.0-dev.0",
   "description": "MongoDB Shell External Editor",
   "main": "./lib/index.js",
   "repository": {
@@ -35,11 +35,11 @@
     "unitTestsOnly": true
   },
   "dependencies": {
-    "@mongosh/js-multiline-to-singleline": "2.3.7",
-    "@mongosh/service-provider-core": "2.3.7",
-    "@mongosh/shell-api": "2.3.7",
-    "@mongosh/shell-evaluator": "2.3.7",
-    "@mongosh/types": "2.3.7",
+    "@mongosh/js-multiline-to-singleline": "0.0.0-dev.0",
+    "@mongosh/service-provider-core": "0.0.0-dev.0",
+    "@mongosh/shell-api": "0.0.0-dev.0",
+    "@mongosh/shell-evaluator": "0.0.0-dev.0",
+    "@mongosh/types": "0.0.0-dev.0",
     "js-beautify": "^1.15.1"
   },
   "devDependencies": {
