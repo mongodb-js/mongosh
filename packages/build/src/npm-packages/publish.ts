@@ -11,8 +11,7 @@ import { spawnSync as spawnSyncFn } from '../helpers/spawn-sync';
 import type { SpawnSyncOptionsWithStringEncoding } from 'child_process';
 
 export function publishNpmPackages(
-  isDryRun = false,
-  useAuxiliaryPackagesOnly = false,
+  { isDryRun = false, useAuxiliaryPackagesOnly = false },
   listNpmPackages: typeof listNpmPackagesFn = listNpmPackagesFn,
   markBumpedFilesAsAssumeUnchangedFn: typeof markBumpedFilesAsAssumeUnchanged = markBumpedFilesAsAssumeUnchanged,
   spawnSync: typeof spawnSyncFn = spawnSyncFn
@@ -35,7 +34,7 @@ export function publishNpmPackages(
       (packageConfig) => !MONGOSH_RELEASE_PACKAGES.includes(packageConfig.name)
     );
   }
-  // Lerna requires a clean repository for a publish from-package (--force-publish does not have any effect here)
+  // Lerna requires a clean repository for a publish from-package
   // we use git update-index --assume-unchanged on files we know have been bumped
   markBumpedFilesAsAssumeUnchangedFn(packages, true);
   try {
@@ -47,7 +46,6 @@ export function publishNpmPackages(
         '--no-private',
         '--no-changelog',
         '--exact',
-        '--force-publish',
         '--yes',
         '--no-verify-access',
       ],
@@ -63,7 +61,7 @@ export function publishNpmPackages(
     )?.version;
 
     if (!mongoshVersion) {
-      throw new Error('Mongosh package not found');
+      throw new Error('mongosh package not found');
     }
 
     spawnSync(

@@ -81,7 +81,10 @@ export async function runPublish(
   // ensures the segment api key to be present in the published packages
   await writeBuildInfo(config, 'packaged');
 
-  publishNpmPackages(config.isDryRun, config.useAuxiliaryPackagesOnly);
+  publishNpmPackages({
+    isDryRun: config.isDryRun,
+    useAuxiliaryPackagesOnly: config.useAuxiliaryPackagesOnly,
+  });
 
   await publishToHomebrew(
     homebrewCoreGithubRepo,

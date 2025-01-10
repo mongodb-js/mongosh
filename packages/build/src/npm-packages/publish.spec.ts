@@ -8,6 +8,16 @@ describe('npm-packages publishNpmPackages', function () {
   let listNpmPackages: SinonStub;
   let markBumpedFilesAsAssumeUnchanged: SinonStub;
   let spawnSync: SinonStub;
+  const lernaBin = path.resolve(
+    __dirname,
+    '..',
+    '..',
+    '..',
+    '..',
+    'node_modules',
+    '.bin',
+    'lerna'
+  );
 
   beforeEach(function () {
     listNpmPackages = sinon.stub();
@@ -15,23 +25,65 @@ describe('npm-packages publishNpmPackages', function () {
     spawnSync = sinon.stub();
   });
 
-  it('calls lerna to publish packages for a real version', function () {
-    const lernaBin = path.resolve(
-      __dirname,
-      '..',
-      '..',
-      '..',
-      '..',
-      'node_modules',
-      '.bin',
-      'lerna'
-    );
+  it('throws if mongosh is not existent when publishing all', function () {
     const packages = [{ name: 'packageA', version: '0.7.0' }];
     listNpmPackages.returns(packages);
 
+    expect(() =>
+      publishNpmPackages(
+        { isDryRun: false, useAuxiliaryPackagesOnly: false },
+        listNpmPackages,
+        markBumpedFilesAsAssumeUnchanged,
+        spawnSync
+      )
+    ).throws('mongosh package not found');
+  });
+
+  it('takes mongosh version and pushes tags', function () {
+    const packages = [
+      { name: 'packageA', version: '0.7.0' },
+      { name: 'mongosh', version: '1.2.0' },
+    ];
+    listNpmPackages.returns(packages);
+
     publishNpmPackages(
-      false,
-      false,
+      { isDryRun: false, useAuxiliaryPackagesOnly: false },
+      listNpmPackages,
+      markBumpedFilesAsAssumeUnchanged,
+      spawnSync
+    );
+
+    expect(spawnSync).calledWith('git', ['tag', '-a', '1.2.0', '-m', '1.2.0']);
+    expect(spawnSync).calledWith('git', ['push', '--follow-tags']);
+  });
+
+  it('does not manually push tags with auxiliary packages', function () {
+    const packages = [
+      { name: 'packageA', version: '0.7.0' },
+      { name: 'mongosh', version: '1.2.0' },
+    ];
+    listNpmPackages.returns(packages);
+
+    publishNpmPackages(
+      { isDryRun: false, useAuxiliaryPackagesOnly: true },
+      listNpmPackages,
+      markBumpedFilesAsAssumeUnchanged,
+      spawnSync
+    );
+
+    expect(spawnSync).calledWith('git', ['tag', '-a', '1.2.0', '-m', '1.2.0']);
+    expect(spawnSync).calledWith('git', ['push', '--follow-tags']);
+  });
+
+  it('calls lerna to publish packages for a real version', function () {
+    const packages = [
+      { name: 'packageA', version: '0.7.0' },
+      { name: 'mongosh', version: '1.2.0' },
+    ];
+    listNpmPackages.returns(packages);
+
+    publishNpmPackages(
+      { isDryRun: false, useAuxiliaryPackagesOnly: false },
       listNpmPackages,
       markBumpedFilesAsAssumeUnchanged,
       spawnSync
@@ -48,10 +100,7 @@ describe('npm-packages publishNpmPackages', function () {
         'from-package',
         '--no-private',
         '--no-changelog',
-        '--no-push',
         '--exact',
-        '--no-git-tag-version',
-        '--force-publish',
         '--yes',
         '--no-verify-access',
       ],
@@ -70,8 +119,7 @@ describe('npm-packages publishNpmPackages', function () {
 
     try {
       publishNpmPackages(
-        false,
-        false,
+        { isDryRun: false, useAuxiliaryPackagesOnly: false },
         listNpmPackages,
         markBumpedFilesAsAssumeUnchanged,
         spawnSync
