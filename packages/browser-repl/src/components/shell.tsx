@@ -26,7 +26,7 @@ import type { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
 import { PasswordPrompt } from './password-prompt';
 import { ShellInput } from './shell-input';
 import type { ShellOutputEntry } from './shell-output';
-import { ShellIOList } from './shell-output';
+import { ShellOutput } from './shell-output';
 
 const shellContainer = css({
   fontSize: '13px',
@@ -551,10 +551,10 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
       )}
       onClick={onShellClicked}
     >
-      <ShellIOList
+      <ShellOutput
         setScrollRef={setScrollRef}
         output={output ?? []}
-        InputPrompt={
+        renderInputPrompt={() => (
           <div ref={shellInputContainerRef}>
             {passwordPrompt ? (
               <PasswordPrompt
@@ -580,7 +580,7 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
               />
             )}
           </div>
-        }
+        )}
       />
     </div>
   );
