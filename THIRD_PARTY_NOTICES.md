@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Wed Jan 08 2025.
+This document was automatically generated on Sun Jan 12 2025.
 
 ## List of dependencies
 
@@ -311,7 +311,6 @@ Package|Version|License
 **[jsonfile](#1504ddbe5031429f6d90bb02373b4629ff5da9ef4e869d5015ff42f685817e74)**|6.1.0|MIT
 **[kerberos](#05c7d2f17faccacb505a07f79ccba22ce089aa668a8bef64de84cf5dcd4f585e)**|2.1.0|Apache-2.0
 **[lodash.merge](#996e40d63a94f1b8693d7c81e0cdfb874c6432d6bbd675976fc1b6b13652c8db)**|4.6.2|MIT
-**[lodash](#adaac4144887ebc2c1b682380ff385210f681fc58b4bc1ef3986148cf8dcd28a)**|4.17.21|MIT
 **[lowlight](#6efc5090c0eda3b461d933d6b79bddcdf8165a10aea9f39ac76620ce5fb05bf5)**|1.17.0|MIT
 **[lru-cache](#4ffd8f3438230331a92ccdb6752beda91852dc2a361669f3b26ef0b8829e9b26)**|11.0.2|ISC
 **[lru-cache](#fe7f0a2f2cf4c92f13c3a2a63f14f80f20f6919979306dc054e4f947c1234651)**|5.1.1|ISC
@@ -341,7 +340,7 @@ Package|Version|License
 **[mongodb-connection-string-url](#2e1146256a89ebd24e3398881e03807fe363d58444e6b7952ea50bd6108707bc)**|3.0.1|Apache-2.0
 **[mongodb-crypt-library-version](#003bd2892d6f6fdac0613ba8f9a2fbb054ddd1c26901e1d2fc7e83861b21cf4d)**|1.0.5|Apache-2.0
 **[mongodb-log-writer](#c4945018f8490fc8e56e1414e262fcf1b802800e05cd15f2bd6b7a9d0b94af85)**|1.4.2|Apache-2.0
-**[mongodb-redact](#d246d19a773f4cc2f2d0431d018a38295c9f9b1b45cfbe7ee16230056b667453)**|1.1.2|Apache-2.0
+**[mongodb-redact](#6fe8cef9beca5f3e1e3e999f47975ae99dcf4488419b28fc6d5eafc436081623)**|1.1.5|Apache-2.0
 **[mongodb](#cb726cf7a5329fc15d51574a4bc2e29682afe46afb788a94370b09643ab98a72)**|6.12.0|Apache-2.0
 **[ms](#484b814b85d5028e34246147c8fc901d33570202bd7cdc3703c0ed1078eba0aa)**|2.0.0|MIT
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
@@ -25988,63 +25987,6 @@ License files:
       
 
 
-<a id="adaac4144887ebc2c1b682380ff385210f681fc58b4bc1ef3986148cf8dcd28a"></a>
-### [lodash](https://www.npmjs.com/package/lodash) (version 4.17.21)
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      Copyright OpenJS Foundation and other contributors <https://openjsf.org/>
-      
-      Based on Underscore.js, copyright Jeremy Ashkenas,
-      DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
-      
-      This software consists of voluntary contributions made by many
-      individuals. For exact contribution history, see the revision history
-      available at https://github.com/lodash/lodash
-      
-      The following license applies to all parts of this software except as
-      documented below:
-      
-      ====
-      
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      "Software"), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-      
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-      ====
-      
-      Copyright and related rights for sample code are waived via CC0. Sample
-      code is defined as all source code displayed within the prose of the
-      documentation.
-      
-      CC0: http://creativecommons.org/publicdomain/zero/1.0/
-      
-      ====
-      
-      Files located in the node_modules and vendor directories are externally
-      maintained libraries used by this software which have their own
-      licenses; we recommend you read them, as their terms may differ from the
-      terms above.
-      
-
-
 <a id="6efc5090c0eda3b461d933d6b79bddcdf8165a10aea9f39ac76620ce5fb05bf5"></a>
 ### [lowlight](https://www.npmjs.com/package/lowlight) (version 1.17.0)
 License tags: MIT
@@ -27758,8 +27700,8 @@ License files:
       
 
 
-<a id="d246d19a773f4cc2f2d0431d018a38295c9f9b1b45cfbe7ee16230056b667453"></a>
-### [mongodb-redact](https://www.npmjs.com/package/mongodb-redact) (version 1.1.2)
+<a id="6fe8cef9beca5f3e1e3e999f47975ae99dcf4488419b28fc6d5eafc436081623"></a>
+### [mongodb-redact](https://www.npmjs.com/package/mongodb-redact) (version 1.1.5)
 License tags: Apache-2.0
 
 License files:
