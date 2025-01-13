@@ -1567,7 +1567,7 @@ buildvariants:
       - name: verify_artifact_win32msi_x64
   - name: verify_mac_artifact
     display_name: "MacOS (Signature Verification)"
-    run_on: macos-11
+    run_on: macos-14-arm64
     tasks:
       - name: verify_artifact_darwin_arm64
       - name: verify_artifact_darwin_x64
