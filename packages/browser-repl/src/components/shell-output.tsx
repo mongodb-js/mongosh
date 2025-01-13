@@ -1,28 +1,38 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { ShellOutputLine } from './shell-output-line';
-import type { ShellOutputEntry } from './shell-output-line';
-
+import React from 'react';
+import {
+  css,
+  VirtualList,
+  type VirtualListRef,
+} from '@mongodb-js/compass-components';
+import { ShellOutputLine, type ShellOutputEntry } from './shell-output-line';
 export type { ShellOutputEntry } from './shell-output-line';
 
-interface ShellOutputProps {
-  output: readonly ShellOutputEntry[];
-}
+const containerStyles = css({ height: '100%' });
 
-export class ShellOutput extends Component<ShellOutputProps> {
-  static propTypes = {
-    output: PropTypes.arrayOf(PropTypes.any).isRequired,
-  };
-
-  renderLine = (entry: ShellOutputEntry, index: number): JSX.Element => {
-    return (
-      <ShellOutputLine key={`shell-output-entry-${index}`} entry={entry} />
-    );
-  };
-
-  render(): JSX.Element[] {
-    return this.props.output
-      .filter((entry) => entry.value !== undefined)
-      .map(this.renderLine);
-  }
-}
+export const ShellOutput = ({
+  output,
+  listRef,
+  scrollableContainerRef,
+}: {
+  output: ShellOutputEntry[];
+  listRef: VirtualListRef;
+  scrollableContainerRef: React.RefObject<HTMLDivElement>;
+}) => {
+  return (
+    <div className={containerStyles}>
+      <VirtualList
+        dataTestId="shell-output-virtual-list"
+        items={output}
+        overScanCount={5}
+        listRef={listRef}
+        scrollableContainerRef={scrollableContainerRef}
+        renderItem={(item, ref) => (
+          <div ref={ref} data-testid="shell-output-line">
+            <ShellOutputLine entry={item} />
+          </div>
+        )}
+        estimateItemInitialHeight={() => 24}
+      />
+    </div>
+  );
+};

@@ -11,7 +11,7 @@ type Completer = React.ComponentProps<
 
 const noop = (): void => {};
 
-export const editorStyles = css({
+const editorStyles = css({
   '& .cm-content': {
     paddingTop: 0,
     paddingBottom: 0,

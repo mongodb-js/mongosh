@@ -14,7 +14,6 @@ import {
   fontFamilies,
   useDarkMode,
   cx,
-  rafraf,
 } from '@mongodb-js/compass-components';
 import type {
   Runtime,
@@ -26,7 +25,7 @@ import type { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
 import { PasswordPrompt } from './password-prompt';
 import { ShellInput } from './shell-input';
 import type { ShellOutputEntry } from './shell-output';
-import { ShellOutput } from './shell-output';
+import { VirtualizedContent } from './virtualized-content';
 
 const shellContainer = css({
   fontSize: '13px',
@@ -207,7 +206,6 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
   const darkMode = useDarkMode();
 
   const editorRef = useRef<EditorRef | null>(null);
-  const shellInputContainerRef = useRef<HTMLDivElement>(null);
   const initialEvaluateRef = useRef(initialEvaluate);
   const outputRef = useRef(output);
   const historyRef = useRef(history);
@@ -434,14 +432,6 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
     editorRef.current = editor;
   }, []);
 
-  const scrollToBottom = useCallback(() => {
-    if (!shellInputContainerRef.current) {
-      return;
-    }
-
-    shellInputContainerRef.current.scrollIntoView();
-  }, [shellInputContainerRef]);
-
   const onShellClicked = useCallback(
     (event: React.MouseEvent): void => {
       // Focus on input when clicking the shell background (not clicking output).
@@ -473,14 +463,6 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
     }
   }, [onInput, updateShellPrompt]);
 
-  useEffect(() => {
-    rafraf(() => {
-      // Scroll to the bottom every time we render so the input/output will be
-      // in view.
-      scrollToBottom();
-    });
-  });
-
   /* eslint-disable jsx-a11y/no-static-element-interactions */
   /* eslint-disable jsx-a11y/click-events-have-key-events */
   return (
@@ -493,31 +475,34 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
       )}
       onClick={onShellClicked}
     >
-      <div>
-        <ShellOutput output={output ?? []} />
-      </div>
-      <div ref={shellInputContainerRef}>
-        {passwordPrompt ? (
-          <PasswordPrompt
-            onFinish={onFinishPasswordPrompt}
-            onCancel={onCancelPasswordPrompt}
-            prompt={passwordPrompt}
-          />
-        ) : (
-          <ShellInput
-            initialText={initialText}
-            onTextChange={onInputChanged}
-            prompt={shellPrompt}
-            autocompleter={runtime}
-            history={history}
-            onClearCommand={listener.onClearCommand}
-            onInput={onInput}
-            operationInProgress={isOperationInProgress}
-            editorRef={setEditorRef}
-            onSigInt={onSigInt}
-          />
-        )}
-      </div>
+      <VirtualizedContent
+        output={output ?? []}
+        renderInputPrompt={() => {
+          if (passwordPrompt) {
+            return (
+              <PasswordPrompt
+                onFinish={onFinishPasswordPrompt}
+                onCancel={onCancelPasswordPrompt}
+                prompt={passwordPrompt}
+              />
+            );
+          }
+          return (
+            <ShellInput
+              initialText={initialText}
+              onTextChange={onInputChanged}
+              prompt={shellPrompt}
+              autocompleter={runtime}
+              history={history}
+              onClearCommand={listener.onClearCommand}
+              onInput={onInput}
+              operationInProgress={isOperationInProgress}
+              editorRef={setEditorRef}
+              onSigInt={onSigInt}
+            />
+          );
+        }}
+      />
     </div>
   );
   /* eslint-enable jsx-a11y/no-static-element-interactions */
