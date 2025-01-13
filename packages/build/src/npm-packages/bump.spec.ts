@@ -8,7 +8,6 @@ import {
 import { promises as fs } from 'fs';
 import path from 'path';
 import { PROJECT_ROOT } from './constants';
-import * as monorepoTools from '@mongodb-js/monorepo-tools';
 
 describe('npm-packages bump', function () {
   let fsReadFile: SinonStub;

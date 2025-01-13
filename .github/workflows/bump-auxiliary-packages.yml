@@ -10,17 +10,20 @@ jobs:
     name: Bump packages
     runs-on: ubuntu-latest
     steps:
-      - name: Create Github App Token
-        uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
+      - uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
         id: app-token
         with:
           app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
-          private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
-
+          private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }} 
       - uses: actions/checkout@v4
         with:
           # don't checkout a detatched HEAD
           ref: ${{ github.head_ref }}
+
+          # this is important so git log can pick up on
+          # the whole history to generate the list of AUTHORS
+          fetch-depth: "0"
+          token: ${{ steps.app-token.outputs.token }}
 
       - uses: actions/setup-node@v4
         with:
@@ -33,7 +36,6 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          npm -v
           npm ci
 
       - name: Bump packages
