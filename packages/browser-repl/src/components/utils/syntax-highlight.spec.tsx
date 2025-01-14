@@ -1,5 +1,5 @@
 import React from 'react';
-import { CodemirrorInlineEditor } from '@mongodb-js/compass-editor';
+import { Code } from '@mongodb-js/compass-components';
 import { expect } from '../../../testing/chai';
 import { mount } from '../../../testing/enzyme';
 import { SyntaxHighlight } from './syntax-highlight';
@@ -14,13 +14,11 @@ describe('<SyntaxHighlight />', function () {
 
   it('renders Code', function () {
     wrapper = mount(<SyntaxHighlight code={'some code'} />);
-    expect(wrapper.find(CodemirrorInlineEditor)).to.have.lengthOf(1);
+    expect(wrapper.find(Code)).to.have.lengthOf(1);
   });
 
   it('passes code to Code', function () {
     wrapper = mount(<SyntaxHighlight code={'some code'} />);
-    expect(wrapper.find(CodemirrorInlineEditor).prop('initialText')).to.equal(
-      'some code'
-    );
+    expect(wrapper.find(Code).prop('children')).to.equal('some code');
   });
 });
