@@ -1,9 +1,6 @@
 name: Bump Auxiliary Packages
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
 
 jobs:
   update_generated_files:
@@ -36,7 +33,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          npm ci
+          npm ci --workspace @mongosh/build
 
       - name: Bump packages
         run: |
