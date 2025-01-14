@@ -2414,6 +2414,9 @@ describe('CliRepl', function () {
 
       it('completes use <db>', async function () {
         if (!hasDatabaseNames) return;
+        input.write('db.getMongo()._listDatabases()\n'); // populate database cache
+        await waitEval(cliRepl.bus);
+
         input.write('use adm');
         await tab();
         await waitCompletion(cliRepl.bus);
@@ -2429,12 +2432,13 @@ describe('CliRepl', function () {
 
       it('completes properties of shell API result types', async function () {
         if (!hasCollectionNames) return;
+
         input.write(
           'res = db.autocompleteTestColl.deleteMany({ deletetestdummykey: 1 })\n'
         );
         await waitEval(cliRepl.bus);
 
-        // Consitency check: The result actually has a shell API type tag:
+        // Consistency check: The result actually has a shell API type tag:
         output = '';
         input.write('res[Symbol.for("@@mongosh.shellApiType")]\n');
         await waitEval(cliRepl.bus);
