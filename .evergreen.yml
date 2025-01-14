@@ -4239,10 +4239,19 @@ functions:
           else
             tag="${triggered_by_git_tag}"
           fi
-          echo "Setting version for papertrail to $tag, with product ${product}"
+
+          # Set the release publisher
+          submitter=$(node -p 'JSON.parse(fs.readFileSync("packages/cli-repl/package.json")).releasePublisher')
+          if [ -z "$submitter" ] || [ "$submitter" == "undefined" ]; then
+            echo "releasePublisher is not set"
+            exit 1
+          fi
+
+          echo "Setting version for papertrail to $tag, with product ${product} and submitter ${submitter}"
           version="$(echo $tag | sed -e 's/^[vr]//')"
           cat <<EOT > trace-expansions.yml
           release_version: "$version"
+          submitter: "$submitter"
           EOT
           cat trace-expansions.yml
     - command: expansions.update
