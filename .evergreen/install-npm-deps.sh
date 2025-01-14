@@ -31,7 +31,5 @@ npm run mark-ci-required-optional-dependencies
 # along with its types, but npm wouldn't try and compile the addon
 (npm ci && test -e node_modules/mongodb-client-encryption) || npm ci --ignore-scripts
 
-npm run evergreen-release bump
-
 echo "npm packages after installation"
 npm ls || true
