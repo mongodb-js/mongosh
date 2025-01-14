@@ -873,34 +873,54 @@ functions:
   papertrail_trace:
     - command: shell.exec
       params:
+        env:
+          PAPERTRAIL_KEY_ID: ${papertrail_key_id}
+          PAPERTRAIL_SECRET_KEY: ${papertrail_secret_key}
+          EVERGREEN_TASK_ID: ${task_id}
+          EVERGREEN_EXECUTION: ${execution}
         working_dir: src
         shell: bash
         script: |
           set -e
-          set -x
           ls -lh dist/
           if [ x"${triggered_by_git_tag}" == x"" ]; then
             tag=$(git describe --tags --always --dirty)
           else
             tag="${triggered_by_git_tag}"
           fi
-          echo "Setting version for papertrail to $tag, with product ${product}"
-          version="$(echo $tag | sed -e 's/^[vr]//')"
-          cat <<EOT > trace-expansions.yml
-          release_version: "$version"
-          EOT
-          cat trace-expansions.yml
-    - command: expansions.update
-      params:
-        file: src/trace-expansions.yml
-    - command: papertrail.trace
-      params:
-        key_id: ${papertrail_key_id}
-        secret_key: ${papertrail_secret_key}
-        product: ${product}
-        version: ${release_version}
-        filenames:
-          - "src/dist/*"
+
+          # Set the release publisher
+          submitter=$(node -p 'JSON.parse(fs.readFileSync("packages/cli-repl/package.json")).releasePublisher')
+          if [ -z "$submitter" ] || [ "$submitter" == "undefined" ]; then
+            echo "releasePublisher is not set"
+            exit 1
+          fi
+
+          echo "Setting version for papertrail to $tag, with product ${product} and submitter ${submitter}"
+ 
+          echo "X-PAPERTRAIL-KEY-ID: ${PAPERTRAIL_KEY_ID}" > .papertrail.headers
+          echo "X-PAPERTRAIL-SECRET-KEY: ${PAPERTRAIL_SECRET_KEY}" >> .papertrail.headers
+
+
+          for file in src/dist/* ; do
+           if [ -f "$file" ]; then
+              filename=$(basename "$file")
+              checksum=$(shasum -a 256 "$file" | cut -f1 -d' ')
+              platform="evergreen"
+              build="${EVERGREEN_TASK_ID}_${EVERGREEN_EXECUTION}"
+
+              curl -G -X POST -H @.papertrail.headers "https://papertrail.devprod-infra.prod.corp.mongodb.com/trace" \
+                --data-urlencode "version=${release_version}" \
+                --data-urlencode "product=${product}" \
+                --data-urlencode "sha256=${checksum}" \
+                --data-urlencode "filename=${filename}" \
+                --data-urlencode "build=${build}" \
+                --data-urlencode "platform=${platform}" \
+                --data-urlencode "submitter=${submitter}"
+            fi
+          done
+
+          rm -f .papertrail.headers
 
   release_draft:
     - command: expansions.write
