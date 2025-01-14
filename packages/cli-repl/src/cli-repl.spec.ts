@@ -2365,7 +2365,7 @@ describe('CliRepl', function () {
       });
 
       it('includes collection names', async function () {
-        if (!hasCollectionNames) return;
+        if (!hasCollectionNames) return this.skip();
         const collname = `testcollection${Date.now()}${
           (Math.random() * 1000) | 0
         }`;
@@ -2413,7 +2413,7 @@ describe('CliRepl', function () {
       });
 
       it('completes use <db>', async function () {
-        if (!hasDatabaseNames) return;
+        if (!hasDatabaseNames) return this.skip();
         input.write('db.getMongo()._listDatabases()\n'); // populate database cache
         await waitEval(cliRepl.bus);
 
@@ -2431,7 +2431,7 @@ describe('CliRepl', function () {
       });
 
       it('completes properties of shell API result types', async function () {
-        if (!hasCollectionNames) return;
+        if (!hasCollectionNames) return this.skip();
 
         input.write(
           'res = db.autocompleteTestColl.deleteMany({ deletetestdummykey: 1 })\n'
@@ -2451,7 +2451,7 @@ describe('CliRepl', function () {
       });
 
       it('completes only collection names that do not include control characters', async function () {
-        if (!hasCollectionNames) return;
+        if (!hasCollectionNames) return this.skip();
 
         input.write(
           'db["actestcoll1"].insertOne({}); db["actestcoll2\\x1bfooobar"].insertOne({})\n'
