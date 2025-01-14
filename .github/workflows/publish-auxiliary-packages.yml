@@ -44,8 +44,7 @@ jobs:
 
     - name: Install Dependencies
       run: |
-        npm run bootstrap-ci
-      shell: bash
+        npm ci --workspace @mongosh/build
 
     - name: "Publish what is not already in NPM"
       env:
