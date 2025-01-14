@@ -26,19 +26,21 @@ jobs:
   prepare-release:
     runs-on: ubuntu-latest
     steps:
-      - name: Create Github App Token
-        uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
+      - uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
         id: app-token
         with:
           app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
           private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
       
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          # NOTE: this is necessary to get the full history
-          # and check if tags are already present
-          fetch-depth: 0
+          # don't checkout a detatched HEAD
+          ref: ${{ github.head_ref }}
+
+          # this is important so git log can pick up on
+          # the whole history to generate the list of AUTHORS
+          fetch-depth: "0"
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Setup Node.js Environment
         uses: actions/setup-node@v4
@@ -87,15 +89,15 @@ jobs:
       - name: Bump mongosh and package versions
         shell: bash
         env:
-          LAST_BUMP_COMMIT_MESSAGE: "chore(release): prepare for mongosh v${NEXT_VERSION} ${{ github.event.inputs.jiraTicket }}"
+          MONGOSH_RELEASE_VERSION: ${{ env.NEXT_VERSION }}
         run: |
           set -e
           echo Bumping mongosh versions to ${NEXT_VERSION} and packages
 
-          MONGOSH_RELEASE_VERSION=${NEXT_VERSION} npm run bump
+          npm run bump
             
           git add .
-          git commit --no-allow-empty -m "$LAST_BUMP_COMMIT_MESSAGE" || true
+          git commit --no-allow-empty -m "chore(release): prepare for mongosh v${NEXT_VERSION} ${{ github.event.inputs.jiraTicket }}" || true
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # 7.0.5

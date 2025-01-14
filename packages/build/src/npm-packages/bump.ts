@@ -8,6 +8,7 @@ import {
 import { promises as fs } from 'fs';
 import path from 'path';
 import { getPackagesInTopologicalOrder } from '@mongodb-js/monorepo-tools';
+import { getPackageConfigurations } from './helpers';
 
 /** Bumps only the main mongosh release packages to the set version. */
 export async function bumpMongoshReleasePackages(): Promise<void> {
@@ -17,21 +18,21 @@ export async function bumpMongoshReleasePackages(): Promise<void> {
       'MONGOSH_RELEASE_VERSION version not specified during mongosh bump'
     );
   }
+
   console.info(`mongosh: Bumping package versions to ${version}`);
-  const monorepoRootPath = path.resolve(__dirname, '..', '..', '..', '..');
-  const packages = await getPackagesInTopologicalOrder(monorepoRootPath);
+  const packages = await getPackagesInTopologicalOrder(PROJECT_ROOT);
+  const packageConfigurations = await getPackageConfigurations(packages);
 
-  const workspaceNames = packages
-    .map((p) => p.name)
-    .filter((name) => MONGOSH_RELEASE_PACKAGES.includes(name));
+  const mongoshReleasePackages = packages.filter((packageInfo) =>
+    MONGOSH_RELEASE_PACKAGES.includes(packageInfo.name)
+  );
+  const workspaceNames = mongoshReleasePackages.map(
+    (packageInfo) => packageInfo.name
+  );
 
-  const locations = [monorepoRootPath, ...packages.map((p) => p.location)];
-
-  for (const location of locations) {
-    const packageJsonPath = path.join(location, 'package.json');
-    const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf8'));
-
+  for (const [packageJsonPath, packageJson] of packageConfigurations) {
     packageJson.version = version;
+
     for (const grouping of [
       'dependencies',
       'devDependencies',

@@ -20,35 +20,38 @@ describe('npm-packages publishToNpm', function () {
   );
 
   beforeEach(function () {
-    listNpmPackages = sinon.stub();
+    getPackagesInTopologicalOrder = sinon.stub();
     markBumpedFilesAsAssumeUnchanged = sinon.stub();
     spawnSync = sinon.stub();
   });
 
-  it('throws if mongosh is not existent when publishing all', function () {
+  it('throws if mongosh is not existent when publishing all', async function () {
     const packages = [{ name: 'packageA', version: '0.7.0' }];
-    listNpmPackages.returns(packages);
+    getPackagesInTopologicalOrder.resolves(packages);
 
     expect(() =>
       publishToNpm(
         { isDryRun: false, useAuxiliaryPackagesOnly: false },
-        listNpmPackages,
+        getPackagesInTopologicalOrder,
         markBumpedFilesAsAssumeUnchanged,
         spawnSync
-      )
-    ).throws('mongosh package not found');
+      );
+      expect.fail('should throw');
+    } catch (error) {
+      expect((error as Error).message).equals('mongosh package not found');
+    }
   });
 
-  it('takes mongosh version and pushes tags', function () {
+  it('takes mongosh version and pushes tags', async function () {
     const packages = [
       { name: 'packageA', version: '0.7.0' },
       { name: 'mongosh', version: '1.2.0' },
     ];
-    listNpmPackages.returns(packages);
+    getPackagesInTopologicalOrder.resolves(packages);
 
     publishToNpm(
       { isDryRun: false, useAuxiliaryPackagesOnly: false },
-      listNpmPackages,
+      getPackagesInTopologicalOrder,
       markBumpedFilesAsAssumeUnchanged,
       spawnSync
     );
@@ -57,16 +60,16 @@ describe('npm-packages publishToNpm', function () {
     expect(spawnSync).calledWith('git', ['push', '--follow-tags']);
   });
 
-  it('does not manually push tags with auxiliary packages', function () {
+  it('does not manually push tags with auxiliary packages', async function () {
     const packages = [
       { name: 'packageA', version: '0.7.0' },
       { name: 'mongosh', version: '1.2.0' },
     ];
-    listNpmPackages.returns(packages);
+    getPackagesInTopologicalOrder.resolves(packages);
 
     publishToNpm(
       { isDryRun: false, useAuxiliaryPackagesOnly: true },
-      listNpmPackages,
+      getPackagesInTopologicalOrder,
       markBumpedFilesAsAssumeUnchanged,
       spawnSync
     );
@@ -81,16 +84,16 @@ describe('npm-packages publishToNpm', function () {
     expect(spawnSync).not.calledWith('git', ['push', '--follow-tags']);
   });
 
-  it('calls lerna to publish packages for a real version', function () {
+  it('calls lerna to publish packages for a real version', async function () {
     const packages = [
       { name: 'packageA', version: '0.7.0' },
       { name: 'mongosh', version: '1.2.0' },
     ];
-    listNpmPackages.returns(packages);
+    getPackagesInTopologicalOrder.resolves(packages);
 
     publishToNpm(
       { isDryRun: false, useAuxiliaryPackagesOnly: false },
-      listNpmPackages,
+      getPackagesInTopologicalOrder,
       markBumpedFilesAsAssumeUnchanged,
       spawnSync
     );
@@ -118,15 +121,15 @@ describe('npm-packages publishToNpm', function () {
     );
   });
 
-  it('reverts the assume unchanged even on spawn failure', function () {
+  it('reverts the assume unchanged even on spawn failure', async function () {
     const packages = [{ name: 'packageA', version: '0.7.0' }];
-    listNpmPackages.returns(packages);
+    getPackagesInTopologicalOrder.resolves(packages);
     spawnSync.throws(new Error('meeep'));
 
     try {
       publishToNpm(
         { isDryRun: false, useAuxiliaryPackagesOnly: false },
-        listNpmPackages,
+        getPackagesInTopologicalOrder,
         markBumpedFilesAsAssumeUnchanged,
         spawnSync
       );
@@ -143,5 +146,63 @@ describe('npm-packages publishToNpm', function () {
       return;
     }
     expect.fail('Expected error');
+  });
+
+  describe('setReleasePublisher', function () {
+    let writeFileStub: sinon.SinonStub;
+    let readFileStub: sinon.SinonStub;
+
+    const packages = [
+      { name: 'package1', version: '1.0.0', location: 'packages/package1' },
+      { name: 'package2', version: '2.0.0', location: 'packages/package2' },
+    ];
+
+    beforeEach(() => {
+      writeFileStub = sinon.stub(fs, 'writeFile').resolves();
+
+      readFileStub = sinon.stub(fs, 'readFile');
+      readFileStub.throws();
+      readFileStub.withArgs('packages/package1/package.json', 'utf8').resolves(
+        JSON.stringify({
+          name: packages[0].name,
+          version: packages[0].version,
+        })
+      );
+      readFileStub.withArgs('packages/package2/package.json', 'utf8').resolves(
+        JSON.stringify({
+          name: packages[1].name,
+          version: packages[1].version,
+        })
+      );
+    });
+
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it('should set the releasePublisher for each package and write the updated package.json', async () => {
+      const publisher = 'test-publisher';
+      await setReleasePublisher(publisher, packages as PackageInfo[]);
+
+      expect(writeFileStub.calledTwice).to.be.true;
+
+      expect(writeFileStub.firstCall.args[0]).to.equal(
+        'packages/package1/package.json'
+      );
+      expect(JSON.parse(writeFileStub.firstCall.args[1])).to.deep.equal({
+        name: 'package1',
+        version: '1.0.0',
+        releasePublisher: 'test-publisher',
+      });
+
+      expect(writeFileStub.secondCall.args[0]).to.equal(
+        'packages/package2/package.json'
+      );
+      expect(JSON.parse(writeFileStub.secondCall.args[1])).to.deep.equal({
+        name: 'package2',
+        version: '2.0.0',
+        releasePublisher: 'test-publisher',
+      });
+    });
   });
 });

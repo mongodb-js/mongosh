@@ -5,17 +5,29 @@ import {
   MONGOSH_RELEASE_PACKAGES,
   PROJECT_ROOT,
 } from './constants';
-import type { LernaPackageDescription } from './list';
-import { listNpmPackages as listNpmPackagesFn } from './list';
 import { spawnSync as spawnSyncFn } from '../helpers/spawn-sync';
 import type { SpawnSyncOptionsWithStringEncoding } from 'child_process';
+import {
+  getPackagesInTopologicalOrder as getPackagesInTopologicalOrderFn,
+  PackageInfo,
+} from '@mongodb-js/monorepo-tools';
+import {
+  getPackageConfigurations,
+  markBumpedFilesAsAssumeUnchanged,
+} from './helpers';
+import { promises as fs } from 'fs';
 
 export function publishToNpm(
   { isDryRun = false, useAuxiliaryPackagesOnly = false },
-  listNpmPackages: typeof listNpmPackagesFn = listNpmPackagesFn,
+  getPackagesInTopologicalOrder: typeof getPackagesInTopologicalOrderFn = getPackagesInTopologicalOrderFn,
   markBumpedFilesAsAssumeUnchangedFn: typeof markBumpedFilesAsAssumeUnchanged = markBumpedFilesAsAssumeUnchanged,
   spawnSync: typeof spawnSyncFn = spawnSyncFn
-): void {
+): Promise<void> {
+  const publisher = process.env.MONGOSH_RELEASE_PUBLISHER;
+  if (!publisher) {
+    throw new Error('MONGOSH_RELEASE_PUBLISHER not specified for publishing');
+  }
+
   const commandOptions: SpawnSyncOptionsWithStringEncoding = {
     stdio: 'inherit',
     cwd: PROJECT_ROOT,
@@ -25,7 +37,8 @@ export function publishToNpm(
       ...(isDryRun ? { npm_config_dry_run: 'true' } : {}),
     },
   };
-  let packages = listNpmPackages().filter(
+
+  let packages = (await getPackagesInTopologicalOrder(PROJECT_ROOT)).filter(
     (packageConfig) => !EXCLUDE_RELEASE_PACKAGES.includes(packageConfig.name)
   );
 
@@ -34,6 +47,7 @@ export function publishToNpm(
       (packageConfig) => !MONGOSH_RELEASE_PACKAGES.includes(packageConfig.name)
     );
   }
+  await setReleasePublisher(publisher, packages);
   // Lerna requires a clean repository for a publish from-package
   // we use git update-index --assume-unchanged on files we know have been bumped
   markBumpedFilesAsAssumeUnchangedFn(packages, true);
@@ -74,37 +88,18 @@ export function publishToNpm(
   }
 }
 
-export function markBumpedFilesAsAssumeUnchanged(
-  packages: LernaPackageDescription[],
-  assumeUnchanged: boolean,
-  spawnSync: typeof spawnSyncFn = spawnSyncFn
-): void {
-  const filesToAssume = [
-    path.resolve(PROJECT_ROOT, 'lerna.json'),
-    path.resolve(PROJECT_ROOT, 'package.json'),
-    path.resolve(PROJECT_ROOT, 'package-lock.json'),
-  ];
-  for (const { location } of packages) {
-    filesToAssume.push(path.resolve(location, 'package.json'));
-  }
+export async function setReleasePublisher(
+  publisher: string,
+  packages: PackageInfo[]
+): Promise<void> {
+  const packageConfigurations = await getPackageConfigurations(packages);
 
-  for (const f of filesToAssume) {
-    spawnSync(
-      'git',
-      [
-        'update-index',
-        assumeUnchanged ? '--assume-unchanged' : '--no-assume-unchanged',
-        f,
-      ],
-      {
-        stdio: 'inherit',
-        cwd: PROJECT_ROOT,
-        encoding: 'utf8',
-      },
-      true
-    );
-    console.info(
-      `File ${f} is now ${assumeUnchanged ? '' : 'NOT '}assumed to be unchanged`
+  for (const [packageJsonPath, packageJson] of packageConfigurations) {
+    packageJson.releasePublisher = publisher;
+
+    await fs.writeFile(
+      packageJsonPath,
+      JSON.stringify(packageJson, null, 2) + '\n'
     );
   }
 }
