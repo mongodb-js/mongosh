@@ -4233,6 +4233,7 @@ functions:
           PAPERTRAIL_SECRET_KEY: ${papertrail_secret_key}
           EVERGREEN_TASK_ID: ${task_id}
           EVERGREEN_EXECUTION: ${execution}
+          EVERGREEN_AUTHOR: ${author}
         working_dir: src
         shell: bash
         script: |
@@ -4246,9 +4247,8 @@ functions:
 
           # Set the release publisher
           submitter=$(node -p 'JSON.parse(fs.readFileSync("packages/cli-repl/package.json")).releasePublisher')
-          if [ -z "$submitter" ] || [ "$submitter" == "undefined" ]; then
-            echo "releasePublisher is not set"
-            exit 1
+          if [ -z "$submitter" ] || [ "$submitter" == "undefined" ] || [ "$submitter" == "null" ]; then
+            submitter="${EVERGREEN_AUTHOR}"
           fi
 
           echo "Setting version for papertrail to $tag, with product ${product} and submitter ${submitter}"

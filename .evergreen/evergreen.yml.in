@@ -878,10 +878,15 @@ functions:
           PAPERTRAIL_SECRET_KEY: ${papertrail_secret_key}
           EVERGREEN_TASK_ID: ${task_id}
           EVERGREEN_EXECUTION: ${execution}
+          EVERGREEN_AUTHOR: ${author}
         working_dir: src
         shell: bash
         script: |
           set -e
+          echo "X-PAPERTRAIL-KEY-ID: ${PAPERTRAIL_KEY_ID}" > .papertrail.headers
+          echo "X-PAPERTRAIL-SECRET-KEY: ${PAPERTRAIL_SECRET_KEY}" >> .papertrail.headers
+
+          set -x
           ls -lh dist/
           if [ x"${triggered_by_git_tag}" == x"" ]; then
             tag=$(git describe --tags --always --dirty)
@@ -891,16 +896,12 @@ functions:
 
           # Set the release publisher
           submitter=$(node -p 'JSON.parse(fs.readFileSync("packages/cli-repl/package.json")).releasePublisher')
-          if [ -z "$submitter" ] || [ "$submitter" == "undefined" ]; then
-            echo "releasePublisher is not set"
-            exit 1
+          if [ -z "$submitter" ] || [ "$submitter" == "undefined" ] || [ "$submitter" == "null" ]; then
+            echo "Using evergreen author as submitter"
+            submitter="${EVERGREEN_AUTHOR}"
           fi
 
           echo "Setting version for papertrail to $tag, with product ${product} and submitter ${submitter}"
- 
-          echo "X-PAPERTRAIL-KEY-ID: ${PAPERTRAIL_KEY_ID}" > .papertrail.headers
-          echo "X-PAPERTRAIL-SECRET-KEY: ${PAPERTRAIL_SECRET_KEY}" >> .papertrail.headers
-
 
           for file in src/dist/* ; do
            if [ -f "$file" ]; then

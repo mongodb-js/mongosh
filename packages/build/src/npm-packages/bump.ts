@@ -23,13 +23,6 @@ export async function bumpMongoshReleasePackages(): Promise<void> {
   const packages = await getPackagesInTopologicalOrder(PROJECT_ROOT);
   const packageConfigurations = await getPackageConfigurations(packages);
 
-  const mongoshReleasePackages = packages.filter((packageInfo) =>
-    MONGOSH_RELEASE_PACKAGES.includes(packageInfo.name)
-  );
-  const workspaceNames = mongoshReleasePackages.map(
-    (packageInfo) => packageInfo.name
-  );
-
   for (const [packageJsonPath, packageJson] of packageConfigurations) {
     packageJson.version = version;
 
@@ -44,7 +37,7 @@ export async function bumpMongoshReleasePackages(): Promise<void> {
       }
 
       for (const name of Object.keys(packageJson[grouping])) {
-        if (!workspaceNames.includes(name)) {
+        if (!MONGOSH_RELEASE_PACKAGES.includes(name)) {
           continue;
         }
         packageJson[grouping][name] = version;

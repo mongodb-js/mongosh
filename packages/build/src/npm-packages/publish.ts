@@ -1,4 +1,3 @@
-import path from 'path';
 import {
   EXCLUDE_RELEASE_PACKAGES,
   LERNA_BIN,
@@ -6,26 +5,28 @@ import {
   PROJECT_ROOT,
 } from './constants';
 import { spawnSync as spawnSyncFn } from '../helpers/spawn-sync';
-import type { SpawnSyncOptionsWithStringEncoding } from 'child_process';
-import {
-  getPackagesInTopologicalOrder as getPackagesInTopologicalOrderFn,
-  PackageInfo,
-} from '@mongodb-js/monorepo-tools';
+import { type SpawnSyncOptionsWithStringEncoding } from 'child_process';
+import type { PackageInfo } from '@mongodb-js/monorepo-tools';
+import { getPackagesInTopologicalOrder as getPackagesInTopologicalOrderFn } from '@mongodb-js/monorepo-tools';
 import {
   getPackageConfigurations,
   markBumpedFilesAsAssumeUnchanged,
 } from './helpers';
 import { promises as fs } from 'fs';
 
-export function publishToNpm(
+export async function publishToNpm(
   { isDryRun = false, useAuxiliaryPackagesOnly = false },
   getPackagesInTopologicalOrder: typeof getPackagesInTopologicalOrderFn = getPackagesInTopologicalOrderFn,
   markBumpedFilesAsAssumeUnchangedFn: typeof markBumpedFilesAsAssumeUnchanged = markBumpedFilesAsAssumeUnchanged,
   spawnSync: typeof spawnSyncFn = spawnSyncFn
 ): Promise<void> {
   const publisher = process.env.MONGOSH_RELEASE_PUBLISHER;
-  if (!publisher) {
-    throw new Error('MONGOSH_RELEASE_PUBLISHER not specified for publishing');
+  if (!useAuxiliaryPackagesOnly) {
+    if (!publisher) {
+      throw new Error(
+        'MONGOSH_RELEASE_PUBLISHER is required for publishing mongosh'
+      );
+    }
   }
 
   const commandOptions: SpawnSyncOptionsWithStringEncoding = {
@@ -47,7 +48,9 @@ export function publishToNpm(
       (packageConfig) => !MONGOSH_RELEASE_PACKAGES.includes(packageConfig.name)
     );
   }
-  await setReleasePublisher(publisher, packages);
+  if (publisher) {
+    await setReleasePublisher(publisher, packages);
+  }
   // Lerna requires a clean repository for a publish from-package
   // we use git update-index --assume-unchanged on files we know have been bumped
   markBumpedFilesAsAssumeUnchangedFn(packages, true);
@@ -80,7 +83,7 @@ export function publishToNpm(
 
     spawnSync(
       'git',
-      ['tag', '-a', mongoshVersion, '-m', mongoshVersion],
+      ['tag', '-a', `v${mongoshVersion}`, '-m', `v${mongoshVersion}`],
       commandOptions
     );
 

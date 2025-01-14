@@ -2,10 +2,12 @@ import { expect } from 'chai';
 import path from 'path';
 import type { SinonStub } from 'sinon';
 import sinon from 'sinon';
-import { publishToNpm } from './publish';
+import { publishToNpm, setReleasePublisher } from './publish';
+import { promises as fs } from 'fs';
+import type { PackageInfo } from '@mongodb-js/monorepo-tools';
 
 describe('npm-packages publishToNpm', function () {
-  let listNpmPackages: SinonStub;
+  let getPackagesInTopologicalOrder: SinonStub;
   let markBumpedFilesAsAssumeUnchanged: SinonStub;
   let spawnSync: SinonStub;
   const lernaBin = path.resolve(
@@ -18,19 +20,23 @@ describe('npm-packages publishToNpm', function () {
     '.bin',
     'lerna'
   );
+  const packages = [
+    { name: 'packageA', version: '0.7.0', location: '/packages/packageA' },
+    { name: 'mongosh', version: '1.2.0', location: '/packages/mongosh' },
+  ];
 
   beforeEach(function () {
     getPackagesInTopologicalOrder = sinon.stub();
     markBumpedFilesAsAssumeUnchanged = sinon.stub();
     spawnSync = sinon.stub();
+    process.env.MONGOSH_RELEASE_PUBLISHER = 'test-publisher';
   });
 
   it('throws if mongosh is not existent when publishing all', async function () {
     const packages = [{ name: 'packageA', version: '0.7.0' }];
     getPackagesInTopologicalOrder.resolves(packages);
-
-    expect(() =>
-      publishToNpm(
+    try {
+      await publishToNpm(
         { isDryRun: false, useAuxiliaryPackagesOnly: false },
         getPackagesInTopologicalOrder,
         markBumpedFilesAsAssumeUnchanged,
@@ -42,14 +48,28 @@ describe('npm-packages publishToNpm', function () {
     }
   });
 
-  it('takes mongosh version and pushes tags', async function () {
-    const packages = [
-      { name: 'packageA', version: '0.7.0' },
-      { name: 'mongosh', version: '1.2.0' },
-    ];
+  it('throws if publisher is not set when publishing all', async function () {
     getPackagesInTopologicalOrder.resolves(packages);
 
-    publishToNpm(
+    try {
+      await publishToNpm(
+        { isDryRun: false, useAuxiliaryPackagesOnly: false },
+        getPackagesInTopologicalOrder,
+        markBumpedFilesAsAssumeUnchanged,
+        spawnSync
+      );
+      expect.fail('should throw');
+    } catch (error) {
+      expect((error as Error).message).equals(
+        'MONGOSH_RELEASE_PUBLISHER is required for publishing mongosh'
+      );
+    }
+  });
+
+  it('takes mongosh version and pushes tags', async function () {
+    getPackagesInTopologicalOrder.resolves(packages);
+
+    await publishToNpm(
       { isDryRun: false, useAuxiliaryPackagesOnly: false },
       getPackagesInTopologicalOrder,
       markBumpedFilesAsAssumeUnchanged,
@@ -61,13 +81,9 @@ describe('npm-packages publishToNpm', function () {
   });
 
   it('does not manually push tags with auxiliary packages', async function () {
-    const packages = [
-      { name: 'packageA', version: '0.7.0' },
-      { name: 'mongosh', version: '1.2.0' },
-    ];
     getPackagesInTopologicalOrder.resolves(packages);
 
-    publishToNpm(
+    await publishToNpm(
       { isDryRun: false, useAuxiliaryPackagesOnly: true },
       getPackagesInTopologicalOrder,
       markBumpedFilesAsAssumeUnchanged,
@@ -85,13 +101,9 @@ describe('npm-packages publishToNpm', function () {
   });
 
   it('calls lerna to publish packages for a real version', async function () {
-    const packages = [
-      { name: 'packageA', version: '0.7.0' },
-      { name: 'mongosh', version: '1.2.0' },
-    ];
     getPackagesInTopologicalOrder.resolves(packages);
 
-    publishToNpm(
+    await publishToNpm(
       { isDryRun: false, useAuxiliaryPackagesOnly: false },
       getPackagesInTopologicalOrder,
       markBumpedFilesAsAssumeUnchanged,
@@ -122,12 +134,11 @@ describe('npm-packages publishToNpm', function () {
   });
 
   it('reverts the assume unchanged even on spawn failure', async function () {
-    const packages = [{ name: 'packageA', version: '0.7.0' }];
     getPackagesInTopologicalOrder.resolves(packages);
     spawnSync.throws(new Error('meeep'));
 
     try {
-      publishToNpm(
+      await publishToNpm(
         { isDryRun: false, useAuxiliaryPackagesOnly: false },
         getPackagesInTopologicalOrder,
         markBumpedFilesAsAssumeUnchanged,
@@ -157,7 +168,7 @@ describe('npm-packages publishToNpm', function () {
       { name: 'package2', version: '2.0.0', location: 'packages/package2' },
     ];
 
-    beforeEach(() => {
+    beforeEach(function () {
       writeFileStub = sinon.stub(fs, 'writeFile').resolves();
 
       readFileStub = sinon.stub(fs, 'readFile');
@@ -176,11 +187,11 @@ describe('npm-packages publishToNpm', function () {
       );
     });
 
-    afterEach(() => {
+    afterEach(function () {
       sinon.restore();
     });
 
-    it('should set the releasePublisher for each package and write the updated package.json', async () => {
+    it('should set the releasePublisher for each package and write the updated package.json', async function () {
       const publisher = 'test-publisher';
       await setReleasePublisher(publisher, packages as PackageInfo[]);
 

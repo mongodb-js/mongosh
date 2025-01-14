@@ -81,7 +81,7 @@ export async function publishMongosh(
   // ensures the segment api key to be present in the published packages
   await writeBuildInfo(config, 'packaged');
 
-  publishToNpm({
+  await publishToNpm({
     isDryRun: config.isDryRun,
     useAuxiliaryPackagesOnly: config.useAuxiliaryPackagesOnly,
   });

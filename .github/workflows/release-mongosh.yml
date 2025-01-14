@@ -52,12 +52,10 @@ jobs:
           exit 1
         fi
 
-    - name: "Publish what is not already in NPM"
+    - name: "Trigger mongosh publish"
       env:
         NPM_TOKEN: ${{ secrets.DEVTOOLSBOT_NPM_TOKEN }}
         MONGOSH_RELEASE_PUBLISHER: ${{ github.triggering_actor }}
       run: |
         echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
-        npm config list
-        echo "Publishing packages as $(npm whoami)"
         npm run publish

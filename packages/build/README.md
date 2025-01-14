@@ -25,20 +25,11 @@ Execute the following steps to publish a new release:
 
 1. Ensure there is a Jira _Release_ ticket in the [`MONGOSH` project](https://jira.mongodb.org/projects/MONGOSH) for the new release and move it to _In Progress_.
 2. Verify that the Jira tickets you expect to be released are correctly mapped to the _Release_ ticket. Add any additional required documentation to the release ticket.
-3. Trigger the draft release by running:
-   ```
-   npm run release draft
-   ```
-   Follow the instructions and ensure that the new draft tag to be created matches the expected release version.
-4. Wait for Evergreen to finish the build and complete the draft stage.\
-   _Repeat step 3 if there are any additional changes that need to be part of the release._
+3. Trigger the draft release by triggering the `Prepare mongosh Release` workflow. Set the release Jira ticket and ensure that the new draft tag that gets created matches the expected release version.
+4. Wait for the workflow to create a PR for the release and ensure the changed files are correct. **Do not merge the PR!**
 5. Sync main branch of the [mongodb-js/homebrew-core](https://github.com/mongodb-js/homebrew-core/) repository with the upstream.
-6. Trigger the publication of the release by running:
-   ```
-   npm run release publish
-   ```
-   Follow the instructions and verify the inferred release version is correct.
-7. Wait for Evergreen to finish the publication stage.
+6. Trigger the `Release mongosh` workflow on the newly created `release/X.Y.Z` branch. This will start the release process and will automatically merge the PR once it is complete.
+7. Wait for Evergreen to finish the publication stage and automatically merge the PR.
 8. Close the Jira ticket for the release, post an update in the `#mongosh` Slack channel and ping the docs team.
 
 ### Branches and Tags

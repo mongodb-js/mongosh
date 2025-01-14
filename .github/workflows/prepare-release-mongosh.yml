@@ -104,7 +104,7 @@ jobs:
         with:
           token: ${{ steps.app-token.outputs.token }}
           commit-message: "chore(release): prepare for mongosh v${NEXT_VERSION} ${{ github.event.inputs.jiraTicket }}"
-          branch: release/${NEXT_VERSION}
+          branch: release/${RELEASE_TAG}
           title: "chore(release): prepare for mongosh v${NEXT_VERSION} ${{ github.event.inputs.jiraTicket }}"
           body: |
             - [${{ github.event.inputs.jiraTicket }}](https://jira.mongodb.org/browse/${{ github.event.inputs.jiraTicket }})
