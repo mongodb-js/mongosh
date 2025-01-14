@@ -33,7 +33,7 @@ describe('e2e', function () {
   const testServer = startSharedTestServer();
 
   describe('--version', function () {
-    it('shows version which matches @mongosh/cli-repl', async function () {
+    it('shows version and matches @mongosh/cli-repl', async function () {
       const expectedPackageVersion: string =
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         require('../package.json')['dependencies']['@mongosh/cli-repl'];
