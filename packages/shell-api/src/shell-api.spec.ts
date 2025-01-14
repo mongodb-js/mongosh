@@ -23,6 +23,7 @@ import { bson } from '@mongosh/service-provider-core';
 import { EventEmitter } from 'events';
 import type { EvaluationListener } from './shell-instance-state';
 import ShellInstanceState from './shell-instance-state';
+import { MONGOSH_VERSION } from './mongosh-version';
 
 const b641234 = 'MTIzNA==';
 const schemaMap = {
@@ -513,7 +514,7 @@ describe('ShellApi', function () {
     describe('version', function () {
       it('returns a string for the version', function () {
         const version = instanceState.shellApi.version();
-        const expected = require('../package.json').version;
+        const expected = MONGOSH_VERSION;
         expect(version).to.be.a('string');
         expect(version).to.equal(expected);
       });
@@ -650,7 +651,7 @@ describe('ShellApi', function () {
     describe('version', function () {
       it('returns a string for the version', function () {
         const version = instanceState.context.version();
-        const expected = require('../package.json').version;
+        const expected = MONGOSH_VERSION;
         expect(version).to.be.a('string');
         expect(version).to.equal(expected);
       });
