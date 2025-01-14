@@ -2449,6 +2449,24 @@ describe('CliRepl', function () {
         await waitCompletion(cliRepl.bus);
         expect(output).to.include('res.acknowledged');
       });
+
+      it('completes only collection names that do not include control characters', async function () {
+        if (!hasCollectionNames) return;
+
+        input.write(
+          'db["actestcoll1"].insertOne({}); db["actestcoll2\\x1bfooobar"].insertOne({})\n'
+        );
+        await waitEval(cliRepl.bus);
+        input.write('db._getCollectionNames()\n'); // populate collection name cache
+        await waitEval(cliRepl.bus);
+
+        output = '';
+        input.write('db.actestc');
+        await tabtab();
+        await waitCompletion(cliRepl.bus);
+        expect(output).to.include('db.actestcoll1');
+        expect(output).to.not.include('db.actestcoll2');
+      });
     });
   }
 

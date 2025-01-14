@@ -45,6 +45,9 @@ import { Script, createContext, runInContext } from 'vm';
 
 declare const __non_webpack_require__: any;
 
+// eslint-disable-next-line no-control-regex
+const CONTROL_CHAR_REGEXP = /[\x00-\x1F\x7F-\x9F]/g;
+
 /**
  * All CLI flags that are useful for {@link MongoshNodeRepl}.
  */
@@ -434,7 +437,12 @@ class MongoshNodeRepl implements EvaluationListener {
       async (text: string): Promise<[string[], string]> => {
         this.insideAutoCompleteOrGetPrompt = true;
         try {
-          return await innerCompleter(text);
+          // eslint-disable-next-line prefer-const
+          let [results, completeOn] = await innerCompleter(text);
+          results = results.filter(
+            (result) => !CONTROL_CHAR_REGEXP.test(result)
+          );
+          return [results, completeOn];
         } finally {
           this.insideAutoCompleteOrGetPrompt = false;
         }
