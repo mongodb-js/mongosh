@@ -1,4 +1,7 @@
-export { setupLoggerAndTelemetry } from './setup-logger-and-telemetry';
+export {
+  setupLoggerAndTelemetry,
+  setupMongoLogWriter,
+} from './setup-logger-and-telemetry';
 export {
   MongoshAnalytics,
   ToggleableAnalytics,

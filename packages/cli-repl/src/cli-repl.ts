@@ -32,6 +32,7 @@ import type { MongoshNodeReplOptions, MongoshIOProvider } from './mongosh-repl';
 import MongoshNodeRepl from './mongosh-repl';
 import {
   setupLoggerAndTelemetry,
+  setupMongoLogWriter,
   ToggleableAnalytics,
   ThrottledAnalytics,
   SampledAnalytics,
@@ -307,22 +308,45 @@ export class CliRepl implements MongoshIOProvider {
     }
     markTime(TimingCategories.REPLInstantiation, 'ensured shell homedir');
 
-    await this.logManager.cleanupOldLogfiles();
-    markTime(TimingCategories.Logging, 'cleaned up log files');
-    const logger = await this.logManager.createLogWriter();
-    const { quiet } = CliRepl.getFileAndEvalInfo(this.cliOptions);
-    if (!quiet) {
-      this.output.write(`Current Mongosh Log ID:\t${logger.logId}\n`);
-    }
-    this.logWriter = logger;
-    markTime(TimingCategories.Logging, 'instantiated log writer');
+    setupLoggerAndTelemetry(
+      this.bus,
+      this.toggleableAnalytics,
+      {
+        platform: process.platform,
+        arch: process.arch,
+        is_containerized: this.isContainerizedEnvironment,
+        ...(await getOsInfo()),
+      },
+      version
+    );
+    markTime(TimingCategories.Telemetry, 'completed telemetry setup');
 
-    logger.info('MONGOSH', mongoLogId(1_000_000_000), 'log', 'Starting log', {
-      execPath: process.execPath,
-      envInfo: redactSensitiveData(this.getLoggedEnvironmentVariables()),
-      ...(await buildInfo()),
-    });
-    markTime(TimingCategories.Logging, 'logged initial message');
+    // Read the global config with a log location.
+    this.globalConfig = await this.loadGlobalConfigFile();
+    markTime(TimingCategories.UserConfigLoading, 'read global config files');
+
+    const disableLogging = false; // Can be configured via global settings.
+    if (!disableLogging) {
+      await this.logManager.cleanupOldLogfiles();
+      markTime(TimingCategories.Logging, 'cleaned up log files');
+      const logger = await this.logManager.createLogWriter();
+      const { quiet } = CliRepl.getFileAndEvalInfo(this.cliOptions);
+      if (!quiet) {
+        this.output.write(`Current Mongosh Log ID:\t${logger.logId}\n`);
+      }
+
+      this.logWriter = logger;
+      markTime(TimingCategories.Logging, 'instantiated log writer');
+
+      setupMongoLogWriter(logger);
+      this.bus.emit('mongosh:log-initialized', {});
+      logger.info('MONGOSH', mongoLogId(1_000_000_000), 'log', 'Starting log', {
+        execPath: process.execPath,
+        envInfo: redactSensitiveData(this.getLoggedEnvironmentVariables()),
+        ...(await buildInfo()),
+      });
+      markTime(TimingCategories.Logging, 'logged initial message');
+    }
 
     let analyticsSetupError: Error | null = null;
     try {
@@ -334,19 +358,6 @@ export class CliRepl implements MongoshIOProvider {
     }
 
     markTime(TimingCategories.Telemetry, 'created analytics instance');
-    setupLoggerAndTelemetry(
-      this.bus,
-      logger,
-      this.toggleableAnalytics,
-      {
-        platform: process.platform,
-        arch: process.arch,
-        is_containerized: this.isContainerizedEnvironment,
-        ...(await getOsInfo()),
-      },
-      version
-    );
-    markTime(TimingCategories.Telemetry, 'completed telemetry setup');
 
     if (analyticsSetupError) {
       this.bus.emit('mongosh:error', analyticsSetupError, 'analytics');
@@ -359,9 +370,6 @@ export class CliRepl implements MongoshIOProvider {
     } catch (err: any) {
       this.warnAboutInaccessibleFile(err);
     }
-
-    this.globalConfig = await this.loadGlobalConfigFile();
-    markTime(TimingCategories.UserConfigLoading, 'read global config files');
 
     // Needs to happen after loading the mongosh config file(s)
     void this.fetchMongoshUpdateUrl();

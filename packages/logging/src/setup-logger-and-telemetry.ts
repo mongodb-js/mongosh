@@ -31,12 +31,17 @@ import type {
   FetchingUpdateMetadataEvent,
   FetchingUpdateMetadataCompleteEvent,
   SessionStartedEvent,
+  WriteCustomLogEvent,
 } from '@mongosh/types';
 import { inspect } from 'util';
-import type { MongoLogWriter } from 'mongodb-log-writer';
+import { MongoLogWriter } from 'mongodb-log-writer';
 import { mongoLogId } from 'mongodb-log-writer';
 import type { MongoshAnalytics } from './analytics-helpers';
 import { hookLogger } from '@mongodb-js/devtools-connect';
+import { Writable } from 'stream';
+
+// Queue up events that happen before logging is initialized.
+const pendingLogEvents: unknown[] = [];
 
 /**
  * A helper class for keeping track of how often specific events occurred.
@@ -87,6 +92,17 @@ export function toSnakeCase(str: string): string {
   return matches.map((x) => x.toLowerCase()).join('_');
 }
 
+const dummySink = new Writable({
+  write(chunk, encoding, callback) {
+    callback();
+  },
+});
+let log = new MongoLogWriter('', null, dummySink);
+
+export function setupMongoLogWriter(logger: MongoLogWriter) {
+  log = logger;
+}
+
 /**
  * Connect a MongoshBus instance that emits events to logging and analytics providers.
  *
@@ -96,7 +112,6 @@ export function toSnakeCase(str: string): string {
  */
 export function setupLoggerAndTelemetry(
   bus: MongoshBus,
-  log: MongoLogWriter,
   analytics: MongoshAnalytics,
   userTraits: any,
   mongosh_version: string
@@ -116,18 +131,48 @@ export function setupLoggerAndTelemetry(
     anonymousId: telemetryAnonymousId ?? userId,
   });
 
+  let hasMongoLogWriterInitialised = false;
+  function onBus(event: any, listener: any) {
+    bus.on(event, (...args: any) => {
+      if (hasMongoLogWriterInitialised) {
+        listener(...args);
+      } else {
+        pendingLogEvents.push(() => listener(...args));
+      }
+    });
+  }
+  bus.on('mongosh:log-initialized', () => {
+    hasMongoLogWriterInitialised = true;
+    for (const ev of pendingLogEvents) {
+      // @ts-expect-error electron types are conflicting with Node.js ones here
+      // not allowing anything but defined events on the process
+      ev();
+    }
+  });
+
   // We emit different analytics events for loading files and evaluating scripts
   // depending on whether we're already in the REPL or not yet. We store the
   // state here so that the places where the events are emitted don't have to
   // be aware of this distinction.
   let hasStartedMongoshRepl = false;
-  bus.on('mongosh:start-mongosh-repl', (ev: StartMongoshReplEvent) => {
+  onBus('mongosh:start-mongosh-repl', (ev: StartMongoshReplEvent) => {
     log.info('MONGOSH', mongoLogId(1_000_000_002), 'repl', 'Started REPL', ev);
     hasStartedMongoshRepl = true;
   });
 
   let usesShellOption = false;
-  bus.on(
+  onBus('mongosh:write-custom-log', (event: WriteCustomLogEvent) => {
+    log[event.method](
+      'MONGOSH-SCRIPTS',
+      mongoLogId(1_000_000_054),
+      'custom-log',
+      event.message,
+      event.attr,
+      event.level
+    );
+  });
+
+  onBus(
     'mongosh:start-loading-cli-scripts',
     (event: StartLoadingCliScriptsEvent) => {
       log.info(
@@ -140,7 +185,7 @@ export function setupLoggerAndTelemetry(
     }
   );
 
-  bus.on('mongosh:connect', function (args: ConnectEvent) {
+  onBus('mongosh:connect', function (args: ConnectEvent) {
     const { uri, resolved_hostname, ...argsWithoutUriAndHostname } = args;
     const connectionUri = uri && redactURICredentials(uri);
     const atlasHostname = {
@@ -172,7 +217,7 @@ export function setupLoggerAndTelemetry(
     });
   });
 
-  bus.on('mongosh:start-session', function (args: SessionStartedEvent) {
+  onBus('mongosh:start-session', function (args: SessionStartedEvent) {
     const normalisedTimingsArray = Object.entries(args.timings).map(
       ([key, duration]) => {
         const snakeCaseKey = toSnakeCase(key);
@@ -193,7 +238,7 @@ export function setupLoggerAndTelemetry(
     });
   });
 
-  bus.on(
+  onBus(
     'mongosh:new-user',
     function (newTelemetryUserIdentity: {
       userId: string;
@@ -210,7 +255,7 @@ export function setupLoggerAndTelemetry(
     }
   );
 
-  bus.on(
+  onBus(
     'mongosh:update-user',
     function (updatedTelemetryUserIdentity: {
       userId: string;
@@ -229,7 +274,7 @@ export function setupLoggerAndTelemetry(
     }
   );
 
-  bus.on('mongosh:error', function (error: Error, context: string) {
+  onBus('mongosh:error', function (error: Error, context: string) {
     const mongoshError = error as {
       name: string;
       message: string;
@@ -238,23 +283,13 @@ export function setupLoggerAndTelemetry(
       metadata: any;
     };
 
-    if (context === 'fatal') {
-      log.fatal(
-        'MONGOSH',
-        mongoLogId(1_000_000_006),
-        context,
-        `${mongoshError.name}: ${mongoshError.message}`,
-        error
-      );
-    } else {
-      log.error(
-        'MONGOSH',
-        mongoLogId(1_000_000_006),
-        context,
-        `${mongoshError.name}: ${mongoshError.message}`,
-        error
-      );
-    }
+    log[context === 'fatal' ? 'fatal' : 'error'](
+      'MONGOSH',
+      mongoLogId(1_000_000_006),
+      context,
+      `${mongoshError.name}: ${mongoshError.message}`,
+      error
+    );
 
     if (error.name.includes('Mongosh')) {
       analytics.track({
@@ -271,7 +306,7 @@ export function setupLoggerAndTelemetry(
     }
   });
 
-  bus.on(
+  onBus(
     'mongosh:globalconfig-load',
     function (args: GlobalConfigFileLoadEvent) {
       log.info(
@@ -284,7 +319,7 @@ export function setupLoggerAndTelemetry(
     }
   );
 
-  bus.on('mongosh:evaluate-input', function (args: EvaluateInputEvent) {
+  onBus('mongosh:evaluate-input', function (args: EvaluateInputEvent) {
     log.info(
       'MONGOSH',
       mongoLogId(1_000_000_007),
@@ -294,7 +329,7 @@ export function setupLoggerAndTelemetry(
     );
   });
 
-  bus.on('mongosh:use', function (args: UseEvent) {
+  onBus('mongosh:use', function (args: UseEvent) {
     log.info(
       'MONGOSH',
       mongoLogId(1_000_000_008),
@@ -312,7 +347,7 @@ export function setupLoggerAndTelemetry(
     });
   });
 
-  bus.on('mongosh:show', function (args: ShowEvent) {
+  onBus('mongosh:show', function (args: ShowEvent) {
     log.info(
       'MONGOSH',
       mongoLogId(1_000_000_009),
@@ -331,7 +366,7 @@ export function setupLoggerAndTelemetry(
     });
   });
 
-  bus.on('mongosh:setCtx', function (args: ApiEventWithArguments) {
+  onBus('mongosh:setCtx', function (args: ApiEventWithArguments) {
     log.info(
       'MONGOSH',
       mongoLogId(1_000_000_010),
@@ -341,7 +376,7 @@ export function setupLoggerAndTelemetry(
     );
   });
 
-  bus.on(
+  onBus(
     'mongosh:api-call-with-arguments',
     function (args: ApiEventWithArguments) {
       // TODO: redactInfo cannot handle circular or otherwise nontrivial input
@@ -361,7 +396,7 @@ export function setupLoggerAndTelemetry(
     }
   );
 
-  bus.on('mongosh:api-load-file', function (args: ScriptLoadFileEvent) {
+  onBus('mongosh:api-load-file', function (args: ScriptLoadFileEvent) {
     log.info(
       'MONGOSH',
       mongoLogId(1_000_000_012),
@@ -381,7 +416,7 @@ export function setupLoggerAndTelemetry(
     });
   });
 
-  bus.on('mongosh:eval-cli-script', function () {
+  onBus('mongosh:eval-cli-script', function () {
     log.info(
       'MONGOSH',
       mongoLogId(1_000_000_013),
@@ -399,7 +434,7 @@ export function setupLoggerAndTelemetry(
     });
   });
 
-  bus.on('mongosh:mongoshrc-load', function () {
+  onBus('mongosh:mongoshrc-load', function () {
     log.info(
       'MONGOSH',
       mongoLogId(1_000_000_014),
@@ -416,7 +451,7 @@ export function setupLoggerAndTelemetry(
     });
   });
 
-  bus.on('mongosh:mongoshrc-mongorc-warn', function () {
+  onBus('mongosh:mongoshrc-mongorc-warn', function () {
     log.info(
       'MONGOSH',
       mongoLogId(1_000_000_015),
@@ -433,7 +468,7 @@ export function setupLoggerAndTelemetry(
     });
   });
 
-  bus.on(
+  onBus(
     'mongosh:crypt-library-load-skip',
     function (ev: CryptLibrarySkipEvent) {
       log.info(
@@ -446,7 +481,7 @@ export function setupLoggerAndTelemetry(
     }
   );
 
-  bus.on(
+  onBus(
     'mongosh:crypt-library-load-found',
     function (ev: CryptLibraryFoundEvent) {
       log.warn(
@@ -462,7 +497,7 @@ export function setupLoggerAndTelemetry(
     }
   );
 
-  bus.on('mongosh-snippets:loaded', function (ev: SnippetsLoadedEvent) {
+  onBus('mongosh-snippets:loaded', function (ev: SnippetsLoadedEvent) {
     log.info(
       'MONGOSH-SNIPPETS',
       mongoLogId(1_000_000_019),
@@ -472,7 +507,7 @@ export function setupLoggerAndTelemetry(
     );
   });
 
-  bus.on('mongosh-snippets:npm-lookup', function (ev: SnippetsNpmLookupEvent) {
+  onBus('mongosh-snippets:npm-lookup', function (ev: SnippetsNpmLookupEvent) {
     log.info(
       'MONGOSH-SNIPPETS',
       mongoLogId(1_000_000_020),
@@ -482,7 +517,7 @@ export function setupLoggerAndTelemetry(
     );
   });
 
-  bus.on('mongosh-snippets:npm-lookup-stopped', function () {
+  onBus('mongosh-snippets:npm-lookup-stopped', function () {
     log.info(
       'MONGOSH-SNIPPETS',
       mongoLogId(1_000_000_021),
@@ -491,7 +526,7 @@ export function setupLoggerAndTelemetry(
     );
   });
 
-  bus.on(
+  onBus(
     'mongosh-snippets:npm-download-failed',
     function (ev: SnippetsNpmDownloadFailedEvent) {
       log.info(
@@ -504,7 +539,7 @@ export function setupLoggerAndTelemetry(
     }
   );
 
-  bus.on(
+  onBus(
     'mongosh-snippets:npm-download-active',
     function (ev: SnippetsNpmDownloadActiveEvent) {
       log.info(
@@ -517,20 +552,17 @@ export function setupLoggerAndTelemetry(
     }
   );
 
-  bus.on(
-    'mongosh-snippets:fetch-index',
-    function (ev: SnippetsFetchIndexEvent) {
-      log.info(
-        'MONGOSH-SNIPPETS',
-        mongoLogId(1_000_000_024),
-        'snippets',
-        'Fetching snippet index',
-        ev
-      );
-    }
-  );
+  onBus('mongosh-snippets:fetch-index', function (ev: SnippetsFetchIndexEvent) {
+    log.info(
+      'MONGOSH-SNIPPETS',
+      mongoLogId(1_000_000_024),
+      'snippets',
+      'Fetching snippet index',
+      ev
+    );
+  });
 
-  bus.on('mongosh-snippets:fetch-cache-invalid', function () {
+  onBus('mongosh-snippets:fetch-cache-invalid', function () {
     log.info(
       'MONGOSH-SNIPPETS',
       mongoLogId(1_000_000_025),
@@ -539,7 +571,7 @@ export function setupLoggerAndTelemetry(
     );
   });
 
-  bus.on(
+  onBus(
     'mongosh-snippets:fetch-index-error',
     function (ev: SnippetsFetchIndexErrorEvent) {
       log.info(
@@ -552,7 +584,7 @@ export function setupLoggerAndTelemetry(
     }
   );
 
-  bus.on('mongosh-snippets:fetch-index-done', function () {
+  onBus('mongosh-snippets:fetch-index-done', function () {
     log.info(
       'MONGOSH-SNIPPETS',
       mongoLogId(1_000_000_027),
@@ -561,7 +593,7 @@ export function setupLoggerAndTelemetry(
     );
   });
 
-  bus.on(
+  onBus(
     'mongosh-snippets:package-json-edit-error',
     function (ev: SnippetsErrorEvent) {
       log.info(
@@ -574,7 +606,7 @@ export function setupLoggerAndTelemetry(
     }
   );
 
-  bus.on('mongosh-snippets:spawn-child', function (ev: SnippetsRunNpmEvent) {
+  onBus('mongosh-snippets:spawn-child', function (ev: SnippetsRunNpmEvent) {
     log.info(
       'MONGOSH-SNIPPETS',
       mongoLogId(1_000_000_029),
@@ -584,7 +616,7 @@ export function setupLoggerAndTelemetry(
     );
   });
 
-  bus.on(
+  onBus(
     'mongosh-snippets:load-snippet',
     function (ev: SnippetsLoadSnippetEvent) {
       log.info(
@@ -597,7 +629,7 @@ export function setupLoggerAndTelemetry(
     }
   );
 
-  bus.on(
+  onBus(
     'mongosh-snippets:snippet-command',
     function (ev: SnippetsCommandEvent) {
       log.info(
@@ -620,7 +652,7 @@ export function setupLoggerAndTelemetry(
     }
   );
 
-  bus.on(
+  onBus(
     'mongosh-snippets:transform-error',
     function (ev: SnippetsTransformErrorEvent) {
       log.info(
@@ -636,7 +668,7 @@ export function setupLoggerAndTelemetry(
   const deprecatedApiCalls = new MultiSet<Pick<ApiEvent, 'class' | 'method'>>();
   const apiCalls = new MultiSet<Pick<ApiEvent, 'class' | 'method'>>();
   let apiCallTrackingEnabled = false;
-  bus.on('mongosh:api-call', function (ev: ApiEvent) {
+  onBus('mongosh:api-call', function (ev: ApiEvent) {
     // Only track if we have previously seen a mongosh:evaluate-started call
     if (!apiCallTrackingEnabled) return;
     if (ev.deprecated) {
@@ -646,7 +678,7 @@ export function setupLoggerAndTelemetry(
       apiCalls.add({ class: ev.class, method: ev.method });
     }
   });
-  bus.on('mongosh:evaluate-started', function () {
+  onBus('mongosh:evaluate-started', function () {
     apiCallTrackingEnabled = true;
     // Clear API calls before evaluation starts. This is important because
     // some API calls are also emitted by mongosh CLI repl internals,
@@ -655,7 +687,7 @@ export function setupLoggerAndTelemetry(
     deprecatedApiCalls.clear();
     apiCalls.clear();
   });
-  bus.on('mongosh:evaluate-finished', function () {
+  onBus('mongosh:evaluate-finished', function () {
     for (const [entry] of deprecatedApiCalls) {
       log.warn(
         'MONGOSH',
@@ -696,7 +728,7 @@ export function setupLoggerAndTelemetry(
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   hookLogger(bus, log, 'mongosh', redactURICredentials);
 
-  bus.on('mongosh-sp:reset-connection-options', function () {
+  onBus('mongosh-sp:reset-connection-options', function () {
     log.info(
       'MONGOSH-SP',
       mongoLogId(1_000_000_040),
@@ -705,7 +737,7 @@ export function setupLoggerAndTelemetry(
     );
   });
 
-  bus.on(
+  onBus(
     'mongosh-editor:run-edit-command',
     function (ev: EditorRunEditCommandEvent) {
       log.error(
@@ -718,7 +750,7 @@ export function setupLoggerAndTelemetry(
     }
   );
 
-  bus.on(
+  onBus(
     'mongosh-editor:read-vscode-extensions-done',
     function (ev: EditorReadVscodeExtensionsDoneEvent) {
       log.error(
@@ -731,7 +763,7 @@ export function setupLoggerAndTelemetry(
     }
   );
 
-  bus.on(
+  onBus(
     'mongosh-editor:read-vscode-extensions-failed',
     function (ev: EditorReadVscodeExtensionsFailedEvent) {
       log.error(
@@ -747,7 +779,7 @@ export function setupLoggerAndTelemetry(
     }
   );
 
-  bus.on(
+  onBus(
     'mongosh:fetching-update-metadata',
     function (ev: FetchingUpdateMetadataEvent) {
       log.info(
@@ -762,7 +794,7 @@ export function setupLoggerAndTelemetry(
     }
   );
 
-  bus.on(
+  onBus(
     'mongosh:fetching-update-metadata-complete',
     function (ev: FetchingUpdateMetadataCompleteEvent) {
       log.info(

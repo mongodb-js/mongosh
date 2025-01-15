@@ -97,6 +97,13 @@ export interface MongocryptdLogEvent {
   logEntry: any;
 }
 
+export interface WriteCustomLogEvent {
+  method: 'info' | 'error' | 'warn' | 'debug';
+  message: string;
+  attr?: unknown;
+  level?: 1 | 2 | 3 | 4 | 5;
+}
+
 export interface StartMongoshReplEvent {
   version: string;
 }
@@ -189,6 +196,10 @@ export interface SessionStartedEvent {
 
 export interface MongoshBusEventsMap extends ConnectEventMap {
   /**
+   * Early logging.
+   */
+  'mongosh:log-initialized': (ev: any) => void;
+  /**
    * Signals a connection to a MongoDB instance has been established
    * or the used database changed.
    */
@@ -267,6 +278,10 @@ export interface MongoshBusEventsMap extends ConnectEventMap {
   'mongosh:start-loading-cli-scripts': (
     event: StartLoadingCliScriptsEvent
   ) => void;
+  /**
+   * TBD.
+   */
+  'mongosh:write-custom-log': (ev: WriteCustomLogEvent) => void;
   /**
    * Signals the successful startup of the mongosh REPL after initial files and configuration
    * have been loaded.
