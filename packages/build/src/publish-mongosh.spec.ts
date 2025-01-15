@@ -9,8 +9,8 @@ import type {
 import type { createAndPublishDownloadCenterConfig as createAndPublishDownloadCenterConfigFn } from './download-center';
 import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import type { publishToHomebrew as publishToHomebrewType } from './homebrew';
-import type { publishNpmPackages as publishNpmPackagesType } from './npm-packages';
-import { runPublish } from './run-publish';
+import type { publishToNpm as publishToNpmType } from './npm-packages';
+import { publishMongosh } from './publish-mongosh';
 import { dummyConfig } from '../test/helpers';
 
 chai.use(require('sinon-chai'));
@@ -26,10 +26,10 @@ function createStubBarque(overrides?: any): Barque {
   return sinon.createStubInstance(Barque, overrides) as unknown as Barque;
 }
 
-describe('publish', function () {
+describe('publishMongosh', function () {
   let config: Config;
   let createAndPublishDownloadCenterConfig: typeof createAndPublishDownloadCenterConfigFn;
-  let publishNpmPackages: typeof publishNpmPackagesType;
+  let publishToNpm: typeof publishToNpmType;
   let writeBuildInfo: typeof writeBuildInfoType;
   let publishToHomebrew: typeof publishToHomebrewType;
   let shouldDoPublicRelease: typeof shouldDoPublicReleaseFn;
@@ -42,7 +42,7 @@ describe('publish', function () {
     config = { ...dummyConfig };
 
     createAndPublishDownloadCenterConfig = sinon.spy();
-    publishNpmPackages = sinon.spy();
+    publishToNpm = sinon.spy();
     writeBuildInfo = sinon.spy();
     publishToHomebrew = sinon.spy();
     shouldDoPublicRelease = sinon.spy();
@@ -78,14 +78,14 @@ describe('publish', function () {
           getMostRecentDraftTagForRelease: sinon.stub().resolves(undefined),
         });
         try {
-          await runPublish(
+          await publishMongosh(
             config,
             githubRepo,
             mongoHomebrewCoreForkRepo,
             homebrewCoreRepo,
             barque,
             createAndPublishDownloadCenterConfig,
-            publishNpmPackages,
+            publishToNpm,
             writeBuildInfo,
             publishToHomebrew,
             shouldDoPublicRelease
@@ -103,14 +103,14 @@ describe('publish', function () {
             .resolves({ name: 'v0.7.0-draft.42', sha: 'wrong' }),
         });
         try {
-          await runPublish(
+          await publishMongosh(
             config,
             githubRepo,
             mongoHomebrewCoreForkRepo,
             homebrewCoreRepo,
             barque,
             createAndPublishDownloadCenterConfig,
-            publishNpmPackages,
+            publishToNpm,
             writeBuildInfo,
             publishToHomebrew,
             shouldDoPublicRelease
@@ -123,14 +123,14 @@ describe('publish', function () {
     });
 
     it('publishes artifacts to barque', async function () {
-      await runPublish(
+      await publishMongosh(
         config,
         githubRepo,
         mongoHomebrewCoreForkRepo,
         homebrewCoreRepo,
         barque,
         createAndPublishDownloadCenterConfig,
-        publishNpmPackages,
+        publishToNpm,
         writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease
@@ -153,14 +153,14 @@ describe('publish', function () {
     });
 
     it('updates the download center config', async function () {
-      await runPublish(
+      await publishMongosh(
         config,
         githubRepo,
         mongoHomebrewCoreForkRepo,
         homebrewCoreRepo,
         barque,
         createAndPublishDownloadCenterConfig,
-        publishNpmPackages,
+        publishToNpm,
         writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease
@@ -175,14 +175,14 @@ describe('publish', function () {
     });
 
     it('promotes the release in github', async function () {
-      await runPublish(
+      await publishMongosh(
         config,
         githubRepo,
         mongoHomebrewCoreForkRepo,
         homebrewCoreRepo,
         barque,
         createAndPublishDownloadCenterConfig,
-        publishNpmPackages,
+        publishToNpm,
         writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease
@@ -192,34 +192,32 @@ describe('publish', function () {
     });
 
     it('writes analytics config and then publishes NPM packages', async function () {
-      await runPublish(
+      await publishMongosh(
         config,
         githubRepo,
         mongoHomebrewCoreForkRepo,
         homebrewCoreRepo,
         barque,
         createAndPublishDownloadCenterConfig,
-        publishNpmPackages,
+        publishToNpm,
         writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease
       );
 
       expect(writeBuildInfo).to.have.been.calledOnceWith(config);
-      expect(publishNpmPackages).to.have.been.calledWith();
-      expect(publishNpmPackages).to.have.been.calledAfter(
-        writeBuildInfo as any
-      );
+      expect(publishToNpm).to.have.been.calledWith();
+      expect(publishToNpm).to.have.been.calledAfter(writeBuildInfo as any);
     });
     it('publishes to homebrew', async function () {
-      await runPublish(
+      await publishMongosh(
         config,
         githubRepo,
         mongoHomebrewCoreForkRepo,
         homebrewCoreRepo,
         barque,
         createAndPublishDownloadCenterConfig,
-        publishNpmPackages,
+        publishToNpm,
         writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease
@@ -242,14 +240,14 @@ describe('publish', function () {
     });
 
     it('does not update the download center config', async function () {
-      await runPublish(
+      await publishMongosh(
         config,
         githubRepo,
         mongoHomebrewCoreForkRepo,
         homebrewCoreRepo,
         barque,
         createAndPublishDownloadCenterConfig,
-        publishNpmPackages,
+        publishToNpm,
         writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease
@@ -259,14 +257,14 @@ describe('publish', function () {
     });
 
     it('does not promote the release in github', async function () {
-      await runPublish(
+      await publishMongosh(
         config,
         githubRepo,
         mongoHomebrewCoreForkRepo,
         homebrewCoreRepo,
         barque,
         createAndPublishDownloadCenterConfig,
-        publishNpmPackages,
+        publishToNpm,
         writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease
@@ -276,31 +274,31 @@ describe('publish', function () {
     });
 
     it('does not publish npm packages', async function () {
-      await runPublish(
+      await publishMongosh(
         config,
         githubRepo,
         mongoHomebrewCoreForkRepo,
         homebrewCoreRepo,
         barque,
         createAndPublishDownloadCenterConfig,
-        publishNpmPackages,
+        publishToNpm,
         writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease
       );
 
-      expect(publishNpmPackages).not.to.have.been.called;
+      expect(publishToNpm).not.to.have.been.called;
     });
 
     it('does not publish to homebrew', async function () {
-      await runPublish(
+      await publishMongosh(
         config,
         githubRepo,
         mongoHomebrewCoreForkRepo,
         homebrewCoreRepo,
         barque,
         createAndPublishDownloadCenterConfig,
-        publishNpmPackages,
+        publishToNpm,
         writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease
@@ -310,14 +308,14 @@ describe('publish', function () {
     });
 
     it('does not release to barque', async function () {
-      await runPublish(
+      await publishMongosh(
         config,
         githubRepo,
         mongoHomebrewCoreForkRepo,
         homebrewCoreRepo,
         barque,
         createAndPublishDownloadCenterConfig,
-        publishNpmPackages,
+        publishToNpm,
         writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease

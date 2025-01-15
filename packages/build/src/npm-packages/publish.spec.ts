@@ -2,9 +2,9 @@ import { expect } from 'chai';
 import path from 'path';
 import type { SinonStub } from 'sinon';
 import sinon from 'sinon';
-import { publishNpmPackages } from './publish';
+import { publishToNpm } from './publish';
 
-describe('npm-packages publishNpmPackages', function () {
+describe('npm-packages publishToNpm', function () {
   let listNpmPackages: SinonStub;
   let markBumpedFilesAsAssumeUnchanged: SinonStub;
   let spawnSync: SinonStub;
@@ -30,7 +30,7 @@ describe('npm-packages publishNpmPackages', function () {
     listNpmPackages.returns(packages);
 
     expect(() =>
-      publishNpmPackages(
+      publishToNpm(
         { isDryRun: false, useAuxiliaryPackagesOnly: false },
         listNpmPackages,
         markBumpedFilesAsAssumeUnchanged,
@@ -46,7 +46,7 @@ describe('npm-packages publishNpmPackages', function () {
     ];
     listNpmPackages.returns(packages);
 
-    publishNpmPackages(
+    publishToNpm(
       { isDryRun: false, useAuxiliaryPackagesOnly: false },
       listNpmPackages,
       markBumpedFilesAsAssumeUnchanged,
@@ -64,7 +64,7 @@ describe('npm-packages publishNpmPackages', function () {
     ];
     listNpmPackages.returns(packages);
 
-    publishNpmPackages(
+    publishToNpm(
       { isDryRun: false, useAuxiliaryPackagesOnly: true },
       listNpmPackages,
       markBumpedFilesAsAssumeUnchanged,
@@ -88,7 +88,7 @@ describe('npm-packages publishNpmPackages', function () {
     ];
     listNpmPackages.returns(packages);
 
-    publishNpmPackages(
+    publishToNpm(
       { isDryRun: false, useAuxiliaryPackagesOnly: false },
       listNpmPackages,
       markBumpedFilesAsAssumeUnchanged,
@@ -124,7 +124,7 @@ describe('npm-packages publishNpmPackages', function () {
     spawnSync.throws(new Error('meeep'));
 
     try {
-      publishNpmPackages(
+      publishToNpm(
         { isDryRun: false, useAuxiliaryPackagesOnly: false },
         listNpmPackages,
         markBumpedFilesAsAssumeUnchanged,
