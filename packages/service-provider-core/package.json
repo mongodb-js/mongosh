@@ -51,7 +51,7 @@
     "mongodb-connection-string-url": "^3.0.1"
   },
   "optionalDependencies": {
-    "mongodb-client-encryption": "^6.1.0"
+    "mongodb-client-encryption": "^6.1.1"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
