@@ -42,6 +42,7 @@ import type { FormatOptions } from './format-output';
 import { markTime } from './startup-timing';
 import type { Context } from 'vm';
 import { Script, createContext, runInContext } from 'vm';
+import { installPasteSupport } from './repl-paste-support';
 
 declare const __non_webpack_require__: any;
 
@@ -134,6 +135,7 @@ class MongoshNodeRepl implements EvaluationListener {
   input: Readable;
   lineByLineInput: LineByLineInput;
   output: Writable;
+  outputFinishString = ''; // Can add ANSI escape codes to reset state from previously written ones
   bus: MongoshBus;
   nodeReplOptions: Partial<ReplOptions>;
   shellCliOptions: Partial<MongoshCliOptions>;
@@ -250,7 +252,7 @@ class MongoshNodeRepl implements EvaluationListener {
         // 'repl' is not supported in startup snapshots yet.
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         start: require('pretty-repl').start,
-        input: this.lineByLineInput as unknown as Readable,
+        input: this.lineByLineInput,
         output: this.output,
         prompt: '',
         writer: this.writer.bind(this),
@@ -385,6 +387,8 @@ class MongoshNodeRepl implements EvaluationListener {
   private async finishInitializingNodeRepl(): Promise<void> {
     const { repl, instanceState } = this.runtimeState();
     if (!repl) return;
+
+    this.outputFinishString += installPasteSupport(repl);
 
     const origReplCompleter = promisify(repl.completer.bind(repl)); // repl.completer is callback-style
     const mongoshCompleter = completer.bind(
@@ -1075,7 +1079,9 @@ class MongoshNodeRepl implements EvaluationListener {
         await once(rs.repl, 'exit');
       }
       await rs.instanceState.close(true);
-      await new Promise((resolve) => this.output.write('', resolve));
+      await new Promise((resolve) =>
+        this.output.write(this.outputFinishString, resolve)
+      );
     }
   }
 

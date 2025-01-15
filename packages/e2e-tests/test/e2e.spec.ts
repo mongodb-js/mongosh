@@ -298,6 +298,19 @@ describe('e2e', function () {
       await shell.waitForSuccessfulExit();
       shell.assertContainsOutput('3628800');
     });
+    it('ignores control characters in TTY input', async function () {
+      shell = this.startTestShell({
+        args: ['--nodb'],
+        forceTerminal: true,
+      });
+      await shell.waitForPrompt();
+      shell.assertNoErrors();
+
+      expect(await shell.executeLine('24\x08 * 3\n')).to.include('\n6\n'); // \x08 is backspace
+      expect(
+        await shell.executeLine('\x1b[200~24\x08 * 3\x1b[201~\n')
+      ).to.include('\n72\n');
+    });
   });
 
   describe('set db', function () {
