@@ -293,7 +293,7 @@ describe('npm-packages NpmPublisher', function () {
       expect(writeFileStub).has.callCount(packages.length);
 
       expect(writeFileStub.firstCall.args[0]).to.equal(
-        'packages/package1/package.json'
+        path.join(packages[0].location, 'package.json')
       );
       expect(
         JSON.parse(writeFileStub.firstCall.args[1] as string)
@@ -304,7 +304,7 @@ describe('npm-packages NpmPublisher', function () {
       });
 
       expect(writeFileStub.secondCall.args[0]).to.equal(
-        'packages/mongosh/package.json'
+        path.join(packages[1].location, 'package.json')
       );
       expect(
         JSON.parse(writeFileStub.secondCall.args[1] as string)
