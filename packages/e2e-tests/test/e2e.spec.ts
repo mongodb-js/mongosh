@@ -578,6 +578,11 @@ describe('e2e', function () {
       shell.assertNoErrors();
     });
 
+    it('runs a custom log command', async function () {
+      await shell.executeLine("log.info('Try me')");
+      shell.assertNoErrors();
+    });
+
     it('runs help command', async function () {
       expect(await shell.executeLine('help')).to.include('Shell Help');
       shell.assertNoErrors();
@@ -1503,6 +1508,45 @@ describe('e2e', function () {
               log.filter(
                 (logEntry) => typeof logEntry.attr?.driver?.version === 'string'
               )
+            ).to.have.lengthOf(1);
+          });
+        });
+
+        it('writes custom log directly', async function () {
+          const connectionString = await testServer.connectionString();
+          await shell.executeLine(
+            `connect(${JSON.stringify(connectionString)})`
+          );
+          await shell.executeLine("log.info('This is a custom entry')");
+          await eventually(async () => {
+            const log = await readLogfile();
+            expect(
+              log.filter((logEntry) =>
+                logEntry.msg.includes('This is a custom entry')
+              )
+            ).to.have.lengthOf(1);
+          });
+        });
+
+        it('writes custom log when loads a script', async function () {
+          const connectionString = await testServer.connectionString();
+          await shell.executeLine(
+            `connect(${JSON.stringify(connectionString)})`
+          );
+          const filename = path.resolve(
+            __dirname,
+            '..',
+            '..',
+            'cli-repl',
+            'test',
+            'fixtures',
+            'custom-log-info.js'
+          );
+          await shell.executeLine(`load('${filename}')`);
+          await eventually(async () => {
+            const log = await readLogfile();
+            expect(
+              log.filter((logEntry) => logEntry.msg.includes('Hi there'))
             ).to.have.lengthOf(1);
           });
         });

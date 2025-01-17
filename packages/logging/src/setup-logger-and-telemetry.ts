@@ -31,6 +31,7 @@ import type {
   FetchingUpdateMetadataEvent,
   FetchingUpdateMetadataCompleteEvent,
   SessionStartedEvent,
+  WriteCustomLogEvent,
 } from '@mongosh/types';
 import { inspect } from 'util';
 import type { MongoLogWriter } from 'mongodb-log-writer';
@@ -139,6 +140,17 @@ export function setupLoggerAndTelemetry(
       usesShellOption = event.usesShellOption;
     }
   );
+
+  bus.on('mongosh:write-custom-log', (event: WriteCustomLogEvent) => {
+    log[event.method](
+      'MONGOSH-SCRIPTS',
+      mongoLogId(1_000_000_054),
+      'custom-log',
+      event.message,
+      event.attr,
+      event.level
+    );
+  });
 
   bus.on('mongosh:connect', function (args: ConnectEvent) {
     const { uri, resolved_hostname, ...argsWithoutUriAndHostname } = args;

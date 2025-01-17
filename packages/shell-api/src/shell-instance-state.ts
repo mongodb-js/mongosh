@@ -359,7 +359,48 @@ export default class ShellInstanceState {
       });
     }
 
-    this.messageBus.emit('mongosh:setCtx', { method: 'setCtx', arguments: {} });
+    const bus = this.messageBus;
+    if (contextObject.log === undefined) {
+      contextObject.log = {
+        info(message: string, attr?: unknown) {
+          bus.emit('mongosh:write-custom-log', {
+            method: 'info',
+            message,
+            attr,
+          });
+        },
+        warn(message: string, attr?: unknown) {
+          bus.emit('mongosh:write-custom-log', {
+            method: 'warn',
+            message,
+            attr,
+          });
+        },
+        error(message: string, attr?: unknown) {
+          bus.emit('mongosh:write-custom-log', {
+            method: 'error',
+            message,
+            attr,
+          });
+        },
+        fatal(message: string, attr?: unknown) {
+          bus.emit('mongosh:write-custom-log', {
+            method: 'fatal',
+            message,
+            attr,
+          });
+        },
+        debug(message: string, attr?: unknown, level?: 1 | 2 | 3 | 4 | 5) {
+          bus.emit('mongosh:write-custom-log', {
+            method: 'debug',
+            message,
+            attr,
+            level,
+          });
+        },
+      };
+    }
+    bus.emit('mongosh:setCtx', { method: 'setCtx', arguments: {} });
   }
 
   get currentServiceProvider(): ServiceProvider {
