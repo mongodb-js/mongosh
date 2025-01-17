@@ -10,7 +10,7 @@ import { listNpmPackages as listNpmPackagesFn } from './list';
 import { spawnSync as spawnSyncFn } from '../helpers/spawn-sync';
 import type { SpawnSyncOptionsWithStringEncoding } from 'child_process';
 
-export function publishNpmPackages(
+export function publishToNpm(
   { isDryRun = false, useAuxiliaryPackagesOnly = false },
   listNpmPackages: typeof listNpmPackagesFn = listNpmPackagesFn,
   markBumpedFilesAsAssumeUnchangedFn: typeof markBumpedFilesAsAssumeUnchanged = markBumpedFilesAsAssumeUnchanged,

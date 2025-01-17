@@ -14,15 +14,16 @@ import {
 } from './evergreen';
 import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { publishToHomebrew } from './homebrew';
-import { bumpAuxiliaryPackages, publishNpmPackages } from './npm-packages';
+import { bumpAuxiliaryPackages, publishToNpm } from './npm-packages';
 import { runPackage } from './packaging';
 import { runDraft } from './run-draft';
-import { runPublish } from './run-publish';
+import { publishMongosh } from './publish-mongosh';
 import { runUpload } from './run-upload';
 import { runSign } from './packaging/run-sign';
 import { runDownloadAndListArtifacts } from './run-download-and-list-artifacts';
 import { runDownloadCryptLibrary } from './packaging/run-download-crypt-library';
 import { bumpMongoshReleasePackages } from './npm-packages/bump';
+import { publishAuxiliaryPackages } from './publish-auxiliary';
 
 export type ReleaseCommand =
   | 'bump'
@@ -113,18 +114,21 @@ export async function release(
   } else if (command === 'download-and-list-artifacts') {
     await runDownloadAndListArtifacts(config);
   } else if (command === 'publish') {
-    const barque = new Barque(config);
-    await runPublish(
-      config,
-      githubRepo,
-      mongoHomebrewForkRepo,
-      homebrewCoreRepo,
-      barque,
-      createAndPublishDownloadCenterConfig,
-      publishNpmPackages,
-      writeBuildInfo,
-      publishToHomebrew
-    );
+    if (config.useAuxiliaryPackagesOnly) {
+      publishAuxiliaryPackages(config);
+    } else {
+      await publishMongosh(
+        config,
+        githubRepo,
+        mongoHomebrewForkRepo,
+        homebrewCoreRepo,
+        new Barque(config),
+        createAndPublishDownloadCenterConfig,
+        publishToNpm,
+        writeBuildInfo,
+        publishToHomebrew
+      );
+    }
   } else {
     throw new Error(`Unknown command: ${command}`);
   }

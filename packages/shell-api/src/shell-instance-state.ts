@@ -126,6 +126,9 @@ export interface ShellPlugin {
   transformError?: (err: Error) => Error;
 }
 
+// eslint-disable-next-line no-control-regex
+const CONTROL_CHAR_REGEXP = /[\x00-\x1F\x7F-\x9F]/g;
+
 /**
  * Anything to do with the state of the shell API and API objects is stored here.
  *
@@ -493,8 +496,10 @@ export default class ShellInstanceState {
         try {
           const collectionNames =
             await this.currentDb._getCollectionNamesForCompletion();
-          return collectionNames.filter((name) =>
-            name.toLowerCase().startsWith(collName.toLowerCase())
+          return collectionNames.filter(
+            (name) =>
+              name.toLowerCase().startsWith(collName.toLowerCase()) &&
+              !CONTROL_CHAR_REGEXP.test(name)
           );
         } catch (err: any) {
           if (
@@ -510,8 +515,10 @@ export default class ShellInstanceState {
         try {
           const dbNames =
             await this.currentDb._mongo._getDatabaseNamesForCompletion();
-          return dbNames.filter((name) =>
-            name.toLowerCase().startsWith(dbName.toLowerCase())
+          return dbNames.filter(
+            (name) =>
+              name.toLowerCase().startsWith(dbName.toLowerCase()) &&
+              !CONTROL_CHAR_REGEXP.test(name)
           );
         } catch (err: any) {
           if (

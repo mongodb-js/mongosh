@@ -10,18 +10,18 @@ import type { createAndPublishDownloadCenterConfig as createAndPublishDownloadCe
 import { getArtifactUrl as getArtifactUrlFn } from './evergreen';
 import type { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import type { publishToHomebrew as publishToHomebrewType } from './homebrew';
-import type { publishNpmPackages as publishNpmPackagesType } from './npm-packages';
+import type { publishToNpm as publishToNpmType } from './npm-packages';
 import type { PackageInformationProvider } from './packaging';
 import { getPackageFile } from './packaging';
 
-export async function runPublish(
+export async function publishMongosh(
   config: Config,
   mongoshGithubRepo: GithubRepo,
   mongodbHomebrewForkGithubRepo: GithubRepo,
   homebrewCoreGithubRepo: GithubRepo,
   barque: Barque,
   createAndPublishDownloadCenterConfig: typeof createAndPublishDownloadCenterConfigFn,
-  publishNpmPackages: typeof publishNpmPackagesType,
+  publishToNpm: typeof publishToNpmType,
   writeBuildInfo: typeof writeBuildInfoType,
   publishToHomebrew: typeof publishToHomebrewType,
   shouldDoPublicRelease: typeof shouldDoPublicReleaseFn = shouldDoPublicReleaseFn,
@@ -81,7 +81,7 @@ export async function runPublish(
   // ensures the segment api key to be present in the published packages
   await writeBuildInfo(config, 'packaged');
 
-  publishNpmPackages({
+  publishToNpm({
     isDryRun: config.isDryRun,
     useAuxiliaryPackagesOnly: config.useAuxiliaryPackagesOnly,
   });

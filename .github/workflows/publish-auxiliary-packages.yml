@@ -44,7 +44,7 @@ jobs:
 
     - name: Install Dependencies
       run: |
-        npm ci --workspace @mongosh/build
+        npm ci
 
     - name: "Publish what is not already in NPM"
       env:
