@@ -21,7 +21,7 @@
     "@mongosh/errors": "2.4.0",
     "@mongosh/history": "2.4.0",
     "@mongosh/types": "3.0.0",
-    "mongodb-log-writer": "^1.4.2",
+    "mongodb-log-writer": "^2.1.0",
     "mongodb-redact": "^1.1.5"
   },
   "devDependencies": {

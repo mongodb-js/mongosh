@@ -307,7 +307,7 @@ export class CliRepl implements MongoshIOProvider {
     }
     markTime(TimingCategories.REPLInstantiation, 'ensured shell homedir');
 
-    await this.logManager.cleanupOldLogfiles();
+    await this.logManager.cleanupOldLogFiles();
     markTime(TimingCategories.Logging, 'cleaned up log files');
     const logger = await this.logManager.createLogWriter();
     const { quiet } = CliRepl.getFileAndEvalInfo(this.cliOptions);
