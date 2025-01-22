@@ -30,7 +30,7 @@ jobs:
       fail-fast: false
       matrix:
         language:
-          - javascript-typescript
+          - javascript
           - actions
 
     steps:
