@@ -1513,10 +1513,6 @@ describe('e2e', function () {
         });
 
         it('writes custom log directly', async function () {
-          const connectionString = await testServer.connectionString();
-          await shell.executeLine(
-            `connect(${JSON.stringify(connectionString)})`
-          );
           await shell.executeLine("log.info('This is a custom entry')");
           await eventually(async () => {
             const log = await readLogfile();
@@ -1537,14 +1533,19 @@ describe('e2e', function () {
             __dirname,
             '..',
             '..',
-            'cli-repl',
+            'e2e-tests',
             'test',
             'fixtures',
             'custom-log-info.js'
           );
-          await shell.executeLine(`load('${filename}')`);
+          await shell.executeLine(`load(${JSON.stringify(filename)})`);
           await eventually(async () => {
             const log = await readLogfile();
+            expect(
+              log.filter((logEntry) =>
+                logEntry.msg.includes('Initiating connection attemp')
+              )
+            ).to.have.lengthOf(1);
             expect(
               log.filter((logEntry) => logEntry.msg.includes('Hi there'))
             ).to.have.lengthOf(1);
@@ -1975,7 +1976,7 @@ describe('e2e', function () {
         __dirname,
         '..',
         '..',
-        'cli-repl',
+        'e2e-tests',
         'test',
         'fixtures',
         'simple-console-log.js'

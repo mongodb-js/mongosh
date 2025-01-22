@@ -35,6 +35,7 @@ import NoDatabase from './no-db';
 import type { ShellBson } from './shell-bson';
 import constructShellBson from './shell-bson';
 import { Streams } from './streams';
+import constructShellLog, { type ShellLog } from './shell-log';
 
 /**
  * The subset of CLI options that is relevant for the shell API's behavior itself.
@@ -159,6 +160,7 @@ export default class ShellInstanceState {
   public context: any;
   public mongos: Mongo[];
   public shellApi: ShellApi;
+  public shellLog: ShellLog;
   public shellBson: ShellBson;
   public cliOptions: ShellCliOptions;
   public evaluationListener: EvaluationListener;
@@ -187,6 +189,7 @@ export default class ShellInstanceState {
     this.initialServiceProvider = initialServiceProvider;
     this.messageBus = messageBus;
     this.shellApi = new ShellApi(this);
+    this.shellLog = constructShellLog(this.messageBus);
     this.shellBson = constructShellBson(
       initialServiceProvider.bsonLibrary,
       (msg: string) => {
@@ -362,48 +365,8 @@ export default class ShellInstanceState {
       });
     }
 
-    const bus = this.messageBus;
-    if (contextObject.log === undefined) {
-      contextObject.log = {
-        info(message: string, attr?: unknown) {
-          bus.emit('mongosh:write-custom-log', {
-            method: 'info',
-            message,
-            attr,
-          });
-        },
-        warn(message: string, attr?: unknown) {
-          bus.emit('mongosh:write-custom-log', {
-            method: 'warn',
-            message,
-            attr,
-          });
-        },
-        error(message: string, attr?: unknown) {
-          bus.emit('mongosh:write-custom-log', {
-            method: 'error',
-            message,
-            attr,
-          });
-        },
-        fatal(message: string, attr?: unknown) {
-          bus.emit('mongosh:write-custom-log', {
-            method: 'fatal',
-            message,
-            attr,
-          });
-        },
-        debug(message: string, attr?: unknown, level?: 1 | 2 | 3 | 4 | 5) {
-          bus.emit('mongosh:write-custom-log', {
-            method: 'debug',
-            message,
-            attr,
-            level,
-          });
-        },
-      };
-    }
-    bus.emit('mongosh:setCtx', { method: 'setCtx', arguments: {} });
+    Object.assign(contextObject, this.shellLog);
+    this.messageBus.emit('mongosh:setCtx', { method: 'setCtx', arguments: {} });
   }
 
   get currentServiceProvider(): ServiceProvider {
