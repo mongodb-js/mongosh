@@ -578,11 +578,6 @@ describe('e2e', function () {
       shell.assertNoErrors();
     });
 
-    it('runs a custom log command', async function () {
-      await shell.executeLine("log.info('Try me')");
-      shell.assertNoErrors();
-    });
-
     it('runs help command', async function () {
       expect(await shell.executeLine('help')).to.include('Shell Help');
       shell.assertNoErrors();
@@ -1514,6 +1509,7 @@ describe('e2e', function () {
 
         it('writes custom log directly', async function () {
           await shell.executeLine("log.info('This is a custom entry')");
+          expect(shell.assertNoErrors());
           await eventually(async () => {
             const log = await readLogfile();
             expect(
@@ -1531,14 +1527,11 @@ describe('e2e', function () {
           );
           const filename = path.resolve(
             __dirname,
-            '..',
-            '..',
-            'e2e-tests',
-            'test',
             'fixtures',
             'custom-log-info.js'
           );
           await shell.executeLine(`load(${JSON.stringify(filename)})`);
+          expect(shell.assertNoErrors());
           await eventually(async () => {
             const log = await readLogfile();
             expect(

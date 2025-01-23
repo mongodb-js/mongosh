@@ -1,6 +1,16 @@
-import type { MongoshBus } from '@mongosh/types';
+import type ShellInstanceState from './shell-instance-state';
+import { shellApiClassDefault, ShellApiClass } from './decorators';
 
-export interface ShellLog {
+const instanceStateSymbol = Symbol.for('@@mongosh.instanceState');
+
+/**
+ * This class contains the *global log* property that is considered part of the immediate shell API.
+ */
+@shellApiClassDefault
+export default class ShellLog extends ShellApiClass {
+  // Use symbols to make sure these are *not* among the things copied over into
+  // the global scope.
+  [instanceStateSymbol]: ShellInstanceState;
   log: {
     info: (message: string, attr?: unknown) => void;
     warn: (message: string, attr?: unknown) => void;
@@ -8,47 +18,51 @@ export interface ShellLog {
     fatal: (message: string, attr?: unknown) => void;
     debug: (message: string, attr?: unknown, level?: 1 | 2 | 3 | 4 | 5) => void;
   };
-}
 
-export default function constructShellLog(messageBus: MongoshBus): ShellLog {
-  return {
-    log: {
+  get _instanceState(): ShellInstanceState {
+    return this[instanceStateSymbol];
+  }
+
+  constructor(instanceState: ShellInstanceState) {
+    super();
+    this[instanceStateSymbol] = instanceState;
+    this.log = {
       info(message: string, attr?: unknown) {
-        messageBus.emit('mongosh:write-custom-log', {
+        instanceState.messageBus.emit('mongosh:write-custom-log', {
           method: 'info',
           message,
           attr,
         });
       },
       warn(message: string, attr?: unknown) {
-        messageBus.emit('mongosh:write-custom-log', {
+        instanceState.messageBus.emit('mongosh:write-custom-log', {
           method: 'warn',
           message,
           attr,
         });
       },
       error(message: string, attr?: unknown) {
-        messageBus.emit('mongosh:write-custom-log', {
+        instanceState.messageBus.emit('mongosh:write-custom-log', {
           method: 'error',
           message,
           attr,
         });
       },
       fatal(message: string, attr?: unknown) {
-        messageBus.emit('mongosh:write-custom-log', {
+        instanceState.messageBus.emit('mongosh:write-custom-log', {
           method: 'fatal',
           message,
           attr,
         });
       },
       debug(message: string, attr?: unknown, level?: 1 | 2 | 3 | 4 | 5) {
-        messageBus.emit('mongosh:write-custom-log', {
+        instanceState.messageBus.emit('mongosh:write-custom-log', {
           method: 'debug',
           message,
           attr,
           level,
         });
       },
-    },
-  };
+    };
+  }
 }

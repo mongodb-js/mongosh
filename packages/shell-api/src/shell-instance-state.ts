@@ -35,7 +35,7 @@ import NoDatabase from './no-db';
 import type { ShellBson } from './shell-bson';
 import constructShellBson from './shell-bson';
 import { Streams } from './streams';
-import constructShellLog, { type ShellLog } from './shell-log';
+import ShellLog from './shell-log';
 
 /**
  * The subset of CLI options that is relevant for the shell API's behavior itself.
@@ -189,7 +189,7 @@ export default class ShellInstanceState {
     this.initialServiceProvider = initialServiceProvider;
     this.messageBus = messageBus;
     this.shellApi = new ShellApi(this);
-    this.shellLog = constructShellLog(this.messageBus);
+    this.shellLog = new ShellLog(this);
     this.shellBson = constructShellBson(
       initialServiceProvider.bsonLibrary,
       (msg: string) => {
