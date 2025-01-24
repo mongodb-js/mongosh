@@ -31,10 +31,10 @@ import { MongoLogManager, mongoLogId } from 'mongodb-log-writer';
 import type { MongoshNodeReplOptions, MongoshIOProvider } from './mongosh-repl';
 import MongoshNodeRepl from './mongosh-repl';
 import {
-  setupLoggerAndTelemetry,
   ToggleableAnalytics,
   ThrottledAnalytics,
   SampledAnalytics,
+  MongoshLoggingAndTelemetry,
 } from '@mongosh/logging';
 import type { MongoshBus } from '@mongosh/types';
 import {
@@ -53,7 +53,6 @@ import type {
   DevtoolsProxyOptions,
 } from '@mongodb-js/devtools-proxy-support';
 import { useOrCreateAgent } from '@mongodb-js/devtools-proxy-support';
-import { setupMongoLogWriter } from '@mongosh/logging/lib/setup-logger-and-telemetry';
 
 /**
  * Connecting text key.
@@ -258,7 +257,7 @@ export class CliRepl implements MongoshIOProvider {
   }
 
   /** Setup log writer and start logging. */
-  private async startLogging() {
+  private async startLogging(loggingAndTelemetry: MongoshLoggingAndTelemetry) {
     await this.logManager.cleanupOldLogFiles();
     markTime(TimingCategories.Logging, 'cleaned up log files');
     const logger = await this.logManager.createLogWriter();
@@ -268,13 +267,10 @@ export class CliRepl implements MongoshIOProvider {
     }
 
     this.logWriter = logger;
-    this.logWriter = logger;
-    setupMongoLogWriter(logger);
-    this.logWriter = logger;
-    setupMongoLogWriter(logger);
+    loggingAndTelemetry.setupLogger(logger);
+
     markTime(TimingCategories.Logging, 'instantiated log writer');
-    setupMongoLogWriter(logger);
-    this.bus.emit('mongosh:log-initialized');
+    this.bus.emit('mongosh:logger-initialized');
     logger.info('MONGOSH', mongoLogId(1_000_000_000), 'log', 'Starting log', {
       execPath: process.execPath,
       envInfo: redactSensitiveData(this.getLoggedEnvironmentVariables()),
@@ -346,7 +342,7 @@ export class CliRepl implements MongoshIOProvider {
 
     markTime(TimingCategories.Telemetry, 'created analytics instance');
 
-    setupLoggerAndTelemetry(
+    const loggingAndTelemetry = new MongoshLoggingAndTelemetry(
       this.bus,
       this.toggleableAnalytics,
       {
@@ -357,6 +353,8 @@ export class CliRepl implements MongoshIOProvider {
       },
       version
     );
+    loggingAndTelemetry.setup();
+
     markTime(TimingCategories.Telemetry, 'completed telemetry setup');
 
     if (analyticsSetupError) {
@@ -377,7 +375,7 @@ export class CliRepl implements MongoshIOProvider {
 
     const disableLogging = this.getConfig('disableLogging');
     if (disableLogging !== true) {
-      await this.startLogging();
+      await this.startLogging(loggingAndTelemetry);
     }
 
     // Needs to happen after loading the mongosh config file(s)

@@ -1,36 +1,13 @@
 /* eslint-disable mocha/max-top-level-suites */
 import { expect } from 'chai';
 import { MongoLogWriter } from 'mongodb-log-writer';
-import { setupLoggerAndTelemetry } from './';
 import { EventEmitter } from 'events';
 import { MongoshInvalidInputError } from '@mongosh/errors';
 import type { MongoshBus } from '@mongosh/types';
-import { setupMongoLogWriter, toSnakeCase } from './setup-logger-and-telemetry';
 import type { Writable } from 'stream';
+import { MongoshLoggingAndTelemetry } from './logging-and-telemetry';
 
-describe('toSnakeCase', function () {
-  const useCases = [
-    { input: 'MongoDB REPL', output: 'mongo_db_repl' },
-    {
-      input: 'Node.js REPL Instantiation',
-      output: 'node_js_repl_instantiation',
-    },
-    { input: 'A', output: 'a' },
-    {
-      input: 'OneLongThingInPascalCase',
-      output: 'one_long_thing_in_pascal_case',
-    },
-    { input: 'Removes .Dots in Node.js', output: 'removes_dots_in_node_js' },
-  ];
-
-  for (const { input, output } of useCases) {
-    it(`should convert ${input} to ${output}`, function () {
-      expect(toSnakeCase(input)).to.equal(output);
-    });
-  }
-});
-
-describe('setupLoggerAndTelemetry', function () {
+describe('MongoshLoggingAndTelemetry', function () {
   let logOutput: any[];
   let analyticsOutput: ['identify' | 'track' | 'log', any][];
   let bus: MongoshBus;
@@ -38,21 +15,16 @@ describe('setupLoggerAndTelemetry', function () {
   const userId = '53defe995fa47e6c13102d9d';
   const logId = '5fb3c20ee1507e894e5340f3';
 
-  setupMongoLogWriter(
-    new MongoLogWriter({
-      logId,
-      logFilePath: `/tmp/${logId}_log`,
-      target: {
-        write(chunk: string, cb: () => void) {
-          logOutput.push(JSON.parse(chunk));
-          cb();
-        },
-        end(cb: () => void) {
-          cb();
-        },
-      } as Writable,
-    })
-  );
+  const logger = new MongoLogWriter(logId, `/tmp/${logId}_log`, {
+    write(chunk: string, cb: () => void) {
+      logOutput.push(JSON.parse(chunk));
+      cb();
+    },
+    end(cb: () => void) {
+      cb();
+    },
+  } as Writable);
+
   const analytics = {
     identify(info: any) {
       analyticsOutput.push(['identify', info]);
@@ -71,87 +43,41 @@ describe('setupLoggerAndTelemetry', function () {
     bus = new EventEmitter();
   });
 
-  it('accepts user ID at setup', function () {
-    setupLoggerAndTelemetry(
+  it('throws when trying to setup writer prematurely', function () {
+    const loggingAndTelemetry = new MongoshLoggingAndTelemetry(
       bus,
       analytics,
-      { userId },
       {
         platform: process.platform,
         arch: process.arch,
       },
       '1.0.0'
     );
-    expect(logOutput).to.have.lengthOf(0);
-    expect(analyticsOutput).to.be.empty;
 
-    bus.emit('mongosh:connect', {
-      uri: 'mongodb://localhost/',
-      is_localhost: true,
-      is_atlas: false,
-      resolved_hostname: 'localhost',
-      node_version: 'v12.19.0',
-    });
-
-    expect(analyticsOutput).to.deep.equal([
-      [
-        'track',
-        {
-          anonymousId: userId,
-          event: 'New Connection',
-          properties: {
-            mongosh_version: '1.0.0',
-            session_id: logId,
-            is_localhost: true,
-            is_atlas: false,
-            atlas_hostname: null,
-            node_version: 'v12.19.0',
-          },
-        },
-      ],
-    ]);
-  });
-
-  it('throws if an event occurs before the user is set', function () {
-    setupLoggerAndTelemetry(
-      bus,
-      analytics,
-      {},
-      {
-        platform: process.platform,
-        arch: process.arch,
-      },
-      '1.0.0'
+    expect(() => loggingAndTelemetry.setupLogger(logger)).throws(
+      'Run setup() before setting up the log writer.'
     );
-    expect(logOutput).to.have.lengthOf(0);
-    expect(analyticsOutput).to.be.empty;
-
-    expect(() =>
-      bus.emit('mongosh:connect', {
-        uri: 'mongodb://localhost/',
-        is_localhost: true,
-        is_atlas: false,
-        resolved_hostname: 'localhost',
-        node_version: 'v12.19.0',
-      })
-    ).throws('No telemetry identity found');
   });
 
   it('tracks new local connection events', function () {
-    setupLoggerAndTelemetry(
+    const loggingAndTelemetry = new MongoshLoggingAndTelemetry(
       bus,
       analytics,
-      {},
       {
         platform: process.platform,
         arch: process.arch,
       },
       '1.0.0'
     );
+
+    loggingAndTelemetry.setup();
+    loggingAndTelemetry.setupLogger(logger);
+
     expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.be.empty;
 
     bus.emit('mongosh:new-user', { userId, anonymousId: userId });
+    bus.emit('mongosh:logger-initialized');
 
     bus.emit('mongosh:connect', {
       uri: 'mongodb://localhost/',
@@ -199,20 +125,24 @@ describe('setupLoggerAndTelemetry', function () {
   });
 
   it('tracks new atlas connection events', function () {
-    setupLoggerAndTelemetry(
+    const loggingAndTelemetry = new MongoshLoggingAndTelemetry(
       bus,
       analytics,
-      {},
       {
         platform: process.platform,
         arch: process.arch,
       },
       '1.0.0'
     );
+
+    loggingAndTelemetry.setup();
+    loggingAndTelemetry.setupLogger(logger);
+
     expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.be.empty;
 
     bus.emit('mongosh:new-user', { userId, anonymousId: userId });
+    bus.emit('mongosh:logger-initialized');
 
     bus.emit('mongosh:connect', {
       uri: 'mongodb://test-data-sets-a011bb.mongodb.net/',
@@ -264,20 +194,25 @@ describe('setupLoggerAndTelemetry', function () {
   });
 
   it('tracks a sequence of events', function () {
-    setupLoggerAndTelemetry(
+    const loggingAndTelemetry = new MongoshLoggingAndTelemetry(
       bus,
       analytics,
-      {},
       {
         platform: process.platform,
         arch: process.arch,
       },
       '1.0.0'
     );
+
+    loggingAndTelemetry.setup();
+    loggingAndTelemetry.setupLogger(logger);
+
     expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.be.empty;
 
     bus.emit('mongosh:new-user', { userId, anonymousId: userId });
+    bus.emit('mongosh:logger-initialized');
+
     bus.emit('mongosh:update-user', { userId, anonymousId: userId });
     bus.emit('mongosh:start-session', {
       isInteractive: true,
@@ -732,11 +667,25 @@ describe('setupLoggerAndTelemetry', function () {
   });
 
   it('buffers deprecated API calls', function () {
-    setupLoggerAndTelemetry(bus, analytics, {}, {}, '1.0.0');
+    const loggingAndTelemetry = new MongoshLoggingAndTelemetry(
+      bus,
+      analytics,
+      {
+        platform: process.platform,
+        arch: process.arch,
+      },
+      '1.0.0'
+    );
+
+    loggingAndTelemetry.setup();
+    loggingAndTelemetry.setupLogger(logger);
+
     expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.be.empty;
 
     bus.emit('mongosh:new-user', { userId, anonymousId: userId });
+    bus.emit('mongosh:logger-initialized');
+
     bus.emit('mongosh:evaluate-started');
 
     logOutput = [];
@@ -904,7 +853,19 @@ describe('setupLoggerAndTelemetry', function () {
   });
 
   it('does not track database calls outside of evaluate-{started,finished}', function () {
-    setupLoggerAndTelemetry(bus, analytics, {}, {}, '1.0.0');
+    const loggingAndTelemetry = new MongoshLoggingAndTelemetry(
+      bus,
+      analytics,
+      {
+        platform: process.platform,
+        arch: process.arch,
+      },
+      '1.0.0'
+    );
+
+    loggingAndTelemetry.setup();
+    loggingAndTelemetry.setupLogger(logger);
+
     expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.be.empty;
 
