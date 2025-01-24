@@ -132,6 +132,19 @@ const translations: Catalog = {
   'service-provider-node-driver': {},
   'shell-api': {
     classes: {
+      ShellLog: {
+        help: {
+          description: 'Shell log methods',
+          link: '#',
+          attributes: {
+            // TODO(MONGOSH-1995): Print help for the global log property.
+            log: {
+              description: 'Writes a custom entry to the log file',
+              example: 'log.info("Custom message")',
+            },
+          },
+        },
+      },
       ShellApi: {
         help: {
           description: 'Shell Help',
