@@ -868,8 +868,13 @@ describe('setupLoggerAndTelemetry', function () {
 
     bus.emit('mongosh:write-custom-log', {
       method: 'debug',
-      message: 'Debug',
+      message: 'Debug with level',
       level: 1,
+    });
+
+    bus.emit('mongosh:write-custom-log', {
+      method: 'debug',
+      message: 'Debug without level',
     });
 
     expect(logOutput[0].msg).to.equal('Connecting to server');
@@ -903,7 +908,12 @@ describe('setupLoggerAndTelemetry', function () {
     expect(logOutput[5].s).to.equal('D1');
     expect(logOutput[5].c).to.equal('MONGOSH-SCRIPTS');
     expect(logOutput[5].ctx).to.equal('custom-log');
-    expect(logOutput[5].msg).to.equal('Debug');
+    expect(logOutput[5].msg).to.equal('Debug with level');
+
+    expect(logOutput[6].s).to.equal('D1');
+    expect(logOutput[6].c).to.equal('MONGOSH-SCRIPTS');
+    expect(logOutput[6].ctx).to.equal('custom-log');
+    expect(logOutput[6].msg).to.equal('Debug without level');
 
     expect(analyticsOutput).to.deep.equal([
       [

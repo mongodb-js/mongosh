@@ -1512,11 +1512,13 @@ describe('e2e', function () {
           expect(shell.assertNoErrors());
           await eventually(async () => {
             const log = await readLogfile();
-            expect(
-              log.filter((logEntry) =>
-                logEntry.msg.includes('This is a custom entry')
-              )
-            ).to.have.lengthOf(1);
+            const customLogEntry = log.filter((logEntry) =>
+              logEntry.msg.includes('This is a custom entry')
+            );
+            expect(customLogEntry).to.have.lengthOf(1);
+            expect(customLogEntry[0].s).to.be.equal('I');
+            expect(customLogEntry[0].c).to.be.equal('MONGOSH-SCRIPTS');
+            expect(customLogEntry[0].ctx).to.be.equal('custom-log');
           });
         });
 
