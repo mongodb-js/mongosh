@@ -97,6 +97,13 @@ export interface MongocryptdLogEvent {
   logEntry: any;
 }
 
+export interface WriteCustomLogEvent {
+  method: 'info' | 'error' | 'warn' | 'debug';
+  message: string;
+  attr?: unknown;
+  level?: 1 | 2 | 3 | 4 | 5;
+}
+
 export interface StartMongoshReplEvent {
   version: string;
 }
@@ -393,6 +400,8 @@ export interface MongoshBusEventsMap extends ConnectEventMap {
   'mongosh:fetching-update-metadata-complete': (
     ev: FetchingUpdateMetadataCompleteEvent
   ) => void;
+  /** Signals that logging has been initialized. */
+  'mongosh:log-initialized': () => void;
 }
 
 export interface MongoshBus {
@@ -504,6 +513,7 @@ export class CliUserConfig extends SnippetShellUserConfig {
   oidcTrustedEndpoints: undefined | string[] = undefined;
   browser: undefined | false | string = undefined;
   updateURL = 'https://downloads.mongodb.com/compass/mongosh.json';
+  disableLogging = false;
 }
 
 export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
