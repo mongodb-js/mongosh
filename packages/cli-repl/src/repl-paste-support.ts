@@ -18,7 +18,7 @@ function* prototypeChain(obj: unknown): Iterable<unknown> {
 }
 
 export function installPasteSupport(repl: REPLServer): string {
-  if (!repl.terminal) return ''; // No paste needed in non-terminal environments
+  if (!repl.terminal || process.env.TERM === 'dumb') return ''; // No paste needed in non-terminal environments
 
   // TODO(MONGOSH-1911): Upstream as much of this into Node.js core as possible,
   // both because of the value to the wider community but also because this is
