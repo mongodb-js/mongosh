@@ -67,7 +67,6 @@ describe('setupLoggerAndTelemetry', function () {
   it('tracks new local connection events', function () {
     setupLoggerAndTelemetry(
       bus,
-      logger,
       analytics,
       {
         platform: process.platform,
@@ -115,7 +114,6 @@ describe('setupLoggerAndTelemetry', function () {
   it('tracks new atlas connection events', function () {
     setupLoggerAndTelemetry(
       bus,
-      logger,
       analytics,
       {
         platform: process.platform,
@@ -167,7 +165,6 @@ describe('setupLoggerAndTelemetry', function () {
   it('tracks a sequence of events', function () {
     setupLoggerAndTelemetry(
       bus,
-      logger,
       analytics,
       {
         platform: process.platform,
@@ -629,7 +626,7 @@ describe('setupLoggerAndTelemetry', function () {
   });
 
   it('buffers deprecated API calls', function () {
-    setupLoggerAndTelemetry(bus, logger, analytics, {}, '1.0.0');
+    setupLoggerAndTelemetry(bus, analytics, {}, '1.0.0');
     expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.be.empty;
 
@@ -801,7 +798,7 @@ describe('setupLoggerAndTelemetry', function () {
   });
 
   it('does not track database calls outside of evaluate-{started,finished}', function () {
-    setupLoggerAndTelemetry(bus, logger, analytics, {}, '1.0.0');
+    setupLoggerAndTelemetry(bus, analytics, {}, '1.0.0');
     expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.be.empty;
 

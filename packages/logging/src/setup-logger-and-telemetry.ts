@@ -41,7 +41,7 @@ import { hookLogger } from '@mongodb-js/devtools-connect';
 import { Writable } from 'stream';
 
 // Queue up events that happen before logging is initialized.
-const pendingLogEvents: unknown[] = [];
+let pendingLogEvents: unknown[] = [];
 
 /**
  * A helper class for keeping track of how often specific events occurred.
@@ -148,6 +148,7 @@ export function setupLoggerAndTelemetry(
       // not allowing anything but defined events on the process
       ev();
     }
+    pendingLogEvents = [];
   });
 
   // We emit different analytics events for loading files and evaluating scripts

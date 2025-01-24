@@ -308,6 +308,21 @@ export class CliRepl implements MongoshIOProvider {
     }
     markTime(TimingCategories.REPLInstantiation, 'ensured shell homedir');
 
+    let analyticsSetupError: Error | null = null;
+    try {
+      await this.setupAnalytics();
+    } catch (err: any) {
+      // Need to delay emitting the error on the bus so that logging is in place
+      // as well
+      analyticsSetupError = err;
+    }
+
+    markTime(TimingCategories.Telemetry, 'created analytics instance');
+
+    if (analyticsSetupError) {
+      this.bus.emit('mongosh:error', analyticsSetupError, 'analytics');
+    }
+
     setupLoggerAndTelemetry(
       this.bus,
       this.toggleableAnalytics,
@@ -327,7 +342,7 @@ export class CliRepl implements MongoshIOProvider {
 
     const disableLogging = false; // Can be configured via global settings.
     if (!disableLogging) {
-      await this.logManager.cleanupOldLogfiles();
+      await this.logManager.cleanupOldLogFiles();
       markTime(TimingCategories.Logging, 'cleaned up log files');
       const logger = await this.logManager.createLogWriter();
       const { quiet } = CliRepl.getFileAndEvalInfo(this.cliOptions);
@@ -337,7 +352,6 @@ export class CliRepl implements MongoshIOProvider {
 
       this.logWriter = logger;
       markTime(TimingCategories.Logging, 'instantiated log writer');
-
       setupMongoLogWriter(logger);
       this.bus.emit('mongosh:log-initialized', {});
       logger.info('MONGOSH', mongoLogId(1_000_000_000), 'log', 'Starting log', {
@@ -346,21 +360,6 @@ export class CliRepl implements MongoshIOProvider {
         ...(await buildInfo()),
       });
       markTime(TimingCategories.Logging, 'logged initial message');
-    }
-
-    let analyticsSetupError: Error | null = null;
-    try {
-      await this.setupAnalytics();
-    } catch (err: any) {
-      // Need to delay emitting the error on the bus so that logging is in place
-      // as well
-      analyticsSetupError = err;
-    }
-
-    markTime(TimingCategories.Telemetry, 'created analytics instance');
-
-    if (analyticsSetupError) {
-      this.bus.emit('mongosh:error', analyticsSetupError, 'analytics');
     }
 
     try {
@@ -528,6 +527,7 @@ export class CliRepl implements MongoshIOProvider {
     this.bus.emit('mongosh:start-mongosh-repl', { version });
     markTime(TimingCategories.REPLInstantiation, 'starting repl');
     await this.mongoshRepl.startRepl(initialized);
+
     this.bus.emit('mongosh:start-session', {
       isInteractive: true,
       jsContext: this.mongoshRepl.jsContext(),
