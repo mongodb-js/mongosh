@@ -1326,7 +1326,7 @@ describe('CliRepl', function () {
 
         expect(cliRepl.getConfig('disableLogging')).is.false;
 
-        expect(emitSpy).calledWith('mongosh:log-initialized');
+        expect(emitSpy).calledWith('mongosh:logger-initialized');
         expect(cliRepl.logWriter).is.instanceOf(MongoLogWriter);
       });
 
@@ -1339,7 +1339,7 @@ describe('CliRepl', function () {
         expect(cliRepl.getConfig('disableLogging')).is.true;
 
         expect(emitSpy).called;
-        expect(emitSpy).not.calledWith('mongosh:log-initialized');
+        expect(emitSpy).not.calledWith('mongosh:logger-initialized');
         expect(cliRepl.logWriter).is.undefined;
       });
     });
