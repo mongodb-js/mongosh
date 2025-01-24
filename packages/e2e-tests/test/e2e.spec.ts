@@ -306,9 +306,26 @@ describe('e2e', function () {
       await shell.waitForPrompt();
       shell.assertNoErrors();
 
-      expect(await shell.executeLine('24\x08 * 3\n')).to.include('\n6\n'); // \x08 is backspace
+      expect(await shell.executeLine('24\b * 3\n')).to.include('\n6\n'); // \b is backspace
       expect(
-        await shell.executeLine('\x1b[200~24\x08 * 3\x1b[201~\n')
+        await shell.executeLine('\x1b[200~24\b * 3\x1b[201~\n')
+      ).to.include('\n72\n');
+    });
+    it('ignores control characters in TTY input inside of .editor', async function () {
+      shell = this.startTestShell({
+        args: ['--nodb'],
+        forceTerminal: true,
+      });
+      await shell.waitForPrompt();
+      shell.assertNoErrors();
+
+      const start = shell.output.length;
+      shell.writeInputLine('.editor');
+      await shell.waitForPrompt(start, {
+        promptPattern: /\/\/ Entering editor mode/,
+      });
+      expect(
+        await shell.executeLine('\x1b[200~24\b * 3\x1b[201~\x04') // \x04 is Ctrl+D to finish code
       ).to.include('\n72\n');
     });
   });
