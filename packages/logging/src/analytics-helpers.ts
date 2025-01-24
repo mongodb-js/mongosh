@@ -11,7 +11,7 @@ export type MongoshAnalyticsIdentity =
       anonymousId: string;
     };
 
-type AnalyticsIdentifyMessage = MongoshAnalyticsIdentity & {
+export type AnalyticsIdentifyMessage = MongoshAnalyticsIdentity & {
   traits: { platform: string; session_id: string };
   timestamp?: Date;
 };

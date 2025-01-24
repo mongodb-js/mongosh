@@ -31,6 +31,9 @@ import { CliRepl } from './cli-repl';
 import { CliReplErrors } from './error-codes';
 import type { DevtoolsConnectOptions } from '@mongosh/service-provider-node-driver';
 import type { AddressInfo } from 'net';
+import sinon from 'sinon';
+import type { CliUserConfig } from '@mongosh/types';
+import { MongoLogWriter } from 'mongodb-log-writer';
 const { EJSON } = bson;
 
 const delay = promisify(setTimeout);
@@ -297,7 +300,8 @@ describe('CliRepl', function () {
           'oidcTrustedEndpoints',
           'browser',
           'updateURL',
-        ]);
+          'disableLogging',
+        ] satisfies (keyof CliUserConfig)[]);
       });
 
       it('fails when trying to overwrite mongosh-owned config settings', async function () {
@@ -1310,6 +1314,36 @@ describe('CliRepl', function () {
       hasDatabaseNames: true,
     });
 
+    context('logging configuration', function () {
+      afterEach(function () {
+        sinon.restore();
+      });
+
+      it('start logging when it is not disabled', async function () {
+        const emitSpy = sinon.spy(cliRepl.bus, 'emit');
+
+        await cliRepl.start(await testServer.connectionString(), {});
+
+        expect(cliRepl.getConfig('disableLogging')).is.false;
+
+        expect(emitSpy).calledWith('mongosh:log-initialized');
+        expect(cliRepl.logWriter).is.instanceOf(MongoLogWriter);
+      });
+
+      it('does not start logging when it is disabled', async function () {
+        const emitSpy = sinon.spy(cliRepl.bus, 'emit');
+        cliRepl.config.disableLogging = true;
+
+        await cliRepl.start(await testServer.connectionString(), {});
+
+        expect(cliRepl.getConfig('disableLogging')).is.true;
+
+        expect(emitSpy).called;
+        expect(emitSpy).not.calledWith('mongosh:log-initialized');
+        expect(cliRepl.logWriter).is.undefined;
+      });
+    });
+
     context('analytics integration', function () {
       context('with network connectivity', function () {
         let srv: http.Server;
@@ -1333,6 +1367,7 @@ describe('CliRepl', function () {
                 .on('data', (chunk) => {
                   body += chunk;
                 })
+                // eslint-disable-next-line @typescript-eslint/no-misused-promises
                 .on('end', async () => {
                   requests.push({ req, body });
                   totalEventsTracked += JSON.parse(body).batch.length;
@@ -1343,7 +1378,7 @@ describe('CliRepl', function () {
             })
             .listen(0);
           await once(srv, 'listening');
-          host = `http://localhost:${(srv.address() as any).port}`;
+          host = `http://localhost:${(srv.address() as AddressInfo).port}`;
           cliReplOptions.analyticsOptions = {
             host,
             apiKey: '🔑',
