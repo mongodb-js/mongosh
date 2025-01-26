@@ -540,6 +540,7 @@ export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
           return `${key} must be a positive integer`;
         }
         return null;
+      case 'disableLogging':
       case 'forceDisableTelemetry':
       case 'showStackTraces':
         if (typeof value !== 'boolean') {
