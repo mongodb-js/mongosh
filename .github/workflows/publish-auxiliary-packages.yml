@@ -19,6 +19,7 @@ jobs:
         startsWith(github.event.head_commit.message, 'chore(release): bump auxiliary packages')
 
     runs-on: ubuntu-latest
+    environment: Production
 
     steps:
       - uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
@@ -51,7 +52,7 @@ jobs:
 
       - name: "Publish what is not already in NPM"
         env:
-          NPM_TOKEN: ${{ secrets.DEVTOOLSBOT_NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
           npm config list
