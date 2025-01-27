@@ -1,29 +1,22 @@
 import { Octokit } from '@octokit/rest';
-import { writeBuildInfo } from './build-info';
-import { Barque } from './barque';
 import { runCompile } from './compile';
 import type { Config } from './config';
 import { getReleaseVersionFromTag, redactConfig } from './config';
-import {
-  createAndPublishDownloadCenterConfig,
-  uploadArtifactToDownloadCenter,
-} from './download-center';
+import { uploadArtifactToDownloadCenter } from './download-center';
 import {
   downloadArtifactFromEvergreen,
   uploadArtifactToEvergreen,
 } from './evergreen';
 import { GithubRepo } from '@mongodb-js/devtools-github-repo';
-import { publishToHomebrew } from './homebrew';
-import { bumpAuxiliaryPackages, publishToNpm } from './npm-packages';
+import { bumpAuxiliaryPackages } from './npm-packages';
 import { runPackage } from './packaging';
 import { runDraft } from './run-draft';
-import { publishMongosh } from './publish-mongosh';
 import { runUpload } from './run-upload';
 import { runSign } from './packaging/run-sign';
 import { runDownloadAndListArtifacts } from './run-download-and-list-artifacts';
 import { runDownloadCryptLibrary } from './packaging/run-download-crypt-library';
 import { bumpMongoshReleasePackages } from './npm-packages/bump';
-import { publishAuxiliaryPackages } from './publish-auxiliary';
+import { MongoshPublisher } from './mongosh-publisher';
 
 export type ReleaseCommand =
   | 'bump'
@@ -114,21 +107,13 @@ export async function release(
   } else if (command === 'download-and-list-artifacts') {
     await runDownloadAndListArtifacts(config);
   } else if (command === 'publish') {
-    if (config.useAuxiliaryPackagesOnly) {
-      publishAuxiliaryPackages(config);
-    } else {
-      await publishMongosh(
-        config,
-        githubRepo,
-        mongoHomebrewForkRepo,
-        homebrewCoreRepo,
-        new Barque(config),
-        createAndPublishDownloadCenterConfig,
-        publishToNpm,
-        writeBuildInfo,
-        publishToHomebrew
-      );
-    }
+    const mongoshPublisher = new MongoshPublisher(
+      config,
+      githubRepo,
+      mongoHomebrewForkRepo,
+      homebrewCoreRepo
+    );
+    await mongoshPublisher.publish();
   } else {
     throw new Error(`Unknown command: ${command}`);
   }

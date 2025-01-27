@@ -57,6 +57,7 @@ export const dummyConfig: Config = Object.freeze({
   notaryAuthToken: 'notaryAuthToken',
   isCi: true,
   platform: 'linux',
+  publisher: 'dummy-test-publisher',
   repo: {
     owner: 'owner',
     repo: 'repo',
