@@ -1,66 +1,83 @@
 import path from 'path';
-import { LERNA_BIN, PLACEHOLDER_VERSION, PROJECT_ROOT } from './constants';
+import {
+  EXCLUDE_RELEASE_PACKAGES,
+  LERNA_BIN,
+  MONGOSH_RELEASE_PACKAGES,
+  PROJECT_ROOT,
+} from './constants';
 import type { LernaPackageDescription } from './list';
 import { listNpmPackages as listNpmPackagesFn } from './list';
-import { spawnSync } from '../helpers/spawn-sync';
+import { spawnSync as spawnSyncFn } from '../helpers/spawn-sync';
+import type { SpawnSyncOptionsWithStringEncoding } from 'child_process';
 
-export function publishNpmPackages(
-  isDryRun: boolean,
+export function publishToNpm(
+  { isDryRun = false, useAuxiliaryPackagesOnly = false },
   listNpmPackages: typeof listNpmPackagesFn = listNpmPackagesFn,
   markBumpedFilesAsAssumeUnchangedFn: typeof markBumpedFilesAsAssumeUnchanged = markBumpedFilesAsAssumeUnchanged,
-  spawnSyncFn: typeof spawnSync = spawnSync
+  spawnSync: typeof spawnSyncFn = spawnSyncFn
 ): void {
-  const packages = listNpmPackages();
+  const commandOptions: SpawnSyncOptionsWithStringEncoding = {
+    stdio: 'inherit',
+    cwd: PROJECT_ROOT,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      ...(isDryRun ? { npm_config_dry_run: 'true' } : {}),
+    },
+  };
+  let packages = listNpmPackages().filter(
+    (packageConfig) => !EXCLUDE_RELEASE_PACKAGES.includes(packageConfig.name)
+  );
 
-  const versions = Array.from(new Set(packages.map(({ version }) => version)));
-
-  if (versions.length !== 1) {
-    throw new Error(
-      `Refusing to publish packages with multiple versions: ${versions}`
+  if (useAuxiliaryPackagesOnly) {
+    packages = packages.filter(
+      (packageConfig) => !MONGOSH_RELEASE_PACKAGES.includes(packageConfig.name)
     );
   }
-
-  if (versions[0] === PLACEHOLDER_VERSION) {
-    throw new Error('Refusing to publish packages with placeholder version');
-  }
-
-  // Lerna requires a clean repository for a publish from-package (--force-publish does not have any effect here)
+  // Lerna requires a clean repository for a publish from-package
   // we use git update-index --assume-unchanged on files we know have been bumped
   markBumpedFilesAsAssumeUnchangedFn(packages, true);
   try {
-    spawnSyncFn(
+    spawnSync(
       LERNA_BIN,
       [
         'publish',
         'from-package',
         '--no-private',
         '--no-changelog',
-        '--no-push',
         '--exact',
-        '--no-git-tag-version',
-        '--force-publish',
         '--yes',
         '--no-verify-access',
       ],
-      {
-        stdio: 'inherit',
-        cwd: PROJECT_ROOT,
-        encoding: 'utf8',
-        env: {
-          ...process.env,
-          ...(isDryRun ? { npm_config_dry_run: 'true' } : {}),
-        },
-      }
+      commandOptions
     );
   } finally {
     markBumpedFilesAsAssumeUnchangedFn(packages, false);
+  }
+
+  if (!useAuxiliaryPackagesOnly) {
+    const mongoshVersion = packages.find(
+      (packageConfig) => packageConfig.name === 'mongosh'
+    )?.version;
+
+    if (!mongoshVersion) {
+      throw new Error('mongosh package not found');
+    }
+
+    spawnSync(
+      'git',
+      ['tag', '-a', mongoshVersion, '-m', mongoshVersion],
+      commandOptions
+    );
+
+    spawnSync('git', ['push', '--follow-tags'], commandOptions);
   }
 }
 
 export function markBumpedFilesAsAssumeUnchanged(
   packages: LernaPackageDescription[],
   assumeUnchanged: boolean,
-  spawnSyncFn: typeof spawnSync = spawnSync
+  spawnSync: typeof spawnSyncFn = spawnSyncFn
 ): void {
   const filesToAssume = [
     path.resolve(PROJECT_ROOT, 'lerna.json'),
@@ -72,7 +89,7 @@ export function markBumpedFilesAsAssumeUnchanged(
   }
 
   for (const f of filesToAssume) {
-    spawnSyncFn(
+    spawnSync(
       'git',
       [
         'update-index',

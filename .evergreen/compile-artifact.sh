@@ -74,6 +74,7 @@ elif [ -n "$MONGOSH_SHARED_OPENSSL" ]; then
   export LD_LIBRARY_PATH=/tmp/m/opt/lib
 fi
 
+export PUPPETEER_SKIP_DOWNLOAD="true"
 npm run evergreen-release compile
 dist/mongosh --version
 dist/mongosh --build-info

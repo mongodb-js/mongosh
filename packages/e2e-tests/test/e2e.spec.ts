@@ -33,11 +33,15 @@ describe('e2e', function () {
   const testServer = startSharedTestServer();
 
   describe('--version', function () {
-    it('shows version', async function () {
+    it('shows version and matches @mongosh/cli-repl', async function () {
+      const expectedPackageVersion: string =
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        require('../package.json')['dependencies']['@mongosh/cli-repl'];
+
       const shell = this.startTestShell({ args: ['--version'] });
       await shell.waitForSuccessfulExit();
 
-      shell.assertContainsOutput(require('../package.json').version);
+      shell.assertContainsOutput(expectedPackageVersion);
     });
   });
 
@@ -391,8 +395,9 @@ describe('e2e', function () {
           return this.skip(); // $currentOp is unversioned
         }
         const currentOp = await shell.executeLine('db.currentOp()');
-        const { version } = require('../package.json');
-        expect(currentOp).to.include(`appName: 'mongosh ${version}'`);
+        const expectedVersion =
+          require('../package.json')['dependencies']['@mongosh/cli-repl'];
+        expect(currentOp).to.include(`appName: 'mongosh ${expectedVersion}'`);
         expect(currentOp).to.include("name: 'nodejs|mongosh'");
         shell.assertNoErrors();
       });
@@ -445,9 +450,21 @@ describe('e2e', function () {
     });
 
     it('version', async function () {
-      const expected = require('../package.json').version;
+      const expectedPackageVersion: string =
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        require('../package.json')['dependencies']['@mongosh/cli-repl'];
+
+      expect(expectedPackageVersion).not.null;
+
+      const versionShell = this.startTestShell({ args: ['--version'] });
+      await versionShell.waitForSuccessfulExit();
+
+      const versionFromShell = versionShell.output;
+
       await shell.executeLine('version()');
-      shell.assertContainsOutput(expected);
+      shell.assertNoErrors();
+      shell.assertContainsOutput(expectedPackageVersion);
+      shell.assertContainsOutput(versionFromShell);
     });
 
     it('fle addon is available', async function () {

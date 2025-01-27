@@ -2365,7 +2365,7 @@ describe('CliRepl', function () {
       });
 
       it('includes collection names', async function () {
-        if (!hasCollectionNames) return;
+        if (!hasCollectionNames) return this.skip();
         const collname = `testcollection${Date.now()}${
           (Math.random() * 1000) | 0
         }`;
@@ -2413,7 +2413,10 @@ describe('CliRepl', function () {
       });
 
       it('completes use <db>', async function () {
-        if (!hasDatabaseNames) return;
+        if (!hasDatabaseNames) return this.skip();
+        input.write('db.getMongo()._listDatabases()\n'); // populate database cache
+        await waitEval(cliRepl.bus);
+
         input.write('use adm');
         await tab();
         await waitCompletion(cliRepl.bus);
@@ -2428,13 +2431,14 @@ describe('CliRepl', function () {
       });
 
       it('completes properties of shell API result types', async function () {
-        if (!hasCollectionNames) return;
+        if (!hasCollectionNames) return this.skip();
+
         input.write(
           'res = db.autocompleteTestColl.deleteMany({ deletetestdummykey: 1 })\n'
         );
         await waitEval(cliRepl.bus);
 
-        // Consitency check: The result actually has a shell API type tag:
+        // Consistency check: The result actually has a shell API type tag:
         output = '';
         input.write('res[Symbol.for("@@mongosh.shellApiType")]\n');
         await waitEval(cliRepl.bus);
@@ -2444,6 +2448,24 @@ describe('CliRepl', function () {
         await tabtab();
         await waitCompletion(cliRepl.bus);
         expect(output).to.include('res.acknowledged');
+      });
+
+      it('completes only collection names that do not include control characters', async function () {
+        if (!hasCollectionNames) return this.skip();
+
+        input.write(
+          'db["actestcoll1"].insertOne({}); db["actestcoll2\\x1bfooobar"].insertOne({})\n'
+        );
+        await waitEval(cliRepl.bus);
+        input.write('db._getCollectionNames()\n'); // populate collection name cache
+        await waitEval(cliRepl.bus);
+
+        output = '';
+        input.write('db.actestc');
+        await tabtab();
+        await waitCompletion(cliRepl.bus);
+        expect(output).to.include('db.actestcoll1');
+        expect(output).to.not.include('db.actestcoll2');
       });
     });
   }

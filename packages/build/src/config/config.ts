@@ -46,4 +46,5 @@ export interface Config {
   artifactUrlExtraTag?: string;
   manpage?: ManPageConfig;
   isDryRun?: boolean;
+  useAuxiliaryPackagesOnly?: boolean;
 }
