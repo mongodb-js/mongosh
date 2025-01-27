@@ -18,8 +18,12 @@ export const ShellOutput = ({
   const listRef: VirtualListRef = useRef();
 
   useEffect(() => {
-    listRef.current?.resetAfterIndex(0);
-    listRef.current?.scrollToItem(output.length - 1, 'end');
+    const lastIndex = output.length - 1;
+    listRef.current?.resetAfterIndex(lastIndex);
+    const timeout = setTimeout(() => {
+      listRef.current?.scrollToItem(lastIndex, 'end');
+    }, 100);
+    return () => clearTimeout(timeout);
   }, [output]);
 
   return (

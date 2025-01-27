@@ -14,7 +14,6 @@ import {
   fontFamilies,
   useDarkMode,
   cx,
-  rafraf,
 } from '@mongodb-js/compass-components';
 import type {
   Runtime,
@@ -434,14 +433,6 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
     editorRef.current = editor;
   }, []);
 
-  const scrollToBottom = useCallback(() => {
-    if (!shellInputContainerRef.current) {
-      return;
-    }
-
-    shellInputContainerRef.current.scrollIntoView();
-  }, [shellInputContainerRef]);
-
   const onShellClicked = useCallback(
     (event: React.MouseEvent): void => {
       // Focus on input when clicking the shell background (not clicking output).
@@ -473,14 +464,6 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
     }
   }, [onInput, updateShellPrompt]);
 
-  useEffect(() => {
-    rafraf(() => {
-      // Scroll to the bottom every time we render so the input/output will be
-      // in view.
-      scrollToBottom();
-    });
-  });
-
   const listInnerContainerRef = useRef<HTMLDivElement | null>(null);
   const setInnerContainerRef = useCallback((ref: HTMLDivElement) => {
     listInnerContainerRef.current = ref;
@@ -494,7 +477,7 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
       return;
     }
     const observer = new ResizeObserver(([list]) => {
-      rafraf(() => {
+      requestAnimationFrame(() => {
         setVirtualListInnerHeight(list.contentRect.height);
       });
     });
@@ -508,8 +491,8 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
     if (!shellInputContainerRef.current) {
       return;
     }
-    const observer = new ResizeObserver(([list]) => {
-      setInputEditorHeight(list.contentRect.height);
+    const observer = new ResizeObserver(([input]) => {
+      setInputEditorHeight(input.contentRect.height);
     });
     observer.observe(shellInputContainerRef.current);
     return () => {
@@ -540,7 +523,7 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
           // container, we will set it to the height of the container minus
           // the height of the input editor.
           height: `min(calc(100% - ${inputEditorHeight}px), ${Math.max(
-            virtualListInnerHeight,
+            (output ?? []).length > 0 ? virtualListInnerHeight : 1,
             1
           )}px)`,
         }}
