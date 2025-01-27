@@ -1,4 +1,3 @@
-/* eslint prefer-arrow-callback: "error" */
 import redactInfo from 'mongodb-redact';
 import { redactURICredentials } from '@mongosh/history';
 import type {
@@ -47,26 +46,27 @@ import { MultiSet, toSnakeCase } from './helpers';
 import { Writable } from 'stream';
 
 export class MongoshLoggingAndTelemetry {
-  log: MongoLogWriter;
-  pendingLogEvents: CallableFunction[] = [];
-
-  telemetryAnonymousId: string | undefined;
-  userId: string | undefined;
-  trackingProperties: {
+  private readonly trackingProperties: {
     mongosh_version: string;
     session_id: string;
   };
-  userTraits: AnalyticsIdentifyMessage['traits'] & {
+  private readonly userTraits: AnalyticsIdentifyMessage['traits'] & {
     [key: string]: unknown;
   };
 
-  isSetup = false;
-  hasMongoLogWriterInitialized = false;
+  private log: MongoLogWriter;
+  private pendingLogEvents: CallableFunction[] = [];
+
+  private telemetryAnonymousId: string | undefined;
+  private userId: string | undefined;
+
+  private isSetup = false;
+  private hasMongoLogWriterInitialized = false;
 
   constructor(
-    public bus: MongoshBus,
-    public analytics: MongoshAnalytics,
-    public providedTraits: { platform: string } & {
+    public readonly bus: MongoshBus,
+    public readonly analytics: MongoshAnalytics,
+    providedTraits: { platform: string } & {
       [key: string]: unknown;
     },
     mongoshVersion: string
@@ -89,27 +89,23 @@ export class MongoshLoggingAndTelemetry {
     };
   }
 
-  public setup() {
+  public setup(): void {
     this._setupBusEventListeners();
     this.isSetup = true;
   }
 
-  public setupLogger(logger: MongoLogWriter) {
+  public setupLogger(logger: MongoLogWriter): void {
     if (!this.isSetup) {
       throw new Error('Run setup() before setting up the log writer.');
+    }
+    if (this.hasMongoLogWriterInitialized) {
+      throw new Error('Logger has already been initialized.');
     }
     this.log = logger;
 
     this.userTraits.session_id = this.log.logId;
     this.trackingProperties.session_id = this.log.logId;
-  }
 
-  public getTelemetryUserIdentity = (): MongoshAnalyticsIdentity => ({
-    anonymousId: this.telemetryAnonymousId ?? (this.userId as string),
-  });
-
-  /** Start processing pending events after mongosh:logger-initialized */
-  private onLoggerInitialized() {
     this.hasMongoLogWriterInitialized = true;
     for (const pendingEvent of this.pendingLogEvents) {
       pendingEvent();
@@ -119,35 +115,43 @@ export class MongoshLoggingAndTelemetry {
     hookLogger(this.bus, this.log, 'mongosh', (uri) =>
       redactURICredentials(uri)
     );
+
+    this.bus.emit('mongosh:logger-initialized');
   }
 
-  private _setupBusEventListeners() {
-    this.bus.on(
-      'mongosh:logger-initialized',
-      this.onLoggerInitialized.bind(this)
-    );
+  private _getTelemetryUserIdentity(): MongoshAnalyticsIdentity {
+    return {
+      anonymousId: this.telemetryAnonymousId ?? (this.userId as string),
+    };
+  }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const onBus = <T extends any[]>(
-      event: keyof MongoshBusEventsMap,
-      listener: (...args: T) => void
+  /** We emit different analytics events for loading files and evaluating scripts
+   * depending on whether we're already in the REPL or not yet. We store the
+   * state here so that the places where the events are emitted don't have to
+   * be aware of this distinction. */
+  private hasStartedMongoshRepl = false;
+
+  private apiCallTracking = {
+    isEnabled: false,
+    apiCalls: new MultiSet<Pick<ApiEvent, 'class' | 'method'>>(),
+    deprecatedApiCalls: new MultiSet<Pick<ApiEvent, 'class' | 'method'>>(),
+  };
+  private usesShellOption = false;
+
+  private _setupBusEventListeners(): void {
+    const onBus = <K extends keyof MongoshBusEventsMap>(
+      event: K,
+      listener: (...args: Parameters<MongoshBusEventsMap[K]>) => void
     ) => {
-      this.bus.on(event, (...args: T) => {
+      this.bus.on(event, ((...args: Parameters<MongoshBusEventsMap[K]>) => {
         if (this.hasMongoLogWriterInitialized) {
           listener(...args);
         } else {
           this.pendingLogEvents.push(() => listener(...args));
         }
-      });
+      }) as MongoshBusEventsMap[K]);
     };
 
-    // We emit different analytics events for loading files and evaluating scripts
-    // depending on whether we're already in the REPL or not yet. We store the
-    // state here so that the places where the events are emitted don't have to
-    // be aware of this distinction.
-    let hasStartedMongoshRepl = false;
-
-    /* eslint prefer-arrow-callback: "error" */
     onBus('mongosh:start-mongosh-repl', (ev: StartMongoshReplEvent) => {
       this.log.info(
         'MONGOSH',
@@ -156,10 +160,8 @@ export class MongoshLoggingAndTelemetry {
         'Started REPL',
         ev
       );
-      hasStartedMongoshRepl = true;
+      this.hasStartedMongoshRepl = true;
     });
-
-    let usesShellOption = false;
 
     onBus(
       'mongosh:start-loading-cli-scripts',
@@ -170,7 +172,7 @@ export class MongoshLoggingAndTelemetry {
           'repl',
           'Start loading CLI scripts'
         );
-        usesShellOption = event.usesShellOption;
+        this.usesShellOption = event.usesShellOption;
       }
     );
 
@@ -200,7 +202,7 @@ export class MongoshLoggingAndTelemetry {
       );
 
       this.analytics.track({
-        ...this.getTelemetryUserIdentity(),
+        ...this._getTelemetryUserIdentity(),
         event: 'New Connection',
         properties,
       });
@@ -216,7 +218,7 @@ export class MongoshLoggingAndTelemetry {
 
       const normalizedTimings = Object.fromEntries(normalizedTimingsArray);
       this.analytics.track({
-        ...this.getTelemetryUserIdentity(),
+        ...this._getTelemetryUserIdentity(),
         event: 'Startup Time',
         properties: {
           ...this.trackingProperties,
@@ -253,7 +255,7 @@ export class MongoshLoggingAndTelemetry {
           this.userId = updatedTelemetryUserIdentity.userId;
         }
         this.analytics.identify({
-          ...this.getTelemetryUserIdentity(),
+          ...this._getTelemetryUserIdentity(),
           traits: this.userTraits,
         });
         this.log.info(
@@ -284,7 +286,7 @@ export class MongoshLoggingAndTelemetry {
 
       if (error.name.includes('Mongosh')) {
         this.analytics.track({
-          ...this.getTelemetryUserIdentity(),
+          ...this._getTelemetryUserIdentity(),
           event: 'Error',
           properties: {
             ...this.trackingProperties,
@@ -327,7 +329,7 @@ export class MongoshLoggingAndTelemetry {
       );
 
       this.analytics.track({
-        ...this.getTelemetryUserIdentity(),
+        ...this._getTelemetryUserIdentity(),
         event: 'Use',
         properties: {
           ...this.trackingProperties,
@@ -345,7 +347,7 @@ export class MongoshLoggingAndTelemetry {
       );
 
       this.analytics.track({
-        ...this.getTelemetryUserIdentity(),
+        ...this._getTelemetryUserIdentity(),
         event: 'Show',
         properties: {
           ...this.trackingProperties,
@@ -391,12 +393,16 @@ export class MongoshLoggingAndTelemetry {
       );
 
       this.analytics.track({
-        ...this.getTelemetryUserIdentity(),
-        event: hasStartedMongoshRepl ? 'Script Loaded' : 'Script Loaded CLI',
+        ...this._getTelemetryUserIdentity(),
+        event: this.hasStartedMongoshRepl
+          ? 'Script Loaded'
+          : 'Script Loaded CLI',
         properties: {
           ...this.trackingProperties,
           nested: args.nested,
-          ...(hasStartedMongoshRepl ? {} : { shell: usesShellOption }),
+          ...(this.hasStartedMongoshRepl
+            ? {}
+            : { shell: this.usesShellOption }),
         },
       });
     });
@@ -410,11 +416,11 @@ export class MongoshLoggingAndTelemetry {
       );
 
       this.analytics.track({
-        ...this.getTelemetryUserIdentity(),
+        ...this._getTelemetryUserIdentity(),
         event: 'Script Evaluated',
         properties: {
           ...this.trackingProperties,
-          shell: usesShellOption,
+          shell: this.usesShellOption,
         },
       });
     });
@@ -428,7 +434,7 @@ export class MongoshLoggingAndTelemetry {
       );
 
       this.analytics.track({
-        ...this.getTelemetryUserIdentity(),
+        ...this._getTelemetryUserIdentity(),
         event: 'Mongoshrc Loaded',
         properties: {
           ...this.trackingProperties,
@@ -445,7 +451,7 @@ export class MongoshLoggingAndTelemetry {
       );
 
       this.analytics.track({
-        ...this.getTelemetryUserIdentity(),
+        ...this._getTelemetryUserIdentity(),
         event: 'Mongorc Warning',
         properties: {
           ...this.trackingProperties,
@@ -615,7 +621,7 @@ export class MongoshLoggingAndTelemetry {
 
       if (ev.args[0] === 'install') {
         this.analytics.track({
-          ...this.getTelemetryUserIdentity(),
+          ...this._getTelemetryUserIdentity(),
           event: 'Snippet Install',
           properties: {
             ...this.trackingProperties,
@@ -637,14 +643,10 @@ export class MongoshLoggingAndTelemetry {
       }
     );
 
-    const deprecatedApiCalls = new MultiSet<
-      Pick<ApiEvent, 'class' | 'method'>
-    >();
-    const apiCalls = new MultiSet<Pick<ApiEvent, 'class' | 'method'>>();
-    let apiCallTrackingEnabled = false;
     onBus('mongosh:api-call', (ev: ApiEvent) => {
       // Only track if we have previously seen a mongosh:evaluate-started call
-      if (!apiCallTrackingEnabled) return;
+      if (!this.apiCallTracking.isEnabled) return;
+      const { apiCalls, deprecatedApiCalls } = this.apiCallTracking;
       if (ev.deprecated) {
         deprecatedApiCalls.add({ class: ev.class, method: ev.method });
       }
@@ -653,7 +655,8 @@ export class MongoshLoggingAndTelemetry {
       }
     });
     onBus('mongosh:evaluate-started', () => {
-      apiCallTrackingEnabled = true;
+      const { apiCalls, deprecatedApiCalls } = this.apiCallTracking;
+      this.apiCallTracking.isEnabled = true;
       // Clear API calls before evaluation starts. This is important because
       // some API calls are also emitted by mongosh CLI repl internals,
       // but we only care about those emitted from user code (i.e. during
@@ -662,6 +665,7 @@ export class MongoshLoggingAndTelemetry {
       apiCalls.clear();
     });
     onBus('mongosh:evaluate-finished', () => {
+      const { apiCalls, deprecatedApiCalls } = this.apiCallTracking;
       for (const [entry] of deprecatedApiCalls) {
         this.log.warn(
           'MONGOSH',
@@ -672,7 +676,7 @@ export class MongoshLoggingAndTelemetry {
         );
 
         this.analytics.track({
-          ...this.getTelemetryUserIdentity(),
+          ...this._getTelemetryUserIdentity(),
           event: 'Deprecated Method',
           properties: {
             ...this.trackingProperties,
@@ -682,7 +686,7 @@ export class MongoshLoggingAndTelemetry {
       }
       for (const [entry, count] of apiCalls) {
         this.analytics.track({
-          ...this.getTelemetryUserIdentity(),
+          ...this._getTelemetryUserIdentity(),
           event: 'API Call',
           properties: {
             ...this.trackingProperties,
@@ -693,13 +697,12 @@ export class MongoshLoggingAndTelemetry {
       }
       deprecatedApiCalls.clear();
       apiCalls.clear();
-      apiCallTrackingEnabled = false;
+      this.apiCallTracking.isEnabled = false;
     });
 
     // Log ids 1_000_000_034 through 1_000_000_042 are reserved for the
     // devtools-connect package which was split out from mongosh.
     // 'mongodb' is not supported in startup snapshots yet.
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
 
     onBus('mongosh-sp:reset-connection-options', () => {
       this.log.info(

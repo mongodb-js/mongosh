@@ -257,7 +257,9 @@ export class CliRepl implements MongoshIOProvider {
   }
 
   /** Setup log writer and start logging. */
-  private async startLogging(loggingAndTelemetry: MongoshLoggingAndTelemetry) {
+  private async startLogging(
+    loggingAndTelemetry: MongoshLoggingAndTelemetry
+  ): Promise<void> {
     await this.logManager.cleanupOldLogFiles();
     markTime(TimingCategories.Logging, 'cleaned up log files');
     const logger = await this.logManager.createLogWriter();
@@ -373,7 +375,7 @@ export class CliRepl implements MongoshIOProvider {
     this.globalConfig = await this.loadGlobalConfigFile();
     markTime(TimingCategories.UserConfigLoading, 'read global config files');
 
-    const disableLogging = this.getConfig('disableLogging');
+    const disableLogging = await this.getConfig('disableLogging');
     if (disableLogging !== true) {
       await this.startLogging(loggingAndTelemetry);
     }
@@ -498,7 +500,7 @@ export class CliRepl implements MongoshIOProvider {
       if (!this.cliOptions.shell) {
         // We flush the telemetry data as part of exiting. Make sure we have
         // the right config value.
-        this.setTelemetryEnabled(this.getConfig('enableTelemetry'));
+        this.setTelemetryEnabled(await this.getConfig('enableTelemetry'));
         await this.exit(0);
         return;
       }
@@ -531,7 +533,7 @@ export class CliRepl implements MongoshIOProvider {
 
     // We only enable/disable here, since the rc file/command line scripts
     // can disable the telemetry setting.
-    this.setTelemetryEnabled(this.getConfig('enableTelemetry'));
+    this.setTelemetryEnabled(await this.getConfig('enableTelemetry'));
     this.bus.emit('mongosh:start-mongosh-repl', { version });
     markTime(TimingCategories.REPLInstantiation, 'starting repl');
     await this.mongoshRepl.startRepl(initialized);
@@ -872,7 +874,9 @@ export class CliRepl implements MongoshIOProvider {
    * Implements getConfig from the {@link ConfigProvider} interface.
    */
   // eslint-disable-next-line @typescript-eslint/require-await
-  getConfig<K extends keyof CliUserConfig>(key: K): CliUserConfig[K] {
+  async getConfig<K extends keyof CliUserConfig>(
+    key: K
+  ): Promise<CliUserConfig[K]> {
     return (
       (this.config as CliUserConfig)[key] ??
       (this.globalConfig as CliUserConfig)?.[key] ??
@@ -1273,7 +1277,7 @@ export class CliRepl implements MongoshIOProvider {
     }
 
     try {
-      const updateURL = this.getConfig('updateURL').trim();
+      const updateURL = (await this.getConfig('updateURL')).trim();
       if (!updateURL) return;
 
       const localFilePath = this.shellHomeDirectory.localPath(
