@@ -114,7 +114,7 @@ describe('shell', function () {
         runtime={fakeRuntime}
         initialEvaluate={initialEvaluate}
         onOutputChanged={onOutputChanged}
-        output={output as any}
+        output={output}
       />
     );
 
@@ -140,7 +140,7 @@ describe('shell', function () {
         runtime={fakeRuntime}
         initialEvaluate={initialEvaluate}
         onOutputChanged={onOutputChanged}
-        output={output as any}
+        output={output}
       />
     );
     // Make sure that it scrolls to the last added item
