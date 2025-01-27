@@ -485,7 +485,7 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
     return () => {
       observer.disconnect();
     };
-  }, [output]);
+  }, [listInnerContainerRef.current]);
 
   useEffect(() => {
     if (!shellInputContainerRef.current) {

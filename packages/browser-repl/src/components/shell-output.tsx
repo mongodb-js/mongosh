@@ -9,11 +9,13 @@ export type { ShellOutputEntry } from './shell-output-line';
 type ShellIOListProps = {
   output: ShellOutputEntry[];
   setInnerContainerRef: (ref: HTMLDivElement) => void;
+  __TEST_LIST_HEIGHT?: number;
 };
 
 export const ShellOutput = ({
   output,
   setInnerContainerRef,
+  __TEST_LIST_HEIGHT,
 }: ShellIOListProps) => {
   const listRef: VirtualListRef = useRef();
 
@@ -40,6 +42,7 @@ export const ShellOutput = ({
         </div>
       )}
       estimateItemInitialHeight={() => 24}
+      __TEST_LIST_HEIGHT={__TEST_LIST_HEIGHT}
     />
   );
 };
