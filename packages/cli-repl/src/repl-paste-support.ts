@@ -23,7 +23,7 @@ export function installPasteSupport(repl: REPLServer): string {
   // TODO(MONGOSH-1911): Upstream as much of this into Node.js core as possible,
   // both because of the value to the wider community but also because this is
   // messing with Node.js REPL internals to a very unfortunate degree.
-  repl.output.write('\x1b[?2004h'); // Indicate support for paste mote
+  repl.output.write('\x1b[?2004h'); // Indicate support for paste mode
   const onEnd = '\x1b[?2004l'; // End of support for paste mode
   // Find the symbol used for the (internal) _ttyWrite method of readline.Interface
   // https://github.com/nodejs/node/blob/d9786109b2a0982677135f0c146f6b591a0e4961/lib/internal/readline/interface.js#L1056
