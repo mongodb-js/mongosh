@@ -30,6 +30,7 @@
     "publish": "ts-node src/index.ts publish",
     "bump-auxiliary": "ts-node src/index.ts bump --auxiliary",
     "publish-auxiliary": "ts-node src/index.ts publish --auxiliary",
+    "tags-auxiliary": "ts-node src/index.ts temp-push-auxiliary-tags --auxiliary",
     "reformat": "npm run prettier -- --write . && npm run eslint --fix"
   },
   "license": "Apache-2.0",
