@@ -7,7 +7,7 @@ const instanceStateSymbol = Symbol.for('@@mongosh.instanceState');
  * This class contains the *global log* property that is considered part of the immediate shell API.
  */
 @shellApiClassDefault
-export default class ShellLog extends ShellApiClass {
+export class ShellLog extends ShellApiClass {
   // Use symbols to make sure these are *not* among the things copied over into
   // the global scope.
   [instanceStateSymbol]: ShellInstanceState;

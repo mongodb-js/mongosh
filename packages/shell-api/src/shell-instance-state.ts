@@ -35,7 +35,7 @@ import NoDatabase from './no-db';
 import type { ShellBson } from './shell-bson';
 import constructShellBson from './shell-bson';
 import { Streams } from './streams';
-import ShellLog from './shell-log';
+import { ShellLog } from './shell-log';
 
 /**
  * The subset of CLI options that is relevant for the shell API's behavior itself.
@@ -365,7 +365,8 @@ export default class ShellInstanceState {
       });
     }
 
-    Object.assign(contextObject, { log: this.shellLog });
+    contextObject.log = this.shellLog;
+
     this.messageBus.emit('mongosh:setCtx', { method: 'setCtx', arguments: {} });
   }
 
