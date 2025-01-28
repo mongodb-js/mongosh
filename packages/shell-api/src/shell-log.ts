@@ -11,13 +11,6 @@ export default class ShellLog extends ShellApiClass {
   // Use symbols to make sure these are *not* among the things copied over into
   // the global scope.
   [instanceStateSymbol]: ShellInstanceState;
-  log: {
-    info: (message: string, attr?: unknown) => void;
-    warn: (message: string, attr?: unknown) => void;
-    error: (message: string, attr?: unknown) => void;
-    fatal: (message: string, attr?: unknown) => void;
-    debug: (message: string, attr?: unknown, level?: 1 | 2 | 3 | 4 | 5) => void;
-  };
 
   get _instanceState(): ShellInstanceState {
     return this[instanceStateSymbol];
@@ -26,43 +19,42 @@ export default class ShellLog extends ShellApiClass {
   constructor(instanceState: ShellInstanceState) {
     super();
     this[instanceStateSymbol] = instanceState;
-    this.log = {
-      info(message: string, attr?: unknown) {
-        instanceState.messageBus.emit('mongosh:write-custom-log', {
-          method: 'info',
-          message,
-          attr,
-        });
-      },
-      warn(message: string, attr?: unknown) {
-        instanceState.messageBus.emit('mongosh:write-custom-log', {
-          method: 'warn',
-          message,
-          attr,
-        });
-      },
-      error(message: string, attr?: unknown) {
-        instanceState.messageBus.emit('mongosh:write-custom-log', {
-          method: 'error',
-          message,
-          attr,
-        });
-      },
-      fatal(message: string, attr?: unknown) {
-        instanceState.messageBus.emit('mongosh:write-custom-log', {
-          method: 'fatal',
-          message,
-          attr,
-        });
-      },
-      debug(message: string, attr?: unknown, level?: 1 | 2 | 3 | 4 | 5) {
-        instanceState.messageBus.emit('mongosh:write-custom-log', {
-          method: 'debug',
-          message,
-          attr,
-          level,
-        });
-      },
-    };
+  }
+
+  info(message: string, attr?: unknown) {
+    this[instanceStateSymbol].messageBus.emit('mongosh:write-custom-log', {
+      method: 'info',
+      message,
+      attr,
+    });
+  }
+  warn(message: string, attr?: unknown) {
+    this[instanceStateSymbol].messageBus.emit('mongosh:write-custom-log', {
+      method: 'warn',
+      message,
+      attr,
+    });
+  }
+  error(message: string, attr?: unknown) {
+    this[instanceStateSymbol].messageBus.emit('mongosh:write-custom-log', {
+      method: 'error',
+      message,
+      attr,
+    });
+  }
+  fatal(message: string, attr?: unknown) {
+    this[instanceStateSymbol].messageBus.emit('mongosh:write-custom-log', {
+      method: 'fatal',
+      message,
+      attr,
+    });
+  }
+  debug(message: string, attr?: unknown, level?: 1 | 2 | 3 | 4 | 5) {
+    this[instanceStateSymbol].messageBus.emit('mongosh:write-custom-log', {
+      method: 'debug',
+      message,
+      attr,
+      level,
+    });
   }
 }

@@ -365,7 +365,7 @@ export default class ShellInstanceState {
       });
     }
 
-    Object.assign(contextObject, this.shellLog);
+    Object.assign(contextObject, { log: this.shellLog });
     this.messageBus.emit('mongosh:setCtx', { method: 'setCtx', arguments: {} });
   }
 

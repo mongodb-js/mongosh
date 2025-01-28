@@ -138,9 +138,25 @@ const translations: Catalog = {
           link: '#',
           attributes: {
             // TODO(MONGOSH-1995): Print help for the global log property.
-            log: {
-              description: 'Writes a custom entry to the log file',
-              example: 'log.info("Custom message")',
+            info: {
+              description: 'Writes a custom info message to the log file',
+              example: 'log.info("Custom info message")',
+            },
+            warn: {
+              description: 'Writes a custom warning message to the log file',
+              example: 'log.warn("Custom warning message")',
+            },
+            error: {
+              description: 'Writes a custom error message to the log file',
+              example: 'log.error("Custom error message")',
+            },
+            fatal: {
+              description: 'Writes a custom fatal message to the log file',
+              example: 'log.fatal("Custom fatal message")',
+            },
+            debug: {
+              description: 'Writes a custom debug message to the log file',
+              example: 'log.debug("Custom debug message")',
             },
           },
         },
