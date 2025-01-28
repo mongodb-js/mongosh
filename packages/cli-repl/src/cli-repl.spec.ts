@@ -1313,37 +1313,6 @@ describe('CliRepl', function () {
       hasCollectionNames: true,
       hasDatabaseNames: true,
     });
-
-    context('logging configuration', function () {
-      afterEach(function () {
-        sinon.restore();
-      });
-
-      it('start logging when it is not disabled', async function () {
-        const emitSpy = sinon.spy(cliRepl.bus, 'emit');
-
-        await cliRepl.start(await testServer.connectionString(), {});
-
-        expect(cliRepl.getConfig('disableLogging')).is.false;
-
-        expect(emitSpy).calledWith('mongosh:logger-initialized');
-        expect(cliRepl.logWriter).is.instanceOf(MongoLogWriter);
-      });
-
-      it('does not start logging when it is disabled', async function () {
-        const emitSpy = sinon.spy(cliRepl.bus, 'emit');
-        cliRepl.config.disableLogging = true;
-
-        await cliRepl.start(await testServer.connectionString(), {});
-
-        expect(cliRepl.getConfig('disableLogging')).is.true;
-
-        expect(emitSpy).called;
-        expect(emitSpy).not.calledWith('mongosh:logger-initialized');
-        expect(cliRepl.logWriter).is.undefined;
-      });
-    });
-
     context('analytics integration', function () {
       context('with network connectivity', function () {
         let srv: http.Server;
@@ -1392,6 +1361,33 @@ describe('CliRepl', function () {
           srv.close();
           await once(srv, 'close');
           setTelemetryDelay(0);
+        });
+
+        context('logging configuration', function () {
+          it('logging is enabled by default', async function () {
+            const onLoggerInitialized = sinon.stub();
+            cliRepl.bus.on('mongosh:logger-initialized', onLoggerInitialized);
+
+            await cliRepl.start(await testServer.connectionString(), {});
+
+            expect(await cliRepl.getConfig('disableLogging')).is.false;
+
+            expect(onLoggerInitialized).calledOnce;
+            expect(cliRepl.logWriter).is.instanceOf(MongoLogWriter);
+          });
+
+          it('does not start logging when it is disabled', async function () {
+            cliRepl.config.disableLogging = true;
+            const onLoggerInitialized = sinon.stub();
+            cliRepl.bus.on('mongosh:logger-initialized', onLoggerInitialized);
+
+            await cliRepl.start(await testServer.connectionString(), {});
+
+            expect(await cliRepl.getConfig('disableLogging')).is.true;
+            expect(onLoggerInitialized).not.called;
+
+            expect(cliRepl.logWriter).is.undefined;
+          });
         });
 
         it('times out fast', async function () {

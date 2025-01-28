@@ -272,7 +272,6 @@ export class CliRepl implements MongoshIOProvider {
     loggingAndTelemetry.setupLogger(logger);
 
     markTime(TimingCategories.Logging, 'instantiated log writer');
-    this.bus.emit('mongosh:logger-initialized');
     logger.info('MONGOSH', mongoLogId(1_000_000_000), 'log', 'Starting log', {
       execPath: process.execPath,
       envInfo: redactSensitiveData(this.getLoggedEnvironmentVariables()),

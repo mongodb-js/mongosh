@@ -46,6 +46,8 @@ import { MultiSet, toSnakeCase } from './helpers';
 import { Writable } from 'stream';
 
 export class MongoshLoggingAndTelemetry {
+  public log: MongoLogWriter;
+
   private readonly trackingProperties: {
     mongosh_version: string;
     session_id: string;
@@ -54,14 +56,12 @@ export class MongoshLoggingAndTelemetry {
     [key: string]: unknown;
   };
 
-  private log: MongoLogWriter;
   private pendingLogEvents: CallableFunction[] = [];
 
   private telemetryAnonymousId: string | undefined;
   private userId: string | undefined;
-
-  private isSetup = false;
   private hasMongoLogWriterInitialized = false;
+  private isSetup = false;
 
   constructor(
     public readonly bus: MongoshBus,
@@ -90,6 +90,9 @@ export class MongoshLoggingAndTelemetry {
   }
 
   public setup(): void {
+    if (this.isSetup) {
+      throw new Error('Setup can only be called once.');
+    }
     this._setupBusEventListeners();
     this.isSetup = true;
   }

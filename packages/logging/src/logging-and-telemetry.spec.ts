@@ -37,14 +37,14 @@ describe('MongoshLoggingAndTelemetry', function () {
     },
   };
 
+  let loggingAndTelemetry: MongoshLoggingAndTelemetry;
+
   beforeEach(function () {
     logOutput = [];
     analyticsOutput = [];
     bus = new EventEmitter();
-  });
 
-  it('throws when trying to setup writer prematurely', function () {
-    const loggingAndTelemetry = new MongoshLoggingAndTelemetry(
+    loggingAndTelemetry = new MongoshLoggingAndTelemetry(
       bus,
       analytics,
       {
@@ -53,23 +53,31 @@ describe('MongoshLoggingAndTelemetry', function () {
       },
       '1.0.0'
     );
+  });
 
+  it('throws when running setup twice', function () {
+    loggingAndTelemetry.setup();
+
+    expect(() => loggingAndTelemetry.setup()).throws(
+      'Setup can only be called once.'
+    );
+  });
+
+  it('throws when trying to setup writer prematurely', function () {
     expect(() => loggingAndTelemetry.setupLogger(logger)).throws(
       'Run setup() before setting up the log writer.'
     );
   });
 
-  it('tracks new local connection events', function () {
-    const loggingAndTelemetry = new MongoshLoggingAndTelemetry(
-      bus,
-      analytics,
-      {
-        platform: process.platform,
-        arch: process.arch,
-      },
-      '1.0.0'
+  it('throws when running setupLogger twice', function () {
+    loggingAndTelemetry.setup();
+    loggingAndTelemetry.setupLogger(logger);
+    expect(() => loggingAndTelemetry.setupLogger(logger)).throws(
+      'Logger has already been initialized.'
     );
+  });
 
+  it('tracks new local connection events', function () {
     loggingAndTelemetry.setup();
     loggingAndTelemetry.setupLogger(logger);
 
@@ -125,16 +133,6 @@ describe('MongoshLoggingAndTelemetry', function () {
   });
 
   it('tracks new atlas connection events', function () {
-    const loggingAndTelemetry = new MongoshLoggingAndTelemetry(
-      bus,
-      analytics,
-      {
-        platform: process.platform,
-        arch: process.arch,
-      },
-      '1.0.0'
-    );
-
     loggingAndTelemetry.setup();
     loggingAndTelemetry.setupLogger(logger);
 
@@ -667,16 +665,6 @@ describe('MongoshLoggingAndTelemetry', function () {
   });
 
   it('buffers deprecated API calls', function () {
-    const loggingAndTelemetry = new MongoshLoggingAndTelemetry(
-      bus,
-      analytics,
-      {
-        platform: process.platform,
-        arch: process.arch,
-      },
-      '1.0.0'
-    );
-
     loggingAndTelemetry.setup();
     loggingAndTelemetry.setupLogger(logger);
 
@@ -853,16 +841,6 @@ describe('MongoshLoggingAndTelemetry', function () {
   });
 
   it('does not track database calls outside of evaluate-{started,finished}', function () {
-    const loggingAndTelemetry = new MongoshLoggingAndTelemetry(
-      bus,
-      analytics,
-      {
-        platform: process.platform,
-        arch: process.arch,
-      },
-      '1.0.0'
-    );
-
     loggingAndTelemetry.setup();
     loggingAndTelemetry.setupLogger(logger);
 
