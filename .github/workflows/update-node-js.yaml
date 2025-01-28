@@ -22,7 +22,7 @@ jobs:
 
       - uses: actions/checkout@v4
         with:
-          # don't checkout a detatched HEAD
+          # don't checkout a detached HEAD
           ref: ${{ github.head_ref }}
           token: ${{ steps.app-token.outputs.token }}
 
