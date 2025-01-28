@@ -35,7 +35,11 @@ import * as asyncRepl from './async-repl';
 import type { StyleDefinition } from './clr';
 import clr from './clr';
 import { MONGOSH_WIKI, TELEMETRY_GREETING_MESSAGE } from './constants';
-import formatOutput, { formatError } from './format-output';
+import {
+  formatOutput,
+  formatError,
+  CONTROL_CHAR_REGEXP,
+} from './format-output';
 import { makeMultilineJSIntoSingleLine } from '@mongosh/js-multiline-to-singleline';
 import { LineByLineInput } from './line-by-line-input';
 import type { FormatOptions } from './format-output';
@@ -44,9 +48,6 @@ import type { Context } from 'vm';
 import { Script, createContext, runInContext } from 'vm';
 
 declare const __non_webpack_require__: any;
-
-// eslint-disable-next-line no-control-regex
-const CONTROL_CHAR_REGEXP = /[\x00-\x1F\x7F-\x9F]/g;
 
 /**
  * All CLI flags that are useful for {@link MongoshNodeRepl}.
@@ -924,18 +925,21 @@ class MongoshNodeRepl implements EvaluationListener {
    * @param values A list of values to be printed.
    */
   onPrint(values: ShellResult[], type: 'print' | 'printjson'): void {
-    const extraOptions: Partial<FormatOptions> | undefined =
-      // MONGOSH-955: when `printjson()` is called in mongosh, we will try to
-      // replicate the format of the old shell: start every object on the new
-      // line, and set all the collapse options threshold to infinity
-      type === 'printjson'
-        ? {
-            compact: false,
-            depth: Infinity,
-            maxArrayLength: Infinity,
-            maxStringLength: Infinity,
-          }
-        : undefined;
+    let extraOptions: Partial<FormatOptions> = {
+      allowControlCharacters: true,
+    };
+    // MONGOSH-955: when `printjson()` is called in mongosh, we will try to
+    // replicate the format of the old shell: start every object on the new
+    // line, and set all the collapse options threshold to infinity
+    if (type === 'printjson') {
+      extraOptions = {
+        ...extraOptions,
+        compact: false,
+        depth: Infinity,
+        maxArrayLength: Infinity,
+        maxStringLength: Infinity,
+      };
+    }
     const joined = values
       .map((value) => this.formatShellResult(value, extraOptions))
       .join(' ');
