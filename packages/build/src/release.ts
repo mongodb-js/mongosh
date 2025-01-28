@@ -34,7 +34,6 @@ export type ReleaseCommand =
   | 'download-crypt-shared-library'
   | 'download-and-list-artifacts'
   | 'draft'
-  | 'temp-push-auxiliary-tags'
   | 'publish';
 
 /**
@@ -56,11 +55,6 @@ export async function release(
     `mongosh: running command '${command}' with config:`,
     redactConfig(config)
   );
-
-  if (command === 'temp-push-auxiliary-tags') {
-    pushTags({ useAuxiliaryPackagesOnly: true });
-    return;
-  }
 
   if (command === 'bump') {
     bumpAuxiliaryPackages();
