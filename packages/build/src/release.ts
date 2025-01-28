@@ -14,7 +14,7 @@ import {
 } from './evergreen';
 import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { publishToHomebrew } from './homebrew';
-import { bumpAuxiliaryPackages, publishToNpm } from './npm-packages';
+import { bumpAuxiliaryPackages, publishToNpm, pushTags } from './npm-packages';
 import { runPackage } from './packaging';
 import { runDraft } from './run-draft';
 import { publishMongosh } from './publish-mongosh';
@@ -34,6 +34,7 @@ export type ReleaseCommand =
   | 'download-crypt-shared-library'
   | 'download-and-list-artifacts'
   | 'draft'
+  | 'temp-push-auxiliary-tags'
   | 'publish';
 
 /**
@@ -55,6 +56,11 @@ export async function release(
     `mongosh: running command '${command}' with config:`,
     redactConfig(config)
   );
+
+  if (command === 'temp-push-auxiliary-tags') {
+    pushTags({ useAuxiliaryPackagesOnly: true });
+    return;
+  }
 
   if (command === 'bump') {
     bumpAuxiliaryPackages();
@@ -125,6 +131,7 @@ export async function release(
         new Barque(config),
         createAndPublishDownloadCenterConfig,
         publishToNpm,
+        pushTags,
         writeBuildInfo,
         publishToHomebrew
       );

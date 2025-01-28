@@ -1,5 +1,5 @@
 import type { Config } from './config';
-import { publishToNpm } from './npm-packages';
+import { publishToNpm, pushTags } from './npm-packages';
 
 export function publishAuxiliaryPackages(config: Config) {
   if (!config.useAuxiliaryPackagesOnly) {
@@ -8,4 +8,5 @@ export function publishAuxiliaryPackages(config: Config) {
     );
   }
   publishToNpm(config);
+  pushTags({ useAuxiliaryPackagesOnly: true });
 }
