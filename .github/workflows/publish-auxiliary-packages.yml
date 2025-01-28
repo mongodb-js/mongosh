@@ -58,10 +58,3 @@ jobs:
           npm config list
           echo "Publishing packages as $(npm whoami)"
           npm run publish-auxiliary
-
-      - name: "Publish tags"
-        run: |
-          npx lerna list -a --json | \
-            jq -r '.[] |  select(.name != "mongosh") | .name + "@" + .version' | \
-            xargs -i sh -c "git tag -a {} -m {} || true"
-          git push --follow-tags

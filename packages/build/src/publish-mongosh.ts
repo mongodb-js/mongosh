@@ -10,7 +10,8 @@ import type { createAndPublishDownloadCenterConfig as createAndPublishDownloadCe
 import { getArtifactUrl as getArtifactUrlFn } from './evergreen';
 import type { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import type { publishToHomebrew as publishToHomebrewType } from './homebrew';
-import type { publishToNpm as publishToNpmType } from './npm-packages';
+import type { pushTags as pushTagsType } from './npm-packages';
+import { type publishToNpm as publishToNpmType } from './npm-packages';
 import type { PackageInformationProvider } from './packaging';
 import { getPackageFile } from './packaging';
 
@@ -22,6 +23,7 @@ export async function publishMongosh(
   barque: Barque,
   createAndPublishDownloadCenterConfig: typeof createAndPublishDownloadCenterConfigFn,
   publishToNpm: typeof publishToNpmType,
+  pushTags: typeof pushTagsType,
   writeBuildInfo: typeof writeBuildInfoType,
   publishToHomebrew: typeof publishToHomebrewType,
   shouldDoPublicRelease: typeof shouldDoPublicReleaseFn = shouldDoPublicReleaseFn,
@@ -93,6 +95,8 @@ export async function publishMongosh(
     `https://github.com/${mongoshGithubRepo.repo.owner}/${mongoshGithubRepo.repo.repo}/releases/tag/v${config.version}`,
     !!config.isDryRun
   );
+
+  pushTags({ useAuxiliaryPackagesOnly: true });
 
   console.info('mongosh: finished release process.');
 }
