@@ -12,7 +12,7 @@ jobs:
     environment: Production
 
     steps:
-      - uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
+      - uses: mongodb-js/devtools-shared/actions/setup-bot-token@d638357cabd624ae626d9abb62cbac2760aea932
         id: app-token
         with:
           app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
