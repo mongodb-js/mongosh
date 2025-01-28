@@ -25,62 +25,6 @@ describe('npm-packages publishToNpm', function () {
     spawnSync = sinon.stub();
   });
 
-  it('throws if mongosh is not existent when publishing all', function () {
-    const packages = [{ name: 'packageA', version: '0.7.0' }];
-    listNpmPackages.returns(packages);
-
-    expect(() =>
-      publishToNpm(
-        { isDryRun: false, useAuxiliaryPackagesOnly: false },
-        listNpmPackages,
-        markBumpedFilesAsAssumeUnchanged,
-        spawnSync
-      )
-    ).throws('mongosh package not found');
-  });
-
-  it('takes mongosh version and pushes tags', function () {
-    const packages = [
-      { name: 'packageA', version: '0.7.0' },
-      { name: 'mongosh', version: '1.2.0' },
-    ];
-    listNpmPackages.returns(packages);
-
-    publishToNpm(
-      { isDryRun: false, useAuxiliaryPackagesOnly: false },
-      listNpmPackages,
-      markBumpedFilesAsAssumeUnchanged,
-      spawnSync
-    );
-
-    expect(spawnSync).calledWith('git', ['tag', '-a', '1.2.0', '-m', '1.2.0']);
-    expect(spawnSync).calledWith('git', ['push', '--follow-tags']);
-  });
-
-  it('does not manually push tags with auxiliary packages', function () {
-    const packages = [
-      { name: 'packageA', version: '0.7.0' },
-      { name: 'mongosh', version: '1.2.0' },
-    ];
-    listNpmPackages.returns(packages);
-
-    publishToNpm(
-      { isDryRun: false, useAuxiliaryPackagesOnly: true },
-      listNpmPackages,
-      markBumpedFilesAsAssumeUnchanged,
-      spawnSync
-    );
-
-    expect(spawnSync).not.calledWith('git', [
-      'tag',
-      '-a',
-      '1.2.0',
-      '-m',
-      '1.2.0',
-    ]);
-    expect(spawnSync).not.calledWith('git', ['push', '--follow-tags']);
-  });
-
   it('calls lerna to publish packages for a real version', function () {
     const packages = [
       { name: 'packageA', version: '0.7.0' },

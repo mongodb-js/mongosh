@@ -25,15 +25,17 @@ export function publishToNpm(
       ...(isDryRun ? { npm_config_dry_run: 'true' } : {}),
     },
   };
-  let packages = listNpmPackages().filter(
+  const allReleasablePackages = listNpmPackages().filter(
     (packageConfig) => !EXCLUDE_RELEASE_PACKAGES.includes(packageConfig.name)
   );
 
-  if (useAuxiliaryPackagesOnly) {
-    packages = packages.filter(
-      (packageConfig) => !MONGOSH_RELEASE_PACKAGES.includes(packageConfig.name)
-    );
-  }
+  const packages: LernaPackageDescription[] = useAuxiliaryPackagesOnly
+    ? allReleasablePackages.filter(
+        (packageConfig) =>
+          !MONGOSH_RELEASE_PACKAGES.includes(packageConfig.name)
+      )
+    : allReleasablePackages;
+
   // Lerna requires a clean repository for a publish from-package
   // we use git update-index --assume-unchanged on files we know have been bumped
   markBumpedFilesAsAssumeUnchangedFn(packages, true);
@@ -53,24 +55,6 @@ export function publishToNpm(
     );
   } finally {
     markBumpedFilesAsAssumeUnchangedFn(packages, false);
-  }
-
-  if (!useAuxiliaryPackagesOnly) {
-    const mongoshVersion = packages.find(
-      (packageConfig) => packageConfig.name === 'mongosh'
-    )?.version;
-
-    if (!mongoshVersion) {
-      throw new Error('mongosh package not found');
-    }
-
-    spawnSync(
-      'git',
-      ['tag', '-a', mongoshVersion, '-m', mongoshVersion],
-      commandOptions
-    );
-
-    spawnSync('git', ['push', '--follow-tags'], commandOptions);
   }
 }
 

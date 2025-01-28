@@ -9,7 +9,10 @@ import type {
 import type { createAndPublishDownloadCenterConfig as createAndPublishDownloadCenterConfigFn } from './download-center';
 import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import type { publishToHomebrew as publishToHomebrewType } from './homebrew';
-import type { publishToNpm as publishToNpmType } from './npm-packages';
+import type {
+  publishToNpm as publishToNpmType,
+  pushTags as pushTagsType,
+} from './npm-packages';
 import { publishMongosh } from './publish-mongosh';
 import { dummyConfig } from '../test/helpers';
 
@@ -37,6 +40,7 @@ describe('publishMongosh', function () {
   let mongoHomebrewCoreForkRepo: GithubRepo;
   let homebrewCoreRepo: GithubRepo;
   let barque: Barque;
+  let pushTags: typeof pushTagsType;
 
   beforeEach(function () {
     config = { ...dummyConfig };
@@ -46,6 +50,8 @@ describe('publishMongosh', function () {
     writeBuildInfo = sinon.spy();
     publishToHomebrew = sinon.spy();
     shouldDoPublicRelease = sinon.spy();
+    pushTags = sinon.spy();
+
     githubRepo = createStubRepo();
     mongoHomebrewCoreForkRepo = createStubRepo();
     homebrewCoreRepo = createStubRepo();
@@ -86,6 +92,7 @@ describe('publishMongosh', function () {
             barque,
             createAndPublishDownloadCenterConfig,
             publishToNpm,
+            pushTags,
             writeBuildInfo,
             publishToHomebrew,
             shouldDoPublicRelease
@@ -111,6 +118,7 @@ describe('publishMongosh', function () {
             barque,
             createAndPublishDownloadCenterConfig,
             publishToNpm,
+            pushTags,
             writeBuildInfo,
             publishToHomebrew,
             shouldDoPublicRelease
@@ -131,6 +139,7 @@ describe('publishMongosh', function () {
         barque,
         createAndPublishDownloadCenterConfig,
         publishToNpm,
+        pushTags,
         writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease
@@ -161,6 +170,7 @@ describe('publishMongosh', function () {
         barque,
         createAndPublishDownloadCenterConfig,
         publishToNpm,
+        pushTags,
         writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease
@@ -183,6 +193,7 @@ describe('publishMongosh', function () {
         barque,
         createAndPublishDownloadCenterConfig,
         publishToNpm,
+        pushTags,
         writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease
@@ -200,6 +211,7 @@ describe('publishMongosh', function () {
         barque,
         createAndPublishDownloadCenterConfig,
         publishToNpm,
+        pushTags,
         writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease
@@ -218,6 +230,7 @@ describe('publishMongosh', function () {
         barque,
         createAndPublishDownloadCenterConfig,
         publishToNpm,
+        pushTags,
         writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease
@@ -248,6 +261,7 @@ describe('publishMongosh', function () {
         barque,
         createAndPublishDownloadCenterConfig,
         publishToNpm,
+        pushTags,
         writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease
@@ -265,6 +279,7 @@ describe('publishMongosh', function () {
         barque,
         createAndPublishDownloadCenterConfig,
         publishToNpm,
+        pushTags,
         writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease
@@ -282,6 +297,7 @@ describe('publishMongosh', function () {
         barque,
         createAndPublishDownloadCenterConfig,
         publishToNpm,
+        pushTags,
         writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease
@@ -299,6 +315,7 @@ describe('publishMongosh', function () {
         barque,
         createAndPublishDownloadCenterConfig,
         publishToNpm,
+        pushTags,
         writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease
@@ -316,6 +333,7 @@ describe('publishMongosh', function () {
         barque,
         createAndPublishDownloadCenterConfig,
         publishToNpm,
+        pushTags,
         writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease
