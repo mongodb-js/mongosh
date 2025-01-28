@@ -95,6 +95,7 @@ export function bumpAuxiliaryPackages() {
     encoding: 'utf8',
     env: {
       ...process.env,
+      LAST_BUMP_COMMIT_MESSAGE: 'chore(release): bump auxiliary packages',
       SKIP_BUMP_PACKAGES: [
         ...EXCLUDE_RELEASE_PACKAGES,
         ...MONGOSH_RELEASE_PACKAGES,
