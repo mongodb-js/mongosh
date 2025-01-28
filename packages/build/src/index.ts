@@ -20,7 +20,6 @@ const validCommands: (ReleaseCommand | 'trigger-release')[] = [
   'download-crypt-shared-library',
   'download-and-list-artifacts',
   'trigger-release',
-  'temp-push-auxiliary-tags',
 ] as const;
 
 const isValidCommand = (

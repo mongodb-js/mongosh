@@ -72,8 +72,7 @@
     "precommit": "precommit",
     "preinstall": "node scripts/sort-workspaces.js",
     "bump-auxiliary": "npm run bump-auxiliary --workspace @mongosh/build",
-    "publish-auxiliary": "npm run publish-auxiliary --workspace @mongosh/build",
-    "tags-auxiliary": "npm run tags-auxiliary --workspace @mongosh/build"
+    "publish-auxiliary": "npm run publish-auxiliary --workspace @mongosh/build"
   },
   "config": {
     "unsafe-perm": true
