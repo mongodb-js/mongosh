@@ -176,7 +176,7 @@ async function main() {
 
     process.on('exit', () => {
       // https://github.com/libuv/libuv/pull/4688
-      process.stdin.setRawMode(false);
+      process.stdin?.setRawMode?.(false);
     });
 
     // If we are spawned via Windows doubleclick, ask the user for an URI to
