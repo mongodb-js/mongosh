@@ -297,11 +297,13 @@ describe('setupLoggerAndTelemetry', function () {
       error: new Error('failed'),
       duringLoad: false,
       resolutionDetails: [],
+      durationMs: 1,
     });
     bus.emit('devtools-connect:resolve-srv-succeeded', {
       from: 'mongodb+srv://foo:bar@hello.world/',
       to: 'mongodb://foo:bar@db.hello.world/',
       resolutionDetails: [],
+      durationMs: 1,
     });
     bus.emit('devtools-connect:missing-optional-dependency', {
       name: 'kerberos',
@@ -427,12 +429,14 @@ describe('setupLoggerAndTelemetry', function () {
       error: 'failed',
       duringLoad: false,
       resolutionDetails: [],
+      durationMs: 1,
     });
     expect(logOutput[i].msg).to.equal('Resolving SRV record succeeded');
     expect(logOutput[i++].attr).to.deep.equal({
       from: 'mongodb+srv://<credentials>@hello.world/',
       to: 'mongodb://<credentials>@db.hello.world/',
       resolutionDetails: [],
+      durationMs: 1,
     });
     expect(logOutput[i].msg).to.equal('Missing optional dependency');
     expect(logOutput[i++].attr).to.deep.equal({
