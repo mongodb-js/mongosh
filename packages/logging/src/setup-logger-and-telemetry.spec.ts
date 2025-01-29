@@ -822,4 +822,115 @@ describe('setupLoggerAndTelemetry', function () {
     expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.be.empty;
   });
+
+  it('tracks custom logging events', function () {
+    setupLoggerAndTelemetry(
+      bus,
+      logger,
+      analytics,
+      {
+        platform: process.platform,
+        arch: process.arch,
+      },
+      '1.0.0'
+    );
+    expect(logOutput).to.have.lengthOf(0);
+    expect(analyticsOutput).to.be.empty;
+
+    bus.emit('mongosh:connect', {
+      uri: 'mongodb://localhost/',
+      is_localhost: true,
+      is_atlas: false,
+      resolved_hostname: 'localhost',
+      node_version: 'v12.19.0',
+    });
+
+    bus.emit('mongosh:write-custom-log', {
+      method: 'info',
+      message: 'This is an info message',
+      attr: { some: 'value' },
+    });
+
+    bus.emit('mongosh:write-custom-log', {
+      method: 'warn',
+      message: 'This is a warn message',
+    });
+
+    bus.emit('mongosh:write-custom-log', {
+      method: 'error',
+      message: 'Error!',
+    });
+
+    bus.emit('mongosh:write-custom-log', {
+      method: 'fatal',
+      message: 'Fatal!',
+    });
+
+    bus.emit('mongosh:write-custom-log', {
+      method: 'debug',
+      message: 'Debug with level',
+      level: 1,
+    });
+
+    bus.emit('mongosh:write-custom-log', {
+      method: 'debug',
+      message: 'Debug without level',
+    });
+
+    expect(logOutput[0].msg).to.equal('Connecting to server');
+    expect(logOutput[0].attr.connectionUri).to.equal('mongodb://localhost/');
+    expect(logOutput[0].attr.is_localhost).to.equal(true);
+    expect(logOutput[0].attr.is_atlas).to.equal(false);
+    expect(logOutput[0].attr.atlas_hostname).to.equal(null);
+    expect(logOutput[0].attr.node_version).to.equal('v12.19.0');
+
+    expect(logOutput[1].s).to.equal('I');
+    expect(logOutput[1].c).to.equal('MONGOSH-SCRIPTS');
+    expect(logOutput[1].ctx).to.equal('custom-log');
+    expect(logOutput[1].msg).to.equal('This is an info message');
+    expect(logOutput[1].attr.some).to.equal('value');
+
+    expect(logOutput[2].s).to.equal('W');
+    expect(logOutput[2].c).to.equal('MONGOSH-SCRIPTS');
+    expect(logOutput[2].ctx).to.equal('custom-log');
+    expect(logOutput[2].msg).to.equal('This is a warn message');
+
+    expect(logOutput[3].s).to.equal('E');
+    expect(logOutput[3].c).to.equal('MONGOSH-SCRIPTS');
+    expect(logOutput[3].ctx).to.equal('custom-log');
+    expect(logOutput[3].msg).to.equal('Error!');
+
+    expect(logOutput[4].s).to.equal('F');
+    expect(logOutput[4].c).to.equal('MONGOSH-SCRIPTS');
+    expect(logOutput[4].ctx).to.equal('custom-log');
+    expect(logOutput[4].msg).to.equal('Fatal!');
+
+    expect(logOutput[5].s).to.equal('D1');
+    expect(logOutput[5].c).to.equal('MONGOSH-SCRIPTS');
+    expect(logOutput[5].ctx).to.equal('custom-log');
+    expect(logOutput[5].msg).to.equal('Debug with level');
+
+    expect(logOutput[6].s).to.equal('D1');
+    expect(logOutput[6].c).to.equal('MONGOSH-SCRIPTS');
+    expect(logOutput[6].ctx).to.equal('custom-log');
+    expect(logOutput[6].msg).to.equal('Debug without level');
+
+    expect(analyticsOutput).to.deep.equal([
+      [
+        'track',
+        {
+          anonymousId: undefined,
+          event: 'New Connection',
+          properties: {
+            mongosh_version: '1.0.0',
+            session_id: '5fb3c20ee1507e894e5340f3',
+            is_localhost: true,
+            is_atlas: false,
+            atlas_hostname: null,
+            node_version: 'v12.19.0',
+          },
+        },
+      ],
+    ]);
+  });
 });

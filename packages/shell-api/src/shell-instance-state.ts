@@ -35,6 +35,7 @@ import NoDatabase from './no-db';
 import type { ShellBson } from './shell-bson';
 import constructShellBson from './shell-bson';
 import { Streams } from './streams';
+import { ShellLog } from './shell-log';
 
 /**
  * The subset of CLI options that is relevant for the shell API's behavior itself.
@@ -159,6 +160,7 @@ export default class ShellInstanceState {
   public context: any;
   public mongos: Mongo[];
   public shellApi: ShellApi;
+  public shellLog: ShellLog;
   public shellBson: ShellBson;
   public cliOptions: ShellCliOptions;
   public evaluationListener: EvaluationListener;
@@ -187,6 +189,7 @@ export default class ShellInstanceState {
     this.initialServiceProvider = initialServiceProvider;
     this.messageBus = messageBus;
     this.shellApi = new ShellApi(this);
+    this.shellLog = new ShellLog(this);
     this.shellBson = constructShellBson(
       initialServiceProvider.bsonLibrary,
       (msg: string) => {
@@ -361,6 +364,8 @@ export default class ShellInstanceState {
         get: () => this.currentDb,
       });
     }
+
+    contextObject.log = this.shellLog;
 
     this.messageBus.emit('mongosh:setCtx', { method: 'setCtx', arguments: {} });
   }

@@ -187,6 +187,13 @@ export interface SessionStartedEvent {
   };
 }
 
+export interface WriteCustomLogEvent {
+  method: 'info' | 'error' | 'warn' | 'fatal' | 'debug';
+  message: string;
+  attr?: unknown;
+  level?: 1 | 2 | 3 | 4 | 5;
+}
+
 export interface MongoshBusEventsMap extends ConnectEventMap {
   /**
    * Signals a connection to a MongoDB instance has been established
@@ -267,6 +274,11 @@ export interface MongoshBusEventsMap extends ConnectEventMap {
   'mongosh:start-loading-cli-scripts': (
     event: StartLoadingCliScriptsEvent
   ) => void;
+  /**
+   * Signals to start writing log to the disc after MongoLogManager is initialized.
+   */
+  'mongosh:write-custom-log': (ev: WriteCustomLogEvent) => void;
+
   /**
    * Signals the successful startup of the mongosh REPL after initial files and configuration
    * have been loaded.

@@ -1506,6 +1506,46 @@ describe('e2e', function () {
             ).to.have.lengthOf(1);
           });
         });
+
+        it('writes custom log directly', async function () {
+          await shell.executeLine("log.info('This is a custom entry')");
+          expect(shell.assertNoErrors());
+          await eventually(async () => {
+            const log = await readLogfile();
+            const customLogEntry = log.filter((logEntry) =>
+              logEntry.msg.includes('This is a custom entry')
+            );
+            expect(customLogEntry).to.have.lengthOf(1);
+            expect(customLogEntry[0].s).to.be.equal('I');
+            expect(customLogEntry[0].c).to.be.equal('MONGOSH-SCRIPTS');
+            expect(customLogEntry[0].ctx).to.be.equal('custom-log');
+          });
+        });
+
+        it('writes custom log when loads a script', async function () {
+          const connectionString = await testServer.connectionString();
+          await shell.executeLine(
+            `connect(${JSON.stringify(connectionString)})`
+          );
+          const filename = path.resolve(
+            __dirname,
+            'fixtures',
+            'custom-log-info.js'
+          );
+          await shell.executeLine(`load(${JSON.stringify(filename)})`);
+          expect(shell.assertNoErrors());
+          await eventually(async () => {
+            const log = await readLogfile();
+            expect(
+              log.filter((logEntry) =>
+                logEntry.msg.includes('Initiating connection attemp')
+              )
+            ).to.have.lengthOf(1);
+            expect(
+              log.filter((logEntry) => logEntry.msg.includes('Hi there'))
+            ).to.have.lengthOf(1);
+          });
+        });
       });
 
       describe('history file', function () {
@@ -1931,7 +1971,7 @@ describe('e2e', function () {
         __dirname,
         '..',
         '..',
-        'cli-repl',
+        'e2e-tests',
         'test',
         'fixtures',
         'simple-console-log.js'
