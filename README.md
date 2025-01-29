@@ -89,7 +89,7 @@ variable. For detailed instructions for each of our supported platforms, please 
         --oidcRedirectUri[=url]                Local auth code flow redirect URL [http://localhost:27097/redirect]
         --oidcTrustedEndpoint                  Treat the cluster/database mongosh as a trusted endpoint
         --oidcIdTokenAsAccessToken             Use ID tokens in place of access tokens for auth
-        --oidcDumpTokens[=mode]                Debug OIDC by printing tokens to mongosh's output [full|include-secrets]
+        --oidcDumpTokens[=mode]                Debug OIDC by printing tokens to mongosh's output [redacted|include-secrets]
         --oidcNoNonce                          Don't send a nonce argument in the OIDC auth request
 
   DB Address Examples:
