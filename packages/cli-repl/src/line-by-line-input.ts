@@ -1,5 +1,6 @@
 import { Readable } from 'stream';
 import { StringDecoder } from 'string_decoder';
+import type { ReadStream } from 'tty';
 
 const LINE_ENDING_RE = /\r?\n|\r(?!\n)/;
 const CTRL_C = '\u0003';
@@ -22,14 +23,14 @@ const CTRL_D = '\u0004';
  * the proxied `tty.ReadStream`, forwarding all the characters.
  */
 export class LineByLineInput extends Readable {
-  private _originalInput: NodeJS.ReadStream;
+  private _originalInput: Readable & Partial<ReadStream>;
   private _forwarding: boolean;
   private _blockOnNewLineEnabled: boolean;
   private _charQueue: (string | null)[];
   private _decoder: StringDecoder;
   private _insidePushCalls: number;
 
-  constructor(readable: NodeJS.ReadStream) {
+  constructor(readable: Readable & Partial<ReadStream>) {
     super();
     this._originalInput = readable;
     this._forwarding = true;
@@ -64,7 +65,7 @@ export class LineByLineInput extends Readable {
     );
 
     const proxy = new Proxy(readable, {
-      get: (target: NodeJS.ReadStream, property: string): any => {
+      get: (target: typeof readable, property: string): any => {
         if (
           typeof property === 'string' &&
           !property.startsWith('_') &&

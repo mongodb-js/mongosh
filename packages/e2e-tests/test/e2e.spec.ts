@@ -298,6 +298,36 @@ describe('e2e', function () {
       await shell.waitForSuccessfulExit();
       shell.assertContainsOutput('3628800');
     });
+    it('ignores control characters in TTY input', async function () {
+      shell = this.startTestShell({
+        args: ['--nodb'],
+        forceTerminal: true,
+      });
+      await shell.waitForPrompt();
+      shell.assertNoErrors();
+
+      expect(await shell.executeLine('24\b * 3\n')).to.include('\n6\n'); // \b is backspace
+      expect(
+        await shell.executeLine('\x1b[200~24\b * 3\x1b[201~\n')
+      ).to.include('\n72\n');
+    });
+    it('ignores control characters in TTY input inside of .editor', async function () {
+      shell = this.startTestShell({
+        args: ['--nodb'],
+        forceTerminal: true,
+      });
+      await shell.waitForPrompt();
+      shell.assertNoErrors();
+
+      const start = shell.output.length;
+      shell.writeInputLine('.editor');
+      await shell.waitForPrompt(start, {
+        promptPattern: /\/\/ Entering editor mode/,
+      });
+      expect(
+        await shell.executeLine('\x1b[200~24\b * 3\x1b[201~\x04') // \x04 is Ctrl+D to finish code
+      ).to.include('\n72\n');
+    });
   });
 
   describe('set db', function () {
@@ -1550,9 +1580,6 @@ describe('e2e', function () {
 
       describe('history file', function () {
         it('persists between sessions', async function () {
-          if (process.arch === 's390x') {
-            return this.skip(); // https://jira.mongodb.org/browse/MONGOSH-746
-          }
           await shell.executeLine('a = 42');
           shell.writeInput('.exit\n');
           await shell.waitForSuccessfulExit();

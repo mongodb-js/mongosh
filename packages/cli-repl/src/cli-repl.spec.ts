@@ -2612,8 +2612,7 @@ describe('CliRepl', function () {
       for (const { version, deprecated } of [
         { version: 'v20.5.1', deprecated: false },
         { version: '20.0.0', deprecated: false },
-        { version: '18.0.0', deprecated: true },
-        { version: '16.20.3', deprecated: true },
+        { version: '18.19.0', deprecated: true },
       ]) {
         delete (process as any).version;
         (process as any).version = version;
@@ -2639,7 +2638,7 @@ describe('CliRepl', function () {
 
     it('does not print any deprecation warning when CLI is ran with --quiet flag', async function () {
       // Setting all the possible situation for a deprecation warning
-      process.version = '16.20.3';
+      process.version = '18.20.0';
       process.versions.openssl = '1.1.11';
       cliRepl.getGlibcVersion = () => '1.27';
 
