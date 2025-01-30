@@ -238,6 +238,27 @@ describe('CliRepl', function () {
         });
       });
 
+      it('does not write to log syntax errors if logging is disabled', async function () {
+        expect(
+          (await log()).filter((entry) =>
+            entry.attr?.stack?.startsWith('SyntaxError:')
+          )
+        ).to.have.lengthOf(0);
+        input.write('config.set("disableLogging", true)\n');
+        await waitEval(cliRepl.bus);
+        expect(output).includes('Setting "disableLogging" has been changed');
+
+        input.write('<cat>\n');
+        await waitBus(cliRepl.bus, 'mongosh:error');
+        await eventually(async () => {
+          expect(
+            (await log()).filter((entry) =>
+              entry.attr?.stack?.startsWith('SyntaxError:')
+            )
+          ).to.have.lengthOf(0);
+        });
+      });
+
       it('writes JS errors to the log file', async function () {
         input.write('throw new Error("plain js error")\n');
         await waitBus(cliRepl.bus, 'mongosh:error');
@@ -1365,28 +1386,15 @@ describe('CliRepl', function () {
 
         context('logging configuration', function () {
           it('logging is enabled by default', async function () {
-            const onLoggerInitialized = sinon.stub();
-            cliRepl.bus.on('mongosh:logger-initialized', onLoggerInitialized);
+            const onLogInitialized = sinon.stub();
+            cliRepl.bus.on('mongosh:log-initialized', onLogInitialized);
 
             await cliRepl.start(await testServer.connectionString(), {});
 
             expect(await cliRepl.getConfig('disableLogging')).is.false;
 
-            expect(onLoggerInitialized).calledOnce;
+            expect(onLogInitialized).calledOnce;
             expect(cliRepl.logWriter).is.instanceOf(MongoLogWriter);
-          });
-
-          it('does not start logging when it is disabled', async function () {
-            cliRepl.config.disableLogging = true;
-            const onLoggerInitialized = sinon.stub();
-            cliRepl.bus.on('mongosh:logger-initialized', onLoggerInitialized);
-
-            await cliRepl.start(await testServer.connectionString(), {});
-
-            expect(await cliRepl.getConfig('disableLogging')).is.true;
-            expect(onLoggerInitialized).not.called;
-
-            expect(cliRepl.logWriter).is.undefined;
           });
         });
 

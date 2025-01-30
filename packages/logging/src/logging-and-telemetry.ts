@@ -46,7 +46,7 @@ import { MultiSet, toSnakeCase } from './helpers';
 import { Writable } from 'stream';
 
 export class MongoshLoggingAndTelemetry {
-  public log: MongoLogWriter;
+  private log: MongoLogWriter | null;
 
   private readonly trackingProperties: {
     mongosh_version: string;
@@ -60,12 +60,12 @@ export class MongoshLoggingAndTelemetry {
 
   private telemetryAnonymousId: string | undefined;
   private userId: string | undefined;
-  private hasMongoLogWriterInitialized = false;
+  private isDummyLog = true;
   private isSetup = false;
 
   constructor(
-    public readonly bus: MongoshBus,
-    public readonly analytics: MongoshAnalytics,
+    private readonly bus: MongoshBus,
+    private readonly analytics: MongoshAnalytics,
     providedTraits: { platform: string } & {
       [key: string]: unknown;
     },
@@ -97,29 +97,38 @@ export class MongoshLoggingAndTelemetry {
     this.isSetup = true;
   }
 
-  public setupLogger(logger: MongoLogWriter): void {
+  public attachLogger(logger: MongoLogWriter): void {
     if (!this.isSetup) {
       throw new Error('Run setup() before setting up the log writer.');
     }
-    if (this.hasMongoLogWriterInitialized) {
-      throw new Error('Logger has already been initialized.');
+    /** Setup can only be run when overriding a dummy log or a null log. */
+    if (this.log && !this.isDummyLog) {
+      throw new Error(
+        'Previously set logger has not been detached. Run detachLogger() before setting.'
+      );
     }
     this.log = logger;
 
     this.userTraits.session_id = this.log.logId;
     this.trackingProperties.session_id = this.log.logId;
 
-    this.hasMongoLogWriterInitialized = true;
-    for (const pendingEvent of this.pendingLogEvents) {
-      pendingEvent();
-    }
-    this.pendingLogEvents = [];
+    this.isDummyLog = false;
 
     hookLogger(this.bus, this.log, 'mongosh', (uri) =>
       redactURICredentials(uri)
     );
 
-    this.bus.emit('mongosh:logger-initialized');
+    for (const pendingEvent of this.pendingLogEvents) {
+      pendingEvent();
+    }
+    this.pendingLogEvents = [];
+
+    this.bus.emit('mongosh:log-initialized');
+  }
+
+  public detachLogger() {
+    this.pendingLogEvents = [];
+    this.log = null;
   }
 
   private _getTelemetryUserIdentity(): MongoshAnalyticsIdentity {
@@ -147,7 +156,9 @@ export class MongoshLoggingAndTelemetry {
       listener: (...args: Parameters<MongoshBusEventsMap[K]>) => void
     ) => {
       this.bus.on(event, ((...args: Parameters<MongoshBusEventsMap[K]>) => {
-        if (this.hasMongoLogWriterInitialized) {
+        const isLoggerAttachedOrNull =
+          (this.log && !this.isDummyLog) || this.log === null;
+        if (isLoggerAttachedOrNull) {
           listener(...args);
         } else {
           this.pendingLogEvents.push(() => listener(...args));
@@ -156,7 +167,7 @@ export class MongoshLoggingAndTelemetry {
     };
 
     onBus('mongosh:start-mongosh-repl', (ev: StartMongoshReplEvent) => {
-      this.log.info(
+      this.log?.info(
         'MONGOSH',
         mongoLogId(1_000_000_002),
         'repl',
@@ -169,7 +180,7 @@ export class MongoshLoggingAndTelemetry {
     onBus(
       'mongosh:start-loading-cli-scripts',
       (event: StartLoadingCliScriptsEvent) => {
-        this.log.info(
+        this.log?.info(
           'MONGOSH',
           mongoLogId(1_000_000_003),
           'repl',
@@ -191,7 +202,7 @@ export class MongoshLoggingAndTelemetry {
         ...atlasHostname,
       };
 
-      this.log.info(
+      this.log?.info(
         'MONGOSH',
         mongoLogId(1_000_000_004),
         'connect',
@@ -261,7 +272,7 @@ export class MongoshLoggingAndTelemetry {
           ...this._getTelemetryUserIdentity(),
           traits: this.userTraits,
         });
-        this.log.info(
+        this.log?.info(
           'MONGOSH',
           mongoLogId(1_000_000_005),
           'config',
@@ -279,13 +290,15 @@ export class MongoshLoggingAndTelemetry {
         metadata: unknown;
       };
 
-      this.log[context === 'fatal' ? 'fatal' : 'error'](
-        'MONGOSH',
-        mongoLogId(1_000_000_006),
-        context,
-        `${mongoshError.name}: ${mongoshError.message}`,
-        error
-      );
+      if (this.log) {
+        this.log[context === 'fatal' ? 'fatal' : 'error'](
+          'MONGOSH',
+          mongoLogId(1_000_000_006),
+          context,
+          `${mongoshError.name}: ${mongoshError.message}`,
+          error
+        );
+      }
 
       if (error.name.includes('Mongosh')) {
         this.analytics.track({
@@ -303,7 +316,7 @@ export class MongoshLoggingAndTelemetry {
     });
 
     onBus('mongosh:globalconfig-load', (args: GlobalConfigFileLoadEvent) => {
-      this.log.info(
+      this.log?.info(
         'MONGOSH',
         mongoLogId(1_000_000_048),
         'config',
@@ -313,7 +326,7 @@ export class MongoshLoggingAndTelemetry {
     });
 
     onBus('mongosh:evaluate-input', (args: EvaluateInputEvent) => {
-      this.log.info(
+      this.log?.info(
         'MONGOSH',
         mongoLogId(1_000_000_007),
         'repl',
@@ -323,7 +336,7 @@ export class MongoshLoggingAndTelemetry {
     });
 
     onBus('mongosh:use', (args: UseEvent) => {
-      this.log.info(
+      this.log?.info(
         'MONGOSH',
         mongoLogId(1_000_000_008),
         'shell-api',
@@ -341,7 +354,7 @@ export class MongoshLoggingAndTelemetry {
     });
 
     onBus('mongosh:show', (args: ShowEvent) => {
-      this.log.info(
+      this.log?.info(
         'MONGOSH',
         mongoLogId(1_000_000_009),
         'shell-api',
@@ -360,7 +373,7 @@ export class MongoshLoggingAndTelemetry {
     });
 
     onBus('mongosh:setCtx', (args: ApiEventWithArguments) => {
-      this.log.info(
+      this.log?.info(
         'MONGOSH',
         mongoLogId(1_000_000_010),
         'shell-api',
@@ -377,7 +390,7 @@ export class MongoshLoggingAndTelemetry {
       } catch {
         arg = { _inspected: inspect(args) };
       }
-      this.log.info(
+      this.log?.info(
         'MONGOSH',
         mongoLogId(1_000_000_011),
         'shell-api',
@@ -387,7 +400,7 @@ export class MongoshLoggingAndTelemetry {
     });
 
     onBus('mongosh:api-load-file', (args: ScriptLoadFileEvent) => {
-      this.log.info(
+      this.log?.info(
         'MONGOSH',
         mongoLogId(1_000_000_012),
         'shell-api',
@@ -411,7 +424,7 @@ export class MongoshLoggingAndTelemetry {
     });
 
     onBus('mongosh:eval-cli-script', () => {
-      this.log.info(
+      this.log?.info(
         'MONGOSH',
         mongoLogId(1_000_000_013),
         'repl',
@@ -429,7 +442,7 @@ export class MongoshLoggingAndTelemetry {
     });
 
     onBus('mongosh:mongoshrc-load', () => {
-      this.log.info(
+      this.log?.info(
         'MONGOSH',
         mongoLogId(1_000_000_014),
         'repl',
@@ -446,7 +459,7 @@ export class MongoshLoggingAndTelemetry {
     });
 
     onBus('mongosh:mongoshrc-mongorc-warn', () => {
-      this.log.info(
+      this.log?.info(
         'MONGOSH',
         mongoLogId(1_000_000_015),
         'repl',
@@ -463,7 +476,7 @@ export class MongoshLoggingAndTelemetry {
     });
 
     onBus('mongosh:crypt-library-load-skip', (ev: CryptLibrarySkipEvent) => {
-      this.log.info(
+      this.log?.info(
         'AUTO-ENCRYPTION',
         mongoLogId(1_000_000_050),
         'crypt-library',
@@ -473,7 +486,7 @@ export class MongoshLoggingAndTelemetry {
     });
 
     onBus('mongosh:crypt-library-load-found', (ev: CryptLibraryFoundEvent) => {
-      this.log.warn(
+      this.log?.warn(
         'AUTO-ENCRYPTION',
         mongoLogId(1_000_000_051),
         'crypt-library',
@@ -486,7 +499,7 @@ export class MongoshLoggingAndTelemetry {
     });
 
     onBus('mongosh-snippets:loaded', (ev: SnippetsLoadedEvent) => {
-      this.log.info(
+      this.log?.info(
         'MONGOSH-SNIPPETS',
         mongoLogId(1_000_000_019),
         'snippets',
@@ -496,7 +509,7 @@ export class MongoshLoggingAndTelemetry {
     });
 
     onBus('mongosh-snippets:npm-lookup', (ev: SnippetsNpmLookupEvent) => {
-      this.log.info(
+      this.log?.info(
         'MONGOSH-SNIPPETS',
         mongoLogId(1_000_000_020),
         'snippets',
@@ -506,7 +519,7 @@ export class MongoshLoggingAndTelemetry {
     });
 
     onBus('mongosh-snippets:npm-lookup-stopped', () => {
-      this.log.info(
+      this.log?.info(
         'MONGOSH-SNIPPETS',
         mongoLogId(1_000_000_021),
         'snippets',
@@ -517,7 +530,7 @@ export class MongoshLoggingAndTelemetry {
     onBus(
       'mongosh-snippets:npm-download-failed',
       (ev: SnippetsNpmDownloadFailedEvent) => {
-        this.log.info(
+        this.log?.info(
           'MONGOSH-SNIPPETS',
           mongoLogId(1_000_000_022),
           'snippets',
@@ -530,7 +543,7 @@ export class MongoshLoggingAndTelemetry {
     onBus(
       'mongosh-snippets:npm-download-active',
       (ev: SnippetsNpmDownloadActiveEvent) => {
-        this.log.info(
+        this.log?.info(
           'MONGOSH-SNIPPETS',
           mongoLogId(1_000_000_023),
           'snippets',
@@ -541,7 +554,7 @@ export class MongoshLoggingAndTelemetry {
     );
 
     onBus('mongosh-snippets:fetch-index', (ev: SnippetsFetchIndexEvent) => {
-      this.log.info(
+      this.log?.info(
         'MONGOSH-SNIPPETS',
         mongoLogId(1_000_000_024),
         'snippets',
@@ -551,7 +564,7 @@ export class MongoshLoggingAndTelemetry {
     });
 
     onBus('mongosh-snippets:fetch-cache-invalid', () => {
-      this.log.info(
+      this.log?.info(
         'MONGOSH-SNIPPETS',
         mongoLogId(1_000_000_025),
         'snippets',
@@ -562,7 +575,7 @@ export class MongoshLoggingAndTelemetry {
     onBus(
       'mongosh-snippets:fetch-index-error',
       (ev: SnippetsFetchIndexErrorEvent) => {
-        this.log.info(
+        this.log?.info(
           'MONGOSH-SNIPPETS',
           mongoLogId(1_000_000_026),
           'snippets',
@@ -573,7 +586,7 @@ export class MongoshLoggingAndTelemetry {
     );
 
     onBus('mongosh-snippets:fetch-index-done', () => {
-      this.log.info(
+      this.log?.info(
         'MONGOSH-SNIPPETS',
         mongoLogId(1_000_000_027),
         'snippets',
@@ -583,7 +596,7 @@ export class MongoshLoggingAndTelemetry {
     onBus(
       'mongosh-snippets:package-json-edit-error',
       (ev: SnippetsErrorEvent) => {
-        this.log.info(
+        this.log?.info(
           'MONGOSH-SNIPPETS',
           mongoLogId(1_000_000_028),
           'snippets',
@@ -594,7 +607,7 @@ export class MongoshLoggingAndTelemetry {
     );
 
     onBus('mongosh-snippets:spawn-child', (ev: SnippetsRunNpmEvent) => {
-      this.log.info(
+      this.log?.info(
         'MONGOSH-SNIPPETS',
         mongoLogId(1_000_000_029),
         'snippets',
@@ -604,7 +617,7 @@ export class MongoshLoggingAndTelemetry {
     });
 
     onBus('mongosh-snippets:load-snippet', (ev: SnippetsLoadSnippetEvent) => {
-      this.log.info(
+      this.log?.info(
         'MONGOSH-SNIPPETS',
         mongoLogId(1_000_000_030),
         'snippets',
@@ -614,7 +627,7 @@ export class MongoshLoggingAndTelemetry {
     });
 
     onBus('mongosh-snippets:snippet-command', (ev: SnippetsCommandEvent) => {
-      this.log.info(
+      this.log?.info(
         'MONGOSH-SNIPPETS',
         mongoLogId(1_000_000_031),
         'snippets',
@@ -636,7 +649,7 @@ export class MongoshLoggingAndTelemetry {
     onBus(
       'mongosh-snippets:transform-error',
       (ev: SnippetsTransformErrorEvent) => {
-        this.log.info(
+        this.log?.info(
           'MONGOSH-SNIPPETS',
           mongoLogId(1_000_000_032),
           'snippets',
@@ -670,7 +683,7 @@ export class MongoshLoggingAndTelemetry {
     onBus('mongosh:evaluate-finished', () => {
       const { apiCalls, deprecatedApiCalls } = this.apiCallTracking;
       for (const [entry] of deprecatedApiCalls) {
-        this.log.warn(
+        this.log?.warn(
           'MONGOSH',
           mongoLogId(1_000_000_033),
           'shell-api',
@@ -708,7 +721,7 @@ export class MongoshLoggingAndTelemetry {
     // 'mongodb' is not supported in startup snapshots yet.
 
     onBus('mongosh-sp:reset-connection-options', () => {
-      this.log.info(
+      this.log?.info(
         'MONGOSH-SP',
         mongoLogId(1_000_000_040),
         'connect',
@@ -719,7 +732,7 @@ export class MongoshLoggingAndTelemetry {
     onBus(
       'mongosh-editor:run-edit-command',
       (ev: EditorRunEditCommandEvent) => {
-        this.log.error(
+        this.log?.error(
           'MONGOSH-EDITOR',
           mongoLogId(1_000_000_047),
           'editor',
@@ -732,7 +745,7 @@ export class MongoshLoggingAndTelemetry {
     onBus(
       'mongosh-editor:read-vscode-extensions-done',
       (ev: EditorReadVscodeExtensionsDoneEvent) => {
-        this.log.error(
+        this.log?.error(
           'MONGOSH-EDITOR',
           mongoLogId(1_000_000_043),
           'editor',
@@ -745,7 +758,7 @@ export class MongoshLoggingAndTelemetry {
     onBus(
       'mongosh-editor:read-vscode-extensions-failed',
       (ev: EditorReadVscodeExtensionsFailedEvent) => {
-        this.log.error(
+        this.log?.error(
           'MONGOSH-EDITOR',
           mongoLogId(1_000_000_044),
           'editor',
@@ -761,7 +774,7 @@ export class MongoshLoggingAndTelemetry {
     onBus(
       'mongosh:fetching-update-metadata',
       (ev: FetchingUpdateMetadataEvent) => {
-        this.log.info(
+        this.log?.info(
           'MONGOSH',
           mongoLogId(1_000_000_052),
           'startup',
@@ -776,7 +789,7 @@ export class MongoshLoggingAndTelemetry {
     onBus(
       'mongosh:fetching-update-metadata-complete',
       (ev: FetchingUpdateMetadataCompleteEvent) => {
-        this.log.info(
+        this.log?.info(
           'MONGOSH',
           mongoLogId(1_000_000_053),
           'startup',

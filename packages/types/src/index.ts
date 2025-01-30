@@ -401,7 +401,7 @@ export interface MongoshBusEventsMap extends ConnectEventMap {
     ev: FetchingUpdateMetadataCompleteEvent
   ) => void;
   /** Signals that logging has been initialized. */
-  'mongosh:logger-initialized': () => void;
+  'mongosh:log-initialized': () => void;
 }
 
 export interface MongoshBus {
