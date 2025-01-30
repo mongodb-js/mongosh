@@ -221,6 +221,29 @@ describe('MongoshLoggingAndTelemetry', function () {
     expect(analyticsOutput).to.have.lengthOf(1);
   });
 
+  it('detaching logger applies to devtools-connect events', function () {
+    loggingAndTelemetry.setup();
+    loggingAndTelemetry.attachLogger(logger);
+
+    bus.emit('devtools-connect:connect-fail-early');
+    bus.emit('devtools-connect:connect-fail-early');
+
+    expect(logOutput).to.have.lengthOf(2);
+    // No analytics event attached to this
+    expect(analyticsOutput).to.have.lengthOf(0);
+
+    loggingAndTelemetry.detachLogger();
+    bus.emit('devtools-connect:connect-fail-early');
+
+    expect(logOutput).to.have.lengthOf(2);
+    expect(analyticsOutput).to.have.lengthOf(0);
+
+    loggingAndTelemetry.attachLogger(logger);
+
+    bus.emit('devtools-connect:connect-fail-early');
+    expect(logOutput).to.have.lengthOf(3);
+  });
+
   it('detaching logger mid-way leads to no logging but persists analytics', function () {
     loggingAndTelemetry.setup();
     loggingAndTelemetry.attachLogger(logger);
