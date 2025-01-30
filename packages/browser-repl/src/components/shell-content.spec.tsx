@@ -3,23 +3,22 @@ import { expect } from '../../testing/chai';
 import { screen, render, waitFor, cleanup } from '@testing-library/react';
 
 import type { ShellOutputEntry } from './shell-output-line';
-import { ShellOutput } from './shell-output';
+import { ShellContent } from './shell-content';
 
-function WrappedShellOutput(props: { output: ShellOutputEntry[] }) {
+function WrappedShellOutput(props: Partial<React.ComponentProps<typeof ShellContent>>) {
   return (
     <div style={{ height: '200px' }}>
-      <ShellOutput
-        output={props.output}
+      <ShellContent
+        output={[]}
+        InputPrompt={<div />}
         __TEST_LIST_HEIGHT={200}
-        setInnerContainerRef={() => {
-          /** */
-        }}
+        {...props}
       />
     </div>
   );
 }
 
-describe('<ShellOutput />', function () {
+describe('<ShellContent />', function () {
   beforeEach(cleanup);
 
   it('renders no output lines if none are passed', function () {
@@ -58,5 +57,10 @@ describe('<ShellOutput />', function () {
     await waitFor(() => {
       expect(screen.getByText(/new line/i)).to.exist;
     });
+  });
+
+  it('renders input prompt', function () {
+    render(<WrappedShellOutput InputPrompt={<p>Enter here</p>} />);
+    expect(screen.getByText(/enter here/i)).to.exist;
   });
 });

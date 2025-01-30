@@ -24,8 +24,8 @@ import { changeHistory } from '@mongosh/history';
 import type { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
 import { PasswordPrompt } from './password-prompt';
 import { ShellInput } from './shell-input';
-import type { ShellOutputEntry } from './shell-output';
-import { ShellOutput } from './shell-output';
+import { ShellContent } from './shell-content';
+import type { ShellOutputEntry } from './shell-output-line';
 
 const shellContainer = css({
   fontSize: '13px',
@@ -206,7 +206,6 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
   const darkMode = useDarkMode();
 
   const editorRef = useRef<EditorRef | null>(null);
-  const shellInputContainerRef = useRef<HTMLDivElement>(null);
   const initialEvaluateRef = useRef(initialEvaluate);
   const outputRef = useRef(output);
   const historyRef = useRef(history);
@@ -464,42 +463,6 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
     }
   }, [onInput, updateShellPrompt]);
 
-  const listInnerContainerRef = useRef<HTMLDivElement | null>(null);
-  const setInnerContainerRef = useCallback((ref: HTMLDivElement) => {
-    listInnerContainerRef.current = ref;
-  }, []);
-
-  const [virtualListInnerHeight, setVirtualListInnerHeight] = useState(0);
-  const [inputEditorHeight, setInputEditorHeight] = useState(0);
-
-  useEffect(() => {
-    if (!listInnerContainerRef.current) {
-      return;
-    }
-    const observer = new ResizeObserver(([list]) => {
-      requestAnimationFrame(() => {
-        setVirtualListInnerHeight(list.contentRect.height);
-      });
-    });
-    observer.observe(listInnerContainerRef.current);
-    return () => {
-      observer.disconnect();
-    };
-  }, [listInnerContainerRef.current]);
-
-  useEffect(() => {
-    if (!shellInputContainerRef.current) {
-      return;
-    }
-    const observer = new ResizeObserver(([input]) => {
-      setInputEditorHeight(input.contentRect.height);
-    });
-    observer.observe(shellInputContainerRef.current);
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
-
   /* eslint-disable jsx-a11y/no-static-element-interactions */
   /* eslint-disable jsx-a11y/click-events-have-key-events */
   return (
@@ -512,49 +475,31 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
       )}
       onClick={onShellClicked}
     >
-      <div
-        style={{
-          // By default, we set the initial height to 1px so that the
-          // virtual list can render the items. Once we have content, we
-          // we will get the height of the list:
-          // - If the height of the list is smaller than the height of the
-          // container, we will set it to the height of the list.
-          // - If the height of the list is bigger than the height of the
-          // container, we will set it to the height of the container minus
-          // the height of the input editor.
-          height: `min(calc(100% - ${inputEditorHeight}px), ${Math.max(
-            (output ?? []).length > 0 ? virtualListInnerHeight : 1,
-            1
-          )}px)`,
-        }}
-      >
-        <ShellOutput
-          output={output ?? []}
-          setInnerContainerRef={setInnerContainerRef}
-        />
-      </div>
-      <div ref={shellInputContainerRef}>
-        {passwordPrompt ? (
-          <PasswordPrompt
-            onFinish={onFinishPasswordPrompt}
-            onCancel={onCancelPasswordPrompt}
-            prompt={passwordPrompt}
-          />
-        ) : (
-          <ShellInput
-            initialText={initialText}
-            onTextChange={onInputChanged}
-            prompt={shellPrompt}
-            autocompleter={runtime}
-            history={history}
-            onClearCommand={listener.onClearCommand}
-            onInput={onInput}
-            operationInProgress={isOperationInProgress}
-            editorRef={setEditorRef}
-            onSigInt={onSigInt}
-          />
-        )}
-      </div>
+      <ShellContent
+        output={output ?? []}
+        InputPrompt={
+          passwordPrompt ? (
+            <PasswordPrompt
+              onFinish={onFinishPasswordPrompt}
+              onCancel={onCancelPasswordPrompt}
+              prompt={passwordPrompt}
+            />
+          ) : (
+            <ShellInput
+              initialText={initialText}
+              onTextChange={onInputChanged}
+              prompt={shellPrompt}
+              autocompleter={runtime}
+              history={history}
+              onClearCommand={listener.onClearCommand}
+              onInput={onInput}
+              operationInProgress={isOperationInProgress}
+              editorRef={setEditorRef}
+              onSigInt={onSigInt}
+            />
+          )
+        }
+      />
     </div>
   );
   /* eslint-enable jsx-a11y/no-static-element-interactions */
