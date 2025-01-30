@@ -1385,7 +1385,7 @@ describe('CliRepl', function () {
         });
 
         context('logging configuration', function () {
-          it('logging is enabled by default', async function () {
+          it('logging is enabled by default and event is called', async function () {
             const onLogInitialized = sinon.stub();
             cliRepl.bus.on('mongosh:log-initialized', onLogInitialized);
 
@@ -1395,6 +1395,19 @@ describe('CliRepl', function () {
 
             expect(onLogInitialized).calledOnce;
             expect(cliRepl.logWriter).is.instanceOf(MongoLogWriter);
+          });
+
+          it('does not initialize logging when it is disabled', async function () {
+            cliRepl.config.disableLogging = true;
+            const onLogInitialized = sinon.stub();
+            cliRepl.bus.on('mongosh:log-initialized', onLogInitialized);
+
+            await cliRepl.start(await testServer.connectionString(), {});
+
+            expect(await cliRepl.getConfig('disableLogging')).is.true;
+            expect(onLogInitialized).not.called;
+
+            expect(cliRepl.logWriter).is.undefined;
           });
         });
 
