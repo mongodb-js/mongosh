@@ -368,10 +368,9 @@ export class TestShell {
     if (!matches || matches.length === 0) {
       return null;
     }
-    const lastMatch = matches[matches.length - 1];
-    const logIdMatch = /^Current Mongosh Log ID:\s*([a-z0-9]{24})$/.exec(
-      lastMatch
+    const lastMatch = /^Current Mongosh Log ID:\s*([a-z0-9]{24})$/.exec(
+      matches[matches.length - 1]
     );
-    return logIdMatch ? logIdMatch[1] : null;
+    return lastMatch ? lastMatch[1] : null;
   }
 }

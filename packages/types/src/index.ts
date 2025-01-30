@@ -97,13 +97,6 @@ export interface MongocryptdLogEvent {
   logEntry: any;
 }
 
-export interface WriteCustomLogEvent {
-  method: 'info' | 'error' | 'warn' | 'debug';
-  message: string;
-  attr?: unknown;
-  level?: 1 | 2 | 3 | 4 | 5;
-}
-
 export interface StartMongoshReplEvent {
   version: string;
 }
