@@ -271,16 +271,6 @@ describe('MongoshLoggingAndTelemetry', function () {
   });
 
   it('tracks a sequence of events', function () {
-    const loggingAndTelemetry = new MongoshLoggingAndTelemetry(
-      bus,
-      analytics,
-      {
-        platform: process.platform,
-        arch: process.arch,
-      },
-      '1.0.0'
-    );
-
     loggingAndTelemetry.setup();
     loggingAndTelemetry.attachLogger(logger);
 
@@ -945,18 +935,11 @@ describe('MongoshLoggingAndTelemetry', function () {
   });
 
   it('tracks custom logging events', function () {
-    setupLoggerAndTelemetry(
-      bus,
-      logger,
-      analytics,
-      {
-        platform: process.platform,
-        arch: process.arch,
-      },
-      '1.0.0'
-    );
     expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.be.empty;
+
+    loggingAndTelemetry.setup();
+    loggingAndTelemetry.attachLogger(logger);
 
     bus.emit('mongosh:connect', {
       uri: 'mongodb://localhost/',

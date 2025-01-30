@@ -1356,7 +1356,7 @@ describe('e2e', function () {
     let logBasePath: string;
     let historyPath: string;
     let readConfig: () => Promise<any>;
-    let readLogFile: () => Promise<LogEntry[]>;
+    let readLogFile: <T = LogEntry>() => Promise<T[]>;
     let startTestShell: (...extraArgs: string[]) => Promise<TestShell>;
 
     beforeEach(function () {
@@ -1652,7 +1652,12 @@ describe('e2e', function () {
           await shell.executeLine("log.info('This is a custom entry')");
           expect(shell.assertNoErrors());
           await eventually(async () => {
-            const log = await readLogfile();
+            const log = await readLogFile<{
+              msg: string;
+              s: string;
+              c: string;
+              ctx: string;
+            }>();
             const customLogEntry = log.filter((logEntry) =>
               logEntry.msg.includes('This is a custom entry')
             );
@@ -1676,7 +1681,7 @@ describe('e2e', function () {
           await shell.executeLine(`load(${JSON.stringify(filename)})`);
           expect(shell.assertNoErrors());
           await eventually(async () => {
-            const log = await readLogfile();
+            const log = await readLogFile<{ msg: string }>();
             expect(
               log.filter((logEntry) =>
                 logEntry.msg.includes('Initiating connection attemp')

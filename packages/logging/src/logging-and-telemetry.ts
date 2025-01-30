@@ -32,6 +32,7 @@ import type {
   FetchingUpdateMetadataCompleteEvent,
   SessionStartedEvent,
   MongoshBusEventsMap,
+  WriteCustomLogEvent,
 } from '@mongosh/types';
 import { inspect } from 'util';
 import { MongoLogWriter } from 'mongodb-log-writer';
@@ -317,6 +318,19 @@ export class MongoshLoggingAndTelemetry {
             metadata: mongoshError.metadata,
           },
         });
+      }
+    });
+
+    onBus('mongosh:write-custom-log', (event: WriteCustomLogEvent) => {
+      if (this.log) {
+        this.log[event.method](
+          'MONGOSH-SCRIPTS',
+          mongoLogId(1_000_000_054),
+          'custom-log',
+          event.message,
+          event.attr,
+          event.level
+        );
       }
     });
 
