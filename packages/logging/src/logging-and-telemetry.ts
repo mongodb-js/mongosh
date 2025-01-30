@@ -118,17 +118,22 @@ export class MongoshLoggingAndTelemetry {
       redactURICredentials(uri)
     );
 
-    for (const pendingEvent of this.pendingLogEvents) {
-      pendingEvent();
-    }
-    this.pendingLogEvents = [];
+    this.runAndCleanPendingEvents();
 
     this.bus.emit('mongosh:log-initialized');
   }
 
   public detachLogger() {
-    this.pendingLogEvents = [];
     this.log = null;
+    // Still run any remaining pending events for telemetry purposes.
+    this.runAndCleanPendingEvents();
+  }
+
+  private runAndCleanPendingEvents() {
+    for (const pendingEvent of this.pendingLogEvents) {
+      pendingEvent();
+    }
+    this.pendingLogEvents = [];
   }
 
   private _getTelemetryUserIdentity(): MongoshAnalyticsIdentity {

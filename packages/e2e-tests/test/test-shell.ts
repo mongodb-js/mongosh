@@ -362,12 +362,16 @@ export class TestShell {
   }
 
   get logId(): string | null {
-    const match = /^Current Mongosh Log ID:\s*(?<logId>[a-z0-9]{24})$/m.exec(
-      this._output
+    const matches = this._output.match(
+      /^Current Mongosh Log ID:\s*([a-z0-9]{24})$/gm
     );
-    if (!match) {
+    if (!matches || matches.length === 0) {
       return null;
     }
-    return match.groups!.logId;
+    const lastMatch = matches[matches.length - 1];
+    const logIdMatch = /^Current Mongosh Log ID:\s*([a-z0-9]{24})$/.exec(
+      lastMatch
+    );
+    return logIdMatch ? logIdMatch[1] : null;
   }
 }
