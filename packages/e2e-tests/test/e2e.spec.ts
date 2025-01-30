@@ -22,6 +22,7 @@ import { once } from 'events';
 import type { AddressInfo } from 'net';
 const { EJSON } = bson;
 import { sleep } from './util-helpers';
+import type { LogEntry } from '@mongosh/shell-api/src/log-entry';
 
 const jsContextFlagCombinations: `--jsContext=${'plain-vm' | 'repl'}`[][] = [
   [],
@@ -1353,10 +1354,9 @@ describe('e2e', function () {
     let shell: TestShell;
     let configPath: string;
     let logBasePath: string;
-    let logPath: string;
     let historyPath: string;
     let readConfig: () => Promise<any>;
-    let readLogfile: () => Promise<any[]>;
+    let readLogfile: () => Promise<LogEntry[]>;
     let startTestShell: (...extraArgs: string[]) => Promise<TestShell>;
 
     beforeEach(function () {
@@ -1393,7 +1393,13 @@ describe('e2e', function () {
       }
       readConfig = async () =>
         EJSON.parse(await fs.readFile(configPath, 'utf8'));
-      readLogfile = async () => readReplLogfile(logPath);
+      readLogfile = async () => {
+        if (!shell.logId) {
+          throw new Error('Shell does not have a logId associated with it');
+        }
+        const logPath = path.join(logBasePath, `${shell.logId}_log`);
+        return readReplLogfile(logPath);
+      };
       startTestShell = async (...extraArgs: string[]) => {
         const shell = this.startTestShell({
           args: ['--nodb', ...extraArgs],
@@ -1424,7 +1430,6 @@ describe('e2e', function () {
       beforeEach(async function () {
         await fs.mkdir(homedir, { recursive: true });
         shell = await startTestShell();
-        logPath = path.join(logBasePath, `${shell.logId}_log`);
       });
 
       describe('config file', function () {
@@ -1503,14 +1508,61 @@ describe('e2e', function () {
       });
 
       describe('log file', function () {
+        it('does not create a log if global config has disableLogging', async function () {
+          const globalConfig = path.join(homedir, 'globalconfig.conf');
+          await fs.writeFile(globalConfig, 'mongosh:\n  disableLogging: true');
+          shell = this.startTestShell({
+            args: ['--nodb'],
+            env: {
+              ...env,
+              MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING: globalConfig,
+            },
+            forceTerminal: true,
+          });
+          await shell.waitForPrompt();
+          expect(
+            await shell.executeLine('config.get("disableLogging")')
+          ).to.include('true');
+          shell.assertNoErrors();
+
+          expect(await shell.executeLine('print(123 + 456)')).to.include('579');
+          expect(shell.logId).equals(null);
+        });
+
         it('creates a log file that keeps track of session events', async function () {
           expect(await shell.executeLine('print(123 + 456)')).to.include('579');
-          await eventually(async () => {
-            const log = await readLogfile();
-            expect(
-              log.filter((logEntry) => /Evaluating input/.test(logEntry.msg))
-            ).to.have.lengthOf(1);
-          });
+          const log = await readLogfile();
+          expect(
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+            log.filter(
+              (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
+            )
+          ).to.have.lengthOf(1);
+        });
+
+        it('does not write to the log file after disableLogging is set to true', async function () {
+          expect(await shell.executeLine('print(123 + 456)')).to.include('579');
+          const log = await readLogfile();
+          expect(
+            log.filter(
+              (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
+            )
+          ).to.have.lengthOf(1);
+
+          await shell.executeLine(`config.set("disableLogging", true)`);
+          expect(await shell.executeLine('print(579 - 123)')).to.include('456');
+
+          const logAfterDisabling = await readLogfile();
+          expect(
+            logAfterDisabling.filter(
+              (logEntry) => logEntry.attr?.input === 'print(579 - 123)'
+            )
+          ).to.have.lengthOf(0);
+          expect(
+            logAfterDisabling.filter(
+              (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
+            )
+          ).to.have.lengthOf(1);
         });
 
         it('includes information about the driver version', async function () {
