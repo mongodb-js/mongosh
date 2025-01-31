@@ -14,6 +14,10 @@ import type { pushTags as pushTagsType } from './npm-packages';
 import { type publishToNpm as publishToNpmType } from './npm-packages';
 import type { PackageInformationProvider } from './packaging';
 import { getPackageFile } from './packaging';
+import {
+  bumpAuxiliaryPackages,
+  bumpMongoshReleasePackages,
+} from './npm-packages/bump';
 
 export async function publishMongosh(
   config: Config,
@@ -58,6 +62,9 @@ export async function publishMongosh(
     'mongosh: Re-using artifacts from most recent draft tag',
     latestDraftTag.name
   );
+
+  bumpAuxiliaryPackages();
+  await bumpMongoshReleasePackages(releaseVersion);
 
   await publishArtifactsToBarque(
     barque,
