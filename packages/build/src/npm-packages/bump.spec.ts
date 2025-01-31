@@ -49,7 +49,6 @@ describe('npm-packages bump', function () {
 
       expect(fsWriteFile).calledWith(
         path.join(
-          __dirname,
           PROJECT_ROOT,
           'packages',
           'shell-api',

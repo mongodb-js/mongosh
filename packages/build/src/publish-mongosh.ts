@@ -15,9 +15,9 @@ import { type publishToNpm as publishToNpmType } from './npm-packages';
 import type { PackageInformationProvider } from './packaging';
 import { getPackageFile } from './packaging';
 import {
-  bumpAuxiliaryPackages,
-  bumpMongoshReleasePackages,
-} from './npm-packages/bump';
+  bumpMongoshReleasePackages as bumpMongoshReleasePackagesFn,
+  bumpAuxiliaryPackages as bumpAuxiliaryPackagesFn,
+} from './npm-packages';
 
 export async function publishMongosh(
   config: Config,
@@ -31,7 +31,9 @@ export async function publishMongosh(
   writeBuildInfo: typeof writeBuildInfoType,
   publishToHomebrew: typeof publishToHomebrewType,
   shouldDoPublicRelease: typeof shouldDoPublicReleaseFn = shouldDoPublicReleaseFn,
-  getEvergreenArtifactUrl: typeof getArtifactUrlFn = getArtifactUrlFn
+  getEvergreenArtifactUrl: typeof getArtifactUrlFn = getArtifactUrlFn,
+  bumpMongoshReleasePackages: typeof bumpMongoshReleasePackagesFn = bumpMongoshReleasePackagesFn,
+  bumpAuxiliaryPackages: typeof bumpAuxiliaryPackagesFn = bumpAuxiliaryPackagesFn
 ): Promise<void> {
   if (!shouldDoPublicRelease(config)) {
     console.warn(

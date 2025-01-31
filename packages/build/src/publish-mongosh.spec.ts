@@ -9,12 +9,17 @@ import type {
 import type { createAndPublishDownloadCenterConfig as createAndPublishDownloadCenterConfigFn } from './download-center';
 import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import type { publishToHomebrew as publishToHomebrewType } from './homebrew';
+import {
+  type publishToNpm as publishToNpmType,
+  type pushTags as pushTagsType,
+} from './npm-packages';
 import type {
-  publishToNpm as publishToNpmType,
-  pushTags as pushTagsType,
+  bumpMongoshReleasePackages as bumpMongoshReleasePackagesFn,
+  bumpAuxiliaryPackages as bumpAuxiliaryPackagesFn,
 } from './npm-packages';
 import { publishMongosh } from './publish-mongosh';
 import { dummyConfig } from '../test/helpers';
+import { getArtifactUrl } from './evergreen';
 
 chai.use(require('sinon-chai'));
 
@@ -36,11 +41,14 @@ describe('publishMongosh', function () {
   let writeBuildInfo: typeof writeBuildInfoType;
   let publishToHomebrew: typeof publishToHomebrewType;
   let shouldDoPublicRelease: typeof shouldDoPublicReleaseFn;
+  let bumpMongoshReleasePackages: typeof bumpMongoshReleasePackagesFn;
+  let bumpAuxiliaryPackages: typeof bumpAuxiliaryPackagesFn;
   let githubRepo: GithubRepo;
   let mongoHomebrewCoreForkRepo: GithubRepo;
   let homebrewCoreRepo: GithubRepo;
   let barque: Barque;
   let pushTags: typeof pushTagsType;
+  const getEvergreenArtifactUrl = getArtifactUrl;
 
   beforeEach(function () {
     config = { ...dummyConfig };
@@ -51,6 +59,8 @@ describe('publishMongosh', function () {
     publishToHomebrew = sinon.spy();
     shouldDoPublicRelease = sinon.spy();
     pushTags = sinon.spy();
+    bumpMongoshReleasePackages = sinon.spy();
+    bumpAuxiliaryPackages = sinon.spy();
 
     githubRepo = createStubRepo();
     mongoHomebrewCoreForkRepo = createStubRepo();
@@ -95,7 +105,10 @@ describe('publishMongosh', function () {
             pushTags,
             writeBuildInfo,
             publishToHomebrew,
-            shouldDoPublicRelease
+            shouldDoPublicRelease,
+            getEvergreenArtifactUrl,
+            bumpMongoshReleasePackages,
+            bumpAuxiliaryPackages
           );
         } catch (e: any) {
           return expect(e.message).to.contain('Could not find prior draft tag');
@@ -121,7 +134,10 @@ describe('publishMongosh', function () {
             pushTags,
             writeBuildInfo,
             publishToHomebrew,
-            shouldDoPublicRelease
+            shouldDoPublicRelease,
+            getEvergreenArtifactUrl,
+            bumpMongoshReleasePackages,
+            bumpAuxiliaryPackages
           );
         } catch (e: any) {
           return expect(e.message).to.contain('Version mismatch');
@@ -142,7 +158,10 @@ describe('publishMongosh', function () {
         pushTags,
         writeBuildInfo,
         publishToHomebrew,
-        shouldDoPublicRelease
+        shouldDoPublicRelease,
+        getEvergreenArtifactUrl,
+        bumpMongoshReleasePackages,
+        bumpAuxiliaryPackages
       );
 
       expect(barque.releaseToBarque).to.have.been.callCount(26);
@@ -173,7 +192,10 @@ describe('publishMongosh', function () {
         pushTags,
         writeBuildInfo,
         publishToHomebrew,
-        shouldDoPublicRelease
+        shouldDoPublicRelease,
+        getEvergreenArtifactUrl,
+        bumpMongoshReleasePackages,
+        bumpAuxiliaryPackages
       );
 
       expect(createAndPublishDownloadCenterConfig).to.have.been.calledWith(
@@ -196,7 +218,10 @@ describe('publishMongosh', function () {
         pushTags,
         writeBuildInfo,
         publishToHomebrew,
-        shouldDoPublicRelease
+        shouldDoPublicRelease,
+        getEvergreenArtifactUrl,
+        bumpMongoshReleasePackages,
+        bumpAuxiliaryPackages
       );
 
       expect(githubRepo.promoteRelease).to.have.been.calledWith(config);
@@ -214,7 +239,10 @@ describe('publishMongosh', function () {
         pushTags,
         writeBuildInfo,
         publishToHomebrew,
-        shouldDoPublicRelease
+        shouldDoPublicRelease,
+        getEvergreenArtifactUrl,
+        bumpMongoshReleasePackages,
+        bumpAuxiliaryPackages
       );
 
       expect(writeBuildInfo).to.have.been.calledOnceWith(config);
@@ -233,7 +261,10 @@ describe('publishMongosh', function () {
         pushTags,
         writeBuildInfo,
         publishToHomebrew,
-        shouldDoPublicRelease
+        shouldDoPublicRelease,
+        getEvergreenArtifactUrl,
+        bumpMongoshReleasePackages,
+        bumpAuxiliaryPackages
       );
 
       expect(publishToHomebrew).to.have.been.calledWith(
@@ -264,7 +295,10 @@ describe('publishMongosh', function () {
         pushTags,
         writeBuildInfo,
         publishToHomebrew,
-        shouldDoPublicRelease
+        shouldDoPublicRelease,
+        getEvergreenArtifactUrl,
+        bumpMongoshReleasePackages,
+        bumpAuxiliaryPackages
       );
 
       expect(createAndPublishDownloadCenterConfig).not.to.have.been.called;
@@ -282,7 +316,10 @@ describe('publishMongosh', function () {
         pushTags,
         writeBuildInfo,
         publishToHomebrew,
-        shouldDoPublicRelease
+        shouldDoPublicRelease,
+        getEvergreenArtifactUrl,
+        bumpMongoshReleasePackages,
+        bumpAuxiliaryPackages
       );
 
       expect(githubRepo.promoteRelease).not.to.have.been.called;
@@ -300,7 +337,10 @@ describe('publishMongosh', function () {
         pushTags,
         writeBuildInfo,
         publishToHomebrew,
-        shouldDoPublicRelease
+        shouldDoPublicRelease,
+        getEvergreenArtifactUrl,
+        bumpMongoshReleasePackages,
+        bumpAuxiliaryPackages
       );
 
       expect(publishToNpm).not.to.have.been.called;
@@ -318,7 +358,10 @@ describe('publishMongosh', function () {
         pushTags,
         writeBuildInfo,
         publishToHomebrew,
-        shouldDoPublicRelease
+        shouldDoPublicRelease,
+        getEvergreenArtifactUrl,
+        bumpMongoshReleasePackages,
+        bumpAuxiliaryPackages
       );
 
       expect(publishToHomebrew).not.to.have.been.called;
@@ -336,7 +379,10 @@ describe('publishMongosh', function () {
         pushTags,
         writeBuildInfo,
         publishToHomebrew,
-        shouldDoPublicRelease
+        shouldDoPublicRelease,
+        getEvergreenArtifactUrl,
+        bumpMongoshReleasePackages,
+        bumpAuxiliaryPackages
       );
 
       expect(barque.releaseToBarque).not.to.have.been.called;

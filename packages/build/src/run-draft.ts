@@ -8,8 +8,8 @@ import { generateChangelog as generateChangelogFn } from './git';
 import type { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { getPackageFile } from './packaging';
 import {
-  bumpAuxiliaryPackages,
-  bumpMongoshReleasePackages,
+  bumpAuxiliaryPackages as bumpAuxiliaryPackagesFn,
+  bumpMongoshReleasePackages as bumpMongoshReleasePackagesFn,
 } from './npm-packages/bump';
 
 export async function runDraft(
@@ -17,7 +17,9 @@ export async function runDraft(
   githubRepo: GithubRepo,
   uploadToDownloadCenter: typeof uploadArtifactToDownloadCenterFn = uploadArtifactToDownloadCenterFn,
   downloadArtifactFromEvergreen: typeof downloadArtifactFromEvergreenFn = downloadArtifactFromEvergreenFn,
-  ensureGithubReleaseExistsAndUpdateChangelog: typeof ensureGithubReleaseExistsAndUpdateChangelogFn = ensureGithubReleaseExistsAndUpdateChangelogFn
+  ensureGithubReleaseExistsAndUpdateChangelog: typeof ensureGithubReleaseExistsAndUpdateChangelogFn = ensureGithubReleaseExistsAndUpdateChangelogFn,
+  bumpMongoshReleasePackages: typeof bumpMongoshReleasePackagesFn = bumpMongoshReleasePackagesFn,
+  bumpAuxiliaryPackages: typeof bumpAuxiliaryPackagesFn = bumpAuxiliaryPackagesFn
 ): Promise<void> {
   const { triggeringGitTag } = config;
   const draftReleaseVersion = getReleaseVersionFromTag(triggeringGitTag);
