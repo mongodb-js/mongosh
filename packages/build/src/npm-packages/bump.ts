@@ -14,7 +14,10 @@ export async function bumpMongoshReleasePackages(
   version: string
 ): Promise<void> {
   if (!version) {
-    throw new Error('version not specified during mongosh bump');
+    console.warn(
+      'mongosh: Release version not specified. Skipping mongosh bump.'
+    );
+    return;
   }
 
   console.info(`mongosh: Bumping mongosh release packages to ${version}`);

@@ -25,16 +25,15 @@ describe('npm-packages bump', function () {
   });
 
   describe('bumpMongoshReleasePackages', function () {
-    it('throws if version is not set', async function () {
-      try {
-        await bumpMongoshReleasePackages('');
-        expect.fail('did not error');
-      } catch (error) {
-        expect(error).instanceOf(Error);
-        expect((error as Error).message).equals(
-          'version not specified during mongosh bump'
-        );
-      }
+    it('warns and does not run if version is not set', async function () {
+      const consoleWarnSpy = sinon.spy(console, 'warn');
+      await bumpMongoshReleasePackages('');
+      expect(consoleWarnSpy).calledOnceWith(
+        'mongosh: Release version not specified. Skipping mongosh bump.'
+      );
+      expect(fsReadFile).not.called;
+      expect(fsWriteFile).not.called;
+      consoleWarnSpy.restore();
     });
   });
 

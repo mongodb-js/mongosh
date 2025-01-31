@@ -172,6 +172,7 @@ functions:
           set -e
           {
           source .evergreen/setup-env.sh
+          npm run evergreen-release bump
           npm run check-ci
           }
   test:
