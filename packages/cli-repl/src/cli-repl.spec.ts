@@ -1559,7 +1559,7 @@ describe('CliRepl', function () {
 
         it('includes a statement about flushed telemetry in the log', async function () {
           await cliRepl.start(await testServer.connectionString(), {});
-          const { logFilePath } = cliRepl.logWriter!;
+          const { logFilePath } = cliRepl.logWriter as MongoLogWriter;
           input.write('db.hello()\n');
           input.write('exit\n');
           await waitBus(cliRepl.bus, 'mongosh:closed');
