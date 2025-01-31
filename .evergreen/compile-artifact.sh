@@ -75,6 +75,7 @@ elif [ -n "$MONGOSH_SHARED_OPENSSL" ]; then
 fi
 
 export PUPPETEER_SKIP_DOWNLOAD="true"
+npm run evergreen-release bump
 npm run evergreen-release compile
 dist/mongosh --version
 dist/mongosh --build-info
