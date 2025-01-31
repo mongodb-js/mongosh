@@ -33,15 +33,25 @@ describe('e2e', function () {
   const testServer = startSharedTestServer();
 
   describe('--version', function () {
-    it('shows version and matches @mongosh/cli-repl', async function () {
-      const expectedPackageVersion: string =
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        require('../package.json')['dependencies']['@mongosh/cli-repl'];
+    it('gives the same result with version(), --version and --build-info', async function () {
+      // version() sources its version data from the shell-api package's generated files,
+      // --version from the cli-repl package.json and --build-info from the generated build-info.json
+      // (if available), which should all match.
+      const shell = this.startTestShell({ args: ['--nodb'] });
+      const versionFromShellApi = (await shell.executeLine('version()'))
+        .replace(/>/g, '')
+        .trim();
 
-      const shell = this.startTestShell({ args: ['--version'] });
-      await shell.waitForSuccessfulExit();
+      const versionShell = this.startTestShell({ args: ['--version'] });
+      await versionShell.waitForSuccessfulExit();
+      const versionFromCliFlag = versionShell.output.trim();
 
-      shell.assertContainsOutput(expectedPackageVersion);
+      const buildInfoShell = this.startTestShell({ args: ['--build-info'] });
+      await buildInfoShell.waitForSuccessfulExit();
+      const versionFromBuildInfo = JSON.parse(buildInfoShell.output).version;
+
+      expect(versionFromShellApi).to.equal(versionFromCliFlag);
+      expect(versionFromCliFlag).to.equal(versionFromBuildInfo);
     });
   });
 
@@ -477,24 +487,6 @@ describe('e2e', function () {
       await db.dropDatabase();
 
       await client.close();
-    });
-
-    it('version', async function () {
-      const expectedPackageVersion: string =
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        require('../package.json')['dependencies']['@mongosh/cli-repl'];
-
-      expect(expectedPackageVersion).not.null;
-
-      const versionShell = this.startTestShell({ args: ['--version'] });
-      await versionShell.waitForSuccessfulExit();
-
-      const versionFromShell = versionShell.output;
-
-      await shell.executeLine('version()');
-      shell.assertNoErrors();
-      shell.assertContainsOutput(expectedPackageVersion);
-      shell.assertContainsOutput(versionFromShell);
     });
 
     it('fle addon is available', async function () {
