@@ -117,6 +117,7 @@ functions:
           NODE_JS_VERSION: ${node_js_version}
         script: |
           source .evergreen/setup-env.sh
+          npm run evergreen-release bump
           npm run compile
           tar cvzf compiled-ts.tgz packages/*/{lib,dist}
     - command: s3.put
