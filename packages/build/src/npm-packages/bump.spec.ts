@@ -25,16 +25,14 @@ describe('npm-packages bump', function () {
   });
 
   describe('bumpMongoshReleasePackages', function () {
-    it('throws if MONGOSH_RELEASE_VERSION is not set', async function () {
-      process.env.MONGOSH_RELEASE_VERSION = '';
-
+    it('throws if version is not set', async function () {
       try {
-        await bumpMongoshReleasePackages();
+        await bumpMongoshReleasePackages('');
         expect.fail('did not error');
       } catch (error) {
         expect(error).instanceOf(Error);
         expect((error as Error).message).equals(
-          'MONGOSH_RELEASE_VERSION version not specified during mongosh bump'
+          'version not specified during mongosh bump'
         );
       }
     });
