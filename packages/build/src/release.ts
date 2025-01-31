@@ -59,7 +59,7 @@ export async function release(
   if (command === 'bump') {
     bumpAuxiliaryPackages();
     if (!config.useAuxiliaryPackagesOnly) {
-      await bumpMongoshReleasePackages();
+      await bumpMongoshReleasePackages(config.version);
     }
     return;
   }

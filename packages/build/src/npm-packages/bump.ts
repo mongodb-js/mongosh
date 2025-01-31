@@ -10,14 +10,14 @@ import path from 'path';
 import { getPackagesInTopologicalOrder } from '@mongodb-js/monorepo-tools';
 
 /** Bumps only the main mongosh release packages to the set version. */
-export async function bumpMongoshReleasePackages(): Promise<void> {
-  const version = process.env.MONGOSH_RELEASE_VERSION;
+export async function bumpMongoshReleasePackages(
+  version: string
+): Promise<void> {
   if (!version) {
-    throw new Error(
-      'MONGOSH_RELEASE_VERSION version not specified during mongosh bump'
-    );
+    throw new Error('version not specified during mongosh bump');
   }
-  console.info(`mongosh: Bumping package versions to ${version}`);
+
+  console.info(`mongosh: Bumping mongosh release packages to ${version}`);
   const monorepoRootPath = path.resolve(__dirname, '..', '..', '..', '..');
   const packages = await getPackagesInTopologicalOrder(monorepoRootPath);
 
@@ -62,7 +62,6 @@ export async function bumpMongoshReleasePackages(): Promise<void> {
 /** Updates the shell-api constant to match the mongosh version. */
 export async function updateShellApiMongoshVersion(version: string) {
   const shellApiVersionFilePath = path.join(
-    __dirname,
     PROJECT_ROOT,
     'packages',
     'shell-api',

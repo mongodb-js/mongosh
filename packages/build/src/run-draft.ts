@@ -7,16 +7,23 @@ import { downloadArtifactFromEvergreen as downloadArtifactFromEvergreenFn } from
 import { generateChangelog as generateChangelogFn } from './git';
 import type { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { getPackageFile } from './packaging';
+import {
+  bumpAuxiliaryPackages as bumpAuxiliaryPackagesFn,
+  bumpMongoshReleasePackages as bumpMongoshReleasePackagesFn,
+} from './npm-packages/bump';
 
 export async function runDraft(
   config: Config,
   githubRepo: GithubRepo,
   uploadToDownloadCenter: typeof uploadArtifactToDownloadCenterFn = uploadArtifactToDownloadCenterFn,
   downloadArtifactFromEvergreen: typeof downloadArtifactFromEvergreenFn = downloadArtifactFromEvergreenFn,
-  ensureGithubReleaseExistsAndUpdateChangelog: typeof ensureGithubReleaseExistsAndUpdateChangelogFn = ensureGithubReleaseExistsAndUpdateChangelogFn
+  ensureGithubReleaseExistsAndUpdateChangelog: typeof ensureGithubReleaseExistsAndUpdateChangelogFn = ensureGithubReleaseExistsAndUpdateChangelogFn,
+  bumpMongoshReleasePackages: typeof bumpMongoshReleasePackagesFn = bumpMongoshReleasePackagesFn,
+  bumpAuxiliaryPackages: typeof bumpAuxiliaryPackagesFn = bumpAuxiliaryPackagesFn
 ): Promise<void> {
   const { triggeringGitTag } = config;
-  if (!triggeringGitTag || !getReleaseVersionFromTag(triggeringGitTag)) {
+  const draftReleaseVersion = getReleaseVersionFromTag(triggeringGitTag);
+  if (!triggeringGitTag || !draftReleaseVersion) {
     console.error(
       'mongosh: skipping draft as not triggered by a git tag that matches a draft/release tag'
     );
@@ -43,6 +50,9 @@ export async function runDraft(
     `draft-${Date.now()}`
   );
   await fs.mkdir(tmpDir, { recursive: true });
+
+  bumpAuxiliaryPackages();
+  await bumpMongoshReleasePackages(draftReleaseVersion);
 
   for await (const variant of ALL_PACKAGE_VARIANTS) {
     const tarballFile = getPackageFile(variant, config.packageInformation);

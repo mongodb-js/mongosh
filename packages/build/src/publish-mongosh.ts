@@ -14,6 +14,10 @@ import type { pushTags as pushTagsType } from './npm-packages';
 import { type publishToNpm as publishToNpmType } from './npm-packages';
 import type { PackageInformationProvider } from './packaging';
 import { getPackageFile } from './packaging';
+import {
+  bumpMongoshReleasePackages as bumpMongoshReleasePackagesFn,
+  bumpAuxiliaryPackages as bumpAuxiliaryPackagesFn,
+} from './npm-packages';
 
 export async function publishMongosh(
   config: Config,
@@ -27,7 +31,9 @@ export async function publishMongosh(
   writeBuildInfo: typeof writeBuildInfoType,
   publishToHomebrew: typeof publishToHomebrewType,
   shouldDoPublicRelease: typeof shouldDoPublicReleaseFn = shouldDoPublicReleaseFn,
-  getEvergreenArtifactUrl: typeof getArtifactUrlFn = getArtifactUrlFn
+  getEvergreenArtifactUrl: typeof getArtifactUrlFn = getArtifactUrlFn,
+  bumpMongoshReleasePackages: typeof bumpMongoshReleasePackagesFn = bumpMongoshReleasePackagesFn,
+  bumpAuxiliaryPackages: typeof bumpAuxiliaryPackagesFn = bumpAuxiliaryPackagesFn
 ): Promise<void> {
   if (!shouldDoPublicRelease(config)) {
     console.warn(
@@ -58,6 +64,9 @@ export async function publishMongosh(
     'mongosh: Re-using artifacts from most recent draft tag',
     latestDraftTag.name
   );
+
+  bumpAuxiliaryPackages();
+  await bumpMongoshReleasePackages(releaseVersion);
 
   await publishArtifactsToBarque(
     barque,
