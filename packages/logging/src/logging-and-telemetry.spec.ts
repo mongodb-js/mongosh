@@ -5,7 +5,8 @@ import { EventEmitter } from 'events';
 import { MongoshInvalidInputError } from '@mongosh/errors';
 import type { MongoshBus } from '@mongosh/types';
 import type { Writable } from 'stream';
-import { MongoshLoggingAndTelemetry } from './logging-and-telemetry';
+import type { MongoshLoggingAndTelemetry } from '.';
+import { setupLoggingAndTelemetry } from '.';
 
 describe('MongoshLoggingAndTelemetry', function () {
   let logOutput: any[];
@@ -36,15 +37,15 @@ describe('MongoshLoggingAndTelemetry', function () {
     analyticsOutput = [];
     bus = new EventEmitter();
 
-    loggingAndTelemetry = new MongoshLoggingAndTelemetry(
+    loggingAndTelemetry = setupLoggingAndTelemetry({
       bus,
       analytics,
-      {
+      userTraits: {
         platform: process.platform,
         arch: process.arch,
       },
-      '1.0.0'
-    );
+      mongoshVersion: '1.0.0',
+    });
 
     logger = new MongoLogWriter(logId, `/tmp/${logId}_log`, {
       write(chunk: string, cb: () => void) {
@@ -62,22 +63,7 @@ describe('MongoshLoggingAndTelemetry', function () {
     logger.destroy();
   });
 
-  it('throws when running setup twice', function () {
-    loggingAndTelemetry.setup();
-
-    expect(() => loggingAndTelemetry.setup()).throws(
-      'Setup can only be called once.'
-    );
-  });
-
-  it('throws when trying to setup writer prematurely', function () {
-    expect(() => loggingAndTelemetry.attachLogger(logger)).throws(
-      'Run setup() before setting up the log writer.'
-    );
-  });
-
   it('throws when running attachLogger twice without detaching', function () {
-    loggingAndTelemetry.setup();
     loggingAndTelemetry.attachLogger(logger);
     expect(() => loggingAndTelemetry.attachLogger(logger)).throws(
       'Previously set logger has not been detached. Run detachLogger() before setting.'
@@ -85,14 +71,12 @@ describe('MongoshLoggingAndTelemetry', function () {
   });
 
   it('does not throw when attaching and detaching loggers', function () {
-    loggingAndTelemetry.setup();
     loggingAndTelemetry.attachLogger(logger);
     loggingAndTelemetry.detachLogger();
     expect(() => loggingAndTelemetry.attachLogger(logger)).does.not.throw();
   });
 
   it('tracks new local connection events', function () {
-    loggingAndTelemetry.setup();
     loggingAndTelemetry.attachLogger(logger);
 
     expect(logOutput).to.have.lengthOf(0);
@@ -147,7 +131,6 @@ describe('MongoshLoggingAndTelemetry', function () {
   });
 
   it('tracks new atlas connection events', function () {
-    loggingAndTelemetry.setup();
     loggingAndTelemetry.attachLogger(logger);
 
     expect(logOutput).to.have.lengthOf(0);
@@ -206,7 +189,6 @@ describe('MongoshLoggingAndTelemetry', function () {
   });
 
   it('detaching logger leads to no logging but persists analytics', function () {
-    loggingAndTelemetry.setup();
     loggingAndTelemetry.attachLogger(logger);
 
     expect(logOutput).to.have.lengthOf(0);
@@ -222,7 +204,6 @@ describe('MongoshLoggingAndTelemetry', function () {
   });
 
   it('detaching logger applies to devtools-connect events', function () {
-    loggingAndTelemetry.setup();
     loggingAndTelemetry.attachLogger(logger);
 
     bus.emit('devtools-connect:connect-fail-early');
@@ -241,11 +222,11 @@ describe('MongoshLoggingAndTelemetry', function () {
     loggingAndTelemetry.attachLogger(logger);
 
     bus.emit('devtools-connect:connect-fail-early');
-    expect(logOutput).to.have.lengthOf(3);
+    bus.emit('devtools-connect:connect-fail-early');
+    expect(logOutput).to.have.lengthOf(4);
   });
 
   it('detaching logger mid-way leads to no logging but persists analytics', function () {
-    loggingAndTelemetry.setup();
     loggingAndTelemetry.attachLogger(logger);
 
     expect(logOutput).to.have.lengthOf(0);
@@ -266,7 +247,6 @@ describe('MongoshLoggingAndTelemetry', function () {
   });
 
   it('detaching logger is recoverable', function () {
-    loggingAndTelemetry.setup();
     loggingAndTelemetry.attachLogger(logger);
 
     expect(logOutput).to.have.lengthOf(0);
@@ -294,7 +274,6 @@ describe('MongoshLoggingAndTelemetry', function () {
   });
 
   it('tracks a sequence of events', function () {
-    loggingAndTelemetry.setup();
     loggingAndTelemetry.attachLogger(logger);
 
     expect(logOutput).to.have.lengthOf(0);
@@ -757,7 +736,6 @@ describe('MongoshLoggingAndTelemetry', function () {
   });
 
   it('buffers deprecated API calls', function () {
-    loggingAndTelemetry.setup();
     loggingAndTelemetry.attachLogger(logger);
 
     expect(logOutput).to.have.lengthOf(0);
@@ -933,7 +911,6 @@ describe('MongoshLoggingAndTelemetry', function () {
   });
 
   it('does not track database calls outside of evaluate-{started,finished}', function () {
-    loggingAndTelemetry.setup();
     loggingAndTelemetry.attachLogger(logger);
 
     expect(logOutput).to.have.lengthOf(0);
@@ -961,7 +938,6 @@ describe('MongoshLoggingAndTelemetry', function () {
     expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.be.empty;
 
-    loggingAndTelemetry.setup();
     loggingAndTelemetry.attachLogger(logger);
 
     bus.emit('mongosh:connect', {

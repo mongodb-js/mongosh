@@ -30,7 +30,8 @@ import type { MongoLogWriter } from 'mongodb-log-writer';
 import { MongoLogManager, mongoLogId } from 'mongodb-log-writer';
 import type { MongoshNodeReplOptions, MongoshIOProvider } from './mongosh-repl';
 import MongoshNodeRepl from './mongosh-repl';
-import { MongoshLoggingAndTelemetry } from '@mongosh/logging';
+import type { MongoshLoggingAndTelemetry } from '@mongosh/logging';
+import { setupLoggingAndTelemetry } from '@mongosh/logging';
 import {
   ToggleableAnalytics,
   ThrottledAnalytics,
@@ -254,36 +255,44 @@ export class CliRepl implements MongoshIOProvider {
       throw new Error('Logging and telemetry not setup');
     }
 
-    if (!this.logManager) {
-      this.logManager = new MongoLogManager({
-        directory: this.shellHomeDirectory.localPath('.'),
-        retentionDays: 30,
-        maxLogFileCount: +(
-          process.env.MONGOSH_TEST_ONLY_MAX_LOG_FILE_COUNT || 100
-        ),
-        onerror: (err: Error) => this.bus.emit('mongosh:error', err, 'log'),
-        onwarn: (err: Error, path: string) =>
-          this.warnAboutInaccessibleFile(err, path),
-      });
-    }
+    this.logManager ??= new MongoLogManager({
+      directory: this.shellHomeDirectory.localPath('.'),
+      retentionDays: 30,
+      maxLogFileCount: +(
+        process.env.MONGOSH_TEST_ONLY_MAX_LOG_FILE_COUNT || 100
+      ),
+      onerror: (err: Error) => this.bus.emit('mongosh:error', err, 'log'),
+      onwarn: (err: Error, path: string) =>
+        this.warnAboutInaccessibleFile(err, path),
+    });
 
     await this.logManager.cleanupOldLogFiles();
     markTime(TimingCategories.Logging, 'cleaned up log files');
-    const logger = await this.logManager.createLogWriter();
-    const { quiet } = CliRepl.getFileAndEvalInfo(this.cliOptions);
-    if (!quiet) {
-      this.output.write(`Current Mongosh Log ID:\t${logger.logId}\n`);
+
+    if (!this.logWriter) {
+      this.logWriter ??= await this.logManager.createLogWriter();
+
+      const { quiet } = CliRepl.getFileAndEvalInfo(this.cliOptions);
+      if (!quiet) {
+        this.output.write(`Current Mongosh Log ID:\t${this.logWriter.logId}\n`);
+      }
+
+      markTime(TimingCategories.Logging, 'instantiated log writer');
     }
 
-    this.logWriter = logger;
-    this.loggingAndTelemetry.attachLogger(logger);
+    this.loggingAndTelemetry.attachLogger(this.logWriter);
 
-    markTime(TimingCategories.Logging, 'instantiated log writer');
-    logger.info('MONGOSH', mongoLogId(1_000_000_000), 'log', 'Starting log', {
-      execPath: process.execPath,
-      envInfo: redactSensitiveData(this.getLoggedEnvironmentVariables()),
-      ...(await buildInfo()),
-    });
+    this.logWriter.info(
+      'MONGOSH',
+      mongoLogId(1_000_000_000),
+      'log',
+      'Starting log',
+      {
+        execPath: process.execPath,
+        envInfo: redactSensitiveData(this.getLoggedEnvironmentVariables()),
+        ...(await buildInfo()),
+      }
+    );
     markTime(TimingCategories.Logging, 'logged initial message');
   }
 
@@ -350,18 +359,17 @@ export class CliRepl implements MongoshIOProvider {
 
     markTime(TimingCategories.Telemetry, 'created analytics instance');
 
-    this.loggingAndTelemetry = new MongoshLoggingAndTelemetry(
-      this.bus,
-      this.toggleableAnalytics,
-      {
+    this.loggingAndTelemetry = setupLoggingAndTelemetry({
+      bus: this.bus,
+      analytics: this.toggleableAnalytics,
+      userTraits: {
         platform: process.platform,
         arch: process.arch,
         is_containerized: this.isContainerizedEnvironment,
         ...(await getOsInfo()),
       },
-      version
-    );
-    this.loggingAndTelemetry.setup();
+      mongoshVersion: version,
+    });
 
     markTime(TimingCategories.Telemetry, 'completed telemetry setup');
 
@@ -628,14 +636,9 @@ export class CliRepl implements MongoshIOProvider {
 
   async setLoggingEnabled(enabled: boolean): Promise<void> {
     if (enabled) {
-      if (!this.logWriter) {
-        await this.startLogging();
-      }
-      // Do nothing if there is already an active log writer.
+      await this.startLogging();
     } else {
       this.loggingAndTelemetry?.detachLogger();
-      this.logWriter?.destroy();
-      this.logWriter = undefined;
     }
   }
 

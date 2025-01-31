@@ -1594,10 +1594,20 @@ describe('e2e', function () {
           ).to.have.lengthOf(1);
         });
 
-        it('starts writing to a new log from the point where disableLogging is set to false', async function () {
+        it('starts writing to the same log from the point where disableLogging is set to false', async function () {
+          expect(await shell.executeLine('print(222 - 111)')).to.include('111');
+
+          let log = await readLogFile();
+          expect(
+            log.filter(
+              (logEntry) => logEntry.attr?.input === 'print(222 - 111)'
+            )
+          ).to.have.lengthOf(1);
+
           await shell.executeLine(`config.set("disableLogging", true)`);
           expect(await shell.executeLine('print(123 + 456)')).to.include('579');
-          const log = await readLogFile();
+
+          log = await readLogFile();
           const oldLogId = shell.logId;
           expect(oldLogId).not.null;
 
@@ -1617,15 +1627,21 @@ describe('e2e', function () {
 
           const newLogId = shell.logId;
           expect(newLogId).not.null;
-          expect(oldLogId).not.equal(newLogId);
-          const logsAfterEnabling = await readLogFile();
+          expect(oldLogId).equals(newLogId);
+          log = await readLogFile();
+
           expect(
-            logsAfterEnabling.filter(
+            log.filter(
+              (logEntry) => logEntry.attr?.input === 'print(222 - 111)'
+            )
+          ).to.have.lengthOf(1);
+          expect(
+            log.filter(
               (logEntry) => logEntry.attr?.input === 'print(579 - 123)'
             )
           ).to.have.lengthOf(1);
           expect(
-            logsAfterEnabling.filter(
+            log.filter(
               (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
             )
           ).to.have.lengthOf(0);
