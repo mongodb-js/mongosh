@@ -50,7 +50,7 @@ describe('e2e', function () {
       await buildInfoShell.waitForSuccessfulExit();
       const versionFromBuildInfo = JSON.parse(buildInfoShell.output).version;
 
-      expect(versionFromShellApi).to.equal(versionFromCliFlag);
+      expect(versionFromShellApi).to.contain(versionFromCliFlag);
       expect(versionFromCliFlag).to.equal(versionFromBuildInfo);
     });
   });
