@@ -38,6 +38,7 @@ describe('e2e', function () {
       // --version from the cli-repl package.json and --build-info from the generated build-info.json
       // (if available), which should all match.
       const shell = this.startTestShell({ args: ['--nodb'] });
+      await shell.waitForPrompt();
       const versionFromShellApi = (await shell.executeLine('version()'))
         .replace(/>/g, '')
         .trim();
@@ -50,7 +51,7 @@ describe('e2e', function () {
       await buildInfoShell.waitForSuccessfulExit();
       const versionFromBuildInfo = JSON.parse(buildInfoShell.output).version;
 
-      expect(versionFromShellApi).to.contain(versionFromCliFlag);
+      expect(versionFromShellApi).to.equal(versionFromCliFlag);
       expect(versionFromCliFlag).to.equal(versionFromBuildInfo);
     });
   });
