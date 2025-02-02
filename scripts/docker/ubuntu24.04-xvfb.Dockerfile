@@ -11,6 +11,6 @@ RUN echo "deb-src https://deb.nodesource.com/node_20.x jammy main" | tee -a /etc
 
 # Install Node.js and vscode dependencies
 RUN apt-get update
-RUN apt-get -y -qq install nodejs libnss3 gnupg libxkbfile1 libsecret-1-0 libsecret-1-dev libgtk-3-0 libxss1 libgbm1 libasound2 xvfb build-essential pkg-config
+RUN apt-get -y -qq install nodejs libnss3 gnupg libxkbfile1 libsecret-1-0 libsecret-1-dev libgtk-3-0t64 libxss1 libgbm1 libasound2t64 xvfb build-essential pkg-config
 
 ENTRYPOINT [ "bash" ]
