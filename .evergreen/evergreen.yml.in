@@ -199,6 +199,7 @@ functions:
           set -e
           {
           source .evergreen/setup-env.sh
+          npm run evergreen-release bump
           npm run test-ci
           echo "Archiving current coverage result..."
           tar cvzf nyc-output.tgz .nyc_output
@@ -922,7 +923,7 @@ functions:
           export PUPPETEER_SKIP_DOWNLOAD="true"
           npm run evergreen-release draft
           git add .
-          git commit --no-allow-empty -m "chore(release): bump to prepare for mongosh release" 
+          git commit --no-allow-empty -m "chore(release): bump to prepare for mongosh release"
           }
 
   release_publish_download_and_list_artifacts:
