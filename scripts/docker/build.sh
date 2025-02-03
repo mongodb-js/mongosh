@@ -4,7 +4,8 @@ set -e
 cd "$(dirname "$0")"
 
 # Used for verifying that we actually have a working csfle shared library
-[ -x node_modules/mongodb-crypt-library-version ] || ((cd ../.. && npm ci) && cp -r ../../node_modules node_modules)
+# --prefix=$PWD prevents npm from detecing the monorepo root and installing anything there
+[ -x node_modules/mongodb-crypt-library-version ] || (npm install --prefix="$PWD")
 
 # we don't have credentials for registry.suse.com and docker now requires them due to our config
 if [[ "$1" == suse* ]]; then
