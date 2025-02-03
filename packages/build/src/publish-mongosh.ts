@@ -105,7 +105,10 @@ export async function publishMongosh(
     !!config.isDryRun
   );
 
-  pushTags({ useAuxiliaryPackagesOnly: true });
+  pushTags({
+    useAuxiliaryPackagesOnly: false,
+    isDryRun: config.isDryRun || false,
+  });
 
   console.info('mongosh: finished release process.');
 }

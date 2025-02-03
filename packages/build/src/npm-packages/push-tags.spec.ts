@@ -54,7 +54,10 @@ describe('pushing tags', function () {
 
       expect(() =>
         pushTags(
-          { useAuxiliaryPackagesOnly: false },
+          {
+            isDryRun: false,
+            useAuxiliaryPackagesOnly: false,
+          },
           listNpmPackages,
           existsVersionTag,
           spawnSync
@@ -65,6 +68,7 @@ describe('pushing tags', function () {
     it('takes mongosh version and pushes tags when releasing', function () {
       pushTags(
         {
+          isDryRun: false,
           useAuxiliaryPackagesOnly: false,
         },
         listNpmPackages,
@@ -95,6 +99,7 @@ describe('pushing tags', function () {
     it('pushes only package tags when using auxiliary packages', function () {
       pushTags(
         {
+          isDryRun: false,
           useAuxiliaryPackagesOnly: true,
         },
         listNpmPackages,
@@ -146,6 +151,7 @@ describe('pushing tags', function () {
 
       pushTags(
         {
+          isDryRun: false,
           useAuxiliaryPackagesOnly: true,
         },
         listNpmPackages,
@@ -194,6 +200,7 @@ describe('pushing tags', function () {
       pushTags(
         {
           useAuxiliaryPackagesOnly: false,
+          isDryRun: false,
         },
         listNpmPackages,
         existsVersionTag,
@@ -208,6 +215,30 @@ describe('pushing tags', function () {
         `v${mongoshVersion}`,
       ]);
       expect(spawnSync).calledWith('git', ['push', '--follow-tags']);
+    });
+
+    it('skips tag push if it is a dry run', function () {
+      existsVersionTag.withArgs(`v${mongoshVersion}`).returns(true);
+
+      pushTags(
+        {
+          useAuxiliaryPackagesOnly: false,
+          isDryRun: true,
+        },
+        listNpmPackages,
+        existsVersionTag,
+        spawnSync
+      );
+
+      expect(spawnSync).not.calledWith('git', [
+        'tag',
+        '-a',
+        `v${mongoshVersion}`,
+        '-m',
+        `v${mongoshVersion}`,
+      ]);
+
+      expect(spawnSync).not.calledWith('git', ['push', '--follow-tags']);
     });
   });
 });

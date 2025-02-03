@@ -9,7 +9,10 @@ import { listNpmPackages as listNpmPackagesFn } from './list';
 import { spawnSync as spawnSyncFn } from '../helpers/spawn-sync';
 
 export function pushTags(
-  { useAuxiliaryPackagesOnly }: { useAuxiliaryPackagesOnly: boolean },
+  {
+    useAuxiliaryPackagesOnly,
+    isDryRun,
+  }: { useAuxiliaryPackagesOnly: boolean; isDryRun: boolean },
   listNpmPackages: typeof listNpmPackagesFn = listNpmPackagesFn,
   existsVersionTag: typeof existsTag = existsTag,
   spawnSync: typeof spawnSyncFn = spawnSyncFn
@@ -68,7 +71,9 @@ export function pushTags(
     }
   }
 
-  spawnSync('git', ['push', '--follow-tags'], commandOptions);
+  if (!isDryRun) {
+    spawnSync('git', ['push', '--follow-tags'], commandOptions);
+  }
 }
 
 /** Returns true if the tag exists in the remote repository. */
