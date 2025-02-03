@@ -106,7 +106,7 @@ export async function publishMongosh(
   );
 
   pushTags({
-    useAuxiliaryPackagesOnly: true,
+    useAuxiliaryPackagesOnly: false,
     isDryRun: config.isDryRun || false,
   });
 
