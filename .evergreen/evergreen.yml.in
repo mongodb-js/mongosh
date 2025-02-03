@@ -128,7 +128,7 @@ functions:
           source .evergreen/setup-env.sh
           npm run evergreen-release bump
           npm run compile
-          tar cvzf compiled-ts.tgz packages/*/{lib,dist}
+          tar cvzf compiled-ts.tgz packages/*/{lib,dist,package.json} package.json package-lock.json
     - command: s3.put
       params:
         aws_key: ${aws_key}
@@ -199,7 +199,6 @@ functions:
           set -e
           {
           source .evergreen/setup-env.sh
-          npm run evergreen-release bump
           npm run test-ci
           echo "Archiving current coverage result..."
           tar cvzf nyc-output.tgz .nyc_output
