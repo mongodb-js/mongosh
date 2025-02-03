@@ -8,5 +8,8 @@ export function publishAuxiliaryPackages(config: Config) {
     );
   }
   publishToNpm(config);
-  pushTags({ useAuxiliaryPackagesOnly: true });
+  pushTags({
+    useAuxiliaryPackagesOnly: true,
+    isDryRun: config.isDryRun || false,
+  });
 }
