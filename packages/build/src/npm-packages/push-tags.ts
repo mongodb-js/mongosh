@@ -72,7 +72,7 @@ export function pushTags(
   }
 
   if (!isDryRun) {
-    spawnSync('git', ['push', '--follow-tags'], commandOptions);
+    spawnSync('git', ['push', '--tags'], commandOptions);
   }
 }
 
