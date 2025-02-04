@@ -48,12 +48,23 @@ describe('npm-packages bump', function () {
     });
 
     it('bumps only mongosh packages', async function () {
+      const mongoshPath = path.join(PROJECT_ROOT, 'packages', 'mongosh');
+      const autocompletePath = path.join(
+        PROJECT_ROOT,
+        'packages',
+        'autocomplete'
+      );
       getPackagesInTopologicalOrder.resolves([
-        { name: 'mongosh', location: 'packages/mongosh' },
-        { name: '@mongosh/autocomplete', location: 'packages/autocomplete' },
+        { name: 'mongosh', location: mongoshPath },
+        { name: '@mongosh/autocomplete', location: autocompletePath },
       ]);
 
-      const rootProjectJson = `${PROJECT_ROOT}/package.json`;
+      const rootProjectJson = path.join(PROJECT_ROOT, 'package.json');
+      const mongoshProjectJson = path.join(mongoshPath, 'package.json');
+      const autocompleteProjectJson = path.join(
+        autocompletePath,
+        'package.json'
+      );
       const mockPackageJson = [
         [
           rootProjectJson,
@@ -67,7 +78,7 @@ describe('npm-packages bump', function () {
           },
         ],
         [
-          'packages/mongosh/package.json',
+          mongoshProjectJson,
           {
             name: 'mongosh',
             version: '0.1.2',
@@ -78,7 +89,7 @@ describe('npm-packages bump', function () {
           },
         ],
         [
-          'packages/autocomplete/package.json',
+          autocompleteProjectJson,
           {
             name: '@mongosh/autocomplete',
             version: '1.2.3',
@@ -118,8 +129,7 @@ describe('npm-packages bump', function () {
 
       expect(
         JSON.parse(
-          fsWriteFile.withArgs('packages/mongosh/package.json').firstCall
-            .args[1] as string
+          fsWriteFile.withArgs(mongoshProjectJson).firstCall.args[1] as string
         )
       ).deep.equals({
         name: 'mongosh',
@@ -132,7 +142,7 @@ describe('npm-packages bump', function () {
 
       expect(
         JSON.parse(
-          fsWriteFile.withArgs('packages/autocomplete/package.json').firstCall
+          fsWriteFile.withArgs(autocompleteProjectJson).firstCall
             .args[1] as string
         )
       ).deep.equals({
