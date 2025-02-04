@@ -33,7 +33,7 @@ import type { DevtoolsConnectOptions } from '@mongosh/service-provider-node-driv
 import type { AddressInfo } from 'net';
 import sinon from 'sinon';
 import type { CliUserConfig } from '@mongosh/types';
-import { MongoLogWriter } from 'mongodb-log-writer';
+import { MongoLogWriter, MongoLogManager } from 'mongodb-log-writer';
 const { EJSON } = bson;
 
 const delay = promisify(setTimeout);
@@ -478,12 +478,14 @@ describe('CliRepl', function () {
         cliRepl = new CliRepl(cliReplOptions);
         await cliRepl.start('', {});
         await fs.stat(newerlogfile);
-        try {
-          await fs.stat(oldlogfile);
-          expect.fail('missed exception');
-        } catch (err: any) {
-          expect(err.code).to.equal('ENOENT');
-        }
+        await eventually(async () => {
+          try {
+            await fs.stat(oldlogfile);
+            expect.fail('missed exception');
+          } catch (err: any) {
+            expect(err.code).to.equal('ENOENT');
+          }
+        });
       });
 
       it('verifies the Node.js version', async function () {
@@ -1382,6 +1384,7 @@ describe('CliRepl', function () {
           srv.close();
           await once(srv, 'close');
           setTelemetryDelay(0);
+          sinon.restore();
         });
 
         context('logging configuration', function () {
@@ -1408,6 +1411,20 @@ describe('CliRepl', function () {
             expect(onLogInitialized).not.called;
 
             expect(cliRepl.logWriter).is.undefined;
+          });
+
+          it('logs cleanup errors', async function () {
+            sinon
+              .stub(MongoLogManager.prototype, 'cleanupOldLogFiles')
+              .rejects(new Error('Method not implemented'));
+            await cliRepl.start(await testServer.connectionString(), {});
+            expect(
+              (await log()).filter(
+                (entry) =>
+                  entry.ctx === 'log' &&
+                  entry.msg === 'Error: Method not implemented'
+              )
+            ).to.have.lengthOf(1);
           });
         });
 

@@ -266,8 +266,15 @@ export class CliRepl implements MongoshIOProvider {
         this.warnAboutInaccessibleFile(err, path),
     });
 
-    await this.logManager.cleanupOldLogFiles();
-    markTime(TimingCategories.Logging, 'cleaned up log files');
+    // Do not wait for log cleanup and log errors if MongoLogManager throws any.
+    void this.logManager
+      .cleanupOldLogFiles()
+      .catch((err) => {
+        this.bus.emit('mongosh:error', err, 'log');
+      })
+      .finally(() => {
+        markTime(TimingCategories.Logging, 'cleaned up log files');
+      });
 
     if (!this.logWriter) {
       this.logWriter ??= await this.logManager.createLogWriter();
