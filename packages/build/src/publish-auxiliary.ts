@@ -7,9 +7,9 @@ export function publishAuxiliaryPackages(config: Config) {
       'This should only be used when publishing auxiliary packages'
     );
   }
-  publishToNpm(config);
   pushTags({
     useAuxiliaryPackagesOnly: true,
     isDryRun: config.isDryRun || false,
   });
+  publishToNpm(config);
 }

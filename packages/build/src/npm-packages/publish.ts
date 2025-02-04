@@ -1,19 +1,11 @@
 import path from 'path';
-import {
-  EXCLUDE_RELEASE_PACKAGES,
-  LERNA_BIN,
-  MONGOSH_RELEASE_PACKAGES,
-  PROJECT_ROOT,
-} from './constants';
+import { LERNA_BIN, PROJECT_ROOT } from './constants';
 import type { LernaPackageDescription } from './list';
-import { listNpmPackages as listNpmPackagesFn } from './list';
 import { spawnSync as spawnSyncFn } from '../helpers/spawn-sync';
 import type { SpawnSyncOptionsWithStringEncoding } from 'child_process';
 
 export function publishToNpm(
-  { isDryRun = false, useAuxiliaryPackagesOnly = false },
-  listNpmPackages: typeof listNpmPackagesFn = listNpmPackagesFn,
-  markBumpedFilesAsAssumeUnchangedFn: typeof markBumpedFilesAsAssumeUnchanged = markBumpedFilesAsAssumeUnchanged,
+  { isDryRun = false },
   spawnSync: typeof spawnSyncFn = spawnSyncFn
 ): void {
   const commandOptions: SpawnSyncOptionsWithStringEncoding = {
@@ -25,37 +17,22 @@ export function publishToNpm(
       ...(isDryRun ? { npm_config_dry_run: 'true' } : {}),
     },
   };
-  const allReleasablePackages = listNpmPackages().filter(
-    (packageConfig) => !EXCLUDE_RELEASE_PACKAGES.includes(packageConfig.name)
-  );
-
-  const packages: LernaPackageDescription[] = useAuxiliaryPackagesOnly
-    ? allReleasablePackages.filter(
-        (packageConfig) =>
-          !MONGOSH_RELEASE_PACKAGES.includes(packageConfig.name)
-      )
-    : allReleasablePackages;
 
   // Lerna requires a clean repository for a publish from-package
   // we use git update-index --assume-unchanged on files we know have been bumped
-  markBumpedFilesAsAssumeUnchangedFn(packages, true);
-  try {
-    spawnSync(
-      LERNA_BIN,
-      [
-        'publish',
-        'from-package',
-        '--no-private',
-        '--no-changelog',
-        '--exact',
-        '--yes',
-        '--no-verify-access',
-      ],
-      commandOptions
-    );
-  } finally {
-    markBumpedFilesAsAssumeUnchangedFn(packages, false);
-  }
+  spawnSync(
+    LERNA_BIN,
+    [
+      'publish',
+      'from-package',
+      '--no-private',
+      '--no-changelog',
+      '--exact',
+      '--yes',
+      '--no-verify-access',
+    ],
+    commandOptions
+  );
 }
 
 export function markBumpedFilesAsAssumeUnchanged(
