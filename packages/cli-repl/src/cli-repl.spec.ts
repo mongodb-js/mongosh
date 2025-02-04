@@ -324,6 +324,7 @@ describe('CliRepl', function () {
           'disableLogging',
           'logLocation',
           'logRetentionDays',
+          'logMaxFileCount',
         ] satisfies (keyof CliUserConfig)[]);
       });
 
@@ -1455,6 +1456,19 @@ describe('CliRepl', function () {
             );
             expect(cliRepl.logManager?._options.retentionDays).equals(
               testRetentionDays
+            );
+          });
+
+          it('can set log max file count', async function () {
+            const testMaxFileCount = 123;
+            cliRepl.config.logMaxFileCount = testMaxFileCount;
+            await cliRepl.start(await testServer.connectionString(), {});
+
+            expect(cliRepl.getConfig('logMaxFileCount')).equals(
+              testMaxFileCount
+            );
+            expect(cliRepl.logManager?._options.maxLogFileCount).equals(
+              testMaxFileCount
             );
           });
         });
