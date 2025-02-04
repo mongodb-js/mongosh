@@ -93,7 +93,7 @@ describe('pushing tags', function () {
         '-m',
         `v${mongoshVersion}`,
       ]);
-      expect(spawnSync).calledWith('git', ['push', '--follow-tags']);
+      expect(spawnSync).calledWith('git', ['push', '--tags']);
     });
 
     it('pushes only package tags when using auxiliary packages', function () {
@@ -134,7 +134,7 @@ describe('pushing tags', function () {
         '-m',
         `v${mongoshVersion}`,
       ]);
-      expect(spawnSync).calledWith('git', ['push', '--follow-tags']);
+      expect(spawnSync).calledWith('git', ['push', '--tags']);
     });
 
     it('skips pushing version tags which already exist', function () {
@@ -191,7 +191,7 @@ describe('pushing tags', function () {
         '-m',
         `v${mongoshVersion}`,
       ]);
-      expect(spawnSync).calledWith('git', ['push', '--follow-tags']);
+      expect(spawnSync).calledWith('git', ['push', '--tags']);
     });
 
     it('skips mongosh release tag push if it exists', function () {
@@ -214,7 +214,7 @@ describe('pushing tags', function () {
         '-m',
         `v${mongoshVersion}`,
       ]);
-      expect(spawnSync).calledWith('git', ['push', '--follow-tags']);
+      expect(spawnSync).calledWith('git', ['push', '--tags']);
     });
 
     it('skips tag push if it is a dry run', function () {
@@ -238,7 +238,7 @@ describe('pushing tags', function () {
         `v${mongoshVersion}`,
       ]);
 
-      expect(spawnSync).not.calledWith('git', ['push', '--follow-tags']);
+      expect(spawnSync).not.calledWith('git', ['push', '--tags']);
     });
   });
 });
