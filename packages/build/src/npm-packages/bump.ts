@@ -7,6 +7,7 @@ import {
 
 import { promises as fs } from 'fs';
 import path from 'path';
+import { spawnSync as spawnSyncFn } from '../helpers';
 import { getPackagesInTopologicalOrder } from '@mongodb-js/monorepo-tools';
 
 /** Bumps only the main mongosh release packages to the set version. */
@@ -106,7 +107,9 @@ export function bumpAuxiliaryPackages() {
   });
 }
 
-export function commitBumpedPackages() {
+export function commitBumpedPackages(
+  spawnSync: typeof spawnSyncFn = spawnSyncFn
+) {
   spawnSync('git', ['add', '.'], {
     stdio: 'inherit',
     cwd: PROJECT_ROOT,

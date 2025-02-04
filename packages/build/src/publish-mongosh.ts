@@ -19,6 +19,7 @@ import {
   bumpAuxiliaryPackages as bumpAuxiliaryPackagesFn,
 } from './npm-packages';
 import { commitBumpedPackages } from './npm-packages/bump';
+import { spawnSync as spawnSyncFn } from './helpers';
 
 export async function publishMongosh(
   config: Config,
@@ -34,7 +35,8 @@ export async function publishMongosh(
   shouldDoPublicRelease: typeof shouldDoPublicReleaseFn = shouldDoPublicReleaseFn,
   getEvergreenArtifactUrl: typeof getArtifactUrlFn = getArtifactUrlFn,
   bumpMongoshReleasePackages: typeof bumpMongoshReleasePackagesFn = bumpMongoshReleasePackagesFn,
-  bumpAuxiliaryPackages: typeof bumpAuxiliaryPackagesFn = bumpAuxiliaryPackagesFn
+  bumpAuxiliaryPackages: typeof bumpAuxiliaryPackagesFn = bumpAuxiliaryPackagesFn,
+  spawnSync: typeof spawnSyncFn = spawnSyncFn
 ): Promise<void> {
   if (!shouldDoPublicRelease(config)) {
     console.warn(
@@ -68,7 +70,11 @@ export async function publishMongosh(
 
   bumpAuxiliaryPackages();
   await bumpMongoshReleasePackages(releaseVersion);
-  commitBumpedPackages();
+  commitBumpedPackages(spawnSync);
+  pushTags({
+    useAuxiliaryPackagesOnly: false,
+    isDryRun: config.isDryRun || false,
+  });
 
   await publishArtifactsToBarque(
     barque,
@@ -105,11 +111,6 @@ export async function publishMongosh(
     `https://github.com/${mongoshGithubRepo.repo.owner}/${mongoshGithubRepo.repo.repo}/releases/tag/v${config.version}`,
     !!config.isDryRun
   );
-
-  pushTags({
-    useAuxiliaryPackagesOnly: false,
-    isDryRun: config.isDryRun || false,
-  });
 
   console.info('mongosh: finished release process.');
 }
