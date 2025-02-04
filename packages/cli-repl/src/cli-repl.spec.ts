@@ -38,7 +38,7 @@ const { EJSON } = bson;
 
 const delay = promisify(setTimeout);
 
-describe.only('CliRepl', function () {
+describe('CliRepl', function () {
   let cliReplOptions: CliReplOptions;
   let cliRepl: CliRepl & {
     start(
