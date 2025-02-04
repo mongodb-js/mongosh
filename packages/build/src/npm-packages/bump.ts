@@ -8,11 +8,13 @@ import {
 import { promises as fs } from 'fs';
 import path from 'path';
 import { spawnSync as spawnSyncFn } from '../helpers';
-import { getPackagesInTopologicalOrder } from '@mongodb-js/monorepo-tools';
+import { getPackagesInTopologicalOrder as getPackagesInTopologicalOrderFn } from '@mongodb-js/monorepo-tools';
 
 /** Bumps only the main mongosh release packages to the set version. */
 export async function bumpMongoshReleasePackages(
-  version: string
+  version: string,
+  getPackagesInTopologicalOrder: typeof getPackagesInTopologicalOrderFn = getPackagesInTopologicalOrderFn,
+  updateShellApiMongoshVersionFn: typeof updateShellApiMongoshVersion = updateShellApiMongoshVersion
 ): Promise<void> {
   if (!version) {
     console.warn(
@@ -22,12 +24,10 @@ export async function bumpMongoshReleasePackages(
   }
 
   console.info(`mongosh: Bumping mongosh release packages to ${version}`);
-  const monorepoRootPath = path.resolve(__dirname, '..', '..', '..', '..');
+  const monorepoRootPath = PROJECT_ROOT;
   const packages = await getPackagesInTopologicalOrder(monorepoRootPath);
 
-  const workspaceNames = packages
-    .map((p) => p.name)
-    .filter((name) => MONGOSH_RELEASE_PACKAGES.includes(name));
+  const bumpedPackages = MONGOSH_RELEASE_PACKAGES;
 
   const locations = [monorepoRootPath, ...packages.map((p) => p.location)];
 
@@ -35,7 +35,12 @@ export async function bumpMongoshReleasePackages(
     const packageJsonPath = path.join(location, 'package.json');
     const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf8'));
 
-    packageJson.version = version;
+    if (
+      bumpedPackages.includes(packageJson.name as string) &&
+      location !== monorepoRootPath
+    ) {
+      packageJson.version = version;
+    }
     for (const grouping of [
       'dependencies',
       'devDependencies',
@@ -47,7 +52,7 @@ export async function bumpMongoshReleasePackages(
       }
 
       for (const name of Object.keys(packageJson[grouping])) {
-        if (!workspaceNames.includes(name)) {
+        if (!bumpedPackages.includes(name)) {
           continue;
         }
         packageJson[grouping][name] = version;
@@ -60,7 +65,14 @@ export async function bumpMongoshReleasePackages(
     );
   }
 
-  await updateShellApiMongoshVersion(version);
+  await updateShellApiMongoshVersionFn(version);
+
+  // Update package-lock.json
+  spawnSync('npm', ['install', '--package-lock-only'], {
+    stdio: 'inherit',
+    cwd: monorepoRootPath,
+    encoding: 'utf8',
+  });
 }
 
 /** Updates the shell-api constant to match the mongosh version. */
