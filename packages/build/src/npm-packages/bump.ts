@@ -66,6 +66,13 @@ export async function bumpMongoshReleasePackages(
   }
 
   await updateShellApiMongoshVersionFn(version);
+
+  // Update package-lock.json
+  spawnSync('npm', ['install', '--package-lock-only'], {
+    stdio: 'inherit',
+    cwd: monorepoRootPath,
+    encoding: 'utf8',
+  });
 }
 
 /** Updates the shell-api constant to match the mongosh version. */
