@@ -105,3 +105,17 @@ export function bumpAuxiliaryPackages() {
     },
   });
 }
+
+export function commitBumpedPackages() {
+  spawnSync('git', ['add', '.'], {
+    stdio: 'inherit',
+    cwd: PROJECT_ROOT,
+    encoding: 'utf8',
+  });
+
+  spawnSync('git', ['commit', '-m', 'chore(release): bump packages'], {
+    stdio: 'inherit',
+    cwd: PROJECT_ROOT,
+    encoding: 'utf8',
+  });
+}

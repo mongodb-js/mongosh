@@ -18,6 +18,7 @@ import {
   bumpMongoshReleasePackages as bumpMongoshReleasePackagesFn,
   bumpAuxiliaryPackages as bumpAuxiliaryPackagesFn,
 } from './npm-packages';
+import { commitBumpedPackages } from './npm-packages/bump';
 
 export async function publishMongosh(
   config: Config,
@@ -67,6 +68,7 @@ export async function publishMongosh(
 
   bumpAuxiliaryPackages();
   await bumpMongoshReleasePackages(releaseVersion);
+  commitBumpedPackages();
 
   await publishArtifactsToBarque(
     barque,
@@ -94,7 +96,6 @@ export async function publishMongosh(
 
   publishToNpm({
     isDryRun: config.isDryRun,
-    useAuxiliaryPackagesOnly: config.useAuxiliaryPackagesOnly,
   });
 
   await publishToHomebrew(

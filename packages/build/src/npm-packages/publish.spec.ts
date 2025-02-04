@@ -6,7 +6,6 @@ import { publishToNpm } from './publish';
 
 describe('npm-packages publishToNpm', function () {
   let listNpmPackages: SinonStub;
-  let markBumpedFilesAsAssumeUnchanged: SinonStub;
   let spawnSync: SinonStub;
   const lernaBin = path.resolve(
     __dirname,
@@ -21,7 +20,6 @@ describe('npm-packages publishToNpm', function () {
 
   beforeEach(function () {
     listNpmPackages = sinon.stub();
-    markBumpedFilesAsAssumeUnchanged = sinon.stub();
     spawnSync = sinon.stub();
   });
 
@@ -32,17 +30,8 @@ describe('npm-packages publishToNpm', function () {
     ];
     listNpmPackages.returns(packages);
 
-    publishToNpm(
-      { isDryRun: false, useAuxiliaryPackagesOnly: false },
-      listNpmPackages,
-      markBumpedFilesAsAssumeUnchanged,
-      spawnSync
-    );
+    publishToNpm({ isDryRun: false }, listNpmPackages);
 
-    expect(markBumpedFilesAsAssumeUnchanged).to.have.been.calledWith(
-      packages,
-      true
-    );
     expect(spawnSync).to.have.been.calledWith(
       lernaBin,
       [
@@ -56,36 +45,5 @@ describe('npm-packages publishToNpm', function () {
       ],
       sinon.match.any
     );
-    expect(markBumpedFilesAsAssumeUnchanged).to.have.been.calledWith(
-      packages,
-      false
-    );
-  });
-
-  it('reverts the assume unchanged even on spawn failure', function () {
-    const packages = [{ name: 'packageA', version: '0.7.0' }];
-    listNpmPackages.returns(packages);
-    spawnSync.throws(new Error('meeep'));
-
-    try {
-      publishToNpm(
-        { isDryRun: false, useAuxiliaryPackagesOnly: false },
-        listNpmPackages,
-        markBumpedFilesAsAssumeUnchanged,
-        spawnSync
-      );
-    } catch (e: any) {
-      expect(markBumpedFilesAsAssumeUnchanged).to.have.been.calledWith(
-        packages,
-        true
-      );
-      expect(spawnSync).to.have.been.called;
-      expect(markBumpedFilesAsAssumeUnchanged).to.have.been.calledWith(
-        packages,
-        false
-      );
-      return;
-    }
-    expect.fail('Expected error');
   });
 });
