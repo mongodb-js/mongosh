@@ -33,6 +33,7 @@
     "strip-ansi": "^6.0.0"
   },
   "devDependencies": {
+    "mongodb-log-writer": "^2.1.0",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/oidc-mock-provider": "^0.10.2",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
