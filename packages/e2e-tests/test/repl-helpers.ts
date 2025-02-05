@@ -49,7 +49,7 @@ function useTmpdir(): { readonly path: string } {
   };
 }
 
-async function readReplLogfile<T extends MongoLogEntry>(
+async function readReplLogFile<T extends MongoLogEntry>(
   logPath: string
 ): Promise<T[]> {
   return (await fs.readFile(logPath, 'utf8'))
@@ -165,7 +165,7 @@ async function connectionStringWithLocalhost(
 // eslint-disable-next-line mocha/no-exports
 export {
   useTmpdir,
-  readReplLogfile,
+  readReplLogFile,
   fakeExternalEditor,
   setTemporaryHomeDirectory,
   getCertPath,

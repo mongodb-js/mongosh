@@ -325,15 +325,13 @@ class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         metadata: unknown;
       };
 
-      if (this.log) {
-        this.log[context === 'fatal' ? 'fatal' : 'error'](
-          'MONGOSH',
-          mongoLogId(1_000_000_006),
-          context,
-          `${mongoshError.name}: ${mongoshError.message}`,
-          error
-        );
-      }
+      this.log[context === 'fatal' ? 'fatal' : 'error'](
+        'MONGOSH',
+        mongoLogId(1_000_000_006),
+        context,
+        `${mongoshError.name}: ${mongoshError.message}`,
+        error
+      );
 
       if (error.name.includes('Mongosh')) {
         this.analytics.track({

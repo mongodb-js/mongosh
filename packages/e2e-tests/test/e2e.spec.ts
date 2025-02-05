@@ -14,7 +14,7 @@ import { promises as fs, createReadStream } from 'fs';
 import { promisify } from 'util';
 import path from 'path';
 import os from 'os';
-import { readReplLogfile, setTemporaryHomeDirectory } from './repl-helpers';
+import { readReplLogFile, setTemporaryHomeDirectory } from './repl-helpers';
 import { bson } from '@mongosh/service-provider-core';
 import type { Server as HTTPServer } from 'http';
 import { createServer as createHTTPServer } from 'http';
@@ -1398,7 +1398,7 @@ describe('e2e', function () {
           throw new Error('Shell does not have a logId associated with it');
         }
         const logPath = path.join(logBasePath, `${shell.logId}_log`);
-        return readReplLogfile<T>(logPath);
+        return readReplLogFile<T>(logPath);
       };
       startTestShell = async (...extraArgs: string[]) => {
         const shell = this.startTestShell({

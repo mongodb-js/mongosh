@@ -18,7 +18,7 @@ import {
 import {
   expect,
   fakeTTYProps,
-  readReplLogfile,
+  readReplLogFile,
   tick,
   useTmpdir,
   waitBus,
@@ -56,7 +56,7 @@ describe('CliRepl', function () {
   async function log(): Promise<any[]> {
     if (!cliRepl.logWriter?.logFilePath) return [];
     await cliRepl.logWriter.flush(); // Ensure any pending data is written first
-    return readReplLogfile(cliRepl.logWriter.logFilePath);
+    return readReplLogFile(cliRepl.logWriter.logFilePath);
   }
 
   async function startWithExpectedImmediateExit(
@@ -1580,7 +1580,7 @@ describe('CliRepl', function () {
           input.write('db.hello()\n');
           input.write('exit\n');
           await waitBus(cliRepl.bus, 'mongosh:closed');
-          const flushEntry = (await readReplLogfile(logFilePath)).find(
+          const flushEntry = (await readReplLogFile(logFilePath)).find(
             (entry: any) => entry.id === 1_000_000_045
           );
           expect(flushEntry.attr.flushError).to.equal(null);

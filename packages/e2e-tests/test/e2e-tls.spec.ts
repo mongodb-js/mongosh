@@ -5,7 +5,7 @@ import { startTestServer } from '../../../testing/integration-testing-hooks';
 import {
   useTmpdir,
   setTemporaryHomeDirectory,
-  readReplLogfile,
+  readReplLogFile,
   getCertPath,
   connectionStringWithLocalhost,
 } from './repl-helpers';
@@ -241,7 +241,7 @@ describe('e2e TLS', function () {
         expect(prompt.state).to.equal('prompt');
 
         const logPath = path.join(logBasePath, `${shell.logId}_log`);
-        const logContents = await readReplLogfile(logPath);
+        const logContents = await readReplLogFile(logPath);
         expect(
           logContents.find((line) => line.id.__value === 1_000_000_049)?.attr
             .asyncFallbackError
@@ -278,7 +278,7 @@ describe('e2e TLS', function () {
         expect(prompt.state).to.equal('prompt');
 
         const logPath = path.join(logBasePath, `${shell.logId}_log`);
-        const logContents = await readReplLogfile(logPath);
+        const logContents = await readReplLogFile(logPath);
         expect(
           logContents.find((line) => line.id.__value === 1_000_000_049)?.attr
             .asyncFallbackError
@@ -308,7 +308,7 @@ describe('e2e TLS', function () {
         expect(prompt.state).to.equal('exit');
 
         const logPath = path.join(logBasePath, `${shell.logId}_log`);
-        const logContents = await readReplLogfile(logPath);
+        const logContents = await readReplLogFile(logPath);
         expect(logContents.find((line) => line.id.__value === 1_000_000_049)).to
           .exist;
       });
