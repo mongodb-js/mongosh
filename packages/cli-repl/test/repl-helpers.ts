@@ -87,7 +87,7 @@ const fakeTTYProps: Partial<ReadStream & WriteStream> = {
   },
 };
 
-async function readReplLogfile(
+async function readReplLogFile(
   logPath?: string | null | undefined
 ): Promise<any[]> {
   if (!logPath) return [];
@@ -107,5 +107,5 @@ export {
   waitEval,
   waitCompletion,
   fakeTTYProps,
-  readReplLogfile,
+  readReplLogFile,
 };

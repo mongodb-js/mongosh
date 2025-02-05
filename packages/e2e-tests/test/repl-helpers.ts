@@ -6,6 +6,7 @@ import chai from 'chai';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import type { MongodSetup } from '../../../testing/integration-testing-hooks';
+import type { MongoLogEntry } from 'mongodb-log-writer';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -47,7 +48,16 @@ function useTmpdir(): { readonly path: string } {
   };
 }
 
-async function readReplLogfile(logPath: string) {
+type MongoLogEntryFromFile = {
+  t?: {
+    $date: string;
+  };
+  id: number;
+} & Omit<MongoLogEntry, 'id' | 't'>;
+
+async function readReplLogFile<T extends MongoLogEntryFromFile>(
+  logPath: string
+): Promise<T[]> {
   return (await fs.readFile(logPath, 'utf8'))
     .split('\n')
     .filter((line) => line.trim())
@@ -161,9 +171,10 @@ async function connectionStringWithLocalhost(
 // eslint-disable-next-line mocha/no-exports
 export {
   useTmpdir,
-  readReplLogfile,
+  readReplLogFile,
   fakeExternalEditor,
   setTemporaryHomeDirectory,
   getCertPath,
   connectionStringWithLocalhost,
+  MongoLogEntryFromFile,
 };

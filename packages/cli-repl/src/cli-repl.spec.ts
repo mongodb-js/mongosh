@@ -18,7 +18,7 @@ import {
 import {
   expect,
   fakeTTYProps,
-  readReplLogfile,
+  readReplLogFile,
   tick,
   useTmpdir,
   waitBus,
@@ -31,6 +31,9 @@ import { CliRepl } from './cli-repl';
 import { CliReplErrors } from './error-codes';
 import type { DevtoolsConnectOptions } from '@mongosh/service-provider-node-driver';
 import type { AddressInfo } from 'net';
+import sinon from 'sinon';
+import type { CliUserConfig } from '@mongosh/types';
+import { MongoLogWriter, MongoLogManager } from 'mongodb-log-writer';
 const { EJSON } = bson;
 
 const delay = promisify(setTimeout);
@@ -53,7 +56,7 @@ describe('CliRepl', function () {
   async function log(): Promise<any[]> {
     if (!cliRepl.logWriter?.logFilePath) return [];
     await cliRepl.logWriter.flush(); // Ensure any pending data is written first
-    return readReplLogfile(cliRepl.logWriter.logFilePath);
+    return readReplLogFile(cliRepl.logWriter.logFilePath);
   }
 
   async function startWithExpectedImmediateExit(
@@ -235,6 +238,27 @@ describe('CliRepl', function () {
         });
       });
 
+      it('does not write to log syntax errors if logging is disabled', async function () {
+        expect(
+          (await log()).filter((entry) =>
+            entry.attr?.stack?.startsWith('SyntaxError:')
+          )
+        ).to.have.lengthOf(0);
+        input.write('config.set("disableLogging", true)\n');
+        await waitEval(cliRepl.bus);
+        expect(output).includes('Setting "disableLogging" has been changed');
+
+        input.write('<cat>\n');
+        await waitBus(cliRepl.bus, 'mongosh:error');
+        await eventually(async () => {
+          expect(
+            (await log()).filter((entry) =>
+              entry.attr?.stack?.startsWith('SyntaxError:')
+            )
+          ).to.have.lengthOf(0);
+        });
+      });
+
       it('writes JS errors to the log file', async function () {
         input.write('throw new Error("plain js error")\n');
         await waitBus(cliRepl.bus, 'mongosh:error');
@@ -297,7 +321,8 @@ describe('CliRepl', function () {
           'oidcTrustedEndpoints',
           'browser',
           'updateURL',
-        ]);
+          'disableLogging',
+        ] satisfies (keyof CliUserConfig)[]);
       });
 
       it('fails when trying to overwrite mongosh-owned config settings', async function () {
@@ -453,12 +478,14 @@ describe('CliRepl', function () {
         cliRepl = new CliRepl(cliReplOptions);
         await cliRepl.start('', {});
         await fs.stat(newerlogfile);
-        try {
-          await fs.stat(oldlogfile);
-          expect.fail('missed exception');
-        } catch (err: any) {
-          expect(err.code).to.equal('ENOENT');
-        }
+        await eventually(async () => {
+          try {
+            await fs.stat(oldlogfile);
+            expect.fail('missed exception');
+          } catch (err: any) {
+            expect(err.code).to.equal('ENOENT');
+          }
+        });
       });
 
       it('verifies the Node.js version', async function () {
@@ -1309,7 +1336,6 @@ describe('CliRepl', function () {
       hasCollectionNames: true,
       hasDatabaseNames: true,
     });
-
     context('analytics integration', function () {
       context('with network connectivity', function () {
         let srv: http.Server;
@@ -1333,6 +1359,7 @@ describe('CliRepl', function () {
                 .on('data', (chunk) => {
                   body += chunk;
                 })
+                // eslint-disable-next-line @typescript-eslint/no-misused-promises
                 .on('end', async () => {
                   requests.push({ req, body });
                   totalEventsTracked += JSON.parse(body).batch.length;
@@ -1343,7 +1370,7 @@ describe('CliRepl', function () {
             })
             .listen(0);
           await once(srv, 'listening');
-          host = `http://localhost:${(srv.address() as any).port}`;
+          host = `http://localhost:${(srv.address() as AddressInfo).port}`;
           cliReplOptions.analyticsOptions = {
             host,
             apiKey: '🔑',
@@ -1357,6 +1384,48 @@ describe('CliRepl', function () {
           srv.close();
           await once(srv, 'close');
           setTelemetryDelay(0);
+          sinon.restore();
+        });
+
+        context('logging configuration', function () {
+          it('logging is enabled by default and event is called', async function () {
+            const onLogInitialized = sinon.stub();
+            cliRepl.bus.on('mongosh:log-initialized', onLogInitialized);
+
+            await cliRepl.start(await testServer.connectionString(), {});
+
+            expect(await cliRepl.getConfig('disableLogging')).is.false;
+
+            expect(onLogInitialized).calledOnce;
+            expect(cliRepl.logWriter).is.instanceOf(MongoLogWriter);
+          });
+
+          it('does not initialize logging when it is disabled', async function () {
+            cliRepl.config.disableLogging = true;
+            const onLogInitialized = sinon.stub();
+            cliRepl.bus.on('mongosh:log-initialized', onLogInitialized);
+
+            await cliRepl.start(await testServer.connectionString(), {});
+
+            expect(await cliRepl.getConfig('disableLogging')).is.true;
+            expect(onLogInitialized).not.called;
+
+            expect(cliRepl.logWriter).is.undefined;
+          });
+
+          it('logs cleanup errors', async function () {
+            sinon
+              .stub(MongoLogManager.prototype, 'cleanupOldLogFiles')
+              .rejects(new Error('Method not implemented'));
+            await cliRepl.start(await testServer.connectionString(), {});
+            expect(
+              (await log()).filter(
+                (entry) =>
+                  entry.ctx === 'log' &&
+                  entry.msg === 'Error: Method not implemented'
+              )
+            ).to.have.lengthOf(1);
+          });
         });
 
         it('times out fast', async function () {
@@ -1507,11 +1576,11 @@ describe('CliRepl', function () {
 
         it('includes a statement about flushed telemetry in the log', async function () {
           await cliRepl.start(await testServer.connectionString(), {});
-          const { logFilePath } = cliRepl.logWriter!;
+          const { logFilePath } = cliRepl.logWriter as MongoLogWriter;
           input.write('db.hello()\n');
           input.write('exit\n');
           await waitBus(cliRepl.bus, 'mongosh:closed');
-          const flushEntry = (await readReplLogfile(logFilePath)).find(
+          const flushEntry = (await readReplLogFile(logFilePath)).find(
             (entry: any) => entry.id === 1_000_000_045
           );
           expect(flushEntry.attr.flushError).to.equal(null);

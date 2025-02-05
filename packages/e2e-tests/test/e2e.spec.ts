@@ -14,7 +14,8 @@ import { promises as fs, createReadStream } from 'fs';
 import { promisify } from 'util';
 import path from 'path';
 import os from 'os';
-import { readReplLogfile, setTemporaryHomeDirectory } from './repl-helpers';
+import type { MongoLogEntryFromFile } from './repl-helpers';
+import { readReplLogFile, setTemporaryHomeDirectory } from './repl-helpers';
 import { bson } from '@mongosh/service-provider-core';
 import type { Server as HTTPServer } from 'http';
 import { createServer as createHTTPServer } from 'http';
@@ -1353,10 +1354,9 @@ describe('e2e', function () {
     let shell: TestShell;
     let configPath: string;
     let logBasePath: string;
-    let logPath: string;
     let historyPath: string;
     let readConfig: () => Promise<any>;
-    let readLogfile: () => Promise<any[]>;
+    let readLogFile: <T extends MongoLogEntryFromFile>() => Promise<T[]>;
     let startTestShell: (...extraArgs: string[]) => Promise<TestShell>;
 
     beforeEach(function () {
@@ -1393,7 +1393,13 @@ describe('e2e', function () {
       }
       readConfig = async () =>
         EJSON.parse(await fs.readFile(configPath, 'utf8'));
-      readLogfile = async () => readReplLogfile(logPath);
+      readLogFile = async <T extends MongoLogEntryFromFile>(): Promise<T[]> => {
+        if (!shell.logId) {
+          throw new Error('Shell does not have a logId associated with it');
+        }
+        const logPath = path.join(logBasePath, `${shell.logId}_log`);
+        return readReplLogFile<T>(logPath);
+      };
       startTestShell = async (...extraArgs: string[]) => {
         const shell = this.startTestShell({
           args: ['--nodb', ...extraArgs],
@@ -1424,7 +1430,6 @@ describe('e2e', function () {
       beforeEach(async function () {
         await fs.mkdir(homedir, { recursive: true });
         shell = await startTestShell();
-        logPath = path.join(logBasePath, `${shell.logId}_log`);
       });
 
       describe('config file', function () {
@@ -1503,14 +1508,141 @@ describe('e2e', function () {
       });
 
       describe('log file', function () {
+        it('does not get created if global config has disableLogging', async function () {
+          const globalConfig = path.join(homedir, 'globalconfig.conf');
+          await fs.writeFile(globalConfig, 'mongosh:\n  disableLogging: true');
+          shell = this.startTestShell({
+            args: ['--nodb'],
+            env: {
+              ...env,
+              MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING: globalConfig,
+            },
+            forceTerminal: true,
+          });
+          await shell.waitForPrompt();
+          expect(
+            await shell.executeLine('config.get("disableLogging")')
+          ).to.include('true');
+          shell.assertNoErrors();
+
+          expect(await shell.executeLine('print(123 + 456)')).to.include('579');
+          expect(shell.logId).equals(null);
+        });
+
+        it('gets created if global config has disableLogging set to false', async function () {
+          const globalConfig = path.join(homedir, 'globalconfig.conf');
+          await fs.writeFile(globalConfig, 'mongosh:\n  disableLogging: false');
+          shell = this.startTestShell({
+            args: ['--nodb'],
+            env: {
+              ...env,
+              MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING: globalConfig,
+            },
+            forceTerminal: true,
+          });
+          await shell.waitForPrompt();
+          expect(
+            await shell.executeLine('config.get("disableLogging")')
+          ).to.include('false');
+          shell.assertNoErrors();
+
+          expect(await shell.executeLine('print(123 + 456)')).to.include('579');
+          expect(shell.logId).not.equal(null);
+
+          const log = await readLogFile();
+          expect(
+            log.filter(
+              (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
+            )
+          ).to.have.lengthOf(1);
+        });
+
         it('creates a log file that keeps track of session events', async function () {
           expect(await shell.executeLine('print(123 + 456)')).to.include('579');
-          await eventually(async () => {
-            const log = await readLogfile();
-            expect(
-              log.filter((logEntry) => /Evaluating input/.test(logEntry.msg))
-            ).to.have.lengthOf(1);
-          });
+          const log = await readLogFile();
+          expect(
+            log.filter(
+              (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
+            )
+          ).to.have.lengthOf(1);
+        });
+
+        it('does not write to the log after disableLogging is set to true', async function () {
+          expect(await shell.executeLine('print(123 + 456)')).to.include('579');
+          const log = await readLogFile();
+          expect(
+            log.filter(
+              (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
+            )
+          ).to.have.lengthOf(1);
+
+          await shell.executeLine(`config.set("disableLogging", true)`);
+          expect(await shell.executeLine('print(579 - 123)')).to.include('456');
+
+          const logAfterDisabling = await readLogFile();
+          expect(
+            logAfterDisabling.filter(
+              (logEntry) => logEntry.attr?.input === 'print(579 - 123)'
+            )
+          ).to.have.lengthOf(0);
+          expect(
+            logAfterDisabling.filter(
+              (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
+            )
+          ).to.have.lengthOf(1);
+        });
+
+        it('starts writing to the same log from the point where disableLogging is set to false', async function () {
+          expect(await shell.executeLine('print(111 + 222)')).to.include('333');
+
+          let log = await readLogFile();
+          expect(
+            log.filter(
+              (logEntry) => logEntry.attr?.input === 'print(111 + 222)'
+            )
+          ).to.have.lengthOf(1);
+
+          await shell.executeLine(`config.set("disableLogging", true)`);
+          expect(await shell.executeLine('print(123 + 456)')).to.include('579');
+
+          log = await readLogFile();
+          const oldLogId = shell.logId;
+          expect(oldLogId).not.null;
+
+          expect(
+            log.filter(
+              (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
+            )
+          ).to.have.lengthOf(0);
+
+          await shell.executeLine(`config.set("disableLogging", false)`);
+
+          expect(
+            await shell.executeLine('config.get("disableLogging")')
+          ).to.include('false');
+
+          expect(await shell.executeLine('print(579 - 123)')).to.include('456');
+
+          const newLogId = shell.logId;
+          expect(newLogId).not.null;
+          expect(oldLogId).equals(newLogId);
+          log = await readLogFile();
+
+          expect(
+            log.filter(
+              (logEntry) => logEntry.attr?.input === 'print(111 + 222)'
+            )
+          ).to.have.lengthOf(1);
+          expect(
+            log.filter(
+              (logEntry) => logEntry.attr?.input === 'print(579 - 123)'
+            )
+          ).to.have.lengthOf(1);
+          expect(
+            log.filter(
+              (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
+            )
+          ).to.have.lengthOf(0);
         });
 
         it('includes information about the driver version', async function () {
@@ -1521,7 +1653,7 @@ describe('e2e', function () {
             )
           ).to.include('test');
           await eventually(async () => {
-            const log = await readLogfile();
+            const log = await readLogFile();
             expect(
               log.filter(
                 (logEntry) => typeof logEntry.attr?.driver?.version === 'string'
@@ -1534,7 +1666,12 @@ describe('e2e', function () {
           await shell.executeLine("log.info('This is a custom entry')");
           expect(shell.assertNoErrors());
           await eventually(async () => {
-            const log = await readLogfile();
+            const log = await readLogFile<
+              MongoLogEntryFromFile & {
+                c: string;
+                ctx: string;
+              }
+            >();
             const customLogEntry = log.filter((logEntry) =>
               logEntry.msg.includes('This is a custom entry')
             );
@@ -1558,7 +1695,7 @@ describe('e2e', function () {
           await shell.executeLine(`load(${JSON.stringify(filename)})`);
           expect(shell.assertNoErrors());
           await eventually(async () => {
-            const log = await readLogfile();
+            const log = await readLogFile();
             expect(
               log.filter((logEntry) =>
                 logEntry.msg.includes('Initiating connection attemp')

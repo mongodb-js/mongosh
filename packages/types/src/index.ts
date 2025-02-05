@@ -393,6 +393,8 @@ export interface MongoshBusEventsMap extends ConnectEventMap {
   'mongosh:fetching-update-metadata-complete': (
     ev: FetchingUpdateMetadataCompleteEvent
   ) => void;
+  /** Signals that logging has been initialized. */
+  'mongosh:log-initialized': () => void;
 }
 
 export interface MongoshBus {
@@ -504,6 +506,7 @@ export class CliUserConfig extends SnippetShellUserConfig {
   oidcTrustedEndpoints: undefined | string[] = undefined;
   browser: undefined | false | string = undefined;
   updateURL = 'https://downloads.mongodb.com/compass/mongosh.json';
+  disableLogging = false;
 }
 
 export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
@@ -530,6 +533,7 @@ export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
           return `${key} must be a positive integer`;
         }
         return null;
+      case 'disableLogging':
       case 'forceDisableTelemetry':
       case 'showStackTraces':
         if (typeof value !== 'boolean') {
