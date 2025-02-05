@@ -7,7 +7,6 @@ import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import type { MongodSetup } from '../../../testing/integration-testing-hooks';
 import type { MongoLogEntry } from 'mongodb-log-writer';
-import { EJSON } from 'bson';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -49,13 +48,20 @@ function useTmpdir(): { readonly path: string } {
   };
 }
 
-async function readReplLogFile<T extends MongoLogEntry>(
+type MongoLogEntryFromFile = {
+  t?: {
+    $date: string;
+  };
+  id: number;
+} & Omit<MongoLogEntry, 'id' | 't'>;
+
+async function readReplLogFile<T extends MongoLogEntryFromFile>(
   logPath: string
 ): Promise<T[]> {
   return (await fs.readFile(logPath, 'utf8'))
     .split('\n')
     .filter((line) => line.trim())
-    .map((line) => EJSON.parse(line));
+    .map((line) => JSON.parse(line));
 }
 
 const fakeExternalEditor = async ({
@@ -170,4 +176,5 @@ export {
   setTemporaryHomeDirectory,
   getCertPath,
   connectionStringWithLocalhost,
+  MongoLogEntryFromFile,
 };

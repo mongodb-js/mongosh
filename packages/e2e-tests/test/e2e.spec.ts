@@ -14,6 +14,7 @@ import { promises as fs, createReadStream } from 'fs';
 import { promisify } from 'util';
 import path from 'path';
 import os from 'os';
+import type { MongoLogEntryFromFile } from './repl-helpers';
 import { readReplLogFile, setTemporaryHomeDirectory } from './repl-helpers';
 import { bson } from '@mongosh/service-provider-core';
 import type { Server as HTTPServer } from 'http';
@@ -22,7 +23,6 @@ import { once } from 'events';
 import type { AddressInfo } from 'net';
 const { EJSON } = bson;
 import { sleep } from './util-helpers';
-import type { MongoLogEntry } from 'mongodb-log-writer';
 
 const jsContextFlagCombinations: `--jsContext=${'plain-vm' | 'repl'}`[][] = [
   [],
@@ -1356,7 +1356,7 @@ describe('e2e', function () {
     let logBasePath: string;
     let historyPath: string;
     let readConfig: () => Promise<any>;
-    let readLogFile: <T extends MongoLogEntry>() => Promise<T[]>;
+    let readLogFile: <T extends MongoLogEntryFromFile>() => Promise<T[]>;
     let startTestShell: (...extraArgs: string[]) => Promise<TestShell>;
 
     beforeEach(function () {
@@ -1393,7 +1393,7 @@ describe('e2e', function () {
       }
       readConfig = async () =>
         EJSON.parse(await fs.readFile(configPath, 'utf8'));
-      readLogFile = async <T extends MongoLogEntry>(): Promise<T[]> => {
+      readLogFile = async <T extends MongoLogEntryFromFile>(): Promise<T[]> => {
         if (!shell.logId) {
           throw new Error('Shell does not have a logId associated with it');
         }
@@ -1667,7 +1667,7 @@ describe('e2e', function () {
           expect(shell.assertNoErrors());
           await eventually(async () => {
             const log = await readLogFile<
-              MongoLogEntry & {
+              MongoLogEntryFromFile & {
                 c: string;
                 ctx: string;
               }
