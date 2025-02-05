@@ -243,11 +243,11 @@ describe('e2e TLS', function () {
         const logPath = path.join(logBasePath, `${shell.logId}_log`);
         const logContents = await readReplLogfile(logPath);
         expect(
-          logContents.find((line) => line.id === 1_000_000_049).attr
+          logContents.find((line) => line.id.__value === 1_000_000_049)?.attr
             .asyncFallbackError
         ).to.equal(null); // Ensure that system CA loading happened asynchronously.
         expect(
-          logContents.find((line) => line.id === 1_000_000_049).attr
+          logContents.find((line) => line.id.__value === 1_000_000_049)?.attr
             .systemCertsError
         ).to.equal(null); // Ensure that system CA could be loaded successfully.
       });
@@ -280,11 +280,11 @@ describe('e2e TLS', function () {
         const logPath = path.join(logBasePath, `${shell.logId}_log`);
         const logContents = await readReplLogfile(logPath);
         expect(
-          logContents.find((line) => line.id === 1_000_000_049).attr
+          logContents.find((line) => line.id.__value === 1_000_000_049)?.attr
             .asyncFallbackError
         ).to.equal(null); // Ensure that system CA loading happened asynchronously.
         expect(
-          logContents.find((line) => line.id === 1_000_000_049).attr
+          logContents.find((line) => line.id.__value === 1_000_000_049)?.attr
             .systemCertsError
         ).to.equal(null); // Ensure that system CA could be loaded successfully.
       });
@@ -309,7 +309,8 @@ describe('e2e TLS', function () {
 
         const logPath = path.join(logBasePath, `${shell.logId}_log`);
         const logContents = await readReplLogfile(logPath);
-        expect(logContents.find((line) => line.id === 1_000_000_049)).to.exist;
+        expect(logContents.find((line) => line.id.__value === 1_000_000_049)).to
+          .exist;
       });
     }
   );

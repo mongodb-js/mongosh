@@ -22,7 +22,7 @@ import { once } from 'events';
 import type { AddressInfo } from 'net';
 const { EJSON } = bson;
 import { sleep } from './util-helpers';
-import type { LogEntry } from '@mongosh/shell-api/src/log-entry';
+import type { MongoLogEntry } from 'mongodb-log-writer';
 
 const jsContextFlagCombinations: `--jsContext=${'plain-vm' | 'repl'}`[][] = [
   [],
@@ -1356,7 +1356,7 @@ describe('e2e', function () {
     let logBasePath: string;
     let historyPath: string;
     let readConfig: () => Promise<any>;
-    let readLogFile: <T = LogEntry>() => Promise<T[]>;
+    let readLogFile: <T extends MongoLogEntry>() => Promise<T[]>;
     let startTestShell: (...extraArgs: string[]) => Promise<TestShell>;
 
     beforeEach(function () {
@@ -1393,12 +1393,12 @@ describe('e2e', function () {
       }
       readConfig = async () =>
         EJSON.parse(await fs.readFile(configPath, 'utf8'));
-      readLogFile = async () => {
+      readLogFile = async <T extends MongoLogEntry>(): Promise<T[]> => {
         if (!shell.logId) {
           throw new Error('Shell does not have a logId associated with it');
         }
         const logPath = path.join(logBasePath, `${shell.logId}_log`);
-        return readReplLogfile(logPath);
+        return readReplLogfile<T>(logPath);
       };
       startTestShell = async (...extraArgs: string[]) => {
         const shell = this.startTestShell({
@@ -1551,7 +1551,6 @@ describe('e2e', function () {
 
           const log = await readLogFile();
           expect(
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             log.filter(
               (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
             )
@@ -1562,7 +1561,6 @@ describe('e2e', function () {
           expect(await shell.executeLine('print(123 + 456)')).to.include('579');
           const log = await readLogFile();
           expect(
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             log.filter(
               (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
             )
@@ -1595,12 +1593,12 @@ describe('e2e', function () {
         });
 
         it('starts writing to the same log from the point where disableLogging is set to false', async function () {
-          expect(await shell.executeLine('print(222 - 111)')).to.include('111');
+          expect(await shell.executeLine('print(111 + 222)')).to.include('333');
 
           let log = await readLogFile();
           expect(
             log.filter(
-              (logEntry) => logEntry.attr?.input === 'print(222 - 111)'
+              (logEntry) => logEntry.attr?.input === 'print(111 + 222)'
             )
           ).to.have.lengthOf(1);
 
@@ -1632,7 +1630,7 @@ describe('e2e', function () {
 
           expect(
             log.filter(
-              (logEntry) => logEntry.attr?.input === 'print(222 - 111)'
+              (logEntry) => logEntry.attr?.input === 'print(111 + 222)'
             )
           ).to.have.lengthOf(1);
           expect(
@@ -1668,12 +1666,12 @@ describe('e2e', function () {
           await shell.executeLine("log.info('This is a custom entry')");
           expect(shell.assertNoErrors());
           await eventually(async () => {
-            const log = await readLogFile<{
-              msg: string;
-              s: string;
-              c: string;
-              ctx: string;
-            }>();
+            const log = await readLogFile<
+              MongoLogEntry & {
+                c: string;
+                ctx: string;
+              }
+            >();
             const customLogEntry = log.filter((logEntry) =>
               logEntry.msg.includes('This is a custom entry')
             );
@@ -1697,7 +1695,7 @@ describe('e2e', function () {
           await shell.executeLine(`load(${JSON.stringify(filename)})`);
           expect(shell.assertNoErrors());
           await eventually(async () => {
-            const log = await readLogFile<{ msg: string }>();
+            const log = await readLogFile();
             expect(
               log.filter((logEntry) =>
                 logEntry.msg.includes('Initiating connection attemp')

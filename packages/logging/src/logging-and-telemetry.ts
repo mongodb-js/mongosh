@@ -351,16 +351,14 @@ class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
     });
 
     onBus('mongosh:write-custom-log', (event: WriteCustomLogEvent) => {
-      if (this.log) {
-        this.log[event.method](
-          'MONGOSH-SCRIPTS',
-          mongoLogId(1_000_000_054),
-          'custom-log',
-          event.message,
-          event.attr,
-          event.level
-        );
-      }
+      this.log[event.method](
+        'MONGOSH-SCRIPTS',
+        mongoLogId(1_000_000_054),
+        'custom-log',
+        event.message,
+        event.attr,
+        event.level
+      );
     });
 
     onBus('mongosh:globalconfig-load', (args: GlobalConfigFileLoadEvent) => {
