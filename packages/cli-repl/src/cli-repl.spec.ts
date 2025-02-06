@@ -1433,7 +1433,7 @@ describe('CliRepl', function () {
             cliRepl.config.logLocation = testPath;
             await cliRepl.start(await testServer.connectionString(), {});
 
-            expect(cliRepl.getConfig('logLocation')).is.true;
+            expect(await cliRepl.getConfig('logLocation')).equals('test/path');
             expect(cliRepl.logWriter?.logFilePath).equals(testPath);
           });
         });

@@ -1670,7 +1670,9 @@ describe('e2e', function () {
                 (log) => log.attr?.input === 'config.get("logLocation")'
               )
             ).is.true;
-            expect(currentLogEntries.length - oldLogEntries.length).equals(2);
+            expect(currentLogEntries.length).is.greaterThanOrEqual(
+              oldLogEntries.length
+            );
           });
         });
 

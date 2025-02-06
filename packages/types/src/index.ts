@@ -582,7 +582,10 @@ export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
         }
         return null;
       case 'logLocation':
-        if (typeof value !== 'string' || !path.isAbsolute(value)) {
+        if (
+          value !== undefined &&
+          (typeof value !== 'string' || !path.isAbsolute(value))
+        ) {
           return `${key} must be a valid absolute path or empty`;
         }
         return null;
