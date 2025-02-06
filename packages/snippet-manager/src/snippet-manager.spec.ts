@@ -440,9 +440,10 @@ describe('SnippetManager', function () {
       await snippetManager.runSnippetCommand(['refresh']);
       expect.fail('missed exception');
     } catch (err: any) {
-      expect(err.message).to.equal(
-        `The specified index file ${indexURL} is not a valid index file: "indexFileVersion" must be less than or equal to 1`
+      expect(err.message).to.include(
+        `The specified index file ${indexURL} is not a valid index file:`
       );
+      expect(err.message).to.include(`Number must be less than or equal to 1`);
     }
   });
 

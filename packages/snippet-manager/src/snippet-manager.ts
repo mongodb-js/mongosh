@@ -55,14 +55,16 @@ const indexDescriptionSchema = z.object({
   description: z.string(),
   license: z.string(),
   readme: z.string(),
-  errorMatchers: z.array(errorMatcherSchema),
+  errorMatchers: z.array(errorMatcherSchema).optional(),
 });
 const indexFileSchema = z.object({
   indexFileVersion: z.number().int().max(1),
 
-  metadata: z.object({
-    homepage: z.string(),
-  }),
+  metadata: z
+    .object({
+      homepage: z.string(),
+    })
+    .passthrough(),
 
   index: z.array(indexDescriptionSchema),
 });
