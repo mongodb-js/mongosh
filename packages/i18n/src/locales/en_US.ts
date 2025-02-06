@@ -91,7 +91,7 @@ const translations: Catalog = {
       oidcIdTokenAsAccessToken:
         'Use ID tokens in place of access tokens for auth',
       oidcDumpTokens:
-        "Debug OIDC by printing tokens to mongosh's output [full|include-secrets]",
+        "Debug OIDC by printing tokens to mongosh's output [redacted|include-secrets]",
       oidcNoNonce: "Don't send a nonce argument in the OIDC auth request",
     },
     'arg-parser': {
@@ -132,6 +132,35 @@ const translations: Catalog = {
   'service-provider-node-driver': {},
   'shell-api': {
     classes: {
+      ShellLog: {
+        help: {
+          description: 'Shell log methods',
+          link: '#',
+          attributes: {
+            // TODO(MONGOSH-1995): Print help for the global log property.
+            info: {
+              description: 'Writes a custom info message to the log file',
+              example: 'log.info("Custom info message")',
+            },
+            warn: {
+              description: 'Writes a custom warning message to the log file',
+              example: 'log.warn("Custom warning message")',
+            },
+            error: {
+              description: 'Writes a custom error message to the log file',
+              example: 'log.error("Custom error message")',
+            },
+            fatal: {
+              description: 'Writes a custom fatal message to the log file',
+              example: 'log.fatal("Custom fatal message")',
+            },
+            debug: {
+              description: 'Writes a custom debug message to the log file',
+              example: 'log.debug("Custom debug message")',
+            },
+          },
+        },
+      },
       ShellApi: {
         help: {
           description: 'Shell Help',

@@ -30,8 +30,9 @@ import type { MongoLogWriter } from 'mongodb-log-writer';
 import { MongoLogManager, mongoLogId } from 'mongodb-log-writer';
 import type { MongoshNodeReplOptions, MongoshIOProvider } from './mongosh-repl';
 import MongoshNodeRepl from './mongosh-repl';
+import type { MongoshLoggingAndTelemetry } from '@mongosh/logging';
+import { setupLoggingAndTelemetry } from '@mongosh/logging';
 import {
-  setupLoggerAndTelemetry,
   ToggleableAnalytics,
   ThrottledAnalytics,
   SampledAnalytics,
@@ -119,7 +120,7 @@ export class CliRepl implements MongoshIOProvider {
   config: CliUserConfigOnDisk;
   globalConfig: Partial<CliUserConfig> | null = null;
   globalConfigPaths: string[];
-  logManager: MongoLogManager;
+  logManager?: MongoLogManager;
   logWriter?: MongoLogWriter;
   input: Readable;
   output: Writable;
@@ -139,6 +140,8 @@ export class CliRepl implements MongoshIOProvider {
   updateNotificationManager: UpdateNotificationManager;
   fetchMongoshUpdateUrlRegardlessOfCiEnvironment = false; // for testing
   cachedGlibcVersion: null | string | undefined = null;
+
+  private loggingAndTelemetry: MongoshLoggingAndTelemetry | undefined;
 
   /**
    * Instantiate the new CLI Repl.
@@ -189,16 +192,6 @@ export class CliRepl implements MongoshIOProvider {
         });
       });
 
-    this.logManager = new MongoLogManager({
-      directory: this.shellHomeDirectory.localPath('.'),
-      retentionDays: 30,
-      maxLogFileCount: +(
-        process.env.MONGOSH_TEST_ONLY_MAX_LOG_FILE_COUNT || 100
-      ),
-      onerror: (err: Error) => this.bus.emit('mongosh:error', err, 'log'),
-      onwarn: (err: Error, path: string) =>
-        this.warnAboutInaccessibleFile(err, path),
-    });
     this.agent = useOrCreateAgent(this.proxyOptions);
     this.updateNotificationManager = new UpdateNotificationManager({
       proxyOptions: this.agent,
@@ -256,6 +249,60 @@ export class CliRepl implements MongoshIOProvider {
     );
   }
 
+  /** Setup log writer and start logging. */
+  private async startLogging(): Promise<void> {
+    if (!this.loggingAndTelemetry) {
+      throw new Error('Logging and telemetry not setup');
+    }
+
+    this.logManager ??= new MongoLogManager({
+      directory: this.shellHomeDirectory.localPath('.'),
+      retentionDays: 30,
+      maxLogFileCount: +(
+        process.env.MONGOSH_TEST_ONLY_MAX_LOG_FILE_COUNT || 100
+      ),
+      onerror: (err: Error) => this.bus.emit('mongosh:error', err, 'log'),
+      onwarn: (err: Error, path: string) =>
+        this.warnAboutInaccessibleFile(err, path),
+    });
+
+    // Do not wait for log cleanup and log errors if MongoLogManager throws any.
+    void this.logManager
+      .cleanupOldLogFiles()
+      .catch((err) => {
+        this.bus.emit('mongosh:error', err, 'log');
+      })
+      .finally(() => {
+        markTime(TimingCategories.Logging, 'cleaned up log files');
+      });
+
+    if (!this.logWriter) {
+      this.logWriter ??= await this.logManager.createLogWriter();
+
+      const { quiet } = CliRepl.getFileAndEvalInfo(this.cliOptions);
+      if (!quiet) {
+        this.output.write(`Current Mongosh Log ID:\t${this.logWriter.logId}\n`);
+      }
+
+      markTime(TimingCategories.Logging, 'instantiated log writer');
+    }
+
+    this.loggingAndTelemetry.attachLogger(this.logWriter);
+
+    this.logWriter.info(
+      'MONGOSH',
+      mongoLogId(1_000_000_000),
+      'log',
+      'Starting log',
+      {
+        execPath: process.execPath,
+        envInfo: redactSensitiveData(this.getLoggedEnvironmentVariables()),
+        ...(await buildInfo()),
+      }
+    );
+    markTime(TimingCategories.Logging, 'logged initial message');
+  }
+
   /**
    * Setup CLI environment: serviceProvider, ShellEvaluator, log connection
    * information, external editor, and finally start the repl.
@@ -267,7 +314,8 @@ export class CliRepl implements MongoshIOProvider {
     driverUri: string,
     driverOptions: DevtoolsConnectOptions
   ): Promise<void> {
-    const { version } = require('../package.json');
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { version }: { version: string } = require('../package.json');
     await this.verifyNodeVersion();
     markTime(TimingCategories.REPLInstantiation, 'verified node version');
 
@@ -302,66 +350,53 @@ export class CliRepl implements MongoshIOProvider {
 
     try {
       await this.shellHomeDirectory.ensureExists();
-    } catch (err: any) {
-      this.warnAboutInaccessibleFile(err);
+    } catch (err: unknown) {
+      this.warnAboutInaccessibleFile(err as Error);
     }
     markTime(TimingCategories.REPLInstantiation, 'ensured shell homedir');
-
-    await this.logManager.cleanupOldLogfiles();
-    markTime(TimingCategories.Logging, 'cleaned up log files');
-    const logger = await this.logManager.createLogWriter();
-    const { quiet } = CliRepl.getFileAndEvalInfo(this.cliOptions);
-    if (!quiet) {
-      this.output.write(`Current Mongosh Log ID:\t${logger.logId}\n`);
-    }
-    this.logWriter = logger;
-    markTime(TimingCategories.Logging, 'instantiated log writer');
-
-    logger.info('MONGOSH', mongoLogId(1_000_000_000), 'log', 'Starting log', {
-      execPath: process.execPath,
-      envInfo: redactSensitiveData(this.getLoggedEnvironmentVariables()),
-      ...(await buildInfo()),
-    });
-    markTime(TimingCategories.Logging, 'logged initial message');
 
     let analyticsSetupError: Error | null = null;
     try {
       await this.setupAnalytics();
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Need to delay emitting the error on the bus so that logging is in place
       // as well
-      analyticsSetupError = err;
+      analyticsSetupError = err as Error;
     }
 
     markTime(TimingCategories.Telemetry, 'created analytics instance');
-    setupLoggerAndTelemetry(
-      this.bus,
-      logger,
-      this.toggleableAnalytics,
-      {
+
+    this.loggingAndTelemetry = setupLoggingAndTelemetry({
+      bus: this.bus,
+      analytics: this.toggleableAnalytics,
+      userTraits: {
         platform: process.platform,
         arch: process.arch,
         is_containerized: this.isContainerizedEnvironment,
         ...(await getOsInfo()),
       },
-      version
-    );
+      mongoshVersion: version,
+    });
+
     markTime(TimingCategories.Telemetry, 'completed telemetry setup');
 
     if (analyticsSetupError) {
       this.bus.emit('mongosh:error', analyticsSetupError, 'analytics');
     }
 
+    // Read local and global configuration
     try {
       this.config = await this.configDirectory.generateOrReadConfig(
         this.config
       );
-    } catch (err: any) {
-      this.warnAboutInaccessibleFile(err);
+    } catch (err: unknown) {
+      this.warnAboutInaccessibleFile(err as Error);
     }
 
     this.globalConfig = await this.loadGlobalConfigFile();
     markTime(TimingCategories.UserConfigLoading, 'read global config files');
+
+    await this.setLoggingEnabled(!(await this.getConfig('disableLogging')));
 
     // Needs to happen after loading the mongosh config file(s)
     void this.fetchMongoshUpdateUrl();
@@ -524,6 +559,7 @@ export class CliRepl implements MongoshIOProvider {
     this.bus.emit('mongosh:start-mongosh-repl', { version });
     markTime(TimingCategories.REPLInstantiation, 'starting repl');
     await this.mongoshRepl.startRepl(initialized);
+
     this.bus.emit('mongosh:start-session', {
       isInteractive: true,
       jsContext: this.mongoshRepl.jsContext(),
@@ -609,6 +645,14 @@ export class CliRepl implements MongoshIOProvider {
     );
   }
 
+  async setLoggingEnabled(enabled: boolean): Promise<void> {
+    if (enabled) {
+      await this.startLogging();
+    } else {
+      this.loggingAndTelemetry?.detachLogger();
+    }
+  }
+
   setTelemetryEnabled(enabled: boolean): void {
     if (this.globalConfig === null) {
       // This happens when the per-user config file is loaded before we have
@@ -628,7 +672,7 @@ export class CliRepl implements MongoshIOProvider {
     files: string[],
     evalScripts: string[]
   ): Promise<number> {
-    let lastEvalResult: any;
+    let lastEvalResult: unknown;
     let exitCode = 0;
     try {
       markTime(TimingCategories.Eval, 'start eval scripts');
@@ -894,6 +938,9 @@ export class CliRepl implements MongoshIOProvider {
         userId: this.config.userId,
         anonymousId: this.config.telemetryAnonymousId,
       });
+    }
+    if (key === 'disableLogging') {
+      await this.setLoggingEnabled(!value);
     }
     try {
       await this.configDirectory.writeConfigFile(this.config);
@@ -1294,7 +1341,8 @@ export class CliRepl implements MongoshIOProvider {
   }
 
   async getMoreRecentMongoshVersion(): Promise<string | null> {
-    const { version } = require('../package.json');
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { version }: { version: string } = require('../package.json');
     return await this.updateNotificationManager.getLatestVersionIfMoreRecent(
       process.env
         .MONGOSH_ASSUME_DIFFERENT_VERSION_FOR_UPDATE_NOTIFICATION_TEST ||

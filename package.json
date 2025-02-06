@@ -54,7 +54,7 @@
     "create-purls-file": "node scripts/create-purls.js .sbom/dependencies.json .sbom/node-js-dep.json > .sbom/purls.txt",
     "preupdate-third-party-notices": "npm run create-dependency-sbom-lists",
     "update-third-party-notices": "mongodb-sbom-tools generate-3rd-party-notices --product='mongosh' --dependencies=.sbom/dependencies.json > THIRD_PARTY_NOTICES.md",
-    "update-node-js-versions": "npx @pkgjs/nv ls v20 > .evergreen/node-20-latest.json && npx @pkgjs/nv ls v16 > .evergreen/node-16-latest.json",
+    "update-node-js-versions": "npx @pkgjs/nv ls v20 > .evergreen/node-20-latest.json",
     "update-evergreen-config": "npm run test-evergreen-expansions && node .evergreen/generate-evergreen-yml.js .evergreen/evergreen.yml.in > .evergreen.yml",
     "update-cli-usage-text": "node scripts/update-cli-usage-text.js",
     "update-security-test-summary": "ts-node scripts/generate-security-test-summary.ts > docs/security-test-summary.md",
@@ -71,7 +71,9 @@
     "reformat": "npm run reformat --workspaces --if-present",
     "prepare": "husky",
     "precommit": "precommit",
-    "preinstall": "node scripts/sort-workspaces.js"
+    "preinstall": "node scripts/sort-workspaces.js",
+    "bump-auxiliary": "npm run bump-auxiliary --workspace @mongosh/build",
+    "publish-auxiliary": "npm run publish-auxiliary --workspace @mongosh/build"
   },
   "config": {
     "unsafe-perm": true
@@ -99,6 +101,7 @@
     "@babel/compat-data": "^7.9.0",
     "@mongodb-js/monorepo-tools": "^1.1.10",
     "@mongodb-js/sbom-tools": "^0.7.0",
+    "@pkgjs/nv": "^0.2.2",
     "@types/chai": "^4.2.5",
     "@types/mocha": "^5.2.7",
     "@types/node": "^14.14.6",
@@ -120,7 +123,7 @@
     "nyc": "^15.1.0",
     "pkg-up": "^3.1.0",
     "rimraf": "^3.0.2",
-    "semver": "^7.5.4",
+    "semver": "^7.6.3",
     "sinon": "^7.5.0",
     "sinon-chai": "^3.5.0",
     "terser-webpack-plugin": "^4.2.3",

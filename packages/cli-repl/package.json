@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/cli-repl",
-  "version": "0.0.0-dev.0",
+  "version": "2.3.9",
   "description": "MongoDB Shell CLI REPL Package",
   "homepage": "https://github.com/mongodb-js/mongosh",
   "author": "Compass Team <compass@mongodb.com>",
@@ -43,7 +43,7 @@
     "access": "public"
   },
   "engines": {
-    "node": ">=16.15.0"
+    "node": ">=18.19.0"
   },
   "mongosh": {
     "ciRequiredOptionalDependencies": {
@@ -63,20 +63,20 @@
   },
   "dependencies": {
     "@mongodb-js/devtools-proxy-support": "^0.4.2",
-    "@mongosh/arg-parser": "0.0.0-dev.0",
-    "@mongosh/autocomplete": "0.0.0-dev.0",
-    "@mongosh/editor": "0.0.0-dev.0",
-    "@mongosh/errors": "0.0.0-dev.0",
-    "@mongosh/history": "0.0.0-dev.0",
-    "@mongosh/i18n": "0.0.0-dev.0",
-    "@mongosh/js-multiline-to-singleline": "0.0.0-dev.0",
-    "@mongosh/logging": "0.0.0-dev.0",
-    "@mongosh/service-provider-core": "0.0.0-dev.0",
-    "@mongosh/service-provider-node-driver": "0.0.0-dev.0",
-    "@mongosh/shell-api": "0.0.0-dev.0",
-    "@mongosh/shell-evaluator": "0.0.0-dev.0",
-    "@mongosh/snippet-manager": "0.0.0-dev.0",
-    "@mongosh/types": "0.0.0-dev.0",
+    "@mongosh/arg-parser": "3.2.0",
+    "@mongosh/autocomplete": "3.2.0",
+    "@mongosh/editor": "3.2.0",
+    "@mongosh/errors": "2.4.0",
+    "@mongosh/history": "2.4.2",
+    "@mongosh/i18n": "2.6.0",
+    "@mongosh/js-multiline-to-singleline": "2.4.2",
+    "@mongosh/logging": "3.2.0",
+    "@mongosh/service-provider-core": "3.0.2",
+    "@mongosh/service-provider-node-driver": "3.2.0",
+    "@mongosh/shell-api": "3.2.0",
+    "@mongosh/shell-evaluator": "3.2.0",
+    "@mongosh/snippet-manager": "3.2.0",
+    "@mongosh/types": "3.2.0",
     "@segment/analytics-node": "^1.3.0",
     "ansi-escape-sequences": "^5.1.2",
     "askcharacter": "^2.0.4",
@@ -85,13 +85,14 @@
     "is-recoverable-error": "^1.0.3",
     "js-yaml": "^4.1.0",
     "mongodb-connection-string-url": "^3.0.1",
-    "mongodb-log-writer": "^1.4.2",
+    "mongodb-log-writer": "^2.1.0",
     "numeral": "^2.0.6",
     "pretty-repl": "^4.0.1",
     "semver": "^7.5.4",
     "strip-ansi": "^6.0.0",
     "text-table": "^0.2.0",
-    "yargs-parser": "^20.2.4"
+    "yargs-parser": "^20.2.4",
+    "glibc-version": "^1.0.0"
   },
   "devDependencies": {
     "mongodb": "^6.12.0",

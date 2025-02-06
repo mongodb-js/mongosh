@@ -1,96 +1,12 @@
 <%
-const path = require('path');
+const { RELEASE_PACKAGE_MATRIX } = require('../config/release-package-matrix')
+const { NODE_JS_VERSION_20 } = require('./constants')
 
-const NODE_JS_VERSION_20 = require('./node-20-latest.json').version;
-const NODE_JS_VERSION_16 = require('./node-16-latest.json').version;
+const { UNIT_TESTS_BUILD_VARIANTS } = require('./build-variants/unit-tests-build-variants')
+const { E2E_TESTS_BUILD_VARIANTS } = require('./build-variants/e2e-tests-build-variants')
+const { COMPILE_BUILD_VARIANTS } = require('./build-variants/compile-build-variants')
 
-const MONGODB_VERSIONS = [
-  { shortName: '42xc', versionSpec: '4.2.x' },
-  { shortName: '42xe', versionSpec: '4.2.x-enterprise' },
-  { shortName: '44xc', versionSpec: '4.4.x' },
-  { shortName: '44xe', versionSpec: '4.4.x-enterprise' },
-  { shortName: '50xc', versionSpec: '5.0.x' },
-  { shortName: '50xe', versionSpec: '5.0.x-enterprise' },
-  { shortName: '60xc', versionSpec: '6.0.x' },
-  { shortName: '60xe', versionSpec: '6.0.x-enterprise' },
-  { shortName: '70xc', versionSpec: '7.0.x' },
-  { shortName: '70xe', versionSpec: '7.0.x-enterprise' },
-  { shortName: '80xc', versionSpec: '8.0.x' },
-  { shortName: '80xe', versionSpec: '8.0.x-enterprise' },
-  { shortName: 'latest', versionSpec: 'latest-alpha-enterprise' }
-];
-const NODE_VERSIONS = [
-  { shortName: '20', versionSpec: NODE_JS_VERSION_20, skipNodeVersionCheck: '' },
-  { shortName: '16', versionSpec: NODE_JS_VERSION_16, skipNodeVersionCheck: '' }
-];
-
-const pathToPackages = path.join(__dirname, '..', 'packages');
-const MONGOSH_PACKAGES = fs.readdirSync(pathToPackages, { withFileTypes: true })
-  .filter(d => d.isDirectory() && fs.existsSync(path.join(pathToPackages, d.name, 'package.json')))
-  .map(d => ({
-    name: d.name,
-    ...(JSON.parse(fs.readFileSync(path.join(pathToPackages, d.name, 'package.json'))).mongosh || {})
-  }));
-
-const ALL_UNIT_TEST_BUILD_VARIANTS = [];
-const ALL_UNIT_TESTS = [];
-const platformToDetails = {
-  'darwin': { displayName: 'MacOS 14 arm64', runOn: 'macos-14-arm64', executableOsId: 'darwin-arm64' },
-  'linux': { displayName: 'Ubuntu 20.04 x64', runOn: 'ubuntu2004-small', executableOsId: 'darwin-arm64', tags: ["nightly-driver"]},
-  'win32': { displayName: 'Windows', runOn: 'windows-vsCurrent-small', executableOsId: 'win32' },
-}
-const defaultVariants = ['darwin', 'linux', 'win32'];
-
-for (const { shortName: nShort, versionSpec: nVersion, skipNodeVersionCheck } of NODE_VERSIONS) {
-  for (const platform of defaultVariants) {
-const platformDetails = platformToDetails[platform];
-  ALL_UNIT_TEST_BUILD_VARIANTS.push({
-          ...platformDetails,
-          name: `${platform}-n${nShort}`,
-          displayName: `${platformDetails.displayName} n${nShort} (Unit tests)`,
-          id: `${platform}-n${nShort}`,
-          runWithUnitTestsOnly: true,
-          tags: platformDetails.tags ?? [],
-          platform, nShort, nVersion, skipNodeVersionCheck,
-        });
-  for (const { shortName: mShort, versionSpec: mVersion } of MONGODB_VERSIONS) {
-        if (mShort === '42xe' && (platform === 'linux' || platform === 'darwin')) {
-          // The MongoDB 4.2 enterprise server does not work on Ubuntu 20.04 or arm64 macOS
-          continue;
-        }
-        if (['42xc', '42xe', '44xc', '44xe', '50xc', '50xe'].includes(mShort) && (platform === 'darwin')) {
-          // Unit tests on macOS use arm64 and therefore require 6.0+
-          continue;
-        }
-        ALL_UNIT_TEST_BUILD_VARIANTS.push({
-          ...platformDetails,
-          name: `tests_${platform}-m${mShort}_n${nShort}`,
-          id: `${platform}-m${mShort}_n${nShort}`,
-          runWithUnitTestsOnly: false,
-          tags: [...(platformDetails.tags ?? []), ...(mShort === 'latest' ? ["mlatest"] : [])],
-          displayName: `${platformDetails.displayName}${mShort === undefined ? '' : ` m${mShort}`} n${nShort} (Unit tests)`,
-          platform,
-          nShort, nVersion, mShort, mVersion, skipNodeVersionCheck,
-        });
-      }
-  }
-}
-
-for (const packageInfo of MONGOSH_PACKAGES) {
-  const id = `${packageInfo.name.replace(/-/g, '_')}`;
-
-  const variants = packageInfo.variants ?? defaultVariants
-  ALL_UNIT_TESTS.push({
-    id,
-    packageName: packageInfo.name,
-    unitTestsOnly: packageInfo.unitTestsOnly,
-    variants,
-  });
-}
-
-
-const { RELEASE_PACKAGE_MATRIX } = require('../config/release-package-matrix');
-
+const { UNIT_TESTS, UNIT_TESTS_WITH_BUILD_VARIANTS } = require('./tasks/unit-tests')
 %>
 exec_timeout_secs: 10800
 
@@ -210,8 +126,9 @@ functions:
           NODE_JS_VERSION: ${node_js_version}
         script: |
           source .evergreen/setup-env.sh
+          npm run evergreen-release bump
           npm run compile
-          tar cvzf compiled-ts.tgz packages/*/{lib,dist}
+          tar cvzf compiled-ts.tgz packages/*/{lib,dist,package.json} package.json package-lock.json
     - command: s3.put
       params:
         aws_key: ${aws_key}
@@ -265,6 +182,7 @@ functions:
           set -e
           {
           source .evergreen/setup-env.sh
+          npm run evergreen-release bump
           npm run check-ci
           }
   test:
@@ -303,16 +221,15 @@ functions:
         content_type: application/x-gzip
 
   check_coverage:
-    <% for (let variant of ALL_UNIT_TEST_BUILD_VARIANTS) {
-        for (let unitTest of ALL_UNIT_TESTS.filter(t => t.variants.includes(variant.platform) && (!t.unitTestsOnly || (t.unitTestsOnly && variant.runWithUnitTestsOnly)))) {
-        let buildVariant = variant.id;
+    <% for (let [unitTest, variant] of UNIT_TESTS_WITH_BUILD_VARIANTS) {
+        let buildVariant = variant.name;
          %>
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-<% out(buildVariant) %>_<% out(unitTest.id) %>.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-<% out(buildVariant) %>_<% out(unitTest.id) %>.tgz
+        local_file: src/nyc-output-<% out(buildVariant) %>-<% out(unitTest.id) %>.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-<% out(buildVariant) %>-<% out(unitTest.id) %>.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -320,8 +237,8 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-<% out(buildVariant) %>_<% out(unitTest.id) %>.tgz
-    <% } } %>
+          tar xvzf nyc-output-<% out(buildVariant) %>-<% out(unitTest.id) %>.tgz
+    <% } %>
     - command: shell.exec
       params:
         working_dir: src
@@ -1002,7 +919,10 @@ functions:
           {
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
+          export PUPPETEER_SKIP_DOWNLOAD="true"
           npm run evergreen-release draft
+          git add .
+          git commit --no-allow-empty -m "chore(release): bump to prepare for mongosh release"
           }
 
   release_publish_download_and_list_artifacts:
@@ -1019,6 +939,7 @@ functions:
           node_js_version: ${node_js_version}
         script: |
           set -e
+          export PUPPETEER_SKIP_DOWNLOAD="true"
           .evergreen/run-evergreen-release.sh download-and-list-artifacts
     - command: shell.exec
       params:
@@ -1047,6 +968,7 @@ functions:
           node_js_version: ${node_js_version}
         script: |
           set -e
+          export PUPPETEER_SKIP_DOWNLOAD="true"
           .evergreen/run-evergreen-release.sh publish -- --dry-run
 
   release_publish:
@@ -1065,6 +987,7 @@ functions:
           node_js_version: ${node_js_version}
         script: |
           set -e
+          export PUPPETEER_SKIP_DOWNLOAD="true"
           .evergreen/run-evergreen-release.sh publish
 
   run_perf_tests:
@@ -1126,8 +1049,11 @@ tasks:
 
   - name: check_coverage
     depends_on:
-      - name: ".unit-test"
-        variant: "*"
+      <% for (let [unitTest, variant] of UNIT_TESTS_WITH_BUILD_VARIANTS) {
+      %>
+      - name: test_<% out(unitTest.id) %>
+        variant: <% out(variant.name) %>
+      <% } %>
     commands:
       - func: checkout
       - func: install
@@ -1139,9 +1065,9 @@ tasks:
 
   ###
   # UNIT TESTS
-  # E.g. test_m60xc_n16 stands for mongod 6.0.x, community edition, Node.js 16
+  # E.g. test_m60xc_n20 stands for mongod 6.0.x, community edition, Node.js 20
   ###
-  <% for (const { id, packageName } of ALL_UNIT_TESTS) { %>
+  <% for (const { id, packageName } of UNIT_TESTS) { %>
   - name: test_<% out(id) %>
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -1245,35 +1171,36 @@ tasks:
   ###
   # E2E TESTS
   ###
-  <% for (const { executableOsId, compileBuildVariant } of RELEASE_PACKAGE_MATRIX) {
-    for (const mVersion of ['stable', '7.0.x', '6.0.x']) {
-      for (const fipsVariant of ['fips', 'nofips']) {
+  # Tests reuse the same compilation build variant, so we create those variations based on this.
+  <% for (const compileBuildVariant of COMPILE_BUILD_VARIANTS) {
+    const platformName = compileBuildVariant.name.replace('build_', '');
+    const executableOsId = platformName == 'darwin' ? 'darwin-x64' : platformName.replaceAll('_', '-');
     %>
-  - name: e2e_tests_<% out(executableOsId.replace(/-/g, '_')) %><% out(mVersion === 'stable' ? '' : '_' + mVersion.replace(/[^a-zA-Z0-9]/g, '')) %><% out(fipsVariant === 'fips' ? '_fips' : '') %>
-    tags: ["e2e-test"]
+  - name: e2e_tests_<% out(platformName) %>
+    tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
       - name: compile_artifact
-        variant: <% out(compileBuildVariant) %>
+        variant: <% out(compileBuildVariant.name) %>
     commands:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: ${node_js_version}
       - func: download_compiled_artifact
         vars:
           executable_os_id: <% out(executableOsId) %>
       - func: run_e2e_tests
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
-          mongosh_server_test_version: "<% out(mVersion) %>-enterprise"
-          mongosh_test_e2e_force_fips: "<% out(fipsVariant === 'fips' ? '1' : '') %>"
+          node_js_version: ${node_js_version}
+          mongosh_server_test_version: ${mongosh_server_test_version}
+          mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
-  <% } } %>
-  - name: perf_tests_<% out(executableOsId.replace(/-/g, '_')) %>
+  <% } %>
+  - name: perf_tests_linux_x64
     tags: ["perf-test"]
     depends_on:
       - name: compile_artifact
-        variant: <% out(compileBuildVariant) %>
+        variant: build_linux_x64
     commands:
       - func: checkout
       - func: install
@@ -1281,9 +1208,8 @@ tasks:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
       - func: download_compiled_artifact
         vars:
-          executable_os_id: <% out(executableOsId) %>
+          executable_os_id: "linux-x64"
       - func: run_perf_tests
-  <% } %>
 
   ###
   # EXECUTABLE CONNECTIVITY TESTS
@@ -1542,7 +1468,7 @@ tasks:
 
 # Need to run builds for every possible build variant.
 buildvariants:
-  <% for (const variant of ALL_UNIT_TEST_BUILD_VARIANTS) { %>
+  <% for (const variant of UNIT_TESTS_BUILD_VARIANTS) { %>
   - name: <% out(variant.name) %>
     display_name: "<% out(variant.displayName) %>"
     run_on: <% out(variant.runOn) %>
@@ -1553,30 +1479,41 @@ buildvariants:
       node_js_version: "<% out(variant.nVersion) %>"
       mongosh_skip_node_version_check: "<% out(variant.skipNodeVersionCheck) %>"
     tasks:
-     <% for (const test of ALL_UNIT_TESTS.filter(test => test.variants.includes(variant.platform))) { %>
+     <% for (const test of UNIT_TESTS.filter(test => test.variants.includes(variant.platform))) { %>
       - name: test_<% out(test.id) %>
       <% } %>
   <% } %>
-  - name: darwin
-    display_name: "MacOS Big Sur"
-    run_on: macos-11
+  <% for (const variant of COMPILE_BUILD_VARIANTS) { %>
+  - name: <% out(variant.name) %>
+    display_name: "<% out(variant.displayName) %>"
+    run_on: <% out(variant.runOn) %>
     expansions:
-      executable_os_id: darwin-x64
+      executable_os_id: "<% out(variant.executableOsId) %>"
+      node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+      <% if (variant.sharedOpenSsl) { %>
+      mongosh_shared_openssl: "<% out(variant.sharedOpenSsl) %>"
+      <% } %>
     tasks:
       - name: compile_artifact
-      - name: e2e_tests_darwin_x64
-  - name: darwin_arm64
-    display_name: "MacOS Big Sur (arm64)"
-    run_on: macos-11-arm64
+  <% } %>
+  <% for (const variant of E2E_TESTS_BUILD_VARIANTS) { %>
+  - name: <% out(variant.name) %>
+    display_name: "<% out(variant.displayName) %>"
+    run_on: <% out(variant.runOn) %>
+    tags: <% out([...(variant.tags ?? [])]) %>
     expansions:
-      executable_os_id: darwin-arm64
+      executable_os_id: "<% out(variant.executableOsId) %>"
+      disable_openssl_shared_config_for_bundled_openssl: <% out(variant.disableOpenSslSharedConfig || false) %>
+      node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+      mongosh_server_test_version: "<% out(variant.mVersion) %>-enterprise"
+      mongosh_test_e2e_force_fips: "<% out(variant.fips ? '1' : '') %>"
     tasks:
-      - name: compile_artifact
-      - name: e2e_tests_darwin_arm64
-      - name: package_artifact_darwin_x64
-      - name: sign_artifact_darwin_x64
-      - name: package_artifact_darwin_arm64
-      - name: sign_artifact_darwin_arm64
+      <%
+      let tasks = [`e2e_tests_${variant.compileBuildVariant.replace('build_', '')}`, ...(variant.additionalTasks ?? [])];
+      for (const task of tasks) { %>
+      - name: <% out(task) %>
+      <% } %>
+  <% } %>
 
   - name: linux_compile
     display_name: "Ubuntu 20.04 x64 (Compile and Check)"
@@ -1634,318 +1571,10 @@ buildvariants:
       - name: verify_artifact_win32msi_x64
   - name: verify_mac_artifact
     display_name: "MacOS (Signature Verification)"
-    run_on: macos-11
+    run_on: macos-14-arm64
     tasks:
       - name: verify_artifact_darwin_arm64
       - name: verify_artifact_darwin_x64
-  - name: linux_x64_build
-    display_name: "RHEL 7.0 x64 (build)"
-    run_on: rhel70-build
-    expansions:
-      executable_os_id: linux-x64
-    tags: ["nightly-driver"]
-    tasks:
-      - name: compile_artifact
-  - name: linux_x64_build_rhel8
-    display_name: "RHEL 8.0 x64 (build)"
-    run_on: rhel80-build
-    expansions:
-      executable_os_id: linux-x64
-    tags: ["nightly-driver"]
-    tasks:
-      - name: compile_artifact
-  - name: linux_x64_build_openssl11
-    display_name: "RHEL 7.0 x64 (build, shared OpenSSL 1.1)"
-    run_on: rhel70-build
-    expansions:
-      executable_os_id: linux-x64-openssl11
-      mongosh_shared_openssl: openssl11
-    tags: ["nightly-driver"]
-    tasks:
-      - name: compile_artifact
-  - name: linux_x64_build_openssl11_rhel8
-    display_name: "RHEL 8.0 x64 (build, shared OpenSSL 1.1)"
-    run_on: rhel80-build
-    expansions:
-      executable_os_id: linux-x64-openssl11
-      mongosh_shared_openssl: openssl11
-    tags: ["nightly-driver"]
-    tasks:
-      - name: compile_artifact
-  - name: linux_x64_build_openssl3
-    display_name: "RHEL 7.0 x64 (build, shared OpenSSL 3)"
-    run_on: rhel70-build
-    expansions:
-      executable_os_id: linux-x64-openssl3
-      mongosh_shared_openssl: openssl3
-    tags: ["nightly-driver"]
-    tasks:
-      - name: compile_artifact
-  - name: linux_x64_build_openssl3_rhel8
-    display_name: "RHEL 8.0 x64 (build, shared OpenSSL 3)"
-    run_on: rhel80-build
-    expansions:
-      executable_os_id: linux-x64-openssl3
-      mongosh_shared_openssl: openssl3
-    tags: ["nightly-driver"]
-    tasks:
-      - name: compile_artifact
-  - name: linux_arm64_build
-    display_name: "Amazon 2 arm64 (build)"
-    run_on: amazon2-arm64-large
-    expansions:
-      executable_os_id: linux-arm64
-    tasks:
-      - name: compile_artifact
-  - name: linux_arm64_build_openssl11
-    display_name: "Amazon 2 arm64 (build, shared OpenSSL 1.1)"
-    run_on: amazon2-arm64-large
-    expansions:
-      executable_os_id: linux-arm64-openssl11
-      mongosh_shared_openssl: openssl11
-    tasks:
-      - name: compile_artifact
-  - name: linux_arm64_build_openssl3
-    display_name: "Amazon 2 arm64 (build, shared OpenSSL 3)"
-    run_on: amazon2-arm64-large
-    expansions:
-      executable_os_id: linux-arm64-openssl3
-      mongosh_shared_openssl: openssl3
-    tasks:
-      - name: compile_artifact
-  - name: linux_ppc64le_build
-    display_name: "RHEL 8 PPC (build)"
-    run_on: rhel8-power-small
-    expansions:
-      executable_os_id: linux-ppc64le
-    tasks:
-      - name: compile_artifact
-  - name: linux_s390x_build
-    display_name: "RHEL 7 s390x (build)"
-    run_on: rhel7-zseries-large
-    expansions:
-      executable_os_id: linux-s390x
-    tasks:
-      - name: compile_artifact
-
-  - name: e2e_rhel70_x64
-    display_name: "RHEL 7.0 x64 (E2E Tests)"
-    run_on: rhel70-large
-    tags: ["nightly-driver"]
-    tasks:
-      - name: e2e_tests_linux_x64_70x
-  - name: e2e_rhel76_x64
-    display_name: "RHEL 7.6 x64 (E2E Tests)"
-    run_on: rhel76-large
-    tags: ["nightly-driver"]
-    tasks:
-      - name: e2e_tests_linux_x64_70x
-  - name: e2e_rhel80_x64
-    display_name: "RHEL 8.0 x64 (E2E Tests)"
-    run_on: rhel80-small
-    tags: ["nightly-driver"]
-    tasks:
-      - name: e2e_tests_linux_x64
-  - name: e2e_rhel90_x64
-    display_name: "RHEL 9.0 x64 (E2E Tests)"
-    run_on: rhel90-small
-    expansions:
-      disable_openssl_shared_config_for_bundled_openssl: true
-    tags: ["nightly-driver"]
-    tasks:
-      - name: e2e_tests_linux_x64_70x
-  - name: e2e_rhel93_x64
-    display_name: "RHEL 9.3 x64 (E2E Tests)"
-    run_on: rhel93-small
-    expansions:
-      disable_openssl_shared_config_for_bundled_openssl: true
-    tags: ["nightly-driver"]
-    tasks:
-      - name: e2e_tests_linux_x64
-  - name: e2e_rhel83_x64
-    display_name: "RHEL 8.3 x64 (E2E Tests, FIPS-available OS)"
-    run_on: rhel83-fips
-    tags: ["nightly-driver"]
-    tasks:
-      - name: e2e_tests_linux_x64
-      - name: e2e_tests_linux_x64_openssl11
-      - name: e2e_tests_linux_x64_openssl11_fips
-  - name: e2e_rhel93_fips_x64
-    display_name: "RHEL 9.3 x64 (E2E Tests, FIPS-available OS)"
-    run_on: rhel93-fips
-    tags: ["nightly-driver"]
-    tasks:
-      - name: e2e_tests_linux_x64
-      - name: e2e_tests_linux_x64_openssl3
-      - name: e2e_tests_linux_x64_openssl3_fips
-  - name: e2e_ubuntu1804_x64
-    display_name: "Ubuntu 18.04 x64 (E2E Tests)"
-    run_on: ubuntu1804-large
-    tags: ["nightly-driver"]
-    tasks:
-      - name: e2e_tests_linux_x64_60x
-  - name: e2e_ubuntu2004_x64
-    display_name: "Ubuntu 20.04 x64 (E2E Tests)"
-    run_on: ubuntu2004-small
-    tags: ["nightly-driver"]
-    tasks:
-      - name: e2e_tests_linux_x64
-      - name: e2e_tests_linux_x64_openssl11
-  - name: e2e_ubuntu2204_x64
-    display_name: "Ubuntu 22.04 x64 (E2E Tests)"
-    run_on: ubuntu2204-small
-    tags: ["nightly-driver"]
-    tasks:
-      - name: e2e_tests_linux_x64
-      - name: e2e_tests_linux_x64_openssl3
-  - name: e2e_ubuntu2404_x64
-    display_name: "Ubuntu 24.04 x64 (E2E Tests)"
-    run_on: ubuntu2404-small
-    tags: ["nightly-driver"]
-    tasks:
-      - name: e2e_tests_linux_x64
-      - name: e2e_tests_linux_x64_openssl3
-  - name: e2e_debian10_x64
-    display_name: "Debian 10 x64 (E2E Tests)"
-    run_on: debian10-small
-    tags: ["nightly-driver"]
-    tasks:
-      - name: e2e_tests_linux_x64_60x
-      - name: e2e_tests_linux_x64_openssl11_60x
-  - name: e2e_debian11_x64
-    display_name: "Debian 11 x64 (E2E Tests)"
-    run_on: debian11-small
-    tags: ["nightly-driver"]
-    tasks:
-      - name: e2e_tests_linux_x64_70x
-      - name: e2e_tests_linux_x64_openssl11_70x
-  - name: e2e_amazon2_x64
-    display_name: "Amazon Linux 2 x64 (E2E Tests)"
-    run_on: amazon2-large
-    tags: ["nightly-driver"]
-    tasks:
-      - name: e2e_tests_linux_x64_70x
-  - name: e2e_amazon2023_x64
-    display_name: "Amazon Linux 2023 x64 (E2E Tests)"
-    run_on: amazon2023.0-small
-    expansions:
-      disable_openssl_shared_config_for_bundled_openssl: true
-    tags: ["nightly-driver"]
-    tasks:
-      - name: e2e_tests_linux_x64
-  - name: e2e_suse12_x64
-    display_name: "SLES 12 x64 (E2E Tests)"
-    run_on: suse12-sp5-large
-    tags: ["nightly-driver"]
-    tasks:
-      - name: e2e_tests_linux_x64_70x
-  - name: e2e_suse15_x64
-    display_name: "SLES 15 x64 (E2E Tests)"
-    run_on: suse15sp4-small
-    tags: ["nightly-driver"]
-    tasks:
-      - name: e2e_tests_linux_x64
-  - name: e2e_ubuntu1804_arm64
-    display_name: "Ubuntu 18.04 arm64 (E2E Tests)"
-    run_on: ubuntu1804-arm64-large
-    tasks:
-      - name: e2e_tests_linux_arm64_60x
-  - name: e2e_ubuntu2004_arm64
-    display_name: "Ubuntu 20.04 arm64 (E2E Tests)"
-    run_on: ubuntu2004-arm64-small
-    tasks:
-      - name: e2e_tests_linux_arm64
-      - name: e2e_tests_linux_arm64_openssl11
-  - name: e2e_ubuntu2204_arm64
-    display_name: "Ubuntu 22.04 arm64 (E2E Tests)"
-    run_on: ubuntu2204-arm64-small
-    tasks:
-      - name: e2e_tests_linux_arm64
-      - name: e2e_tests_linux_arm64_openssl3
-  - name: e2e_ubuntu2404_arm64
-    display_name: "Ubuntu 24.04 arm64 (E2E Tests)"
-    run_on: ubuntu2404-arm64-small
-    tasks:
-      - name: e2e_tests_linux_arm64
-      - name: e2e_tests_linux_arm64_openssl3
-  - name: e2e_amazon2_arm64
-    display_name: "Amazon Linux 2 arm64 (E2E Tests)"
-    run_on: amazon2-arm64-large
-    tasks:
-      - name: e2e_tests_linux_arm64_70x
-  - name: e2e_amazon2023_arm64
-    display_name: "Amazon Linux 2023 arm64 (E2E Tests)"
-    run_on: amazon2023.0-arm64-small
-    expansions:
-      disable_openssl_shared_config_for_bundled_openssl: true
-    tasks:
-      - name: e2e_tests_linux_arm64
-  - name: e2e_rhel82_arm64
-    display_name: "RHEL 8.2 arm64 (E2E Tests)"
-    run_on: rhel82-arm64-small
-    tasks:
-      - name: e2e_tests_linux_arm64
-  - name: e2e_rhel90_arm64
-    display_name: "RHEL 9.0 arm64 (E2E Tests)"
-    run_on: rhel90-arm64-small
-    expansions:
-      disable_openssl_shared_config_for_bundled_openssl: true
-    tasks:
-      - name: e2e_tests_linux_arm64_70x
-      - name: e2e_tests_linux_arm64_openssl3_70x
-  - name: e2e_rhel93_arm64
-    display_name: "RHEL 9.3 arm64 (E2E Tests)"
-    run_on: rhel93-arm64-small
-    expansions:
-      disable_openssl_shared_config_for_bundled_openssl: true
-    tasks:
-      - name: e2e_tests_linux_arm64
-      - name: e2e_tests_linux_arm64_openssl3
-  - name: e2e_rhel8_ppc64le
-    display_name: "RHEL 8 PPC (E2E Tests)"
-    run_on: rhel8-power-small
-    tasks:
-      - name: e2e_tests_linux_ppc64le
-  - name: e2e_rhel7_s390x
-    display_name: "RHEL 7 s390x (E2E Tests)"
-    run_on: rhel7-zseries-large
-    tasks:
-      - name: e2e_tests_linux_s390x_60x
-  - name: e2e_rhel8_s390x
-    display_name: "RHEL 8 s390x (E2E Tests)"
-    run_on: rhel8-zseries-small
-    tasks:
-      - name: e2e_tests_linux_s390x
-  - name: e2e_macos14_x64
-    display_name: "MacOS 14 x64 (E2E Tests)"
-    run_on: macos-14
-    expansions:
-      executable_os_id: darwin-x64
-    tasks:
-      - name: e2e_tests_darwin_x64
-  - name: e2e_macos14_arm64
-    display_name: "MacOS 14 arm64 (E2E Tests)"
-    run_on: macos-14-arm64
-    expansions:
-      executable_os_id: darwin-arm64
-    tasks:
-      - name: e2e_tests_darwin_arm64
-  - name: win32
-    display_name: "Windows VS 2022"
-    run_on: windows-vsCurrent-small
-    expansions:
-      executable_os_id: win32
-    tasks:
-      - name: e2e_tests_win32
-      - name: package_artifact_win32_x64
-      - name: package_artifact_win32msi_x64
-  - name: win32_build
-    display_name: "Windows VS 2022 (build)"
-    run_on: windows-vsCurrent-large
-    expansions:
-      executable_os_id: win32
-    tasks:
-      - name: compile_artifact
 
   - name: pkg_smoke_tests_docker_x64
     display_name: "package smoke (x64 Docker)"
@@ -2062,8 +1691,8 @@ buildvariants:
     tasks:
       - name: generate_license_and_vulnerability_report
 
-  - name: perf_tests
-    display_name: "Performance Tests"
+  - name: perf_tests_linux_x64
+    display_name: "Performance Tests (x64 Linux)"
     run_on: rhel90-dbx-perf-large
     tasks:
       - name: perf_tests_linux_x64

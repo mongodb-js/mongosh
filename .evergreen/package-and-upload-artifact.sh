@@ -13,7 +13,7 @@ if [ "$(uname)" == Linux ]; then
   cp "$(pwd)/../tmp/expansions.yaml" tmp/expansions.yaml
   (cd scripts/docker && bash "$BASEDIR/retry-with-backoff.sh" docker build -t rocky8-package -f rocky8-package.Dockerfile .)
   echo Starting Docker container packaging
-  docker run -e PUPPETEER_SKIP_DOWNLOAD=1 \
+  docker run -e PUPPETEER_SKIP_DOWNLOAD \
     -e EVERGREEN_EXPANSIONS_PATH=/tmp/build/tmp/expansions.yaml \
     -e NODE_JS_VERSION \
     -e PACKAGE_VARIANT \

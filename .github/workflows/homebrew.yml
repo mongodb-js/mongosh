@@ -4,6 +4,9 @@ on:
   schedule:
     - cron: "0 0 * * *"
 
+permissions:
+  contents: read
+
 jobs:
   smoke-test-homebrew:
     name: Test on ${{ matrix.runner }}
@@ -21,10 +24,7 @@ jobs:
 
       - name: Report failure
         if: ${{ failure() }}
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_MONGOSH_DEVEL_WEBHOOK_URL }}
-          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
-        uses: slackapi/slack-github-action@v1.27.0
+        uses: slackapi/slack-github-action@485a9d42d3a73031f12ec201c457e2162c45d02d # 2.0.0
         with:
           payload: |
             {
@@ -39,3 +39,5 @@ jobs:
                 }
               ]
             }
+          webhook: ${{ secrets.SLACK_MONGOSH_DEVEL_WEBHOOK_URL }}
+          webhook-type: incoming-webhook

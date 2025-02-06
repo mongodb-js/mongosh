@@ -35,13 +35,18 @@ import * as asyncRepl from './async-repl';
 import type { StyleDefinition } from './clr';
 import clr from './clr';
 import { MONGOSH_WIKI, TELEMETRY_GREETING_MESSAGE } from './constants';
-import formatOutput, { formatError } from './format-output';
+import {
+  formatOutput,
+  formatError,
+  CONTROL_CHAR_REGEXP,
+} from './format-output';
 import { makeMultilineJSIntoSingleLine } from '@mongosh/js-multiline-to-singleline';
 import { LineByLineInput } from './line-by-line-input';
 import type { FormatOptions } from './format-output';
 import { markTime } from './startup-timing';
 import type { Context } from 'vm';
 import { Script, createContext, runInContext } from 'vm';
+import { installPasteSupport } from './repl-paste-support';
 
 declare const __non_webpack_require__: any;
 
@@ -136,6 +141,7 @@ class MongoshNodeRepl implements EvaluationListener {
   input: Readable;
   lineByLineInput: LineByLineInput;
   output: Writable;
+  outputFinishString = ''; // Can add ANSI escape codes to reset state from previously written ones
   bus: MongoshBus;
   nodeReplOptions: Partial<ReplOptions>;
   shellCliOptions: Partial<MongoshCliOptions>;
@@ -252,7 +258,7 @@ class MongoshNodeRepl implements EvaluationListener {
         // 'repl' is not supported in startup snapshots yet.
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         start: require('pretty-repl').start,
-        input: this.lineByLineInput as unknown as Readable,
+        input: this.lineByLineInput,
         output: this.output,
         prompt: '',
         writer: this.writer.bind(this),
@@ -388,57 +394,71 @@ class MongoshNodeRepl implements EvaluationListener {
     const { repl, instanceState } = this.runtimeState();
     if (!repl) return;
 
+    this.outputFinishString += installPasteSupport(repl);
+
     const origReplCompleter = promisify(repl.completer.bind(repl)); // repl.completer is callback-style
     const mongoshCompleter = completer.bind(
       null,
       instanceState.getAutocompleteParameters()
     );
-    (repl as Mutable<typeof repl>).completer = callbackify(
+    const innerCompleter = async (
+      text: string
+    ): Promise<[string[], string]> => {
+      // Merge the results from the repl completer and the mongosh completer.
+      const [
+        [replResults, replOrig],
+        [mongoshResults, , mongoshResultsExclusive],
+      ] = await Promise.all([
+        (async () => (await origReplCompleter(text)) || [[]])(),
+        (async () => await mongoshCompleter(text))(),
+      ]);
+      this.bus.emit('mongosh:autocompletion-complete'); // For testing.
+
+      // Sometimes the mongosh completion knows that what it is doing is right,
+      // and that autocompletion based on inspecting the actual objects that
+      // are being accessed will not be helpful, e.g. in `use a<tab>`, we know
+      // that we want *only* database names and not e.g. `assert`.
+      if (mongoshResultsExclusive) {
+        return [mongoshResults, text];
+      }
+
+      // The REPL completer may not complete the entire string; for example,
+      // when completing ".ed" to ".editor", it reports as having completed
+      // only the last piece ("ed"), or when completing "{ $g", it completes
+      // only "$g" and not the entire result.
+      // The mongosh completer always completes on the entire string.
+      // In order to align them, we always extend the REPL results to include
+      // the full string prefix.
+      const replResultPrefix = replOrig
+        ? text.substr(0, text.lastIndexOf(replOrig))
+        : '';
+      const longReplResults = replResults.map(
+        (result: string) => replResultPrefix + result
+      );
+
+      // Remove duplicates, because shell API methods might otherwise show
+      // up in both completions.
+      const deduped = [...new Set([...longReplResults, ...mongoshResults])];
+
+      return [deduped, text];
+    };
+
+    const nodeReplCompleter = callbackify(
       async (text: string): Promise<[string[], string]> => {
         this.insideAutoCompleteOrGetPrompt = true;
         try {
-          // Merge the results from the repl completer and the mongosh completer.
-          const [
-            [replResults, replOrig],
-            [mongoshResults, , mongoshResultsExclusive],
-          ] = await Promise.all([
-            (async () => (await origReplCompleter(text)) || [[]])(),
-            (async () => await mongoshCompleter(text))(),
-          ]);
-          this.bus.emit('mongosh:autocompletion-complete'); // For testing.
-
-          // Sometimes the mongosh completion knows that what it is doing is right,
-          // and that autocompletion based on inspecting the actual objects that
-          // are being accessed will not be helpful, e.g. in `use a<tab>`, we know
-          // that we want *only* database names and not e.g. `assert`.
-          if (mongoshResultsExclusive) {
-            return [mongoshResults, text];
-          }
-
-          // The REPL completer may not complete the entire string; for example,
-          // when completing ".ed" to ".editor", it reports as having completed
-          // only the last piece ("ed"), or when completing "{ $g", it completes
-          // only "$g" and not the entire result.
-          // The mongosh completer always completes on the entire string.
-          // In order to align them, we always extend the REPL results to include
-          // the full string prefix.
-          const replResultPrefix = replOrig
-            ? text.substr(0, text.lastIndexOf(replOrig))
-            : '';
-          const longReplResults = replResults.map(
-            (result: string) => replResultPrefix + result
+          // eslint-disable-next-line prefer-const
+          let [results, completeOn] = await innerCompleter(text);
+          results = results.filter(
+            (result) => !CONTROL_CHAR_REGEXP.test(result)
           );
-
-          // Remove duplicates, because shell API methods might otherwise show
-          // up in both completions.
-          const deduped = [...new Set([...longReplResults, ...mongoshResults])];
-
-          return [deduped, text];
+          return [results, completeOn];
         } finally {
           this.insideAutoCompleteOrGetPrompt = false;
         }
       }
     );
+    (repl as Mutable<typeof repl>).completer = nodeReplCompleter;
 
     // This is used below for multiline history manipulation.
     let originalHistory: string[] | null = null;
@@ -922,18 +942,21 @@ class MongoshNodeRepl implements EvaluationListener {
    * @param values A list of values to be printed.
    */
   onPrint(values: ShellResult[], type: 'print' | 'printjson'): void {
-    const extraOptions: Partial<FormatOptions> | undefined =
-      // MONGOSH-955: when `printjson()` is called in mongosh, we will try to
-      // replicate the format of the old shell: start every object on the new
-      // line, and set all the collapse options threshold to infinity
-      type === 'printjson'
-        ? {
-            compact: false,
-            depth: Infinity,
-            maxArrayLength: Infinity,
-            maxStringLength: Infinity,
-          }
-        : undefined;
+    let extraOptions: Partial<FormatOptions> = {
+      allowControlCharacters: true,
+    };
+    // MONGOSH-955: when `printjson()` is called in mongosh, we will try to
+    // replicate the format of the old shell: start every object on the new
+    // line, and set all the collapse options threshold to infinity
+    if (type === 'printjson') {
+      extraOptions = {
+        ...extraOptions,
+        compact: false,
+        depth: Infinity,
+        maxArrayLength: Infinity,
+        maxStringLength: Infinity,
+      };
+    }
     const joined = values
       .map((value) => this.formatShellResult(value, extraOptions))
       .join(' ');
@@ -1073,7 +1096,9 @@ class MongoshNodeRepl implements EvaluationListener {
         await once(rs.repl, 'exit');
       }
       await rs.instanceState.close(true);
-      await new Promise((resolve) => this.output.write('', resolve));
+      await new Promise((resolve) =>
+        this.output.write(this.outputFinishString, resolve)
+      );
     }
   }
 

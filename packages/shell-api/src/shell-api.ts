@@ -35,6 +35,7 @@ import type { ClientSideFieldLevelEncryptionOptions } from './field-level-encryp
 import { dirname } from 'path';
 import { ShellUserConfig } from '@mongosh/types';
 import i18n from '@mongosh/i18n';
+import { MONGOSH_VERSION } from './mongosh-version';
 
 const instanceStateSymbol = Symbol.for('@@mongosh.instanceState');
 const loadCallNestingLevelSymbol = Symbol.for('@@mongosh.loadCallNestingLevel');
@@ -289,8 +290,7 @@ export default class ShellApi extends ShellApiClass {
   }
 
   version(): string {
-    const version = require('../package.json').version;
-    return version;
+    return MONGOSH_VERSION;
   }
 
   @returnsPromise

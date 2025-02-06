@@ -1,0 +1,60 @@
+name: Publish Auxiliary Packages
+on:
+  # NOTE: avoid using the manual execution unless is the only way to fix some issue,
+  # rather retry failed jobs in case of flakes. The manual execution can potentially
+  # cause the tags to point to a different commit that the one used to publish
+  # the packages
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: none # We use the github app to checkout and push tags
+
+jobs:
+  publish:
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+        startsWith(github.event.head_commit.message, 'chore(release): bump auxiliary packages')
+
+    runs-on: ubuntu-latest
+    environment: Production
+
+    steps:
+      - uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
+        id: app-token
+        with:
+          app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
+          private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v4
+        with:
+          # don't checkout a detatched HEAD
+          ref: ${{ github.head_ref }}
+
+          # this is important so git log can pick up on
+          # the whole history to generate the list of AUTHORS
+          fetch-depth: "0"
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: "Use Node.js 20"
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.16.0
+
+      - name: Install npm@10.2.4
+        run: npm install -g npm@10.2.4
+
+      - name: Install Dependencies
+        run: |
+          npm ci
+
+      - name: "Publish what is not already in NPM"
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
+          npm config list
+          echo "Publishing packages as $(npm whoami)"
+          npm run publish-auxiliary

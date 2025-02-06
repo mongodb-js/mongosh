@@ -1,6 +1,7 @@
 import numeral from 'numeral';
 import textTable from 'text-table';
 import i18n from '@mongosh/i18n';
+import type { InspectOptionsStylized } from 'util';
 import util from 'util';
 import stripAnsi from 'strip-ansi';
 import clr from './clr';
@@ -24,7 +25,16 @@ export type FormatOptions = {
   maxStringLength?: number;
   showStackTraces?: boolean;
   bugReportErrorMessageInfo?: string;
+  allowControlCharacters?: boolean;
 };
+
+// eslint-disable-next-line no-control-regex
+export const CONTROL_CHAR_REGEXP = /[\x00-\x1F\x7F-\x9F]/;
+// Same, but doesn't match \t and \n, which can be used normally
+// for controlling visual output
+export const CONTROL_CHAR_REGEXP_ALLOW_SIMPLE =
+  // eslint-disable-next-line no-control-regex
+  /[\x00-\x08\x0B-\x1F\x7F-\x9F]/;
 
 const fullDepthInspectOptions = {
   depth: Infinity,
@@ -48,7 +58,7 @@ function formatBytes(value: number): string {
  *
  * @returns {string} The formatted output.
  */
-export default function formatOutput(
+export function formatOutput(
   evaluationResult: EvaluationResult,
   options: FormatOptions
 ): string {
@@ -89,11 +99,14 @@ export default function formatOutput(
     return formatListCommands(value, options);
   }
 
+  // TODO(MONGOSH-1285,STREAMS-1136): Remove this special handling
+  // for listStreamProcessors return value, it harms usability by
+  // making the values look like they have different structures
+  // (see linked tickets for details)
   if (type === 'StreamsListResult') {
     return inspect(value, {
       ...options,
-      depth: Infinity,
-      maxArrayLength: Infinity,
+      ...fullDepthInspectOptions,
     });
   }
 
@@ -150,8 +163,14 @@ Use db.getCollection('system.profile').find() to show raw profile entries.`,
   return formatSimpleType(value, options);
 }
 
-function formatSimpleType(output: any, options: FormatOptions): any {
-  if (typeof output === 'string') return output;
+function formatSimpleType(output: any, options: FormatOptions): string {
+  if (
+    typeof output === 'string' &&
+    (options.allowControlCharacters ||
+      !CONTROL_CHAR_REGEXP_ALLOW_SIMPLE.test(output))
+  ) {
+    return output;
+  }
   if (typeof output === 'undefined') return '';
 
   return inspect(output, options);
@@ -164,21 +183,25 @@ function formatCollections(
   const systemCollections: CollectionNamesWithTypes[] = [];
   const otherCollections: CollectionNamesWithTypes[] = [];
 
-  output.forEach((coll) => {
+  for (const coll of output) {
     if (coll.name.startsWith('system.') || coll.name.startsWith('enxcol_.')) {
       systemCollections.push(coll);
     } else {
       otherCollections.push(coll);
     }
-  });
+  }
 
   const tableEntries = [
     ...otherCollections.map((coll) => [
-      clr(coll.name, 'bold', options),
+      clr(formatSimpleType(coll.name, options), 'bold', options),
       coll.badge,
     ]),
     ...systemCollections.map((coll) => [
-      `${options.colors ? '\u001b[2m' : ''}${clr(coll.name, 'bold', options)}`,
+      `${options.colors ? '\u001b[2m' : ''}${clr(
+        formatSimpleType(coll.name, options),
+        'bold',
+        options
+      )}`,
       coll.badge,
     ]),
   ];
@@ -197,17 +220,23 @@ function formatBanner(
   let text = '';
   text += `${clr('------', 'mongosh:section-header', options)}\n`;
   if (output.header) {
-    text += `   ${clr(output.header, 'mongosh:section-header', options)}\n`;
+    text += `   ${clr(
+      formatSimpleType(output.header, options),
+      'mongosh:section-header',
+      options
+    )}\n`;
   }
   // indent output.content with 3 spaces
-  text += output.content.trim().replace(/^/gm, '   ') + '\n';
+  text +=
+    formatSimpleType(output.content, options).trim().replace(/^/gm, '   ') +
+    '\n';
   text += `${clr('------', 'mongosh:section-header', options)}\n`;
   return text;
 }
 
 function formatDatabases(output: any[], options: FormatOptions): string {
   const tableEntries = output.map((db) => [
-    clr(db.name, 'bold', options),
+    clr(formatSimpleType(db.name, options), 'bold', options),
     formatBytes(db.sizeOnDisk),
   ]);
 
@@ -221,28 +250,55 @@ function formatStats(
   return Object.keys(output)
     .map((c) => {
       return (
-        `${clr(c, 'mongosh:section-header', options)}\n` +
-        `${inspect(output[c], options)}`
+        `${clr(
+          formatSimpleType(c, options),
+          'mongosh:section-header',
+          options
+        )}\n` + `${inspect(output[c], options)}`
       );
     })
     .join('\n---\n');
 }
 
 function formatListCommands(
-  output: Record<string, any>,
+  output: Record<string, Record<string, unknown>>,
   options: FormatOptions
 ): string {
   const tableEntries = Object.keys(output).map((cmd) => {
     const val = output[cmd];
-    let result = Object.keys(val)
-      .filter((k) => k !== 'help')
-      .reduce((str, k) => {
-        if (val[k]) {
-          return `${str} ${clr(k, ['bold', 'white'], options)}`;
-        }
-        return str;
-      }, `${clr(cmd, 'mongosh:section-header', options)}: `);
-    result += val.help ? `\n${clr(val.help, 'green', options)}` : '';
+    let result = `${clr(cmd, 'mongosh:section-header', options)}: `;
+    for (const key of Object.keys(val)) {
+      if (val[key] === true)
+        result += ` ${clr(
+          formatSimpleType(key, options),
+          ['bold', 'white'],
+          options
+        )}`;
+    }
+    if (val.help) {
+      result += `\n${clr(
+        formatSimpleType(val.help, options),
+        'green',
+        options
+      )}`;
+    }
+    if (Array.isArray(val.apiVersions) && val.apiVersions.length > 0) {
+      result += `\n${clr(
+        'API Versions',
+        ['bold', 'white'],
+        options
+      )} ${formatSimpleType(val.apiVersions.join(', '), options)}`;
+    }
+    if (
+      Array.isArray(val.deprecatedApiVersions) &&
+      val.deprecatedApiVersions.length > 0
+    ) {
+      result += `\n${clr(
+        'Deprecated API Versions',
+        ['white'],
+        options
+      )} ${formatSimpleType(val.deprecatedApiVersions.join(', '), options)}`;
+    }
     return result;
   });
   return tableEntries.join('\n\n');
@@ -255,13 +311,20 @@ export function formatError(error: Error, options: FormatOptions): string {
     const codeName = (error as MongoServerError).codeName;
     if (codeName)
       result += `${clr(
-        `[` + (codeName as string) + `]`,
+        `[` + formatSimpleType(codeName, options) + `]`,
         'mongosh:error',
         options
       )}`;
     result += ': ';
   }
-  if (error.message) result += error.message;
+
+  if (error.message && String(error.name).startsWith('Mongo')) {
+    // potentially contains arbitrary strings from the database
+    result += formatSimpleType(error.message, options);
+  } else if (error.message) {
+    result += error.message;
+  }
+
   if (isShouldReportAsBugError(error)) {
     result +=
       '\nThis is an error inside mongosh. Please file a bug report for the MONGOSH project here: https://jira.mongodb.org/projects/MONGOSH/issues.';
@@ -351,14 +414,18 @@ function removeUndefinedValues<T>(obj: T) {
   );
 }
 
-function dateInspect(this: Date, depth: number, options: any): string {
+function dateInspect(
+  this: Date,
+  depth: number,
+  options: InspectOptionsStylized
+): string {
   if (isNaN(this.valueOf())) {
     return options.stylize('Invalid Date', 'date');
   }
   return `ISODate('${this.toISOString()}')`;
 }
 
-function inspect(output: any, options: FormatOptions): any {
+function inspect(output: unknown, options: FormatOptions): string {
   // Set a custom inspection function for 'Date' objects. Since we only want this
   // to affect mongosh scripts, we unset it later.
   (Date.prototype as any)[util.inspect.custom] = dateInspect;
@@ -379,16 +446,22 @@ function inspect(output: any, options: FormatOptions): any {
   }
 }
 
-function formatCursor(value: any, options: FormatOptions): any {
-  if (!value.documents.length) {
+function formatCursor(
+  value: { documents?: unknown[]; cursorHasMore?: boolean },
+  options: FormatOptions
+): string {
+  if (!value.documents?.length) {
     return '';
   }
 
   return formatCursorIterationResult(value, options);
 }
 
-function formatCursorIterationResult(value: any, options: FormatOptions): any {
-  if (!value.documents.length) {
+function formatCursorIterationResult(
+  value: { documents?: unknown[]; cursorHasMore?: boolean },
+  options: FormatOptions
+): string {
+  if (!value.documents?.length) {
     return i18n.__('shell-api.classes.Cursor.iteration.no-cursor');
   }
 
@@ -414,7 +487,7 @@ function formatHelp(value: HelpProperties, options: FormatOptions): string {
     )}\n\n`;
   }
 
-  (value.attr || []).forEach((method) => {
+  for (const method of value.attr || []) {
     let formatted = '';
     if (method.name && method.description) {
       formatted = `    ${method.name}`;
@@ -435,7 +508,7 @@ function formatHelp(value: HelpProperties, options: FormatOptions): string {
     if (formatted !== '') {
       helpMenu += `${formatted}\n`;
     }
-  });
+  }
 
   if (value.docs) {
     helpMenu +=

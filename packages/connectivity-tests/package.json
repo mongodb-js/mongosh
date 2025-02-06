@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/connectivity-tests",
-  "version": "0.0.0-dev.0",
+  "version": "2.4.0",
   "private": true,
   "license": "Apache-2.0",
   "scripts": {
@@ -11,7 +11,7 @@
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci"
   },
   "devDependencies": {
-    "mongosh": "0.0.0-dev.0"
+    "mongosh": "2.3.9"
   },
   "mongosh": {
     "unitTestsOnly": true,

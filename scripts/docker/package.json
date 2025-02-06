@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/docker-build-scripts",
-  "version": "0.0.0-dev.0",
+  "version": "3.0.1",
   "private": true,
   "description": "MongoDB Shell Build Docker Images",
   "config": {

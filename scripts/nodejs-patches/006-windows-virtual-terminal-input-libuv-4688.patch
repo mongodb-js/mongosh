@@ -1,0 +1,46 @@
+diff --git a/deps/uv/src/win/tty.c b/deps/uv/src/win/tty.c
+index 7e1f15544b17..37bc2c4ace57 100644
+--- a/deps/uv/src/win/tty.c
++++ b/deps/uv/src/win/tty.c
+@@ -58,6 +58,9 @@
+ #ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
+ #define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
+ #endif
++#ifndef ENABLE_VIRTUAL_TERMINAL_INPUT
++#define ENABLE_VIRTUAL_TERMINAL_INPUT 0x0200
++#endif
+ 
+ #define CURSOR_SIZE_SMALL     25
+ #define CURSOR_SIZE_LARGE     100
+@@ -344,6 +347,7 @@ static void uv__tty_capture_initial_style(
+ 
+ int uv_tty_set_mode(uv_tty_t* tty, uv_tty_mode_t mode) {
+   DWORD flags;
++  DWORD try_set_flags;
+   unsigned char was_reading;
+   uv_alloc_cb alloc_cb;
+   uv_read_cb read_cb;
+@@ -360,9 +364,11 @@ int uv_tty_set_mode(uv_tty_t* tty, uv_tty_mode_t mode) {
+   switch (mode) {
+     case UV_TTY_MODE_NORMAL:
+       flags = ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT;
++      try_set_flags = 0;
+       break;
+     case UV_TTY_MODE_RAW:
+       flags = ENABLE_WINDOW_INPUT;
++      try_set_flags = ENABLE_VIRTUAL_TERMINAL_INPUT;
+       break;
+     case UV_TTY_MODE_IO:
+       return UV_ENOTSUP;
+@@ -386,7 +392,10 @@ int uv_tty_set_mode(uv_tty_t* tty, uv_tty_mode_t mode) {
+   }
+ 
+   uv_sem_wait(&uv_tty_output_lock);
+-  if (!SetConsoleMode(tty->handle, flags)) {
++  if (
++    !SetConsoleMode(tty->handle, flags | try_set_flags) &&
++    !SetConsoleMode(tty->handle, flags)
++  ) {
+     err = uv_translate_sys_error(GetLastError());
+     uv_sem_post(&uv_tty_output_lock);
+     return err;

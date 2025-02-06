@@ -16,7 +16,13 @@ export PATH="/cygdrive/c/python/Python311/Scripts:/cygdrive/c/python/Python311:/
 export MONGOSH_TEST_ONLY_MAX_LOG_FILE_COUNT=100000
 export IS_MONGOSH_EVERGREEN_CI=1
 export DEBUG="mongodb*,$DEBUG"
-export PUPPETEER_SKIP_DOWNLOAD="true"
+
+# This is, weirdly enough, specifically set on s390x hosts, but messes
+# with our e2e tests.
+if [ x"$TERM" = x"dumb" ]; then
+  unset TERM
+fi
+echo "TERM variable is set to '${TERM:-}'"
 
 if [ "$OS" != "Windows_NT" ]; then
   if which realpath; then # No realpath on macOS, but also not needed there

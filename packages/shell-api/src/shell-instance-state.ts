@@ -35,6 +35,7 @@ import NoDatabase from './no-db';
 import type { ShellBson } from './shell-bson';
 import constructShellBson from './shell-bson';
 import { Streams } from './streams';
+import { ShellLog } from './shell-log';
 
 /**
  * The subset of CLI options that is relevant for the shell API's behavior itself.
@@ -126,6 +127,9 @@ export interface ShellPlugin {
   transformError?: (err: Error) => Error;
 }
 
+// eslint-disable-next-line no-control-regex
+const CONTROL_CHAR_REGEXP = /[\x00-\x1F\x7F-\x9F]/g;
+
 /**
  * Anything to do with the state of the shell API and API objects is stored here.
  *
@@ -156,6 +160,7 @@ export default class ShellInstanceState {
   public context: any;
   public mongos: Mongo[];
   public shellApi: ShellApi;
+  public shellLog: ShellLog;
   public shellBson: ShellBson;
   public cliOptions: ShellCliOptions;
   public evaluationListener: EvaluationListener;
@@ -184,6 +189,7 @@ export default class ShellInstanceState {
     this.initialServiceProvider = initialServiceProvider;
     this.messageBus = messageBus;
     this.shellApi = new ShellApi(this);
+    this.shellLog = new ShellLog(this);
     this.shellBson = constructShellBson(
       initialServiceProvider.bsonLibrary,
       (msg: string) => {
@@ -359,6 +365,8 @@ export default class ShellInstanceState {
       });
     }
 
+    contextObject.log = this.shellLog;
+
     this.messageBus.emit('mongosh:setCtx', { method: 'setCtx', arguments: {} });
   }
 
@@ -452,8 +460,10 @@ export default class ShellInstanceState {
         try {
           const collectionNames =
             await this.currentDb._getCollectionNamesForCompletion();
-          return collectionNames.filter((name) =>
-            name.toLowerCase().startsWith(collName.toLowerCase())
+          return collectionNames.filter(
+            (name) =>
+              name.toLowerCase().startsWith(collName.toLowerCase()) &&
+              !CONTROL_CHAR_REGEXP.test(name)
           );
         } catch (err: any) {
           if (
@@ -469,8 +479,10 @@ export default class ShellInstanceState {
         try {
           const dbNames =
             await this.currentDb._mongo._getDatabaseNamesForCompletion();
-          return dbNames.filter((name) =>
-            name.toLowerCase().startsWith(dbName.toLowerCase())
+          return dbNames.filter(
+            (name) =>
+              name.toLowerCase().startsWith(dbName.toLowerCase()) &&
+              !CONTROL_CHAR_REGEXP.test(name)
           );
         } catch (err: any) {
           if (

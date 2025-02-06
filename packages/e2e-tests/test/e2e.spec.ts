@@ -14,7 +14,8 @@ import { promises as fs, createReadStream } from 'fs';
 import { promisify } from 'util';
 import path from 'path';
 import os from 'os';
-import { readReplLogfile, setTemporaryHomeDirectory } from './repl-helpers';
+import type { MongoLogEntryFromFile } from './repl-helpers';
+import { readReplLogFile, setTemporaryHomeDirectory } from './repl-helpers';
 import { bson } from '@mongosh/service-provider-core';
 import type { Server as HTTPServer } from 'http';
 import { createServer as createHTTPServer } from 'http';
@@ -33,11 +34,26 @@ describe('e2e', function () {
   const testServer = startSharedTestServer();
 
   describe('--version', function () {
-    it('shows version', async function () {
-      const shell = this.startTestShell({ args: ['--version'] });
-      await shell.waitForSuccessfulExit();
+    it('gives the same result with version(), --version and --build-info', async function () {
+      // version() sources its version data from the shell-api package's generated files,
+      // --version from the cli-repl package.json and --build-info from the generated build-info.json
+      // (if available), which should all match.
+      const shell = this.startTestShell({ args: ['--nodb'] });
+      await shell.waitForPrompt();
+      const versionFromShellApi = (await shell.executeLine('version()'))
+        .replace(/>/g, '')
+        .trim();
 
-      shell.assertContainsOutput(require('../package.json').version);
+      const versionShell = this.startTestShell({ args: ['--version'] });
+      await versionShell.waitForSuccessfulExit();
+      const versionFromCliFlag = versionShell.output.trim();
+
+      const buildInfoShell = this.startTestShell({ args: ['--build-info'] });
+      await buildInfoShell.waitForSuccessfulExit();
+      const versionFromBuildInfo = JSON.parse(buildInfoShell.output).version;
+
+      expect(versionFromShellApi).to.equal(versionFromCliFlag);
+      expect(versionFromCliFlag).to.equal(versionFromBuildInfo);
     });
   });
 
@@ -294,6 +310,36 @@ describe('e2e', function () {
       await shell.waitForSuccessfulExit();
       shell.assertContainsOutput('3628800');
     });
+    it('ignores control characters in TTY input', async function () {
+      shell = this.startTestShell({
+        args: ['--nodb'],
+        forceTerminal: true,
+      });
+      await shell.waitForPrompt();
+      shell.assertNoErrors();
+
+      expect(await shell.executeLine('24\b * 3\n')).to.include('\n6\n'); // \b is backspace
+      expect(
+        await shell.executeLine('\x1b[200~24\b * 3\x1b[201~\n')
+      ).to.include('\n72\n');
+    });
+    it('ignores control characters in TTY input inside of .editor', async function () {
+      shell = this.startTestShell({
+        args: ['--nodb'],
+        forceTerminal: true,
+      });
+      await shell.waitForPrompt();
+      shell.assertNoErrors();
+
+      const start = shell.output.length;
+      shell.writeInputLine('.editor');
+      await shell.waitForPrompt(start, {
+        promptPattern: /\/\/ Entering editor mode/,
+      });
+      expect(
+        await shell.executeLine('\x1b[200~24\b * 3\x1b[201~\x04') // \x04 is Ctrl+D to finish code
+      ).to.include('\n72\n');
+    });
   });
 
   describe('set db', function () {
@@ -391,8 +437,9 @@ describe('e2e', function () {
           return this.skip(); // $currentOp is unversioned
         }
         const currentOp = await shell.executeLine('db.currentOp()');
-        const { version } = require('../package.json');
-        expect(currentOp).to.include(`appName: 'mongosh ${version}'`);
+        const expectedVersion =
+          require('../package.json')['dependencies']['@mongosh/cli-repl'];
+        expect(currentOp).to.include(`appName: 'mongosh ${expectedVersion}'`);
         expect(currentOp).to.include("name: 'nodejs|mongosh'");
         shell.assertNoErrors();
       });
@@ -442,12 +489,6 @@ describe('e2e', function () {
       await db.dropDatabase();
 
       await client.close();
-    });
-
-    it('version', async function () {
-      const expected = require('../package.json').version;
-      await shell.executeLine('version()');
-      shell.assertContainsOutput(expected);
     });
 
     it('fle addon is available', async function () {
@@ -1313,10 +1354,9 @@ describe('e2e', function () {
     let shell: TestShell;
     let configPath: string;
     let logBasePath: string;
-    let logPath: string;
     let historyPath: string;
     let readConfig: () => Promise<any>;
-    let readLogfile: () => Promise<any[]>;
+    let readLogFile: <T extends MongoLogEntryFromFile>() => Promise<T[]>;
     let startTestShell: (...extraArgs: string[]) => Promise<TestShell>;
 
     beforeEach(function () {
@@ -1353,7 +1393,13 @@ describe('e2e', function () {
       }
       readConfig = async () =>
         EJSON.parse(await fs.readFile(configPath, 'utf8'));
-      readLogfile = async () => readReplLogfile(logPath);
+      readLogFile = async <T extends MongoLogEntryFromFile>(): Promise<T[]> => {
+        if (!shell.logId) {
+          throw new Error('Shell does not have a logId associated with it');
+        }
+        const logPath = path.join(logBasePath, `${shell.logId}_log`);
+        return readReplLogFile<T>(logPath);
+      };
       startTestShell = async (...extraArgs: string[]) => {
         const shell = this.startTestShell({
           args: ['--nodb', ...extraArgs],
@@ -1384,7 +1430,6 @@ describe('e2e', function () {
       beforeEach(async function () {
         await fs.mkdir(homedir, { recursive: true });
         shell = await startTestShell();
-        logPath = path.join(logBasePath, `${shell.logId}_log`);
       });
 
       describe('config file', function () {
@@ -1463,14 +1508,141 @@ describe('e2e', function () {
       });
 
       describe('log file', function () {
+        it('does not get created if global config has disableLogging', async function () {
+          const globalConfig = path.join(homedir, 'globalconfig.conf');
+          await fs.writeFile(globalConfig, 'mongosh:\n  disableLogging: true');
+          shell = this.startTestShell({
+            args: ['--nodb'],
+            env: {
+              ...env,
+              MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING: globalConfig,
+            },
+            forceTerminal: true,
+          });
+          await shell.waitForPrompt();
+          expect(
+            await shell.executeLine('config.get("disableLogging")')
+          ).to.include('true');
+          shell.assertNoErrors();
+
+          expect(await shell.executeLine('print(123 + 456)')).to.include('579');
+          expect(shell.logId).equals(null);
+        });
+
+        it('gets created if global config has disableLogging set to false', async function () {
+          const globalConfig = path.join(homedir, 'globalconfig.conf');
+          await fs.writeFile(globalConfig, 'mongosh:\n  disableLogging: false');
+          shell = this.startTestShell({
+            args: ['--nodb'],
+            env: {
+              ...env,
+              MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING: globalConfig,
+            },
+            forceTerminal: true,
+          });
+          await shell.waitForPrompt();
+          expect(
+            await shell.executeLine('config.get("disableLogging")')
+          ).to.include('false');
+          shell.assertNoErrors();
+
+          expect(await shell.executeLine('print(123 + 456)')).to.include('579');
+          expect(shell.logId).not.equal(null);
+
+          const log = await readLogFile();
+          expect(
+            log.filter(
+              (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
+            )
+          ).to.have.lengthOf(1);
+        });
+
         it('creates a log file that keeps track of session events', async function () {
           expect(await shell.executeLine('print(123 + 456)')).to.include('579');
-          await eventually(async () => {
-            const log = await readLogfile();
-            expect(
-              log.filter((logEntry) => /Evaluating input/.test(logEntry.msg))
-            ).to.have.lengthOf(1);
-          });
+          const log = await readLogFile();
+          expect(
+            log.filter(
+              (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
+            )
+          ).to.have.lengthOf(1);
+        });
+
+        it('does not write to the log after disableLogging is set to true', async function () {
+          expect(await shell.executeLine('print(123 + 456)')).to.include('579');
+          const log = await readLogFile();
+          expect(
+            log.filter(
+              (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
+            )
+          ).to.have.lengthOf(1);
+
+          await shell.executeLine(`config.set("disableLogging", true)`);
+          expect(await shell.executeLine('print(579 - 123)')).to.include('456');
+
+          const logAfterDisabling = await readLogFile();
+          expect(
+            logAfterDisabling.filter(
+              (logEntry) => logEntry.attr?.input === 'print(579 - 123)'
+            )
+          ).to.have.lengthOf(0);
+          expect(
+            logAfterDisabling.filter(
+              (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
+            )
+          ).to.have.lengthOf(1);
+        });
+
+        it('starts writing to the same log from the point where disableLogging is set to false', async function () {
+          expect(await shell.executeLine('print(111 + 222)')).to.include('333');
+
+          let log = await readLogFile();
+          expect(
+            log.filter(
+              (logEntry) => logEntry.attr?.input === 'print(111 + 222)'
+            )
+          ).to.have.lengthOf(1);
+
+          await shell.executeLine(`config.set("disableLogging", true)`);
+          expect(await shell.executeLine('print(123 + 456)')).to.include('579');
+
+          log = await readLogFile();
+          const oldLogId = shell.logId;
+          expect(oldLogId).not.null;
+
+          expect(
+            log.filter(
+              (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
+            )
+          ).to.have.lengthOf(0);
+
+          await shell.executeLine(`config.set("disableLogging", false)`);
+
+          expect(
+            await shell.executeLine('config.get("disableLogging")')
+          ).to.include('false');
+
+          expect(await shell.executeLine('print(579 - 123)')).to.include('456');
+
+          const newLogId = shell.logId;
+          expect(newLogId).not.null;
+          expect(oldLogId).equals(newLogId);
+          log = await readLogFile();
+
+          expect(
+            log.filter(
+              (logEntry) => logEntry.attr?.input === 'print(111 + 222)'
+            )
+          ).to.have.lengthOf(1);
+          expect(
+            log.filter(
+              (logEntry) => logEntry.attr?.input === 'print(579 - 123)'
+            )
+          ).to.have.lengthOf(1);
+          expect(
+            log.filter(
+              (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
+            )
+          ).to.have.lengthOf(0);
         });
 
         it('includes information about the driver version', async function () {
@@ -1481,7 +1653,7 @@ describe('e2e', function () {
             )
           ).to.include('test');
           await eventually(async () => {
-            const log = await readLogfile();
+            const log = await readLogFile();
             expect(
               log.filter(
                 (logEntry) => typeof logEntry.attr?.driver?.version === 'string'
@@ -1489,13 +1661,55 @@ describe('e2e', function () {
             ).to.have.lengthOf(1);
           });
         });
+
+        it('writes custom log directly', async function () {
+          await shell.executeLine("log.info('This is a custom entry')");
+          expect(shell.assertNoErrors());
+          await eventually(async () => {
+            const log = await readLogFile<
+              MongoLogEntryFromFile & {
+                c: string;
+                ctx: string;
+              }
+            >();
+            const customLogEntry = log.filter((logEntry) =>
+              logEntry.msg.includes('This is a custom entry')
+            );
+            expect(customLogEntry).to.have.lengthOf(1);
+            expect(customLogEntry[0].s).to.be.equal('I');
+            expect(customLogEntry[0].c).to.be.equal('MONGOSH-SCRIPTS');
+            expect(customLogEntry[0].ctx).to.be.equal('custom-log');
+          });
+        });
+
+        it('writes custom log when loads a script', async function () {
+          const connectionString = await testServer.connectionString();
+          await shell.executeLine(
+            `connect(${JSON.stringify(connectionString)})`
+          );
+          const filename = path.resolve(
+            __dirname,
+            'fixtures',
+            'custom-log-info.js'
+          );
+          await shell.executeLine(`load(${JSON.stringify(filename)})`);
+          expect(shell.assertNoErrors());
+          await eventually(async () => {
+            const log = await readLogFile();
+            expect(
+              log.filter((logEntry) =>
+                logEntry.msg.includes('Initiating connection attemp')
+              )
+            ).to.have.lengthOf(1);
+            expect(
+              log.filter((logEntry) => logEntry.msg.includes('Hi there'))
+            ).to.have.lengthOf(1);
+          });
+        });
       });
 
       describe('history file', function () {
         it('persists between sessions', async function () {
-          if (process.arch === 's390x') {
-            return this.skip(); // https://jira.mongodb.org/browse/MONGOSH-746
-          }
           await shell.executeLine('a = 42');
           shell.writeInput('.exit\n');
           await shell.waitForSuccessfulExit();
@@ -1914,7 +2128,7 @@ describe('e2e', function () {
         __dirname,
         '..',
         '..',
-        'cli-repl',
+        'e2e-tests',
         'test',
         'fixtures',
         'simple-console-log.js'

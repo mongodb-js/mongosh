@@ -397,11 +397,11 @@ interface Signatures {
 // object instead of a global list, or even more radical changes
 // such as removing the concept of signatures altogether.
 const signaturesGlobalIdentifier = '@@@mdb.signatures@@@';
-if (!(global as any)[signaturesGlobalIdentifier]) {
-  (global as any)[signaturesGlobalIdentifier] = {};
+if (!(globalThis as any)[signaturesGlobalIdentifier]) {
+  (globalThis as any)[signaturesGlobalIdentifier] = {};
 }
 
-const signatures: Signatures = (global as any)[signaturesGlobalIdentifier];
+const signatures: Signatures = (globalThis as any)[signaturesGlobalIdentifier];
 signatures.Document = { type: 'Document', attributes: {} };
 export { signatures };
 

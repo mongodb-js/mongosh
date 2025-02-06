@@ -174,6 +174,11 @@ async function main() {
 
     applyPacProxyS390XPatch();
 
+    process.on('exit', () => {
+      // https://github.com/libuv/libuv/pull/4688
+      process.stdin?.setRawMode?.(false);
+    });
+
     // If we are spawned via Windows doubleclick, ask the user for an URI to
     // connect to. Allow an environment variable to override this for testing.
     isSingleConsoleProcess =

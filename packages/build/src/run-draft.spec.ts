@@ -37,6 +37,8 @@ describe('draft', function () {
   });
 
   describe('runDraft', function () {
+    const bumpMongoshReleasePackages = sinon.spy();
+    const bumpMongoshAuxiliaryPackages = sinon.spy();
     let ensureGithubReleaseExistsAndUpdateChangelog: typeof ensureGithubReleaseExistsAndUpdateChangelogFn;
 
     beforeEach(function () {
@@ -58,7 +60,9 @@ describe('draft', function () {
           githubRepo,
           uploadArtifactToDownloadCenter,
           downloadArtifactFromEvergreen,
-          ensureGithubReleaseExistsAndUpdateChangelog
+          ensureGithubReleaseExistsAndUpdateChangelog,
+          bumpMongoshReleasePackages,
+          bumpMongoshAuxiliaryPackages
         );
       });
 
@@ -102,7 +106,9 @@ describe('draft', function () {
         githubRepo,
         uploadArtifactToDownloadCenter,
         downloadArtifactFromEvergreen,
-        ensureGithubReleaseExistsAndUpdateChangelog
+        ensureGithubReleaseExistsAndUpdateChangelog,
+        bumpMongoshReleasePackages,
+        bumpMongoshAuxiliaryPackages
       );
       expect(ensureGithubReleaseExistsAndUpdateChangelog).to.not.have.been
         .called;
@@ -125,7 +131,9 @@ describe('draft', function () {
           githubRepo,
           uploadArtifactToDownloadCenter,
           downloadArtifactFromEvergreen,
-          ensureGithubReleaseExistsAndUpdateChangelog
+          ensureGithubReleaseExistsAndUpdateChangelog,
+          bumpMongoshReleasePackages,
+          bumpMongoshAuxiliaryPackages
         );
       } catch (e: any) {
         expect(e.message).to.contain('Missing package information from config');

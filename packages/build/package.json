@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/build",
-  "version": "0.0.0-dev.0",
+  "version": "3.0.2",
   "private": true,
   "description": "MongoDB Shell Build Tools",
   "main": "lib/index.js",
@@ -26,6 +26,10 @@
     "evergreen-release": "ts-node -r ../../scripts/import-expansions.js src/index.ts",
     "release": "ts-node src/index.ts trigger-release",
     "prettier": "prettier",
+    "bump": "ts-node src/index.ts bump",
+    "publish": "ts-node src/index.ts publish",
+    "bump-auxiliary": "ts-node src/index.ts bump --auxiliary",
+    "publish-auxiliary": "ts-node src/index.ts publish --auxiliary",
     "reformat": "npm run prettier -- --write . && npm run eslint --fix",
     "update-cta": "ts-node src/index.ts update-cta"
   },
@@ -41,7 +45,6 @@
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
-    "@mongodb-js/monorepo-tools": "^1.1.10",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@types/command-exists": "^1.2.0",
@@ -61,9 +64,10 @@
     "yaml": "^2.3.1"
   },
   "dependencies": {
-    "@mongodb-js/devtools-github-repo": "^1.0.1",
+    "@mongodb-js/devtools-github-repo": "^1.4.2",
     "@mongodb-js/dl-center": "^1.1.1",
     "@mongodb-js/mongodb-downloader": "^0.3.7",
+    "@mongodb-js/monorepo-tools": "^1.1.16",
     "@mongodb-js/signing-utils": "^0.3.7",
     "@octokit/rest": "^17.9.0",
     "aws-sdk": "^2.674.0",

@@ -171,13 +171,13 @@ export class UpdateNotificationManager {
       ?.sort(semver.rcompare)?.[0];
 
     this.currentVersionGreetingCTA =
-      jsonContents?.versions?.filter((v) => v.version === currentVersion)?.[0]
-        ?.cta ?? jsonContents?.cta;
+      jsonContents?.versions?.find((v) => v.version === currentVersion)?.cta ??
+      jsonContents?.cta;
 
     const latestKnownVersionCTA =
-      jsonContents?.versions?.filter(
+      jsonContents?.versions?.find(
         (v) => v.version === this.latestKnownMongoshVersion
-      )?.[0]?.cta ?? jsonContents?.cta;
+      )?.cta ?? jsonContents?.cta;
 
     localFileContents = {
       updateURL,

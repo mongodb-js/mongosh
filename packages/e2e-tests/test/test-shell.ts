@@ -201,14 +201,14 @@ export class TestShell {
 
   async waitForPrompt(
     start = 0,
-    opts: { timeout?: number } = {}
+    opts: { timeout?: number; promptPattern?: RegExp } = {}
   ): Promise<void> {
     await eventually(
       () => {
         const output = this._output.slice(start);
         const lines = output.split('\n');
         const found = !!lines
-          .filter((l) => PROMPT_PATTERN.exec(l)) // a line that is the prompt must at least match the pattern
+          .filter((l) => (opts.promptPattern ?? PROMPT_PATTERN).test(l)) // a line that is the prompt must at least match the pattern
           .find((l) => {
             // in some situations the prompt occurs multiple times in the line (but only in tests!)
             const prompts = l

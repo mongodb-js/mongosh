@@ -372,7 +372,22 @@ describe('shell', function () {
     expect(filterEvaluateCalls(fakeRuntime.evaluate.args)).to.have.length(1);
   });
 
-  it('prints when onPrint is called', async function () {
+  it('prints when onPrint is called while evaluating', async function () {
+    fakeRuntime = {
+      evaluate: sinon.stub().callsFake(async (command: string) => {
+        if (command === 'my command') {
+          // don't print every time we update the prompt, only once for the actual command being input
+          await listener?.onPrint?.([
+            { type: null, printable: 'from inside onPrint' },
+          ]);
+        }
+        return { printable: 'some result' };
+      }),
+      setEvaluationListener: (_listener) => {
+        listener = _listener;
+      },
+    };
+
     const initialEvaluate = 'my command';
 
     let output = [];
@@ -389,16 +404,22 @@ describe('shell', function () {
       />
     );
 
-    await waitFor(() => expect(listener).to.exist);
-    await listener?.onPrint?.([{ type: null, printable: 42 }]);
-
     await waitFor(() => {
       expect(output[output.length - 1]).to.deep.equal({
         format: 'output',
-        type: null,
-        value: 42,
+        type: undefined,
+        value: 'some result',
       });
     });
+
+    expect(output).to.deep.equal([
+      // we typed "my command"
+      { format: 'input', value: 'my command' },
+      // while evaluating it printed something
+      { format: 'output', type: null, value: 'from inside onPrint' },
+      // we then printed the result of the evaluation
+      { format: 'output', type: undefined, value: 'some result' },
+    ]);
   });
 
   it('clears the output when onClearCommand is called', async function () {

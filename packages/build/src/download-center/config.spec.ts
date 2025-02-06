@@ -11,9 +11,8 @@ import {
   createAndPublishDownloadCenterConfig,
   createJsonFeedEntry,
   updateJsonFeedCTA,
-  UpdateCTAConfig,
-  JsonFeed,
 } from './config';
+import type { UpdateCTAConfig, JsonFeed } from './config';
 import { promises as fs } from 'fs';
 import path from 'path';
 import fetch from 'node-fetch';
@@ -534,7 +533,7 @@ describe('DownloadCenter config', function () {
   });
 
   describe('updateJsonFeedCTA', function () {
-    let dlCenter: any;
+    let dlCenter: sinon.SinonStub | DownloadCenterConfig;
     let uploadConfig: sinon.SinonStub;
     let downloadConfig: sinon.SinonStub;
     let uploadAsset: sinon.SinonStub;
@@ -579,7 +578,7 @@ describe('DownloadCenter config', function () {
       });
     });
 
-    for (let dryRun of [false, true]) {
+    for (const dryRun of [false, true]) {
       it(`when dryRun is ${dryRun}, does ${
         dryRun ? 'not ' : ''
       }upload the updated json feed`, async function () {

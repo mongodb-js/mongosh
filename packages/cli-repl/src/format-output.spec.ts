@@ -1,10 +1,14 @@
 /* eslint no-control-regex: 0 */
-import formatRaw from './format-output';
+import type { FormatOptions } from './format-output';
+import { formatOutput } from './format-output';
 import { expect } from 'chai';
 
 for (const colors of [false, true]) {
   describe(`formatOutput with 'colors' set to ${colors}`, function () {
-    const format = (value: any): string => formatRaw(value, { colors });
+    const format = (
+      value: { value: unknown; type?: string | null },
+      opts: Partial<FormatOptions> = {}
+    ): string => formatOutput(value, { colors, ...opts });
     const stripAnsiColors = colors
       ? (str: string): string => str.replace(/\x1B[[(?);]{0,2}(;?\d)*./g, '')
       : (str: string): string => str;
@@ -14,6 +18,31 @@ for (const colors of [false, true]) {
         expect(format({ value: 'test' })).to.equal('test');
       });
     });
+
+    context(
+      'when the result is a string that only contains simple special characters',
+      function () {
+        it('returns the output', function () {
+          expect(format({ value: 'test\n\ttest' })).to.equal('test\n\ttest');
+        });
+      }
+    );
+
+    context(
+      'when the result is a string that contains special characters',
+      function () {
+        it('returns the output', function () {
+          expect(stripAnsiColors(format({ value: 'test\bfooo' }))).to.equal(
+            "'test\\bfooo'"
+          );
+        });
+        it('returns the raw value if control characters are allowed', function () {
+          expect(
+            format({ value: 'test\bfooo' }, { allowControlCharacters: true })
+          ).to.equal('test\bfooo');
+        });
+      }
+    );
 
     context('when the result is undefined', function () {
       it('returns the output', function () {
@@ -253,10 +282,34 @@ for (const colors of [false, true]) {
           '\rError: Something went wrong\nCaused by: \n\rError: Something else went wrong'
         );
       });
+
+      it('escapes the message name if the error can be server-generated', function () {
+        const output = stripAnsiColors(
+          format({
+            value: Object.assign(new Error('foo\bbar.'), {
+              name: 'MongoServerError',
+            }),
+            type: 'Error',
+          })
+        );
+
+        expect(output).to.equal("\rMongoServerError: 'foo\\bbar.'");
+      });
+
+      it('does not escape the message name if the error is a generic one', function () {
+        const output = stripAnsiColors(
+          format({
+            value: Object.assign(new Error('foo\bbar.'), { name: 'FooError' }),
+            type: 'Error',
+          })
+        );
+
+        expect(output).to.equal('\rFooError: foo\bbar.');
+      });
     });
 
     context('when the result is ShowDatabasesResult', function () {
-      it('returns the help text', function () {
+      it('returns the database list', function () {
         const output = stripAnsiColors(
           format({
             value: [
@@ -265,25 +318,27 @@ for (const colors of [false, true]) {
               { name: 'supplies', sizeOnDisk: 2236416, empty: false },
               { name: 'test', sizeOnDisk: 5664768, empty: false },
               { name: 'test', sizeOnDisk: 599999768000, empty: false },
+              { name: 'ab\bdef', sizeOnDisk: 1234, empty: false },
             ],
             type: 'ShowDatabasesResult',
           })
         );
 
-        expect(output).to.equal(
+        expect(output.replace(/ +/g, ' ')).to.equal(
           `
-admin      44.00 KiB
-dxl         8.00 KiB
-supplies    2.13 MiB
-test        5.40 MiB
-test      558.79 GiB
+admin 44.00 KiB
+dxl 8.00 KiB
+supplies 2.13 MiB
+test 5.40 MiB
+test 558.79 GiB
+'ab\\bdef' 1.21 KiB
 `.trim()
         );
       });
     });
 
     context('when the result is ShowCollectionsResult', function () {
-      it('returns the help text', function () {
+      it('returns the collections list', function () {
         const output = stripAnsiColors(
           format({
             value: [
@@ -292,13 +347,19 @@ test      558.79 GiB
               { name: 'coll', badge: '' },
               { name: 'people_imported', badge: '[view]' },
               { name: 'cats', badge: '[time-series]' },
+              { name: 'cats\bcats', badge: '' },
             ],
             type: 'ShowCollectionsResult',
           })
         );
 
-        expect(output).to.equal(
-          'nested_documents\ndecimal128\ncoll\npeople_imported   [view]\ncats              [time-series]'
+        expect(output.replace(/ +/g, ' ')).to.equal(
+          'nested_documents\n' +
+            'decimal128\n' +
+            'coll\n' +
+            'people_imported [view]\n' +
+            'cats [time-series]\n' +
+            "'cats\\bcats'"
         );
       });
     });
@@ -319,6 +380,21 @@ test      558.79 GiB
           'c1\n{ metadata: 1 }\n---\nc2\n{ metadata: 2 }'
         );
       });
+      it('accounts for special characters and escapes them', function () {
+        const output = stripAnsiColors(
+          format({
+            value: {
+              ['c\b1']: { metadata: 1 },
+              c2: { metadata: 2 },
+            },
+            type: 'StatsResult',
+          })
+        );
+
+        expect(output).to.contain(
+          "'c\\b1'\n{ metadata: 1 }\n---\nc2\n{ metadata: 2 }"
+        );
+      });
     });
 
     context('when the result is ListCommandsResult', function () {
@@ -326,8 +402,19 @@ test      558.79 GiB
         const output = stripAnsiColors(
           format({
             value: {
-              c1: { metadata1: 1, help: 'help1' },
-              c2: { metadata2: 2, help: 'help2' },
+              c1: { metadata1: true, help: 'help1' },
+              c2: {
+                metadata2: true,
+                help: 'help2',
+                apiVersions: [],
+                deprecatedApiVersions: [],
+              },
+              c3: {
+                metadata2: true,
+                help: 'help2',
+                apiVersions: ['1'],
+                deprecatedApiVersions: ['0'],
+              },
             },
             type: 'ListCommandsResult',
           })
@@ -542,6 +629,21 @@ test      558.79 GiB
 
         expect(output).to.equal('------\n   Header\n   foo\n   bar\n------\n');
       });
+    });
+    it('returns a formatted banner with escaped special characters', function () {
+      const output = stripAnsiColors(
+        format({
+          value: {
+            header: 'Heade\br',
+            content: 'foo\bbar\n',
+          },
+          type: 'ShowBannerResult',
+        })
+      );
+
+      expect(output).to.equal(
+        "------\n   'Heade\\br'\n   'foo\\bbar\\n'\n------\n"
+      );
     });
   });
 }

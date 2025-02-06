@@ -375,39 +375,42 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
 
   const onInput = useCallback(
     async (code: string) => {
-      const newOutput = [...(outputRef.current ?? [])];
-      const newHistory = [...(historyRef.current ?? [])];
+      const newOutputBeforeEval = [...(outputRef.current ?? [])];
 
       // don't evaluate empty input, but do add it to the output
       if (!code || code.trim() === '') {
-        newOutput.push({
+        newOutputBeforeEval.push({
           format: 'input',
           value: ' ',
         });
-        capLengthEnd(newOutput, maxOutputLength);
-        outputRef.current = newOutput;
-        onOutputChanged?.(newOutput);
+        capLengthEnd(newOutputBeforeEval, maxOutputLength);
+        outputRef.current = newOutputBeforeEval;
+        onOutputChanged?.(newOutputBeforeEval);
         return;
       }
 
       // add input to output
-      newOutput.push({
+      newOutputBeforeEval.push({
         format: 'input',
         value: code,
       });
-      capLengthEnd(newOutput, maxOutputLength);
-      outputRef.current = newOutput;
-      onOutputChanged?.(newOutput);
+      capLengthEnd(newOutputBeforeEval, maxOutputLength);
+      outputRef.current = newOutputBeforeEval;
+      onOutputChanged?.(newOutputBeforeEval);
 
       const outputLine = await evaluate(code);
 
+      // outputRef.current could have changed if evaluate() used onPrint
+      const newOutputAfterEval = [...(outputRef.current ?? [])];
+
       // add output to output
-      newOutput.push(outputLine);
-      capLengthEnd(newOutput, maxOutputLength);
-      outputRef.current = newOutput;
-      onOutputChanged?.(newOutput);
+      newOutputAfterEval.push(outputLine);
+      capLengthEnd(newOutputAfterEval, maxOutputLength);
+      outputRef.current = newOutputAfterEval;
+      onOutputChanged?.(newOutputAfterEval);
 
       // update history
+      const newHistory = [...(historyRef.current ?? [])];
       newHistory.unshift(code);
       capLengthStart(newHistory, maxHistoryLength);
       changeHistory(

@@ -6,7 +6,8 @@ import { triggerRelease } from './local';
 import type { ReleaseCommand } from './release';
 import { release } from './release';
 import type { Config, PackageVariant } from './config';
-import { updateJsonFeedCTA, UpdateCTAConfig } from './download-center';
+import { updateJsonFeedCTA } from './download-center';
+import type { UpdateCTAConfig } from './download-center';
 
 export { getArtifactUrl, downloadMongoDb };
 
@@ -77,6 +78,8 @@ if (require.main === module) {
         }
 
         config.isDryRun ||= process.argv.includes('--dry-run');
+        config.useAuxiliaryPackagesOnly ||=
+          process.argv.includes('--auxiliary');
 
         await release(command, config);
         break;
