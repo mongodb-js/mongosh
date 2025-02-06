@@ -256,7 +256,9 @@ export class CliRepl implements MongoshIOProvider {
     }
 
     this.logManager ??= new MongoLogManager({
-      directory: this.shellHomeDirectory.localPath('.'),
+      directory:
+        (await this.getConfig('logLocation')) ||
+        this.shellHomeDirectory.localPath('.'),
       retentionDays: 30,
       maxLogFileCount: +(
         process.env.MONGOSH_TEST_ONLY_MAX_LOG_FILE_COUNT || 100
