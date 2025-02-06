@@ -9,14 +9,14 @@ import type { SnippetShellUserConfig, MongoshBus } from '@mongosh/types';
 import escapeRegexp from 'escape-string-regexp';
 import path from 'path';
 import { promisify, isDeepStrictEqual } from 'util';
-import { Console } from 'console';
+import { Console, error } from 'console';
 import { promises as fs } from 'fs';
 import stream, { PassThrough } from 'stream';
 import { once } from 'events';
 import tar from 'tar';
 import zlib from 'zlib';
 import bson from 'bson';
-import joi from 'joi';
+import { z } from 'zod';
 import type {
   AgentWithInitialize,
   DevtoolsProxyOptions,
@@ -34,63 +34,44 @@ export interface SnippetOptions {
   proxyOptions?: DevtoolsProxyOptions | AgentWithInitialize;
 }
 
-export interface ErrorMatcher {
-  matches: RegExp[];
-  message: string;
-}
-
-export interface SnippetDescription {
-  name: string;
-  snippetName: string;
-  installSpec?: string;
-  version: string;
-  description: string;
-  license: string;
-  readme: string;
-  errorMatchers?: ErrorMatcher[];
-}
-
-export interface SnippetIndexFile {
-  indexFileVersion: 1;
-  index: SnippetDescription[];
-  metadata: { homepage: string };
-  sourceURL: string;
-}
-
 interface NpmMetaDataResponse {
   dist?: {
     tarball?: string;
   };
 }
 
-const indexFileSchema = joi.object({
-  indexFileVersion: joi.number().integer().max(1).required(),
+const regExpTag = Object.prototype.toString.call(/foo/);
+const errorMatcherSchema = z.object({
+  message: z.string(),
+  matches: z.array(
+    z.custom<RegExp>((val) => Object.prototype.toString.call(val) === regExpTag)
+  ),
+});
+const indexDescriptionSchema = z.object({
+  name: z.string(),
+  snippetName: z.string(),
+  installSpec: z.string().optional(),
+  version: z.string(),
+  description: z.string(),
+  license: z.string(),
+  readme: z.string(),
+  errorMatchers: z.array(errorMatcherSchema),
+});
+const indexFileSchema = z.object({
+  indexFileVersion: z.number().int().max(1),
 
-  metadata: joi.object({
-    homepage: joi.string(),
+  metadata: z.object({
+    homepage: z.string(),
   }),
 
-  index: joi
-    .array()
-    .required()
-    .items(
-      joi.object({
-        name: joi.string().required(),
-        snippetName: joi.string().required(),
-        installSpec: joi.string(),
-        version: joi.string().required(),
-        description: joi.string().required().allow(''),
-        license: joi.string().required(),
-        readme: joi.string().required().allow(''),
-        errorMatchers: joi.array().items(
-          joi.object({
-            message: joi.string().required(),
-            matches: joi.array().required().items(joi.object().regex()),
-          })
-        ),
-      })
-    ),
+  index: z.array(indexDescriptionSchema),
 });
+
+export type ErrorMatcher = z.infer<typeof errorMatcherSchema>;
+export type SnippetIndexFile = z.infer<typeof indexFileSchema> & {
+  sourceURL: string;
+};
+export type SnippetDescription = z.infer<typeof indexDescriptionSchema>;
 
 async function unpackBSON<T = any>(data: Buffer): Promise<T> {
   return bson.deserialize(await brotliDecompress(data)) as T;
@@ -361,9 +342,8 @@ export class SnippetManager implements ShellPlugin {
                   `The specified index file ${url} could not be parsed: ${err.message}`
                 );
               }
-              const { error } = indexFileSchema.validate(data, {
-                allowUnknown: true,
-              });
+              const { error, data: parsedData } =
+                indexFileSchema.safeParse(data);
               if (error) {
                 this.messageBus.emit('mongosh-snippets:fetch-index-error', {
                   action: 'validate-fetched',
@@ -374,7 +354,7 @@ export class SnippetManager implements ShellPlugin {
                   `The specified index file ${url} is not a valid index file: ${error.message}`
                 );
               }
-              return { ...data, sourceURL: url };
+              return { ...parsedData, sourceURL: url };
             })
           );
           // If possible, write the result to disk for caching.
