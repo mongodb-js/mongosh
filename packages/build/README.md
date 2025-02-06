@@ -39,7 +39,8 @@ Execute the following steps to publish a new release:
    ```
    Follow the instructions and verify the inferred release version is correct.
 7. Wait for Evergreen to finish the publication stage.
-8. Close the Jira ticket for the release, post an update in the `#mongosh` Slack channel and ping the docs team.
+8. The previous step will have pushed tags for the npm publishes. Check out the tag for `mongosh@<version>` (not `v<version>`), create a branch for it, push that branch and open a PR with it. Then immediately merge that branch **using the `git merge` CLI command into main** and push to main. **NEVER** use the Github PR merge functionality, since that would squash the commit and give it a new commit hash that is different from the one in the tag.
+9. Close the Jira ticket for the release, post an update in the `#mongosh` Slack channel and ping the docs team.
 
 ### Branches and Tags
 
