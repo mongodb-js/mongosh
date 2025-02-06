@@ -1,3 +1,4 @@
+import { Schema } from 'ajv';
 import type { PackageInformationProvider } from '../packaging/package';
 import type { PackageVariant } from './build-variant';
 
@@ -6,6 +7,18 @@ interface ManPageConfig {
   downloadPath: string;
   fileName: string;
 }
+
+// TODO: this is duplicated in update-notification-manager.ts
+export interface GreetingCTADetails {
+  chunks: {
+    text: string;
+    style?: string; // TODO: this is actually clr.ts/StyleDefinition
+  }[];
+}
+
+export type CTAConfig = {
+  [version: string | '*']: GreetingCTADetails;
+};
 
 /**
  * Defines the configuration interface for the build system.
@@ -47,4 +60,6 @@ export interface Config {
   manpage?: ManPageConfig;
   isDryRun?: boolean;
   useAuxiliaryPackagesOnly?: boolean;
+  ctaConfig: CTAConfig;
+  ctaConfigSchema: Schema;
 }

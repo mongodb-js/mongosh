@@ -2,7 +2,7 @@ import type { DownloadCenterConfig } from '@mongodb-js/dl-center/dist/download-c
 import { type PackageInformationProvider } from '../packaging';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import type { Config } from '../config';
+import type { Config, CTAConfig } from '../config';
 import { type PackageVariant } from '../config';
 import {
   createVersionConfig,
@@ -12,7 +12,7 @@ import {
   createJsonFeedEntry,
   updateJsonFeedCTA,
 } from './config';
-import type { UpdateCTAConfig, JsonFeed } from './config';
+import type { JsonFeed } from './config';
 import { promises as fs } from 'fs';
 import path from 'path';
 import fetch from 'node-fetch';
@@ -37,6 +37,10 @@ const packageInformation = (version: string) =>
       },
     };
   }) as PackageInformationProvider;
+
+const DUMMY_ACCESS_KEY = 'accessKey';
+const DUMMY_SECRET_KEY = 'secretKey';
+const DUMMY_CTA_CONFIG: CTAConfig = {};
 
 describe('DownloadCenter config', function () {
   let outputDir: string;
@@ -267,23 +271,24 @@ describe('DownloadCenter config', function () {
         await createAndPublishDownloadCenterConfig(
           outputDir,
           packageInformation('2.0.1'),
-          'accessKey',
-          'secretKey',
+          DUMMY_ACCESS_KEY,
+          DUMMY_SECRET_KEY,
           '',
           false,
+          DUMMY_CTA_CONFIG,
           dlCenter as any,
           baseUrl
         );
 
         expect(dlCenter).to.have.been.calledWith({
           bucket: 'info-mongodb-com',
-          accessKeyId: 'accessKey',
-          secretAccessKey: 'secretKey',
+          accessKeyId: DUMMY_ACCESS_KEY,
+          secretAccessKey: DUMMY_SECRET_KEY,
         });
         expect(dlCenter).to.have.been.calledWith({
           bucket: 'downloads.10gen.com',
-          accessKeyId: 'accessKey',
-          secretAccessKey: 'secretKey',
+          accessKeyId: DUMMY_ACCESS_KEY,
+          secretAccessKey: DUMMY_SECRET_KEY,
         });
 
         expect(uploadConfig).to.be.calledOnce;
@@ -325,23 +330,24 @@ describe('DownloadCenter config', function () {
         await createAndPublishDownloadCenterConfig(
           outputDir,
           packageInformation('1.2.2'),
-          'accessKey',
-          'secretKey',
+          DUMMY_ACCESS_KEY,
+          DUMMY_SECRET_KEY,
           '',
           false,
+          DUMMY_CTA_CONFIG,
           dlCenter as any,
           baseUrl
         );
 
         expect(dlCenter).to.have.been.calledWith({
           bucket: 'info-mongodb-com',
-          accessKeyId: 'accessKey',
-          secretAccessKey: 'secretKey',
+          accessKeyId: DUMMY_ACCESS_KEY,
+          secretAccessKey: DUMMY_SECRET_KEY,
         });
         expect(dlCenter).to.have.been.calledWith({
           bucket: 'downloads.10gen.com',
-          accessKeyId: 'accessKey',
-          secretAccessKey: 'secretKey',
+          accessKeyId: DUMMY_ACCESS_KEY,
+          secretAccessKey: DUMMY_SECRET_KEY,
         });
 
         expect(uploadConfig).to.be.calledOnce;
@@ -423,8 +429,8 @@ describe('DownloadCenter config', function () {
         await createAndPublishDownloadCenterConfig(
           outputDir,
           packageInformation('2.0.0'),
-          'accessKey',
-          'secretKey',
+          DUMMY_ACCESS_KEY,
+          DUMMY_SECRET_KEY,
           path.resolve(
             __dirname,
             '..',
@@ -434,19 +440,20 @@ describe('DownloadCenter config', function () {
             'mongosh-versions.json'
           ),
           false,
+          DUMMY_CTA_CONFIG,
           dlCenter as any,
           baseUrl
         );
 
         expect(dlCenter).to.have.been.calledWith({
           bucket: 'info-mongodb-com',
-          accessKeyId: 'accessKey',
-          secretAccessKey: 'secretKey',
+          accessKeyId: DUMMY_ACCESS_KEY,
+          secretAccessKey: DUMMY_SECRET_KEY,
         });
         expect(dlCenter).to.have.been.calledWith({
           bucket: 'downloads.10gen.com',
-          accessKeyId: 'accessKey',
-          secretAccessKey: 'secretKey',
+          accessKeyId: DUMMY_ACCESS_KEY,
+          secretAccessKey: DUMMY_SECRET_KEY,
         });
 
         expect(uploadConfig).to.be.calledOnce;
@@ -533,7 +540,7 @@ describe('DownloadCenter config', function () {
   });
 
   describe('updateJsonFeedCTA', function () {
-    let dlCenter: sinon.SinonStub | DownloadCenterConfig;
+    let dlCenter: sinon.SinonStub;
     let uploadConfig: sinon.SinonStub;
     let downloadConfig: sinon.SinonStub;
     let uploadAsset: sinon.SinonStub;
@@ -547,15 +554,6 @@ describe('DownloadCenter config', function () {
       'fixtures',
       'cta-versions.json'
     )) as JsonFeed;
-
-    const getConfig = (ctas: UpdateCTAConfig['ctas']): UpdateCTAConfig => {
-      return {
-        ctas,
-        isDryRun: false,
-        awsAccessKeyId: 'accessKey',
-        awsSecretAccessKey: 'secretKey',
-      };
-    };
 
     const getUploadedJsonFeed = (): JsonFeed => {
       return JSON.parse(uploadAsset.lastCall.args[1]) as JsonFeed;
@@ -582,18 +580,22 @@ describe('DownloadCenter config', function () {
       it(`when dryRun is ${dryRun}, does ${
         dryRun ? 'not ' : ''
       }upload the updated json feed`, async function () {
-        const config = getConfig({
+        const config: CTAConfig = {
           '1.10.3': {
             chunks: [{ text: 'Foo' }],
           },
           '*': {
             chunks: [{ text: 'Bar' }],
           },
-        });
+        };
 
-        config.isDryRun = dryRun;
-
-        await updateJsonFeedCTA(config, dlCenter);
+        await updateJsonFeedCTA(
+          config,
+          DUMMY_ACCESS_KEY,
+          DUMMY_SECRET_KEY,
+          dryRun,
+          dlCenter as any
+        );
         if (dryRun) {
           expect(uploadAsset).to.not.have.been.called;
         } else {
@@ -618,13 +620,19 @@ describe('DownloadCenter config', function () {
         existingUploadedJsonFeed.versions.filter((v) => v.version === '1.10.5')
       ).to.have.lengthOf(0);
 
-      const config = getConfig({
+      const config: CTAConfig = {
         '1.10.5': {
           chunks: [{ text: 'Foo' }],
         },
-      });
+      };
 
-      await updateJsonFeedCTA(config, dlCenter);
+      await updateJsonFeedCTA(
+        config,
+        DUMMY_ACCESS_KEY,
+        DUMMY_SECRET_KEY,
+        false,
+        dlCenter as any
+      );
 
       const updatedJsonFeed = getUploadedJsonFeed();
 
@@ -642,10 +650,14 @@ describe('DownloadCenter config', function () {
         },
         {}
       );
-      const config = getConfig(ctas);
-
-      expect(config.ctas['*']).to.be.undefined;
-      await updateJsonFeedCTA(config, dlCenter);
+      expect(ctas['*']).to.be.undefined;
+      await updateJsonFeedCTA(
+        ctas,
+        DUMMY_ACCESS_KEY,
+        DUMMY_SECRET_KEY,
+        false,
+        dlCenter as any
+      );
 
       const updatedJsonFeed = getUploadedJsonFeed();
 
@@ -657,11 +669,17 @@ describe('DownloadCenter config', function () {
         existingUploadedJsonFeed.versions.map((v) => v.cta).filter((cta) => cta)
       ).to.have.length.greaterThan(0);
 
-      const config = getConfig({
+      const config = {
         '*': existingUploadedJsonFeed.cta!,
-      });
+      };
 
-      await updateJsonFeedCTA(config, dlCenter);
+      await updateJsonFeedCTA(
+        config,
+        DUMMY_ACCESS_KEY,
+        DUMMY_SECRET_KEY,
+        false,
+        dlCenter as any
+      );
 
       const updatedJsonFeed = getUploadedJsonFeed();
       expect(updatedJsonFeed.cta).to.not.be.undefined;
@@ -671,13 +689,19 @@ describe('DownloadCenter config', function () {
     });
 
     it('can update global cta', async function () {
-      const config = getConfig({
+      const config = {
         '*': {
           chunks: [{ text: "It's a beautiful day", style: 'imagePositive' }],
         },
-      });
+      };
 
-      await updateJsonFeedCTA(config, dlCenter);
+      await updateJsonFeedCTA(
+        config,
+        DUMMY_ACCESS_KEY,
+        DUMMY_SECRET_KEY,
+        false,
+        dlCenter as any
+      );
 
       const updatedJsonFeed = getUploadedJsonFeed();
 
@@ -687,13 +711,19 @@ describe('DownloadCenter config', function () {
     });
 
     it('can update version-specific cta', async function () {
-      const config = getConfig({
+      const config = {
         '1.10.3': {
           chunks: [{ text: "It's a beautiful day", style: 'imagePositive' }],
         },
-      });
+      };
 
-      await updateJsonFeedCTA(config, dlCenter);
+      await updateJsonFeedCTA(
+        config,
+        DUMMY_ACCESS_KEY,
+        DUMMY_SECRET_KEY,
+        false,
+        dlCenter as any
+      );
 
       const updatedJsonFeed = getUploadedJsonFeed();
 
@@ -708,15 +738,21 @@ describe('DownloadCenter config', function () {
       // Remove the existing cta
       existingUploadedJsonFeed.cta = undefined;
 
-      const config = getConfig({
+      const config = {
         '*': {
           chunks: [
             { text: 'Go outside and enjoy the sun', style: 'imagePositive' },
           ],
         },
-      });
+      };
 
-      await updateJsonFeedCTA(config, dlCenter);
+      await updateJsonFeedCTA(
+        config,
+        DUMMY_ACCESS_KEY,
+        DUMMY_SECRET_KEY,
+        false,
+        dlCenter as any
+      );
 
       const updatedJsonFeed = getUploadedJsonFeed();
 
@@ -731,15 +767,21 @@ describe('DownloadCenter config', function () {
       // Remove the existing cta
       existingUploadedJsonFeed.cta = undefined;
 
-      const config = getConfig({
+      const config = {
         '1.10.4': {
           chunks: [
             { text: 'Go outside and enjoy the sun', style: 'imagePositive' },
           ],
         },
-      });
+      };
 
-      await updateJsonFeedCTA(config, dlCenter);
+      await updateJsonFeedCTA(
+        config,
+        DUMMY_ACCESS_KEY,
+        DUMMY_SECRET_KEY,
+        false,
+        dlCenter as any
+      );
 
       const updatedJsonFeed = getUploadedJsonFeed();
 

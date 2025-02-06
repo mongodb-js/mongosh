@@ -15,7 +15,7 @@ import {
   CONFIGURATIONS_BUCKET,
   ARTIFACTS_FALLBACK,
 } from './constants';
-import type { PackageVariant } from '../config';
+import type { CTAConfig, GreetingCTADetails, PackageVariant } from '../config';
 import {
   ALL_PACKAGE_VARIANTS,
   getDownloadCenterDistroDescription,
@@ -57,6 +57,7 @@ export async function createAndPublishDownloadCenterConfig(
   awsSecretAccessKey: string,
   injectedJsonFeedFile: string,
   isDryRun: boolean,
+  ctaConfig: CTAConfig,
   DownloadCenter: typeof DownloadCenterCls = DownloadCenterCls,
   publicArtifactBaseUrl: string = ARTIFACTS_URL_PUBLIC_BASE
 ): Promise<void> {
@@ -120,6 +121,8 @@ export async function createAndPublishDownloadCenterConfig(
     currentJsonFeedWrapped
   );
 
+  populateJsonFeedCTAs(newJsonFeed, ctaConfig);
+
   if (isDryRun) {
     console.warn('Not uploading download center config in dry-run mode');
     return;
@@ -135,13 +138,16 @@ export async function createAndPublishDownloadCenterConfig(
 }
 
 export async function updateJsonFeedCTA(
-  config: UpdateCTAConfig,
+  config: CTAConfig,
+  awsAccessKeyId: string,
+  awsSecretAccessKey: string,
+  isDryRun: boolean,
   DownloadCenter: typeof DownloadCenterCls = DownloadCenterCls
 ) {
   const dlcenterArtifacts = new DownloadCenter({
     bucket: ARTIFACTS_BUCKET,
-    accessKeyId: config.awsAccessKeyId,
-    secretAccessKey: config.awsSecretAccessKey,
+    accessKeyId: awsAccessKeyId,
+    secretAccessKey: awsSecretAccessKey,
   });
 
   const jsonFeed = await getCurrentJsonFeed(dlcenterArtifacts);
@@ -149,19 +155,23 @@ export async function updateJsonFeedCTA(
     throw new Error('No existing JSON feed found');
   }
 
-  jsonFeed.cta = config.ctas['*'];
-  for (const version of jsonFeed.versions) {
-    version.cta = config.ctas[version.version];
-  }
+  populateJsonFeedCTAs(jsonFeed, config);
 
   const patchedJsonFeed = JSON.stringify(jsonFeed, null, 2);
-  if (config.isDryRun) {
+  if (isDryRun) {
     console.warn('Not uploading JSON feed in dry-run mode');
     console.warn(`Patched JSON feed: ${patchedJsonFeed}`);
     return;
   }
 
   await dlcenterArtifacts.uploadAsset(JSON_FEED_ARTIFACT_KEY, patchedJsonFeed);
+}
+
+function populateJsonFeedCTAs(jsonFeed: JsonFeed, ctas: CTAConfig) {
+  jsonFeed.cta = ctas['*'];
+  for (const version of jsonFeed.versions) {
+    version.cta = ctas[version.version];
+  }
 }
 
 export function getUpdatedDownloadCenterConfig(
@@ -235,23 +245,6 @@ export function createVersionConfig(
     version: version,
     platform: [...platformMap.values()],
   };
-}
-
-// TODO: this is duplicated in update-notification-manager.ts
-interface GreetingCTADetails {
-  chunks: {
-    text: string;
-    style?: string; // TODO: this is actually clr.ts/StyleDefinition
-  }[];
-}
-
-export interface UpdateCTAConfig {
-  ctas: {
-    [version: string | '*']: GreetingCTADetails;
-  };
-  awsAccessKeyId: string;
-  awsSecretAccessKey: string;
-  isDryRun: boolean;
 }
 
 export interface JsonFeed {
