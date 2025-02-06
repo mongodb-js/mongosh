@@ -9,7 +9,7 @@ import type { SnippetShellUserConfig, MongoshBus } from '@mongosh/types';
 import escapeRegexp from 'escape-string-regexp';
 import path from 'path';
 import { promisify, isDeepStrictEqual } from 'util';
-import { Console, error } from 'console';
+import { Console } from 'console';
 import { promises as fs } from 'fs';
 import stream, { PassThrough } from 'stream';
 import { once } from 'events';
