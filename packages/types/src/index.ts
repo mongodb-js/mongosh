@@ -586,6 +586,13 @@ export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
           value !== undefined &&
           (typeof value !== 'string' || !path.isAbsolute(value))
         ) {
+          // eslint-disable-next-line no-console
+          console.info(
+            path.sep,
+            path.win32 === path,
+            path.isAbsolute(value as string),
+            value
+          );
           return `${key} must be a valid absolute path or empty`;
         }
         return null;
