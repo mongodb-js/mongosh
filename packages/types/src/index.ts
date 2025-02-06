@@ -509,6 +509,7 @@ export class CliUserConfig extends SnippetShellUserConfig {
   updateURL = 'https://downloads.mongodb.com/compass/mongosh.json';
   disableLogging = false;
   logLocation: string | undefined = undefined;
+  logRetentionDays = 30;
 }
 
 export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
@@ -531,6 +532,7 @@ export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
         return null;
       case 'inspectDepth':
       case 'historyLength':
+      case 'logRetentionDays':
         if (typeof value !== 'number' || value < 0) {
           return `${key} must be a positive integer`;
         }

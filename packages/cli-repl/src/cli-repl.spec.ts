@@ -323,6 +323,7 @@ describe('CliRepl', function () {
           'updateURL',
           'disableLogging',
           'logLocation',
+          'logRetentionDays',
         ] satisfies (keyof CliUserConfig)[]);
       });
 
@@ -1441,6 +1442,19 @@ describe('CliRepl', function () {
                 customLogLocation.path,
                 (cliRepl.logWriter?.logId as string) + '_log'
               )
+            );
+          });
+
+          it('can set log retention days', async function () {
+            const testRetentionDays = 123;
+            cliRepl.config.logRetentionDays = testRetentionDays;
+            await cliRepl.start(await testServer.connectionString(), {});
+
+            expect(cliRepl.getConfig('logRetentionDays')).equals(
+              testRetentionDays
+            );
+            expect(cliRepl.logManager?._options.retentionDays).equals(
+              testRetentionDays
             );
           });
         });

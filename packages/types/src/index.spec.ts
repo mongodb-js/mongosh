@@ -25,6 +25,12 @@ describe('config validation', function () {
     expect(await validate('historyLength', 0)).to.equal(null);
     expect(await validate('historyLength', 1)).to.equal(null);
     expect(await validate('historyLength', Infinity)).to.equal(null);
+    expect(await validate('logRetentionDays', 'foo')).to.equal(
+      'logRetentionDays must be a positive integer'
+    );
+    expect(await validate('logRetentionDays', -1)).to.equal(
+      'logRetentionDays must be a positive integer'
+    );
     expect(await validate('showStackTraces', 'foo')).to.equal(
       'showStackTraces must be a boolean'
     );
