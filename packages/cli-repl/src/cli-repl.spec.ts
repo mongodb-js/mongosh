@@ -322,6 +322,7 @@ describe('CliRepl', function () {
           'browser',
           'updateURL',
           'disableLogging',
+          'logLocation',
         ] satisfies (keyof CliUserConfig)[]);
       });
 
@@ -1425,6 +1426,22 @@ describe('CliRepl', function () {
                   entry.msg === 'Error: Method not implemented'
               )
             ).to.have.lengthOf(1);
+          });
+
+          const customLogLocation = useTmpdir();
+          it('can set the log location', async function () {
+            cliRepl.config.logLocation = customLogLocation.path;
+            await cliRepl.start(await testServer.connectionString(), {});
+
+            expect(await cliRepl.getConfig('logLocation')).equals(
+              customLogLocation.path
+            );
+            expect(cliRepl.logWriter?.logFilePath).equals(
+              path.join(
+                customLogLocation.path,
+                (cliRepl.logWriter?.logId as string) + '_log'
+              )
+            );
           });
         });
 

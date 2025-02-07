@@ -1,4 +1,5 @@
 import type { ConnectEventMap } from '@mongodb-js/devtools-connect';
+import path from 'path';
 
 export interface ApiEventArguments {
   pipeline?: any[];
@@ -507,6 +508,7 @@ export class CliUserConfig extends SnippetShellUserConfig {
   browser: undefined | false | string = undefined;
   updateURL = 'https://downloads.mongodb.com/compass/mongosh.json';
   disableLogging = false;
+  logLocation: string | undefined = undefined;
 }
 
 export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
@@ -577,6 +579,14 @@ export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
       case 'updateURL':
         if (typeof value !== 'string' || (value.trim() && !isValidUrl(value))) {
           return `${key} must be a valid URL or empty`;
+        }
+        return null;
+      case 'logLocation':
+        if (
+          value !== undefined &&
+          (typeof value !== 'string' || !path.isAbsolute(value))
+        ) {
+          return `${key} must be a valid absolute path or empty`;
         }
         return null;
       default:

@@ -15,7 +15,11 @@ import { promisify } from 'util';
 import path from 'path';
 import os from 'os';
 import type { MongoLogEntryFromFile } from './repl-helpers';
-import { readReplLogFile, setTemporaryHomeDirectory } from './repl-helpers';
+import {
+  readReplLogFile,
+  setTemporaryHomeDirectory,
+  useTmpdir,
+} from './repl-helpers';
 import { bson } from '@mongosh/service-provider-core';
 import type { Server as HTTPServer } from 'http';
 import { createServer as createHTTPServer } from 'http';
@@ -1356,7 +1360,9 @@ describe('e2e', function () {
     let logBasePath: string;
     let historyPath: string;
     let readConfig: () => Promise<any>;
-    let readLogFile: <T extends MongoLogEntryFromFile>() => Promise<T[]>;
+    let readLogFile: <T extends MongoLogEntryFromFile>(
+      customBasePath?: string
+    ) => Promise<T[]>;
     let startTestShell: (...extraArgs: string[]) => Promise<TestShell>;
 
     beforeEach(function () {
@@ -1393,11 +1399,16 @@ describe('e2e', function () {
       }
       readConfig = async () =>
         EJSON.parse(await fs.readFile(configPath, 'utf8'));
-      readLogFile = async <T extends MongoLogEntryFromFile>(): Promise<T[]> => {
+      readLogFile = async <T extends MongoLogEntryFromFile>(
+        customBasePath?: string
+      ): Promise<T[]> => {
         if (!shell.logId) {
           throw new Error('Shell does not have a logId associated with it');
         }
-        const logPath = path.join(logBasePath, `${shell.logId}_log`);
+        const logPath = path.join(
+          customBasePath ?? logBasePath,
+          `${shell.logId}_log`
+        );
         return readReplLogFile<T>(logPath);
       };
       startTestShell = async (...extraArgs: string[]) => {
@@ -1555,6 +1566,114 @@ describe('e2e', function () {
               (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
             )
           ).to.have.lengthOf(1);
+        });
+
+        describe('with custom log location', function () {
+          const customLogDir = useTmpdir();
+
+          it('fails with relative or invalid paths', async function () {
+            const globalConfig = path.join(homedir, 'globalconfig.conf');
+            await fs.writeFile(
+              globalConfig,
+              `mongosh:\n  logLocation: "./some-relative-path"`
+            );
+
+            shell = this.startTestShell({
+              args: ['--nodb'],
+              env: {
+                ...env,
+                MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING: globalConfig,
+              },
+              forceTerminal: true,
+            });
+            await shell.waitForPrompt();
+            shell.assertContainsOutput('Ignoring config option "logLocation"');
+            shell.assertContainsOutput(
+              'must be a valid absolute path or empty'
+            );
+
+            expect(
+              await shell.executeLine(
+                'config.set("logLocation", "[123123123123]")'
+              )
+            ).contains(
+              'Cannot set option "logLocation": logLocation must be a valid absolute path or empty'
+            );
+          });
+
+          it('gets created according to logLocation, if set', async function () {
+            const globalConfig = path.join(homedir, 'globalconfig.conf');
+            await fs.writeFile(
+              globalConfig,
+              `mongosh:\n  logLocation: ${JSON.stringify(customLogDir.path)}`
+            );
+
+            shell = this.startTestShell({
+              args: ['--nodb'],
+              env: {
+                ...env,
+                MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING: globalConfig,
+              },
+              forceTerminal: true,
+            });
+            await shell.waitForPrompt();
+            expect(
+              await shell.executeLine('config.get("logLocation")')
+            ).contains(customLogDir.path);
+
+            try {
+              await readLogFile();
+              expect.fail('expected to throw');
+            } catch (error) {
+              expect((error as Error).message).includes(
+                'no such file or directory'
+              );
+            }
+
+            expect(
+              (await readLogFile(customLogDir.path)).some(
+                (log) => log.attr?.input === 'config.get("logLocation")'
+              )
+            ).is.true;
+          });
+
+          it('setting location while running mongosh does not have an immediate effect on logging', async function () {
+            expect(
+              await shell.executeLine('config.get("logLocation")')
+            ).does.not.contain(customLogDir.path);
+            const oldLogId = shell.logId;
+
+            const oldLogEntries = await readLogFile();
+            await shell.executeLine(
+              `config.set("logLocation", ${JSON.stringify(customLogDir.path)})`
+            );
+
+            await shell.waitForPrompt();
+            expect(
+              await shell.executeLine('config.get("logLocation")')
+            ).contains(customLogDir.path);
+
+            expect(shell.logId).equals(oldLogId);
+
+            const currentLogEntries = await readLogFile();
+
+            try {
+              await readLogFile(customLogDir.path);
+              expect.fail('expected to throw');
+            } catch (error) {
+              expect((error as Error).message).includes(
+                'no such file or directory'
+              );
+            }
+            expect(
+              currentLogEntries.some(
+                (log) => log.attr?.input === 'config.get("logLocation")'
+              )
+            ).is.true;
+            expect(currentLogEntries.length).is.greaterThanOrEqual(
+              oldLogEntries.length
+            );
+          });
         });
 
         it('creates a log file that keeps track of session events', async function () {
