@@ -1450,7 +1450,7 @@ describe('CliRepl', function () {
             cliRepl.config.logRetentionDays = testRetentionDays;
             await cliRepl.start(await testServer.connectionString(), {});
 
-            expect(cliRepl.getConfig('logRetentionDays')).equals(
+            expect(await cliRepl.getConfig('logRetentionDays')).equals(
               testRetentionDays
             );
             expect(cliRepl.logManager?._options.retentionDays).equals(

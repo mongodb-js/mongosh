@@ -1722,7 +1722,9 @@ describe('e2e', function () {
             const globalConfig = path.join(homedir, 'globalconfig.conf');
             await fs.writeFile(
               globalConfig,
-              `mongosh:\n  logLocation: "${customLogDir.path}"\n  logRetentionDays: ${retentionDays}`
+              `mongosh:\n  logLocation: ${JSON.stringify(
+                customLogDir.path
+              )}\n  logRetentionDays: ${retentionDays}`
             );
 
             expect(await getFilesState(paths)).equals('1111111111');
