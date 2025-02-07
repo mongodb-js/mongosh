@@ -259,7 +259,7 @@ export class CliRepl implements MongoshIOProvider {
       directory:
         (await this.getConfig('logLocation')) ||
         this.shellHomeDirectory.localPath('.'),
-      retentionDays: 30,
+      retentionDays: await this.getConfig('logRetentionDays'),
       maxLogFileCount: +(
         process.env.MONGOSH_TEST_ONLY_MAX_LOG_FILE_COUNT || 100
       ),

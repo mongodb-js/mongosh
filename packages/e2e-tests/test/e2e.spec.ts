@@ -1,7 +1,7 @@
 /* eslint-disable no-control-regex */
 import { expect } from 'chai';
 import type { Db } from 'mongodb';
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 
 import { eventually } from '../../../testing/eventually';
 import { TestShell } from './test-shell';
@@ -1673,6 +1673,77 @@ describe('e2e', function () {
             expect(currentLogEntries.length).is.greaterThanOrEqual(
               oldLogEntries.length
             );
+          });
+        });
+
+        /** Helper to visualize and compare the existence of files in a specific order.
+         * Returns a string comprised of: 1 if a given file exists, 0 otherwise. */
+        const getFilesState = async (paths: string[]) => {
+          return (
+            await Promise.all(
+              paths.map((path) =>
+                fs.stat(path).then(
+                  () => 1,
+                  () => 0
+                )
+              )
+            )
+          ).join('');
+        };
+
+        describe('with custom log retention days', function () {
+          const customLogDir = useTmpdir();
+
+          it('should delete older files according to the setting', async function () {
+            const paths: string[] = [];
+            const today = Math.floor(Date.now() / 1000);
+            const tenDaysAgo = today - 10 * 24 * 60 * 60;
+            // Create 6 files older than 7 days
+            for (let i = 5; i >= 0; i--) {
+              const filename = path.join(
+                customLogDir.path,
+                ObjectId.createFromTime(tenDaysAgo - i).toHexString() + '_log'
+              );
+              await fs.writeFile(filename, '');
+              paths.push(filename);
+            }
+            // Create 4 files newer than 10 days
+            for (let i = 3; i >= 0; i--) {
+              const filename = path.join(
+                customLogDir.path,
+                ObjectId.createFromTime(today - i).toHexString() + '_log'
+              );
+              await fs.writeFile(filename, '');
+              paths.push(filename);
+            }
+
+            const retentionDays = 7;
+
+            const globalConfig = path.join(homedir, 'globalconfig.conf');
+            await fs.writeFile(
+              globalConfig,
+              `mongosh:\n  logLocation: ${JSON.stringify(
+                customLogDir.path
+              )}\n  logRetentionDays: ${retentionDays}`
+            );
+
+            expect(await getFilesState(paths)).equals('1111111111');
+
+            shell = this.startTestShell({
+              args: ['--nodb'],
+              env: {
+                ...env,
+                MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING: globalConfig,
+              },
+              forceTerminal: true,
+            });
+
+            await shell.waitForPrompt();
+
+            // Add the newly created log file
+            paths.push(path.join(customLogDir.path, `${shell.logId}_log`));
+            // Expect 6 files to be deleted and 5 to remain (including the new log file)
+            expect(await getFilesState(paths)).equals('00000011111');
           });
         });
 
