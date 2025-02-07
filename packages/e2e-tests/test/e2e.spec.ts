@@ -1605,7 +1605,7 @@ describe('e2e', function () {
             const globalConfig = path.join(homedir, 'globalconfig.conf');
             await fs.writeFile(
               globalConfig,
-              `mongosh:\n  logLocation: "${customLogDir.path}"`
+              `mongosh:\n  logLocation: ${JSON.stringify(customLogDir.path)}`
             );
 
             shell = this.startTestShell({
@@ -1645,7 +1645,7 @@ describe('e2e', function () {
 
             const oldLogEntries = await readLogFile();
             await shell.executeLine(
-              `config.set("logLocation", "${customLogDir.path}")`
+              `config.set("logLocation", ${JSON.stringify(customLogDir.path)})`
             );
 
             await shell.waitForPrompt();
