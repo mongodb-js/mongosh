@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Thu Feb 06 2025.
+This document was automatically generated on Fri Feb 07 2025.
 
 ## List of dependencies
 
@@ -70,8 +70,6 @@ Package|Version|License
 **[@babel/template](#3c75119e7609dea949724f8fca09fa5070562bec09a8f3bb3ad4d5301aa67ce0)**|7.22.15|MIT
 **[@babel/traverse](#30097e39f159c2eb3863a791d6a98f23c7d5ac1cac6578a2deb827a48fefc7a0)**|7.23.2|MIT
 **[@babel/types](#f9cc77d02872cde090c99c280cfff1306d7ad77fb22d15f53ad97a58c3db944e)**|7.25.8|MIT
-**[@hapi/hoek](#a306f63b06e22206da212d9805ac6d378591ee24cb90b85f5f84eeee9e418a87)**|9.3.0|BSD-3-Clause
-**[@hapi/topo](#c08672fb909d4d2d143fdec500a195120eeb0ac994445f970a7b9410041e3848)**|5.1.0|BSD-3-Clause
 **[@jridgewell/gen-mapping](#1e660067f4d1364dc830c372517d8ec92eddc9af7eaa6b1e698d478b286abafa)**|0.1.1|MIT
 **[@jridgewell/gen-mapping](#25a8188ec7d87cf1b9baf2470bad1f75a22f246ca0fca732933d26fd488ef5d2)**|0.3.5|MIT
 **[@jridgewell/resolve-uri](#f356bc3bb9c04f5fe4e387a4eea4e74125aae03bb50f846d956d7d986d200f50)**|3.1.0|MIT
@@ -100,9 +98,6 @@ Package|Version|License
 **[@segment/analytics-core](#4df204335137c1be0e2456e45c1b988a6eda1959ef34664939db7d4ebe0e72d6)**|1.4.1|MIT
 **[@segment/analytics-generic-utils](#f064ef211464a877de186ba80a2b881afe7d01d63b2dce26ed1617bea73cc8e8)**|1.1.1|MIT
 **[@segment/analytics-node](#58e7b7b66af2e3048a6aaf463674230cd63cd4670c15f54c7b398b9322fb3512)**|1.3.0|MIT
-**[@sideway/address](#a69b04dfb91e7ed9dfebde8978885fa6cb71380f90c4a6910b4468ef22006656)**|4.1.4|BSD-3-Clause
-**[@sideway/formula](#6c070cae39d9ee3e7d72f59431fa5a20be4660757c11799c0c4d0feadffc4239)**|3.0.1|BSD-3-Clause
-**[@sideway/pinpoint](#d100d8e40cb7a7e3f131fc99c670ab9346bcb117d901182b698a0c36009f2aab)**|2.0.0|BSD-3-Clause
 **[@smithy/abort-controller](#e096515dc54ebf7931a6657b0a1ff241aeca817d97adc0184ecb81c8db70ab6d)**|3.1.1|Apache-2.0
 **[@smithy/config-resolver](#50159dd3d75e4f4233935008371e16a6721f052e958a5c4b9c7283e5adaf8f33)**|3.0.5|Apache-2.0
 **[@smithy/core](#749a0fb1e4c53b137238c48185e5c3b28f76bb8b82f263aadf175a0acf7976b3)**|2.3.1|Apache-2.0
@@ -298,7 +293,6 @@ Package|Version|License
 **[is-wsl](#133bdb52dad1bbd87bcda9564e6df13fe7c51ae7d67575fea63cf0a2072ac884)**|2.2.0|MIT
 **[isarray](#dd5060a7691a8157c413dadfba4ff4c1de7480dcfd6d34af69a9696558358cec)**|1.0.0|MIT
 **[isexe](#2f62e711a6921973ef3f9650fd3e06585fd3842e34078c8fa959481738600405)**|2.0.0|ISC
-**[joi](#3dbf18f89935aa8b3578d1d6c306f899e3e018ed55c07e1fa81d1d7d4d00623f)**|17.8.3|BSD-3-Clause
 **[jose](#7c6ba2890a65df8d382e1b102b311651675d0ed5fd5443e911c520b18e93f62f)**|4.15.5|MIT
 **[js-beautify](#4d9446c42fb3dfd9b4130a7d3a0b2014c777cebed3243efef61c2a606c8b3e02)**|1.15.1|MIT
 **[js-cookie](#f53439f108d887a45acefce4403f678c2f64b23a3a897f3dbf60927ff4ac25fd)**|3.0.5|MIT
@@ -460,6 +454,7 @@ Package|Version|License
 **[yallist](#63b110ffd18712146937e9f182800c6f2b5783e76d1659a0bd4b457789b0df07)**|3.1.1|ISC
 **[yallist](#d400799c4e1f58dbbbe68b4d9c1b6e80e023f744bd7d16da491005fd8439200f)**|4.0.0|ISC
 **[yargs-parser](#d114360895423d9e902d0d2591b959ed4b0c309f8cec3e7b22fb6ed5502d1c19)**|20.2.9|ISC
+**[zod](#36d2d68ea49c393ad7836e352f9fb8f5ba4c5d4b0bfece81110efb7b73a0bb45)**|3.24.1|MIT
 
 ## Package details
 
@@ -7487,48 +7482,6 @@ License files:
       
 
 
-<a id="a306f63b06e22206da212d9805ac6d378591ee24cb90b85f5f84eeee9e418a87"></a>
-### [@hapi/hoek](https://www.npmjs.com/package/@hapi/hoek) (version 9.3.0)
-License tags: BSD-3-Clause
-
-License files:
-* LICENSE.md:
-
-      Copyright (c) 2011-2020, Sideway Inc, and project contributors  
-      Copyright (c) 2011-2014, Walmart  
-      Copyright (c) 2011, Yahoo Inc.
-      
-      All rights reserved.
-      
-      Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-      * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-      * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-      * The names of any contributors may not be used to endorse or promote products derived from this software without specific prior written permission.
-      
-      THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS OFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-      
-
-
-<a id="c08672fb909d4d2d143fdec500a195120eeb0ac994445f970a7b9410041e3848"></a>
-### [@hapi/topo](https://www.npmjs.com/package/@hapi/topo) (version 5.1.0)
-License tags: BSD-3-Clause
-
-License files:
-* LICENSE.md:
-
-      Copyright (c) 2012-2020, Sideway Inc, and project contributors  
-      Copyright (c) 2012-2014, Walmart.  
-      All rights reserved.
-      
-      Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-      * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-      * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-      * The names of any contributors may not be used to endorse or promote products derived from this software without specific prior written permission.
-      
-      THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS OFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-      
-
-
 <a id="1e660067f4d1364dc830c372517d8ec92eddc9af7eaa6b1e698d478b286abafa"></a>
 ### [@jridgewell/gen-mapping](https://www.npmjs.com/package/@jridgewell/gen-mapping) (version 0.1.1)
 License tags: MIT
@@ -10633,64 +10586,6 @@ License files:
       LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
-      
-
-
-<a id="a69b04dfb91e7ed9dfebde8978885fa6cb71380f90c4a6910b4468ef22006656"></a>
-### [@sideway/address](https://www.npmjs.com/package/@sideway/address) (version 4.1.4)
-License tags: BSD-3-Clause
-
-License files:
-* LICENSE.md:
-
-      Copyright (c) 2019-2020, Sideway, Inc. and Project contributors
-      All rights reserved.
-      
-      Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-       * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-       * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-       * The names of any contributors may not be used to endorse or promote products derived from this software without specific prior written permission.
-      
-      THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-      
-
-
-<a id="6c070cae39d9ee3e7d72f59431fa5a20be4660757c11799c0c4d0feadffc4239"></a>
-### [@sideway/formula](https://www.npmjs.com/package/@sideway/formula) (version 3.0.1)
-License tags: BSD-3-Clause
-
-License files:
-* LICENSE.md:
-
-      Copyright (c) 2019-2020, Sideway. Inc, and project contributors
-      All rights reserved.
-      
-      Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-       * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-       * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-       * The names of any contributors may not be used to endorse or promote products derived from this software without specific prior written permission.
-      
-      THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-      
-
-
-<a id="d100d8e40cb7a7e3f131fc99c670ab9346bcb117d901182b698a0c36009f2aab"></a>
-### [@sideway/pinpoint](https://www.npmjs.com/package/@sideway/pinpoint) (version 2.0.0)
-License tags: BSD-3-Clause
-
-License files:
-* LICENSE.md:
-
-      Copyright (c) 2019-2020, Sideway. Inc, and project contributors  
-      
-      All rights reserved.
-      
-      Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-      * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-      * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-      * The names of any contributors may not be used to endorse or promote products derived from this software without specific prior written permission.
-      
-      THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS OFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       
 
 
@@ -25368,27 +25263,6 @@ License files:
       
 
 
-<a id="3dbf18f89935aa8b3578d1d6c306f899e3e018ed55c07e1fa81d1d7d4d00623f"></a>
-### [joi](https://www.npmjs.com/package/joi) (version 17.8.3)
-License tags: BSD-3-Clause
-
-License files:
-* LICENSE.md:
-
-      Copyright (c) 2012-2022, Project contributors.
-      Copyright (c) 2012-2022, Sideway. Inc.
-      Copyright (c) 2012-2014, Walmart.
-      All rights reserved.
-      
-      Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-      * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-      * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-      * The names of any contributors may not be used to endorse or promote products derived from this software without specific prior written permission.
-      
-      THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-      
-
-
 <a id="7c6ba2890a65df8d382e1b102b311651675d0ed5fd5443e911c520b18e93f62f"></a>
 ### [jose](https://www.npmjs.com/package/jose) (version 4.15.5)
 License tags: MIT
@@ -31940,6 +31814,37 @@ License files:
       OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
       WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
       ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+      
+
+
+<a id="36d2d68ea49c393ad7836e352f9fb8f5ba4c5d4b0bfece81110efb7b73a0bb45"></a>
+### [zod](https://www.npmjs.com/package/zod) (version 3.24.1)
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      MIT License
+      
+      Copyright (c) 2020 Colin McDonnell
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
       
 
 
