@@ -137,7 +137,6 @@ const translations: Catalog = {
           description: 'Shell log methods',
           link: '#',
           attributes: {
-            // TODO(MONGOSH-1995): Print help for the global log property.
             info: {
               description: 'Writes a custom info message to the log file',
               example: 'log.info("Custom info message")',
@@ -166,6 +165,10 @@ const translations: Catalog = {
           description: 'Shell Help',
           link: 'https://docs.mongodb.com/manual/reference/method',
           attributes: {
+            log: {
+              description:
+                "'log.info(<msg>)': Writes a custom info/warn/error/fatal/debug message to the log file",
+            },
             use: {
               description: 'Set current database',
             },
@@ -181,13 +184,13 @@ const translations: Catalog = {
             },
             show: {
               description:
-                "'show databases'/'show dbs': Print a list of all available databases.\n" +
-                "'show collections'/'show tables': Print a list of all collections for current database.\n" +
-                "'show profile': Prints system.profile information.\n" +
-                "'show users': Print a list of all users for current database.\n" +
-                "'show roles': Print a list of all roles for current database.\n" +
+                "'show databases'/'show dbs': Print a list of all available databases\n" +
+                "'show collections'/'show tables': Print a list of all collections for current database\n" +
+                "'show profile': Prints system.profile information\n" +
+                "'show users': Print a list of all users for current database\n" +
+                "'show roles': Print a list of all roles for current database\n" +
                 "'show log <type>': log for current connection, if type is not set uses 'global'\n" +
-                "'show logs': Print all logs.\n",
+                "'show logs': Print all logs",
             },
             connect: {
               description:

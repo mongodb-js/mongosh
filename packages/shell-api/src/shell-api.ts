@@ -36,6 +36,7 @@ import { dirname } from 'path';
 import { ShellUserConfig } from '@mongosh/types';
 import i18n from '@mongosh/i18n';
 import { MONGOSH_VERSION } from './mongosh-version';
+import type { ShellLog } from './shell-log';
 
 const instanceStateSymbol = Symbol.for('@@mongosh.instanceState');
 const loadCallNestingLevelSymbol = Symbol.for('@@mongosh.loadCallNestingLevel');
@@ -186,6 +187,10 @@ export default class ShellApi extends ShellApiClass {
     this[loadCallNestingLevelSymbol] = 0;
     this.DBQuery = new DBQuery(instanceState);
     this.config = new ShellConfig(instanceState);
+  }
+
+  get log(): ShellLog {
+    return this[instanceStateSymbol].shellLog;
   }
 
   get _instanceState(): ShellInstanceState {
