@@ -1868,23 +1868,26 @@ describe('e2e', function () {
           const newLogId = shell.logId;
           expect(newLogId).not.null;
           expect(oldLogId).equals(newLogId);
-          log = await readLogFile();
 
-          expect(
-            log.filter(
-              (logEntry) => logEntry.attr?.input === 'print(111 + 222)'
-            )
-          ).to.have.lengthOf(1);
-          expect(
-            log.filter(
-              (logEntry) => logEntry.attr?.input === 'print(579 - 123)'
-            )
-          ).to.have.lengthOf(1);
-          expect(
-            log.filter(
-              (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
-            )
-          ).to.have.lengthOf(0);
+          await eventually(async () => {
+            log = await readLogFile();
+
+            expect(
+              log.filter(
+                (logEntry) => logEntry.attr?.input === 'print(111 + 222)'
+              )
+            ).to.have.lengthOf(1);
+            expect(
+              log.filter(
+                (logEntry) => logEntry.attr?.input === 'print(579 - 123)'
+              )
+            ).to.have.lengthOf(1);
+            expect(
+              log.filter(
+                (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
+              )
+            ).to.have.lengthOf(0);
+          });
         });
 
         it('includes information about the driver version', async function () {
