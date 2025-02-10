@@ -167,7 +167,7 @@ const translations: Catalog = {
           attributes: {
             log: {
               description:
-                "'log.info(<msg>)': Writes a custom info/warn/error/fatal/debug message to the log file",
+                "'log.info(<msg>)': Write a custom info/warn/error/fatal/debug message to the log file",
             },
             use: {
               description: 'Set current database',
