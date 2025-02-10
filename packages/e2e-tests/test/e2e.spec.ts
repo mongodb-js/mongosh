@@ -1747,6 +1747,58 @@ describe('e2e', function () {
           });
         });
 
+        describe('with custom log retention max file count', function () {
+          const customLogDir = useTmpdir();
+
+          it('should delete files once it is above the max file count limit', async function () {
+            const globalConfig = path.join(homedir, 'globalconfig.conf');
+            await fs.writeFile(
+              globalConfig,
+              `mongosh:\n  logLocation: ${JSON.stringify(
+                customLogDir.path
+              )}\n  logMaxFileCount: 4`
+            );
+            const paths: string[] = [];
+            const offset = Math.floor(Date.now() / 1000);
+
+            // Create 10 log files
+            for (let i = 9; i >= 0; i--) {
+              const filename = path.join(
+                customLogDir.path,
+                ObjectId.createFromTime(offset - i).toHexString() + '_log'
+              );
+              await fs.writeFile(filename, '');
+              paths.push(filename);
+            }
+
+            // All 10 existing log files exist.
+            expect(await getFilesState(paths)).to.equal('1111111111');
+            shell = this.startTestShell({
+              args: ['--nodb'],
+              env: {
+                ...env,
+                MONGOSH_TEST_ONLY_MAX_LOG_FILE_COUNT: '',
+                MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING: globalConfig,
+              },
+              forceTerminal: true,
+            });
+
+            await shell.waitForPrompt();
+
+            // Add the newly created log to the file list.
+            paths.push(
+              path.join(customLogDir.path, `${shell.logId as string}_log`)
+            );
+
+            expect(
+              await shell.executeLine('config.get("logMaxFileCount")')
+            ).contains('4');
+
+            // Expect 7 files to be deleted and 4 to remain (including the new log file)
+            expect(await getFilesState(paths)).to.equal('00000001111');
+          });
+        });
+
         it('creates a log file that keeps track of session events', async function () {
           expect(await shell.executeLine('print(123 + 456)')).to.include('579');
           const log = await readLogFile();
@@ -1816,23 +1868,26 @@ describe('e2e', function () {
           const newLogId = shell.logId;
           expect(newLogId).not.null;
           expect(oldLogId).equals(newLogId);
-          log = await readLogFile();
 
-          expect(
-            log.filter(
-              (logEntry) => logEntry.attr?.input === 'print(111 + 222)'
-            )
-          ).to.have.lengthOf(1);
-          expect(
-            log.filter(
-              (logEntry) => logEntry.attr?.input === 'print(579 - 123)'
-            )
-          ).to.have.lengthOf(1);
-          expect(
-            log.filter(
-              (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
-            )
-          ).to.have.lengthOf(0);
+          await eventually(async () => {
+            log = await readLogFile();
+
+            expect(
+              log.filter(
+                (logEntry) => logEntry.attr?.input === 'print(111 + 222)'
+              )
+            ).to.have.lengthOf(1);
+            expect(
+              log.filter(
+                (logEntry) => logEntry.attr?.input === 'print(579 - 123)'
+              )
+            ).to.have.lengthOf(1);
+            expect(
+              log.filter(
+                (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
+              )
+            ).to.have.lengthOf(0);
+          });
         });
 
         it('includes information about the driver version', async function () {

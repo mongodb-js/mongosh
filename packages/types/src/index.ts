@@ -510,6 +510,7 @@ export class CliUserConfig extends SnippetShellUserConfig {
   disableLogging = false;
   logLocation: string | undefined = undefined;
   logRetentionDays = 30;
+  logMaxFileCount = 100;
 }
 
 export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
@@ -533,6 +534,7 @@ export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
       case 'inspectDepth':
       case 'historyLength':
       case 'logRetentionDays':
+      case 'logMaxFileCount':
         if (typeof value !== 'number' || value < 0) {
           return `${key} must be a positive integer`;
         }
