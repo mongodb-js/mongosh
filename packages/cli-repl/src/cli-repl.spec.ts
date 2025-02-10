@@ -325,6 +325,7 @@ describe('CliRepl', function () {
           'logLocation',
           'logRetentionDays',
           'logMaxFileCount',
+          'logCompressionEnabled',
         ] satisfies (keyof CliUserConfig)[]);
       });
 
@@ -1476,6 +1477,16 @@ describe('CliRepl', function () {
 
             process.env.MONGOSH_TEST_ONLY_MAX_LOG_FILE_COUNT =
               oldEnvironmentLimit;
+          });
+
+          it('can set log compression', async function () {
+            cliRepl.config.logCompressionEnabled = true;
+            await cliRepl.start(await testServer.connectionString(), {});
+
+            expect(await cliRepl.getConfig('logCompressionEnabled')).equals(
+              true
+            );
+            expect(cliRepl.logManager?._options.gzip).equals(true);
           });
         });
 

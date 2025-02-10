@@ -511,6 +511,7 @@ export class CliUserConfig extends SnippetShellUserConfig {
   logLocation: string | undefined = undefined;
   logRetentionDays = 30;
   logMaxFileCount = 100;
+  logCompressionEnabled = false;
 }
 
 export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
@@ -542,6 +543,7 @@ export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
       case 'disableLogging':
       case 'forceDisableTelemetry':
       case 'showStackTraces':
+      case 'logCompressionEnabled':
         if (typeof value !== 'boolean') {
           return `${key} must be a boolean`;
         }

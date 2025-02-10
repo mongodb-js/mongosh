@@ -37,6 +37,13 @@ describe('config validation', function () {
     expect(await validate('logMaxFileCount', -1)).to.equal(
       'logMaxFileCount must be a positive integer'
     );
+    expect(await validate('logCompressionEnabled', 'foo')).to.equal(
+      'logCompressionEnabled must be a boolean'
+    );
+    expect(await validate('logCompressionEnabled', -1)).to.equal(
+      'logCompressionEnabled must be a boolean'
+    );
+    expect(await validate('logCompressionEnabled', false)).to.equal(null);
     expect(await validate('showStackTraces', 'foo')).to.equal(
       'showStackTraces must be a boolean'
     );
