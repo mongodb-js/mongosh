@@ -1691,6 +1691,49 @@ describe('e2e', function () {
           ).join('');
         };
 
+        describe('with custom log compression', function () {
+          const customLogDir = useTmpdir();
+
+          it('should created compressed files when enabled', async function () {
+            const globalConfig = path.join(homedir, 'globalconfig.conf');
+            await fs.writeFile(
+              globalConfig,
+              `mongosh:\n  logLocation: ${JSON.stringify(
+                customLogDir.path
+              )}\n  logCompressionEnabled: true`
+            );
+
+            shell = this.startTestShell({
+              args: ['--nodb'],
+              env: {
+                ...env,
+                MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING: globalConfig,
+              },
+              forceTerminal: true,
+            });
+
+            await shell.waitForPrompt();
+
+            const logFile = path.join(
+              customLogDir.path,
+              `${shell.logId as string}_log`
+            );
+            const logFileGzip = path.join(
+              customLogDir.path,
+              `${shell.logId as string}_log.gz`
+            );
+
+            // Only the gzipped file should exist
+            expect(await getFilesState([logFile, logFileGzip])).equals('01');
+
+            const logContent = await fs.readFile(logFileGzip);
+
+            // gzipped files start with 0x1f 0x8b
+            expect(logContent[0]).equals(0x1f);
+            expect(logContent[1]).equals(0x8b);
+          });
+        });
+
         describe('with custom log retention days', function () {
           const customLogDir = useTmpdir();
 
