@@ -1464,7 +1464,7 @@ describe('CliRepl', function () {
             cliRepl.config.logMaxFileCount = testMaxFileCount;
             await cliRepl.start(await testServer.connectionString(), {});
 
-            expect(cliRepl.getConfig('logMaxFileCount')).equals(
+            expect(await cliRepl.getConfig('logMaxFileCount')).equals(
               testMaxFileCount
             );
             expect(cliRepl.logManager?._options.maxLogFileCount).equals(
