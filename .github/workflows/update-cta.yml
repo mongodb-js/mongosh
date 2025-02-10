@@ -18,6 +18,9 @@ on:
         required: true
         default: CTA-Production
 
+permissions:
+  contents: read
+
 jobs:
   dry-run:
     name: Update greeting CTA

@@ -8,11 +8,14 @@ interface ManPageConfig {
   fileName: string;
 }
 
-// TODO: this is duplicated in update-notification-manager.ts
+// This needs to match the interface in cli-repl/update-notification-manager.ts
 export interface GreetingCTADetails {
   chunks: {
     text: string;
-    style?: string; // TODO: this is actually clr.ts/StyleDefinition
+    // This is actually cli-repl/clr.ts/StyleDefinition, but we can't import it here.
+    // The correct type is already enforced in json schema, so treating it as a generic
+    // string is fine.
+    style?: string;
   }[];
 }
 
