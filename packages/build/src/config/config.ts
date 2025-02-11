@@ -1,4 +1,4 @@
-import { Schema } from 'ajv';
+import type { Schema } from 'ajv';
 import type { PackageInformationProvider } from '../packaging/package';
 import type { PackageVariant } from './build-variant';
 
