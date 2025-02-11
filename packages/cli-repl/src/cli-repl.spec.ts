@@ -1462,7 +1462,7 @@ describe('CliRepl', function () {
             expect(cliRepl.logWriter?.logFilePath).equals(
               path.join(
                 customLogHomePath,
-                (cliRepl.logWriter?.logId as string) + '_log'
+                'mongosh_' + (cliRepl.logWriter?.logId as string) + '_log'
               )
             );
           });
