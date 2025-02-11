@@ -1448,7 +1448,10 @@ describe('CliRepl', function () {
             );
           });
 
-          it('does not use a prefix if the custom location is the same as the home location', async function () {
+          it('uses a prefix even if the custom location is the same as the home location', async function () {
+            // This is a corner case where the custom location is the same as the home location.
+            // The prefix is still added to the log file name for consistency. If the user needs
+            // the default behavior for the log names, they should instead set the location to undefined.
             const customLogHomePath = cliRepl.shellHomeDirectory.localPath('.');
             cliRepl.config.logLocation = customLogHomePath;
             await cliRepl.start(await testServer.connectionString(), {});
