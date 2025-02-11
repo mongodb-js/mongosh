@@ -1466,10 +1466,10 @@ describe('CliRepl', function () {
             cliRepl.config.logRetentionGB = testLogRetentionGB;
             await cliRepl.start(await testServer.connectionString(), {});
 
-            expect(cliRepl.getConfig('logRetentionGB')).equals(
+            expect(await cliRepl.getConfig('logRetentionGB')).equals(
               testLogRetentionGB
             );
-            expect(cliRepl.logManager?._options.logRetentionGB).equals(
+            expect(cliRepl.logManager?._options.retentionGB).equals(
               testLogRetentionGB
             );
           });

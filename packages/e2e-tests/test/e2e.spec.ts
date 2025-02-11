@@ -1581,7 +1581,7 @@ describe('e2e', function () {
             await shell.waitForPrompt();
             shell.assertContainsOutput('Ignoring config option "logLocation"');
             shell.assertContainsOutput(
-              'must be a valid absolute path or empty'
+              'must be a valid absolute path or undefined'
             );
 
             expect(
@@ -1589,7 +1589,7 @@ describe('e2e', function () {
                 'config.set("logLocation", "[123123123123]")'
               )
             ).contains(
-              'Cannot set option "logLocation": logLocation must be a valid absolute path or empty'
+              'Cannot set option "logLocation": logLocation must be a valid absolute path or undefined'
             );
           });
 
