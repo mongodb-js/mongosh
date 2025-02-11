@@ -1,8 +1,8 @@
 {
-  "version": "20.18.2",
+  "version": "20.18.3",
   "major": 20,
   "minor": 18,
-  "patch": 2,
+  "patch": 3,
   "tag": "",
   "codename": "iron",
   "versionName": "v20",
@@ -10,7 +10,7 @@
   "lts": "2023-10-24T00:00:00.000Z",
   "maintenance": "2024-10-22T00:00:00.000Z",
   "end": "2026-04-30T00:00:00.000Z",
-  "releaseDate": "2025-01-21T00:00:00.000Z",
+  "releaseDate": "2025-02-10T00:00:00.000Z",
   "isLts": true,
   "files": [
     "aix-ppc64",
