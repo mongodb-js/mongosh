@@ -1825,6 +1825,56 @@ describe('e2e', function () {
           });
         });
 
+        describe('with custom log retention max logs size', function () {
+          const customLogDir = useTmpdir();
+
+          it('should delete files once it is above the logs retention GB', async function () {
+            const globalConfig = path.join(homedir, 'globalconfig.conf');
+            await fs.writeFile(
+              globalConfig,
+              // Set logRetentionGB to 4 KB
+              `mongosh:\n  logLocation: ${JSON.stringify(
+                customLogDir.path
+              )}\n  logRetentionGB: ${4 / 1024 / 1024}`
+            );
+            const paths: string[] = [];
+            const offset = Math.floor(Date.now() / 1000);
+
+            // Create 10 log files, 1kb each
+            for (let i = 9; i >= 0; i--) {
+              const filename = path.join(
+                customLogDir.path,
+                ObjectId.createFromTime(offset - i).toHexString() + '_log'
+              );
+              await fs.writeFile(filename, '0'.repeat(1024));
+              paths.push(filename);
+            }
+
+            // All 10 existing log files exist.
+            expect(await getFilesState(paths)).to.equal('1111111111');
+            shell = this.startTestShell({
+              args: ['--nodb'],
+              env,
+              globalConfigPath: globalConfig,
+              forceTerminal: true,
+            });
+
+            await shell.waitForPrompt();
+
+            // Add the newly created log to the file list.
+            paths.push(
+              path.join(customLogDir.path, `${shell.logId as string}_log`)
+            );
+
+            expect(
+              await shell.executeLine('config.get("logRetentionGB")')
+            ).contains(`${4 / 1024 / 1024}`);
+
+            // Expect 6 files to be deleted and 5 to remain (including the new log file)
+            expect(await getFilesState(paths)).to.equal('00000011111');
+          });
+        });
+
         it('creates a log file that keeps track of session events', async function () {
           expect(await shell.executeLine('print(123 + 456)')).to.include('579');
           const log = await readLogFile();
