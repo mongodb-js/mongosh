@@ -1433,7 +1433,7 @@ describe('CliRepl', function () {
           });
 
           const customLogLocation = useTmpdir();
-          it('can set the log location', async function () {
+          it('can set the log location and uses a prefix', async function () {
             cliRepl.config.logLocation = customLogLocation.path;
             await cliRepl.start(await testServer.connectionString(), {});
 
@@ -1443,6 +1443,22 @@ describe('CliRepl', function () {
             expect(cliRepl.logWriter?.logFilePath).equals(
               path.join(
                 customLogLocation.path,
+                'mongosh_' + (cliRepl.logWriter?.logId as string) + '_log'
+              )
+            );
+          });
+
+          it('does not use a prefix if the custom location is the same as the home location', async function () {
+            const customLogHomePath = cliRepl.shellHomeDirectory.localPath('.');
+            cliRepl.config.logLocation = customLogHomePath;
+            await cliRepl.start(await testServer.connectionString(), {});
+
+            expect(await cliRepl.getConfig('logLocation')).equals(
+              customLogHomePath
+            );
+            expect(cliRepl.logWriter?.logFilePath).equals(
+              path.join(
+                customLogHomePath,
                 (cliRepl.logWriter?.logId as string) + '_log'
               )
             );
