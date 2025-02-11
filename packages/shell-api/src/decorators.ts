@@ -473,14 +473,22 @@ function shellApiClassGeneric<T extends { prototype: any }>(
       constructor.prototype,
       propertyName
     );
+
+    if (toIgnore.includes(propertyName) || propertyName.startsWith('_')) {
+      continue;
+    }
+
     const isMethod =
       descriptor?.value && typeof descriptor.value === 'function';
-    if (
-      !isMethod ||
-      toIgnore.includes(propertyName) ||
-      propertyName.startsWith('_')
-    )
+    if (!isMethod) {
+      const attributeHelpKeyPrefix = `${classHelpKeyPrefix}.attributes.${propertyName}`;
+      classHelp.attr.push({
+        name: propertyName,
+        description: `${attributeHelpKeyPrefix}.description`,
+      });
       continue;
+    }
+
     let method: any = (descriptor as any).value;
 
     if ((constructor as any)[addSourceToResultsSymbol]) {

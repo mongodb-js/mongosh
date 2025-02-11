@@ -316,6 +316,7 @@ export default class ShellInstanceState {
   setCtx(contextObject: any): void {
     this.context = contextObject;
     Object.assign(contextObject, this.shellApi);
+    contextObject.log = this.shellLog;
     for (const name of Object.getOwnPropertyNames(ShellApi.prototype)) {
       const { shellApi } = this;
       if (
@@ -364,8 +365,6 @@ export default class ShellInstanceState {
         get: () => this.currentDb,
       });
     }
-
-    contextObject.log = this.shellLog;
 
     this.messageBus.emit('mongosh:setCtx', { method: 'setCtx', arguments: {} });
   }
