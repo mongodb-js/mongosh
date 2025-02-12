@@ -1832,21 +1832,21 @@ describe('e2e', function () {
             const globalConfig = path.join(homedir, 'globalconfig.conf');
             await fs.writeFile(
               globalConfig,
-              // Set logRetentionGB to 40 KB and we will create prior 10 log files, 10 KB each
+              // Set logRetentionGB to 4 MB and we will create prior 10 log files, 1 MB each
               `mongosh:\n  logLocation: ${JSON.stringify(
                 customLogDir.path
-              )}\n  logRetentionGB: ${40 / 1024 / 1024}`
+              )}\n  logRetentionGB: ${4 / 1024}`
             );
             const paths: string[] = [];
             const offset = Math.floor(Date.now() / 1000);
 
-            // Create 10 log files, 10kb each
+            // Create 10 log files, around 1 mb each
             for (let i = 9; i >= 0; i--) {
               const filename = path.join(
                 customLogDir.path,
                 ObjectId.createFromTime(offset - i).toHexString() + '_log'
               );
-              await fs.writeFile(filename, '0'.repeat(1024 * 10));
+              await fs.writeFile(filename, '0'.repeat(1024 * 1024));
               paths.push(filename);
             }
 
@@ -1868,10 +1868,10 @@ describe('e2e', function () {
 
             expect(
               await shell.executeLine('config.get("logRetentionGB")')
-            ).contains(`${40 / 1024 / 1024}`);
+            ).contains(`${4 / 1024}`);
 
             // Expect 6 files to be deleted and 4 to remain
-            // (including the new log file which should be <10 kb)
+            // (including the new log file which should be <1 MB)
             expect(await getFilesState(paths)).to.equal('00000001111');
           });
         });
