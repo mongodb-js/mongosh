@@ -1852,6 +1852,7 @@ describe('e2e', function () {
               args: ['--nodb'],
               env: {
                 ...env,
+                MONGOSH_TEST_ONLY_MAX_LOG_FILE_COUNT: '',
                 MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING: globalConfig,
               },
               forceTerminal: true,
@@ -1917,17 +1918,15 @@ describe('e2e', function () {
               )}\n  logRetentionGB: ${4 / 1024}`
             );
             const paths: string[] = [];
-            const offset = Math.floor(Date.now() / 1000);
 
             // Create 10 log files, around 1 mb each
-            for (let i = 9; i >= 0; i--) {
-              const filename = path.join(
-                customLogDir.path,
-                ObjectId.createFromTime(offset - i).toHexString() + '_log'
-              );
-              await fs.writeFile(filename, '0'.repeat(1024 * 1024));
-              paths.push(filename);
-            }
+            paths.push(
+              ...(await createFakeLogFiles({
+                count: 10,
+                size: 1024 * 1024,
+                basePath: customLogDir.path,
+              }))
+            );
 
             // All 10 existing log files exist.
             expect(await getFilesState(paths)).to.equal('1111111111');
