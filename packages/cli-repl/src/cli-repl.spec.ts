@@ -326,6 +326,7 @@ describe('CliRepl', function () {
           'logRetentionDays',
           'logMaxFileCount',
           'logCompressionEnabled',
+          'logRetentionGB',
         ] satisfies (keyof CliUserConfig)[]);
       });
 
@@ -1457,6 +1458,19 @@ describe('CliRepl', function () {
             );
             expect(cliRepl.logManager?._options.retentionDays).equals(
               testRetentionDays
+            );
+          });
+
+          it('can set log retention GB', async function () {
+            const testLogRetentionGB = 10;
+            cliRepl.config.logRetentionGB = testLogRetentionGB;
+            await cliRepl.start(await testServer.connectionString(), {});
+
+            expect(await cliRepl.getConfig('logRetentionGB')).equals(
+              testLogRetentionGB
+            );
+            expect(cliRepl.logManager?._options.retentionGB).equals(
+              testLogRetentionGB
             );
           });
 

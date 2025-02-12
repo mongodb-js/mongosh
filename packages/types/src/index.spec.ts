@@ -31,6 +31,14 @@ describe('config validation', function () {
     expect(await validate('logRetentionDays', -1)).to.equal(
       'logRetentionDays must be a positive integer'
     );
+    expect(await validate('logRetentionGB', 'foo')).to.equal(
+      'logRetentionGB must be a positive number or undefined'
+    );
+    expect(await validate('logRetentionGB', -1)).to.equal(
+      'logRetentionGB must be a positive number or undefined'
+    );
+    expect(await validate('logRetentionGB', undefined)).to.equal(null);
+    expect(await validate('logRetentionGB', 100)).to.equal(null);
     expect(await validate('logMaxFileCount', 'foo')).to.equal(
       'logMaxFileCount must be a positive integer'
     );

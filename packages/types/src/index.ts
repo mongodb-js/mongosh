@@ -515,6 +515,7 @@ export class CliUserConfig extends SnippetShellUserConfig {
   logRetentionDays = 30;
   logMaxFileCount = 100;
   logCompressionEnabled = false;
+  logRetentionGB: number | undefined = undefined;
 }
 
 export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
@@ -541,6 +542,11 @@ export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
       case 'logMaxFileCount':
         if (typeof value !== 'number' || value < 0) {
           return `${key} must be a positive integer`;
+        }
+        return null;
+      case 'logRetentionGB':
+        if (value !== undefined && (typeof value !== 'number' || value < 0)) {
+          return `${key} must be a positive number or undefined`;
         }
         return null;
       case 'disableLogging':
@@ -595,7 +601,7 @@ export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
           value !== undefined &&
           (typeof value !== 'string' || !path.isAbsolute(value))
         ) {
-          return `${key} must be a valid absolute path or empty`;
+          return `${key} must be a valid absolute path or undefined`;
         }
         return null;
       default:
