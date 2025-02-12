@@ -1,6 +1,7 @@
 #!/bin/sh
 set -x
 set -e
+
 # just to make sure: we are in the mongosh root dir
 test -x packages && grep -q '"name": "mongosh"' package.json
 npm -v

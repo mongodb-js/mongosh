@@ -3598,6 +3598,10 @@ functions:
           {
           source .evergreen/setup-env.sh
           (cd scripts/docker && docker build -t ubuntu24.04-xvfb -f ubuntu24.04-xvfb.Dockerfile .)
+          apt list --installed
+          sudo apt-get update
+          sudo apt-get install -y curl=7.68.0-1ubuntu2.22 libcurl4=7.68.0-1ubuntu2.22 libcurl4-openssl-dev=7.68.0-1ubuntu2.22
+
           docker run \
             --rm -v $PWD:/tmp/build ubuntu24.04-xvfb \
             -c 'cd /tmp/build && ./testing/test-vscode.sh'
