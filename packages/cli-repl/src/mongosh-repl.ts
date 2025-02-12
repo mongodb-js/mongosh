@@ -119,6 +119,11 @@ type MongoshRuntimeState = {
   console: Console;
 };
 
+type GreetingDetails = {
+  moreRecentMongoshVersion?: string | null;
+  currentVersionCTA?: { text: string; style?: StyleDefinition }[];
+};
+
 /* Utility, inverse of Readonly<T> */
 type Mutable<T> = {
   -readonly [P in keyof T]: T[P];
@@ -185,7 +190,7 @@ class MongoshNodeRepl implements EvaluationListener {
    */
   async initialize(
     serviceProvider: ServiceProvider,
-    moreRecentMongoshVersion?: string | null
+    greeting?: GreetingDetails
   ): Promise<InitializationToken> {
     const usePlainVMContext = this.shellCliOptions.jsContext === 'plain-vm';
 
@@ -229,7 +234,7 @@ class MongoshNodeRepl implements EvaluationListener {
             (mongodVersion ? mongodVersion + ' ' : '') +
             `(API Version ${apiVersion})`;
         }
-        await this.greet(mongodVersion, moreRecentMongoshVersion);
+        await this.greet(mongodVersion, greeting);
       }
     }
 
@@ -603,7 +608,7 @@ class MongoshNodeRepl implements EvaluationListener {
    */
   async greet(
     mongodVersion: string,
-    moreRecentMongoshVersion?: string | null
+    greeting?: GreetingDetails
   ): Promise<void> {
     if (this.shellCliOptions.quiet) {
       return;
@@ -617,15 +622,23 @@ class MongoshNodeRepl implements EvaluationListener {
       'Using Mongosh',
       'mongosh:section-header'
     )}:\t\t${version}\n`;
-    if (moreRecentMongoshVersion) {
+    if (greeting?.moreRecentMongoshVersion) {
       text += `mongosh ${this.clr(
-        moreRecentMongoshVersion,
+        greeting.moreRecentMongoshVersion,
         'bold'
       )} is available for download: ${this.clr(
         'https://www.mongodb.com/try/download/shell',
         'mongosh:uri'
       )}\n`;
     }
+
+    if (greeting?.currentVersionCTA) {
+      for (const run of greeting.currentVersionCTA) {
+        text += this.clr(run.text, run.style);
+      }
+      text += '\n';
+    }
+
     text += `${MONGOSH_WIKI}\n`;
     if (!(await this.getConfig('disableGreetingMessage'))) {
       text += `${TELEMETRY_GREETING_MESSAGE}\n`;

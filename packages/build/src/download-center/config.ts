@@ -9,13 +9,13 @@ import type {
 } from '@mongodb-js/dl-center/dist/download-center-config';
 import {
   ARTIFACTS_BUCKET,
-  ARTIFACTS_FOLDER,
+  JSON_FEED_ARTIFACT_KEY,
   ARTIFACTS_URL_PUBLIC_BASE,
   CONFIGURATION_KEY,
   CONFIGURATIONS_BUCKET,
   ARTIFACTS_FALLBACK,
 } from './constants';
-import type { PackageVariant } from '../config';
+import type { CTAConfig, GreetingCTADetails, PackageVariant } from '../config';
 import {
   ALL_PACKAGE_VARIANTS,
   getDownloadCenterDistroDescription,
@@ -32,6 +32,24 @@ import path from 'path';
 import semver from 'semver';
 import { hashListFiles } from '../run-download-and-list-artifacts';
 
+async function getCurrentJsonFeed(
+  dlcenterArtifacts: DownloadCenterCls
+): Promise<JsonFeed | undefined> {
+  let existingJsonFeedText;
+  try {
+    existingJsonFeedText = await dlcenterArtifacts.downloadAsset(
+      JSON_FEED_ARTIFACT_KEY
+    );
+  } catch (err: any) {
+    console.warn('Failed to get existing JSON feed text', err);
+    if (err?.code !== 'NoSuchKey') throw err;
+  }
+
+  return existingJsonFeedText
+    ? JSON.parse(existingJsonFeedText.toString())
+    : undefined;
+}
+
 export async function createAndPublishDownloadCenterConfig(
   outputDir: string,
   packageInformation: PackageInformationProvider,
@@ -39,6 +57,7 @@ export async function createAndPublishDownloadCenterConfig(
   awsSecretAccessKey: string,
   injectedJsonFeedFile: string,
   isDryRun: boolean,
+  ctaConfig: CTAConfig,
   DownloadCenter: typeof DownloadCenterCls = DownloadCenterCls,
   publicArtifactBaseUrl: string = ARTIFACTS_URL_PUBLIC_BASE
 ): Promise<void> {
@@ -80,20 +99,8 @@ export async function createAndPublishDownloadCenterConfig(
     accessKeyId: awsAccessKeyId,
     secretAccessKey: awsSecretAccessKey,
   });
-  const jsonFeedArtifactkey = `${ARTIFACTS_FOLDER}/mongosh.json`;
-  let existingJsonFeedText;
-  try {
-    existingJsonFeedText = await dlcenterArtifacts.downloadAsset(
-      jsonFeedArtifactkey
-    );
-  } catch (err: any) {
-    console.warn('Failed to get existing JSON feed text', err);
-    if (err?.code !== 'NoSuchKey') throw err;
-  }
 
-  const existingJsonFeed: JsonFeed | undefined = existingJsonFeedText
-    ? JSON.parse(existingJsonFeedText.toString())
-    : undefined;
+  const existingJsonFeed = await getCurrentJsonFeed(dlcenterArtifacts);
   const injectedJsonFeed: JsonFeed | undefined = injectedJsonFeedFile
     ? JSON.parse(await fs.readFile(injectedJsonFeedFile, 'utf8'))
     : undefined;
@@ -114,6 +121,8 @@ export async function createAndPublishDownloadCenterConfig(
     currentJsonFeedWrapped
   );
 
+  populateJsonFeedCTAs(newJsonFeed, ctaConfig);
+
   if (isDryRun) {
     console.warn('Not uploading download center config in dry-run mode');
     return;
@@ -122,10 +131,47 @@ export async function createAndPublishDownloadCenterConfig(
   await Promise.all([
     dlcenter.uploadConfig(CONFIGURATION_KEY, config),
     dlcenterArtifacts.uploadAsset(
-      jsonFeedArtifactkey,
+      JSON_FEED_ARTIFACT_KEY,
       JSON.stringify(newJsonFeed, null, 2)
     ),
   ]);
+}
+
+export async function updateJsonFeedCTA(
+  config: CTAConfig,
+  awsAccessKeyId: string,
+  awsSecretAccessKey: string,
+  isDryRun: boolean,
+  DownloadCenter: typeof DownloadCenterCls = DownloadCenterCls
+) {
+  const dlcenterArtifacts = new DownloadCenter({
+    bucket: ARTIFACTS_BUCKET,
+    accessKeyId: awsAccessKeyId,
+    secretAccessKey: awsSecretAccessKey,
+  });
+
+  const jsonFeed = await getCurrentJsonFeed(dlcenterArtifacts);
+  if (!jsonFeed) {
+    throw new Error('No existing JSON feed found');
+  }
+
+  populateJsonFeedCTAs(jsonFeed, config);
+
+  const patchedJsonFeed = JSON.stringify(jsonFeed, null, 2);
+  if (isDryRun) {
+    console.warn('Not uploading JSON feed in dry-run mode');
+    console.warn(`Patched JSON feed: ${patchedJsonFeed}`);
+    return;
+  }
+
+  await dlcenterArtifacts.uploadAsset(JSON_FEED_ARTIFACT_KEY, patchedJsonFeed);
+}
+
+function populateJsonFeedCTAs(jsonFeed: JsonFeed, ctas: CTAConfig) {
+  jsonFeed.cta = ctas['*'];
+  for (const version of jsonFeed.versions) {
+    version.cta = ctas[version.version];
+  }
 }
 
 export function getUpdatedDownloadCenterConfig(
@@ -201,13 +247,15 @@ export function createVersionConfig(
   };
 }
 
-interface JsonFeed {
+export interface JsonFeed {
   versions: JsonFeedVersionEntry[];
+  cta?: GreetingCTADetails;
 }
 
 interface JsonFeedVersionEntry {
   version: string;
   downloads: JsonFeedDownloadEntry[];
+  cta?: GreetingCTADetails;
 }
 
 interface JsonFeedDownloadEntry {
@@ -275,6 +323,8 @@ function mergeFeeds(...args: (JsonFeed | undefined)[]): JsonFeed {
       if (index === -1) newFeed.versions.unshift(version);
       else newFeed.versions.splice(index, 1, version);
     }
+
+    newFeed.cta = feed?.cta ?? newFeed.cta;
   }
   newFeed.versions.sort((a, b) => semver.rcompare(a.version, b.version));
   return newFeed;

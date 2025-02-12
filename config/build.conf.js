@@ -75,6 +75,10 @@ const MANPAGE_NAME = 'mongosh.1.gz'
  */
 const PACKAGE_VARIANT = process.env.PACKAGE_VARIANT;
 
+const CTA_CONFIG = require(path.join(ROOT, 'config', 'cta-config.json'));
+
+const CTA_CONFIG_SCHEMA = require(path.join(ROOT, 'config', 'cta-config.schema.json'));
+
 /**
  * Export the configuration for the build.
  */
@@ -194,4 +198,6 @@ module.exports = {
     downloadPath: path.resolve(TMP_DIR, 'manpage'),
     fileName: MANPAGE_NAME,
   },
+  ctaConfig: CTA_CONFIG,
+  ctaConfigSchema: CTA_CONFIG_SCHEMA,
 };

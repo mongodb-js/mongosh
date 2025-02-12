@@ -92,7 +92,8 @@ export async function publishMongosh(
     config.downloadCenterAwsKey || '',
     config.downloadCenterAwsSecret || '',
     config.injectedJsonFeedFile || '',
-    !!config.isDryRun
+    !!config.isDryRun,
+    config.ctaConfig
   );
 
   await mongoshGithubRepo.promoteRelease(config);

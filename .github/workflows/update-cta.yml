@@ -1,0 +1,49 @@
+name: Update greeting CTA
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - config/cta.conf.js
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: Run the script without updating the CTA
+        type: boolean
+        required: false
+        default: false
+      environment:
+        description: The environment to run the script in - must have the DOWNLOAD_CENTER_AWS_KEY and DOWNLOAD_CENTER_AWS_SECRET secrets configured
+        type: environment
+        required: true
+        default: CTA-Production
+
+permissions:
+  contents: read
+
+jobs:
+  dry-run:
+    name: Update greeting CTA
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'CTA-Production'}}
+    env:
+      npm_config_loglevel: verbose
+      npm_config_foreground_scripts: "true"
+      PUPPETEER_SKIP_DOWNLOAD: "true"
+      DOWNLOAD_CENTER_AWS_KEY: ${{ secrets.DOWNLOAD_CENTER_AWS_KEY }}
+      DOWNLOAD_CENTER_AWS_SECRET: ${{ secrets.DOWNLOAD_CENTER_AWS_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ^20.x
+          cache: "npm"
+
+      - name: Install Dependencies and Compile
+        run: |
+          npm ci
+          npm run compile
+
+      - name: Update greeting CTA
+        run: |
+          npm run update-cta ${{ github.event.inputs.dry-run && '-- --dry-run' || '' }}
