@@ -261,10 +261,7 @@ export class CliRepl implements MongoshIOProvider {
         this.shellHomeDirectory.localPath('.'),
       retentionDays: await this.getConfig('logRetentionDays'),
       gzip: await this.getConfig('logCompressionEnabled'),
-      maxLogFileCount: +(
-        process.env.MONGOSH_TEST_ONLY_MAX_LOG_FILE_COUNT ||
-        (await this.getConfig('logMaxFileCount'))
-      ),
+      maxLogFileCount: await this.getConfig('logMaxFileCount'),
       onerror: (err: Error) => this.bus.emit('mongosh:error', err, 'log'),
       onwarn: (err: Error, path: string) =>
         this.warnAboutInaccessibleFile(err, path),

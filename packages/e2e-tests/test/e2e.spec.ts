@@ -1414,7 +1414,7 @@ describe('e2e', function () {
       startTestShell = async (...extraArgs: string[]) => {
         const shell = this.startTestShell({
           args: ['--nodb', ...extraArgs],
-          env: env,
+          env,
           forceTerminal: true,
         });
         await shell.waitForPrompt();
@@ -1467,10 +1467,8 @@ describe('e2e', function () {
           );
           shell = this.startTestShell({
             args: ['--nodb'],
-            env: {
-              ...env,
-              MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING: globalConfig,
-            },
+            env,
+            globalConfigPath: globalConfig,
             forceTerminal: true,
           });
           await shell.waitForPrompt();
@@ -1524,10 +1522,8 @@ describe('e2e', function () {
           await fs.writeFile(globalConfig, 'mongosh:\n  disableLogging: true');
           shell = this.startTestShell({
             args: ['--nodb'],
-            env: {
-              ...env,
-              MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING: globalConfig,
-            },
+            env,
+            globalConfigPath: globalConfig,
             forceTerminal: true,
           });
           await shell.waitForPrompt();
@@ -1545,10 +1541,8 @@ describe('e2e', function () {
           await fs.writeFile(globalConfig, 'mongosh:\n  disableLogging: false');
           shell = this.startTestShell({
             args: ['--nodb'],
-            env: {
-              ...env,
-              MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING: globalConfig,
-            },
+            env,
+            globalConfigPath: globalConfig,
             forceTerminal: true,
           });
           await shell.waitForPrompt();
@@ -1580,10 +1574,8 @@ describe('e2e', function () {
 
             shell = this.startTestShell({
               args: ['--nodb'],
-              env: {
-                ...env,
-                MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING: globalConfig,
-              },
+              env,
+              globalConfigPath: globalConfig,
               forceTerminal: true,
             });
             await shell.waitForPrompt();
@@ -1610,10 +1602,8 @@ describe('e2e', function () {
 
             shell = this.startTestShell({
               args: ['--nodb'],
-              env: {
-                ...env,
-                MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING: globalConfig,
-              },
+              env,
+              globalConfigPath: globalConfig,
               forceTerminal: true,
             });
             await shell.waitForPrompt();
@@ -1705,10 +1695,8 @@ describe('e2e', function () {
 
             shell = this.startTestShell({
               args: ['--nodb'],
-              env: {
-                ...env,
-                MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING: globalConfig,
-              },
+              env,
+              globalConfigPath: globalConfig,
               forceTerminal: true,
             });
 
@@ -1774,10 +1762,8 @@ describe('e2e', function () {
 
             shell = this.startTestShell({
               args: ['--nodb'],
-              env: {
-                ...env,
-                MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING: globalConfig,
-              },
+              env,
+              globalConfigPath: globalConfig,
               forceTerminal: true,
             });
 
@@ -1818,11 +1804,8 @@ describe('e2e', function () {
             expect(await getFilesState(paths)).to.equal('1111111111');
             shell = this.startTestShell({
               args: ['--nodb'],
-              env: {
-                ...env,
-                MONGOSH_TEST_ONLY_MAX_LOG_FILE_COUNT: '',
-                MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING: globalConfig,
-              },
+              env,
+              globalConfigPath: globalConfig,
               forceTerminal: true,
             });
 
