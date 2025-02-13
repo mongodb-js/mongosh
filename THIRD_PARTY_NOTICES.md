@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Wed Feb 12 2025.
+This document was automatically generated on Thu Feb 13 2025.
 
 ## List of dependencies
 
@@ -333,7 +333,7 @@ Package|Version|License
 **[mongodb-client-encryption](#d8efb4ae363035b677f38203b1acc7b0d69b22f13b17e95d09d151bf9928072a)**|6.1.1|Apache-2.0
 **[mongodb-connection-string-url](#2e1146256a89ebd24e3398881e03807fe363d58444e6b7952ea50bd6108707bc)**|3.0.1|Apache-2.0
 **[mongodb-crypt-library-version](#003bd2892d6f6fdac0613ba8f9a2fbb054ddd1c26901e1d2fc7e83861b21cf4d)**|1.0.5|Apache-2.0
-**[mongodb-log-writer](#0ea266b0fdd89dc0e20fe8fce081aaceb79e60918c606b3ab6e8b3978aa36ab5)**|2.3.0|Apache-2.0
+**[mongodb-log-writer](#861a6f7bbd07f1fc008955cc04714e6aa3e540a7449a2ab621b7dae0ad51ff96)**|2.3.1|Apache-2.0
 **[mongodb-redact](#6fe8cef9beca5f3e1e3e999f47975ae99dcf4488419b28fc6d5eafc436081623)**|1.1.5|Apache-2.0
 **[mongodb](#cb726cf7a5329fc15d51574a4bc2e29682afe46afb788a94370b09643ab98a72)**|6.12.0|Apache-2.0
 **[ms](#484b814b85d5028e34246147c8fc901d33570202bd7cdc3703c0ed1078eba0aa)**|2.0.0|MIT
@@ -27372,8 +27372,8 @@ License files:
       
 
 
-<a id="0ea266b0fdd89dc0e20fe8fce081aaceb79e60918c606b3ab6e8b3978aa36ab5"></a>
-### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 2.3.0)
+<a id="861a6f7bbd07f1fc008955cc04714e6aa3e540a7449a2ab621b7dae0ad51ff96"></a>
+### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 2.3.1)
 License tags: Apache-2.0
 
 License files:
