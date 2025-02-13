@@ -1470,18 +1470,12 @@ describe('CliRepl', function () {
             expect(await cliRepl.getConfig('logLocation')).equals(
               customLogHomePath
             );
-            expect(cliRepl.logWriter?.logFilePath).equals(
-              path.join(
-                customLogHomePath,
-                'mongosh_' + (cliRepl.logWriter?.logId as string) + '_log'
-              )
+            const logName = path.join(
+              customLogHomePath,
+              'mongosh_' + (cliRepl.logWriter?.logId as string) + '_log'
             );
-            expect(cliRepl.getLogPath()).equals(
-              path.join(
-                customLogLocation.path,
-                (cliRepl.logWriter?.logId as string) + '_log'
-              )
-            );
+            expect(cliRepl.logWriter?.logFilePath).equals(logName);
+            expect(cliRepl.getLogPath()).equals(path.join(logName));
           });
 
           it('can set log retention days', async function () {
