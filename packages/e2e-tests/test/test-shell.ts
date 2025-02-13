@@ -39,6 +39,7 @@ export interface TestShellOptions {
   cwd?: string;
   forceTerminal?: boolean;
   consumeStdio?: boolean;
+  globalConfigPath?: string;
 }
 
 /**
@@ -61,6 +62,13 @@ export class TestShell {
     let env = options.env || process.env;
     if (options.forceTerminal) {
       env = { ...env, MONGOSH_FORCE_TERMINAL: '1' };
+    }
+
+    if (options.globalConfigPath) {
+      env = {
+        ...env,
+        MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING: options.globalConfigPath,
+      };
     }
 
     const args = [...options.args];

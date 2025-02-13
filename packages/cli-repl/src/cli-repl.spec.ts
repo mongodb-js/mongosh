@@ -326,6 +326,7 @@ describe('CliRepl', function () {
           'logRetentionDays',
           'logMaxFileCount',
           'logCompressionEnabled',
+          'logRetentionGB',
         ] satisfies (keyof CliUserConfig)[]);
       });
 
@@ -1477,12 +1478,22 @@ describe('CliRepl', function () {
             );
           });
 
+          it('can set log retention GB', async function () {
+            const testLogRetentionGB = 10;
+            cliRepl.config.logRetentionGB = testLogRetentionGB;
+            await cliRepl.start(await testServer.connectionString(), {});
+
+            expect(await cliRepl.getConfig('logRetentionGB')).equals(
+              testLogRetentionGB
+            );
+            expect(cliRepl.logManager?._options.retentionGB).equals(
+              testLogRetentionGB
+            );
+          });
+
           it('can set log max file count', async function () {
             const testMaxFileCount = 123;
             cliRepl.config.logMaxFileCount = testMaxFileCount;
-            const oldEnvironmentLimit =
-              process.env.MONGOSH_TEST_ONLY_MAX_LOG_FILE_COUNT;
-            delete process.env.MONGOSH_TEST_ONLY_MAX_LOG_FILE_COUNT;
             await cliRepl.start(await testServer.connectionString(), {});
 
             expect(await cliRepl.getConfig('logMaxFileCount')).equals(
@@ -1491,9 +1502,6 @@ describe('CliRepl', function () {
             expect(cliRepl.logManager?._options.maxLogFileCount).equals(
               testMaxFileCount
             );
-
-            process.env.MONGOSH_TEST_ONLY_MAX_LOG_FILE_COUNT =
-              oldEnvironmentLimit;
           });
 
           it('can set log compression', async function () {
