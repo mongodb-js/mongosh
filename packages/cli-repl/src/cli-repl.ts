@@ -262,10 +262,11 @@ export class CliRepl implements MongoshIOProvider {
       throw new Error('Logging and telemetry not setup');
     }
 
+    const customLogLocation = await this.getConfig('logLocation');
+
     this.logManager ??= new MongoLogManager({
-      directory:
-        (await this.getConfig('logLocation')) ||
-        this.shellHomeDirectory.localPath('.'),
+      directory: customLogLocation || this.shellHomeDirectory.localPath('.'),
+      prefix: customLogLocation ? 'mongosh_' : undefined,
       retentionDays: await this.getConfig('logRetentionDays'),
       gzip: await this.getConfig('logCompressionEnabled'),
       maxLogFileCount: await this.getConfig('logMaxFileCount'),
