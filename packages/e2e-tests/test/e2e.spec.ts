@@ -1407,7 +1407,7 @@ describe('e2e', function () {
         }
         const logPath = path.join(
           customBasePath ?? logBasePath,
-          `${shell.logId}_log`
+          `${customBasePath ? 'mongosh_' : ''}${shell.logId}_log`
         );
         return readReplLogFile<T>(logPath);
       };
@@ -1681,6 +1681,43 @@ describe('e2e', function () {
           ).join('');
         };
 
+        const getLogName = (
+          logId: string | null,
+          { isCompressed = false, prefix = 'mongosh_' } = {}
+        ): string => {
+          if (!logId) throw new Error('logId is not set');
+          return `${prefix}${logId}_log${isCompressed ? '.gz' : ''}`;
+        };
+
+        /** Creates fake log files for testing. */
+        const createFakeLogFiles = async ({
+          count,
+          prefix = 'mongosh_',
+          size = 0,
+          offset,
+          basePath,
+        }: {
+          count: number;
+          offset?: number;
+          prefix?: string;
+          basePath: string | null;
+          size?: number;
+        }): Promise<string[]> => {
+          const paths: string[] = [];
+          offset ??= Math.floor(Date.now() / 1000);
+          for (let i = count - 1; i >= 0; i--) {
+            const logPath = path.join(
+              basePath ?? logBasePath,
+              getLogName(ObjectId.createFromTime(offset - i).toHexString(), {
+                prefix,
+              })
+            );
+            paths.push(logPath);
+            await fs.writeFile(logPath, '0'.repeat(size));
+          }
+          return paths;
+        };
+
         describe('with custom log compression', function () {
           const customLogDir = useTmpdir();
 
@@ -1704,11 +1741,11 @@ describe('e2e', function () {
 
             const logFile = path.join(
               customLogDir.path,
-              `${shell.logId as string}_log`
+              getLogName(shell.logId)
             );
             const logFileGzip = path.join(
               customLogDir.path,
-              `${shell.logId as string}_log.gz`
+              getLogName(shell.logId, { isCompressed: true })
             );
 
             // Only the gzipped file should exist
@@ -1729,26 +1766,26 @@ describe('e2e', function () {
             const paths: string[] = [];
             const today = Math.floor(Date.now() / 1000);
             const tenDaysAgo = today - 10 * 24 * 60 * 60;
-            // Create 6 files older than 7 days
-            for (let i = 5; i >= 0; i--) {
-              const filename = path.join(
-                customLogDir.path,
-                ObjectId.createFromTime(tenDaysAgo - i).toHexString() + '_log'
-              );
-              await fs.writeFile(filename, '');
-              paths.push(filename);
-            }
-            // Create 4 files newer than 10 days
-            for (let i = 3; i >= 0; i--) {
-              const filename = path.join(
-                customLogDir.path,
-                ObjectId.createFromTime(today - i).toHexString() + '_log'
-              );
-              await fs.writeFile(filename, '');
-              paths.push(filename);
-            }
 
             const retentionDays = 7;
+
+            // Create 6 files older than 7 days
+            paths.push(
+              ...(await createFakeLogFiles({
+                count: 6,
+                offset: tenDaysAgo,
+                basePath: customLogDir.path,
+              }))
+            );
+
+            // Create 4 files newer than 7 days
+            paths.push(
+              ...(await createFakeLogFiles({
+                count: 4,
+                offset: today,
+                basePath: customLogDir.path,
+              }))
+            );
 
             const globalConfig = path.join(homedir, 'globalconfig.conf');
             await fs.writeFile(
@@ -1770,7 +1807,7 @@ describe('e2e', function () {
             await shell.waitForPrompt();
 
             // Add the newly created log file
-            paths.push(path.join(customLogDir.path, `${shell.logId}_log`));
+            paths.push(path.join(customLogDir.path, getLogName(shell.logId)));
             // Expect 6 files to be deleted and 5 to remain (including the new log file)
             expect(await getFilesState(paths)).equals('00000011111');
           });
@@ -1778,6 +1815,57 @@ describe('e2e', function () {
 
         describe('with logMaxFileCount', function () {
           const customLogDir = useTmpdir();
+
+          it('should only delete files with mongosh_ prefix in a custom location', async function () {
+            const globalConfig = path.join(homedir, 'globalconfig.conf');
+            await fs.writeFile(
+              globalConfig,
+              `mongosh:\n  logLocation: ${JSON.stringify(
+                customLogDir.path
+              )}\n  logMaxFileCount: 2`
+            );
+
+            const paths: string[] = [];
+
+            // Create 3 log files without mongosh_ prefix
+            paths.push(
+              ...(await createFakeLogFiles({
+                count: 3,
+                prefix: '',
+                basePath: customLogDir.path,
+              }))
+            );
+
+            // Create 4 log files with mongosh_ prefix
+            paths.push(
+              ...(await createFakeLogFiles({
+                count: 3,
+                prefix: 'mongosh_',
+                basePath: customLogDir.path,
+              }))
+            );
+
+            // All 7 existing log files exist.
+            expect(await getFilesState(paths)).to.equal('111111');
+
+            shell = this.startTestShell({
+              args: ['--nodb'],
+              env: {
+                ...env,
+                MONGOSH_TEST_ONLY_MAX_LOG_FILE_COUNT: '',
+                MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING: globalConfig,
+              },
+              forceTerminal: true,
+            });
+
+            await shell.waitForPrompt();
+
+            paths.push(path.join(customLogDir.path, getLogName(shell.logId)));
+            // 3 log files without mongosh_ prefix should remain
+            // 2 log file with mongosh_ prefix should be deleted
+            // 2 log files with mongosh_ prefix should remain (including the new log)
+            expect(await getFilesState(paths)).to.equal('1110011');
+          });
 
           it('should delete files once it is above logMaxFileCount', async function () {
             const globalConfig = path.join(homedir, 'globalconfig.conf');
@@ -1787,18 +1875,12 @@ describe('e2e', function () {
                 customLogDir.path
               )}\n  logMaxFileCount: 4`
             );
-            const paths: string[] = [];
-            const offset = Math.floor(Date.now() / 1000);
 
             // Create 10 log files
-            for (let i = 9; i >= 0; i--) {
-              const filename = path.join(
-                customLogDir.path,
-                ObjectId.createFromTime(offset - i).toHexString() + '_log'
-              );
-              await fs.writeFile(filename, '');
-              paths.push(filename);
-            }
+            const paths = await createFakeLogFiles({
+              count: 10,
+              basePath: customLogDir.path,
+            });
 
             // All 10 existing log files exist.
             expect(await getFilesState(paths)).to.equal('1111111111');
@@ -1812,9 +1894,7 @@ describe('e2e', function () {
             await shell.waitForPrompt();
 
             // Add the newly created log to the file list.
-            paths.push(
-              path.join(customLogDir.path, `${shell.logId as string}_log`)
-            );
+            paths.push(path.join(customLogDir.path, getLogName(shell.logId)));
 
             expect(
               await shell.executeLine('config.get("logMaxFileCount")')
@@ -1838,17 +1918,15 @@ describe('e2e', function () {
               )}\n  logRetentionGB: ${4 / 1024}`
             );
             const paths: string[] = [];
-            const offset = Math.floor(Date.now() / 1000);
 
             // Create 10 log files, around 1 mb each
-            for (let i = 9; i >= 0; i--) {
-              const filename = path.join(
-                customLogDir.path,
-                ObjectId.createFromTime(offset - i).toHexString() + '_log'
-              );
-              await fs.writeFile(filename, '0'.repeat(1024 * 1024));
-              paths.push(filename);
-            }
+            paths.push(
+              ...(await createFakeLogFiles({
+                count: 10,
+                size: 1024 * 1024,
+                basePath: customLogDir.path,
+              }))
+            );
 
             // All 10 existing log files exist.
             expect(await getFilesState(paths)).to.equal('1111111111');
@@ -1862,9 +1940,7 @@ describe('e2e', function () {
             await shell.waitForPrompt();
 
             // Add the newly created log to the file list.
-            paths.push(
-              path.join(customLogDir.path, `${shell.logId as string}_log`)
-            );
+            paths.push(path.join(customLogDir.path, getLogName(shell.logId)));
 
             expect(
               await shell.executeLine('config.get("logRetentionGB")')
