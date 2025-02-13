@@ -630,7 +630,6 @@ export interface ConfigProvider<T> {
     value: T[K]
   ): Promise<string | null>;
   listConfigOptions(): string[] | undefined | Promise<string[]>;
-  getLogPath(): string | undefined;
 }
 
 function isValidUrl(url: string): boolean {

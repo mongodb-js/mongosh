@@ -117,6 +117,11 @@ export interface EvaluationListener
    * options used to access it.
    */
   getCryptLibraryOptions?: () => Promise<AutoEncryptionOptions['extraOptions']>;
+
+  /**
+   * Called when log.getPath() is used in the shell.
+   */
+  getLogPath?: () => string | undefined;
 }
 
 /**

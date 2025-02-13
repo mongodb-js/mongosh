@@ -1984,6 +1984,13 @@ describe('e2e', function () {
           });
         });
 
+        it('gets a path to the current log file', async function () {
+          await shell.executeLine('log.getPath()');
+          expect(shell.assertNoErrors());
+          const logPath = path.join(logBasePath, `${shell.logId}_log`);
+          expect(shell.output).to.include(logPath);
+        });
+
         it('writes custom log directly', async function () {
           await shell.executeLine("log.info('This is a custom entry')");
           expect(shell.assertNoErrors());

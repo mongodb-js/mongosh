@@ -626,7 +626,7 @@ describe('worker-runtime', function () {
     });
 
     describe('getLogPath', function () {
-      it('should be called when shell evaluates `getLogPath()`', async function () {
+      it('should be called when shell evaluates `log.getPath()`', async function () {
         const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
@@ -634,7 +634,7 @@ describe('worker-runtime', function () {
 
         await init('mongodb://nodb/', dummyOptions, { nodb: true });
 
-        await evaluate('getLogPath()');
+        await evaluate('log.getPath()');
         expect(evalListener.getLogPath).to.have.been.called;
       });
     });

@@ -78,6 +78,7 @@ export type MongoshIOProvider = Omit<
   ): Promise<{ contents: string; absolutePath: string }>;
   getCryptLibraryOptions(): Promise<AutoEncryptionOptions['extraOptions']>;
   bugReportErrorMessageInfo?(): string | undefined;
+  getLogPath(): string | undefined;
 };
 
 export type JSContext = 'repl' | 'plain-vm';

@@ -137,6 +137,10 @@ const translations: Catalog = {
           description: 'Shell log methods',
           link: '#',
           attributes: {
+            getPath: {
+              description: 'Gets a path to the current log file',
+              example: 'log.getPath()',
+            },
             info: {
               description: 'Writes a custom info message to the log file',
               example: 'log.info("Custom info message")',
@@ -167,7 +171,8 @@ const translations: Catalog = {
           attributes: {
             log: {
               description:
-                "'log.info(<msg>)': Write a custom info/warn/error/fatal/debug message to the log file",
+                "'log.info(<msg>)': Write a custom info/warn/error/fatal/debug message to the log file\n" +
+                "'log.getPath()': Gets a path to the current log file\n",
             },
             use: {
               description: 'Set current database',

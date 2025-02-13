@@ -366,15 +366,6 @@ export default class ShellApi extends ShellApiClass {
     }
   }
 
-  @platforms(['CLI'])
-  getLogPath(): string | undefined {
-    try {
-      return this._instanceState.evaluationListener.getLogPath?.();
-    } catch (err: unknown) {
-      return String(err);
-    }
-  }
-
   @returnsPromise
   @platforms(['CLI'])
   async passwordPrompt(): Promise<string> {
