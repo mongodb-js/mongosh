@@ -424,6 +424,7 @@ export class ShellUserConfig {
   maxTimeMS: number | null = null;
   enableTelemetry = false;
   editor: string | null = null;
+  logLocation: string | undefined;
 }
 
 export class ShellUserConfigValidator {
@@ -623,6 +624,7 @@ export interface ConfigProvider<T> {
     value: T[K]
   ): Promise<string | null>;
   listConfigOptions(): string[] | undefined | Promise<string[]>;
+  getLogPath(): string | undefined;
 }
 
 function isValidUrl(url: string): boolean {

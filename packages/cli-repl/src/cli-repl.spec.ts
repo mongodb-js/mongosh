@@ -1340,6 +1340,7 @@ describe('CliRepl', function () {
       hasCollectionNames: true,
       hasDatabaseNames: true,
     });
+
     context('analytics integration', function () {
       context('with network connectivity', function () {
         let srv: http.Server;
@@ -1431,6 +1432,16 @@ describe('CliRepl', function () {
             ).to.have.lengthOf(1);
           });
 
+          it('can get a log path', async function () {
+            await cliRepl.start(await testServer.connectionString(), {});
+            expect(cliRepl.getLogPath()).equals(
+              path.join(
+                tmpdir.path,
+                (cliRepl.logWriter?.logId as string) + '_log'
+              )
+            );
+          });
+
           const customLogLocation = useTmpdir();
           it('can set the log location', async function () {
             cliRepl.config.logLocation = customLogLocation.path;
@@ -1440,6 +1451,12 @@ describe('CliRepl', function () {
               customLogLocation.path
             );
             expect(cliRepl.logWriter?.logFilePath).equals(
+              path.join(
+                customLogLocation.path,
+                (cliRepl.logWriter?.logId as string) + '_log'
+              )
+            );
+            expect(cliRepl.getLogPath()).equals(
               path.join(
                 customLogLocation.path,
                 (cliRepl.logWriter?.logId as string) + '_log'

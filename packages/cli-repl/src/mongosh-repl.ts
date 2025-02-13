@@ -1124,6 +1124,13 @@ class MongoshNodeRepl implements EvaluationListener {
   }
 
   /**
+   * Implements getLogPath from the {@link ConfigProvider} interface.
+   */
+  getLogPath(): string | undefined {
+    return this.ioProvider.getLogPath();
+  }
+
+  /**
    * Implements setConfig from the {@link ConfigProvider} interface.
    */
   async setConfig<K extends keyof CliUserConfig>(

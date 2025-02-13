@@ -498,6 +498,7 @@ describe('worker-runtime', function () {
           return ['displayBatchSize'];
         },
         onRunInterruptible() {},
+        getLogPath() {},
       };
 
       spySandbox.spy(evalListener, 'onPrint');
@@ -508,6 +509,7 @@ describe('worker-runtime', function () {
       spySandbox.spy(evalListener, 'validateConfig');
       spySandbox.spy(evalListener, 'listConfigOptions');
       spySandbox.spy(evalListener, 'onRunInterruptible');
+      spySandbox.spy(evalListener, 'getLogPath');
 
       return evalListener;
     };
@@ -620,6 +622,20 @@ describe('worker-runtime', function () {
         expect(evalListener.resetConfig).to.have.been.calledWith(
           'displayBatchSize'
         );
+      });
+    });
+
+    describe('getLogPath', function () {
+      it('should be called when shell evaluates `getLogPath()`', async function () {
+        const { init, evaluate } = caller;
+        const evalListener = createSpiedEvaluationListener();
+
+        exposed = exposeAll(evalListener, worker);
+
+        await init('mongodb://nodb/', dummyOptions, { nodb: true });
+
+        await evaluate('getLogPath()');
+        expect(evalListener.getLogPath).to.have.been.called;
       });
     });
 

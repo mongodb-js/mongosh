@@ -62,6 +62,7 @@ const evaluationListener = createCaller<WorkerRuntimeEvaluationListener>(
     'onClearCommand',
     'onExit',
     'onRunInterruptible',
+    'getLogPath',
   ],
   mainMessageBus,
   {
