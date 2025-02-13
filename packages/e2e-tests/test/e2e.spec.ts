@@ -1940,9 +1940,7 @@ describe('e2e', function () {
             await shell.waitForPrompt();
 
             // Add the newly created log to the file list.
-            paths.push(
-              path.join(customLogDir.path, `${shell.logId as string}_log`)
-            );
+            paths.push(path.join(customLogDir.path, getLogName(shell.logId)));
 
             expect(
               await shell.executeLine('config.get("logRetentionGB")')
