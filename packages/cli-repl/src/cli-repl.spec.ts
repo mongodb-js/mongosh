@@ -1341,6 +1341,7 @@ describe('CliRepl', function () {
       hasCollectionNames: true,
       hasDatabaseNames: true,
     });
+
     context('analytics integration', function () {
       context('with network connectivity', function () {
         let srv: http.Server;
@@ -1432,6 +1433,16 @@ describe('CliRepl', function () {
             ).to.have.lengthOf(1);
           });
 
+          it('can get a log path', async function () {
+            await cliRepl.start(await testServer.connectionString(), {});
+            expect(cliRepl.getLogPath()).equals(
+              path.join(
+                tmpdir.path,
+                (cliRepl.logWriter?.logId as string) + '_log'
+              )
+            );
+          });
+
           const customLogLocation = useTmpdir();
           it('can set the log location and uses a prefix', async function () {
             cliRepl.config.logLocation = customLogLocation.path;
@@ -1459,12 +1470,12 @@ describe('CliRepl', function () {
             expect(await cliRepl.getConfig('logLocation')).equals(
               customLogHomePath
             );
-            expect(cliRepl.logWriter?.logFilePath).equals(
-              path.join(
-                customLogHomePath,
-                'mongosh_' + (cliRepl.logWriter?.logId as string) + '_log'
-              )
+            const logName = path.join(
+              customLogHomePath,
+              'mongosh_' + (cliRepl.logWriter?.logId as string) + '_log'
             );
+            expect(cliRepl.logWriter?.logFilePath).equals(logName);
+            expect(cliRepl.getLogPath()).equals(path.join(logName));
           });
 
           it('can set log retention days', async function () {

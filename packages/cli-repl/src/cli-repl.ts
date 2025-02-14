@@ -225,6 +225,13 @@ export class CliRepl implements MongoshIOProvider {
     this.setupOIDCTokenDumpListener();
   }
 
+  /**
+   * Implements getLogPath from the {@link ConfigProvider} interface.
+   */
+  getLogPath(): string | undefined {
+    return this.logWriter?.logFilePath ?? undefined;
+  }
+
   async getIsContainerizedEnvironment() {
     // Check for dockerenv file first
     try {

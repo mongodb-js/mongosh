@@ -78,6 +78,7 @@ export type MongoshIOProvider = Omit<
   ): Promise<{ contents: string; absolutePath: string }>;
   getCryptLibraryOptions(): Promise<AutoEncryptionOptions['extraOptions']>;
   bugReportErrorMessageInfo?(): string | undefined;
+  getLogPath(): string | undefined;
 };
 
 export type JSContext = 'repl' | 'plain-vm';
@@ -1121,6 +1122,13 @@ class MongoshNodeRepl implements EvaluationListener {
     key: K
   ): Promise<CliUserConfig[K] | undefined> {
     return this.ioProvider.getConfig(key);
+  }
+
+  /**
+   * Implements getLogPath from the {@link ConfigProvider} interface.
+   */
+  getLogPath(): string | undefined {
+    return this.ioProvider.getLogPath();
   }
 
   /**

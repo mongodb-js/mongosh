@@ -21,6 +21,10 @@ export class ShellLog extends ShellApiClass {
     this[instanceStateSymbol] = instanceState;
   }
 
+  getPath(): string | undefined {
+    return this._instanceState.evaluationListener.getLogPath?.();
+  }
+
   info(message: string, attr?: unknown) {
     this[instanceStateSymbol].messageBus.emit('mongosh:write-custom-log', {
       method: 'info',
@@ -28,6 +32,7 @@ export class ShellLog extends ShellApiClass {
       attr,
     });
   }
+
   warn(message: string, attr?: unknown) {
     this[instanceStateSymbol].messageBus.emit('mongosh:write-custom-log', {
       method: 'warn',
@@ -35,6 +40,7 @@ export class ShellLog extends ShellApiClass {
       attr,
     });
   }
+
   error(message: string, attr?: unknown) {
     this[instanceStateSymbol].messageBus.emit('mongosh:write-custom-log', {
       method: 'error',
@@ -42,6 +48,7 @@ export class ShellLog extends ShellApiClass {
       attr,
     });
   }
+
   fatal(message: string, attr?: unknown) {
     this[instanceStateSymbol].messageBus.emit('mongosh:write-custom-log', {
       method: 'fatal',
@@ -49,6 +56,7 @@ export class ShellLog extends ShellApiClass {
       attr,
     });
   }
+
   debug(message: string, attr?: unknown, level?: 1 | 2 | 3 | 4 | 5) {
     this[instanceStateSymbol].messageBus.emit('mongosh:write-custom-log', {
       method: 'debug',

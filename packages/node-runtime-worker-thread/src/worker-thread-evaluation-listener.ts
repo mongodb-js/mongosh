@@ -56,6 +56,9 @@ export class WorkerThreadEvaluationListener {
             (Promise.resolve() as Promise<never>)
           );
         },
+        getLogPath() {
+          return workerRuntime.evaluationListener?.getLogPath?.();
+        },
       },
       worker
     );

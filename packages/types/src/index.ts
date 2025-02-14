@@ -424,6 +424,7 @@ export class ShellUserConfig {
   maxTimeMS: number | null = null;
   enableTelemetry = false;
   editor: string | null = null;
+  logLocation: string | undefined;
 }
 
 export class ShellUserConfigValidator {
