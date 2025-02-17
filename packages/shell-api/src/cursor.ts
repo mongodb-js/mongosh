@@ -44,7 +44,7 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCur
    */
   toJSON(): void {
     throw new MongoshInvalidInputError(
-      'Error serializing a cursor. Did you mean to call .toArray() first?',
+      'Cannot serialize a cursor to JSON. Did you mean to call .toArray() first?',
       CommonErrors.InvalidArgument
     );
   }

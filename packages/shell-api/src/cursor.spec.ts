@@ -809,7 +809,7 @@ describe('Cursor', function () {
         } catch (e: any) {
           expect(e).to.be.instanceOf(MongoshInvalidInputError);
           expect(e.message).to.contain(
-            'Error serializing a cursor. Did you mean to call .toArray() first?'
+            'Cannot serialize a cursor to JSON. Did you mean to call .toArray() first?'
           );
           expect(e.code).to.equal(CommonErrors.InvalidArgument);
         }
