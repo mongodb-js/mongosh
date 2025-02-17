@@ -793,6 +793,29 @@ describe('Cursor', function () {
       });
     });
 
+    describe('#toJSON', function () {
+      let spCursor: StubbedInstance<ServiceProviderCursor>;
+      let shellApiCursor: Cursor;
+
+      beforeEach(function () {
+        spCursor = stubInterface<ServiceProviderCursor>();
+        shellApiCursor = new Cursor(mongo, spCursor);
+      });
+
+      it('throws with the .toArray() suggestion', function () {
+        try {
+          JSON.stringify(shellApiCursor);
+          expect.fail('expected error');
+        } catch (e: any) {
+          expect(e).to.be.instanceOf(MongoshInvalidInputError);
+          expect(e.message).to.contain(
+            'Cannot serialize a cursor to JSON. Did you mean to call .toArray() first?'
+          );
+          expect(e.code).to.equal(CommonErrors.InvalidArgument);
+        }
+      });
+    });
+
     describe('#maxScan', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor: Cursor;

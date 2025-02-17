@@ -35,6 +35,21 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCur
   }
 
   /**
+   * Throw a custom exception when a user attempts to serialize a cursor,
+   * pointing to the fact that .toArray() needs to be called first.
+   *
+   * @param {CursorFlag} flag - The cursor flag.
+   *
+   * @returns {void}
+   */
+  toJSON(): void {
+    throw new MongoshInvalidInputError(
+      'Cannot serialize a cursor to JSON. Did you mean to call .toArray() first?',
+      CommonErrors.InvalidArgument
+    );
+  }
+
+  /**
    * Add a flag and return the cursor.
    *
    * @param {CursorFlag} flag - The cursor flag.

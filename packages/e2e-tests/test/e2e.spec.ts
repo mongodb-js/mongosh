@@ -735,6 +735,14 @@ describe('e2e', function () {
       );
     });
 
+    it('throws the .toArray() suggestion when a user attempts to serialize a cursor', async function () {
+      await shell.executeLine('const b = db.test.find()');
+      await shell.executeLine('console.log(JSON.stringify(b));');
+      shell.assertContainsOutput(
+        'Cannot serialize a cursor to JSON. Did you mean to call .toArray() first?'
+      );
+    });
+
     it('expands explain output from aggregation indefinitely', async function () {
       await shell.executeLine(
         'explainOutput = db.test.aggregate([{ $limit: 1 }], {explain: "queryPlanner"})'
