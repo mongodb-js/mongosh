@@ -804,7 +804,7 @@ describe('Cursor', function () {
 
       it('throws with the .toArray() suggestion', function () {
         try {
-          shellApiCursor.toJSON();
+          JSON.stringify(shellApiCursor);
           expect.fail('expected error');
         } catch (e: any) {
           expect(e).to.be.instanceOf(MongoshInvalidInputError);
