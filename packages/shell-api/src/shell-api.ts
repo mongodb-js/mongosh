@@ -213,9 +213,7 @@ export default class ShellApi extends ShellApiClass {
     return await this._instanceState.currentDb._mongo.show(cmd, arg);
   }
 
-  @directShellCommand
   @returnsPromise
-  @shellCommandCompleter(showCompleter)
   async _untrackedShow(cmd: string, arg?: string): Promise<CommandResult> {
     return await this._instanceState.currentDb._mongo.show(cmd, arg, false);
   }
