@@ -818,8 +818,8 @@ describe('completer.completer', function () {
       ]);
     });
 
-    it('does not complete unsupported methods like db.test.renameCollection', async function () {
-      const i = 'db.test.renameC';
+    it('does not complete unsupported methods like db.test.compactStructuredEncryptionData', async function () {
+      const i = 'db.test.compactS';
       expect(await completer(apiStrictParams, i)).to.deep.equal([[], i]);
     });
 
