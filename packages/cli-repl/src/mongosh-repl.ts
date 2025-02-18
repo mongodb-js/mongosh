@@ -402,7 +402,7 @@ class MongoshNodeRepl implements EvaluationListener {
       const replHistory: string[] = (this.runtimeState().repl as any).history;
       const formattedHistory =
         // Remove the history call from the formatted history
-        replHistory.slice(1, replHistory.length).reverse();
+        replHistory.slice(1).reverse();
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       formattedHistory[util.inspect.custom as any] = (() => {

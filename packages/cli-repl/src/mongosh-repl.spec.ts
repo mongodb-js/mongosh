@@ -22,6 +22,7 @@ import type { MongoshIOProvider, MongoshNodeReplOptions } from './mongosh-repl';
 import MongoshNodeRepl from './mongosh-repl';
 import { parseAnyLogEntry } from '../../shell-api/src/log-entry';
 import stripAnsi from 'strip-ansi';
+import { formatOutput } from './format-output';
 
 function nonnull<T>(value: T | null | undefined): NonNullable<T> {
   if (!value) throw new Error();
@@ -526,6 +527,7 @@ describe('MongoshNodeRepl', function () {
       ]) {
         context(mode, function () {
           let getHistory: () => string[];
+          let getAllHistoryItems: () => string[];
 
           beforeEach(function () {
             const { history } = mongoshRepl.runtimeState().repl as unknown as {
@@ -533,9 +535,59 @@ describe('MongoshNodeRepl', function () {
             };
             getHistory = () =>
               history.filter((line) => !line.startsWith('prefill-'));
+            getAllHistoryItems = () => history;
             for (let i = 0; i < prefill; i++) {
               history.unshift(`prefill-${i}`);
             }
+          });
+
+          describe('history() command', function () {
+            it('returns a formatted array of history', async function () {
+              output = '';
+              input.write('history()\n');
+              await waitEval(bus);
+              expect(output).includes(
+                formatOutput(
+                  {
+                    value: getAllHistoryItems()
+                      .slice(1, getAllHistoryItems().length)
+                      .reverse(),
+                  },
+                  { colors: true, maxArrayLength: Infinity }
+                )
+              );
+            });
+
+            it('works with array operations', async function () {
+              output = '';
+              input.write('history().slice(history().length-10).reverse()\n');
+              await waitEval(bus);
+              const history = getAllHistoryItems().slice(1).reverse();
+              expect(output).includes(
+                formatOutput(
+                  {
+                    value: history.slice(history.length - 10).reverse(),
+                  },
+                  { colors: false, maxArrayLength: Infinity }
+                )
+              );
+            });
+
+            it('works without ()', async function () {
+              output = '';
+              input.write('history\n');
+              await waitEval(bus);
+              expect(output).includes(
+                formatOutput(
+                  {
+                    value: getAllHistoryItems()
+                      .slice(1, getAllHistoryItems().length)
+                      .reverse(),
+                  },
+                  { colors: true, maxArrayLength: Infinity }
+                )
+              );
+            });
           });
 
           it('looks up existing entries, if there are any', async function () {
