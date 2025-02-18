@@ -572,22 +572,6 @@ describe('MongoshNodeRepl', function () {
                 )
               );
             });
-
-            it('works without ()', async function () {
-              output = '';
-              input.write('history\n');
-              await waitEval(bus);
-              expect(output).includes(
-                formatOutput(
-                  {
-                    value: getAllHistoryItems()
-                      .slice(1, getAllHistoryItems().length)
-                      .reverse(),
-                  },
-                  { colors: true, maxArrayLength: Infinity }
-                )
-              );
-            });
           });
 
           it('looks up existing entries, if there are any', async function () {

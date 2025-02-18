@@ -9,12 +9,10 @@ import type {
   EvaluationListener,
   OnLoadResult,
   ShellCliOptions,
-  TypeSignature,
 } from '@mongosh/shell-api';
 import {
   ShellInstanceState,
   getShellApiType,
-  signatures,
   toShellResult,
 } from '@mongosh/shell-api';
 import type { ShellResult } from '@mongosh/shell-evaluator';
@@ -397,7 +395,7 @@ class MongoshNodeRepl implements EvaluationListener {
   }
 
   setupHistoryCommand(): void {
-    const getHistory = () => {
+    const history = () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const replHistory: string[] = (this.runtimeState().repl as any).history;
       const formattedHistory =
@@ -408,7 +406,7 @@ class MongoshNodeRepl implements EvaluationListener {
       formattedHistory[util.inspect.custom as any] = (() => {
         return formatOutput(
           {
-            // The value of the format has to be a copy of the history to avoid circular references.
+            // Providing a copy of the history avoids a circular reference.
             value: formattedHistory.concat(),
           },
           { colors: true, maxArrayLength: Infinity }
@@ -418,20 +416,7 @@ class MongoshNodeRepl implements EvaluationListener {
       return formattedHistory;
     };
 
-    getHistory.isDirectShellCommand = true;
-    getHistory.returnsPromise = false;
-    getHistory.acceptsRawInput = true;
-
-    this.runtimeState().context.history =
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (this.runtimeState().instanceState.shellApi as any).history = getHistory;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (signatures.ShellApi.attributes as any).history = {
-      type: 'function',
-      returnsPromise: true,
-      isDirectShellCommand: true,
-      acceptsRawInput: true,
-    } as TypeSignature;
+    this.runtimeState().context.history = history;
   }
 
   private async finishInitializingNodeRepl(): Promise<void> {
