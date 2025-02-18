@@ -554,7 +554,7 @@ export default class Collection extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
-  @apiVersions([])
+  @apiVersions([1])
   async renameCollection(
     newName: string,
     dropTarget?: boolean
