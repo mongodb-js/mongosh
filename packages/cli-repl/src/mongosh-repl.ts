@@ -9,10 +9,12 @@ import type {
   EvaluationListener,
   OnLoadResult,
   ShellCliOptions,
+  TypeSignature,
 } from '@mongosh/shell-api';
 import {
   ShellInstanceState,
   getShellApiType,
+  signatures,
   toShellResult,
 } from '@mongosh/shell-api';
 import type { ShellResult } from '@mongosh/shell-evaluator';
@@ -47,6 +49,7 @@ import { markTime } from './startup-timing';
 import type { Context } from 'vm';
 import { Script, createContext, runInContext } from 'vm';
 import { installPasteSupport } from './repl-paste-support';
+import util from 'util';
 
 declare const __non_webpack_require__: any;
 
@@ -365,6 +368,8 @@ class MongoshNodeRepl implements EvaluationListener {
     await this.finishInitializingNodeRepl();
     instanceState.setCtx(context);
 
+    this.setupHistoryCommand();
+
     if (!this.shellCliOptions.nodb && !this.shellCliOptions.quiet) {
       // cf. legacy shell:
       // https://github.com/mongodb/mongo/blob/a6df396047a77b90bf1ce9463eecffbee16fb864/src/mongo/shell/mongo_main.cpp#L1003-L1026
@@ -389,6 +394,44 @@ class MongoshNodeRepl implements EvaluationListener {
 
     markTime(TimingCategories.REPLInstantiation, 'finished initialization');
     return { __initialized: 'yes' };
+  }
+
+  setupHistoryCommand(): void {
+    const getHistory = () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const replHistory: string[] = (this.runtimeState().repl as any).history;
+      const formattedHistory =
+        // Remove the history call from the formatted history
+        replHistory.slice(1, replHistory.length).reverse();
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      formattedHistory[util.inspect.custom as any] = (() => {
+        return formatOutput(
+          {
+            // The value of the format has to be a copy of the history to avoid circular references.
+            value: formattedHistory.concat(),
+          },
+          { colors: true, maxArrayLength: Infinity }
+        );
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      }) as any;
+      return formattedHistory;
+    };
+
+    getHistory.isDirectShellCommand = true;
+    getHistory.returnsPromise = false;
+    getHistory.acceptsRawInput = true;
+
+    this.runtimeState().context.history =
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (this.runtimeState().instanceState.shellApi as any).history = getHistory;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (signatures.ShellApi.attributes as any).history = {
+      type: 'function',
+      returnsPromise: true,
+      isDirectShellCommand: true,
+      acceptsRawInput: true,
+    } as TypeSignature;
   }
 
   private async finishInitializingNodeRepl(): Promise<void> {

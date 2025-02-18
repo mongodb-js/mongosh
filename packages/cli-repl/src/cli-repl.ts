@@ -54,10 +54,6 @@ import type {
   DevtoolsProxyOptions,
 } from '@mongodb-js/devtools-proxy-support';
 import { useOrCreateAgent } from '@mongodb-js/devtools-proxy-support';
-import type { TypeSignature } from '@mongosh/shell-api';
-import { signatures } from '@mongosh/shell-api';
-import util from 'util';
-import { formatOutput } from './format-output';
 
 /**
  * Connecting text key.
@@ -500,8 +496,6 @@ export class CliRepl implements MongoshIOProvider {
       });
     }
 
-    this.setupHistoryCommand();
-
     Editor.create({
       input: this.input,
       vscodeDir: this.shellHomeDirectory.rcPath('.vscode'),
@@ -914,47 +908,6 @@ export class CliRepl implements MongoshIOProvider {
   /** Return the file path used for the REPL history. */
   getHistoryFilePath(): string {
     return this.shellHomeDirectory.roamingPath('mongosh_repl_history');
-  }
-
-  /** Returns the history of commands. */
-  setupHistoryCommand(): void {
-    const getHistory = () => {
-      const replHistory: string[] = (
-        this.mongoshRepl.runtimeState().repl as any
-      ).history;
-      const formattedHistory =
-        // Remove the history call from the formatted history
-        replHistory.slice(1, replHistory.length).reverse();
-
-      return {
-        ...formattedHistory,
-        [util.inspect.custom]: () => {
-          return formatOutput(
-            {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              value: formattedHistory,
-            },
-            { colors: true, maxArrayLength: Infinity }
-          );
-        },
-      };
-    };
-
-    getHistory.isDirectShellCommand = true;
-    getHistory.returnsPromise = true;
-    getHistory.acceptsRawInput = true;
-
-    this.mongoshRepl.runtimeState().context.history =
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (this.mongoshRepl.runtimeState().instanceState.shellApi as any).history =
-        getHistory;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (signatures.ShellApi.attributes as any).history = {
-      type: 'function',
-      returnsPromise: true,
-      isDirectShellCommand: true,
-      acceptsRawInput: true,
-    } as TypeSignature;
   }
 
   /**
