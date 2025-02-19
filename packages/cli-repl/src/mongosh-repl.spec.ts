@@ -10,7 +10,7 @@ import type { Duplex } from 'stream';
 import { PassThrough } from 'stream';
 import type { StubbedInstance } from 'ts-sinon';
 import { stubInterface } from 'ts-sinon';
-import { promisify } from 'util';
+import { inspect, promisify } from 'util';
 import {
   expect,
   fakeTTYProps,
@@ -22,7 +22,6 @@ import type { MongoshIOProvider, MongoshNodeReplOptions } from './mongosh-repl';
 import MongoshNodeRepl from './mongosh-repl';
 import { parseAnyLogEntry } from '../../shell-api/src/log-entry';
 import stripAnsi from 'strip-ansi';
-import { formatOutput } from './format-output';
 
 function nonnull<T>(value: T | null | undefined): NonNullable<T> {
   if (!value) throw new Error();
@@ -547,13 +546,11 @@ describe('MongoshNodeRepl', function () {
               input.write('history()\n');
               await waitEval(bus);
               expect(output).includes(
-                formatOutput(
-                  {
-                    value: getAllHistoryItems()
-                      .slice(1, getAllHistoryItems().length)
-                      .reverse(),
-                  },
-                  { colors: true, maxArrayLength: Infinity }
+                inspect(
+                  getAllHistoryItems()
+                    .slice(1, getAllHistoryItems().length)
+                    .reverse(),
+                  { maxArrayLength: Infinity }
                 )
               );
             });
@@ -564,12 +561,9 @@ describe('MongoshNodeRepl', function () {
               await waitEval(bus);
               const history = getAllHistoryItems().slice(1).reverse();
               expect(output).includes(
-                formatOutput(
-                  {
-                    value: history.slice(history.length - 10).reverse(),
-                  },
-                  { colors: false, maxArrayLength: Infinity }
-                )
+                inspect(history.slice(history.length - 10).reverse(), {
+                  maxArrayLength: Infinity,
+                })
               );
             });
           });

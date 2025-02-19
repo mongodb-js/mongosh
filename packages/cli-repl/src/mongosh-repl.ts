@@ -403,14 +403,18 @@ class MongoshNodeRepl implements EvaluationListener {
         replHistory.slice(1).reverse();
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      formattedHistory[util.inspect.custom as any] = (() => {
-        return formatOutput(
-          {
-            // Providing a copy of the history avoids a circular reference.
-            value: formattedHistory.concat(),
-          },
-          { colors: true, maxArrayLength: Infinity }
-        );
+      formattedHistory[util.inspect.custom as any] = ((
+        depth: number | null,
+        options: util.InspectOptions,
+        inspect: typeof util.inspect
+      ) => {
+        // We pass a copy of the array without the util.inspect.custom set
+        // to prevent infinite recursion.
+        return inspect(formattedHistory.concat(), {
+          ...options,
+          depth,
+          maxArrayLength: Infinity,
+        });
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       }) as any;
       return formattedHistory;
