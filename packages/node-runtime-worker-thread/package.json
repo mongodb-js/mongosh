@@ -42,7 +42,7 @@
     "@mongosh/service-provider-core": "3.0.2",
     "@mongosh/service-provider-node-driver": "3.2.0",
     "@mongosh/types": "3.2.0",
-    "bson": "^6.10.1",
+    "bson": "^6.10.3",
     "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
     "mocha": "^10.2.0",
