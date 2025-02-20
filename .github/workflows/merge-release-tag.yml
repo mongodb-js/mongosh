@@ -1,0 +1,54 @@
+name: Merge Release Tag
+
+on:
+  push:
+    tags:
+      - 'mongosh@[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch:
+
+jobs:
+  merge-release-tag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
+        id: app-token
+        with:
+          app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
+          private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: "0"
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Extract version from tag
+        id: version
+        run: echo "RELEASE_VERSION=$(echo ${GITHUB_REF} | sed -n 's/refs\/tags\/mongosh@\([0-9]\+\.[0-9]\+\.[0-9]\+\)/\1/p')" >> $GITHUB_ENV
+
+      - name: Validate release version
+        shell: bash
+        run: |
+          if [ -z "${RELEASE_VERSION}" ]; then
+            echo "RELEASE_TAG is not set or is empty"
+            exit 1
+          fi
+
+          if git rev-parse "release/v$RELEASE_VERSION" >/dev/null 2>&1; then
+            echo "Error: Branch release/v$RELEASE_TAG already exists"
+            echo "If this version has already been released consider using a different one."
+            exit 1
+          fi
+
+      - name: Create and push branch from tag
+        run: |
+          git checkout -b release/v$RELEASE_VERSION ${{ github.ref }}
+          git push origin release/v$RELEASE_VERSION
+
+      - name: Merge branch into main
+        run: |
+          git checkout main
+          git merge release/v$RELEASE_VERSION
+          git push origin main
+          git push -d origin release/v$RELEASE_VERSION
