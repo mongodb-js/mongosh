@@ -3792,9 +3792,9 @@ functions:
         working_dir: src
         include_expansions_in_env: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN]
         script: |
+          set -e
           # use AWS CLI to get the Kondukto API token from AWS Secrets Manager
           kondukto_token=$(aws secretsmanager get-secret-value --secret-id "kondukto-token" --region "us-east-1" --query 'SecretString' --output text)
-          set -e
           # set the KONDUKTO_TOKEN environment variable
           echo "KONDUKTO_TOKEN=$kondukto_token" > /tmp/kondukto_credentials.env
     - command: subprocess.exec
