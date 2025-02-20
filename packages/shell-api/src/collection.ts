@@ -2388,17 +2388,30 @@ export default class Collection extends ShellApiWithMongoClass {
   @apiVersions([])
   // TODO(MONGOSH-1471): use SearchIndexDescription once available
   async createSearchIndex(
-    indexName?: string | Document,
+    indexNameOrOptions?: string | Document,
     type?: 'search' | 'vectorSearch' | Document,
     definition?: Document
   ): Promise<string> {
+    let indexName: string | undefined;
     if (typeof type === 'object' && type !== null) {
       definition = type;
       type = undefined;
     }
-    if (typeof indexName === 'object' && indexName !== null) {
-      definition = indexName;
-      indexName = undefined;
+    if (
+      typeof indexNameOrOptions === 'object' &&
+      indexNameOrOptions !== null &&
+      indexNameOrOptions.definition
+    ) {
+      indexName = indexNameOrOptions.name;
+      type = indexNameOrOptions.type;
+      definition = indexNameOrOptions.definition;
+    } else if (
+      typeof indexNameOrOptions === 'object' &&
+      indexNameOrOptions !== null
+    ) {
+      definition = indexNameOrOptions;
+    } else {
+      indexName = indexNameOrOptions;
     }
 
     this._emitCollectionApiCall('createSearchIndex', { indexName, definition });
