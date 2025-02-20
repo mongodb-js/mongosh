@@ -22,4 +22,4 @@ docker pull artifactory.corp.mongodb.com/release-tools-container-registry-public
 docker run --rm -v ${PWD}:/pwd artifactory.corp.mongodb.com/release-tools-container-registry-public-local/silkbomb:2.0 update \
   --purls /pwd/dist/.purls.txt --sbom-out /pwd/dist/.sbom-lite.json
 docker run --env-file /tmp/kondukto_credentials.env --rm -v ${PWD}:/pwd artifactory.corp.mongodb.com/release-tools-container-registry-public-local/silkbomb:2.0 augment \
-  --repo mongodb-js/mongosh --branch ${KONDUKTO_BRANCH} --sbom-in /pwd/dist/.sbom-lite.json -sbom-out /pwd/dist/.sbom.json
+  --repo mongodb-js/mongosh --branch ${KONDUKTO_BRANCH} --sbom-in /pwd/dist/.sbom-lite.json --sbom-out /pwd/dist/.sbom.json
