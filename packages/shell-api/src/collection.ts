@@ -22,6 +22,7 @@ import type {
   FindAndModifyMethodShellOptions,
   RemoveShellOptions,
   MapReduceShellOptions,
+  SearchIndexDefinition,
 } from './helpers';
 import {
   adaptAggregateOptions,
@@ -67,6 +68,7 @@ import type {
   DropCollectionOptions,
   CheckMetadataConsistencyOptions,
   AggregateOptions,
+  SearchIndexDescription,
 } from '@mongosh/service-provider-core';
 import type { RunCommandCursor, Database } from './index';
 import {
@@ -2383,38 +2385,58 @@ export default class Collection extends ShellApiWithMongoClass {
     );
   }
 
+  async createSearchIndex(
+    name?: string,
+    definition?: SearchIndexDefinition
+  ): Promise<string>;
+  async createSearchIndex(
+    name?: string,
+    type?: 'search' | 'vectorSearch',
+    definition?: SearchIndexDefinition
+  ): Promise<string>;
+  async createSearchIndex(
+    definition?: SearchIndexDefinition,
+    type?: 'search' | 'vectorSearch'
+  ): Promise<string>;
+  async createSearchIndex(
+    description?: SearchIndexDescription
+  ): Promise<string>;
   @serverVersions(['6.0.0', ServerVersions.latest])
   @returnsPromise
   @apiVersions([])
-  // TODO(MONGOSH-1471): use SearchIndexDescription once available
   async createSearchIndex(
-    indexNameOrOptions?: string | Document,
-    type?: 'search' | 'vectorSearch' | Document,
-    definition?: Document
+    nameOrOptions?: string | SearchIndexDescription | SearchIndexDefinition,
+    typeOrOptions?: 'search' | 'vectorSearch' | SearchIndexDefinition,
+    definition?: SearchIndexDefinition
   ): Promise<string> {
     let indexName: string | undefined;
-    if (typeof type === 'object' && type !== null) {
-      definition = type;
-      type = undefined;
-    }
-    if (
-      typeof indexNameOrOptions === 'object' &&
-      indexNameOrOptions !== null &&
-      indexNameOrOptions.definition
-    ) {
-      indexName = indexNameOrOptions.name;
-      type = indexNameOrOptions.type;
-      definition = indexNameOrOptions.definition;
-    } else if (
-      typeof indexNameOrOptions === 'object' &&
-      indexNameOrOptions !== null
-    ) {
-      definition = indexNameOrOptions;
+    let indexType: string | undefined;
+
+    if (typeof typeOrOptions === 'object' && typeOrOptions !== null) {
+      definition = typeOrOptions;
     } else {
-      indexName = indexNameOrOptions;
+      indexType = typeOrOptions;
     }
 
-    this._emitCollectionApiCall('createSearchIndex', { indexName, definition });
+    if (
+      typeof nameOrOptions === 'object' &&
+      nameOrOptions !== null &&
+      nameOrOptions.definition
+    ) {
+      indexName = nameOrOptions.name;
+      indexType = nameOrOptions.type;
+      definition = nameOrOptions.definition;
+    } else if (typeof nameOrOptions === 'object' && nameOrOptions !== null) {
+      definition = nameOrOptions;
+    } else {
+      indexName = nameOrOptions;
+    }
+
+    this._emitCollectionApiCall('createSearchIndex', {
+      indexName,
+      indexType,
+      definition,
+    });
     const results = await this._mongo._serviceProvider.createSearchIndexes(
       this._database._name,
       this._name,
@@ -2422,8 +2444,10 @@ export default class Collection extends ShellApiWithMongoClass {
         {
           name: indexName ?? 'default',
           // Omitting type when it is 'search' for compat with older servers
-          ...(type &&
-            type !== 'search' && { type: type as 'search' | 'vectorSearch' }),
+          ...(indexType &&
+            indexType !== 'search' && {
+              type: indexType as 'search' | 'vectorSearch',
+            }),
           definition: { ...definition },
         },
       ]
