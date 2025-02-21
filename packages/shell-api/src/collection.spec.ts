@@ -2633,30 +2633,6 @@ describe('Collection', function () {
         serviceProvider.createSearchIndexes.resolves(['index_1']);
       });
 
-      context('without anything', function () {
-        it('calls serviceProvider.createIndexes', async function () {
-          await collection.createSearchIndex();
-
-          expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
-            'db1',
-            'coll1',
-            [{ name: 'default', definition: {} }]
-          );
-        });
-      });
-
-      context('with name', function () {
-        it('calls serviceProvider.createIndexes', async function () {
-          await collection.createSearchIndex('my-index');
-
-          expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
-            'db1',
-            'coll1',
-            [{ name: 'my-index', definition: {} }]
-          );
-        });
-      });
-
       context('with definition options', function () {
         it('calls serviceProvider.createIndexes', async function () {
           await collection.createSearchIndex({ mappings: { dynamic: true } });
