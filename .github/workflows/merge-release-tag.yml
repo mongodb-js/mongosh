@@ -3,7 +3,8 @@ name: Merge Release Tag
 on:
   push:
     tags:
-      - 'mongosh@[0-9]+.[0-9]+.[0-9]+*'
+      - 'mongosh@[0-9]+.[0-9]+.[0-9]+'
+      - 'mongosh@[0-9]+.[0-9]+.[0-9]-rc.[0-9]+'
   workflow_dispatch:
 
 permissions:
