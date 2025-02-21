@@ -3,7 +3,7 @@ name: Merge Release Tag
 on:
   push:
     tags:
-      - 'mongosh@[0-9]+.[0-9]+.*'
+      - 'mongosh@[0-9]+.[0-9]+.[0-9]+*'
   workflow_dispatch:
 
 permissions:
@@ -31,27 +31,17 @@ jobs:
         id: version-match
         with:
           text: ${{ github.ref }}
-          regex: 'refs/tags/mongosh@([0-9]+\.[0-9]+\.*)'
+          regex: 'refs/tags/mongosh@([0-9]+\.[0-9]+\.[0-9]+.*)'
 
-      - name: Validate release version
-        shell: bash
-        id: validate
-        run: |
-          if [[ -z "${{ steps.version-match.outputs.group1 }}" ]]; then
-            echo "Error: Could not extract version from tag"
-            exit 1
-          fi
-
-          if git rev-parse "release/v${{ steps.version-match.outputs.group1 }}" >/dev/null 2>&1; then
-            echo "Error: Branch release/v$RELEASE_TAG already exists"
-            echo "If this version has already been released consider using a different one."
-            exit 1
-          fi
-          echo "::set-output name=version::${{ steps.version-match.outputs.group1 }}"
+      - uses: actions/github-script@v7
+        if: steps.version-match.outputs.group1 == ''
+        with:
+          script: |
+            core.setFailed('Could not extract version from tag: ${{ github.ref }}');
 
       - name: Merge release tag into main
         run: |
-          git checkout -b release/v${{ steps.validate.outputs.version }} ${{ github.ref }}
+          git checkout -b package-release/v${{ steps.version-match.outputs.group1 }} ${{ github.ref }}
           git checkout main
-          git merge release/v${{ steps.validate.outputs.version }}
+          git merge package-release/v${{ steps.version-match.outputs.group1 }}
           git push origin main
