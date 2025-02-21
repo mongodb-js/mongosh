@@ -1823,7 +1823,7 @@ describe('Shard', function () {
         expect(reshardCollectionStub.firstCall.args).to.deep.equal([
           'db.coll',
           { key: 1 },
-          { numInitialChunks: 1000, forceRedistribution: true },
+          { forceRedistribution: true },
         ]);
       });
 
@@ -1860,6 +1860,81 @@ describe('Shard', function () {
           { numInitialChunks: 1, forceRedistribution: true },
         ]);
       });
+
+      it('allows user to pass collation', async function () {
+        const expectedResult = { ok: 1 };
+
+        const shardCollectionStub = sinon
+          .stub(shard, 'shardCollection')
+          .resolves(expectedResult);
+        const reshardCollectionStub = sinon
+          .stub(shard, 'reshardCollection')
+          .resolves(expectedResult);
+
+        await shard.shardAndDistributeCollection('db.coll', { key: 1 }, true, {
+          collation: { locale: 'simple' },
+        });
+
+        expect(shardCollectionStub.calledOnce).to.equal(true);
+        expect(shardCollectionStub.firstCall.args).to.deep.equal([
+          'db.coll',
+          {
+            key: 1,
+          },
+          true,
+          {
+            collation: { locale: 'simple' },
+          },
+        ]);
+
+        expect(reshardCollectionStub.calledOnce).to.equal(true);
+        expect(reshardCollectionStub.firstCall.args).to.deep.equal([
+          'db.coll',
+          { key: 1 },
+          { collation: { locale: 'simple' }, forceRedistribution: true },
+        ]);
+      });
+
+      it('allows user to pass shard-specific options and ignores them when resharding', async function () {
+        const expectedResult = { ok: 1 };
+
+        const shardCollectionStub = sinon
+          .stub(shard, 'shardCollection')
+          .resolves(expectedResult);
+        const reshardCollectionStub = sinon
+          .stub(shard, 'reshardCollection')
+          .resolves(expectedResult);
+
+        await shard.shardAndDistributeCollection('db.coll', { key: 1 }, true, {
+          presplitHashedZones: true,
+          timeseries: {
+            timeField: 'ts',
+          },
+        });
+
+        expect(shardCollectionStub.calledOnce).to.equal(true);
+        expect(shardCollectionStub.firstCall.args).to.deep.equal([
+          'db.coll',
+          {
+            key: 1,
+          },
+          true,
+          {
+            presplitHashedZones: true,
+            timeseries: {
+              timeField: 'ts',
+            },
+          },
+        ]);
+
+        expect(reshardCollectionStub.calledOnce).to.equal(true);
+        expect(reshardCollectionStub.firstCall.args).to.deep.equal([
+          'db.coll',
+          { key: 1 },
+          { forceRedistribution: true },
+        ]);
+      });
+
       it('returns whatever shard.reshardCollection returns', async function () {
         const expectedResult = { ok: 1 };
         sinon.stub(shard, 'reshardCollection').resolves(expectedResult);
