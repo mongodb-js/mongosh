@@ -10,7 +10,7 @@ import type { Duplex } from 'stream';
 import { PassThrough } from 'stream';
 import type { StubbedInstance } from 'ts-sinon';
 import { stubInterface } from 'ts-sinon';
-import { promisify } from 'util';
+import { inspect, promisify } from 'util';
 import {
   expect,
   fakeTTYProps,
@@ -526,6 +526,7 @@ describe('MongoshNodeRepl', function () {
       ]) {
         context(mode, function () {
           let getHistory: () => string[];
+          let getAllHistoryItems: () => string[];
 
           beforeEach(function () {
             const { history } = mongoshRepl.runtimeState().repl as unknown as {
@@ -533,9 +534,38 @@ describe('MongoshNodeRepl', function () {
             };
             getHistory = () =>
               history.filter((line) => !line.startsWith('prefill-'));
+            getAllHistoryItems = () => history;
             for (let i = 0; i < prefill; i++) {
               history.unshift(`prefill-${i}`);
             }
+          });
+
+          describe('history() command', function () {
+            it('returns a formatted array of history', async function () {
+              output = '';
+              input.write('history()\n');
+              await waitEval(bus);
+              expect(output).includes(
+                inspect(
+                  getAllHistoryItems()
+                    .slice(1, getAllHistoryItems().length)
+                    .reverse(),
+                  { maxArrayLength: Infinity }
+                )
+              );
+            });
+
+            it('works with array operations', async function () {
+              output = '';
+              input.write('history().slice(history().length-10).reverse()\n');
+              await waitEval(bus);
+              const history = getAllHistoryItems().slice(1).reverse();
+              expect(output).includes(
+                inspect(history.slice(history.length - 10).reverse(), {
+                  maxArrayLength: Infinity,
+                })
+              );
+            });
           });
 
           it('looks up existing entries, if there are any', async function () {

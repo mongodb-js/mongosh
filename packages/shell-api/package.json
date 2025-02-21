@@ -52,7 +52,7 @@
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@mongosh/types": "3.2.0",
-    "bson": "^6.10.1",
+    "bson": "^6.10.3",
     "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
     "mongodb": "^6.13.0",

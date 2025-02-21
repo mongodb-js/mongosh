@@ -47,6 +47,7 @@ import { markTime } from './startup-timing';
 import type { Context } from 'vm';
 import { Script, createContext, runInContext } from 'vm';
 import { installPasteSupport } from './repl-paste-support';
+import util from 'util';
 
 declare const __non_webpack_require__: any;
 
@@ -365,6 +366,8 @@ class MongoshNodeRepl implements EvaluationListener {
     await this.finishInitializingNodeRepl();
     instanceState.setCtx(context);
 
+    this.setupHistoryCommand();
+
     if (!this.shellCliOptions.nodb && !this.shellCliOptions.quiet) {
       // cf. legacy shell:
       // https://github.com/mongodb/mongo/blob/a6df396047a77b90bf1ce9463eecffbee16fb864/src/mongo/shell/mongo_main.cpp#L1003-L1026
@@ -389,6 +392,35 @@ class MongoshNodeRepl implements EvaluationListener {
 
     markTime(TimingCategories.REPLInstantiation, 'finished initialization');
     return { __initialized: 'yes' };
+  }
+
+  setupHistoryCommand(): void {
+    const history = () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const replHistory: string[] = (this.runtimeState().repl as any).history;
+      const formattedHistory =
+        // Remove the history call from the formatted history
+        replHistory.slice(1).reverse();
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      formattedHistory[util.inspect.custom as any] = ((
+        depth: number | null,
+        options: util.InspectOptions,
+        inspect: typeof util.inspect
+      ) => {
+        // We pass a copy of the array without the util.inspect.custom set
+        // to prevent infinite recursion.
+        return inspect(formattedHistory.concat(), {
+          ...options,
+          depth,
+          maxArrayLength: Infinity,
+        });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      }) as any;
+      return formattedHistory;
+    };
+
+    this.runtimeState().context.history = history;
   }
 
   private async finishInitializingNodeRepl(): Promise<void> {
