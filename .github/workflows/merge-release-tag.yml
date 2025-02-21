@@ -1,0 +1,33 @@
+name: Merge Release Tag
+
+on:
+  push:
+    tags:
+      - 'mongosh@[0-9]+.[0-9]+.[0-9]+'
+      - 'mongosh@[0-9]+.[0-9]+.[0-9]-rc.[0-9]+'
+  workflow_dispatch:
+
+permissions:
+  contents: none # We use the github app to checkout and push changes
+
+jobs:
+  merge-release-tag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
+        id: app-token
+        with:
+          app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
+          private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: "0"
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Merge release tag into main
+        run: |
+          git merge ${{ github.ref }} -m "chore(release): merge changes from ${{ github.ref_name }}"
+          git push origin main
