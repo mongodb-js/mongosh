@@ -357,12 +357,14 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
         runtime.setEvaluationListener(listener);
         const result = await runtime.evaluate(code);
         outputLine = {
+          key: lastKey++,
           format: 'output',
           type: result.type,
           value: result.printable,
         };
       } catch (error) {
         outputLine = {
+          key: lastKey++,
           format: 'error',
           value: error,
         };
@@ -383,6 +385,7 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
       // don't evaluate empty input, but do add it to the output
       if (!code || code.trim() === '') {
         newOutputBeforeEval.push({
+          key: lastKey++,
           format: 'input',
           value: ' ',
         });
@@ -394,6 +397,7 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
 
       // add input to output
       newOutputBeforeEval.push({
+        key: lastKey++,
         format: 'input',
         value: code,
       });

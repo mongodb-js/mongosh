@@ -37,6 +37,8 @@ function filterEvaluateCalls(calls: any) {
   });
 }
 
+let lastKey = 0;
+
 describe('shell', function () {
   let fakeRuntime;
   let scrollIntoView;
@@ -79,7 +81,7 @@ describe('shell', function () {
 
   it('takes output', function () {
     const output: ShellOutputEntry[] = [
-      { format: 'output', value: 'Welcome message goes here' },
+      { key: lastKey++, format: 'output', value: 'Welcome message goes here' },
     ];
 
     render(<ShellWrapper runtime={fakeRuntime} output={output} />);
@@ -312,6 +314,7 @@ describe('shell', function () {
     let output: ShellOutputEntry[] = [];
     for (let i = 0; i < 1000; i++) {
       output.push({
+        key: lastKey++,
         format: 'output',
         type: undefined,
         value: 'some result',
@@ -425,6 +428,7 @@ describe('shell', function () {
   it('clears the output when onClearCommand is called', async function () {
     let output: ShellOutputEntry[] = [
       {
+        key: lastKey++,
         format: 'output',
         type: undefined,
         value: 'some result',
