@@ -1,15 +1,27 @@
 import * as semver from 'semver';
 import type { GithubRepo } from '@mongodb-js/devtools-github-repo';
 
+async function getFileWithRetry(
+  homebrewCore: GithubRepo,
+  remainingRetries = 3
+) {
+  try {
+    return await homebrewCore.getFileContent('Formula/m/mongosh.rb', 'master');
+  } catch (error: any) {
+    if (error.message.includes('EPIPE') && remainingRetries > 0) {
+      return await getFileWithRetry(homebrewCore, remainingRetries - 1);
+    } else {
+      throw error;
+    }
+  }
+}
+
 export async function generateUpdatedFormula(
   context: { version: string; sha: string },
   homebrewCore: GithubRepo,
   isDryRun: boolean
 ): Promise<string | null> {
-  const currentFormula = await homebrewCore.getFileContent(
-    'Formula/m/mongosh.rb',
-    'master'
-  );
+  const currentFormula = await getFileWithRetry(homebrewCore);
 
   const urlMatch = /url "([^"]+)"/g.exec(currentFormula.content);
   const shaMatch = /sha256 "([^"]+)"/g.exec(currentFormula.content);
