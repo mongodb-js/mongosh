@@ -16,7 +16,10 @@ export class ShellOutput extends Component<ShellOutputProps> {
 
   renderLine = (entry: ShellOutputEntry, index: number): JSX.Element => {
     return (
-      <ShellOutputLine key={`shell-output-entry-${index}`} entry={entry} />
+      <ShellOutputLine
+        key={`shell-output-entry-${entry.key ?? index}`}
+        entry={entry}
+      />
     );
   };
 

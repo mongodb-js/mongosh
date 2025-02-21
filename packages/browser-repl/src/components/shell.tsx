@@ -184,6 +184,8 @@ const capLengthStart = (elements: unknown[], maxLength: number) => {
   elements.splice(maxLength);
 };
 
+let lastKey = 0;
+
 const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
   {
     runtime,
@@ -262,6 +264,7 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
           ...(outputRef.current ?? []),
           ...result.map(
             (entry): ShellOutputEntry => ({
+              key: lastKey++,
               format: 'output',
               type: entry.type,
               value: entry.printable,

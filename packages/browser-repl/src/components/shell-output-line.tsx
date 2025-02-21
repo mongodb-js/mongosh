@@ -35,6 +35,7 @@ type ShellOutputEntryValue = any;
 type Glyph = 'ChevronRight' | 'XWithCircle' | 'ChevronLeft';
 
 export interface ShellOutputEntry {
+  key?: number | string;
   format: 'input' | 'output' | 'error';
   type?: string | null;
   value: ShellOutputEntryValue;
