@@ -313,7 +313,7 @@ export default interface Writable {
    *
    * @param {String} database - The db name.
    * @param {String} collection - The collection name.
-   * @param {Object[]} descriptions the spec of the indexes to be created.
+   * @param {Object[]} indexSpecs - The spec of the indexes to be created.
    * @param {Object} options - The command options.
    * @param {DbOptions} dbOptions - The database options
    * @return {Promise}
