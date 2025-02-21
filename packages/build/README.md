@@ -39,7 +39,7 @@ Execute the following steps to publish a new release:
    ```
    Follow the instructions and verify the inferred release version is correct.
 7. Wait for Evergreen to finish the publication stage.
-8. Ensure the release version bump has been automatically merged into the main branch from the `release/vx.x.x` branch.
+8. Ensure that the version bump was automatically merged into main and that it is synced up with the `mongosh@x.x.x` tag.
 9. Close the Jira ticket for the release, post an update in the `#mongosh` Slack channel and ping the docs team.
 
 ### Branches and Tags
