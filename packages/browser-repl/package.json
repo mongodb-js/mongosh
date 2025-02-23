@@ -81,7 +81,7 @@
     "@testing-library/react": "^12.1.5",
     "@testing-library/user-event": "^13.5.0",
     "@types/numeral": "^2.0.2",
-    "@types/react": "^16.9.17",
+    "@types/react": "^17.0.2",
     "@types/react-dom": "^18.0.8",
     "@types/sinon": "^7.5.1",
     "@types/sinon-chai": "^3.2.4",

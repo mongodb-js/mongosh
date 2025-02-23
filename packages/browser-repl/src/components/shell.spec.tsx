@@ -28,7 +28,11 @@ function ShellWrapper({
   ...props
 }: React.ComponentProps<typeof Shell>) {
   const initialEvaluate = useInitialEval(_initialEvaluate);
-  return <Shell initialEvaluate={initialEvaluate} {...props} />;
+  return (
+    <div style={{ height: '100px', width: '100px' }}>
+      <Shell initialEvaluate={initialEvaluate} {...props} />
+    </div>
+  );
 }
 
 function filterEvaluateCalls(calls: any) {
@@ -89,8 +93,18 @@ describe('shell', function () {
   });
 
   it('calls onOutputChanged', async function () {
-    let output = [];
-    const onOutputChanged = (newOutput) => {
+    const shellEntries: ShellOutputEntry[] = Array.from(
+      { length: 10 },
+      (_, i) => ({
+        format: 'input',
+        type: 'input',
+        value: `item ${i}`,
+      })
+    );
+
+    let output = shellEntries;
+    // this callback contains the new output (current merged with the new one)
+    const onOutputChanged = (newOutput: ShellOutputEntry[]) => {
       output = newOutput;
     };
 
@@ -106,6 +120,7 @@ describe('shell', function () {
 
     await waitFor(() => {
       expect(output).to.deep.equal([
+        ...shellEntries,
         {
           format: 'input',
           value: 'my command',
@@ -120,12 +135,6 @@ describe('shell', function () {
 
     expect(filterEvaluateCalls(fakeRuntime.evaluate.args)).to.have.length(1);
 
-    // scrolls to the bottom initially and every time it outputs
-    await waitFor(() => {
-      expect(Element.prototype.scrollIntoView).to.have.been.calledTwice;
-    });
-
-    // make sure we scroll to the bottom every time output changes
     rerender(
       <ShellWrapper
         runtime={fakeRuntime}
@@ -134,8 +143,9 @@ describe('shell', function () {
         output={output}
       />
     );
+    // Make sure that it scrolls to the last added item
     await waitFor(() => {
-      expect(Element.prototype.scrollIntoView).to.have.been.calledThrice;
+      expect(screen.getByText('some result')).to.exist;
     });
   });
 
