@@ -14,9 +14,9 @@ export class ShellOutput extends Component<ShellOutputProps> {
     output: PropTypes.arrayOf(PropTypes.any).isRequired,
   };
 
-  renderLine = (entry: ShellOutputEntry, index: number): JSX.Element => {
+  renderLine = (entry: ShellOutputEntry): JSX.Element => {
     return (
-      <ShellOutputLine key={`shell-output-entry-${index}`} entry={entry} />
+      <ShellOutputLine key={`shell-output-entry-${entry.key}`} entry={entry} />
     );
   };
 
