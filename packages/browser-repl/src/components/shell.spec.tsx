@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React, { useState, useEffect } from 'react';
 import sinon from 'sinon';
 import { render, screen, waitFor, configure } from '@testing-library/react';
@@ -38,6 +39,12 @@ function filterEvaluateCalls(calls: any) {
 }
 
 let lastKey = 0;
+
+function stripKeys(output: ShellOutputEntry[]) {
+  return output.map((entry) => {
+    return _.omit(entry, ['key']);
+  });
+}
 
 describe('shell', function () {
   let fakeRuntime;
@@ -107,7 +114,7 @@ describe('shell', function () {
     );
 
     await waitFor(() => {
-      expect(output).to.deep.equal([
+      expect(stripKeys(output)).to.deep.equal([
         {
           format: 'input',
           value: 'my command',
@@ -264,7 +271,7 @@ describe('shell', function () {
     );
 
     await waitFor(() => {
-      expect(output).to.deep.equal([
+      expect(stripKeys(output)).to.deep.equal([
         {
           format: 'input',
           value: ' ',
@@ -295,7 +302,7 @@ describe('shell', function () {
     );
 
     await waitFor(() => {
-      expect(output).to.deep.equal([
+      expect(stripKeys(output)).to.deep.equal([
         {
           format: 'input',
           value: 'my command',
@@ -336,7 +343,7 @@ describe('shell', function () {
     );
 
     await waitFor(() => {
-      expect(output).to.deep.equal([
+      expect(stripKeys(output)).to.deep.equal([
         {
           format: 'output',
           type: undefined,
@@ -408,14 +415,14 @@ describe('shell', function () {
     );
 
     await waitFor(() => {
-      expect(output[output.length - 1]).to.deep.equal({
+      expect(stripKeys(output)[output.length - 1]).to.deep.equal({
         format: 'output',
         type: undefined,
         value: 'some result',
       });
     });
 
-    expect(output).to.deep.equal([
+    expect(stripKeys(output)).to.deep.equal([
       // we typed "my command"
       { format: 'input', value: 'my command' },
       // while evaluating it printed something
