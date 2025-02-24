@@ -57,6 +57,7 @@ export type {
   ReplaceOptions,
   ResumeToken,
   RunCommandOptions,
+  SearchIndexDescription,
   ServerSessionId,
   TagSet,
   TransactionOptions,

@@ -2633,31 +2633,7 @@ describe('Collection', function () {
         serviceProvider.createSearchIndexes.resolves(['index_1']);
       });
 
-      context('without anything', function () {
-        it('calls serviceProvider.createIndexes', async function () {
-          await collection.createSearchIndex();
-
-          expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
-            'db1',
-            'coll1',
-            [{ name: 'default', definition: {} }]
-          );
-        });
-      });
-
-      context('with name', function () {
-        it('calls serviceProvider.createIndexes', async function () {
-          await collection.createSearchIndex('my-index');
-
-          expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
-            'db1',
-            'coll1',
-            [{ name: 'my-index', definition: {} }]
-          );
-        });
-      });
-
-      context('with options', function () {
+      context('with definition options', function () {
         it('calls serviceProvider.createIndexes', async function () {
           await collection.createSearchIndex({ mappings: { dynamic: true } });
 
@@ -2669,7 +2645,7 @@ describe('Collection', function () {
         });
       });
 
-      context('with name, options', function () {
+      context('with name, definition options', function () {
         it('calls serviceProvider.createIndexes', async function () {
           await collection.createSearchIndex('my-index', {
             mappings: { dynamic: true },
@@ -2683,7 +2659,7 @@ describe('Collection', function () {
         });
       });
 
-      context('with name, options and type !== search', function () {
+      context('with name, definition options and type !== search', function () {
         it('calls serviceProvider.createSearchIndexes', async function () {
           await collection.createSearchIndex('my-index', 'vectorSearch', {
             mappings: { dynamic: true },
@@ -2703,7 +2679,7 @@ describe('Collection', function () {
         });
       });
 
-      context('with name, options and type === search', function () {
+      context('with name, definition options and type === search', function () {
         it('calls serviceProvider.createSearchIndexes', async function () {
           await collection.createSearchIndex('my-index', 'search', {
             mappings: { dynamic: true },
@@ -2717,7 +2693,7 @@ describe('Collection', function () {
         });
       });
 
-      context('with options and type but no name', function () {
+      context('with definition options and type but no name', function () {
         it('calls serviceProvider.createSearchIndexes', async function () {
           await collection.createSearchIndex(
             { mappings: { dynamic: true } },
@@ -2730,6 +2706,30 @@ describe('Collection', function () {
             [
               {
                 name: 'default',
+                type: 'vectorSearch',
+                definition: { mappings: { dynamic: true } },
+              },
+            ]
+          );
+        });
+      });
+
+      context('with description options', function () {
+        it('calls serviceProvider.createSearchIndexes', async function () {
+          await collection.createSearchIndex({
+            name: 'my-index',
+            type: 'vectorSearch',
+            definition: {
+              mappings: { dynamic: true },
+            },
+          });
+
+          expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
+            'db1',
+            'coll1',
+            [
+              {
+                name: 'my-index',
                 type: 'vectorSearch',
                 definition: { mappings: { dynamic: true } },
               },
