@@ -1562,12 +1562,14 @@ describe('e2e', function () {
           expect(await shell.executeLine('print(123 + 456)')).to.include('579');
           expect(shell.logId).not.equal(null);
 
-          const log = await readLogFile();
-          expect(
-            log.filter(
-              (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
-            )
-          ).to.have.lengthOf(1);
+          await eventually(async () => {
+            const log = await readLogFile();
+            expect(
+              log.filter(
+                (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
+              )
+            ).to.have.lengthOf(1);
+          });
         });
 
         describe('with custom log location', function () {
@@ -1653,8 +1655,6 @@ describe('e2e', function () {
 
             expect(shell.logId).equals(oldLogId);
 
-            const currentLogEntries = await readLogFile();
-
             try {
               await readLogFile(customLogDir.path);
               expect.fail('expected to throw');
@@ -1663,14 +1663,19 @@ describe('e2e', function () {
                 'no such file or directory'
               );
             }
-            expect(
-              currentLogEntries.some(
-                (log) => log.attr?.input === 'config.get("logLocation")'
-              )
-            ).is.true;
-            expect(currentLogEntries.length).is.greaterThanOrEqual(
-              oldLogEntries.length
-            );
+
+            await eventually(async () => {
+              const currentLogEntries = await readLogFile();
+
+              expect(
+                currentLogEntries.some(
+                  (log) => log.attr?.input === 'config.get("logLocation")'
+                )
+              ).is.true;
+              expect(currentLogEntries.length).is.greaterThanOrEqual(
+                oldLogEntries.length
+              );
+            });
           });
         });
 
@@ -1962,37 +1967,43 @@ describe('e2e', function () {
 
         it('creates a log file that keeps track of session events', async function () {
           expect(await shell.executeLine('print(123 + 456)')).to.include('579');
-          const log = await readLogFile();
-          expect(
-            log.filter(
-              (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
-            )
-          ).to.have.lengthOf(1);
+          await eventually(async () => {
+            const log = await readLogFile();
+            expect(
+              log.filter(
+                (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
+              )
+            ).to.have.lengthOf(1);
+          });
         });
 
         it('does not write to the log after disableLogging is set to true', async function () {
           expect(await shell.executeLine('print(123 + 456)')).to.include('579');
-          const log = await readLogFile();
-          expect(
-            log.filter(
-              (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
-            )
-          ).to.have.lengthOf(1);
+          await eventually(async () => {
+            const log = await readLogFile();
+            expect(
+              log.filter(
+                (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
+              )
+            ).to.have.lengthOf(1);
+          });
 
           await shell.executeLine(`config.set("disableLogging", true)`);
           expect(await shell.executeLine('print(579 - 123)')).to.include('456');
 
-          const logAfterDisabling = await readLogFile();
-          expect(
-            logAfterDisabling.filter(
-              (logEntry) => logEntry.attr?.input === 'print(579 - 123)'
-            )
-          ).to.have.lengthOf(0);
-          expect(
-            logAfterDisabling.filter(
-              (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
-            )
-          ).to.have.lengthOf(1);
+          await eventually(async () => {
+            const logAfterDisabling = await readLogFile();
+            expect(
+              logAfterDisabling.filter(
+                (logEntry) => logEntry.attr?.input === 'print(579 - 123)'
+              )
+            ).to.have.lengthOf(0);
+            expect(
+              logAfterDisabling.filter(
+                (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
+              )
+            ).to.have.lengthOf(1);
+          });
         });
 
         it('starts writing to the same log from the point where disableLogging is set to false', async function () {
@@ -2008,15 +2019,19 @@ describe('e2e', function () {
           await shell.executeLine(`config.set("disableLogging", true)`);
           expect(await shell.executeLine('print(123 + 456)')).to.include('579');
 
-          log = await readLogFile();
-          const oldLogId = shell.logId;
-          expect(oldLogId).not.null;
+          let oldLogId: string | null = null;
 
-          expect(
-            log.filter(
-              (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
-            )
-          ).to.have.lengthOf(0);
+          await eventually(async () => {
+            log = await readLogFile();
+            oldLogId = shell.logId;
+            expect(oldLogId).not.null;
+
+            expect(
+              log.filter(
+                (logEntry) => logEntry.attr?.input === 'print(123 + 456)'
+              )
+            ).to.have.lengthOf(0);
+          });
 
           await shell.executeLine(`config.set("disableLogging", false)`);
 

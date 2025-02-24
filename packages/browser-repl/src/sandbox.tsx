@@ -151,16 +151,26 @@ class DemoServiceProvider {
 
 const runtime = new IframeRuntime(new DemoServiceProvider() as any);
 
+const lotsOfLines: ShellOutputEntry[] = [];
+for (let i = 0; i < 99; i++) {
+  lotsOfLines.push({ key: `entry-${i}`, format: 'output', value: { i } });
+}
+
 const IframeRuntimeExample: React.FunctionComponent = () => {
   const [darkMode, setDarkMode] = useState(true);
   const [redactInfo, setRedactInfo] = useState(false);
-  const [maxOutputLength, setMaxOutputLength] = useState(1000);
-  const [maxHistoryLength, setMaxHistoryLength] = useState(1000);
+  const [maxOutputLength, setMaxOutputLength] = useState(100);
+  const [maxHistoryLength, setMaxHistoryLength] = useState(100);
   const [initialEvaluate, setInitialEvaluate] = useState<string[]>([]);
 
   const [initialText, setInitialText] = useState('');
   const [output, setOutput] = useState<ShellOutputEntry[]>([
-    { format: 'output', value: { foo: 1, bar: true, buz: function () {} } },
+    ...lotsOfLines,
+    {
+      key: 'test',
+      format: 'output',
+      value: { foo: 1, bar: true, buz: function () {} },
+    },
   ]);
   const [history, setHistory] = useState([
     'show dbs',

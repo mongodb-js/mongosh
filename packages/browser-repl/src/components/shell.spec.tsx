@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React, { useState, useEffect } from 'react';
 import sinon from 'sinon';
 import { render, screen, waitFor, configure } from '@testing-library/react';
@@ -34,6 +35,14 @@ function ShellWrapper({
 function filterEvaluateCalls(calls: any) {
   return calls.filter((args: any) => {
     return !args[0].includes('typeof prompt');
+  });
+}
+
+let lastKey = 0;
+
+function stripKeys(output: ShellOutputEntry[]) {
+  return output.map((entry) => {
+    return _.omit(entry, ['key']);
   });
 }
 
@@ -79,7 +88,7 @@ describe('shell', function () {
 
   it('takes output', function () {
     const output: ShellOutputEntry[] = [
-      { format: 'output', value: 'Welcome message goes here' },
+      { key: lastKey++, format: 'output', value: 'Welcome message goes here' },
     ];
 
     render(<ShellWrapper runtime={fakeRuntime} output={output} />);
@@ -105,7 +114,7 @@ describe('shell', function () {
     );
 
     await waitFor(() => {
-      expect(output).to.deep.equal([
+      expect(stripKeys(output)).to.deep.equal([
         {
           format: 'input',
           value: 'my command',
@@ -262,7 +271,7 @@ describe('shell', function () {
     );
 
     await waitFor(() => {
-      expect(output).to.deep.equal([
+      expect(stripKeys(output)).to.deep.equal([
         {
           format: 'input',
           value: ' ',
@@ -293,7 +302,7 @@ describe('shell', function () {
     );
 
     await waitFor(() => {
-      expect(output).to.deep.equal([
+      expect(stripKeys(output)).to.deep.equal([
         {
           format: 'input',
           value: 'my command',
@@ -312,6 +321,7 @@ describe('shell', function () {
     let output: ShellOutputEntry[] = [];
     for (let i = 0; i < 1000; i++) {
       output.push({
+        key: lastKey++,
         format: 'output',
         type: undefined,
         value: 'some result',
@@ -333,7 +343,7 @@ describe('shell', function () {
     );
 
     await waitFor(() => {
-      expect(output).to.deep.equal([
+      expect(stripKeys(output)).to.deep.equal([
         {
           format: 'output',
           type: undefined,
@@ -405,14 +415,14 @@ describe('shell', function () {
     );
 
     await waitFor(() => {
-      expect(output[output.length - 1]).to.deep.equal({
+      expect(stripKeys(output)[output.length - 1]).to.deep.equal({
         format: 'output',
         type: undefined,
         value: 'some result',
       });
     });
 
-    expect(output).to.deep.equal([
+    expect(stripKeys(output)).to.deep.equal([
       // we typed "my command"
       { format: 'input', value: 'my command' },
       // while evaluating it printed something
@@ -425,6 +435,7 @@ describe('shell', function () {
   it('clears the output when onClearCommand is called', async function () {
     let output: ShellOutputEntry[] = [
       {
+        key: lastKey++,
         format: 'output',
         type: undefined,
         value: 'some result',
