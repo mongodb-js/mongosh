@@ -1,5 +1,5 @@
 import type { Config } from './config';
-import { publishToNpm, pushTags } from './npm-packages';
+import { PackagePublisher } from './npm-packages';
 
 export function publishAuxiliaryPackages(config: Config) {
   if (!config.useAuxiliaryPackagesOnly) {
@@ -7,9 +7,11 @@ export function publishAuxiliaryPackages(config: Config) {
       'This should only be used when publishing auxiliary packages'
     );
   }
-  pushTags({
+  const publisher = new PackagePublisher({
     useAuxiliaryPackagesOnly: true,
     isDryRun: config.isDryRun || false,
   });
-  publishToNpm(config);
+
+  publisher.pushTags();
+  publisher.publishToNpm();
 }

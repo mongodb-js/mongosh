@@ -1,11 +1,12 @@
 import chai, { expect } from 'chai';
 import sinon from 'sinon';
 import type { GithubRepo } from '@mongodb-js/devtools-github-repo';
-import { publishToHomebrew } from './publish-to-homebrew';
+import type { HomebrewPublisherConfig } from './publish-to-homebrew';
+import { HomebrewPublisher } from './publish-to-homebrew';
 
 chai.use(require('sinon-chai'));
 
-describe('Homebrew publish-to-homebrew', function () {
+describe('HomebrewPublisher', function () {
   let homebrewCore: GithubRepo;
   let homebrewCoreFork: GithubRepo;
   let createPullRequest: sinon.SinonStub;
@@ -13,11 +14,12 @@ describe('Homebrew publish-to-homebrew', function () {
   let generateFormula: sinon.SinonStub;
   let updateHomebrewFork: sinon.SinonStub;
 
-  beforeEach(function () {
+  let testPublisher: HomebrewPublisher;
+
+  const setupHomebrewPublisher = (
+    config: Omit<HomebrewPublisherConfig, 'homebrewCore' | 'homebrewCoreFork'>
+  ) => {
     createPullRequest = sinon.stub();
-    httpsSha256 = sinon.stub();
-    generateFormula = sinon.stub();
-    updateHomebrewFork = sinon.stub();
 
     homebrewCore = {
       repo: {
@@ -32,9 +34,33 @@ describe('Homebrew publish-to-homebrew', function () {
         repo: 'homebrew-core',
       },
     } as unknown as GithubRepo;
+
+    testPublisher = new HomebrewPublisher({
+      ...config,
+      homebrewCore,
+      homebrewCoreFork,
+    });
+
+    httpsSha256 = sinon.stub(testPublisher, 'httpsSha256');
+    generateFormula = sinon.stub(testPublisher, 'generateFormula');
+    updateHomebrewFork = sinon.stub(testPublisher, 'updateHomebrewFork');
+  };
+
+  beforeEach(function () {
+    setupHomebrewPublisher({
+      packageVersion: '1.0.0',
+      githubReleaseLink: 'githubRelease',
+      isDryRun: false,
+    });
   });
 
   it('creates and merges a PR on update and cleans up', async function () {
+    setupHomebrewPublisher({
+      packageVersion: '1.0.0',
+      githubReleaseLink: 'githubRelease',
+      isDryRun: false,
+    });
+
     httpsSha256
       .rejects()
       .withArgs(
@@ -69,16 +95,7 @@ describe('Homebrew publish-to-homebrew', function () {
       )
       .resolves({ prNumber: 42, url: 'url' });
 
-    await publishToHomebrew(
-      homebrewCore,
-      homebrewCoreFork,
-      '1.0.0',
-      'githubRelease',
-      false,
-      httpsSha256,
-      generateFormula,
-      updateHomebrewFork
-    );
+    await testPublisher.publish();
 
     expect(httpsSha256).to.have.been.called;
     expect(generateFormula).to.have.been.called;
@@ -87,6 +104,12 @@ describe('Homebrew publish-to-homebrew', function () {
   });
 
   it('does not try to push/merge when there is no formula update', async function () {
+    setupHomebrewPublisher({
+      packageVersion: '1.0.0',
+      githubReleaseLink: 'githubRelease',
+      isDryRun: false,
+    });
+
     httpsSha256
       .rejects()
       .withArgs(
@@ -111,16 +134,7 @@ describe('Homebrew publish-to-homebrew', function () {
       })
       .resolves(undefined);
 
-    await publishToHomebrew(
-      homebrewCore,
-      homebrewCoreFork,
-      '1.0.0',
-      'githubRelease',
-      false,
-      httpsSha256,
-      generateFormula,
-      updateHomebrewFork
-    );
+    await testPublisher.publish();
 
     expect(httpsSha256).to.have.been.called;
     expect(generateFormula).to.have.been.called;
@@ -163,16 +177,7 @@ describe('Homebrew publish-to-homebrew', function () {
       )
       .resolves({ prNumber: 42, url: 'url' });
 
-    await publishToHomebrew(
-      homebrewCore,
-      homebrewCoreFork,
-      '1.0.0',
-      'githubRelease',
-      false,
-      httpsSha256,
-      generateFormula,
-      updateHomebrewFork
-    );
+    await testPublisher.publish();
 
     expect(httpsSha256).to.have.been.called;
     expect(generateFormula).to.have.been.called;

@@ -11,6 +11,7 @@ import {
   runDraft,
 } from './run-draft';
 import { dummyConfig } from '../test/helpers';
+import { PackageBumper } from './npm-packages';
 
 chai.use(require('sinon-chai'));
 
@@ -37,8 +38,7 @@ describe('draft', function () {
   });
 
   describe('runDraft', function () {
-    const bumpMongoshReleasePackages = sinon.spy();
-    const bumpMongoshAuxiliaryPackages = sinon.spy();
+    let packageBumper: PackageBumper;
     let ensureGithubReleaseExistsAndUpdateChangelog: typeof ensureGithubReleaseExistsAndUpdateChangelogFn;
 
     beforeEach(function () {
@@ -49,6 +49,12 @@ describe('draft', function () {
       let uploadReleaseAsset: sinon.SinonStub;
 
       beforeEach(async function () {
+        packageBumper = new PackageBumper({
+          spawnSync: sinon.stub().resolves(),
+        });
+        sinon.stub(packageBumper, 'bumpAuxiliaryPackages').resolves();
+        sinon.stub(packageBumper, 'bumpMongoshReleasePackages').resolves();
+
         uploadReleaseAsset = sinon.stub();
         githubRepo = createStubRepo({
           uploadReleaseAsset,
@@ -58,11 +64,10 @@ describe('draft', function () {
         await runDraft(
           config,
           githubRepo,
+          packageBumper,
           uploadArtifactToDownloadCenter,
           downloadArtifactFromEvergreen,
-          ensureGithubReleaseExistsAndUpdateChangelog,
-          bumpMongoshReleasePackages,
-          bumpMongoshAuxiliaryPackages
+          ensureGithubReleaseExistsAndUpdateChangelog
         );
       });
 
@@ -104,11 +109,10 @@ describe('draft', function () {
       await runDraft(
         config,
         githubRepo,
+        packageBumper,
         uploadArtifactToDownloadCenter,
         downloadArtifactFromEvergreen,
-        ensureGithubReleaseExistsAndUpdateChangelog,
-        bumpMongoshReleasePackages,
-        bumpMongoshAuxiliaryPackages
+        ensureGithubReleaseExistsAndUpdateChangelog
       );
       expect(ensureGithubReleaseExistsAndUpdateChangelog).to.not.have.been
         .called;
@@ -129,11 +133,10 @@ describe('draft', function () {
         await runDraft(
           config,
           githubRepo,
+          packageBumper,
           uploadArtifactToDownloadCenter,
           downloadArtifactFromEvergreen,
-          ensureGithubReleaseExistsAndUpdateChangelog,
-          bumpMongoshReleasePackages,
-          bumpMongoshAuxiliaryPackages
+          ensureGithubReleaseExistsAndUpdateChangelog
         );
       } catch (e: any) {
         expect(e.message).to.contain('Missing package information from config');
