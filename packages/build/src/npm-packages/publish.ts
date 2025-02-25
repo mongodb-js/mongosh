@@ -18,6 +18,11 @@ export function publishToNpm(
     },
   };
 
+  // There seems to be a bug where lerna does not run prepublish topologically
+  // during the publish step, causing build errors. This ensures all packages are topologically
+  // compiled beforehand.
+  spawnSync(LERNA_BIN, ['run', 'prepublish', '--sort'], commandOptions);
+
   // Lerna requires a clean repository for a publish from-package
   // we use git update-index --assume-unchanged on files we know have been bumped
   spawnSync(
