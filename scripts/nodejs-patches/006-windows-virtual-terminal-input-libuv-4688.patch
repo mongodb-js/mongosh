@@ -1,5 +1,116 @@
+diff --git a/deps/uv/docs/src/tty.rst b/deps/uv/docs/src/tty.rst
+index f1acfdc13729..f3c94390ef6d 100644
+--- a/deps/uv/docs/src/tty.rst
++++ b/deps/uv/docs/src/tty.rst
+@@ -27,10 +27,15 @@ Data types
+       typedef enum {
+           /* Initial/normal terminal mode */
+           UV_TTY_MODE_NORMAL,
+-          /* Raw input mode (On Windows, ENABLE_WINDOW_INPUT is also enabled) */
++          /*
++          * Raw input mode (On Windows, ENABLE_WINDOW_INPUT is also enabled).
++          * May become equivalent to UV_TTY_MODE_RAW_VT in future libuv versions.
++          */
+           UV_TTY_MODE_RAW,
+           /* Binary-safe I/O mode for IPC (Unix-only) */
+-          UV_TTY_MODE_IO
++          UV_TTY_MODE_IO,
++          /* Raw input mode. On Windows ENABLE_VIRTUAL_TERMINAL_INPUT is also set. */
++          UV_TTY_MODE_RAW_VT
+       } uv_tty_mode_t;
+ 
+ .. c:enum:: uv_tty_vtermstate_t
+diff --git a/deps/uv/include/uv.h b/deps/uv/include/uv.h
+index 02397dd0fdd4..3971dc869c99 100644
+--- a/deps/uv/include/uv.h
++++ b/deps/uv/include/uv.h
+@@ -770,10 +770,15 @@ struct uv_tty_s {
+ typedef enum {
+   /* Initial/normal terminal mode */
+   UV_TTY_MODE_NORMAL,
+-  /* Raw input mode (On Windows, ENABLE_WINDOW_INPUT is also enabled) */
++  /*
++   * Raw input mode (On Windows, ENABLE_WINDOW_INPUT is also enabled).
++   * May become equivalent to UV_TTY_MODE_RAW_VT in future libuv versions.
++   */
+   UV_TTY_MODE_RAW,
+   /* Binary-safe I/O mode for IPC (Unix-only) */
+-  UV_TTY_MODE_IO
++  UV_TTY_MODE_IO,
++  /* Raw input mode. On Windows ENABLE_VIRTUAL_TERMINAL_INPUT is also set. */
++  UV_TTY_MODE_RAW_VT
+ } uv_tty_mode_t;
+ 
+ typedef enum {
+diff --git a/deps/uv/include/uv/win.h b/deps/uv/include/uv/win.h
+index 6f8c47298e40..2b29325c520c 100644
+--- a/deps/uv/include/uv/win.h
++++ b/deps/uv/include/uv/win.h
+@@ -507,8 +507,11 @@ typedef struct {
+   union {                                                                     \
+     struct {                                                                  \
+       /* Used for readable TTY handles */                                     \
+-      /* TODO: remove me in v2.x. */                                          \
+-      HANDLE unused_;                                                         \
++      union {                                                                 \
++        /* TODO: remove me in v2.x. */                                        \
++        HANDLE unused_;                                                       \
++        int mode;                                                             \
++      } mode;                                                                 \
+       uv_buf_t read_line_buffer;                                              \
+       HANDLE read_raw_wait;                                                   \
+       /* Fields used for translating win keystrokes into vt100 characters */  \
+diff --git a/deps/uv/src/unix/tty.c b/deps/uv/src/unix/tty.c
+index d099bdb3b677..19aabc84935f 100644
+--- a/deps/uv/src/unix/tty.c
++++ b/deps/uv/src/unix/tty.c
+@@ -284,6 +284,11 @@ int uv_tty_set_mode(uv_tty_t* tty, uv_tty_mode_t mode) {
+   int fd;
+   int rc;
+ 
++  if (uv__is_raw_tty_mode(mode)) {
++    /* There is only a single raw TTY mode on UNIX. */
++    mode = UV_TTY_MODE_RAW;
++  }
++
+   if (tty->mode == (int) mode)
+     return 0;
+ 
+@@ -324,6 +329,8 @@ int uv_tty_set_mode(uv_tty_t* tty, uv_tty_mode_t mode) {
+     case UV_TTY_MODE_IO:
+       uv__tty_make_raw(&tmp);
+       break;
++    default:
++      UNREACHABLE();
+   }
+ 
+   /* Apply changes after draining */
+diff --git a/deps/uv/src/uv-common.h b/deps/uv/src/uv-common.h
+index cd57e5a35153..6ba8399bf873 100644
+--- a/deps/uv/src/uv-common.h
++++ b/deps/uv/src/uv-common.h
+@@ -125,7 +125,7 @@ enum {
+ 
+   /* Only used by uv_tty_t handles. */
+   UV_HANDLE_TTY_READABLE                = 0x01000000,
+-  UV_HANDLE_TTY_RAW                     = 0x02000000,
++  UV_HANDLE_UNUSED0                     = 0x02000000,
+   UV_HANDLE_TTY_SAVED_POSITION          = 0x04000000,
+   UV_HANDLE_TTY_SAVED_ATTRIBUTES        = 0x08000000,
+ 
+@@ -140,6 +140,10 @@ enum {
+   UV_HANDLE_REAP                        = 0x10000000
+ };
+ 
++static inline int uv__is_raw_tty_mode(uv_tty_mode_t m) {
++  return m == UV_TTY_MODE_RAW || m == UV_TTY_MODE_RAW_VT;
++}
++
+ int uv__loop_configure(uv_loop_t* loop, uv_loop_option option, va_list ap);
+ 
+ void uv__loop_close(uv_loop_t* loop);
 diff --git a/deps/uv/src/win/tty.c b/deps/uv/src/win/tty.c
-index 7e1f15544b17..37bc2c4ace57 100644
+index 7e1f15544b17..26b9d0deced5 100644
 --- a/deps/uv/src/win/tty.c
 +++ b/deps/uv/src/win/tty.c
 @@ -58,6 +58,9 @@
@@ -12,7 +123,80 @@ index 7e1f15544b17..37bc2c4ace57 100644
  
  #define CURSOR_SIZE_SMALL     25
  #define CURSOR_SIZE_LARGE     100
-@@ -344,6 +347,7 @@ static void uv__tty_capture_initial_style(
+@@ -119,7 +122,10 @@ static int uv_tty_virtual_width = -1;
+  * handle signalling SIGWINCH
+  */
+ 
+-static HANDLE uv__tty_console_handle = INVALID_HANDLE_VALUE;
++static HANDLE uv__tty_console_handle_out = INVALID_HANDLE_VALUE;
++static HANDLE uv__tty_console_handle_in = INVALID_HANDLE_VALUE;
++static DWORD uv__tty_console_in_original_mode = (DWORD)-1;
++static volatile LONG uv__tty_console_in_need_mode_reset = 0;
+ static int uv__tty_console_height = -1;
+ static int uv__tty_console_width = -1;
+ static HANDLE uv__tty_console_resized = INVALID_HANDLE_VALUE;
+@@ -159,19 +165,21 @@ static uv_tty_vtermstate_t uv__vterm_state = UV_TTY_UNSUPPORTED;
+ static void uv__determine_vterm_state(HANDLE handle);
+ 
+ void uv__console_init(void) {
++  DWORD dwMode;
++
+   if (uv_sem_init(&uv_tty_output_lock, 1))
+     abort();
+-  uv__tty_console_handle = CreateFileW(L"CONOUT$",
+-                                       GENERIC_READ | GENERIC_WRITE,
+-                                       FILE_SHARE_WRITE,
+-                                       0,
+-                                       OPEN_EXISTING,
+-                                       0,
+-                                       0);
+-  if (uv__tty_console_handle != INVALID_HANDLE_VALUE) {
++  uv__tty_console_handle_out = CreateFileW(L"CONOUT$",
++                                           GENERIC_READ | GENERIC_WRITE,
++                                           FILE_SHARE_WRITE,
++                                           0,
++                                           OPEN_EXISTING,
++                                           0,
++                                           0);
++  if (uv__tty_console_handle_out != INVALID_HANDLE_VALUE) {
+     CONSOLE_SCREEN_BUFFER_INFO sb_info;
+     uv_mutex_init(&uv__tty_console_resize_mutex);
+-    if (GetConsoleScreenBufferInfo(uv__tty_console_handle, &sb_info)) {
++    if (GetConsoleScreenBufferInfo(uv__tty_console_handle_out, &sb_info)) {
+       uv__tty_console_width = sb_info.dwSize.X;
+       uv__tty_console_height = sb_info.srWindow.Bottom - sb_info.srWindow.Top + 1;
+     }
+@@ -179,6 +187,18 @@ void uv__console_init(void) {
+                       NULL,
+                       WT_EXECUTELONGFUNCTION);
+   }
++  uv__tty_console_handle_in = CreateFileW(L"CONIN$",
++                                          GENERIC_READ | GENERIC_WRITE,
++                                          FILE_SHARE_READ,
++                                          0,
++                                          OPEN_EXISTING,
++                                          0,
++                                          0);
++  if (uv__tty_console_handle_in != INVALID_HANDLE_VALUE) {
++    if (GetConsoleMode(uv__tty_console_handle_in, &dwMode)) {
++      uv__tty_console_in_original_mode = dwMode;
++    }
++  }
+ }
+ 
+ 
+@@ -253,7 +273,9 @@ int uv_tty_init(uv_loop_t* loop, uv_tty_t* tty, uv_file fd, int unused) {
+     /* Initialize TTY input specific fields. */
+     tty->flags |= UV_HANDLE_TTY_READABLE | UV_HANDLE_READABLE;
+     /* TODO: remove me in v2.x. */
+-    tty->tty.rd.unused_ = NULL;
++    tty->tty.rd.mode.unused_ = NULL;
++    /* Partially overwrites unused_ again. */
++    tty->tty.rd.mode.mode = 0;
+     tty->tty.rd.read_line_buffer = uv_null_buf_;
+     tty->tty.rd.read_raw_wait = NULL;
+ 
+@@ -344,6 +366,7 @@ static void uv__tty_capture_initial_style(
  
  int uv_tty_set_mode(uv_tty_t* tty, uv_tty_mode_t mode) {
    DWORD flags;
@@ -20,27 +204,226 @@ index 7e1f15544b17..37bc2c4ace57 100644
    unsigned char was_reading;
    uv_alloc_cb alloc_cb;
    uv_read_cb read_cb;
-@@ -360,9 +364,11 @@ int uv_tty_set_mode(uv_tty_t* tty, uv_tty_mode_t mode) {
+@@ -353,14 +376,19 @@ int uv_tty_set_mode(uv_tty_t* tty, uv_tty_mode_t mode) {
+     return UV_EINVAL;
+   }
+ 
+-  if (!!mode == !!(tty->flags & UV_HANDLE_TTY_RAW)) {
++  if ((int)mode == tty->tty.rd.mode.mode) {
+     return 0;
+   }
+ 
++  try_set_flags = 0;
    switch (mode) {
      case UV_TTY_MODE_NORMAL:
        flags = ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT;
-+      try_set_flags = 0;
        break;
++    case UV_TTY_MODE_RAW_VT:
++      try_set_flags = ENABLE_VIRTUAL_TERMINAL_INPUT;
++      InterlockedExchange(&uv__tty_console_in_need_mode_reset, 1);
++      /* fallthrough */
      case UV_TTY_MODE_RAW:
        flags = ENABLE_WINDOW_INPUT;
-+      try_set_flags = ENABLE_VIRTUAL_TERMINAL_INPUT;
        break;
-     case UV_TTY_MODE_IO:
-       return UV_ENOTSUP;
-@@ -386,7 +392,10 @@ int uv_tty_set_mode(uv_tty_t* tty, uv_tty_mode_t mode) {
+@@ -386,16 +414,16 @@ int uv_tty_set_mode(uv_tty_t* tty, uv_tty_mode_t mode) {
    }
  
    uv_sem_wait(&uv_tty_output_lock);
 -  if (!SetConsoleMode(tty->handle, flags)) {
-+  if (
-+    !SetConsoleMode(tty->handle, flags | try_set_flags) &&
-+    !SetConsoleMode(tty->handle, flags)
-+  ) {
++  if (!SetConsoleMode(tty->handle, flags | try_set_flags) &&
++      !SetConsoleMode(tty->handle, flags)) {
      err = uv_translate_sys_error(GetLastError());
      uv_sem_post(&uv_tty_output_lock);
      return err;
+   }
+   uv_sem_post(&uv_tty_output_lock);
+ 
+-  /* Update flag. */
+-  tty->flags &= ~UV_HANDLE_TTY_RAW;
+-  tty->flags |= mode ? UV_HANDLE_TTY_RAW : 0;
++  /* Update mode. */
++  tty->tty.rd.mode.mode = mode;
+ 
+   /* If we just stopped reading, restart. */
+   if (was_reading) {
+@@ -615,7 +643,7 @@ static void uv__tty_queue_read_line(uv_loop_t* loop, uv_tty_t* handle) {
+ 
+ 
+ static void uv__tty_queue_read(uv_loop_t* loop, uv_tty_t* handle) {
+-  if (handle->flags & UV_HANDLE_TTY_RAW) {
++  if (uv__is_raw_tty_mode(handle->tty.rd.mode.mode)) {
+     uv__tty_queue_read_raw(loop, handle);
+   } else {
+     uv__tty_queue_read_line(loop, handle);
+@@ -703,7 +731,7 @@ void uv_process_tty_read_raw_req(uv_loop_t* loop, uv_tty_t* handle,
+   handle->flags &= ~UV_HANDLE_READ_PENDING;
+ 
+   if (!(handle->flags & UV_HANDLE_READING) ||
+-      !(handle->flags & UV_HANDLE_TTY_RAW)) {
++      !(uv__is_raw_tty_mode(handle->tty.rd.mode.mode))) {
+     goto out;
+   }
+ 
+@@ -1056,7 +1084,7 @@ int uv__tty_read_stop(uv_tty_t* handle) {
+   if (!(handle->flags & UV_HANDLE_READ_PENDING))
+     return 0;
+ 
+-  if (handle->flags & UV_HANDLE_TTY_RAW) {
++  if (uv__is_raw_tty_mode(handle->tty.rd.mode.mode)) {
+     /* Cancel raw read. Write some bullshit event to force the console wait to
+      * return. */
+     memset(&record, 0, sizeof record);
+@@ -2299,7 +2327,17 @@ void uv__tty_endgame(uv_loop_t* loop, uv_tty_t* handle) {
+ 
+ 
+ int uv_tty_reset_mode(void) {
+-  /* Not necessary to do anything. */
++  /**
++   * Shells on Windows do know to reset output flags after a program exits,
++   * but not necessarily input flags, so we do that for them.
++   */
++  if (
++    uv__tty_console_handle_in != INVALID_HANDLE_VALUE &&
++    uv__tty_console_in_original_mode != (DWORD)-1 &&
++    InterlockedExchange(&uv__tty_console_in_need_mode_reset, 0) != 0
++  ) {
++    SetConsoleMode(uv__tty_console_handle_in, uv__tty_console_in_original_mode);
++  }
+   return 0;
+ }
+ 
+@@ -2396,7 +2434,7 @@ static void uv__tty_console_signal_resize(void) {
+   CONSOLE_SCREEN_BUFFER_INFO sb_info;
+   int width, height;
+ 
+-  if (!GetConsoleScreenBufferInfo(uv__tty_console_handle, &sb_info))
++  if (!GetConsoleScreenBufferInfo(uv__tty_console_handle_out, &sb_info))
+     return;
+ 
+   width = sb_info.dwSize.X;
+diff --git a/deps/uv/test/test-list.h b/deps/uv/test/test-list.h
+index 78ff9c2d1621..d42f1e6fac69 100644
+--- a/deps/uv/test/test-list.h
++++ b/deps/uv/test/test-list.h
+@@ -53,7 +53,8 @@ TEST_DECLARE   (tty_raw)
+ TEST_DECLARE   (tty_empty_write)
+ TEST_DECLARE   (tty_large_write)
+ TEST_DECLARE   (tty_raw_cancel)
+-TEST_DECLARE   (tty_duplicate_vt100_fn_key)
++TEST_DECLARE   (tty_duplicate_vt100_fn_key_libuv)
++TEST_DECLARE   (tty_duplicate_vt100_fn_key_winvt)
+ TEST_DECLARE   (tty_duplicate_alt_modifier_key)
+ TEST_DECLARE   (tty_composing_character)
+ TEST_DECLARE   (tty_cursor_up)
+@@ -612,7 +613,8 @@ TASK_LIST_START
+   TEST_ENTRY  (tty_empty_write)
+   TEST_ENTRY  (tty_large_write)
+   TEST_ENTRY  (tty_raw_cancel)
+-  TEST_ENTRY  (tty_duplicate_vt100_fn_key)
++  TEST_ENTRY  (tty_duplicate_vt100_fn_key_libuv)
++  TEST_ENTRY  (tty_duplicate_vt100_fn_key_winvt)
+   TEST_ENTRY  (tty_duplicate_alt_modifier_key)
+   TEST_ENTRY  (tty_composing_character)
+   TEST_ENTRY  (tty_cursor_up)
+diff --git a/deps/uv/test/test-tty-duplicate-key.c b/deps/uv/test/test-tty-duplicate-key.c
+index 6ba96c813523..a30f698acaef 100644
+--- a/deps/uv/test/test-tty-duplicate-key.c
++++ b/deps/uv/test/test-tty-duplicate-key.c
+@@ -131,7 +131,7 @@ static void make_key_event_records(WORD virt_key, DWORD ctr_key_state,
+ # undef KEV
+ }
+ 
+-TEST_IMPL(tty_duplicate_vt100_fn_key) {
++TEST_IMPL(tty_duplicate_vt100_fn_key_libuv) {
+   int r;
+   int ttyin_fd;
+   uv_tty_t tty_in;
+@@ -163,6 +163,10 @@ TEST_IMPL(tty_duplicate_vt100_fn_key) {
+   r = uv_read_start((uv_stream_t*)&tty_in, tty_alloc, tty_read);
+   ASSERT(r == 0);
+ 
++  /*
++   * libuv has chosen to emit ESC[[A, but other terminals, and even
++   * Windows itself use a different escape sequence, see the test below.
++   */
+   expect_str = ESC"[[A";
+   expect_nread = strlen(expect_str);
+ 
+@@ -184,6 +188,62 @@ TEST_IMPL(tty_duplicate_vt100_fn_key) {
+   return 0;
+ }
+ 
++TEST_IMPL(tty_duplicate_vt100_fn_key_winvt) {
++  int r;
++  int ttyin_fd;
++  uv_tty_t tty_in;
++  uv_loop_t* loop;
++  HANDLE handle;
++  INPUT_RECORD records[2];
++  DWORD written;
++
++  loop = uv_default_loop();
++
++  /* Make sure we have an FD that refers to a tty */
++  handle = CreateFileA("conin$",
++                       GENERIC_READ | GENERIC_WRITE,
++                       FILE_SHARE_READ | FILE_SHARE_WRITE,
++                       NULL,
++                       OPEN_EXISTING,
++                       FILE_ATTRIBUTE_NORMAL,
++                       NULL);
++  ASSERT_PTR_NE(handle, INVALID_HANDLE_VALUE);
++  ttyin_fd = _open_osfhandle((intptr_t) handle, 0);
++  ASSERT_GE(ttyin_fd, 0);
++  ASSERT_EQ(UV_TTY, uv_guess_handle(ttyin_fd));
++
++  r = uv_tty_init(uv_default_loop(), &tty_in, ttyin_fd, 1);  /* Readable. */
++  ASSERT_OK(r);
++  ASSERT(uv_is_readable((uv_stream_t*) &tty_in));
++  ASSERT(!uv_is_writable((uv_stream_t*) &tty_in));
++
++  r = uv_read_start((uv_stream_t*)&tty_in, tty_alloc, tty_read);
++  ASSERT_OK(r);
++
++  /*
++   * Some keys, like F1, get are assigned a different value by Windows
++   * in ENABLE_VIRTUAL_TERMINAL_INPUT mode vs. libuv in the test above.
++   */
++  expect_str = ESC"OP";
++  expect_nread = strlen(expect_str);
++
++  /* Turn on raw mode. */
++  r = uv_tty_set_mode(&tty_in, UV_TTY_MODE_RAW_VT);
++  ASSERT_OK(r);
++
++  /*
++   * Send F1 keystroke.
++   */
++  make_key_event_records(VK_F1, 0, TRUE, records);
++  WriteConsoleInputW(handle, records, ARRAY_SIZE(records), &written);
++  ASSERT_EQ(written, ARRAY_SIZE(records));
++
++  uv_run(loop, UV_RUN_DEFAULT);
++
++  MAKE_VALGRIND_HAPPY(loop);
++  return 0;
++}
++
+ TEST_IMPL(tty_duplicate_alt_modifier_key) {
+   int r;
+   int ttyin_fd;
+diff --git a/src/tty_wrap.cc b/src/tty_wrap.cc
+index d2bd9c383abe..bbc3fd37f992 100644
+--- a/src/tty_wrap.cc
++++ b/src/tty_wrap.cc
+@@ -112,7 +112,9 @@ void TTYWrap::SetRawMode(const FunctionCallbackInfo<Value>& args) {
+   TTYWrap* wrap;
+   ASSIGN_OR_RETURN_UNWRAP(
+       &wrap, args.This(), args.GetReturnValue().Set(UV_EBADF));
+-  int err = uv_tty_set_mode(&wrap->handle_, args[0]->IsTrue());
++  int err = uv_tty_set_mode(
++      &wrap->handle_,
++      args[0]->IsTrue() ? UV_TTY_MODE_RAW_VT : UV_TTY_MODE_NORMAL);
+   args.GetReturnValue().Set(err);
+ }
+ 
