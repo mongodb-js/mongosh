@@ -70,7 +70,7 @@ export async function publishMongosh(
 
   bumpAuxiliaryPackages();
   await bumpMongoshReleasePackages(releaseVersion);
-  commitBumpedPackages(spawnSync);
+  commitBumpedPackages({ useAuxiliaryPackagesOnly: false }, spawnSync);
   pushTags({
     useAuxiliaryPackagesOnly: false,
     isDryRun: config.isDryRun || false,

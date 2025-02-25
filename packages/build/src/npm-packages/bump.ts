@@ -110,7 +110,7 @@ export function bumpAuxiliaryPackages() {
     encoding: 'utf8',
     env: {
       ...process.env,
-      LAST_BUMP_COMMIT_MESSAGE: 'chore(release): bump auxiliary packages',
+      LAST_BUMP_COMMIT_MESSAGE: 'chore(release): bump packages',
       SKIP_BUMP_PACKAGES: [
         ...EXCLUDE_RELEASE_PACKAGES,
         ...MONGOSH_RELEASE_PACKAGES,
@@ -120,6 +120,7 @@ export function bumpAuxiliaryPackages() {
 }
 
 export function commitBumpedPackages(
+  { useAuxiliaryPackagesOnly }: { useAuxiliaryPackagesOnly: boolean },
   spawnSync: typeof spawnSyncFn = spawnSyncFn
 ) {
   spawnSync('git', ['add', '.'], {
@@ -128,9 +129,19 @@ export function commitBumpedPackages(
     encoding: 'utf8',
   });
 
-  spawnSync('git', ['commit', '-m', 'chore(release): bump packages'], {
-    stdio: 'inherit',
-    cwd: PROJECT_ROOT,
-    encoding: 'utf8',
-  });
+  spawnSync(
+    'git',
+    [
+      'commit',
+      '-m',
+      `chore(release): bump packages for ${
+        useAuxiliaryPackagesOnly ? 'auxiliary' : 'mongosh'
+      } release`,
+    ],
+    {
+      stdio: 'inherit',
+      cwd: PROJECT_ROOT,
+      encoding: 'utf8',
+    }
+  );
 }

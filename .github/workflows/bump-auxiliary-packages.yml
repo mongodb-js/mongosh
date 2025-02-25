@@ -42,15 +42,15 @@ jobs:
         run: |
           npm run bump-auxiliary
           git add .
-          git commit --no-allow-empty -m "chore(release): bump auxiliary packages" || true
+          git commit --no-allow-empty -m "chore(release): bump packages for auxiliary release" || true
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # 7.0.5
         with:
           token: ${{ steps.app-token.outputs.token }}
-          commit-message: "chore(release): bump auxiliary packages"
+          commit-message: "chore(release): bump packages for auxiliary release"
           branch: ci/bump-auxiliary-packages
-          title: "chore(release): bump auxiliary packages"
+          title: "chore(release): bump packages for auxiliary release"
           labels: no-title-validation
           body: |
             - Bumps auxiliary package versions. Merging will trigger a release of these packages.
