@@ -38,18 +38,28 @@ describe('PackagePublisher', function () {
     MONGOSH_RELEASE_PACKAGES.includes(p.name)
   );
 
-  function setupTestPublisher(config: PackagePublisherConfig) {
+  function setupTestPublisher(
+    config: PackagePublisherConfig,
+    {
+      existsTagStub = sinon.stub(),
+    }: {
+      existsTagStub?: SinonStub | null;
+    } = {}
+  ) {
     spawnSync = sinon.stub();
+    spawnSync.returns(undefined);
 
     testPublisher = new PackagePublisher(config, { spawnSync });
-
-    spawnSync.returns(undefined);
 
     listNpmPackages = sinon.stub(testPublisher, 'listNpmPackages');
     listNpmPackages.returns(allReleasablePackages);
 
-    existsTag = sinon.stub(testPublisher, 'existsTag');
-    existsTag.returns(false);
+    if (existsTagStub) {
+      console.log('setting up...');
+      sinon.replace(testPublisher, 'existsTag', existsTagStub);
+      existsTag = existsTagStub;
+      existsTagStub.returns(false);
+    }
   }
 
   describe('publish()', function () {
@@ -245,11 +255,17 @@ describe('PackagePublisher', function () {
   });
 
   describe('existsTag()', function () {
+    beforeEach(function () {
+      setupTestPublisher({}, { existsTagStub: null });
+    });
+
     it('returns true with existing tags', function () {
+      spawnSync.returns({ status: 0 });
       expect(testPublisher.existsTag('v1.0.0')).equals(true);
     });
 
     it('return false with tags that do not exist', function () {
+      spawnSync.returns({ status: 1 });
       expect(testPublisher.existsTag('this-tag-will-never-exist-12345')).equals(
         false
       );
