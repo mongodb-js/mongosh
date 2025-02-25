@@ -1,6 +1,12 @@
 import * as semver from 'semver';
 import type { GithubRepo } from '@mongodb-js/devtools-github-repo';
 
+/**
+ * When sending requests via Octokit, a situation can arise where the server closes the connection,
+ * but the client still believes it’s open and attempts to write to it,
+ * what leads to receiving an EPIPE error from the OS, indicating the connection has already been closed.
+ * In such cases, retrying the request can help establish a new, functional connection.
+ */
 async function getFileWithRetry(
   homebrewCore: GithubRepo,
   remainingRetries = 3
