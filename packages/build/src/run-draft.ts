@@ -5,21 +5,17 @@ import { ALL_PACKAGE_VARIANTS, getReleaseVersionFromTag } from './config';
 import { uploadArtifactToDownloadCenter as uploadArtifactToDownloadCenterFn } from './download-center';
 import { downloadArtifactFromEvergreen as downloadArtifactFromEvergreenFn } from './evergreen';
 import { generateChangelog as generateChangelogFn } from './git';
-import type { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { getPackageFile } from './packaging';
-import {
-  bumpAuxiliaryPackages as bumpAuxiliaryPackagesFn,
-  bumpMongoshReleasePackages as bumpMongoshReleasePackagesFn,
-} from './npm-packages/bump';
+import type { PackageBumper } from './npm-packages';
+import type { GithubRepo } from '@mongodb-js/devtools-github-repo';
 
 export async function runDraft(
   config: Config,
   githubRepo: GithubRepo,
+  packageBumper: PackageBumper,
   uploadToDownloadCenter: typeof uploadArtifactToDownloadCenterFn = uploadArtifactToDownloadCenterFn,
   downloadArtifactFromEvergreen: typeof downloadArtifactFromEvergreenFn = downloadArtifactFromEvergreenFn,
-  ensureGithubReleaseExistsAndUpdateChangelog: typeof ensureGithubReleaseExistsAndUpdateChangelogFn = ensureGithubReleaseExistsAndUpdateChangelogFn,
-  bumpMongoshReleasePackages: typeof bumpMongoshReleasePackagesFn = bumpMongoshReleasePackagesFn,
-  bumpAuxiliaryPackages: typeof bumpAuxiliaryPackagesFn = bumpAuxiliaryPackagesFn
+  ensureGithubReleaseExistsAndUpdateChangelog: typeof ensureGithubReleaseExistsAndUpdateChangelogFn = ensureGithubReleaseExistsAndUpdateChangelogFn
 ): Promise<void> {
   const { triggeringGitTag } = config;
   const draftReleaseVersion = getReleaseVersionFromTag(triggeringGitTag);
@@ -51,8 +47,8 @@ export async function runDraft(
   );
   await fs.mkdir(tmpDir, { recursive: true });
 
-  bumpAuxiliaryPackages();
-  await bumpMongoshReleasePackages(draftReleaseVersion);
+  packageBumper.bumpAuxiliaryPackages();
+  await packageBumper.bumpMongoshReleasePackages(draftReleaseVersion);
 
   for await (const variant of ALL_PACKAGE_VARIANTS) {
     const tarballFile = getPackageFile(variant, config.packageInformation);

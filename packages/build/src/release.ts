@@ -1,20 +1,12 @@
 import { Octokit } from '@octokit/rest';
-import { writeBuildInfo } from './build-info';
-import { Barque } from './barque';
 import { runCompile } from './compile';
 import type { Config } from './config';
 import { getReleaseVersionFromTag, redactConfig } from './config';
-import {
-  createAndPublishDownloadCenterConfig,
-  uploadArtifactToDownloadCenter,
-} from './download-center';
+import { uploadArtifactToDownloadCenter } from './download-center';
 import {
   downloadArtifactFromEvergreen,
   uploadArtifactToEvergreen,
 } from './evergreen';
-import { GithubRepo } from '@mongodb-js/devtools-github-repo';
-import { publishToHomebrew } from './homebrew';
-import { bumpAuxiliaryPackages, publishToNpm, pushTags } from './npm-packages';
 import { runPackage } from './packaging';
 import { runDraft } from './run-draft';
 import { publishMongosh } from './publish-mongosh';
@@ -22,8 +14,9 @@ import { runUpload } from './run-upload';
 import { runSign } from './packaging/run-sign';
 import { runDownloadAndListArtifacts } from './run-download-and-list-artifacts';
 import { runDownloadCryptLibrary } from './packaging/run-download-crypt-library';
-import { bumpMongoshReleasePackages } from './npm-packages/bump';
+import { PackageBumper } from './npm-packages/bump';
 import { publishAuxiliaryPackages } from './publish-auxiliary';
+import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 
 export type ReleaseCommand =
   | 'bump'
@@ -57,9 +50,10 @@ export async function release(
   );
 
   if (command === 'bump') {
-    bumpAuxiliaryPackages();
+    const packageBumper = new PackageBumper();
+    packageBumper.bumpAuxiliaryPackages();
     if (!config.useAuxiliaryPackagesOnly) {
-      await bumpMongoshReleasePackages(config.version);
+      await packageBumper.bumpMongoshReleasePackages(config.version);
     }
     return;
   }
@@ -83,16 +77,7 @@ export async function release(
       };
     });
   }
-
   const githubRepo = new GithubRepo(config.repo, octokit);
-  const homebrewCoreRepo = new GithubRepo(
-    { owner: 'Homebrew', repo: 'homebrew-core' },
-    octokit
-  );
-  const mongoHomebrewForkRepo = new GithubRepo(
-    { owner: 'mongodb-js', repo: 'homebrew-core' },
-    octokit
-  );
 
   if (command === 'compile') {
     await runCompile(config);
@@ -108,6 +93,7 @@ export async function release(
     await runDraft(
       config,
       githubRepo,
+      new PackageBumper(),
       uploadArtifactToDownloadCenter,
       downloadArtifactFromEvergreen
     );
@@ -117,18 +103,7 @@ export async function release(
     if (config.useAuxiliaryPackagesOnly) {
       publishAuxiliaryPackages(config);
     } else {
-      await publishMongosh(
-        config,
-        githubRepo,
-        mongoHomebrewForkRepo,
-        homebrewCoreRepo,
-        new Barque(config),
-        createAndPublishDownloadCenterConfig,
-        publishToNpm,
-        pushTags,
-        writeBuildInfo,
-        publishToHomebrew
-      );
+      await publishMongosh(config, octokit);
     }
   } else {
     throw new Error(`Unknown command: ${command}`);
