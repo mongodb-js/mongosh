@@ -11,9 +11,11 @@ test_root_dir=/tmp/mongosh-vscode-test
 export SEGMENT_KEY=GtEn04CBjn39g6A0BxldDf81YGFONOz7 # fresh from /dev/urandom
 rm -rf "$test_root_dir" && mkdir -p "$test_root_dir"
 cd "$test_root_dir"
-git clone --depth=10 https://github.com/mongodb-js/vscode.git
+git clone --depth=10 https://github.com/mongodb-js/vscode.git --branch gagik/vscode-debug
 cd vscode
-npm install --force
+
+npm ci --omit=optional
+
 rm -rf node_modules/@mongosh node_modules/mongodb
 (cd node_modules && ln -s "$mongosh_root_dir/packages" @mongosh && ln -s "$mongosh_root_dir/node_modules/mongodb" mongodb)
 # This test can require a lot of memory so we bump the maximum size.
