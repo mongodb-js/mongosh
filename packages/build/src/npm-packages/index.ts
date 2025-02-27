@@ -1,3 +1,3 @@
-export { bumpAuxiliaryPackages, bumpMongoshReleasePackages } from './bump';
-export { publishToNpm } from './publish';
-export { pushTags } from './push-tags';
+export { PackageBumper } from './bump';
+export { PackagePublisher } from './publish';
+export { PackagePublisherConfig } from './types';

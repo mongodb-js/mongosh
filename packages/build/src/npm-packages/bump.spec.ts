@@ -1,15 +1,12 @@
 import { expect } from 'chai';
 import type { SinonStub } from 'sinon';
 import sinon from 'sinon';
-import {
-  bumpMongoshReleasePackages,
-  updateShellApiMongoshVersion,
-} from './bump';
+import { PackageBumper } from './bump';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { PROJECT_ROOT } from './constants';
 
-describe('npm-packages bump', function () {
+describe('PackageBumper', function () {
   let fsWriteFile: SinonStub;
   const shellApiSrc = path.join(
     PROJECT_ROOT,
@@ -19,9 +16,22 @@ describe('npm-packages bump', function () {
     'mongosh-version.ts'
   );
 
+  let testBumper: PackageBumper;
+  let getPackagesInTopologicalOrder: sinon.SinonStub;
+
   beforeEach(function () {
     fsWriteFile = sinon.stub(fs, 'writeFile');
     fsWriteFile.resolves();
+
+    const spawnSync = sinon.stub();
+    spawnSync.resolves();
+
+    getPackagesInTopologicalOrder = sinon.stub();
+
+    testBumper = new PackageBumper({
+      spawnSync,
+      getPackagesInTopologicalOrder,
+    });
   });
 
   afterEach(function () {
@@ -30,15 +40,13 @@ describe('npm-packages bump', function () {
 
   describe('bumpMongoshReleasePackages', function () {
     let fsReadFile: SinonStub;
-    let getPackagesInTopologicalOrder: sinon.SinonStub;
     beforeEach(function () {
       fsReadFile = sinon.stub(fs, 'readFile');
-      getPackagesInTopologicalOrder = sinon.stub();
     });
 
     it('warns and does not run if version is not set', async function () {
       const consoleWarnSpy = sinon.spy(console, 'warn');
-      await bumpMongoshReleasePackages('');
+      await testBumper.bumpMongoshReleasePackages('');
       expect(consoleWarnSpy).calledOnceWith(
         'mongosh: Release version not specified. Skipping mongosh bump.'
       );
@@ -54,10 +62,6 @@ describe('npm-packages bump', function () {
         'packages',
         'autocomplete'
       );
-      getPackagesInTopologicalOrder.resolves([
-        { name: 'mongosh', location: mongoshPath },
-        { name: '@mongosh/autocomplete', location: autocompletePath },
-      ]);
 
       const rootProjectJson = path.join(PROJECT_ROOT, 'package.json');
       const mongoshProjectJson = path.join(mongoshPath, 'package.json');
@@ -106,12 +110,14 @@ describe('npm-packages bump', function () {
         fsReadFile.withArgs(file, 'utf8').resolves(JSON.stringify(json));
       }
 
-      const updateShellApiMongoshVersion = sinon.stub();
-      await bumpMongoshReleasePackages(
-        '9.9.9',
-        getPackagesInTopologicalOrder,
-        updateShellApiMongoshVersion
-      );
+      getPackagesInTopologicalOrder.resolves([
+        { name: 'mongosh', location: mongoshPath },
+        { name: '@mongosh/autocomplete', location: autocompletePath },
+      ]);
+
+      sinon.stub(testBumper, 'updateShellApiMongoshVersion').resolves();
+
+      await testBumper.bumpMongoshReleasePackages('9.9.9');
       expect(fsWriteFile).callCount(3);
 
       expect(
@@ -168,7 +174,7 @@ describe('npm-packages bump', function () {
     export const MONGOSH_VERSION = '2.3.8';`);
 
       const newVersion = '3.0.0';
-      await updateShellApiMongoshVersion(newVersion);
+      await testBumper.updateShellApiMongoshVersion(newVersion);
 
       expect(fsWriteFile).calledWith(
         shellApiSrc,
