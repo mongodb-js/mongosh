@@ -7,7 +7,7 @@ import type { GithubRepo } from '@mongodb-js/devtools-github-repo';
  * what leads to receiving an EPIPE error from the OS, indicating the connection has already been closed.
  * In such cases, retrying the request can help establish a new, functional connection.
  */
-async function getFileWithRetry(
+async function getFormulaFromRepositoryWithRetry(
   homebrewCore: GithubRepo,
   remainingRetries = 3
 ) {
@@ -15,7 +15,11 @@ async function getFileWithRetry(
     return await homebrewCore.getFileContent('Formula/m/mongosh.rb', 'master');
   } catch (error: any) {
     if (error.message.includes('EPIPE') && remainingRetries > 0) {
-      return await getFileWithRetry(homebrewCore, remainingRetries - 1);
+      console.error(error);
+      return await getFormulaFromRepositoryWithRetry(
+        homebrewCore,
+        remainingRetries - 1
+      );
     } else {
       throw error;
     }
@@ -27,7 +31,7 @@ export async function generateUpdatedFormula(
   homebrewCore: GithubRepo,
   isDryRun: boolean
 ): Promise<string | null> {
-  const currentFormula = await getFileWithRetry(homebrewCore);
+  const currentFormula = await getFormulaFromRepositoryWithRetry(homebrewCore);
 
   const urlMatch = /url "([^"]+)"/g.exec(currentFormula.content);
   const shaMatch = /sha256 "([^"]+)"/g.exec(currentFormula.content);
