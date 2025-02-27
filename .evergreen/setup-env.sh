@@ -2,7 +2,7 @@ set -e
 set -x
 
 OS_ARCH="$(uname "-m")"
-if [ "$OS_ARCH" = "ppc64le" ] || [ "$OS_ARCH" = "ppc64" ] || [ "$OS_ARCH" = "arm64" ]; then
+if [ "$OS_ARCH" = "ppc64le" ] || [ "$OS_ARCH" = "ppc64" ]; then
     echo "[INFO] Choosing v4 because OS_ARCH is $OS_ARCH"
     export TOOLCHAIN_PATH='/opt/mongodbtoolchain/v4/bin'
 else
@@ -38,14 +38,16 @@ if [ "$OS" != "Windows_NT" ]; then
   set -x
   export PATH="$NVM_BIN:$PATH"
 
-  export CC=gcc
-  export CXX=g++
+  if [ `uname` != Darwin ]; then
+    export CC=gcc
+    export CXX=g++
 
-  echo "Using gcc version:"
-  (which gcc && gcc --version)
+    echo "Using gcc version:"
+    (which gcc && gcc --version)
 
-  echo "Using g++ version:"
-  (which g++ && g++ --version)
+    echo "Using g++ version:"
+    (which g++ && g++ --version)
+  fi
 
   if [ -x "$BASEDIR/git-2/git" ]; then
     export GIT_EXEC_PATH="$BASEDIR/git-2"
