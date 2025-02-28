@@ -18,7 +18,13 @@ fi
 export PATH="$TOOLCHAIN_PATH:${ORIGINAL_PATH}"
 
 
-if [ `uname` != Darwin ]; then
+if [ `uname` = Darwin ]; then
+    echo "Using clang version:"
+    (which clang && clang --version)
+
+    echo "Using clang++ version:"
+    (which clang++ && clang++ --version)
+else
     export CC=gcc
     export CXX=g++
 

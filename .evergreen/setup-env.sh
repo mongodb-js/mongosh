@@ -38,7 +38,13 @@ if [ "$OS" != "Windows_NT" ]; then
   set -x
   export PATH="$NVM_BIN:$PATH"
 
-  if [ `uname` != Darwin ]; then
+  if [ `uname` = Darwin ]; then
+    echo "Using clang version:"
+    (which clang && clang --version)
+
+    echo "Using clang++ version:"
+    (which clang++ && clang++ --version)
+  else
     export CC=gcc
     export CXX=g++
 
