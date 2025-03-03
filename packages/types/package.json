@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/types",
-  "version": "3.5.0",
+  "version": "3.5.1",
   "description": "Types for mongosh internals",
   "author": "Anna Henningsen <anna.henningsen@mongodb.com>",
   "homepage": "https://github.com/mongodb-js/mongosh/tree/main/packages/types#readme",
