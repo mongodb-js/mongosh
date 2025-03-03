@@ -15,11 +15,25 @@ else
     echo "[INFO] Choosing v3 because OS_ARCH is $OS_ARCH"
     export TOOLCHAIN_PATH='/opt/mongodbtoolchain/v3/bin'
 fi
-export PATH="$TOOLCHAIN_PATH:/opt/mongodbtoolchain/v4/bin:/opt/mongodbtoolchain/v3/bin:${ORIGINAL_PATH}"
+export PATH="$TOOLCHAIN_PATH:${ORIGINAL_PATH}"
 
-export PATH="/opt/mongodbtoolchain/v4/bin:/opt/mongodbtoolchain/v3/bin:${ORIGINAL_PATH}"
-export CC=gcc
-export CXX=g++
+
+if [ `uname` = Darwin ]; then
+    echo "Using clang version:"
+    (which clang && clang --version)
+
+    echo "Using clang++ version:"
+    (which clang++ && clang++ --version)
+else
+    export CC=gcc
+    export CXX=g++
+
+    echo "Using gcc version:"
+    (which gcc && gcc --version)
+
+    echo "Using g++ version:"
+    (which g++ && g++ --version)
+fi
 
 NODE_JS_TARBALL_FILE="node-v${NODE_JS_VERSION}.tar.gz"
 NODE_JS_TARBALL_PATH="${EVGDIR}/${NODE_JS_TARBALL_FILE}"
@@ -28,12 +42,6 @@ NODE_JS_SOURCE_PATH="${EVGDIR}/node-v${NODE_JS_VERSION}"
 # We install our custom built node in nvm dir so its easier for rest of the
 # scripts to simply do `nvm use`
 NODE_JS_INSTALL_DIR="${NVM_DIR}/versions/node/v${NODE_JS_VERSION}"
-
-echo "Using gcc version:"
-(which gcc && gcc --version)
-
-echo "Using g++ version:"
-(which g++ && g++ --version)
 
 echo "Using python3 version:"
 (which python3 && python3 --version) || true

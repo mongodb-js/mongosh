@@ -1,15 +1,37 @@
 import * as semver from 'semver';
 import type { GithubRepo } from '@mongodb-js/devtools-github-repo';
 
+/**
+ * When sending requests via Octokit, a situation can arise where the server closes the connection,
+ * but the client still believes it’s open and attempts to write to it,
+ * what leads to receiving an EPIPE error from the OS, indicating the connection has already been closed.
+ * In such cases, retrying the request can help establish a new, functional connection.
+ */
+async function getFormulaFromRepositoryWithRetry(
+  homebrewCore: GithubRepo,
+  remainingRetries = 3
+) {
+  try {
+    return await homebrewCore.getFileContent('Formula/m/mongosh.rb', 'master');
+  } catch (error: any) {
+    if (error.message.includes('EPIPE') && remainingRetries > 0) {
+      console.error(error);
+      return await getFormulaFromRepositoryWithRetry(
+        homebrewCore,
+        remainingRetries - 1
+      );
+    } else {
+      throw error;
+    }
+  }
+}
+
 export async function generateUpdatedFormula(
   context: { version: string; sha: string },
   homebrewCore: GithubRepo,
   isDryRun: boolean
 ): Promise<string | null> {
-  const currentFormula = await homebrewCore.getFileContent(
-    'Formula/m/mongosh.rb',
-    'master'
-  );
+  const currentFormula = await getFormulaFromRepositoryWithRetry(homebrewCore);
 
   const urlMatch = /url "([^"]+)"/g.exec(currentFormula.content);
   const shaMatch = /sha256 "([^"]+)"/g.exec(currentFormula.content);
