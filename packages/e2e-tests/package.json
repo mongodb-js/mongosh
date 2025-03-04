@@ -47,7 +47,7 @@
     "eslint": "^7.25.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
-    "mongodb": "^6.13.0",
+    "mongodb": "^6.14.2",
     "node-fetch": "^3.3.2",
     "prettier": "^2.8.8",
     "rimraf": "^3.0.2"

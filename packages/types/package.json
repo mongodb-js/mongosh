@@ -46,7 +46,7 @@
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
-    "mongodb": "^6.13.0",
+    "mongodb": "^6.14.2",
     "prettier": "^2.8.8"
   }
 }
