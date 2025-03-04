@@ -95,7 +95,7 @@
     "glibc-version": "^1.0.0"
   },
   "devDependencies": {
-    "mongodb": "^6.14.1",
+    "mongodb": "^6.14.2",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/sbom-tools": "^0.7.0",
