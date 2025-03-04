@@ -422,7 +422,13 @@ describe('NodeDriverServiceProvider', function () {
   describe('#replaceOne', function () {
     const filter = { name: 'Aphex Twin' };
     const replacement = { name: 'Richard James' };
-    const commandResult = { result: { n: 1, ok: 1 } };
+    const commandResult = {
+      acknowledged: true,
+      matchedCount: 1,
+      modifiedCount: 1,
+      upsertedCount: 0,
+      upsertedId: null,
+    };
 
     beforeEach(function () {
       collectionStub = stubInterface<Collection>();
