@@ -8,9 +8,15 @@ on:
   push:
     branches:
       - main
+env:
+  PUPPETEER_SKIP_DOWNLOAD: "true"
 
 permissions:
   contents: none # We use the github app to checkout and push tags
+
+description: |
+  This is a workflow that publishes any unpublished auxiliary packages to NPM. It is triggered
+  when we merge the PR created by the bump-auxiliary-packages workflow.
 
 jobs:
   publish:
