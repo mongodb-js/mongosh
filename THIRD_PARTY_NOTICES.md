@@ -330,12 +330,12 @@ Package|Version|License
 **[mkdirp](#7595a6413eab53a79e87274c9ded4aabe4c22679d8050fe563756cb80adc87a2)**|0.5.6|MIT
 **[mkdirp](#f34eebd27506e3aa07ba3b64064715e0c4f310dad1207ad88fff362353cd4cce)**|1.0.4|MIT
 **[mongodb-build-info](#f0a98c22ae0766702726f79e058ac6dc4e4bead8557b67b816f40bd13fb54170)**|1.7.2|Apache-2.0
-**[mongodb-client-encryption](#d8efb4ae363035b677f38203b1acc7b0d69b22f13b17e95d09d151bf9928072a)**|6.1.1|Apache-2.0
+**[mongodb-client-encryption](#4bfa384a74d9b7da2ef68a7c6792e662d64dd2dc08303f7400c63fda55922482)**|6.3.0|Apache-2.0
 **[mongodb-connection-string-url](#2e1146256a89ebd24e3398881e03807fe363d58444e6b7952ea50bd6108707bc)**|3.0.1|Apache-2.0
 **[mongodb-crypt-library-version](#003bd2892d6f6fdac0613ba8f9a2fbb054ddd1c26901e1d2fc7e83861b21cf4d)**|1.0.5|Apache-2.0
 **[mongodb-log-writer](#861a6f7bbd07f1fc008955cc04714e6aa3e540a7449a2ab621b7dae0ad51ff96)**|2.3.1|Apache-2.0
 **[mongodb-redact](#6fe8cef9beca5f3e1e3e999f47975ae99dcf4488419b28fc6d5eafc436081623)**|1.1.5|Apache-2.0
-**[mongodb](#c235dab23ea66c577834a65b09cb7fce41edff3680787302a4214f0c6317f477)**|6.13.0|Apache-2.0
+**[mongodb](#a52473fc1187a982574f4e63f3941340138879361b742ea77aacf6aec6561f1a)**|6.14.2|Apache-2.0
 **[ms](#484b814b85d5028e34246147c8fc901d33570202bd7cdc3703c0ed1078eba0aa)**|2.0.0|MIT
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
 **[ms](#2083576c5af8054927640b4788059806d07e250a26066c9ccb2d928394fb9226)**|2.1.3|MIT
@@ -372,7 +372,7 @@ Package|Version|License
 **[path-to-regexp](#a36c8f7aea129a341c589b7722e2c873fab8a2d01a0c3e2e426f5b28ba793621)**|0.1.12|MIT
 **[path-to-regexp](#571cfd74ecd5ea999273383b83a44bf35d4a62383c67a63fef169cc42eb2d859)**|1.9.0|MIT
 **[picocolors](#f964752f1f8cfd947506fd51ce1c148469ecf3b6f531d826511b720670e556f1)**|1.1.0|ISC
-**[prebuild-install](#93d13a9b3a51a6a802fcd35aa031d3ae7369aa6fd47d3a89f28a6d31ea3c9dc5)**|7.1.2|MIT
+**[prebuild-install](#034b3dd1336ef871b8a3739cb1647e8750e3bf21d4ecc9bbfb45525b798ddf20)**|7.1.3|MIT
 **[pretty-repl](#52450099e67a2b965036ab65b63b01d615b3fbcff38085a23fd8e80694d2a8ed)**|4.0.1|MIT
 **[process-nextick-args](#449a33b1fb1386db92b40df9073f48703b67ff05c4da5043d007fdb90ed76aca)**|2.0.1|MIT
 **[proto-list](#d4d3609bf7b212ffd3a73f3a8f8e7b69fedcf74d6e9843ee217046ab37b32260)**|1.2.4|ISC
@@ -26757,8 +26757,8 @@ License files:
       
 
 
-<a id="d8efb4ae363035b677f38203b1acc7b0d69b22f13b17e95d09d151bf9928072a"></a>
-### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 6.1.1)
+<a id="4bfa384a74d9b7da2ef68a7c6792e662d64dd2dc08303f7400c63fda55922482"></a>
+### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 6.3.0)
 License tags: Apache-2.0
 
 License files:
@@ -27794,8 +27794,8 @@ License files:
       
 
 
-<a id="c235dab23ea66c577834a65b09cb7fce41edff3680787302a4214f0c6317f477"></a>
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 6.13.0)
+<a id="a52473fc1187a982574f4e63f3941340138879361b742ea77aacf6aec6561f1a"></a>
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 6.14.2)
 License tags: Apache-2.0
 
 License files:
@@ -28975,8 +28975,8 @@ License files:
       
 
 
-<a id="93d13a9b3a51a6a802fcd35aa031d3ae7369aa6fd47d3a89f28a6d31ea3c9dc5"></a>
-### [prebuild-install](https://www.npmjs.com/package/prebuild-install) (version 7.1.2)
+<a id="034b3dd1336ef871b8a3739cb1647e8750e3bf21d4ecc9bbfb45525b798ddf20"></a>
+### [prebuild-install](https://www.npmjs.com/package/prebuild-install) (version 7.1.3)
 License tags: MIT
 
 License files:
