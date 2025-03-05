@@ -492,34 +492,52 @@ export default class Shard extends ShellApiWithMongoClass {
     });
   }
 
-  @returnsPromise
-  @apiVersions([])
-  async enableBalancing(ns: string): Promise<UpdateResult> {
-    assertArgsDefinedType([ns], ['string'], 'Shard.enableBalancing');
-    this._emitShardApiCall('enableBalancing', { ns });
+  private async updateBalancing(
+    ns: string,
+    enabled: boolean
+  ): Promise<Document> {
+    const apiCall = enabled ? 'enableBalancing' : 'disableBalancing';
+    assertArgsDefinedType([ns], ['string'], `Shard.${apiCall}`);
+    this._emitShardApiCall(apiCall, { ns });
+
+    const serverVersion = (
+      this._instanceState.cachedConnectionInfo() ??
+      (await this._instanceState.fetchConnectionInfo())
+    )?.extraInfo?.server_version;
+
+    if (serverVersion && semver.gte(serverVersion, '8.1.0-alpha3')) {
+      // 8.1 and later support enabling/disabling balancing using the configureCollectionBalancing command.
+      // This is preferred over manually updating the config database, because it has additional validations
+      // and works for Atlas Clusters, where updating the config namespaces is not allowed. See
+      // https://jira.mongodb.org/browse/MONGOSH-1932 and https://jira.mongodb.org/browse/SERVER-78849 for
+      // more details.
+      return await this._database._runAdminCommand({
+        configureCollectionBalancing: ns,
+        noBalance: !enabled,
+        enableBalancing: enabled, // This will be the new name after SERVER-100540 gets implemented
+      });
+    }
+
     const config = await getConfigDB(this._database);
-    return (await config
+    return await config
       .getCollection('collections')
       .updateOne(
         { _id: ns },
-        { $set: { noBalance: false } },
+        { $set: { noBalance: !enabled } },
         { writeConcern: { w: 'majority', wtimeout: 60000 } }
-      )) as UpdateResult;
+      );
   }
 
   @returnsPromise
   @apiVersions([])
-  async disableBalancing(ns: string): Promise<UpdateResult> {
-    assertArgsDefinedType([ns], ['string'], 'Shard.disableBalancing');
-    this._emitShardApiCall('disableBalancing', { ns });
-    const config = await getConfigDB(this._database);
-    return (await config
-      .getCollection('collections')
-      .updateOne(
-        { _id: ns },
-        { $set: { noBalance: true } },
-        { writeConcern: { w: 'majority', wtimeout: 60000 } }
-      )) as UpdateResult;
+  enableBalancing(ns: string): Promise<Document> {
+    return this.updateBalancing(ns, true);
+  }
+
+  @returnsPromise
+  @apiVersions([])
+  disableBalancing(ns: string): Promise<Document> {
+    return this.updateBalancing(ns, false);
   }
 
   @returnsPromise
