@@ -2098,10 +2098,12 @@ describe('Shard', function () {
       });
 
       it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
-        const expectedError = new Error();
+        const expectedError = new Error(
+          "Missing required parameter 'min' or 'max'"
+        );
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await shard
-          .moveRange('ns', 'destination', { key: 0 }, { key: 10 })
+          .moveRange('ns', 'destination')
           .catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
