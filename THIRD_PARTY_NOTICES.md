@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Tue Mar 04 2025.
+This document was automatically generated on Wed Mar 05 2025.
 
 ## List of dependencies
 
@@ -78,21 +78,21 @@ Package|Version|License
 **[@jridgewell/trace-mapping](#73923b51cccefe7db1ead00c09a18978443a238d51a858a7a0c86868a9a4ea3f)**|0.3.25|MIT
 **[@lukeed/csprng](#3676fe5c642281431ce385febe753d3f7230e20120a0909b5020aee00271509d)**|1.1.0|MIT
 **[@lukeed/uuid](#82700fba068def47ea9842f28d700a387f59da805f74a6ed10a5eb7eece4cdab)**|2.0.1|MIT
-**[@mongosh/arg-parser](#c0d55022c09a4012baadb5536883afea7a785dbaf39dd3efb0c2ebf1008bf9c0)**|3.5.0|Apache-2.0
-**[@mongosh/async-rewriter2](#ab08e2954fcf929fa4d6f5708170802da73d6c087d54e09216e83cb087e4d0b4)**|2.4.5|Apache-2.0
-**[@mongosh/autocomplete](#6b5f4660aaf154166c7d9bcbc7772da77ee0ee175b223b939dff5b0a06872f0d)**|3.5.0|Apache-2.0
-**[@mongosh/editor](#99484e00fd666682b0e70b049c794110e9bb7d1787ea32d3f38e3f771bbab891)**|3.5.0|Apache-2.0
+**[@mongosh/arg-parser](#767fee2b4993221a56412ff73d4516a5e77c2ffab2bed98334b8923485e970bd)**|3.6.0|Apache-2.0
+**[@mongosh/async-rewriter2](#9cfce959de4aec8a2f82a9e4a2bfadf05998379ad4f765278b10f2cfed812cb5)**|2.4.6|Apache-2.0
+**[@mongosh/autocomplete](#3dd8be52e067bc7436f3dc472a0d6876b677ddfd35a772966b5a1eeb7405bcd6)**|3.6.0|Apache-2.0
+**[@mongosh/editor](#95b7a76f3d4c4c6e57f4f1e50521d510136914f31af119ee0bbb58daae226124)**|3.6.0|Apache-2.0
 **[@mongosh/errors](#24a6674765abfef76b6898bd7f3a70218748e7999885465ae3247b04485c7561)**|2.4.0|Apache-2.0
-**[@mongosh/history](#5412b1e5ecd342f0f29c46025ccf5ea63b674792ccbf5ead0f112496fb67a620)**|2.4.5|Apache-2.0
-**[@mongosh/i18n](#c434e182cc2c88d39cf5997098cd01fa6fb55a4ebb6fb03111267ddc826f7734)**|2.9.0|Apache-2.0
-**[@mongosh/js-multiline-to-singleline](#8f3105d69252e4efe42d33ad0a67c213fc96aaf45a3ca07b3627e30ec11f4bb8)**|2.4.5|Apache-2.0
-**[@mongosh/logging](#1707a40159fc92ef276130dae15e354abb122130b5ce06203ffa7f4331c39752)**|3.5.0|Apache-2.0
-**[@mongosh/service-provider-core](#a97e0a3dfa5fa3ecf957f854b2d25149a26836026c78e1b331553b9c50f2fe21)**|3.0.5|Apache-2.0
-**[@mongosh/service-provider-node-driver](#68b11a01882ccf41e0d23928f0b4b613c13f15c9bf7856f86bd4b8dd9fd7563c)**|3.5.0|Apache-2.0
-**[@mongosh/shell-api](#f300fa2726e841f18f0a0544459bf3cd9887ac04f1a0f7fa58d26c7e367f4009)**|3.5.0|Apache-2.0
-**[@mongosh/shell-evaluator](#6dab42bb315b90755ed837791f96d9d0b8f0f8cc4a76cabb343a06aeae1b9e9b)**|3.5.0|Apache-2.0
-**[@mongosh/snippet-manager](#19c2dd98965662b4a61c1f1de98192c4527440627b996d22f49a76dbaead9c73)**|3.5.0|Apache-2.0
-**[@mongosh/types](#28839f55d9c6b36922a31f7b674196bf2e54d3b23a68d0e61d836ef0c61ef319)**|3.5.0|Apache-2.0
+**[@mongosh/history](#c946038838618b8de4524dd7147067077b99d7c02a42d91498a2f17ed5ce6824)**|2.4.6|Apache-2.0
+**[@mongosh/i18n](#5d361fbbec8d096a594b527a164aca997739aa4420e0a6468144fa9ee7868a93)**|2.9.1|Apache-2.0
+**[@mongosh/js-multiline-to-singleline](#0519b7187a8f9d37f3b65185739864d336c7358a2f309618d81d611cf37f23b5)**|2.4.6|Apache-2.0
+**[@mongosh/logging](#cee8b2758319314bb8358a53866d6e85fd6edc3788365776e5e016cd20f5a0fd)**|3.6.0|Apache-2.0
+**[@mongosh/service-provider-core](#ccf78f0618e7904ce34ee22cd65208665febecf5da445c65292caf8f5b0d9698)**|3.1.0|Apache-2.0
+**[@mongosh/service-provider-node-driver](#479535656ecb7dfa6952cb8f9d1c904beece5ab39ab18cf011dc00dd82d1f7f2)**|3.6.0|Apache-2.0
+**[@mongosh/shell-api](#a7e81010fec617fc4ae15f6ad46f6cee5cd3574c1f48cf6d4742d47dd2fdbe4b)**|3.6.0|Apache-2.0
+**[@mongosh/shell-evaluator](#86ea67827e6d54effbf5d9f6fcc7c88f3d74a968f6b5be676905d8d29d855498)**|3.6.0|Apache-2.0
+**[@mongosh/snippet-manager](#bbb37ed8665eebb62063eaa90fe19b60221be44243327cbf72d99eb3e23b98be)**|3.6.0|Apache-2.0
+**[@mongosh/types](#1ecf2f003efee0344295b270e60d3cd5a08f2a6f775c0dfe96d98c5a3e2ff135)**|3.6.0|Apache-2.0
 **[@nicolo-ribaudo/semver-v6](#0db933ddbe9acfd097ee5ee08e4afb1f4f7a64ef9712f95fef7958494c8e02cd)**|6.3.3|ISC
 **[@one-ini/wasm](#6aca526b8422bf437f742c50072eb83ba3514db8deb4030046affbd54c8944bc)**|0.1.1|MIT
 **[@segment/analytics-core](#4df204335137c1be0e2456e45c1b988a6eda1959ef34664939db7d4ebe0e72d6)**|1.4.1|MIT
@@ -7695,8 +7695,8 @@ License files:
       
 
 
-<a id="c0d55022c09a4012baadb5536883afea7a785dbaf39dd3efb0c2ebf1008bf9c0"></a>
-### [@mongosh/arg-parser](https://www.npmjs.com/package/@mongosh/arg-parser) (version 3.5.0)
+<a id="767fee2b4993221a56412ff73d4516a5e77c2ffab2bed98334b8923485e970bd"></a>
+### [@mongosh/arg-parser](https://www.npmjs.com/package/@mongosh/arg-parser) (version 3.6.0)
 License tags: Apache-2.0
 
 License files:
@@ -7905,8 +7905,8 @@ License files:
          limitations under the License.
 
 
-<a id="ab08e2954fcf929fa4d6f5708170802da73d6c087d54e09216e83cb087e4d0b4"></a>
-### [@mongosh/async-rewriter2](https://www.npmjs.com/package/@mongosh/async-rewriter2) (version 2.4.5)
+<a id="9cfce959de4aec8a2f82a9e4a2bfadf05998379ad4f765278b10f2cfed812cb5"></a>
+### [@mongosh/async-rewriter2](https://www.npmjs.com/package/@mongosh/async-rewriter2) (version 2.4.6)
 License tags: Apache-2.0
 
 License files:
@@ -8116,13 +8116,13 @@ License files:
          limitations under the License.
 
 
-<a id="6b5f4660aaf154166c7d9bcbc7772da77ee0ee175b223b939dff5b0a06872f0d"></a>
-### [@mongosh/autocomplete](https://www.npmjs.com/package/@mongosh/autocomplete) (version 3.5.0)
+<a id="3dd8be52e067bc7436f3dc472a0d6876b677ddfd35a772966b5a1eeb7405bcd6"></a>
+### [@mongosh/autocomplete](https://www.npmjs.com/package/@mongosh/autocomplete) (version 3.6.0)
 License tags: Apache-2.0
 
 
-<a id="99484e00fd666682b0e70b049c794110e9bb7d1787ea32d3f38e3f771bbab891"></a>
-### [@mongosh/editor](https://www.npmjs.com/package/@mongosh/editor) (version 3.5.0)
+<a id="95b7a76f3d4c4c6e57f4f1e50521d510136914f31af119ee0bbb58daae226124"></a>
+### [@mongosh/editor](https://www.npmjs.com/package/@mongosh/editor) (version 3.6.0)
 License tags: Apache-2.0
 
 License files:
@@ -8543,8 +8543,8 @@ License files:
       
 
 
-<a id="5412b1e5ecd342f0f29c46025ccf5ea63b674792ccbf5ead0f112496fb67a620"></a>
-### [@mongosh/history](https://www.npmjs.com/package/@mongosh/history) (version 2.4.5)
+<a id="c946038838618b8de4524dd7147067077b99d7c02a42d91498a2f17ed5ce6824"></a>
+### [@mongosh/history](https://www.npmjs.com/package/@mongosh/history) (version 2.4.6)
 License tags: Apache-2.0
 
 License files:
@@ -8753,8 +8753,8 @@ License files:
          limitations under the License.
 
 
-<a id="c434e182cc2c88d39cf5997098cd01fa6fb55a4ebb6fb03111267ddc826f7734"></a>
-### [@mongosh/i18n](https://www.npmjs.com/package/@mongosh/i18n) (version 2.9.0)
+<a id="5d361fbbec8d096a594b527a164aca997739aa4420e0a6468144fa9ee7868a93"></a>
+### [@mongosh/i18n](https://www.npmjs.com/package/@mongosh/i18n) (version 2.9.1)
 License tags: Apache-2.0
 
 License files:
@@ -8963,8 +8963,8 @@ License files:
          limitations under the License.
 
 
-<a id="8f3105d69252e4efe42d33ad0a67c213fc96aaf45a3ca07b3627e30ec11f4bb8"></a>
-### [@mongosh/js-multiline-to-singleline](https://www.npmjs.com/package/@mongosh/js-multiline-to-singleline) (version 2.4.5)
+<a id="0519b7187a8f9d37f3b65185739864d336c7358a2f309618d81d611cf37f23b5"></a>
+### [@mongosh/js-multiline-to-singleline](https://www.npmjs.com/package/@mongosh/js-multiline-to-singleline) (version 2.4.6)
 License tags: Apache-2.0
 
 License files:
@@ -9173,8 +9173,8 @@ License files:
          limitations under the License.
 
 
-<a id="1707a40159fc92ef276130dae15e354abb122130b5ce06203ffa7f4331c39752"></a>
-### [@mongosh/logging](https://www.npmjs.com/package/@mongosh/logging) (version 3.5.0)
+<a id="cee8b2758319314bb8358a53866d6e85fd6edc3788365776e5e016cd20f5a0fd"></a>
+### [@mongosh/logging](https://www.npmjs.com/package/@mongosh/logging) (version 3.6.0)
 License tags: Apache-2.0
 
 License files:
@@ -9385,8 +9385,8 @@ License files:
       
 
 
-<a id="a97e0a3dfa5fa3ecf957f854b2d25149a26836026c78e1b331553b9c50f2fe21"></a>
-### [@mongosh/service-provider-core](https://www.npmjs.com/package/@mongosh/service-provider-core) (version 3.0.5)
+<a id="ccf78f0618e7904ce34ee22cd65208665febecf5da445c65292caf8f5b0d9698"></a>
+### [@mongosh/service-provider-core](https://www.npmjs.com/package/@mongosh/service-provider-core) (version 3.1.0)
 License tags: Apache-2.0
 
 License files:
@@ -9595,8 +9595,8 @@ License files:
          limitations under the License.
 
 
-<a id="68b11a01882ccf41e0d23928f0b4b613c13f15c9bf7856f86bd4b8dd9fd7563c"></a>
-### [@mongosh/service-provider-node-driver](https://www.npmjs.com/package/@mongosh/service-provider-node-driver) (version 3.5.0)
+<a id="479535656ecb7dfa6952cb8f9d1c904beece5ab39ab18cf011dc00dd82d1f7f2"></a>
+### [@mongosh/service-provider-node-driver](https://www.npmjs.com/package/@mongosh/service-provider-node-driver) (version 3.6.0)
 License tags: Apache-2.0
 
 License files:
@@ -9805,8 +9805,8 @@ License files:
          limitations under the License.
 
 
-<a id="f300fa2726e841f18f0a0544459bf3cd9887ac04f1a0f7fa58d26c7e367f4009"></a>
-### [@mongosh/shell-api](https://www.npmjs.com/package/@mongosh/shell-api) (version 3.5.0)
+<a id="a7e81010fec617fc4ae15f6ad46f6cee5cd3574c1f48cf6d4742d47dd2fdbe4b"></a>
+### [@mongosh/shell-api](https://www.npmjs.com/package/@mongosh/shell-api) (version 3.6.0)
 License tags: Apache-2.0
 
 License files:
@@ -10015,8 +10015,8 @@ License files:
          limitations under the License.
 
 
-<a id="6dab42bb315b90755ed837791f96d9d0b8f0f8cc4a76cabb343a06aeae1b9e9b"></a>
-### [@mongosh/shell-evaluator](https://www.npmjs.com/package/@mongosh/shell-evaluator) (version 3.5.0)
+<a id="86ea67827e6d54effbf5d9f6fcc7c88f3d74a968f6b5be676905d8d29d855498"></a>
+### [@mongosh/shell-evaluator](https://www.npmjs.com/package/@mongosh/shell-evaluator) (version 3.6.0)
 License tags: Apache-2.0
 
 License files:
@@ -10226,8 +10226,8 @@ License files:
          limitations under the License.
 
 
-<a id="19c2dd98965662b4a61c1f1de98192c4527440627b996d22f49a76dbaead9c73"></a>
-### [@mongosh/snippet-manager](https://www.npmjs.com/package/@mongosh/snippet-manager) (version 3.5.0)
+<a id="bbb37ed8665eebb62063eaa90fe19b60221be44243327cbf72d99eb3e23b98be"></a>
+### [@mongosh/snippet-manager](https://www.npmjs.com/package/@mongosh/snippet-manager) (version 3.6.0)
 License tags: Apache-2.0
 
 License files:
@@ -10436,8 +10436,8 @@ License files:
          limitations under the License.
 
 
-<a id="28839f55d9c6b36922a31f7b674196bf2e54d3b23a68d0e61d836ef0c61ef319"></a>
-### [@mongosh/types](https://www.npmjs.com/package/@mongosh/types) (version 3.5.0)
+<a id="1ecf2f003efee0344295b270e60d3cd5a08f2a6f775c0dfe96d98c5a3e2ff135"></a>
+### [@mongosh/types](https://www.npmjs.com/package/@mongosh/types) (version 3.6.0)
 License tags: Apache-2.0
 
 
