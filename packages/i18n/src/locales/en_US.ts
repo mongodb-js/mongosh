@@ -2028,6 +2028,12 @@ const translations: Catalog = {
                 'Moves the chunk that contains the document specified by the query to the destination shard. Uses the moveChunk command',
               example: 'sh.moveChunk(ns, query, destination)',
             },
+            moveRange: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.moveRange',
+              description:
+                'Moves a range of documents specified by the min and max keys to the destination shard. Uses the moveRange command',
+              example: 'sh.moveRange(ns, toShard, min?, max?)',
+            },
             balancerCollectionStatus: {
               link: 'https://docs.mongodb.com/manual/reference/method/sh.balancerCollectionStatus',
               description:
