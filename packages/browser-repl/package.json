@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/browser-repl",
-  "version": "3.5.0",
+  "version": "3.6.0",
   "description": "Browser presentation component for Mongo Shell",
   "engines": {
     "node": ">=14.15.1"
@@ -56,12 +56,12 @@
     ]
   },
   "dependencies": {
-    "@mongosh/browser-runtime-core": "3.5.0",
+    "@mongosh/browser-runtime-core": "3.6.0",
     "@mongosh/errors": "2.4.0",
-    "@mongosh/history": "2.4.5",
-    "@mongosh/i18n": "2.9.0",
-    "@mongosh/node-runtime-worker-thread": "3.3.0",
-    "@mongosh/service-provider-core": "3.0.5",
+    "@mongosh/history": "2.4.6",
+    "@mongosh/i18n": "2.9.1",
+    "@mongosh/node-runtime-worker-thread": "3.3.1",
+    "@mongosh/service-provider-core": "3.1.0",
     "numeral": "^2.0.6",
     "text-table": "^0.2.0"
   },

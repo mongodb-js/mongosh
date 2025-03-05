@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/java-shell",
-  "version": "2.4.5",
+  "version": "2.4.6",
   "private": true,
   "description": "Java application that uses mongosh-shell-api node module and MongoDB java driver to run mongo shell on JVM",
   "config": {
