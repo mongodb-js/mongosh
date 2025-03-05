@@ -83,10 +83,10 @@ const config = {
       Module.builtinModules.map((m) => [`node:${m}`, `commonjs2 ${m}`])
     ), // node: builtin specifiers need to be always declared as externals in webpack right now
     // mongodb-client-encryption fixup until NODE-6670 is done
-    '../build/Release/mongocrypt.node':
-      'commonjs2 ../build/Release/mongocrypt.node',
-    '../build/Debug/mongocrypt.node':
-      'commonjs2 ../build/Debug/mongocrypt.node',
+    '../build/Release/mongocrypt.node': 'commonjs2 mongocrypt.node',
+    '../build/Debug/mongocrypt.node': 'commonjs2 mongocrypt.node',
+    '../build/Release/kerberos.node': 'commonjs2 kerberos.node',
+    '../build/Debug/kerberos.node': 'commonjs2 kerberos.node',
   },
 
   externalsPresets: {
