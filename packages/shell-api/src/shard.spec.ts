@@ -35,6 +35,7 @@ import { dummyOptions } from './helpers.spec';
 
 describe('Shard', function () {
   skipIfApiStrict();
+
   describe('help', function () {
     const apiClass: any = new Shard({} as any);
     it('calls help function', async function () {
@@ -50,6 +51,7 @@ describe('Shard', function () {
       );
     });
   });
+
   describe('signatures', function () {
     it('type', function () {
       expect(signatures.Shard.type).to.equal('Shard');
@@ -70,6 +72,7 @@ describe('Shard', function () {
       });
     });
   });
+
   describe('Metadata', function () {
     describe('toShellResult', function () {
       const mongo = { _uri: 'test_uri' } as Mongo;
@@ -85,6 +88,7 @@ describe('Shard', function () {
       });
     });
   });
+
   describe('unit', function () {
     let mongo: Mongo;
     let serviceProvider: StubbedInstance<ServiceProvider>;
@@ -2054,6 +2058,52 @@ describe('Shard', function () {
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await shard
           .abortUnshardCollection('db.coll')
+          .catch((e) => e);
+        expect(caughtError).to.equal(expectedError);
+      });
+    });
+
+    describe('moveRange', function () {
+      it('calls serviceProvider.runCommandWithCheck with arg', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
+        await shard.moveRange('ns', 'destination', { key: 0 }, { key: 10 });
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            moveRange: 'ns',
+            min: { key: 0 },
+            max: { key: 10 },
+            toShard: 'destination',
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
+        const expectedResult = {
+          ok: 1,
+          operationTime: { $timestamp: { t: 1741189797, i: 1 } },
+        };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await shard.moveRange(
+          'ns',
+          'destination',
+          { key: 0 },
+          { key: 10 }
+        );
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
+        const expectedError = new Error(
+          "Missing required parameter 'min' or 'max'"
+        );
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const caughtError = await shard
+          .moveRange('ns', 'destination')
           .catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });

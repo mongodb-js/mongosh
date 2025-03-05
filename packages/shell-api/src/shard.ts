@@ -466,7 +466,7 @@ export default class Shard extends ShellApiWithMongoClass {
   async moveChunk(
     ns: string,
     query: Document,
-    destination: string | undefined
+    destination: string
   ): Promise<Document> {
     assertArgsDefinedType(
       [ns, query, destination],
@@ -478,6 +478,31 @@ export default class Shard extends ShellApiWithMongoClass {
       moveChunk: ns,
       find: query,
       to: destination,
+    });
+  }
+
+  @returnsPromise
+  @serverVersions(['6.0.0', ServerVersions.latest])
+  async moveRange(
+    ns: string,
+    toShard: string,
+    min?: Document,
+    max?: Document
+  ): Promise<Document> {
+    assertArgsDefinedType(
+      [ns, toShard, min, max],
+      ['string', 'string', ['object', undefined], ['object', undefined]],
+      'Shard.moveRange'
+    );
+
+    this._emitShardApiCall('moveRange', { ns, toShard, min, max });
+    await getConfigDB(this._database); // will error if not connected to mongos
+
+    return this._database._runAdminCommand({
+      moveRange: ns,
+      toShard,
+      min,
+      max,
     });
   }
 
