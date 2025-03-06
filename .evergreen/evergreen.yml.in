@@ -100,6 +100,21 @@ functions:
       type: system
       params:
         directory: src
+
+  checkout_writeable:
+    - command: github.generate_token
+      params:
+        expansion_name: generated_github_token
+        owner: mongodb-js
+        repo: mongosh
+        permissions:
+          contents: write
+    - command: git.get_project
+      type: system
+      params:
+        directory: src
+        token: ${generated_github_token}
+
   compile_ts:
     - command: expansions.write
       type: system
@@ -1467,7 +1482,7 @@ tasks:
       - name: compile_ts
         variant: linux_compile
     commands:
-      - func: checkout
+      - func: checkout_writeable
       - func: install
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
