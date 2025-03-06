@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/browser-runtime-electron",
-  "version": "3.6.0",
+  "version": "3.8.0",
   "description": "Mongosh browser runtime electron",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -50,7 +50,7 @@
     "rimraf": "^3.0.2"
   },
   "dependencies": {
-    "@mongosh/browser-runtime-core": "3.6.0",
+    "@mongosh/browser-runtime-core": "3.8.0",
     "@mongosh/service-provider-core": "3.1.0",
     "@mongosh/types": "3.6.0"
   }
