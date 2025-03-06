@@ -2108,6 +2108,114 @@ describe('Shard', function () {
         expect(caughtError).to.equal(expectedError);
       });
     });
+
+    describe('isConfigShardEnabled', function () {
+      this.beforeEach(function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
+      });
+
+      it('calls serviceProvider.runCommandWithCheck', async function () {
+        await shard.isConfigShardEnabled();
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            listShards: 1,
+          }
+        );
+      });
+
+      it("returns false when listShards doesn't contain config shard", async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+          shards: [
+            {
+              _id: 'shard1',
+              host: 'shard1/foo.bar:27017',
+            },
+            {
+              _id: 'shard2',
+              host: 'shard2/foo.bar:27018',
+            },
+          ],
+        });
+        const result = await shard.isConfigShardEnabled();
+        expect(result).to.deep.equal({ enabled: false });
+      });
+
+      it('returns true and shard info when listShards contains config shard', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+          shards: [
+            {
+              _id: 'shard1',
+              host: 'shard1/foo.bar:27017',
+            },
+            {
+              _id: 'shard2',
+              host: 'shard2/foo.bar:27018',
+            },
+            {
+              _id: 'config',
+              host: 'shard3/foo.bar:27019',
+            },
+          ],
+        });
+        const result = await shard.isConfigShardEnabled();
+        expect(result).to.deep.equal({
+          enabled: true,
+          host: 'shard3/foo.bar:27019',
+        });
+      });
+
+      it('returns config shard tags', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+          shards: [
+            {
+              _id: 'shard1',
+              host: 'shard1/foo.bar:27017',
+            },
+            {
+              _id: 'shard2',
+              host: 'shard2/foo.bar:27018',
+            },
+            {
+              _id: 'config',
+              host: 'shard3/foo.bar:27019',
+              tags: ['tag1', 'tag2'],
+            },
+          ],
+        });
+        const result = await shard.isConfigShardEnabled();
+        expect(result).to.deep.equal({
+          enabled: true,
+          host: 'shard3/foo.bar:27019',
+          tags: ['tag1', 'tag2'],
+        });
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
+        const expectedError = new Error('unreachable');
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const caughtError = await shard.isConfigShardEnabled().catch((e) => e);
+        expect(caughtError).to.equal(expectedError);
+      });
+      it('throws if not mongos', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'not dbgrid',
+        });
+        await shard.isConfigShardEnabled();
+        expect(warnSpy.calledOnce).to.equal(true);
+      });
+    });
   });
 
   describe('integration', function () {
