@@ -111,19 +111,6 @@ export class PackagePublisher {
       if (!mongoshVersion) {
         throw new Error('mongosh package not found');
       }
-
-      const newVersionTag = `v${mongoshVersion}`;
-
-      if (!this.existsTag(newVersionTag)) {
-        console.info(`Creating v${mongoshVersion} tag...`);
-        this.spawnSync(
-          'git',
-          ['tag', '-a', newVersionTag, '-m', newVersionTag],
-          commandOptions
-        );
-      } else {
-        console.warn(`${newVersionTag} tag already exists. Skipping...`);
-      }
     }
 
     if (!this.config.isDryRun) {

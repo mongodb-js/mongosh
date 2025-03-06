@@ -140,13 +140,6 @@ describe('PackagePublisher', function () {
         ]);
       }
 
-      expect(spawnSync).calledWith('git', [
-        'tag',
-        '-a',
-        `v${mongoshVersion}`,
-        '-m',
-        `v${mongoshVersion}`,
-      ]);
       expect(spawnSync).calledWith('git', ['push', '--tags']);
     });
 
