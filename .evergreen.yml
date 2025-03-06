@@ -134,7 +134,7 @@ functions:
           source .evergreen/setup-env.sh
           npm run evergreen-release bump
           npm run compile
-          tar cvzf compiled-ts.tgz packages/*/{lib,dist,package.json} package.json package-lock.json
+          tar cvzf compiled-ts.tgz packages/*/{lib,dist,pkg,target,package.json} package.json package-lock.json
     - command: s3.put
       params:
         aws_key: ${aws_key}
@@ -255,6 +255,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-darwin-n20-async_rewriter2.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin-n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin-n20-async_rewriter3.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -539,6 +553,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_darwin-m60xc_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m60xc_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_darwin-m60xc_n20-async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_darwin-m60xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m60xc_n20-cli_repl.tgz
         bucket: mciuploads
@@ -605,6 +633,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_darwin-m60xc_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_darwin-m60xe_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m60xe_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_darwin-m60xe_n20-async_rewriter3.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -679,6 +721,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_darwin-m70xc_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m70xc_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_darwin-m70xc_n20-async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_darwin-m70xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m70xc_n20-cli_repl.tgz
         bucket: mciuploads
@@ -745,6 +801,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_darwin-m70xc_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_darwin-m70xe_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m70xe_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_darwin-m70xe_n20-async_rewriter3.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -819,6 +889,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_darwin-m80xc_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m80xc_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_darwin-m80xc_n20-async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_darwin-m80xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m80xc_n20-cli_repl.tgz
         bucket: mciuploads
@@ -889,6 +973,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_darwin-m80xe_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m80xe_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_darwin-m80xe_n20-async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_darwin-m80xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m80xe_n20-cli_repl.tgz
         bucket: mciuploads
@@ -955,6 +1053,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_darwin-m80xe_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_darwin-mlatest_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-mlatest_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_darwin-mlatest_n20-async_rewriter3.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -1053,6 +1165,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-linux-n20-async_rewriter2.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux-n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux-n20-async_rewriter3.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -1337,6 +1463,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m42xc_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m42xc_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m42xc_n20-async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_linux-m42xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m42xc_n20-cli_repl.tgz
         bucket: mciuploads
@@ -1417,6 +1557,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_linux-m42xc_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m44xc_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m44xc_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m44xc_n20-async_rewriter3.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -1505,6 +1659,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m44xe_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m44xe_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m44xe_n20-async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_linux-m44xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m44xe_n20-cli_repl.tgz
         bucket: mciuploads
@@ -1585,6 +1753,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_linux-m44xe_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m50xc_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m50xc_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m50xc_n20-async_rewriter3.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -1673,6 +1855,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m50xe_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m50xe_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m50xe_n20-async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_linux-m50xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m50xe_n20-cli_repl.tgz
         bucket: mciuploads
@@ -1753,6 +1949,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_linux-m50xe_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m60xc_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m60xc_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m60xc_n20-async_rewriter3.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -1841,6 +2051,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m60xe_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m60xe_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m60xe_n20-async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_linux-m60xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m60xe_n20-cli_repl.tgz
         bucket: mciuploads
@@ -1921,6 +2145,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_linux-m60xe_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m70xc_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m70xc_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m70xc_n20-async_rewriter3.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -2009,6 +2247,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m70xe_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m70xe_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m70xe_n20-async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_linux-m70xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m70xe_n20-cli_repl.tgz
         bucket: mciuploads
@@ -2089,6 +2341,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_linux-m70xe_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m80xc_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m80xc_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m80xc_n20-async_rewriter3.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -2177,6 +2443,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m80xe_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m80xe_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m80xe_n20-async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_linux-m80xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m80xe_n20-cli_repl.tgz
         bucket: mciuploads
@@ -2257,6 +2537,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_linux-m80xe_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-mlatest_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-mlatest_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-mlatest_n20-async_rewriter3.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -2369,6 +2663,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-win32-n20-async_rewriter2.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32-n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32-n20-async_rewriter3.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -2639,6 +2947,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m42xc_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m42xc_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m42xc_n20-async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_win32-m42xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m42xc_n20-cli_repl.tgz
         bucket: mciuploads
@@ -2705,6 +3027,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_win32-m42xc_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m42xe_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m42xe_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m42xe_n20-async_rewriter3.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -2779,6 +3115,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m44xc_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m44xc_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m44xc_n20-async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_win32-m44xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m44xc_n20-cli_repl.tgz
         bucket: mciuploads
@@ -2845,6 +3195,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_win32-m44xc_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m44xe_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m44xe_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m44xe_n20-async_rewriter3.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -2919,6 +3283,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m50xc_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m50xc_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m50xc_n20-async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_win32-m50xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m50xc_n20-cli_repl.tgz
         bucket: mciuploads
@@ -2985,6 +3363,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_win32-m50xc_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m50xe_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m50xe_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m50xe_n20-async_rewriter3.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -3059,6 +3451,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m60xc_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m60xc_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m60xc_n20-async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_win32-m60xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m60xc_n20-cli_repl.tgz
         bucket: mciuploads
@@ -3125,6 +3531,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_win32-m60xc_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m60xe_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m60xe_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m60xe_n20-async_rewriter3.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -3199,6 +3619,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m70xc_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m70xc_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m70xc_n20-async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_win32-m70xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m70xc_n20-cli_repl.tgz
         bucket: mciuploads
@@ -3265,6 +3699,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_win32-m70xc_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m70xe_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m70xe_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m70xe_n20-async_rewriter3.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -3339,6 +3787,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m80xc_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m80xc_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m80xc_n20-async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_win32-m80xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m80xc_n20-cli_repl.tgz
         bucket: mciuploads
@@ -3409,6 +3871,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m80xe_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m80xe_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m80xe_n20-async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_win32-m80xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m80xe_n20-cli_repl.tgz
         bucket: mciuploads
@@ -3475,6 +3951,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_win32-m80xe_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-mlatest_n20-async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-mlatest_n20-async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-mlatest_n20-async_rewriter3.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -4438,6 +4928,8 @@ tasks:
         variant: darwin-n20
       - name: test_async_rewriter2
         variant: darwin-n20
+      - name: test_async_rewriter3
+        variant: darwin-n20
       - name: test_autocomplete
         variant: darwin-n20
       - name: test_browser_repl
@@ -4478,6 +4970,8 @@ tasks:
         variant: darwin-n20
       - name: test_types
         variant: darwin-n20
+      - name: test_async_rewriter3
+        variant: tests_darwin-m60xc_n20
       - name: test_cli_repl
         variant: tests_darwin-m60xc_n20
       - name: test_e2e_tests
@@ -4488,6 +4982,8 @@ tasks:
         variant: tests_darwin-m60xc_n20
       - name: test_shell_api
         variant: tests_darwin-m60xc_n20
+      - name: test_async_rewriter3
+        variant: tests_darwin-m60xe_n20
       - name: test_cli_repl
         variant: tests_darwin-m60xe_n20
       - name: test_e2e_tests
@@ -4498,6 +4994,8 @@ tasks:
         variant: tests_darwin-m60xe_n20
       - name: test_shell_api
         variant: tests_darwin-m60xe_n20
+      - name: test_async_rewriter3
+        variant: tests_darwin-m70xc_n20
       - name: test_cli_repl
         variant: tests_darwin-m70xc_n20
       - name: test_e2e_tests
@@ -4508,6 +5006,8 @@ tasks:
         variant: tests_darwin-m70xc_n20
       - name: test_shell_api
         variant: tests_darwin-m70xc_n20
+      - name: test_async_rewriter3
+        variant: tests_darwin-m70xe_n20
       - name: test_cli_repl
         variant: tests_darwin-m70xe_n20
       - name: test_e2e_tests
@@ -4518,6 +5018,8 @@ tasks:
         variant: tests_darwin-m70xe_n20
       - name: test_shell_api
         variant: tests_darwin-m70xe_n20
+      - name: test_async_rewriter3
+        variant: tests_darwin-m80xc_n20
       - name: test_cli_repl
         variant: tests_darwin-m80xc_n20
       - name: test_e2e_tests
@@ -4528,6 +5030,8 @@ tasks:
         variant: tests_darwin-m80xc_n20
       - name: test_shell_api
         variant: tests_darwin-m80xc_n20
+      - name: test_async_rewriter3
+        variant: tests_darwin-m80xe_n20
       - name: test_cli_repl
         variant: tests_darwin-m80xe_n20
       - name: test_e2e_tests
@@ -4538,6 +5042,8 @@ tasks:
         variant: tests_darwin-m80xe_n20
       - name: test_shell_api
         variant: tests_darwin-m80xe_n20
+      - name: test_async_rewriter3
+        variant: tests_darwin-mlatest_n20
       - name: test_cli_repl
         variant: tests_darwin-mlatest_n20
       - name: test_e2e_tests
@@ -4551,6 +5057,8 @@ tasks:
       - name: test_arg_parser
         variant: linux-n20
       - name: test_async_rewriter2
+        variant: linux-n20
+      - name: test_async_rewriter3
         variant: linux-n20
       - name: test_autocomplete
         variant: linux-n20
@@ -4592,6 +5100,8 @@ tasks:
         variant: linux-n20
       - name: test_types
         variant: linux-n20
+      - name: test_async_rewriter3
+        variant: tests_linux-m42xc_n20
       - name: test_cli_repl
         variant: tests_linux-m42xc_n20
       - name: test_e2e_tests
@@ -4604,6 +5114,8 @@ tasks:
         variant: tests_linux-m42xc_n20
       - name: test_shell_api
         variant: tests_linux-m42xc_n20
+      - name: test_async_rewriter3
+        variant: tests_linux-m44xc_n20
       - name: test_cli_repl
         variant: tests_linux-m44xc_n20
       - name: test_e2e_tests
@@ -4616,6 +5128,8 @@ tasks:
         variant: tests_linux-m44xc_n20
       - name: test_shell_api
         variant: tests_linux-m44xc_n20
+      - name: test_async_rewriter3
+        variant: tests_linux-m44xe_n20
       - name: test_cli_repl
         variant: tests_linux-m44xe_n20
       - name: test_e2e_tests
@@ -4628,6 +5142,8 @@ tasks:
         variant: tests_linux-m44xe_n20
       - name: test_shell_api
         variant: tests_linux-m44xe_n20
+      - name: test_async_rewriter3
+        variant: tests_linux-m50xc_n20
       - name: test_cli_repl
         variant: tests_linux-m50xc_n20
       - name: test_e2e_tests
@@ -4640,6 +5156,8 @@ tasks:
         variant: tests_linux-m50xc_n20
       - name: test_shell_api
         variant: tests_linux-m50xc_n20
+      - name: test_async_rewriter3
+        variant: tests_linux-m50xe_n20
       - name: test_cli_repl
         variant: tests_linux-m50xe_n20
       - name: test_e2e_tests
@@ -4652,6 +5170,8 @@ tasks:
         variant: tests_linux-m50xe_n20
       - name: test_shell_api
         variant: tests_linux-m50xe_n20
+      - name: test_async_rewriter3
+        variant: tests_linux-m60xc_n20
       - name: test_cli_repl
         variant: tests_linux-m60xc_n20
       - name: test_e2e_tests
@@ -4664,6 +5184,8 @@ tasks:
         variant: tests_linux-m60xc_n20
       - name: test_shell_api
         variant: tests_linux-m60xc_n20
+      - name: test_async_rewriter3
+        variant: tests_linux-m60xe_n20
       - name: test_cli_repl
         variant: tests_linux-m60xe_n20
       - name: test_e2e_tests
@@ -4676,6 +5198,8 @@ tasks:
         variant: tests_linux-m60xe_n20
       - name: test_shell_api
         variant: tests_linux-m60xe_n20
+      - name: test_async_rewriter3
+        variant: tests_linux-m70xc_n20
       - name: test_cli_repl
         variant: tests_linux-m70xc_n20
       - name: test_e2e_tests
@@ -4688,6 +5212,8 @@ tasks:
         variant: tests_linux-m70xc_n20
       - name: test_shell_api
         variant: tests_linux-m70xc_n20
+      - name: test_async_rewriter3
+        variant: tests_linux-m70xe_n20
       - name: test_cli_repl
         variant: tests_linux-m70xe_n20
       - name: test_e2e_tests
@@ -4700,6 +5226,8 @@ tasks:
         variant: tests_linux-m70xe_n20
       - name: test_shell_api
         variant: tests_linux-m70xe_n20
+      - name: test_async_rewriter3
+        variant: tests_linux-m80xc_n20
       - name: test_cli_repl
         variant: tests_linux-m80xc_n20
       - name: test_e2e_tests
@@ -4712,6 +5240,8 @@ tasks:
         variant: tests_linux-m80xc_n20
       - name: test_shell_api
         variant: tests_linux-m80xc_n20
+      - name: test_async_rewriter3
+        variant: tests_linux-m80xe_n20
       - name: test_cli_repl
         variant: tests_linux-m80xe_n20
       - name: test_e2e_tests
@@ -4724,6 +5254,8 @@ tasks:
         variant: tests_linux-m80xe_n20
       - name: test_shell_api
         variant: tests_linux-m80xe_n20
+      - name: test_async_rewriter3
+        variant: tests_linux-mlatest_n20
       - name: test_cli_repl
         variant: tests_linux-mlatest_n20
       - name: test_e2e_tests
@@ -4739,6 +5271,8 @@ tasks:
       - name: test_arg_parser
         variant: win32-n20
       - name: test_async_rewriter2
+        variant: win32-n20
+      - name: test_async_rewriter3
         variant: win32-n20
       - name: test_autocomplete
         variant: win32-n20
@@ -4778,6 +5312,8 @@ tasks:
         variant: win32-n20
       - name: test_types
         variant: win32-n20
+      - name: test_async_rewriter3
+        variant: tests_win32-m42xc_n20
       - name: test_cli_repl
         variant: tests_win32-m42xc_n20
       - name: test_e2e_tests
@@ -4788,6 +5324,8 @@ tasks:
         variant: tests_win32-m42xc_n20
       - name: test_shell_api
         variant: tests_win32-m42xc_n20
+      - name: test_async_rewriter3
+        variant: tests_win32-m42xe_n20
       - name: test_cli_repl
         variant: tests_win32-m42xe_n20
       - name: test_e2e_tests
@@ -4798,6 +5336,8 @@ tasks:
         variant: tests_win32-m42xe_n20
       - name: test_shell_api
         variant: tests_win32-m42xe_n20
+      - name: test_async_rewriter3
+        variant: tests_win32-m44xc_n20
       - name: test_cli_repl
         variant: tests_win32-m44xc_n20
       - name: test_e2e_tests
@@ -4808,6 +5348,8 @@ tasks:
         variant: tests_win32-m44xc_n20
       - name: test_shell_api
         variant: tests_win32-m44xc_n20
+      - name: test_async_rewriter3
+        variant: tests_win32-m44xe_n20
       - name: test_cli_repl
         variant: tests_win32-m44xe_n20
       - name: test_e2e_tests
@@ -4818,6 +5360,8 @@ tasks:
         variant: tests_win32-m44xe_n20
       - name: test_shell_api
         variant: tests_win32-m44xe_n20
+      - name: test_async_rewriter3
+        variant: tests_win32-m50xc_n20
       - name: test_cli_repl
         variant: tests_win32-m50xc_n20
       - name: test_e2e_tests
@@ -4828,6 +5372,8 @@ tasks:
         variant: tests_win32-m50xc_n20
       - name: test_shell_api
         variant: tests_win32-m50xc_n20
+      - name: test_async_rewriter3
+        variant: tests_win32-m50xe_n20
       - name: test_cli_repl
         variant: tests_win32-m50xe_n20
       - name: test_e2e_tests
@@ -4838,6 +5384,8 @@ tasks:
         variant: tests_win32-m50xe_n20
       - name: test_shell_api
         variant: tests_win32-m50xe_n20
+      - name: test_async_rewriter3
+        variant: tests_win32-m60xc_n20
       - name: test_cli_repl
         variant: tests_win32-m60xc_n20
       - name: test_e2e_tests
@@ -4848,6 +5396,8 @@ tasks:
         variant: tests_win32-m60xc_n20
       - name: test_shell_api
         variant: tests_win32-m60xc_n20
+      - name: test_async_rewriter3
+        variant: tests_win32-m60xe_n20
       - name: test_cli_repl
         variant: tests_win32-m60xe_n20
       - name: test_e2e_tests
@@ -4858,6 +5408,8 @@ tasks:
         variant: tests_win32-m60xe_n20
       - name: test_shell_api
         variant: tests_win32-m60xe_n20
+      - name: test_async_rewriter3
+        variant: tests_win32-m70xc_n20
       - name: test_cli_repl
         variant: tests_win32-m70xc_n20
       - name: test_e2e_tests
@@ -4868,6 +5420,8 @@ tasks:
         variant: tests_win32-m70xc_n20
       - name: test_shell_api
         variant: tests_win32-m70xc_n20
+      - name: test_async_rewriter3
+        variant: tests_win32-m70xe_n20
       - name: test_cli_repl
         variant: tests_win32-m70xe_n20
       - name: test_e2e_tests
@@ -4878,6 +5432,8 @@ tasks:
         variant: tests_win32-m70xe_n20
       - name: test_shell_api
         variant: tests_win32-m70xe_n20
+      - name: test_async_rewriter3
+        variant: tests_win32-m80xc_n20
       - name: test_cli_repl
         variant: tests_win32-m80xc_n20
       - name: test_e2e_tests
@@ -4888,6 +5444,8 @@ tasks:
         variant: tests_win32-m80xc_n20
       - name: test_shell_api
         variant: tests_win32-m80xc_n20
+      - name: test_async_rewriter3
+        variant: tests_win32-m80xe_n20
       - name: test_cli_repl
         variant: tests_win32-m80xe_n20
       - name: test_e2e_tests
@@ -4898,6 +5456,8 @@ tasks:
         variant: tests_win32-m80xe_n20
       - name: test_shell_api
         variant: tests_win32-m80xe_n20
+      - name: test_async_rewriter3
+        variant: tests_win32-mlatest_n20
       - name: test_cli_repl
         variant: tests_win32-mlatest_n20
       - name: test_e2e_tests
@@ -4956,6 +5516,24 @@ tasks:
           mongosh_skip_node_version_check: ${mongosh_skip_node_version_check}
           mongosh_test_id: "async_rewriter2"
           mongosh_run_only_in_package: "async-rewriter2"
+          task_name: ${task_name}
+  - name: test_async_rewriter3
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_compile
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: ${node_js_version}
+      - func: test
+        vars:
+          mongosh_server_test_version: ${mongosh_server_test_version}
+          node_js_version: ${node_js_version}
+          mongosh_skip_node_version_check: ${mongosh_skip_node_version_check}
+          mongosh_test_id: "async_rewriter3"
+          mongosh_run_only_in_package: "async-rewriter3"
           task_name: ${task_name}
   - name: test_autocomplete
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
@@ -9733,6 +10311,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_repl
       - name: test_browser_runtime_core
@@ -9765,6 +10344,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_repl
       - name: test_browser_runtime_core
@@ -9797,6 +10377,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_repl
       - name: test_browser_runtime_core
@@ -9829,6 +10410,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_repl
       - name: test_browser_runtime_core
@@ -9861,6 +10443,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_repl
       - name: test_browser_runtime_core
@@ -9893,6 +10476,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_repl
       - name: test_browser_runtime_core
@@ -9925,6 +10509,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_repl
       - name: test_browser_runtime_core
@@ -9957,6 +10542,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_repl
       - name: test_browser_runtime_core
@@ -9989,6 +10575,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_runtime_core
       - name: test_browser_runtime_electron
@@ -10021,6 +10608,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_runtime_core
       - name: test_browser_runtime_electron
@@ -10053,6 +10641,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_runtime_core
       - name: test_browser_runtime_electron
@@ -10085,6 +10674,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_runtime_core
       - name: test_browser_runtime_electron
@@ -10117,6 +10707,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_runtime_core
       - name: test_browser_runtime_electron
@@ -10149,6 +10740,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_runtime_core
       - name: test_browser_runtime_electron
@@ -10181,6 +10773,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_runtime_core
       - name: test_browser_runtime_electron
@@ -10213,6 +10806,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_runtime_core
       - name: test_browser_runtime_electron
@@ -10245,6 +10839,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_runtime_core
       - name: test_browser_runtime_electron
@@ -10277,6 +10872,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_runtime_core
       - name: test_browser_runtime_electron
@@ -10309,6 +10905,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_runtime_core
       - name: test_browser_runtime_electron
@@ -10341,6 +10938,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_runtime_core
       - name: test_browser_runtime_electron
@@ -10373,6 +10971,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_runtime_core
       - name: test_browser_runtime_electron
@@ -10405,6 +11004,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_runtime_core
       - name: test_browser_runtime_electron
@@ -10436,6 +11036,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_runtime_core
       - name: test_browser_runtime_electron
@@ -10467,6 +11068,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_runtime_core
       - name: test_browser_runtime_electron
@@ -10498,6 +11100,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_runtime_core
       - name: test_browser_runtime_electron
@@ -10529,6 +11132,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_runtime_core
       - name: test_browser_runtime_electron
@@ -10560,6 +11164,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_runtime_core
       - name: test_browser_runtime_electron
@@ -10591,6 +11196,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_runtime_core
       - name: test_browser_runtime_electron
@@ -10622,6 +11228,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_runtime_core
       - name: test_browser_runtime_electron
@@ -10653,6 +11260,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_runtime_core
       - name: test_browser_runtime_electron
@@ -10684,6 +11292,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_runtime_core
       - name: test_browser_runtime_electron
@@ -10715,6 +11324,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_runtime_core
       - name: test_browser_runtime_electron
@@ -10746,6 +11356,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_runtime_core
       - name: test_browser_runtime_electron
@@ -10777,6 +11388,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_runtime_core
       - name: test_browser_runtime_electron
@@ -10808,6 +11420,7 @@ buildvariants:
     tasks:
       - name: test_arg_parser
       - name: test_async_rewriter2
+      - name: test_async_rewriter3
       - name: test_autocomplete
       - name: test_browser_runtime_core
       - name: test_browser_runtime_electron
