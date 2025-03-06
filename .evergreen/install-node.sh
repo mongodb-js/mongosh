@@ -26,49 +26,8 @@ else
       sed -i "$HOME/.npmrc" -e 's/^prefix=.*$//'
     fi
   fi
-  export NVM_DIR="$BASEDIR/.nvm"
-  mkdir -p "${NVM_DIR}"
-
-  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
-
-  echo "Setting NVM environment home: $NVM_DIR"
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-
-  set +x # nvm is very verbose
-
-  # A few distros where pre-built node20 does not work out of the box and hence
-  # needs to be built from source
-  if [[ "${DISTRO_ID}" =~ ^(amazon2-|rhel7|ubuntu18|suse12) ]] && [[ "$NODE_JS_VERSION" =~ ^20 ]];
-  then
-    NODE_JS_SOURCE_VERSION="$NODE_JS_VERSION"
-    if echo $NODE_JS_VERSION | grep -q ^20 ; then
-      # Node.js 20.11.1 is the last 20.x that builds out of the box on RHEL7
-      # https://github.com/nodejs/node/issues/52223
-      NODE_JS_SOURCE_VERSION=20.11.1
-    fi
-    env NODE_JS_VERSION="$NODE_JS_SOURCE_VERSION" bash "$BASEDIR/install-node-source.sh"
-    nvm use $NODE_JS_SOURCE_VERSION
-  else
-    echo nvm install --no-progress $NODE_JS_VERSION && nvm alias default $NODE_JS_VERSION
-    nvm install --no-progress $NODE_JS_VERSION
-    nvm alias default $NODE_JS_VERSION
-    nvm use $NODE_JS_VERSION
-  fi
-  set -x
-
-  if env PATH="/opt/chefdk/gitbin:$PATH" git --version | grep -q 'git version 1.'; then
-    (cd "$BASEDIR" &&
-      curl -sSfL https://github.com/git/git/archive/refs/tags/v2.31.1.tar.gz | tar -xvz &&
-      mv git-2.31.1 git-2 &&
-      cd git-2 &&
-      make -j8 NO_EXPAT=1)
-  fi
 
   npm cache clear --force || true # Try to work around `Cannot read property 'pickAlgorithm' of null` errors in CI
-  # Started observing CI failures on RHEL 7.2 (s390x) for installing npm, all
-  # related to network issues hence adding a retry with backoff here.
-  bash "$BASEDIR/retry-with-backoff.sh" npm i -g npm@$NPM_VERSION
 fi
 
 . "$BASEDIR/setup-env.sh"
