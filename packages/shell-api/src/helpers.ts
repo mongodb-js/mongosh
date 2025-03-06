@@ -683,6 +683,15 @@ export async function getPrintableShardStatus(
   return result;
 }
 
+export type ShardInfo = {
+  _id: string;
+  host: string;
+  state: number;
+  tags?: string[];
+  topologyTime: Timestamp;
+  replSetConfigVersion: Long;
+};
+
 export type ShardingStatusResult = {
   shardingVersion: {
     _id: number;
@@ -690,14 +699,7 @@ export type ShardingStatusResult = {
     /** This gets deleted when it is returned from getPrintableShardStatus */
     currentVersion?: number;
   };
-  shards: {
-    _id: string;
-    host: string;
-    state: number;
-    tags: string[];
-    topologyTime: Timestamp;
-    replSetConfigVersion: Long;
-  }[];
+  shards: ShardInfo[];
   [mongoses: `${string} mongoses`]:
     | 'none'
     | {

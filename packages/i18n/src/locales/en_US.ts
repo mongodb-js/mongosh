@@ -2148,6 +2148,12 @@ const translations: Catalog = {
                 'Abort the current unshardCollection operation on a given collection',
               example: 'sh.abortUnshardCollection(ns)',
             },
+            listShards: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.listShards',
+              description:
+                'Returns a list of the configured shards in a sharded cluster',
+              example: 'sh.listShards()',
+            },
             isConfigShardEnabled: {
               link: 'https://docs.mongodb.com/manual/reference/method/sh.isConfigShardEnabled',
               description:
