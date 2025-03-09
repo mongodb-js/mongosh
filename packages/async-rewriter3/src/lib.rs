@@ -1,6 +1,6 @@
 use std::{borrow::Borrow, collections::VecDeque};
 use wasm_bindgen::prelude::*;
-use rslint_parser::{ast::{ArrowExpr, AssignExpr, CallExpr, ClassDecl, Expr, ExprOrBlock, ExprStmt, FnDecl, FnExpr, ObjectPatternProp, Pattern, PropName, ReturnStmt, UnaryExpr, VarDecl}, parse_text, AstNode, SyntaxNode, TextSize};
+use rslint_parser::{ast::{ArrowExpr, AssignExpr, CallExpr, ClassDecl, Expr, ExprOrBlock, ExprStmt, FnDecl, FnExpr, ObjectPatternProp, ParameterList, Pattern, PropName, ReturnStmt, UnaryExpr, VarDecl}, parse_text, AstNode, SyntaxNode, TextSize};
 
 #[derive(Debug)]
 enum InsertionText {
@@ -289,15 +289,19 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
                 let is_returned_expression = ReturnStmt::can_cast(as_expr.syntax().parent().unwrap().kind());
                 let is_called_expression = CallExpr::can_cast(as_expr.syntax().parent().unwrap().kind());
                 let mut is_dot_call_expression = false;
+                let mut pushed_insertions = 0;
                 if is_returned_expression {
                     insertions.push_back(Insertion::new(range.start(), "(_synchronousReturnValue = "));
+                    pushed_insertions += 1;
                 }
                 let is_lhs_of_assign_expr = (AssignExpr::can_cast(as_expr.syntax().parent().unwrap().kind()) &&
                     AssignExpr::cast(as_expr.syntax().parent().unwrap()).unwrap().lhs().unwrap().syntax().text_range() ==
                     as_expr.syntax().text_range()) || UnaryExpr::can_cast(as_expr.syntax().parent().unwrap().kind());
+                let is_argument_default_value = ParameterList::can_cast(as_expr.syntax().parent().unwrap().parent().unwrap().kind());
 
-                if !is_lhs_of_assign_expr {
+                if !is_lhs_of_assign_expr && !is_argument_default_value {
                     insertions.push_back(Insertion::new(range.start(), "(_ex = "));
+                    pushed_insertions += 1;
                 }
 
                 match as_expr {
@@ -320,7 +324,10 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
                     Expr::DotExpr(_) => {
                         if is_called_expression {
                             is_dot_call_expression = true;
-                            insertions.pop_back();
+                            while pushed_insertions > 0 {
+                                pushed_insertions -= 1;
+                                insertions.pop_back();
+                            }
                         }
                         insertions.append(child_insertions);
                     }
@@ -328,7 +335,7 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
                         insertions.append(child_insertions);
                     },
                 }
-                if !is_dot_call_expression && !is_lhs_of_assign_expr {
+                if !is_dot_call_expression && !is_lhs_of_assign_expr && !is_argument_default_value {
                     insertions.push_back(Insertion::new(range.end(), ", _isp(_ex) ? await _ex : _ex)"));
                 }
                 if is_returned_expression {
