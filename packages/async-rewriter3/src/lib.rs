@@ -1,6 +1,6 @@
-use std::{borrow::Borrow, collections::VecDeque};
+use std::{borrow::Borrow, collections::VecDeque, fmt::Debug};
 use wasm_bindgen::prelude::*;
-use rslint_parser::{ast::{ArrowExpr, AssignExpr, CallExpr, ClassDecl, Expr, ExprOrBlock, ExprStmt, FnDecl, FnExpr, ObjectPatternProp, ParameterList, Pattern, PropName, ReturnStmt, UnaryExpr, VarDecl}, parse_text, AstNode, SyntaxNode, TextSize};
+use rslint_parser::{ast::{ArrowExpr, AssignExpr, CallExpr, ClassDecl, Constructor, Expr, ExprOrBlock, ExprStmt, FnDecl, FnExpr, Method, NameRef, ObjectPatternProp, ParameterList, Pattern, PropName, ReturnStmt, ThisExpr, UnaryExpr, VarDecl}, parse_text, AstNode, SyntaxNode, TextSize};
 
 #[derive(Debug)]
 enum InsertionText {
@@ -154,6 +154,32 @@ fn fn_end_insertion(body: &ExprOrBlock) -> InsertionList {
     ret
 }
 
+fn is_in_async_function(node: &SyntaxNode) -> bool {
+    return node.parent().map_or(false, |parent: SyntaxNode| {
+        if FnExpr::can_cast(parent.kind()) {
+            return FnExpr::cast(parent).unwrap().async_token().is_some();
+        }
+        if FnDecl::can_cast(parent.kind()) {
+            return FnDecl::cast(parent).unwrap().async_token().is_some();
+        }
+        if ArrowExpr::can_cast(parent.kind()) {
+            return ArrowExpr::cast(parent).unwrap().async_token().is_some();
+        }
+        if Method::can_cast(parent.kind()) {
+            return Method::cast(parent).unwrap().async_token().is_some();
+        }
+        if Constructor::can_cast(parent.kind()) {
+            return false;
+        }
+        assert!(!is_function_node(&parent));
+         return is_in_async_function(&parent)
+    });
+}
+
+fn is_function_node(node: &SyntaxNode) -> bool {
+    return FnExpr::can_cast(node.kind()) || FnDecl::can_cast(node.kind()) || ArrowExpr::can_cast(node.kind()) || Method::can_cast(node.kind()) || Constructor::can_cast(node.kind());
+}
+
 fn add_all_variables_from_declaration(patterns: impl Iterator<Item = impl Borrow<Pattern>>) -> InsertionList {
     let mut ret = InsertionList::new();
     for pattern in patterns {
@@ -207,21 +233,29 @@ fn add_all_variables_from_declaration(patterns: impl Iterator<Item = impl Borrow
 }
 
 fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
-    let is_function_node = FnExpr::can_cast(node.kind()) || FnDecl::can_cast(node.kind()) || ArrowExpr::can_cast(node.kind());
     let has_function_parent = nesting_depth > 0;
     let mut insertions = InsertionList::new();
     for child in node.children() {
         let range = child.text_range();
-        let child_insertions = &mut collect_insertions(&child, nesting_depth + if is_function_node { 1 } else { 0 });
+        let child_insertions = &mut collect_insertions(&child, nesting_depth + if is_function_node(node) { 1 } else { 0 });
+        {
+            let kind = child.kind();
+            insertions.push_back(Insertion::new_dynamic(range.start(),
+                ["/*", format!("{kind:#?}").as_str(), "*/"].concat()
+            ));
+        }
         if FnDecl::can_cast(child.kind()) {
             let as_fn = FnDecl::cast(child).unwrap();
             let body = ExprOrBlock::Block(as_fn.body().unwrap());
             if !has_function_parent {
-                match as_fn.ident_token() {
-                    None => {},
+                match as_fn.ident_token().or(as_fn.name().and_then(|n| n.ident_token())) {
+                    None => {
+                        insertions.push_back(Insertion::new(range.start(), "/*no ident token*/"));
+                    },
                     Some(name) => {
-                        insertions.push_back(Insertion::new_dynamic(range.start(),
-                            [name.text(), " = "].concat()
+                        insertions.push_back(Insertion::new(name.text_range().end(), "__"));
+                        insertions.push_back(Insertion::new_dynamic(range.end(),
+                            [";\n_cr = ", name.text(), " = ", name.text(), "__"].concat()
                         ));
                         insertions.add_variable(name.to_string());
                     }
@@ -236,13 +270,33 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
             }
             continue;
         }
+        if Method::can_cast(child.kind()) {
+            let as_fn = Method::cast(child).unwrap();
+            let body = ExprOrBlock::Block(as_fn.body().unwrap());
+            if as_fn.async_token().is_none() {
+                insertions.append(&mut fn_start_insertion(&body));
+                insertions.append(child_insertions);
+                insertions.append(&mut fn_end_insertion(&body));
+            } else {
+                insertions.append(child_insertions);
+            }
+            continue;
+        }
+        if Constructor::can_cast(child.kind()) {
+            let as_fn = Constructor::cast(child).unwrap();
+            let body = ExprOrBlock::Block(as_fn.body().unwrap());
+            insertions.append(&mut fn_start_insertion(&body));
+            insertions.append(child_insertions);
+            insertions.append(&mut fn_end_insertion(&body));
+            continue;
+        }
         if ClassDecl::can_cast(child.kind()) && !has_function_parent {
             let as_class_decl = ClassDecl::cast(child).unwrap();
             match as_class_decl.name() {
                 None => {},
                 Some(name) => {
                     insertions.push_back(Insertion::new_dynamic(range.start(),
-                        [name.text().as_str(), " = "].concat()
+                        ["_cr = ", name.text().as_str(), " = "].concat()
                     ));
                     insertions.add_variable(name.to_string());
                 }
@@ -286,20 +340,37 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
                 insertions.append(child_insertions);
             }
             Some(as_expr) => {
+                let is_eval_this_super_reference = (NameRef::can_cast(as_expr.syntax().kind()) &&
+                    ["eval", "this", "super"].iter().any(|t| *t == as_expr.syntax().text().to_string().as_str())) ||
+                    ThisExpr::can_cast(as_expr.syntax().kind());
+
                 let is_returned_expression = ReturnStmt::can_cast(as_expr.syntax().parent().unwrap().kind());
                 let is_called_expression = CallExpr::can_cast(as_expr.syntax().parent().unwrap().kind());
+                let is_expr_in_async_function = is_in_async_function(as_expr.syntax());
                 let mut is_dot_call_expression = false;
                 let mut pushed_insertions = 0;
-                if is_returned_expression {
+
+                if is_returned_expression && !is_expr_in_async_function {
                     insertions.push_back(Insertion::new(range.start(), "(_synchronousReturnValue = "));
                     pushed_insertions += 1;
                 }
+
+                let is_unary_rhs = UnaryExpr::can_cast(as_expr.syntax().parent().unwrap().kind());
+                let is_typeof_rhs = is_unary_rhs && UnaryExpr::cast(as_expr.syntax().parent().unwrap()).unwrap().text().starts_with("typeof");
+                let is_named_typeof_rhs = is_typeof_rhs && NameRef::can_cast(as_expr.syntax().kind());
                 let is_lhs_of_assign_expr = (AssignExpr::can_cast(as_expr.syntax().parent().unwrap().kind()) &&
                     AssignExpr::cast(as_expr.syntax().parent().unwrap()).unwrap().lhs().unwrap().syntax().text_range() ==
-                    as_expr.syntax().text_range()) || UnaryExpr::can_cast(as_expr.syntax().parent().unwrap().kind());
+                    as_expr.syntax().text_range()) ||
+                    (is_unary_rhs && !is_typeof_rhs);
                 let is_argument_default_value = ParameterList::can_cast(as_expr.syntax().parent().unwrap().parent().unwrap().kind());
 
-                if !is_lhs_of_assign_expr && !is_argument_default_value {
+                if is_named_typeof_rhs {
+                    insertions.push_back(Insertion::new_dynamic(as_expr.syntax().parent().unwrap().text_range().start(), [
+                        "(typeof ", as_expr.syntax().text().to_string().as_str(), " === 'undefined' ? 'undefined' : "
+                    ].concat()));
+                    pushed_insertions += 1;
+                }
+                if !is_lhs_of_assign_expr && !is_argument_default_value && !is_eval_this_super_reference {
                     insertions.push_back(Insertion::new(range.start(), "(_ex = "));
                     pushed_insertions += 1;
                 }
@@ -311,6 +382,8 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
                             insertions.append(&mut fn_start_insertion(&body));
                             insertions.append(child_insertions);
                             insertions.append(&mut fn_end_insertion(&body));
+                        } else {
+                            insertions.append(child_insertions);
                         }
                     }
                     Expr::FnExpr(as_fn) => {
@@ -319,6 +392,8 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
                             insertions.append(&mut fn_start_insertion(&body));
                             insertions.append(child_insertions);
                             insertions.append(&mut fn_end_insertion(&body));
+                        } else {
+                            insertions.append(child_insertions);
                         }
                     },
                     Expr::DotExpr(_) => {
@@ -330,15 +405,18 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
                             }
                         }
                         insertions.append(child_insertions);
-                    }
+                    },
                     _ => {
                         insertions.append(child_insertions);
                     },
                 }
-                if !is_dot_call_expression && !is_lhs_of_assign_expr && !is_argument_default_value {
+                if !is_dot_call_expression && !is_lhs_of_assign_expr && !is_argument_default_value && !is_eval_this_super_reference {
                     insertions.push_back(Insertion::new(range.end(), ", _isp(_ex) ? await _ex : _ex)"));
                 }
-                if is_returned_expression {
+                if is_named_typeof_rhs {
+                    insertions.push_back(Insertion::new(range.end(), ")"));
+                }
+                if is_returned_expression && !is_expr_in_async_function {
                     insertions.push_back(Insertion::new(
                         range.end(),
                         ", _functionState === 'async' ? _synchronousReturnValue : null)"
@@ -368,7 +446,7 @@ pub fn async_rewrite(input: String, with_debug_tags: bool) -> String {
     insertions.push_back(make_start_fn_insertion(TextSize::new(0)));
     insertions.push_back(Insertion::new(TextSize::new(0), "var _cr;"));
     insertions.append(&mut collected_insertions);
-    insertions.push_back(Insertion::new(TextSize::new(end), "; return _synchronousReturnValue = _cr;"));
+    insertions.push_back(Insertion::new(TextSize::new(end), ";\n return _synchronousReturnValue = _cr;"));
     insertions.push_back(make_end_fn_insertion(input.len().try_into().unwrap()));
     insertions.push_back(Insertion::new(TextSize::new(end), "})()"));
 

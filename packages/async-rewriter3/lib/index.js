@@ -16,6 +16,9 @@ if (v8.startupSnapshot?.isBuildingSnapshot?.()) {
 } else {
   importPromise = import('../pkg/index.js');
 }
+let syncImport;
+importPromise.then(exports => syncImport = exports);
+
 
 module.exports = class AsyncWriter {
   async process(code) {
@@ -26,6 +29,16 @@ module.exports = class AsyncWriter {
           '');
     }
     const { async_rewrite } = await importPromise;
+    return async_rewrite(code, false);
+  }
+  processSync(code) {
+    if (!syncImport) {
+      throw new Error('WASM import not defined' +
+        v8.startupSnapshot?.isBuildingSnapshot?.() ?
+          ' (not supported while snapshotting)' :
+          '');
+    }
+    const { async_rewrite } = syncImport;
     return async_rewrite(code, false);
   }
   runtimeSupportCode() {
