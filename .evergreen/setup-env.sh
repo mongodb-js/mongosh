@@ -21,7 +21,9 @@ echo "TERM variable is set to '${TERM:-}'"
 NODE_JS_MAJOR_VERSION=$(echo "$NODE_JS_VERSION" | awk -F . '{print $1}')
 if echo "$NODE_JS_MAJOR_VERSION" | grep -q '^[0-9]*$'; then
   export PATH="/opt/devtools/node20/bin:$PATH"
-  node -v | grep -q "^v$NODE_JS_VERSION"
+  echo "Detected Node.js version (requested v${NODE_JS_MAJOR_VERSION}.x):"
+  node -v
+  node -v | grep -q "^v$NODE_JS_MAJOR_VERSION"
 else
   echo "Cannot identify major version from NODE_JS_VERSION: $NODE_JS_VERSION"
   exit 1
