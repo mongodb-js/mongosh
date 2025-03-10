@@ -20,7 +20,7 @@ jobs:
         run: brew install mongosh
 
       - name: Run smoke tests
-        run: npx --yes mongodb-runner exec -- sh -c 'env MONGOSH_SMOKE_TEST_SERVER=$MONGODB_URI mongosh --smokeTests'
+        run: npx --yes mongodb-runner -- exec -- sh -c 'env MONGOSH_SMOKE_TEST_SERVER=$MONGODB_URI mongosh --smokeTests'
 
       - name: Report failure
         if: ${{ failure() }}

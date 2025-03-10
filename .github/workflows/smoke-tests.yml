@@ -36,4 +36,4 @@ jobs:
         run: npm ci
 
       - name: Run smoke tests
-        run: npx mongodb-runner exec -- sh -c 'env MONGOSH_SMOKE_TEST_SERVER=$MONGODB_URI npm run test-smoke'
+        run: npx mongodb-runner -- exec -- sh -c 'env MONGOSH_SMOKE_TEST_SERVER=$MONGODB_URI npm run test-smoke'
