@@ -12,7 +12,7 @@ import type {
   Document,
   CheckMetadataConsistencyOptions,
 } from '@mongosh/service-provider-core';
-import type { ShardingStatusResult } from './helpers';
+import type { ShardInfo, ShardingStatusResult } from './helpers';
 import {
   assertArgsDefinedType,
   getConfigDB,
@@ -810,5 +810,35 @@ export default class Shard extends ShellApiWithMongoClass {
     return await this._database._runAdminCommand({
       abortUnshardCollection: ns,
     });
+  }
+
+  @apiVersions([])
+  @returnsPromise
+  async listShards(): Promise<ShardInfo[]> {
+    this._emitShardApiCall('listShards', {});
+    await getConfigDB(this._database);
+
+    return (await this._database.adminCommand({ listShards: 1 })).shards ?? [];
+  }
+
+  @serverVersions(['8.0.0', ServerVersions.latest])
+  @apiVersions([])
+  @returnsPromise
+  async isConfigShardEnabled(): Promise<Document> {
+    this._emitShardApiCall('isConfigShardEnabled', {});
+    await getConfigDB(this._database);
+
+    const shards = (await this._database.adminCommand({ listShards: 1 }))
+      .shards as Document[] | undefined;
+    const configShard = shards?.find((s) => s._id === 'config');
+    if (!configShard) {
+      return { enabled: false };
+    }
+
+    return {
+      enabled: true,
+      host: configShard.host,
+      ...(configShard.tags && { tags: configShard.tags }),
+    };
   }
 }
