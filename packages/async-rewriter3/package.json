@@ -1,0 +1,32 @@
+{
+  "name": "@mongosh/async-rewriter3",
+  "version": "1.0.0",
+  "description": "MongoDB Shell Async Rewriter Package",
+  "homepage": "https://github.com/mongodb-js/mongosh",
+  "license": "Apache-2.0",
+  "main": "dist/index.js",
+  "types": "index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/mongosh"
+  },
+  "engines": {
+    "node": ">=14.15.1"
+  },
+  "scripts": {
+    "compile": "npm run webpack-build",
+    "prewebpack": "rm -rf dist pkg",
+    "webpack": "webpack",
+    "postwebpack": "rm -f dist/*.html && node scripts/webpack-include-wasm.js",
+    "webpack-build": "npm run webpack -- --mode production",
+    "webpack-build-dev": "npm run webpack -- --mode development"
+  },
+  "devDependencies": {
+    "@wasm-tool/wasm-pack-plugin": "^1.7.0",
+    "depcheck": "^1.4.3",
+    "webpack-merge": "^5.8.0"
+  }
+}

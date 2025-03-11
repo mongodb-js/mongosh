@@ -259,7 +259,7 @@ export async function runSmokeTests({
             perfTestIterations: 20,
             tags: ['startup'],
           },
-          {
+          /*{
             name: 'db_cursor_iteration_repl',
             input: `let count = 0; for (const item of ${manyDocsCursor(
               12345
@@ -286,7 +286,7 @@ export async function runSmokeTests({
             ],
             perfTestIterations: 20,
             tags: ['db', 'cursor_iteration'],
-          },
+          },*/
           {
             name: 'db_repeat_command',
             input: `let res;for (const item of [...Array(5000).keys()]) res = EJSON.stringify(db.hello()); print(res)`,

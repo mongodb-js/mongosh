@@ -263,6 +263,43 @@ export default class ShellApi extends ShellApiClass {
     return mongo;
   }
 
+  @returnType('Mongo')
+  @platforms(['CLI'])
+  public LazyMongo(
+    uri?: string,
+    fleOptions?: ClientSideFieldLevelEncryptionOptions,
+    otherOptions?: { api?: ServerApi | ServerApiVersion }
+  ): Mongo {
+    assertCLI(
+      this._instanceState.initialServiceProvider.platform,
+      'new Mongo connections'
+    );
+    const mongo = new Mongo(this._instanceState, uri, fleOptions, otherOptions);
+    const connectPromise = mongo.connect();
+    connectPromise.catch(() => {});
+    this._instanceState.mongos.push(mongo);
+
+    return new Proxy(mongo, {
+      get: (target, prop) => {
+        if (typeof (Mongo.prototype as any)[prop] === 'function') {
+          return function (...args: any[]) {
+            return Object.assign(
+              (async () => {
+                await connectPromise;
+                return await (target as any)[prop](...args);
+              })(),
+              {
+                [Symbol.for('@@mongosh.syntheticPromise')]: true,
+              }
+            );
+          };
+        } else {
+          return (target as any)[prop];
+        }
+      },
+    });
+  }
+
   @returnsPromise
   @returnType('Database')
   @platforms(['CLI'])
