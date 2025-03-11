@@ -12,13 +12,13 @@ let importPromise;
 if (v8.startupSnapshot?.isBuildingSnapshot?.()) {
   v8.startupSnapshot.addDeserializeCallback(() => {
     importPromise = import('../pkg/index.js');
+    importPromise.then(exports => syncImport = exports);
   });
 } else {
   importPromise = import('../pkg/index.js');
+  importPromise.then(exports => syncImport = exports);
 }
 let syncImport;
-importPromise.then(exports => syncImport = exports);
-
 
 module.exports = class AsyncWriter {
   async process(code) {
