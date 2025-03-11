@@ -39,6 +39,7 @@ if [ "$OS" != "Windows_NT" ]; then
     export GIT_EXEC_PATH="/opt/devtools/libexec/git-core"
     export CC=gcc
     export CXX=g++
+    export PYTHON="/opt/devtools/bin/python3"
 
     echo "Using gcc version:"
     (which gcc && gcc --version)
