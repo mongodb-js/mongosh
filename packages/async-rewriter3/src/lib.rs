@@ -1,6 +1,6 @@
 use std::{borrow::Borrow, collections::VecDeque, fmt::Debug};
 use wasm_bindgen::prelude::*;
-use rslint_parser::{ast::{ArrowExpr, AssignExpr, CallExpr, ClassDecl, Constructor, Expr, ExprOrBlock, ExprStmt, FnDecl, FnExpr, Method, NameRef, ObjectPatternProp, ParameterList, Pattern, PropName, ReturnStmt, ThisExpr, UnaryExpr, VarDecl}, parse_text, AstNode, SyntaxNode, TextSize};
+use rslint_parser::{ast::{ArrowExpr, AssignExpr, CallExpr, ClassDecl, Constructor, Expr, ExprOrBlock, ExprStmt, FnDecl, FnExpr, Literal, Method, NameRef, ObjectPatternProp, ParameterList, Pattern, PropName, ReturnStmt, ThisExpr, UnaryExpr, VarDecl}, parse_text, AstNode, SyntaxNode, TextSize};
 
 #[derive(Debug)]
 enum InsertionText {
@@ -363,6 +363,8 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
                     as_expr.syntax().text_range()) ||
                     (is_unary_rhs && !is_typeof_rhs);
                 let is_argument_default_value = ParameterList::can_cast(as_expr.syntax().parent().unwrap().parent().unwrap().kind());
+                let is_literal = Literal::can_cast(as_expr.syntax().kind());
+                let wants_implicit_await_wrapper = !is_lhs_of_assign_expr && !is_argument_default_value && !is_eval_this_super_reference && !is_literal;
 
                 if is_named_typeof_rhs {
                     insertions.push_back(Insertion::new_dynamic(as_expr.syntax().parent().unwrap().text_range().start(), [
@@ -370,7 +372,8 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
                     ].concat()));
                     pushed_insertions += 1;
                 }
-                if !is_lhs_of_assign_expr && !is_argument_default_value && !is_eval_this_super_reference {
+
+                if wants_implicit_await_wrapper {
                     insertions.push_back(Insertion::new(range.start(), "(_ex = "));
                     pushed_insertions += 1;
                 }
@@ -410,7 +413,7 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
                         insertions.append(child_insertions);
                     },
                 }
-                if !is_dot_call_expression && !is_lhs_of_assign_expr && !is_argument_default_value && !is_eval_this_super_reference {
+                if wants_implicit_await_wrapper && !is_dot_call_expression {
                     insertions.push_back(Insertion::new(range.end(), ", _isp(_ex) ? await _ex : _ex)"));
                 }
                 if is_named_typeof_rhs {
