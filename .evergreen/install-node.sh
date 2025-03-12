@@ -14,9 +14,9 @@ if [ "$OS" == "Windows_NT" ]; then
   curl -sSfLO https://raw.githubusercontent.com/mongodb-js/compass/42e6142ae08be6fec944b80ff6289e6bcd11badf/.evergreen/node-gyp-bug-workaround.sh && bash node-gyp-bug-workaround.sh
 else
   if [ `uname` = Darwin ]; then
+    export NVM_DIR="$BASEDIR/.nvm"
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
 
-    export NVM_DIR="$BASEDIR/.nvm"
     echo "Setting NVM environment home: $NVM_DIR"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
