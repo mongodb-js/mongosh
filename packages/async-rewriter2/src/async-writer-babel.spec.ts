@@ -561,6 +561,16 @@ describe('AsyncWriter', function () {
       expect(await ret).to.equal('bar');
     });
 
+    it('supports awaiting inside a function which is a default argument of another function', async function () {
+      implicitlyAsyncFn.resolves({ nested: [{ foo: 'bar' }] });
+      const ret = runTranspiledCode(`
+      const call = (fn = foo => foo.nested[0].foo, ...args) => fn(...args);
+      call(undefined, implicitlyAsyncFn())`);
+      expect(ret.constructor.name).to.equal('Promise');
+      expect(ret[Symbol.for('@@mongosh.syntheticPromise')]).to.equal(true);
+      expect(await ret).to.equal('bar');
+    });
+
     context('for-of', function () {
       it('can iterate over implicit iterables', async function () {
         expect(
