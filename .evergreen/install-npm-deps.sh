@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 set -x
+export BASEDIR="$PWD/.evergreen"
 
 . "$BASEDIR/setup-env.sh"
 
