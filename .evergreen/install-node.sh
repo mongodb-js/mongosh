@@ -15,6 +15,7 @@ if [ "$OS" == "Windows_NT" ]; then
 else
   if [ `uname` = Darwin ]; then
     export NVM_DIR="$BASEDIR/.nvm"
+    mkdir -p "${NVM_DIR}"
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
 
     echo "Setting NVM environment home: $NVM_DIR"
