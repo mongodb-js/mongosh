@@ -47,6 +47,10 @@ export async function httpGet(
 ): Promise<any | Buffer> {
   const response = await new Promise<string | Buffer[]>((resolve, reject) => {
     https.get(url, (stream) => {
+      if (responseType === 'json') {
+        stream.setEncoding('utf8');
+      }
+
       let data: string | Buffer[] = responseType === 'json' ? '' : [];
       stream.on('error', (err) => reject(err));
       stream.on('data', (chunk) => {
