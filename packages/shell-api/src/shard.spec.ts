@@ -1094,61 +1094,160 @@ describe('Shard', function () {
         expect(caughtError).to.equal(expectedError);
       });
     });
+
     describe('disableBalancing', function () {
-      it('calls serviceProvider.updateOne', async function () {
-        serviceProvider.runCommandWithCheck.resolves({
-          ok: 1,
-          msg: 'isdbgrid',
-        });
-        const expectedResult = {
-          matchedCount: 1,
-          modifiedCount: 1,
-          upsertedCount: 1,
-          upsertedId: { _id: 0 },
-          result: { ok: 1, n: 1, nModified: 1 },
-          connection: null,
-        } as any;
-        serviceProvider.updateOne.resolves(expectedResult);
-        await shard.disableBalancing('ns');
+      let connectionInfoStub: sinon.SinonStub;
 
-        expect(serviceProvider.updateOne).to.have.been.calledWith(
-          'config',
-          'collections',
-          { _id: 'ns' },
-          { $set: { noBalance: true } },
-          { writeConcern: { w: 'majority', wtimeout: 60000 } }
-        );
+      this.afterEach(() => {
+        connectionInfoStub?.restore();
       });
 
-      it('returns whatever serviceProvider.updateOne returns', async function () {
-        serviceProvider.runCommandWithCheck.resolves({
-          ok: 1,
-          msg: 'isdbgrid',
-        });
-        const oid = new bson.ObjectId();
-        const expectedResult = {
-          matchedCount: 1,
-          modifiedCount: 1,
-          upsertedCount: 1,
-          upsertedId: oid,
-          result: { ok: 1, n: 1, nModified: 1 },
-          connection: null,
-          acknowledged: true,
-        } as any;
-        serviceProvider.updateOne.resolves(expectedResult);
-        const result = await shard.disableBalancing('ns');
-        expect(result).to.deep.equal(new UpdateResult(true, 1, 1, 1, oid));
-      });
+      for (const serverVersion of [
+        '4.2.0',
+        '5.0.0',
+        '6.0.0',
+        '7.0.0',
+        '8.0.0',
+      ]) {
+        describe(`on server ${serverVersion}`, function () {
+          this.beforeEach(() => {
+            connectionInfoStub = sinon
+              .stub(instanceState, 'cachedConnectionInfo')
+              .returns({
+                extraInfo: {
+                  server_version: serverVersion,
+                  uri: 'mongodb://localhost:27017',
+                },
+                buildInfo: null,
+              });
 
-      it('throws if serviceProvider.updateOne rejects', async function () {
-        serviceProvider.runCommandWithCheck.resolves({
-          ok: 1,
-          msg: 'isdbgrid',
+            serviceProvider.runCommandWithCheck.resolves({
+              ok: 1,
+              msg: 'isdbgrid',
+            });
+          });
+
+          it('calls serviceProvider.updateOne', async function () {
+            serviceProvider.runCommandWithCheck.resolves({
+              ok: 1,
+              msg: 'isdbgrid',
+            });
+            const expectedResult = {
+              matchedCount: 1,
+              modifiedCount: 1,
+              upsertedCount: 1,
+              upsertedId: { _id: 0 },
+              result: { ok: 1, n: 1, nModified: 1 },
+              connection: null,
+            } as any;
+            serviceProvider.updateOne.resolves(expectedResult);
+            await shard.disableBalancing('ns');
+
+            expect(serviceProvider.updateOne).to.have.been.calledWith(
+              'config',
+              'collections',
+              { _id: 'ns' },
+              { $set: { noBalance: true } },
+              { writeConcern: { w: 'majority', wtimeout: 60000 } }
+            );
+          });
+
+          it('returns whatever serviceProvider.updateOne returns', async function () {
+            serviceProvider.runCommandWithCheck.resolves({
+              ok: 1,
+              msg: 'isdbgrid',
+            });
+            const oid = new bson.ObjectId();
+            const expectedResult = {
+              matchedCount: 1,
+              modifiedCount: 1,
+              upsertedCount: 1,
+              upsertedId: oid,
+              result: { ok: 1, n: 1, nModified: 1 },
+              connection: null,
+              acknowledged: true,
+            } as any;
+            serviceProvider.updateOne.resolves(expectedResult);
+            const result = await shard.disableBalancing('ns');
+            expect(result).to.deep.equal(new UpdateResult(true, 1, 1, 1, oid));
+          });
+
+          it('throws if serviceProvider.updateOne rejects', async function () {
+            serviceProvider.runCommandWithCheck.resolves({
+              ok: 1,
+              msg: 'isdbgrid',
+            });
+            const expectedError = new Error();
+            serviceProvider.updateOne.rejects(expectedError);
+            const caughtError = await shard
+              .disableBalancing('ns')
+              .catch((e) => e);
+            expect(caughtError).to.equal(expectedError);
+          });
         });
-        const expectedError = new Error();
-        serviceProvider.updateOne.rejects(expectedError);
-        const caughtError = await shard.disableBalancing('ns').catch((e) => e);
-        expect(caughtError).to.equal(expectedError);
+      }
+
+      describe('on server >= 8.1', function () {
+        this.beforeEach(() => {
+          connectionInfoStub = sinon
+            .stub(instanceState, 'cachedConnectionInfo')
+            .returns({
+              extraInfo: {
+                server_version: '8.1.0',
+                uri: 'mongodb://localhost:27017',
+              },
+              buildInfo: null,
+            });
+
+          serviceProvider.runCommandWithCheck.resolves({
+            ok: 1,
+            msg: 'isdbgrid',
+          });
+        });
+
+        it('runs configureCollectionBalancing admin command', async function () {
+          await shard.disableBalancing('ns');
+
+          expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+            'admin',
+            {
+              configureCollectionBalancing: 'ns',
+              enableBalancing: false,
+              noBalance: true,
+            }
+          );
+        });
+
+        it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
+          const expectedResult = {
+            ok: 1,
+            $clusterTime: {
+              clusterTime: { $timestamp: { t: 1741010129, i: 1 } },
+              signature: {
+                hash: {
+                  $binary: {
+                    base64: 'AAAAAAAAAAAAAAAAAAAAAAAAAAA=',
+                    subType: 0,
+                  },
+                },
+                keyId: { $numberLong: '0' },
+              },
+            },
+            operationTime: { t: 1741010129, i: 1 },
+          };
+          serviceProvider.runCommandWithCheck.resolves(expectedResult);
+          const result = await shard.disableBalancing('ns');
+          expect(result).to.deep.equal(expectedResult);
+        });
+
+        it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
+          const expectedError = new Error();
+          serviceProvider.runCommandWithCheck.rejects(expectedError);
+          const caughtError = await shard
+            .disableBalancing('ns')
+            .catch((e) => e);
+          expect(caughtError).to.equal(expectedError);
+        });
       });
 
       it('throws if not mongos', async function () {
@@ -1162,61 +1261,146 @@ describe('Shard', function () {
         expect(warnSpy.calledOnce).to.equal(true);
       });
     });
+
     describe('enableBalancing', function () {
-      it('calls serviceProvider.updateOne', async function () {
-        serviceProvider.runCommandWithCheck.resolves({
-          ok: 1,
-          msg: 'isdbgrid',
-        });
-        const expectedResult = {
-          matchedCount: 1,
-          modifiedCount: 1,
-          upsertedCount: 1,
-          upsertedId: { _id: 0 },
-          result: { ok: 1, n: 1, nModified: 1 },
-          connection: null,
-        } as any;
-        serviceProvider.updateOne.resolves(expectedResult);
-        await shard.enableBalancing('ns');
+      let connectionInfoStub: sinon.SinonStub;
 
-        expect(serviceProvider.updateOne).to.have.been.calledWith(
-          'config',
-          'collections',
-          { _id: 'ns' },
-          { $set: { noBalance: false } },
-          { writeConcern: { w: 'majority', wtimeout: 60000 } }
-        );
+      this.afterEach(() => {
+        connectionInfoStub?.restore();
       });
 
-      it('returns whatever serviceProvider.updateOne returns', async function () {
-        serviceProvider.runCommandWithCheck.resolves({
-          ok: 1,
-          msg: 'isdbgrid',
-        });
-        const oid = new bson.ObjectId();
-        const expectedResult = {
-          matchedCount: 1,
-          modifiedCount: 1,
-          upsertedCount: 1,
-          upsertedId: oid,
-          result: { ok: 1, n: 1, nModified: 1 },
-          connection: null,
-          acknowledged: true,
-        } as any;
-        serviceProvider.updateOne.resolves(expectedResult);
-        const result = await shard.enableBalancing('ns');
-        expect(result).to.deep.equal(new UpdateResult(true, 1, 1, 1, oid));
-      });
+      for (const serverVersion of [
+        '4.2.0',
+        '5.0.0',
+        '6.0.0',
+        '7.0.0',
+        '8.0.0',
+      ]) {
+        describe(`on server ${serverVersion}`, function () {
+          this.beforeEach(() => {
+            connectionInfoStub = sinon
+              .stub(instanceState, 'cachedConnectionInfo')
+              .returns({
+                extraInfo: {
+                  server_version: serverVersion,
+                  uri: 'mongodb://localhost:27017',
+                },
+                buildInfo: null,
+              });
 
-      it('throws if serviceProvider.updateOne rejects', async function () {
-        serviceProvider.runCommandWithCheck.resolves({
-          ok: 1,
-          msg: 'isdbgrid',
+            serviceProvider.runCommandWithCheck.resolves({
+              ok: 1,
+              msg: 'isdbgrid',
+            });
+          });
+
+          it('calls serviceProvider.updateOne', async function () {
+            const expectedResult = {
+              matchedCount: 1,
+              modifiedCount: 1,
+              upsertedCount: 1,
+              upsertedId: { _id: 0 },
+              result: { ok: 1, n: 1, nModified: 1 },
+              connection: null,
+            } as any;
+            serviceProvider.updateOne.resolves(expectedResult);
+            await shard.enableBalancing('ns');
+
+            expect(serviceProvider.updateOne).to.have.been.calledWith(
+              'config',
+              'collections',
+              { _id: 'ns' },
+              { $set: { noBalance: false } },
+              { writeConcern: { w: 'majority', wtimeout: 60000 } }
+            );
+          });
+
+          it('returns whatever serviceProvider.updateOne returns', async function () {
+            const oid = new bson.ObjectId();
+            const expectedResult = {
+              matchedCount: 1,
+              modifiedCount: 1,
+              upsertedCount: 1,
+              upsertedId: oid,
+              result: { ok: 1, n: 1, nModified: 1 },
+              connection: null,
+              acknowledged: true,
+            } as any;
+            serviceProvider.updateOne.resolves(expectedResult);
+            const result = await shard.enableBalancing('ns');
+            expect(result).to.deep.equal(new UpdateResult(true, 1, 1, 1, oid));
+          });
+
+          it('throws if serviceProvider.updateOne rejects', async function () {
+            const expectedError = new Error();
+            serviceProvider.updateOne.rejects(expectedError);
+            const caughtError = await shard
+              .enableBalancing('ns')
+              .catch((e) => e);
+            expect(caughtError).to.equal(expectedError);
+          });
         });
-        const expectedError = new Error();
-        serviceProvider.updateOne.rejects(expectedError);
-        const caughtError = await shard.enableBalancing('ns').catch((e) => e);
-        expect(caughtError).to.equal(expectedError);
+      }
+
+      describe('on server >= 8.1', function () {
+        this.beforeEach(() => {
+          connectionInfoStub = sinon
+            .stub(instanceState, 'cachedConnectionInfo')
+            .returns({
+              extraInfo: {
+                server_version: '8.1.0',
+                uri: 'mongodb://localhost:27017',
+              },
+              buildInfo: null,
+            });
+
+          serviceProvider.runCommandWithCheck.resolves({
+            ok: 1,
+            msg: 'isdbgrid',
+          });
+        });
+
+        it('runs configureCollectionBalancing admin command', async function () {
+          await shard.enableBalancing('ns');
+
+          expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+            'admin',
+            {
+              configureCollectionBalancing: 'ns',
+              enableBalancing: true,
+              noBalance: false,
+            }
+          );
+        });
+
+        it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
+          const expectedResult = {
+            ok: 1,
+            $clusterTime: {
+              clusterTime: { $timestamp: { t: 1741010129, i: 1 } },
+              signature: {
+                hash: {
+                  $binary: {
+                    base64: 'AAAAAAAAAAAAAAAAAAAAAAAAAAA=',
+                    subType: 0,
+                  },
+                },
+                keyId: { $numberLong: '0' },
+              },
+            },
+            operationTime: { t: 1741010129, i: 1 },
+          };
+          serviceProvider.runCommandWithCheck.resolves(expectedResult);
+          const result = await shard.enableBalancing('ns');
+          expect(result).to.deep.equal(expectedResult);
+        });
+
+        it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
+          const expectedError = new Error();
+          serviceProvider.runCommandWithCheck.rejects(expectedError);
+          const caughtError = await shard.enableBalancing('ns').catch((e) => e);
+          expect(caughtError).to.equal(expectedError);
+        });
       });
 
       it('throws if not mongos', async function () {
@@ -1230,6 +1414,7 @@ describe('Shard', function () {
         expect(warnSpy.calledOnce).to.equal(true);
       });
     });
+
     describe('getBalancerState', function () {
       it('returns whatever serviceProvider.find returns', async function () {
         serviceProvider.runCommandWithCheck.resolves({
@@ -2469,6 +2654,7 @@ describe('Shard', function () {
         });
       });
     });
+
     describe('turn on sharding', function () {
       it('enableSharding for a db', async function () {
         expect((await sh.status()).value.databases.length).to.oneOf([1, 2]);
@@ -2516,6 +2702,7 @@ describe('Shard', function () {
         );
       });
     });
+
     describe('autosplit', function () {
       skipIfServerVersion(mongos, '> 6.x'); // Auto-splitter is removed in 7.0
       it('disables correctly', async function () {
@@ -2531,6 +2718,7 @@ describe('Shard', function () {
         ).to.equal('yes');
       });
     });
+
     describe('tags', function () {
       it('creates a zone', async function () {
         expect((await sh.addShardTag(`${shardId}-1`, 'zone1')).ok).to.equal(1);
@@ -2637,6 +2825,7 @@ describe('Shard', function () {
         }
       });
     });
+
     describe('balancer', function () {
       it('reports balancer state', async function () {
         expect(Object.keys(await sh.isBalancerRunning())).to.include.members([
@@ -2684,6 +2873,7 @@ describe('Shard', function () {
         ).to.equal(false);
       });
     });
+
     describe('autoMerger', function () {
       it('reports autoMerger state', async function () {
         expect(await sh.isAutoMergerEnabled()).to.equal(true);
@@ -2728,6 +2918,7 @@ describe('Shard', function () {
         ).to.not.exist;
       });
     });
+
     describe('getShardDistribution', function () {
       let db: Database;
       const dbName = 'shard-distrib-test';
@@ -2820,6 +3011,7 @@ describe('Shard', function () {
         }
       });
     });
+
     describe('analyzeShardKey()', function () {
       skipIfServerVersion(mongos, '< 7.0'); // analyzeShardKey will only be added in 7.0 which is not included in stable yet
 
@@ -2855,6 +3047,7 @@ describe('Shard', function () {
         ).to.deep.include({ ok: 1 });
       });
     });
+
     describe('configureQueryAnalyzer()', function () {
       skipIfServerVersion(mongos, '< 7.0'); // analyzeShardKey will only be added in 7.0 which is not included in stable yet
 
@@ -3259,6 +3452,7 @@ describe('Shard', function () {
         expect(ret).to.equal(true);
       });
     });
+
     describe('databases', function () {
       let dbRegular: Database;
       let dbSh: Database;
@@ -3309,6 +3503,7 @@ describe('Shard', function () {
         ]);
       });
     });
+
     describe('checkMetadataConsistency', function () {
       skipIfServerVersion(mongos, '< 7.0');
       let db: Database;
