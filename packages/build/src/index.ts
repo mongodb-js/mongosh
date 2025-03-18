@@ -81,6 +81,9 @@ if (require.main === module) {
           ctaConfig,
           downloadCenterAwsKey,
           downloadCenterAwsSecret,
+          downloadCenterAwsKeyNew,
+          downloadCenterAwsSecretNew,
+          downloadCenterAwsSessionTokenNew,
           isDryRun,
         } = getBuildConfig();
 
@@ -92,6 +95,9 @@ if (require.main === module) {
           ctaConfig,
           downloadCenterAwsKey,
           downloadCenterAwsSecret,
+          downloadCenterAwsKeyNew,
+          downloadCenterAwsSecretNew,
+          downloadCenterAwsSessionTokenNew,
           !!isDryRun
         );
         break;
