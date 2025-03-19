@@ -3,10 +3,12 @@ import path from 'path';
 
 export type MongoshAnalyticsIdentity =
   | {
+      deviceId?: string;
       userId: string;
       anonymousId?: never;
     }
   | {
+      deviceId?: string;
       userId?: never;
       anonymousId: string;
     };
