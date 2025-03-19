@@ -52,10 +52,23 @@ import type {
   MongoshLoggingAndTelemetryArguments,
   MongoshTrackingProperties,
 } from './types';
+import { machineIdSync } from 'node-machine-id';
 
 export function setupLoggingAndTelemetry(
   props: MongoshLoggingAndTelemetryArguments
 ): MongoshLoggingAndTelemetry {
+  if (!props.deviceId) {
+    try {
+      props.deviceId = machineIdSync();
+    } catch (error) {
+      props.bus.emit(
+        'mongosh:error',
+        new Error('Failed to get device ID'),
+        'telemetry'
+      );
+    }
+  }
+
   const loggingAndTelemetry = new LoggingAndTelemetry(props);
 
   loggingAndTelemetry.setup();
@@ -80,6 +93,7 @@ class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
     [key: string]: unknown;
   };
   private readonly mongoshVersion: string;
+  private readonly deviceId: string | undefined;
 
   private log: MongoLogWriter;
   private pendingLogEvents: CallableFunction[] = [];
@@ -91,12 +105,14 @@ class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
     analytics,
     userTraits,
     mongoshVersion,
+    deviceId,
   }: MongoshLoggingAndTelemetryArguments) {
     this.bus = bus;
     this.analytics = analytics;
     this.log = LoggingAndTelemetry.dummyLogger;
     this.userTraits = userTraits;
     this.mongoshVersion = mongoshVersion;
+    this.deviceId = deviceId;
   }
 
   public setup(): void {
@@ -196,6 +212,7 @@ class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         anonymousId:
           this.busEventState.telemetryAnonymousId ??
           (this.busEventState.userId as string),
+        deviceId: this.deviceId,
       };
     };
 
@@ -285,7 +302,7 @@ class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         this.busEventState.telemetryAnonymousId =
           newTelemetryUserIdentity.anonymousId;
         this.analytics.identify({
-          anonymousId: newTelemetryUserIdentity.anonymousId,
+          ...getTelemetryUserIdentity(),
           traits: getUserTraits(),
         });
       }
