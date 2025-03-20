@@ -5,7 +5,12 @@ export async function npmPackageSha256(
   packageUrl: string,
   httpGetFn: typeof httpGet = httpGet
 ): Promise<string> {
-  const json = await httpGetFn(packageUrl, 'json');
+  const json = await httpGetFn<{
+  dist: {
+	tarball: string;
+	shasum: string;
+	}
+  }>(packageUrl, 'json');
   const tarballUrl = json.dist.tarball;
   const shasum = json.dist.shasum;
 
@@ -38,13 +43,12 @@ async function getTarballWithRetries(
   }
 }
 
-export function httpGet(url: string, response: 'json'): Promise<any>;
+export function httpGet<T>(url: string, response: 'json'): Promise<T>;
 export function httpGet(url: string, response: 'binary'): Promise<Buffer>;
-
-export async function httpGet(
+export async function httpGet<T>(
   url: string,
   responseType: 'json' | 'binary'
-): Promise<any | Buffer> {
+): Promise<T | Buffer> {
   const response = await new Promise<string | Buffer[]>((resolve, reject) => {
     https.get(url, (stream) => {
       if (responseType === 'json') {
