@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Sun Mar 16 2025.
+This document was automatically generated on Thu Mar 20 2025.
 
 ## List of dependencies
 
@@ -35,7 +35,7 @@ Package|Version|License
 **[@aws-sdk/util-locate-window](#6572178bafe2c2ac316bd5a7c44ecaba8a1d7c9bfb7901da8181456dba5e72ad)**|3.568.0|Apache-2.0
 **[@aws-sdk/util-user-agent-browser](#b339fb2dc2dd06a69349f1ae8ef570088371b5f5b724a57030b2b91f470d83f9)**|3.609.0|Apache-2.0
 **[@aws-sdk/util-user-agent-node](#78337458e259597e1af9ae36c139707b9d47d298d6b660fda8ca49f7a6039933)**|3.614.0|Apache-2.0
-**[@babel/code-frame](#7ca9eed8b17033a7de990a0660c32d96e80b7f3d64e0f42010203cb090870d90)**|7.26.0|MIT
+**[@babel/code-frame](#e0dc11226933d623aca7bbb7194f4390626bee3be5e08982040cfb8071b8ac10)**|7.26.2|MIT
 **[@babel/compat-data](#040e3fd0e7a0b4552a3f8489b25a7a491503c1c0195bdff4d5a299978580bb09)**|7.22.6|MIT
 **[@babel/core](#80a714f9483b1d686ead84632236401cd8ad37e1f1ca77031ecceb3737e7bfdf)**|7.22.8|MIT
 **[@babel/generator](#3509a9eda396e4967eb4ade30d3c910d44249047bf5e4ddae01d541b0dff2284)**|7.23.0|MIT
@@ -54,11 +54,11 @@ Package|Version|License
 **[@babel/helper-simple-access](#dc3e63b7b12d0eb147694ad9ec9e7aa787e6b06d217588a133ca2e99cc587b22)**|7.22.5|MIT
 **[@babel/helper-skip-transparent-expression-wrappers](#3680d72a3e5058442cc8966d761775227dc7296f71c862ab179c463d5caeb58b)**|7.22.5|MIT
 **[@babel/helper-split-export-declaration](#2f47cc2b7fe1c026742640af9190a7f9163faecb332a5b0717a76415e215ea1d)**|7.22.6|MIT
-**[@babel/helper-string-parser](#3e823d043a87bb0e820b7bf894d00b437b31268e75ef63335a13cd7a50c467c0)**|7.25.7|MIT
+**[@babel/helper-string-parser](#5b3590c32cd3301a03b52088b52f6239b871979aef4a8d6a00e8165400bd480c)**|7.25.9|MIT
 **[@babel/helper-validator-identifier](#2b9032a699e1acd799c3c7a85237ee044cfc148fb7b88a1adcc2ad7f23d3a750)**|7.25.9|MIT
 **[@babel/helper-validator-option](#deada2cd042f06e8fd213df49ced5a41c1d2b99bf4d5f5b6d553719b3bbef43d)**|7.22.5|MIT
-**[@babel/helpers](#cb1e18e6d46d89abd6ba3ec9218d7de7d12a4a2a123de99f25fbe74273486c85)**|7.22.6|MIT
-**[@babel/parser](#b1c0640807d2701180a218503f997764272a637a4f749736e2f25ed19388fa5f)**|7.25.8|MIT
+**[@babel/helpers](#915699e93d4639b5a66b455d06c13d5b615139f6bbff96690eafe88989be94b0)**|7.26.10|MIT
+**[@babel/parser](#1b58f0e0f2d407e4a98b0e4d716ad85b2c1b8232148f95495f4100f9fdb59999)**|7.26.10|MIT
 **[@babel/plugin-syntax-jsx](#92b0c9e2acd6beca918c90ecdc4cc5973ac7c517f7dee4ef88df317effdfa44b)**|7.22.5|MIT
 **[@babel/plugin-syntax-typescript](#b6fc5c65f4e7013bf626b2718813ae149f1b5fe0ce1bad1e28ec66f87e0cc536)**|7.22.5|MIT
 **[@babel/plugin-transform-destructuring](#c97fc3729e02faa151dc6eb84560e5aba3f15e1b409cf5ed2a58431f96660368)**|7.22.5|MIT
@@ -67,9 +67,9 @@ Package|Version|License
 **[@babel/plugin-transform-shorthand-properties](#b93c2977332c87c88bb42733c298a494df63eb1ad048aab45aa7a57960fbce6e)**|7.22.5|MIT
 **[@babel/plugin-transform-typescript](#437780f6ebf94210e1eae184d082efbeed204ad21e9c1ea386fac9b4981bcbf5)**|7.22.10|MIT
 **[@babel/preset-typescript](#98ef09dd3dc2481c1ac9e23d6809726082706962813dedac9ab80f49bca1b812)**|7.22.5|MIT
-**[@babel/template](#3c75119e7609dea949724f8fca09fa5070562bec09a8f3bb3ad4d5301aa67ce0)**|7.22.15|MIT
+**[@babel/template](#188be3a47898b7fe4cf2ea01c90adb4aaefd38ac6b1c47b47a5a3e920c04b04c)**|7.26.9|MIT
 **[@babel/traverse](#30097e39f159c2eb3863a791d6a98f23c7d5ac1cac6578a2deb827a48fefc7a0)**|7.23.2|MIT
-**[@babel/types](#f9cc77d02872cde090c99c280cfff1306d7ad77fb22d15f53ad97a58c3db944e)**|7.25.8|MIT
+**[@babel/types](#1181f83974ecb703a377592de0f4effd5bd83f8eeaba9a1eb9e7bdc21d4aea35)**|7.26.10|MIT
 **[@jridgewell/gen-mapping](#1e660067f4d1364dc830c372517d8ec92eddc9af7eaa6b1e698d478b286abafa)**|0.1.1|MIT
 **[@jridgewell/gen-mapping](#25a8188ec7d87cf1b9baf2470bad1f75a22f246ca0fca732933d26fd488ef5d2)**|0.3.5|MIT
 **[@jridgewell/resolve-uri](#f356bc3bb9c04f5fe4e387a4eea4e74125aae03bb50f846d956d7d986d200f50)**|3.1.0|MIT
@@ -425,7 +425,6 @@ Package|Version|License
 **[text-table](#408475075eb207dd5ae8858365d5b39a25bebe2b757601c43164cec36f315b23)**|0.2.0|MIT
 **[titleize](#36b49586e2b5f60bee2c757b90d19871a99822f92e2b2e19202ef9efb9595766)**|3.0.0|MIT
 **[to-buffer](#5934a0e0ea92470fb3bbe2a1d6869494c53208b1b06aaee8ffd31e4e040e4e85)**|1.1.1|MIT
-**[to-fast-properties](#79afe8c8f3cc0bb1187c6ffaf6105b49888137e917978e870d67727353aba954)**|2.0.0|MIT
 **[toidentifier](#2067d1f99d35f28c8384d3e9762282f3c2ded0041392af855caf28ba2209bd2a)**|1.0.1|MIT
 **[tr46](#73a239b431778fd3a06957f11cd6de530a4ba35ca946f8656f46e02228113c2b)**|4.1.1|MIT
 **[tslib](#2cd3e3e96a257e519fb1b58f5edbb9df0df91195b95c20d6ba75f1d1e3ba9dbd)**|1.14.1|0BSD
@@ -6365,8 +6364,8 @@ License files:
       
 
 
-<a id="7ca9eed8b17033a7de990a0660c32d96e80b7f3d64e0f42010203cb090870d90"></a>
-### [@babel/code-frame](https://www.npmjs.com/package/@babel/code-frame) (version 7.26.0)
+<a id="e0dc11226933d623aca7bbb7194f4390626bee3be5e08982040cfb8071b8ac10"></a>
+### [@babel/code-frame](https://www.npmjs.com/package/@babel/code-frame) (version 7.26.2)
 License tags: MIT
 
 License files:
@@ -6973,8 +6972,8 @@ License files:
       
 
 
-<a id="3e823d043a87bb0e820b7bf894d00b437b31268e75ef63335a13cd7a50c467c0"></a>
-### [@babel/helper-string-parser](https://www.npmjs.com/package/@babel/helper-string-parser) (version 7.25.7)
+<a id="5b3590c32cd3301a03b52088b52f6239b871979aef4a8d6a00e8165400bd480c"></a>
+### [@babel/helper-string-parser](https://www.npmjs.com/package/@babel/helper-string-parser) (version 7.25.9)
 License tags: MIT
 
 License files:
@@ -7069,8 +7068,8 @@ License files:
       
 
 
-<a id="cb1e18e6d46d89abd6ba3ec9218d7de7d12a4a2a123de99f25fbe74273486c85"></a>
-### [@babel/helpers](https://www.npmjs.com/package/@babel/helpers) (version 7.22.6)
+<a id="915699e93d4639b5a66b455d06c13d5b615139f6bbff96690eafe88989be94b0"></a>
+### [@babel/helpers](https://www.npmjs.com/package/@babel/helpers) (version 7.26.10)
 License tags: MIT
 
 License files:
@@ -7101,8 +7100,8 @@ License files:
       
 
 
-<a id="b1c0640807d2701180a218503f997764272a637a4f749736e2f25ed19388fa5f"></a>
-### [@babel/parser](https://www.npmjs.com/package/@babel/parser) (version 7.25.8)
+<a id="1b58f0e0f2d407e4a98b0e4d716ad85b2c1b8232148f95495f4100f9fdb59999"></a>
+### [@babel/parser](https://www.npmjs.com/package/@babel/parser) (version 7.26.10)
 License tags: MIT
 
 License files:
@@ -7386,8 +7385,8 @@ License files:
       
 
 
-<a id="3c75119e7609dea949724f8fca09fa5070562bec09a8f3bb3ad4d5301aa67ce0"></a>
-### [@babel/template](https://www.npmjs.com/package/@babel/template) (version 7.22.15)
+<a id="188be3a47898b7fe4cf2ea01c90adb4aaefd38ac6b1c47b47a5a3e920c04b04c"></a>
+### [@babel/template](https://www.npmjs.com/package/@babel/template) (version 7.26.9)
 License tags: MIT
 
 License files:
@@ -7450,8 +7449,8 @@ License files:
       
 
 
-<a id="f9cc77d02872cde090c99c280cfff1306d7ad77fb22d15f53ad97a58c3db944e"></a>
-### [@babel/types](https://www.npmjs.com/package/@babel/types) (version 7.25.8)
+<a id="1181f83974ecb703a377592de0f4effd5bd83f8eeaba9a1eb9e7bdc21d4aea35"></a>
+### [@babel/types](https://www.npmjs.com/package/@babel/types) (version 7.26.10)
 License tags: MIT
 
 License files:
@@ -30942,26 +30941,6 @@ License files:
       LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
-      
-
-
-<a id="79afe8c8f3cc0bb1187c6ffaf6105b49888137e917978e870d67727353aba954"></a>
-### [to-fast-properties](https://www.npmjs.com/package/to-fast-properties) (version 2.0.0)
-License tags: MIT
-
-License files:
-* license:
-
-      MIT License
-      
-      Copyright (c) 2014 Petka Antonov
-                    2015 Sindre Sorhus
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       
 
 
