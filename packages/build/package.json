@@ -69,7 +69,7 @@
     "@mongodb-js/mongodb-downloader": "^0.3.7",
     "@mongodb-js/monorepo-tools": "^1.1.16",
     "@mongodb-js/signing-utils": "^0.3.7",
-    "@octokit/rest": "^17.9.0",
+    "@octokit/rest": "^20.1.2",
     "ajv": "^8.17.1",
     "aws-sdk": "^2.674.0",
     "boxednode": "^2.4.3",
