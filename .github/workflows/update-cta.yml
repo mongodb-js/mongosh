@@ -1,5 +1,8 @@
 name: Update greeting CTA
 on:
+  pull_request:
+    branches:
+      - main
   push:
     branches:
       - main
@@ -19,6 +22,7 @@ on:
         default: CTA-Production
 
 permissions:
+  id-token: write
   contents: read
 
 jobs:
@@ -33,17 +37,25 @@ jobs:
       DOWNLOAD_CENTER_AWS_KEY: ${{ secrets.DOWNLOAD_CENTER_AWS_KEY }}
       DOWNLOAD_CENTER_AWS_SECRET: ${{ secrets.DOWNLOAD_CENTER_AWS_SECRET }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      # - uses: actions/checkout@v4
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v4.1.0
         with:
-          node-version: ^20.x
-          cache: "npm"
-
-      - name: Install Dependencies and Compile
+          role-to-assume: arn:aws:iam::119629040606:role/s3-access.cdn-origin-compass
+          aws-region: us-east-1
+      - name: Sts GetCallerIdentity
         run: |
-          npm ci
-          npm run compile
+          aws sts get-caller-identity
+      # - uses: actions/setup-node@v4
+      #   with:
+      #     node-version: ^20.x
+      #     cache: "npm"
 
-      - name: Update greeting CTA
-        run: |
-          npm run update-cta ${{ github.event.inputs.dry-run && '-- --dry-run' || '' }}
+      # - name: Install Dependencies and Compile
+      #   run: |
+      #     npm ci
+      #     npm run compile
+
+      # - name: Update greeting CTA
+      #   run: |
+      #     npm run update-cta ${{ github.event.inputs.dry-run && '-- --dry-run' || '' }}

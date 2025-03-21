@@ -17,6 +17,11 @@ export const CONFIGURATION_KEY =
 export const ARTIFACTS_BUCKET = 'downloads.10gen.com';
 
 /**
+ * The S3 bucket for download center artifacts.
+ */
+export const ARTIFACTS_BUCKET_NEW = 'cdn-origin-compass';
+
+/**
  * The S3 "folder" for uploaded artifacts.
  */
 export const ARTIFACTS_FOLDER = 'compass';
