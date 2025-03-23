@@ -370,6 +370,16 @@ describe('AsyncWriter', function () {
       expect(await ret).to.equal('bar');
     });
 
+    it('can implicitly await inside of template literals', async function () {
+      implicitlyAsyncFn.resolves('foobar');
+      const ret = runTranspiledCode(
+        '(() => { return `>>${implicitlyAsyncFn()}<<`; })()'
+      );
+      expect(ret.constructor.name).to.equal('Promise');
+      expect(ret[Symbol.for('@@mongosh.syntheticPromise')]).to.equal(true);
+      expect(await ret).to.equal('>>foobar<<');
+    });
+
     it('can implicitly await inside of branches', async function () {
       implicitlyAsyncFn.resolves({ foo: 'bar' });
       const ret = runTranspiledCode(`
@@ -474,6 +484,10 @@ describe('AsyncWriter', function () {
 
     it('supports typeof for un-defined variables', function () {
       expect(runTranspiledCode('typeof nonexistent')).to.equal('undefined');
+    });
+
+    it('supports typeof for un-defined variables in parentheses', function () {
+      expect(runTranspiledCode('typeof ((nonexistent))')).to.equal('undefined');
     });
 
     it('supports typeof for implicitly awaited function calls', async function () {
