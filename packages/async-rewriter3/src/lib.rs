@@ -1,6 +1,6 @@
 use std::{borrow::Borrow, collections::VecDeque, fmt::Debug};
 use wasm_bindgen::prelude::*;
-use rslint_parser::{ast::{ArrowExpr, AssignExpr, CallExpr, ClassDecl, Constructor, Expr, ExprOrBlock, ExprStmt, FnDecl, FnExpr, Literal, Method, NameRef, ObjectPatternProp, ParameterList, Pattern, PropName, ReturnStmt, ThisExpr, UnaryExpr, VarDecl}, parse_text, AstNode, SyntaxNode, TextSize};
+use rslint_parser::{ast::{ArrowExpr, AssignExpr, CallExpr, ClassDecl, Constructor, Expr, ExprOrBlock, ExprStmt, FnDecl, FnExpr, Literal, Method, NameRef, ObjectPatternProp, ParameterList, Pattern, PropName, ReturnStmt, ThisExpr, UnaryExpr, VarDecl}, parse_text, AstNode, SyntaxKind, SyntaxNode, TextSize};
 
 #[derive(Debug)]
 enum InsertionText {
@@ -240,9 +240,11 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
         let child_insertions = &mut collect_insertions(&child, nesting_depth + if is_function_node(node) { 1 } else { 0 });
         {
             let kind = child.kind();
-            insertions.push_back(Insertion::new_dynamic(range.start(),
-                ["/*", format!("{kind:#?}").as_str(), "*/"].concat()
-            ));
+            if kind != SyntaxKind::TEMPLATE_ELEMENT {
+                insertions.push_back(Insertion::new_dynamic(range.start(),
+                    ["/*", format!("{kind:#?}").as_str(), "*/"].concat()
+                ));
+            }
         }
         if FnDecl::can_cast(child.kind()) {
             let as_fn = FnDecl::cast(child).unwrap();
