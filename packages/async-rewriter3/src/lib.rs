@@ -1,6 +1,6 @@
 use std::{borrow::Borrow, collections::VecDeque, fmt::Debug};
 use wasm_bindgen::prelude::*;
-use rslint_parser::{ast::{ArrowExpr, AssignExpr, CallExpr, ClassDecl, Constructor, Expr, ExprOrBlock, ExprStmt, FnDecl, FnExpr, Literal, Method, NameRef, ObjectPatternProp, ParameterList, Pattern, PropName, ReturnStmt, ThisExpr, UnaryExpr, VarDecl}, parse_text, AstNode, SyntaxKind, SyntaxNode, TextSize};
+use rslint_parser::{ast::{ArrowExpr, AssignExpr, CallExpr, ClassDecl, Constructor, Expr, ExprOrBlock, ExprStmt, FnDecl, FnExpr, GroupingExpr, Literal, Method, NameRef, ObjectPatternProp, ParameterList, Pattern, PropName, ReturnStmt, ThisExpr, UnaryExpr, VarDecl}, parse_text, AstNode, SyntaxKind, SyntaxNode, TextSize};
 
 #[derive(Debug)]
 enum InsertionText {
@@ -232,6 +232,19 @@ fn add_all_variables_from_declaration(patterns: impl Iterator<Item = impl Borrow
     ret
 }
 
+fn is_name_ref(syntax_node: &SyntaxNode, names: Option<&'static[&'static str]>) -> bool {
+    if !NameRef::can_cast(syntax_node.kind()) {
+        if GroupingExpr::can_cast(syntax_node.kind()) {
+            return is_name_ref(GroupingExpr::cast(syntax_node.clone()).unwrap().inner().unwrap().syntax(), names);
+        }
+        return false;
+    }
+    if names.is_none() {
+        return true;
+    }
+    return names.unwrap().iter().any(|t| *t == syntax_node.text().to_string().as_str())
+}
+
 fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
     let has_function_parent = nesting_depth > 0;
     let mut insertions = InsertionList::new();
@@ -342,8 +355,7 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
                 insertions.append(child_insertions);
             }
             Some(as_expr) => {
-                let is_eval_this_super_reference = (NameRef::can_cast(as_expr.syntax().kind()) &&
-                    ["eval", "this", "super"].iter().any(|t| *t == as_expr.syntax().text().to_string().as_str())) ||
+                let is_eval_this_super_reference = is_name_ref(as_expr.syntax(), Some(&["eval", "this", "super"])) ||
                     ThisExpr::can_cast(as_expr.syntax().kind());
 
                 let is_returned_expression = ReturnStmt::can_cast(as_expr.syntax().parent().unwrap().kind());
@@ -359,7 +371,7 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
 
                 let is_unary_rhs = UnaryExpr::can_cast(as_expr.syntax().parent().unwrap().kind());
                 let is_typeof_rhs = is_unary_rhs && UnaryExpr::cast(as_expr.syntax().parent().unwrap()).unwrap().text().starts_with("typeof");
-                let is_named_typeof_rhs = is_typeof_rhs && NameRef::can_cast(as_expr.syntax().kind());
+                let is_named_typeof_rhs = is_typeof_rhs && is_name_ref(as_expr.syntax(), None);
                 let is_lhs_of_assign_expr = (AssignExpr::can_cast(as_expr.syntax().parent().unwrap().kind()) &&
                     AssignExpr::cast(as_expr.syntax().parent().unwrap()).unwrap().lhs().unwrap().syntax().text_range() ==
                     as_expr.syntax().text_range()) ||
