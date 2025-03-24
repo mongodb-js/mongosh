@@ -477,7 +477,7 @@ describe('AsyncWriter', function () {
       expect(implicitlyAsyncFn).to.have.callCount(10);
     });
 
-    it.skip('can use for loops as weird assignments (sync)', async function () {
+    it('can use for loops as weird assignments (sync)', async function () {
       const obj = { foo: null };
       implicitlyAsyncFn.resolves(obj);
       await runTranspiledCode(
@@ -487,7 +487,7 @@ describe('AsyncWriter', function () {
       expect(obj.foo).to.equal('bar');
     });
 
-    it.skip('can use for loops as weird assignments (async)', async function () {
+    it('can use for loops as weird assignments (async)', async function () {
       const obj = { foo: null };
       implicitlyAsyncFn.resolves(obj);
       await runTranspiledCode(
