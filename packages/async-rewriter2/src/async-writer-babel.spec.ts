@@ -277,11 +277,15 @@ describe('AsyncWriter', function () {
     });
 
     it('keeps `this` intact for function calls', function () {
-      expect('({ foo: 42, method() { return this } }).method().foo').to.equal(
-        42
-      );
       expect(
-        '({ foo: 42, method() { return this } })["method"]().foo'
+        runTranspiledCode(
+          '({ foo: 42, method() { return this } }).method().foo'
+        )
+      ).to.equal(42);
+      expect(
+        runTranspiledCode(
+          '({ foo: 42, method() { return this } })["method"]().foo'
+        )
       ).to.equal(42);
     });
   });
