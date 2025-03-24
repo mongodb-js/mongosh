@@ -119,6 +119,8 @@ describe('AsyncWriter', function () {
       expect(runTranspiledCode('undefined')).to.equal(undefined);
       expect(runTranspiledCode('[1,2,3]')).to.deep.equal([1, 2, 3]);
       expect(runTranspiledCode('({ a: 10 })')).to.deep.equal({ a: 10 });
+      // make sure that inserted debugging comments do not merge with division slashes
+      expect(runTranspiledCode('6/3')).to.deep.equal(2);
     });
 
     it('does not auto-resolve Promises automatically', function () {
