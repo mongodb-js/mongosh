@@ -1,6 +1,6 @@
 use std::{borrow::Borrow, collections::VecDeque, fmt::Debug};
 use wasm_bindgen::prelude::*;
-use rslint_parser::{ast::{ArrowExpr, AssignExpr, BreakStmt, CallExpr, ClassDecl, Constructor, ContinueStmt, Expr, ExprOrBlock, ExprStmt, FnDecl, FnExpr, ForInStmt, ForOfStmt, ForStmtInit, GroupingExpr, Literal, Method, NameRef, ObjectPatternProp, ParameterList, Pattern, PropName, ReturnStmt, ThisExpr, UnaryExpr, VarDecl}, parse_text, AstNode, SyntaxKind, SyntaxNode, TextSize};
+use rslint_parser::{ast::{ArrowExpr, AssignExpr, BracketExpr, BreakStmt, CallExpr, ClassDecl, Constructor, ContinueStmt, DotExpr, Expr, ExprOrBlock, ExprStmt, FnDecl, FnExpr, ForStmtInit, GroupingExpr, Literal, Method, NameRef, ObjectPatternProp, ParameterList, Pattern, PropName, ReturnStmt, ThisExpr, UnaryExpr, VarDecl}, parse_text, AstNode, SyntaxKind, SyntaxNode, TextSize};
 
 #[derive(Debug)]
 enum InsertionText {
@@ -70,7 +70,7 @@ fn is_block(body: &ExprOrBlock) -> bool {
 
 fn make_start_fn_insertion(offset: TextSize) -> Insertion {
     Insertion::new(offset, r#"
-    ;const _syntheticPromise = Symbol.for('@@mongosh.syntheticPromise');
+    ;const _syntheticPromise = __SymbolFor('@@mongosh.syntheticPromise');
 
     function _markSyntheticPromise(p) {
         return Object.defineProperty(p, _syntheticPromise, {
@@ -145,7 +145,7 @@ fn fn_end_insertion(body: &ExprOrBlock) -> InsertionList {
     if is_block(body) {
         offset = offset.checked_sub(1.into()).unwrap();
     } else {
-        ret.push_back(Insertion::new(offset, "));"));
+        ret.push_back(Insertion::new(offset, "), _functionState === 'async' ? _synchronousReturnValue : null);"));
     }
     ret.push_back(make_end_fn_insertion(offset));
     if !is_block(body) {
@@ -361,12 +361,11 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
                 let is_returned_expression = ReturnStmt::can_cast(as_expr.syntax().parent().unwrap().kind());
                 let is_called_expression = CallExpr::can_cast(as_expr.syntax().parent().unwrap().kind());
                 let is_expr_in_async_function = is_in_async_function(as_expr.syntax());
-                let mut is_dot_call_expression = false;
-                let mut pushed_insertions = 0;
+                let is_dot_call_expression = is_called_expression &&
+                    (DotExpr::can_cast(as_expr.syntax().kind()) || BracketExpr::can_cast(as_expr.syntax().kind()));
 
                 if is_returned_expression && !is_expr_in_async_function {
-                    insertions.push_back(Insertion::new(range.start(), "(_synchronousReturnValue = "));
-                    pushed_insertions += 1;
+                    insertions.push_back(Insertion::new(range.start(), "(_synchronousReturnValue = ("));
                 }
 
                 let is_unary_rhs = UnaryExpr::can_cast(as_expr.syntax().parent().unwrap().kind());
@@ -388,18 +387,17 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
                     !is_eval_this_super_reference &&
                     !is_literal &&
                     !is_label_in_continue_or_break &&
-                    !is_for_in_of_lvalue;
+                    !is_for_in_of_lvalue &&
+                    !is_dot_call_expression;
 
                 if is_named_typeof_rhs {
                     insertions.push_back(Insertion::new_dynamic(as_expr.syntax().parent().unwrap().text_range().start(), [
                         "(typeof ", as_expr.syntax().text().to_string().as_str(), " === 'undefined' ? 'undefined' : "
                     ].concat()));
-                    pushed_insertions += 1;
                 }
 
                 if wants_implicit_await_wrapper {
                     insertions.push_back(Insertion::new(range.start(), "(_ex = "));
-                    pushed_insertions += 1;
                 }
 
                 match as_expr {
@@ -423,21 +421,11 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
                             insertions.append(child_insertions);
                         }
                     },
-                    Expr::DotExpr(_) => {
-                        if is_called_expression {
-                            is_dot_call_expression = true;
-                            while pushed_insertions > 0 {
-                                pushed_insertions -= 1;
-                                insertions.pop_back();
-                            }
-                        }
-                        insertions.append(child_insertions);
-                    },
                     _ => {
                         insertions.append(child_insertions);
                     },
                 }
-                if wants_implicit_await_wrapper && !is_dot_call_expression {
+                if wants_implicit_await_wrapper {
                     insertions.push_back(Insertion::new(range.end(), ", _isp(_ex) ? await _ex : _ex)"));
                 }
                 if is_named_typeof_rhs {
@@ -446,7 +434,7 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
                 if is_returned_expression && !is_expr_in_async_function {
                     insertions.push_back(Insertion::new(
                         range.end(),
-                        ", _functionState === 'async' ? _synchronousReturnValue : null)"
+                        "), _functionState === 'async' ? _synchronousReturnValue : null)"
                     ));
                 }
             }
@@ -469,7 +457,7 @@ pub fn async_rewrite(input: String, with_debug_tags: bool) -> String {
         }
     }
     let end = input.len().try_into().unwrap();
-    insertions.push_back(Insertion::new(TextSize::new(0), "(() => {"));
+    insertions.push_back(Insertion::new(TextSize::new(0), "(() => { const __SymbolFor = Symbol.for;"));
     insertions.push_back(make_start_fn_insertion(TextSize::new(0)));
     insertions.push_back(Insertion::new(TextSize::new(0), "var _cr;"));
     insertions.append(&mut collected_insertions);
