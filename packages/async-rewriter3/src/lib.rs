@@ -31,6 +31,13 @@ impl Insertion {
             original_ordering: None
         }
     }
+
+    pub fn len(&self) -> usize {
+        match &self.text {
+            InsertionText::Static(str) => str.len(),
+            InsertionText::Dynamic(str) => str.len()
+        }
+    }
 }
 
 struct InsertionList {
@@ -38,6 +45,7 @@ struct InsertionList {
     vars: Vec<String>
 }
 
+#[allow(dead_code)]
 impl InsertionList {
     pub const fn new() -> InsertionList {
         InsertionList {
@@ -472,15 +480,22 @@ pub fn async_rewrite(input: String, with_debug_tags: bool) -> String {
     }
     insertions.list.make_contiguous().sort_by(|a, b| a.offset.cmp(&b.offset));
 
-    let mut result = input.to_string();
+    let mut previous_offset = 0;
+    let mut result = String::with_capacity(input.len() + insertions.list.iter().map(|s| s.len()).sum::<usize>());
     let mut debug_tag = "".to_string();
-    for insertion in insertions.list.iter().rev() {
+    for insertion in insertions.list.iter() {
+        if usize::from(insertion.offset) != previous_offset {
+            assert!(usize::from(insertion.offset) >= previous_offset);
+            result.push_str(&input[previous_offset..insertion.offset.into()]);
+            previous_offset = insertion.offset.into();
+        }
+
         let text;
         match &insertion.text {
             InsertionText::Dynamic(str) => { text = str.as_str(); }
             InsertionText::Static(str) => { text = str; }
         }
-        let (before, after) = result.split_at(insertion.offset.into());
+
         if with_debug_tags {
             debug_tag = [
                 "/*i", insertion.original_ordering.unwrap().to_string().as_str(), "@",
@@ -488,8 +503,11 @@ pub fn async_rewrite(input: String, with_debug_tags: bool) -> String {
                 if text.contains("/*") { "" } else { "*/" }
             ].concat();
         }
-        result = [before, debug_tag.as_str(), text, debug_tag.as_str(), after].concat();
+        result.push_str(debug_tag.as_str());
+        result.push_str(text);
+        result.push_str(debug_tag.as_str());
     }
+    result.push_str(&input[previous_offset..]);
 
     result
 }
