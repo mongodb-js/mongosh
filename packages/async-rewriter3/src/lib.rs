@@ -1,6 +1,6 @@
 use std::{borrow::Borrow, collections::VecDeque, fmt::Debug};
 use wasm_bindgen::prelude::*;
-use rslint_parser::{ast::{ArrowExpr, AssignExpr, CallExpr, ClassDecl, Constructor, Expr, ExprOrBlock, ExprStmt, FnDecl, FnExpr, GroupingExpr, Literal, Method, NameRef, ObjectPatternProp, ParameterList, Pattern, PropName, ReturnStmt, ThisExpr, UnaryExpr, VarDecl}, parse_text, AstNode, SyntaxKind, SyntaxNode, TextSize};
+use rslint_parser::{ast::{ArrowExpr, AssignExpr, BreakStmt, CallExpr, ClassDecl, Constructor, ContinueStmt, Expr, ExprOrBlock, ExprStmt, FnDecl, FnExpr, ForInStmt, ForOfStmt, ForStmtInit, GroupingExpr, Literal, Method, NameRef, ObjectPatternProp, ParameterList, Pattern, PropName, ReturnStmt, ThisExpr, UnaryExpr, VarDecl}, parse_text, AstNode, SyntaxKind, SyntaxNode, TextSize};
 
 #[derive(Debug)]
 enum InsertionText {
@@ -378,7 +378,17 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
                     (is_unary_rhs && !is_typeof_rhs);
                 let is_argument_default_value = ParameterList::can_cast(as_expr.syntax().parent().unwrap().parent().unwrap().kind());
                 let is_literal = Literal::can_cast(as_expr.syntax().kind());
-                let wants_implicit_await_wrapper = !is_lhs_of_assign_expr && !is_argument_default_value && !is_eval_this_super_reference && !is_literal;
+                let is_label_in_continue_or_break = is_name_ref(as_expr.syntax(), None) &&
+                ContinueStmt::can_cast(as_expr.syntax().parent().unwrap().kind()) || BreakStmt::can_cast(as_expr.syntax().parent().unwrap().kind());
+                let is_for_in_of_lvalue =
+                ForStmtInit::can_cast(as_expr.syntax().parent().unwrap().kind());
+                let wants_implicit_await_wrapper =
+                    !is_lhs_of_assign_expr &&
+                    !is_argument_default_value &&
+                    !is_eval_this_super_reference &&
+                    !is_literal &&
+                    !is_label_in_continue_or_break &&
+                    !is_for_in_of_lvalue;
 
                 if is_named_typeof_rhs {
                     insertions.push_back(Insertion::new_dynamic(as_expr.syntax().parent().unwrap().text_range().start(), [
