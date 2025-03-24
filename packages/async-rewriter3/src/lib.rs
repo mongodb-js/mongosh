@@ -255,7 +255,7 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
             let kind = child.kind();
             if kind != SyntaxKind::TEMPLATE_ELEMENT {
                 insertions.push_back(Insertion::new_dynamic(range.start(),
-                    ["/*", format!("{kind:#?}").as_str(), "*/"].concat()
+                    [" /*", format!("{kind:#?}").as_str(), "*/ "].concat()
                 ));
             }
         }
