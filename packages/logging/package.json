@@ -31,7 +31,8 @@
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
-    "prettier": "^2.8.8"
+    "prettier": "^2.8.8",
+    "sinon": "^19.0.4"
   },
   "scripts": {
     "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 -r ts-node/register --reporter \"../../configs/mocha-config-mongosh/reporter.ts\" \"./src/**/*.spec.ts\"",
