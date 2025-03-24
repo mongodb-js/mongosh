@@ -262,6 +262,19 @@ describe('AsyncWriter', function () {
         runTranspiledCode('switch (1) { case 1: 1; break; case 2: 2; break;}')
       ).to.equal(1);
     });
+
+    it('does supports labeled break/switch', function () {
+      expect(
+        runTranspiledCode(`
+          let i,j;
+          label1: for (i = 0;; i++) {
+            label2: for (j = 0; j < 2; j++) {
+              if (i++ === 0) continue label2;
+            };
+            if (i++ > 20) break label1;
+          }; i`)
+      ).to.equal(23);
+    });
   });
 
   context('implicit awaiting', function () {
