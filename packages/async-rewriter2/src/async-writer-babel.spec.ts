@@ -276,7 +276,7 @@ describe('AsyncWriter', function () {
       ).to.equal(23);
     });
 
-    it.only('keeps `this` intact for function calls', function () {
+    it('keeps `this` intact for function calls', function () {
       expect('({ foo: 42, method() { return this } }).method().foo').to.equal(
         42
       );
