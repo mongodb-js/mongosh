@@ -134,7 +134,7 @@ fn fn_start_insertion(body: &ExprOrBlock) -> InsertionList {
     if !is_block(body) {
         ret.push_back(Insertion::new(
             offset,
-             "return ("
+             "return (_synchronousReturnValue = ("
         ));
     }
     ret
@@ -145,7 +145,7 @@ fn fn_end_insertion(body: &ExprOrBlock) -> InsertionList {
     if is_block(body) {
         offset = offset.checked_sub(1.into()).unwrap();
     } else {
-        ret.push_back(Insertion::new(offset, ");"));
+        ret.push_back(Insertion::new(offset, "));"));
     }
     ret.push_back(make_end_fn_insertion(offset));
     if !is_block(body) {
