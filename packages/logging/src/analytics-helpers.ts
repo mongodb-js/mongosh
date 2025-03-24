@@ -272,8 +272,11 @@ export class ThrottledAnalytics implements MongoshAnalytics {
 
   identify(message: AnalyticsIdentifyMessage): void {
     message = addTimestamp(message);
-    if (this.currentUserId) {
-      throw new Error('Identify can only be called once per user session');
+
+    if (this.currentUserId && !message.deviceId) {
+      throw new Error(
+        'Identifying without device ID can only be called once per user session'
+      );
     }
     this.currentUserId = message.userId ?? message.anonymousId;
     this.restorePromise = this.restoreThrottleState().then((enabled) => {
