@@ -276,7 +276,7 @@ describe('AsyncWriter', function () {
       ).to.equal(1);
     });
 
-    it('does supports labeled break/switch', function () {
+    it('supports labeled break/switch', function () {
       expect(
         runTranspiledCode(`
           let i,j;
@@ -287,6 +287,15 @@ describe('AsyncWriter', function () {
             if (i++ > 20) break label1;
           }; i`)
       ).to.equal(23);
+    });
+
+    it.only('keeps `this` intact for function calls', function () {
+      expect('({ foo: 42, method() { return this } }).method().foo').to.equal(
+        42
+      );
+      expect(
+        '({ foo: 42, method() { return this } })["method"]().foo'
+      ).to.equal(42);
     });
   });
 
