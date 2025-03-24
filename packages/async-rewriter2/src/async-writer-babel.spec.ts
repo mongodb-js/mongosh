@@ -482,6 +482,13 @@ describe('AsyncWriter', function () {
       );
     });
 
+    it('handles sync callbacks for builtin functions', async function () {
+      const ret = runTranspiledCode(
+        '["abc", "def"].filter(x => x.endsWith("f"))'
+      );
+      expect(await ret).to.deep.equal(['def']);
+    });
+
     it('supports typeof for un-defined variables', function () {
       expect(runTranspiledCode('typeof nonexistent')).to.equal('undefined');
     });
