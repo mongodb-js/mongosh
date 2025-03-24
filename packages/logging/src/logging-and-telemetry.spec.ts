@@ -7,6 +7,10 @@ import type { MongoshBus } from '@mongosh/types';
 import type { Writable } from 'stream';
 import type { MongoshLoggingAndTelemetry } from '.';
 import { setupLoggingAndTelemetry } from '.';
+import { getDeviceId } from './logging-and-telemetry';
+import sinon from 'sinon';
+import type { MongoshLoggingAndTelemetryArguments } from './types';
+import { eventually } from '../../../testing/eventually';
 
 describe('MongoshLoggingAndTelemetry', function () {
   let logOutput: any[];
@@ -32,13 +36,8 @@ describe('MongoshLoggingAndTelemetry', function () {
 
   let loggingAndTelemetry: MongoshLoggingAndTelemetry;
 
-  beforeEach(function () {
-    logOutput = [];
-    analyticsOutput = [];
-    bus = new EventEmitter();
-
-    loggingAndTelemetry = setupLoggingAndTelemetry({
-      bus,
+  const testLoggingArguments: Omit<MongoshLoggingAndTelemetryArguments, 'bus'> =
+    {
       analytics,
       deviceId: 'test-device',
       userTraits: {
@@ -46,6 +45,16 @@ describe('MongoshLoggingAndTelemetry', function () {
         arch: process.arch,
       },
       mongoshVersion: '1.0.0',
+    };
+
+  beforeEach(function () {
+    logOutput = [];
+    analyticsOutput = [];
+    bus = new EventEmitter();
+
+    loggingAndTelemetry = setupLoggingAndTelemetry({
+      ...testLoggingArguments,
+      bus,
     });
 
     logger = new MongoLogWriter(logId, `/tmp/${logId}_log`, {
@@ -191,6 +200,94 @@ describe('MongoshLoggingAndTelemetry', function () {
         },
       ],
     ]);
+  });
+
+  describe('device ID', function () {
+    let loggingAndTelemetry: MongoshLoggingAndTelemetry;
+    let bus: EventEmitter;
+    beforeEach(function () {
+      bus = new EventEmitter();
+      loggingAndTelemetry = setupLoggingAndTelemetry({
+        ...testLoggingArguments,
+        bus,
+        deviceId: undefined,
+      });
+    });
+
+    it('uses device ID "unknown" if it fails to resolve it', async function () {
+      loggingAndTelemetry.attachLogger(logger);
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      sinon.stub(require('child_process'), 'exec').throws();
+
+      bus.emit('mongosh:new-user', { userId, anonymousId: userId });
+
+      await eventually(() => {
+        expect(analyticsOutput).deep.equal([
+          [
+            'identify',
+            {
+              deviceId: undefined,
+              anonymousId: userId,
+              traits: {
+                platform: process.platform,
+                arch: process.arch,
+                session_id: logId,
+              },
+            },
+          ],
+          [
+            'identify',
+            {
+              deviceId: 'unknown',
+              anonymousId: userId,
+              traits: {
+                platform: process.platform,
+                arch: process.arch,
+                session_id: logId,
+              },
+            },
+          ],
+        ]);
+      });
+      sinon.restore();
+    });
+
+    it('automatically sets up device ID for telemetry', async function () {
+      loggingAndTelemetry.attachLogger(logger);
+
+      bus.emit('mongosh:new-user', { userId, anonymousId: userId });
+
+      const deviceId = await getDeviceId();
+
+      await eventually(() => {
+        expect(analyticsOutput).deep.equal([
+          [
+            'identify',
+            {
+              deviceId: undefined,
+              anonymousId: userId,
+              traits: {
+                platform: process.platform,
+                arch: process.arch,
+                session_id: logId,
+              },
+            },
+          ],
+          [
+            'identify',
+            {
+              deviceId,
+              anonymousId: userId,
+              traits: {
+                platform: process.platform,
+                arch: process.arch,
+                session_id: logId,
+              },
+            },
+          ],
+        ]);
+      });
+    });
   });
 
   it('detaching logger leads to no logging but persists analytics', function () {
@@ -1059,5 +1156,14 @@ describe('MongoshLoggingAndTelemetry', function () {
         },
       ],
     ]);
+  });
+
+  describe('getDeviceId()', function () {
+    it('is consistent on the same machine', async function () {
+      const idA = await getDeviceId();
+      const idB = await getDeviceId();
+
+      expect(idA).equals(idB);
+    });
   });
 });

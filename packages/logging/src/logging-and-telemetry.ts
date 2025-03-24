@@ -52,27 +52,33 @@ import type {
   MongoshLoggingAndTelemetryArguments,
   MongoshTrackingProperties,
 } from './types';
-import { machineIdSync } from 'node-machine-id';
+import { machineId } from 'node-machine-id';
+import { createHmac } from 'crypto';
 
 export function setupLoggingAndTelemetry(
   props: MongoshLoggingAndTelemetryArguments
 ): MongoshLoggingAndTelemetry {
-  if (!props.deviceId) {
-    try {
-      props.deviceId = machineIdSync();
-    } catch (error) {
-      props.bus.emit(
-        'mongosh:error',
-        new Error('Failed to get device ID'),
-        'telemetry'
-      );
-    }
-  }
-
   const loggingAndTelemetry = new LoggingAndTelemetry(props);
 
   loggingAndTelemetry.setup();
   return loggingAndTelemetry;
+}
+
+/**
+ * @returns A hashed, unique identifier for the running device.
+ * @throws If something goes wrong when getting the device ID.
+ */
+export async function getDeviceId(): Promise<string> {
+  // Create a hashed format from the all uppercase version of the machine ID
+  // to match it exactly with the denisbrodbeck/machineid library that Atlas CLI uses.
+  const originalId = (await machineId(true)).toUpperCase();
+  const hmac = createHmac('sha256', originalId);
+
+  /** This matches the message used to create the hashes in Atlas CLI */
+  const DEVICE_ID_HASH_MESSAGE = 'atlascli';
+
+  hmac.update(DEVICE_ID_HASH_MESSAGE);
+  return hmac.digest('hex');
 }
 
 class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
@@ -170,6 +176,7 @@ class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
     usesShellOption: false,
     telemetryAnonymousId: undefined,
     userId: undefined,
+    deviceId: undefined,
   };
 
   private setupBusEventListeners(): void {
@@ -207,13 +214,45 @@ class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       session_id: this.log.logId,
     });
 
+    /** Eventually sets up the device ID and re-identifies the user. */
+    const getCurrentDeviceId = async (): Promise<string> => {
+      try {
+        this.busEventState.deviceId ??= this.deviceId ?? (await getDeviceId());
+      } catch (error) {
+        this.bus.emit('mongosh:error', error as Error, 'telemetry');
+        this.busEventState.deviceId = 'unknown';
+      }
+      return this.busEventState.deviceId;
+    };
+
     const getTelemetryUserIdentity = (): MongoshAnalyticsIdentity => {
       return {
+        deviceId: this.busEventState.deviceId ?? this.deviceId,
         anonymousId:
           this.busEventState.telemetryAnonymousId ??
           (this.busEventState.userId as string),
-        deviceId: this.deviceId,
       };
+    };
+
+    const identifyUser = async (): Promise<void> => {
+      // We first instantly identify the user with the
+      // current user information we have.
+      this.analytics.identify({
+        ...getTelemetryUserIdentity(),
+        traits: getUserTraits(),
+      });
+
+      if (!this.busEventState.deviceId) {
+        // If the Device ID had not been resolved yet,
+        // we wait to resolve it and re-identify the user.
+        this.busEventState.deviceId ??= await getCurrentDeviceId();
+
+        this.analytics.identify({
+          ...getTelemetryUserIdentity(),
+          deviceId: await getCurrentDeviceId(),
+          traits: getUserTraits(),
+        });
+      }
     };
 
     onBus('mongosh:start-mongosh-repl', (ev: StartMongoshReplEvent) => {
@@ -301,10 +340,8 @@ class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         }
         this.busEventState.telemetryAnonymousId =
           newTelemetryUserIdentity.anonymousId;
-        this.analytics.identify({
-          ...getTelemetryUserIdentity(),
-          traits: getUserTraits(),
-        });
+
+        void identifyUser();
       }
     );
 
@@ -320,10 +357,7 @@ class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         } else {
           this.busEventState.userId = updatedTelemetryUserIdentity.userId;
         }
-        this.analytics.identify({
-          ...getTelemetryUserIdentity(),
-          traits: getUserTraits(),
-        });
+        void identifyUser();
         this.log.info(
           'MONGOSH',
           mongoLogId(1_000_000_005),
