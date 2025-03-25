@@ -294,7 +294,7 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
                     Some(name) => {
                         insertions.push_back(Insertion::new(name.text_range().end(), "__"));
                         insertions.push_back(Insertion::new_dynamic(range.end(),
-                            [";\n_cr = ", name.text(), " = ", name.text(), "__"].concat()
+                            [";\n_cr = ", name.text(), " = ", name.text(), "__;\n"].concat()
                         ));
                         insertions.add_variable(name.to_string());
                     }
@@ -372,7 +372,7 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
             }
             insertions.append(child_insertions);
             if let Some(end) = expr_range.map(|r| r.end()) {
-                insertions.push_back(Insertion::new(end, ")"));
+                insertions.push_back(Insertion::new(end, ");"));
             }
             continue;
         }
@@ -473,7 +473,7 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
                 if is_returned_expression && !is_expr_in_async_function {
                     insertions.push_back(Insertion::new(
                         range.end(),
-                        "), _functionState === 'async' ? _synchronousReturnValue : null)"
+                        "), _functionState === 'async' ? _synchronousReturnValue : null);"
                     ));
                 }
             }
