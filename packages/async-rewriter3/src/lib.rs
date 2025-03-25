@@ -1,6 +1,6 @@
 use std::{borrow::Borrow, collections::VecDeque, fmt::Debug};
 use wasm_bindgen::prelude::*;
-use rslint_parser::{ast::{ArrowExpr, AssignExpr, BracketExpr, BreakStmt, CallExpr, ClassDecl, Constructor, ContinueStmt, DotExpr, Expr, ExprOrBlock, ExprStmt, FnDecl, FnExpr, ForStmtInit, GroupingExpr, Literal, Method, NameRef, ObjectPatternProp, ParameterList, Pattern, PropName, ReturnStmt, ThisExpr, UnaryExpr, VarDecl}, parse_text, AstNode, SyntaxKind, SyntaxNode, TextSize};
+use rslint_parser::{ast::{ArrayExpr, ArrowExpr, AssignExpr, BinExpr, BracketExpr, BreakStmt, CallExpr, ClassDecl, ClassExpr, CondExpr, Constructor, ContinueStmt, DotExpr, Expr, ExprOrBlock, ExprStmt, FnDecl, FnExpr, ForStmtInit, GroupingExpr, Literal, Method, NameRef, NewExpr, NewTarget, ObjectExpr, ObjectPatternProp, ParameterList, Pattern, PropName, ReturnStmt, SequenceExpr, ThisExpr, UnaryExpr, VarDecl}, parse_text, AstNode, SyntaxKind, SyntaxNode, TextSize};
 
 #[derive(Debug)]
 enum InsertionText {
@@ -179,13 +179,25 @@ fn is_in_async_function(node: &SyntaxNode) -> bool {
         if Constructor::can_cast(parent.kind()) {
             return false;
         }
+        if ClassDecl::can_cast(parent.kind()) {
+            return false;
+        }
+        if ClassExpr::can_cast(parent.kind()) {
+            return false;
+        }
         assert!(!is_function_node(&parent));
          return is_in_async_function(&parent)
     });
 }
 
 fn is_function_node(node: &SyntaxNode) -> bool {
-    return FnExpr::can_cast(node.kind()) || FnDecl::can_cast(node.kind()) || ArrowExpr::can_cast(node.kind()) || Method::can_cast(node.kind()) || Constructor::can_cast(node.kind());
+    return FnExpr::can_cast(node.kind()) ||
+        FnDecl::can_cast(node.kind()) ||
+        ArrowExpr::can_cast(node.kind()) ||
+        Method::can_cast(node.kind()) ||
+        Constructor::can_cast(node.kind()) ||
+        ClassExpr::can_cast(node.kind()) ||
+        ClassDecl::can_cast(node.kind());
 }
 
 fn add_all_variables_from_declaration(patterns: impl Iterator<Item = impl Borrow<Pattern>>) -> InsertionList {
@@ -243,7 +255,11 @@ fn add_all_variables_from_declaration(patterns: impl Iterator<Item = impl Borrow
 fn is_name_ref(syntax_node: &SyntaxNode, names: Option<&'static[&'static str]>) -> bool {
     if !NameRef::can_cast(syntax_node.kind()) {
         if GroupingExpr::can_cast(syntax_node.kind()) {
-            return is_name_ref(GroupingExpr::cast(syntax_node.clone()).unwrap().inner().unwrap().syntax(), names);
+            let inner = GroupingExpr::cast(syntax_node.clone()).unwrap().inner();
+            if inner.is_none() {
+                return false;
+            }
+            return is_name_ref(inner.unwrap().syntax(), names);
         }
         return false;
     }
@@ -321,6 +337,9 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
                     insertions.push_back(Insertion::new_dynamic(range.start(),
                         ["_cr = ", name.text().as_str(), " = "].concat()
                     ));
+                    insertions.push_back(Insertion::new(range.end(),
+                        ";"
+                    ));
                     insertions.add_variable(name.to_string());
                 }
             }
@@ -386,9 +405,19 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
                 let is_argument_default_value = ParameterList::can_cast(as_expr.syntax().parent().unwrap().parent().unwrap().kind());
                 let is_literal = Literal::can_cast(as_expr.syntax().kind());
                 let is_label_in_continue_or_break = is_name_ref(as_expr.syntax(), None) &&
-                ContinueStmt::can_cast(as_expr.syntax().parent().unwrap().kind()) || BreakStmt::can_cast(as_expr.syntax().parent().unwrap().kind());
+                    ContinueStmt::can_cast(as_expr.syntax().parent().unwrap().kind()) || BreakStmt::can_cast(as_expr.syntax().parent().unwrap().kind());
                 let is_for_in_of_lvalue =
-                ForStmtInit::can_cast(as_expr.syntax().parent().unwrap().kind());
+                    ForStmtInit::can_cast(as_expr.syntax().parent().unwrap().kind());
+                let is_known_non_async_expr =
+                    ObjectExpr::can_cast(as_expr.syntax().kind()) || ArrayExpr::can_cast(as_expr.syntax().kind()) ||
+                    UnaryExpr::can_cast(as_expr.syntax().kind()) ||
+                    AssignExpr::can_cast(as_expr.syntax().kind()) ||
+                    BinExpr::can_cast(as_expr.syntax().kind()) ||
+                    CondExpr::can_cast(as_expr.syntax().kind()) ||
+                    GroupingExpr::can_cast(as_expr.syntax().kind()) ||
+                    SequenceExpr::can_cast(as_expr.syntax().kind()) ||
+                    NewExpr::can_cast(as_expr.syntax().kind()) ||
+                    NewTarget::can_cast(as_expr.syntax().kind());
                 let wants_implicit_await_wrapper =
                     !is_lhs_of_assign_expr &&
                     !is_argument_default_value &&
@@ -396,7 +425,9 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
                     !is_literal &&
                     !is_label_in_continue_or_break &&
                     !is_for_in_of_lvalue &&
-                    !is_dot_call_expression;
+                    !is_dot_call_expression &&
+                    !is_known_non_async_expr &&
+                    !is_function_node(as_expr.syntax());
 
                 if is_named_typeof_rhs {
                     insertions.push_back(Insertion::new_dynamic(as_expr.syntax().parent().unwrap().text_range().start(), [
