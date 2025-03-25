@@ -346,7 +346,9 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
             insertions.append(child_insertions);
             continue;
         }
-        if VarDecl::can_cast(child.kind()) && !has_function_parent {
+        if VarDecl::can_cast(child.kind()) &&
+            !child.parent().map_or(false, |p| ForStmtInit::can_cast(p.kind())) &&
+            !has_function_parent {
             let as_var_decl = VarDecl::cast(child).unwrap();
             let declarator_range =
                 as_var_decl.const_token().map(|t| t.text_range())
@@ -355,7 +357,7 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
 
             if declarator_range.is_some() {
                 insertions.push_back(Insertion::new(declarator_range.unwrap().start(), "/*"));
-                insertions.push_back(Insertion::new(declarator_range.unwrap().end(), "*/("));
+                insertions.push_back(Insertion::new(declarator_range.unwrap().end(), "*/;("));
                 insertions.append(&mut add_all_variables_from_declaration(as_var_decl.declared().filter_map(|d| d.pattern())));
             }
             insertions.append(child_insertions);
@@ -364,15 +366,21 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
             }
             continue;
         }
-        if ExprStmt::can_cast(child.kind()) && !has_function_parent {
+        if ExprStmt::can_cast(child.kind()) {
             let as_expr_stmt = ExprStmt::cast(child).unwrap();
             let expr_range = as_expr_stmt.expr().map(|e| e.syntax().text_range());
             if let Some(start) = expr_range.map(|r| r.start()) {
-                insertions.push_back(Insertion::new(start, "_cr = ("));
+                insertions.push_back(Insertion::new(start, ";"));
+                if !has_function_parent {
+                    insertions.push_back(Insertion::new(start, "_cr = ("));
+                }
             }
             insertions.append(child_insertions);
             if let Some(end) = expr_range.map(|r| r.end()) {
-                insertions.push_back(Insertion::new(end, ");"));
+                if !has_function_parent {
+                    insertions.push_back(Insertion::new(end, ")"));
+                }
+                insertions.push_back(Insertion::new(end, ";"));
             }
             continue;
         }
@@ -496,7 +504,7 @@ pub fn async_rewrite(input: String, with_debug_tags: bool) -> String {
         }
     }
     let end = input.len().try_into().unwrap();
-    insertions.push_back(Insertion::new(TextSize::new(0), "(() => { const __SymbolFor = Symbol.for;"));
+    insertions.push_back(Insertion::new(TextSize::new(0), ";(() => { const __SymbolFor = Symbol.for;"));
     insertions.push_back(make_start_fn_insertion(TextSize::new(0)));
     insertions.push_back(Insertion::new(TextSize::new(0), "var _cr;"));
     insertions.append(&mut collected_insertions);
