@@ -241,6 +241,13 @@ describe('AsyncWriter', function () {
       expect(ctx.A).to.equal(A);
     });
 
+    it('can initialize immediately after a class definition', function () {
+      const A = runTranspiledCode(
+        'class A { prop = 42; }\nconst foo = new A(); foo'
+      );
+      expect(A.prop).to.equal(42);
+    });
+
     it('does not move classes from block scopes to the top-level scope', function () {
       const A = runTranspiledCode('{ class A {} }');
       expect(A).to.equal(undefined);
