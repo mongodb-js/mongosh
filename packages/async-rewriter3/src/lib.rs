@@ -483,7 +483,7 @@ pub fn async_rewrite(input: String, with_debug_tags: bool) -> String {
     let mut previous_offset = 0;
     let mut result = String::with_capacity(input.len() + insertions.list.iter().map(|s| s.len()).sum::<usize>());
     let mut debug_tag = "".to_string();
-    for insertion in insertions.list.iter() {
+    for insertion in insertions.list {
         if usize::from(insertion.offset) != previous_offset {
             assert!(usize::from(insertion.offset) >= previous_offset);
             result.push_str(&input[previous_offset..insertion.offset.into()]);
