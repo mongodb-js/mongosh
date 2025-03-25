@@ -18,7 +18,7 @@ export type AnalyticsIdentifyMessage = MongoshAnalyticsIdentity & {
   timestamp?: Date;
 };
 
-type AnalyticsTrackMessage = MongoshAnalyticsIdentity & {
+export type AnalyticsTrackMessage = MongoshAnalyticsIdentity & {
   event: string;
   properties: {
     mongosh_version: string;
@@ -272,11 +272,8 @@ export class ThrottledAnalytics implements MongoshAnalytics {
 
   identify(message: AnalyticsIdentifyMessage): void {
     message = addTimestamp(message);
-
-    if (this.currentUserId && !message.deviceId) {
-      throw new Error(
-        'Identifying without device ID can only be called once per user session'
-      );
+    if (this.currentUserId) {
+      throw new Error('Identify can only be called once per user session');
     }
     this.currentUserId = message.userId ?? message.anonymousId;
     this.restorePromise = this.restoreThrottleState().then((enabled) => {

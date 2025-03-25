@@ -34,5 +34,4 @@ export type LoggingAndTelemetryBusEventState = {
   usesShellOption: boolean;
   telemetryAnonymousId: string | undefined;
   userId: string | undefined;
-  deviceId: string | undefined;
 };
