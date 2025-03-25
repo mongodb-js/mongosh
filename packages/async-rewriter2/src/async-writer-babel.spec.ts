@@ -234,6 +234,19 @@ describe('AsyncWriter', function () {
       );
     });
 
+    it('can handle semicolon-less input inside functions', function () {
+      expect(
+        runTranspiledCode(`
+        (function() {
+          let foo = {}
+          foo.bar = {}
+          foo.fn = function() {}
+          return foo;
+        })()
+        `).bar
+      ).to.deep.equal({});
+    });
+
     it('moves top-level classes into the top-level scope', function () {
       const A = runTranspiledCode('class A {}');
       expect(A.constructor.name).to.equal('Function');
