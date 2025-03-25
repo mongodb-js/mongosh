@@ -1,4 +1,4 @@
-import type { RunCursorCommandOptions } from 'mongodb';
+import type { ClientBulkWriteOptions, RunCursorCommandOptions } from 'mongodb';
 import type {
   Document,
   InsertOneOptions,
@@ -10,6 +10,8 @@ import type {
   FindOneAndUpdateOptions,
   BulkWriteOptions,
   AnyBulkWriteOperation,
+  AnyClientBulkWriteModel,
+  ClientBulkWriteResult,
   DeleteOptions,
   DeleteResult,
   InsertManyResult,
@@ -107,6 +109,18 @@ export default interface Writable {
     options: BulkWriteOptions,
     dbOptions?: DbOptions
   ): Promise<BulkWriteResult>;
+
+  /**
+   * Executes a client bulk write operation, available on server 8.0+.
+   * @param models - The client bulk write models.
+   * @param options - The bulk write options.
+   *
+   * @returns {Promise} The promise of the result.
+   */
+  clientBulkWrite(
+    models: AnyClientBulkWriteModel<Document>[],
+    options: ClientBulkWriteOptions
+  ): Promise<ClientBulkWriteResult>;
 
   /**
    * Delete multiple documents from the collection.

@@ -36,6 +36,8 @@ import type {
   ServerApi,
   ServerApiVersion,
   WriteConcern,
+  AnyClientBulkWriteModel,
+  ClientBulkWriteResult,
 } from '@mongosh/service-provider-core';
 import type { ConnectionInfo } from '@mongosh/arg-parser';
 import {
@@ -62,6 +64,7 @@ import { ShellApiErrors } from './error-codes';
 import type { LogEntry } from './log-entry';
 import { parseAnyLogEntry } from './log-entry';
 import type { ShellBson } from './shell-bson';
+import type { ClientBulkWriteOptions } from 'mongodb';
 
 /* Utility, inverse of Readonly<T> */
 type Mutable<T> = {
@@ -363,6 +366,18 @@ export default class Mongo extends ShellApiClass {
   }> {
     this._emitMongoApiCall('getDBs', { options });
     return await this._listDatabases(options);
+  }
+
+  @returnsPromise
+  @serverVersions(['8.0.0', ServerVersions.latest])
+  @apiVersions([1])
+  bulkWrite(
+    models: AnyClientBulkWriteModel<Document>[],
+    options: ClientBulkWriteOptions = {}
+  ): Promise<ClientBulkWriteResult> {
+    this._emitMongoApiCall('bulkWrite', { options });
+
+    return this._serviceProvider.clientBulkWrite(models, options);
   }
 
   @returnsPromise
