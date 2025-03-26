@@ -11485,27 +11485,27 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_darwin_arm64
-  - name: e2e_tests_darwin
-    display_name: "MacOS Big Sur (E2E tests)"
+  - name: e2e_tests_darwin_m805
+    display_name: "MacOS Big Sur 805 (E2E tests)"
     run_on: macos-11
     tags: []
     expansions:
       executable_os_id: "darwin-x64"
       disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.19.0"
-      mongosh_server_test_version: "stable-enterprise"
+      mongosh_server_test_version: "8.0.5-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_darwin
-  - name: e2e_tests_darwin_arm64
-    display_name: "MacOS Big Sur arm64 (E2E tests)"
+  - name: e2e_tests_darwin_arm64_m805
+    display_name: "MacOS Big Sur arm64 805 (E2E tests)"
     run_on: macos-11-arm64
     tags: []
     expansions:
       executable_os_id: "darwin-arm64"
       disable_openssl_shared_config_for_bundled_openssl: false
       node_js_version: "20.19.0"
-      mongosh_server_test_version: "stable-enterprise"
+      mongosh_server_test_version: "8.0.5-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_darwin_arm64
