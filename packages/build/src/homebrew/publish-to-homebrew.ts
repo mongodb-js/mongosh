@@ -1,7 +1,7 @@
 import type { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { generateUpdatedFormula as generateUpdatedFormulaFn } from './generate-formula';
 import { updateHomebrewFork as updateHomebrewForkFn } from './update-homebrew-fork';
-import { httpsSha256 as httpsSha256Fn } from './utils';
+import { npmPackageSha256 as npmPackageSha256Fn } from './utils';
 
 export type HomebrewPublisherConfig = {
   homebrewCore: GithubRepo;
@@ -12,19 +12,19 @@ export type HomebrewPublisherConfig = {
 };
 
 export class HomebrewPublisher {
-  readonly httpsSha256: typeof httpsSha256Fn;
+  readonly npmPackageSha256: typeof npmPackageSha256Fn;
   readonly generateFormula: typeof generateUpdatedFormulaFn;
   readonly updateHomebrewFork: typeof updateHomebrewForkFn;
 
   constructor(
     public config: HomebrewPublisherConfig,
     {
-      httpsSha256 = httpsSha256Fn,
+      npmPackageSha256 = npmPackageSha256Fn,
       generateFormula = generateUpdatedFormulaFn,
       updateHomebrewFork = updateHomebrewForkFn,
     } = {}
   ) {
-    this.httpsSha256 = httpsSha256;
+    this.npmPackageSha256 = npmPackageSha256;
     this.generateFormula = generateFormula;
     this.updateHomebrewFork = updateHomebrewFork;
   }
@@ -38,10 +38,10 @@ export class HomebrewPublisher {
       githubReleaseLink,
     } = this.config;
 
-    const cliReplPackageUrl = `https://registry.npmjs.org/@mongosh/cli-repl/-/cli-repl-${packageVersion}.tgz`;
+    const cliReplPackageUrl = `https://registry.npmjs.org/@mongosh/cli-repl/${packageVersion}`;
     const packageSha = isDryRun
       ? `dryRun-fakesha256-${Date.now()}`
-      : await this.httpsSha256(cliReplPackageUrl);
+      : await this.npmPackageSha256(cliReplPackageUrl);
 
     const homebrewFormula = await this.generateFormula(
       { version: packageVersion, sha: packageSha },
