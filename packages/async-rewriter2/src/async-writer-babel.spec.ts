@@ -234,11 +234,31 @@ describe('AsyncWriter', function () {
       );
     });
 
+    it('can handle semicolon-less input inside functions', function () {
+      expect(
+        runTranspiledCode(`
+        (function() {
+          let foo = {}
+          foo.bar = {}
+          foo.fn = function() {}
+          return foo;
+        })()
+        `).bar
+      ).to.deep.equal({});
+    });
+
     it('moves top-level classes into the top-level scope', function () {
       const A = runTranspiledCode('class A {}');
       expect(A.constructor.name).to.equal('Function');
       expect(A.name).to.equal('A');
       expect(ctx.A).to.equal(A);
+    });
+
+    it('can initialize immediately after a class definition', function () {
+      const A = runTranspiledCode(
+        'class A { prop = 42; }\nconst foo = new A(); foo'
+      );
+      expect(A.prop).to.equal(42);
     });
 
     it('does not move classes from block scopes to the top-level scope', function () {
@@ -261,6 +281,32 @@ describe('AsyncWriter', function () {
       expect(
         runTranspiledCode('switch (1) { case 1: 1; break; case 2: 2; break;}')
       ).to.equal(1);
+    });
+
+    it('supports labeled break/switch', function () {
+      expect(
+        runTranspiledCode(`
+          let i,j;
+          label1: for (i = 0;; i++) {
+            label2: for (j = 0; j < 2; j++) {
+              if (i++ === 0) continue label2;
+            };
+            if (i++ > 20) break label1;
+          }; i`)
+      ).to.equal(23);
+    });
+
+    it('keeps `this` intact for function calls', function () {
+      expect(
+        runTranspiledCode(
+          '({ foo: 42, method() { return this } }).method().foo'
+        )
+      ).to.equal(42);
+      expect(
+        runTranspiledCode(
+          '({ foo: 42, method() { return this } })["method"]().foo'
+        )
+      ).to.equal(42);
     });
   });
 
@@ -480,6 +526,13 @@ describe('AsyncWriter', function () {
       expect(() => runTranspiledCode('const a = 42; const a = 43;')).to.throw(
         /has already been declared/
       );
+    });
+
+    it('handles sync callbacks for builtin functions', async function () {
+      const ret = runTranspiledCode(
+        '["abc", "def"].filter(x => x.endsWith("f"))'
+      );
+      expect(await ret).to.deep.equal(['def']);
     });
 
     it('supports typeof for un-defined variables', function () {
