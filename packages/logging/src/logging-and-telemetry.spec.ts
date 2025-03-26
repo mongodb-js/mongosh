@@ -378,7 +378,6 @@ describe('MongoshLoggingAndTelemetry', function () {
 
     expect(logOutput).to.have.lengthOf(1);
 
-    await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
     expect(analyticsOutput).to.have.lengthOf(2);
   });
 
@@ -402,7 +401,6 @@ describe('MongoshLoggingAndTelemetry', function () {
 
     expect(logOutput).to.have.lengthOf(1);
 
-    await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
     expect(analyticsOutput).to.have.lengthOf(2);
 
     loggingAndTelemetry.attachLogger(logger);
@@ -411,7 +409,6 @@ describe('MongoshLoggingAndTelemetry', function () {
 
     expect(logOutput).to.have.lengthOf(2);
 
-    await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
     expect(analyticsOutput).to.have.lengthOf(3);
   });
 
