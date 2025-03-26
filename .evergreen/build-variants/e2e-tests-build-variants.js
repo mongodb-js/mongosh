@@ -328,14 +328,14 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     id: 'darwin',
     runOn: 'macos-11',
     executableOsId: 'darwin-x64',
-    mVersion: 'stable',
+    mVersion: '8.0.5',
   },
   {
     displayName: 'MacOS Big Sur arm64',
     runOn: 'macos-11-arm64',
     id: 'darwin_arm64',
     executableOsId: 'darwin-arm64',
-    mVersion: 'stable',
+    mVersion: '8.0.5',
     additionalTasks: [
       'package_artifact_darwin_x64',
       'sign_artifact_darwin_x64',

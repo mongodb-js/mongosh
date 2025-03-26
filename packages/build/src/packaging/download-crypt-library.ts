@@ -38,6 +38,9 @@ export async function downloadCryptLibrary(
   if (/ppc64|s390x/.test(opts.arch || process.arch)) {
     versionSpec = 'stable';
   }
+  if (opts.platform === 'darwin') {
+    versionSpec = '8.0.5'; // TBD(SERVER-101020): Figure out at what point we use a later version.
+  }
   const { downloadedBinDir: libdir, version } =
     await downloadMongoDbWithVersionInfo(cryptTmpTargetDir, versionSpec, opts);
   const cryptLibrary = path.join(
