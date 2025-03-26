@@ -113,6 +113,9 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
   /** @internal */
   public setupTelemetryPromise: Promise<void> = Promise.resolve();
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  private resolveDeviceId: (value: string) => void = () => {};
+
   constructor({
     bus,
     analytics,
@@ -132,8 +135,8 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
     if (this.isSetup) {
       throw new Error('Setup can only be called once.');
     }
-    this.isBufferingBusEvents = true;
     this.isBufferingTelemetryEvents = true;
+    this.isBufferingBusEvents = true;
 
     this.setupTelemetryPromise = this.setupTelemetry();
     this.setupBusEventListeners();
@@ -141,10 +144,25 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
     this.isSetup = true;
   }
 
+  public flush(): void {
+    // Run any telemetry events even if device ID hasn't been resolved yet
+    this.runAndClearPendingTelemetryEvents();
+
+    // Run any other pending events with the set or dummy log for telemetry purposes.
+    this.runAndClearPendingBusEvents();
+
+    this.resolveDeviceId('unknown');
+  }
+
   private async setupTelemetry(): Promise<void> {
     if (!this.deviceId) {
       try {
-        this.deviceId ??= await getDeviceId();
+        this.deviceId ??= await Promise.race([
+          getDeviceId(),
+          new Promise<string>((resolve) => {
+            this.resolveDeviceId = resolve;
+          }),
+        ]);
       } catch (error) {
         this.bus.emit('mongosh:error', error as Error, 'telemetry');
         this.deviceId = 'unknown';
@@ -173,8 +191,8 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
 
   public detachLogger() {
     this.log = LoggingAndTelemetry.dummyLogger;
-    // Still run any remaining pending events with the dummy log for telemetry purposes.
-    this.runAndClearPendingBusEvents();
+
+    this.flush();
   }
 
   private runAndClearPendingBusEvents() {
