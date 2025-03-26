@@ -6,10 +6,10 @@ export async function npmPackageSha256(
   httpGetFn: typeof httpGet = httpGet
 ): Promise<string> {
   const json = await httpGetFn<{
-  dist: {
-	tarball: string;
-	shasum: string;
-	}
+    dist: {
+      tarball: string;
+      shasum: string;
+    };
   }>(packageUrl, 'json');
   const tarballUrl = json.dist.tarball;
   const shasum = json.dist.shasum;
