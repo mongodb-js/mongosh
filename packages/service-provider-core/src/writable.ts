@@ -1,4 +1,4 @@
-import type { ClientBulkWriteOptions, RunCursorCommandOptions } from 'mongodb';
+import type { RunCursorCommandOptions } from 'mongodb';
 import type {
   Document,
   InsertOneOptions,
@@ -12,6 +12,7 @@ import type {
   AnyBulkWriteOperation,
   AnyClientBulkWriteModel,
   ClientBulkWriteResult,
+  ClientBulkWriteOptions,
   DeleteOptions,
   DeleteResult,
   InsertManyResult,

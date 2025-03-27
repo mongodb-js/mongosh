@@ -35,6 +35,7 @@ import {
   startSharedTestServer,
 } from '../../../testing/integration-testing-hooks';
 import { dummyOptions } from './helpers.spec';
+import { ClientBulkWriteResult } from './result';
 
 const sampleOpts = {
   causalConsistency: false,
@@ -1051,17 +1052,19 @@ describe('Mongo', function () {
                   document: { name: 'Prince' },
                 },
               ])
-            ).deep.equals({
-              acknowledged: true,
-              insertedCount: 3,
-              upsertedCount: 0,
-              matchedCount: 0,
-              modifiedCount: 0,
-              deletedCount: 1,
-              insertResults: undefined,
-              updateResults: undefined,
-              deleteResults: undefined,
-            });
+            ).deep.equals(
+              new ClientBulkWriteResult({
+                acknowledged: true,
+                insertedCount: 3,
+                upsertedCount: 0,
+                matchedCount: 0,
+                modifiedCount: 0,
+                deletedCount: 1,
+                insertResults: undefined,
+                updateResults: undefined,
+                deleteResults: undefined,
+              })
+            );
 
             expect(
               await mongo.getDB('db').getCollection('authors').count()

@@ -7,6 +7,7 @@ export type {
   BulkWriteOptions,
   BulkWriteResult,
   ClientBulkWriteResult,
+  ClientBulkWriteOptions,
   ChangeStream,
   ChangeStreamOptions,
   ClientSession,

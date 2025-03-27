@@ -27,6 +27,7 @@ import type {
   BulkWriteOptions,
   BulkWriteResult,
   ClientBulkWriteResult,
+  ClientBulkWriteOptions,
   ClientSessionOptions,
   Collection,
   CountDocumentsOptions,
@@ -637,7 +638,7 @@ export class NodeDriverServiceProvider
    */
   clientBulkWrite(
     models: AnyClientBulkWriteModel<Document>[],
-    options: BulkWriteOptions = {}
+    options: ClientBulkWriteOptions = {}
   ): Promise<ClientBulkWriteResult> {
     options = { ...this.baseCmdOptions, ...options };
     return this.mongoClient.bulkWrite(models, options);
