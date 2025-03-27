@@ -3,6 +3,7 @@ name: "Smoke Test Homebrew install"
 on:
   schedule:
     - cron: "0 0 * * *"
+  workflow_dispatch:
 
 permissions:
   contents: read
