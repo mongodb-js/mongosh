@@ -23,8 +23,11 @@ import type {
   AggregateOptions,
   AggregationCursor,
   AnyBulkWriteOperation,
+  AnyClientBulkWriteModel,
   BulkWriteOptions,
   BulkWriteResult,
+  ClientBulkWriteResult,
+  ClientBulkWriteOptions,
   ClientSessionOptions,
   Collection,
   CountDocumentsOptions,
@@ -631,6 +634,17 @@ export class NodeDriverServiceProvider
   }
 
   /**
+   * Executes a client bulk write operation, available on server 8.0+.
+   */
+  clientBulkWrite(
+    models: AnyClientBulkWriteModel<Document>[],
+    options: ClientBulkWriteOptions = {}
+  ): Promise<ClientBulkWriteResult> {
+    options = { ...this.baseCmdOptions, ...options };
+    return this.mongoClient.bulkWrite(models, options);
+  }
+
+  /**
    * Close the connection.
    *
    * @param {boolean} force - Whether to force close the connection.
@@ -997,7 +1011,7 @@ export class NodeDriverServiceProvider
     options = { ...this.baseCmdOptions, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
-      .replaceOne(filter, replacement, options) as Promise<UpdateResult>;
+      .replaceOne(filter, replacement, options);
     // `as UpdateResult` because we know we didn't request .explain() here.
   }
 

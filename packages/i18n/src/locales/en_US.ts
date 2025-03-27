@@ -422,6 +422,43 @@ const translations: Catalog = {
           },
         },
       },
+      ClientBulkWriteResult: {
+        help: {
+          description: 'ClientBulkWriteResult Class',
+          attributes: {
+            acknowledged: {
+              description: 'Acknowledged returned from the server',
+            },
+            insertedCount: {
+              description: 'Number of documents inserted',
+            },
+            matchedCount: {
+              description: 'Number of documents matched',
+            },
+            modifiedCount: {
+              description: 'Number of documents modified',
+            },
+            deletedCount: {
+              description: 'Number of documents deleted',
+            },
+            upsertedCount: {
+              description: 'Number of documents upserted',
+            },
+            insertResults: {
+              description:
+                'The results of each individual insert operation that was successfully performed',
+            },
+            updateResults: {
+              description:
+                'The results of each individual update operation that was successfully performed',
+            },
+            deleteResults: {
+              description:
+                'The results of each individual delete operation that was successfully performed.',
+            },
+          },
+        },
+      },
       CommandResult: {
         help: {
           description: 'CommandResult Class',
@@ -2239,6 +2276,12 @@ const translations: Catalog = {
             startSession: {
               link: 'https://docs.mongodb.com/manual/reference/method/Mongo.startSession/',
               description: 'Starts a session for the connection.',
+            },
+            bulkWrite: {
+              link: 'https://docs.mongodb.com/manual/reference/method/Mongo.bulkWrite',
+              description:
+                'Performs multiple write operations across databases and collections with controls for order of execution.',
+              example: 'db.getMongo().bulkWrite(operations, options)',
             },
             getCollection: {
               link: 'https://docs.mongodb.com/manual/reference/method/Mongo.getCollection',
