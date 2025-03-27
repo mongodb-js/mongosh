@@ -24,7 +24,7 @@ jobs:
         # 8.0.5 due to us having macos-13 in the platform support list, SERVER-101020
         env:
           # MONGOSH-1216, MONGOSH-1120
-          MONGOSH_NO_AUTOMATIC_ENCRYPTION_SUPPORT=1
+          MONGOSH_NO_AUTOMATIC_ENCRYPTION_SUPPORT: 1
         run: npx --yes mongodb-runner --version 8.0.5-enterprise -- exec -- sh -c 'env MONGOSH_SMOKE_TEST_SERVER=$MONGODB_URI mongosh --smokeTests'
 
       - name: Report failure
