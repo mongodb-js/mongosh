@@ -2419,6 +2419,7 @@ describe('Shard', function () {
           'shardingVersion',
           'shards',
           'autosplit',
+          'automerge',
           'balancer',
           'databases',
         ]);
@@ -2463,6 +2464,7 @@ describe('Shard', function () {
             'shardingVersion',
             'shards',
             'autosplit',
+            'automerge',
             'balancer',
             'databases',
           ]);

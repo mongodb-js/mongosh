@@ -224,6 +224,7 @@ describe('getPrintableShardStatus', function () {
     );
     expect(status['most recently active mongoses']).to.have.lengthOf(1);
     expect(status.autosplit['Currently enabled']).to.equal('yes');
+    expect(status.automerge['Currently enabled']).to.equal('yes');
     expect(status.balancer['Currently enabled']).to.equal('yes');
     expect(
       status.balancer['Failed balancer rounds in last 5 attempts']
