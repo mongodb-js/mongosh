@@ -45,7 +45,8 @@
     "@mongosh/history": "2.4.6",
     "@mongosh/i18n": "2.9.1",
     "@mongosh/service-provider-core": "3.1.0",
-    "mongodb-redact": "^1.1.5"
+    "mongodb-redact": "^1.1.5",
+    "mongodb-schema": "^12.5.2"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
