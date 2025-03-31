@@ -39,7 +39,7 @@ module.exports = class AsyncWriter {
           '');
     }
     const { async_rewrite } = syncImport;
-    return async_rewrite(code, false);
+    return async_rewrite(code, !!process.env.MONGOSH_ASYNC_REWRITER3_DEBUG_TAGS);
   }
   runtimeSupportCode() {
     return '';
