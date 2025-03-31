@@ -2518,6 +2518,21 @@ describe('Shard', function () {
         );
       });
     });
+    describe('automerge', function () {
+      skipIfServerVersion(mongos, '< 7.0'); // Available from 7.0
+      it('stops correctly', async function () {
+        expect((await sh.stopAutoMerger()).acknowledged).to.equal(true);
+        expect(
+          (await sh.status()).value.automerge['Currently enabled']
+        ).to.equal('no');
+      });
+      it('enables correctly', async function () {
+        expect((await sh.startAutoMerger()).acknowledged).to.equal(true);
+        expect(
+          (await sh.status()).value.automerge['Currently enabled']
+        ).to.equal('yes');
+      });
+    });
     describe('autosplit', function () {
       skipIfServerVersion(mongos, '> 6.x'); // Auto-splitter is removed in 7.0
       it('disables correctly', async function () {
