@@ -163,18 +163,18 @@ fn fn_end_insertion(body: &ExprOrBlock) -> InsertionList {
 }
 
 fn is_in_async_function(node: &SyntaxNode) -> bool {
-    return node.parent().map_or(false, |parent: SyntaxNode| {
+    node.parent().map_or(false, |parent: SyntaxNode| {
         if FnExpr::can_cast(parent.kind()) {
-            return FnExpr::cast(parent).unwrap().async_token().is_some();
+            return FnExpr::cast(parent).map_or(false, |e| e.async_token().is_some());
         }
         if FnDecl::can_cast(parent.kind()) {
-            return FnDecl::cast(parent).unwrap().async_token().is_some();
+            return FnDecl::cast(parent).map_or(false, |e| e.async_token().is_some());
         }
         if ArrowExpr::can_cast(parent.kind()) {
-            return ArrowExpr::cast(parent).unwrap().async_token().is_some();
+            return ArrowExpr::cast(parent).map_or(false, |e| e.async_token().is_some());
         }
         if Method::can_cast(parent.kind()) {
-            return Method::cast(parent).unwrap().async_token().is_some();
+            return Method::cast(parent).map_or(false, |e| e.async_token().is_some());
         }
         if Constructor::can_cast(parent.kind()) {
             return false;
@@ -186,18 +186,18 @@ fn is_in_async_function(node: &SyntaxNode) -> bool {
             return false;
         }
         assert!(!is_function_node(&parent));
-         return is_in_async_function(&parent)
-    });
+        is_in_async_function(&parent)
+    })
 }
 
 fn is_function_node(node: &SyntaxNode) -> bool {
-    return FnExpr::can_cast(node.kind()) ||
+    FnExpr::can_cast(node.kind()) ||
         FnDecl::can_cast(node.kind()) ||
         ArrowExpr::can_cast(node.kind()) ||
         Method::can_cast(node.kind()) ||
         Constructor::can_cast(node.kind()) ||
         ClassExpr::can_cast(node.kind()) ||
-        ClassDecl::can_cast(node.kind());
+        ClassDecl::can_cast(node.kind())
 }
 
 fn add_all_variables_from_declaration(patterns: impl Iterator<Item = impl Borrow<Pattern>>) -> InsertionList {
@@ -254,38 +254,31 @@ fn add_all_variables_from_declaration(patterns: impl Iterator<Item = impl Borrow
 
 fn is_name_ref(syntax_node: &SyntaxNode, names: Option<&'static[&'static str]>) -> bool {
     if !NameRef::can_cast(syntax_node.kind()) {
-        if GroupingExpr::can_cast(syntax_node.kind()) {
-            let inner = GroupingExpr::cast(syntax_node.clone()).unwrap().inner();
-            if inner.is_none() {
-                return false;
-            }
-            return is_name_ref(inner.unwrap().syntax(), names);
-        }
-        return false;
+        let inner = GroupingExpr::cast(syntax_node.clone()).and_then(|e| e.inner());
+        return inner.map_or(false, |e| is_name_ref(e.syntax(), names));
     }
-    if names.is_none() {
-        return true;
-    }
-    return names.unwrap().iter().any(|t| *t == syntax_node.text().to_string().as_str())
+    names.map_or(true, |names| names.iter().any(|t| *t == syntax_node.text().to_string().as_str()))
 }
 
-fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
+fn collect_insertions(node: &SyntaxNode, nesting_depth: u32, with_debug_tags: bool) -> Result<InsertionList, &'static str> {
     let has_function_parent = nesting_depth > 0;
     let mut insertions = InsertionList::new();
     for child in node.children() {
         let range = child.text_range();
-        let child_insertions = &mut collect_insertions(&child, nesting_depth + if is_function_node(node) { 1 } else { 0 });
+        let child_insertions = &mut collect_insertions(
+            &child,
+            nesting_depth + if is_function_node(node) { 1 } else { 0 }, with_debug_tags)?;
         {
             let kind = child.kind();
             if kind != SyntaxKind::TEMPLATE_ELEMENT {
                 insertions.push_back(Insertion::new_dynamic(range.start(),
-                    [" /*", format!("{kind:#?}").as_str(), "*/ "].concat()
+                    format!(" /*{kind:#?}*/ ")
                 ));
             }
         }
         if FnDecl::can_cast(child.kind()) {
-            let as_fn = FnDecl::cast(child).unwrap();
-            let body = ExprOrBlock::Block(as_fn.body().unwrap());
+            let as_fn = FnDecl::cast(child).ok_or("bad FnDecl")?;
+            let body = ExprOrBlock::Block(as_fn.body().ok_or("bad FnDecl without body")?);
             if !has_function_parent {
                 match as_fn.ident_token().or(as_fn.name().and_then(|n| n.ident_token())) {
                     None => {
@@ -294,7 +287,7 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
                     Some(name) => {
                         insertions.push_back(Insertion::new(name.text_range().end(), "__"));
                         insertions.push_back(Insertion::new_dynamic(range.end(),
-                            [";\n_cr = ", name.text(), " = ", name.text(), "__;\n"].concat()
+                            format!(";\n_cr = {name} = {name}__;\n", name = name.text())
                         ));
                         insertions.add_variable(name.to_string());
                     }
@@ -310,8 +303,8 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
             continue;
         }
         if Method::can_cast(child.kind()) {
-            let as_fn = Method::cast(child).unwrap();
-            let body = ExprOrBlock::Block(as_fn.body().unwrap());
+            let as_fn = Method::cast(child).ok_or("bad Method")?;
+            let body = ExprOrBlock::Block(as_fn.body().ok_or("bad Method without body")?);
             if as_fn.async_token().is_none() {
                 insertions.append(&mut fn_start_insertion(&body));
                 insertions.append(child_insertions);
@@ -322,20 +315,20 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
             continue;
         }
         if Constructor::can_cast(child.kind()) {
-            let as_fn = Constructor::cast(child).unwrap();
-            let body = ExprOrBlock::Block(as_fn.body().unwrap());
+            let as_fn = Constructor::cast(child).ok_or("bad Constructor")?;
+            let body = ExprOrBlock::Block(as_fn.body().ok_or("bad Constructor without body")?);
             insertions.append(&mut fn_start_insertion(&body));
             insertions.append(child_insertions);
             insertions.append(&mut fn_end_insertion(&body));
             continue;
         }
         if ClassDecl::can_cast(child.kind()) && !has_function_parent {
-            let as_class_decl = ClassDecl::cast(child).unwrap();
+            let as_class_decl = ClassDecl::cast(child).ok_or("bad ClassDecl")?;
             match as_class_decl.name() {
                 None => {},
                 Some(name) => {
                     insertions.push_back(Insertion::new_dynamic(range.start(),
-                        ["_cr = ", name.text().as_str(), " = "].concat()
+                    format!("_cr = {name} = ", name = name.text())
                     ));
                     insertions.push_back(Insertion::new(range.end(),
                         ";"
@@ -349,25 +342,27 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
         if VarDecl::can_cast(child.kind()) &&
             !child.parent().map_or(false, |p| ForStmtInit::can_cast(p.kind())) &&
             !has_function_parent {
-            let as_var_decl = VarDecl::cast(child).unwrap();
+            let as_var_decl = VarDecl::cast(child).ok_or("bad VarDecl")?;
             let declarator_range =
                 as_var_decl.const_token().map(|t| t.text_range())
                 .or(as_var_decl.let_token().map(|t| t.text_range()))
                 .or(as_var_decl.var_token().map(|t| t.text_range()));
 
-            if declarator_range.is_some() {
-                insertions.push_back(Insertion::new(declarator_range.unwrap().start(), "/*"));
-                insertions.push_back(Insertion::new(declarator_range.unwrap().end(), "*/;("));
+            if let Some(r) = declarator_range {
+                insertions.push_back(Insertion::new(r.start(), "/*"));
+                insertions.push_back(Insertion::new(r.end(), "*/;("));
                 insertions.append(&mut add_all_variables_from_declaration(as_var_decl.declared().filter_map(|d| d.pattern())));
             }
             insertions.append(child_insertions);
             if declarator_range.is_some() {
-                insertions.push_back(Insertion::new(as_var_decl.declared().map(|d| d.range().end()).max().unwrap(), ")"));
+                insertions.push_back(Insertion::new(
+                    as_var_decl.declared().map(|d| d.range().end()).max().unwrap(),
+                    ")"));
             }
             continue;
         }
         if ExprStmt::can_cast(child.kind()) {
-            let as_expr_stmt = ExprStmt::cast(child).unwrap();
+            let as_expr_stmt = ExprStmt::cast(child).ok_or("bad ExprStmt")?;
             let expr_range = as_expr_stmt.expr().map(|e| e.syntax().text_range());
             if let Some(start) = expr_range.map(|r| r.start()) {
                 insertions.push_back(Insertion::new(start, ";"));
@@ -438,9 +433,9 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
                     !is_function_node(as_expr.syntax());
 
                 if is_named_typeof_rhs {
-                    insertions.push_back(Insertion::new_dynamic(as_expr.syntax().parent().unwrap().text_range().start(), [
-                        "(typeof ", as_expr.syntax().text().to_string().as_str(), " === 'undefined' ? 'undefined' : "
-                    ].concat()));
+                    insertions.push_back(Insertion::new_dynamic(as_expr.syntax().parent().unwrap().text_range().start(),
+                        format!("(typeof {original} === 'undefined' ? 'undefined' : ", original = as_expr.syntax().text())
+                    ));
                 }
 
                 if wants_implicit_await_wrapper {
@@ -487,20 +482,20 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
             }
         }
     }
-    return insertions;
+    return Ok(insertions);
 }
 
 #[wasm_bindgen]
-pub fn async_rewrite(input: String, with_debug_tags: bool) -> String {
+pub fn async_rewrite(input: String, with_debug_tags: bool) -> Result<String, String> {
     let parsed = parse_text(input.as_str(), 0);
     let mut insertions = InsertionList::new();
-    let mut collected_insertions = collect_insertions(&parsed.syntax(), 0);
+    let mut collected_insertions = collect_insertions(&parsed.syntax(), 0, with_debug_tags)?;
     {
         let vars = &collected_insertions.vars;
         for var in vars {
-            insertions.push_back(Insertion::new_dynamic(TextSize::new(0), [
-                "var ", var.as_str(), ";"
-            ].concat()));
+            insertions.push_back(Insertion::new_dynamic(
+                TextSize::new(0),
+                format!("var {};", var)));
         }
     }
     let end = input.len().try_into().unwrap();
@@ -536,11 +531,12 @@ pub fn async_rewrite(input: String, with_debug_tags: bool) -> String {
         }
 
         if with_debug_tags {
-            debug_tag = [
-                "/*i", insertion.original_ordering.unwrap().to_string().as_str(), "@",
-                u32::from(insertion.offset).to_string().as_str(),
+            debug_tag = format!(
+                "/*i{}@{}{}",
+                insertion.original_ordering.unwrap(),
+                u32::from(insertion.offset).to_string(),
                 if text.contains("/*") { "" } else { "*/" }
-            ].concat();
+            );
         }
         result.push_str(debug_tag.as_str());
         result.push_str(text);
@@ -548,5 +544,5 @@ pub fn async_rewrite(input: String, with_debug_tags: bool) -> String {
     }
     result.push_str(&input[previous_offset..]);
 
-    result
+    Ok(result)
 }
