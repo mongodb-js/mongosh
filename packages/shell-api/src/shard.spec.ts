@@ -2419,7 +2419,6 @@ describe('Shard', function () {
           'shardingVersion',
           'shards',
           'autosplit',
-          'automerge',
           'balancer',
           'databases',
         ]);
@@ -2464,10 +2463,21 @@ describe('Shard', function () {
             'shardingVersion',
             'shards',
             'autosplit',
-            'automerge',
             'balancer',
             'databases',
           ]);
+        });
+      });
+      describe('with a 7.0+ server', function () {
+        skipIfServerVersion(mongos, '< 7.0');
+
+        it('displays automerge status, if explicitly set', async function () {
+          await sh.startAutoMerger();
+          const result = await sh.status();
+
+          expect(result.value.automerge).to.deep.equal({
+            'Currently enabled': 'yes',
+          });
         });
       });
     });
