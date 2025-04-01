@@ -2519,18 +2519,23 @@ describe('Shard', function () {
       });
     });
     describe('automerge', function () {
-      skipIfServerVersion(mongos, '< 7.0'); // Available from 7.0
-      it('stops correctly', async function () {
-        expect((await sh.stopAutoMerger()).acknowledged).to.equal(true);
-        expect(
-          (await sh.status()).value.automerge['Currently enabled']
-        ).to.equal('no');
+      it('not shown if sh.status() if not explicitly enabled', async function () {
+        expect((await sh.status()).value.automerge).is.undefined;
       });
-      it('enables correctly', async function () {
-        expect((await sh.startAutoMerger()).acknowledged).to.equal(true);
-        expect(
-          (await sh.status()).value.automerge['Currently enabled']
-        ).to.equal('yes');
+      describe('from 7.0', function () {
+        skipIfServerVersion(mongos, '< 7.0'); // Available from 7.0
+        it('stops correctly', async function () {
+          expect((await sh.stopAutoMerger()).acknowledged).to.equal(true);
+          expect(
+            ((await sh.status()).value.automerge ?? {})['Currently enabled']
+          ).to.equal('no');
+        });
+        it('enables correctly', async function () {
+          expect((await sh.startAutoMerger()).acknowledged).to.equal(true);
+          expect(
+            ((await sh.status()).value.automerge ?? {})['Currently enabled']
+          ).to.equal('yes');
+        });
       });
     });
     describe('autosplit', function () {
