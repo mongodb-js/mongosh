@@ -1,4 +1,5 @@
 import { bson as BSON } from './bson-export';
+import { inspect as utilInspect } from 'util';
 const inspectCustom = Symbol.for('nodejs.util.inspect.custom');
 type BSONClassKey = (typeof BSON)[Exclude<
   keyof typeof BSON,
@@ -19,7 +20,7 @@ function makeClasslessInspect<K extends BSONClassKey>(className: K) {
     this: (typeof BSON)[typeof className]['prototype'],
     ...args: any
   ) {
-    return removeNewFromInspectResult(originalInspect.apply(this, args as any));
+    return removeNewFromInspectResult(originalInspect.apply(this, args));
   };
 }
 
@@ -43,10 +44,38 @@ export const bsonStringifiers: Record<
   BSONRegExp: makeClasslessInspect('BSONRegExp'),
   Binary: function (
     this: typeof BSON.Binary.prototype,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ...args: any[]
   ): string {
     const hexString = this.toString('hex');
     switch (this.sub_type) {
+      case BSON.Binary.SUBTYPE_VECTOR:
+        switch (this.buffer[0]) {
+          case BSON.Binary.VECTOR_TYPE.Int8:
+            return `Int8(${utilInspect(
+              Array.from(this.toInt8Array()),
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+              ...args
+            )})`;
+          case BSON.Binary.VECTOR_TYPE.Float32:
+            return `Float32(${utilInspect(
+              Array.from(this.toFloat32Array()),
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+              ...args
+            )})`;
+          case BSON.Binary.VECTOR_TYPE.PackedBit:
+            return `PackedBit(${utilInspect(
+              hexString,
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+              ...args
+            )})`;
+          default:
+            return `Vector(${utilInspect(
+              hexString,
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+              ...args
+            )})`;
+        }
       case BSON.Binary.SUBTYPE_MD5:
         return `MD5('${hexString}')`;
       case BSON.Binary.SUBTYPE_UUID:
