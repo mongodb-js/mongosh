@@ -2532,6 +2532,13 @@ describe('Shard', function () {
       it('not shown if sh.status() if not explicitly enabled', async function () {
         // It might be explicitly set from 7.0
         skipIfServerVersion(mongos, '>= 7.0');
+
+        // Ensure no previous automerge settings are present
+        await instanceState.currentDb
+          .getSiblingDB('config')
+          .getCollection('settings')
+          .deleteOne({ _id: 'automerge' });
+
         expect((await sh.status()).value.automerge).is.undefined;
       });
       describe('from 7.0', function () {
