@@ -2500,7 +2500,9 @@ export default class Collection extends ShellApiWithMongoClass {
   }
 
   async _getSampleDocs(): Promise<Document[]> {
-    this._cachedSampleDocs = await (await this.aggregate([])).toArray();
+    this._cachedSampleDocs = await (
+      await this.aggregate([{ $sample: { size: 10 } }])
+    ).toArray();
     return this._cachedSampleDocs;
   }
 

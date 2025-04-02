@@ -2599,6 +2599,7 @@ describe('CliRepl', function () {
         expect(output).to.include('db.movies.find({year: {$gte');
       });
 
+      // TODO: port to the new autocomplete
       it('completes properties of shell API result types', async function () {
         if (!hasCollectionNames) return this.skip();
 
