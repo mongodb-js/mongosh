@@ -193,7 +193,6 @@ describe('e2e direct connection', function () {
           expect(await shell.executeLine('show dbs')).to.include('admin');
         });
 
-        // TODO: port to the new autocomplete
         it('autocompletes collection names', async function () {
           if (process.arch === 's390x') {
             return this.skip(); // https://jira.mongodb.org/browse/MONGOSH-746
