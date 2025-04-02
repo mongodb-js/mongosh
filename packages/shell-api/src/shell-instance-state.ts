@@ -417,6 +417,15 @@ export default class ShellInstanceState {
     this.evaluationListener = listener;
   }
 
+  public _getMongoByConnectionId(connectionId: string): Mongo {
+    for (const mongo of this.mongos) {
+      if (connectionIdFromURI(mongo.getURI()) === connectionId) {
+        return mongo;
+      }
+    }
+    throw new Error(`mongo with connection id ${connectionId} not found`);
+  }
+
   public getAutocompletionContext(): AutocompletionContext {
     return {
       currentDatabaseAndConnection: () => {
@@ -425,12 +434,12 @@ export default class ShellInstanceState {
           databaseName: this.currentDb.getName(),
         };
       },
-      databasesForConnection: async (): //connectionId: string,
-      Promise<string[]> => {
+      databasesForConnection: async (
+        connectionId: string
+      ): Promise<string[]> => {
+        const mongo = this._getMongoByConnectionId(connectionId);
         try {
-          // TODO: use connectionId
-          const dbNames =
-            await this.currentDb._mongo._getDatabaseNamesForCompletion();
+          const dbNames = await mongo._getDatabaseNamesForCompletion();
           return dbNames.filter((name) => !CONTROL_CHAR_REGEXP.test(name));
         } catch (err: any) {
           if (
@@ -442,13 +451,15 @@ export default class ShellInstanceState {
           throw err;
         }
       },
-      collectionsForDatabase: async (): //connectionId: string,
-      //databaseName: string
-      Promise<string[]> => {
+      collectionsForDatabase: async (
+        connectionId: string,
+        databaseName: string
+      ): Promise<string[]> => {
+        const mongo = this._getMongoByConnectionId(connectionId);
         try {
-          // TODO: use connectionId and databaseName
-          const collectionNames =
-            await this.currentDb._getCollectionNamesForCompletion();
+          const collectionNames = await mongo
+            ._getDb(databaseName)
+            ._getCollectionNamesForCompletion();
           return collectionNames.filter(
             (name) => !CONTROL_CHAR_REGEXP.test(name)
           );
@@ -463,11 +474,13 @@ export default class ShellInstanceState {
         }
       },
       schemaInformationForCollection: async (
-        connectionKey: string,
+        connectionId: string,
         databaseName: string,
         collectionName: string
       ): Promise<JSONSchema> => {
-        const docs = await this.currentDb
+        const mongo = this._getMongoByConnectionId(connectionId);
+        const docs = await mongo
+          ._getDb(databaseName)
           .getCollection(collectionName)
           ._getSampleDocsForCompletion();
         const schemaAccessor = await analyzeDocuments(docs);
