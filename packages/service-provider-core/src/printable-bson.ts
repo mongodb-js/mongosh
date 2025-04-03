@@ -1,4 +1,6 @@
 import { bson as BSON } from './bson-export';
+import type { InspectOptionsStylized, CustomInspectFunction } from 'util';
+import { inspect as utilInspect } from 'util';
 const inspectCustom = Symbol.for('nodejs.util.inspect.custom');
 type BSONClassKey = (typeof BSON)[Exclude<
   keyof typeof BSON,
@@ -7,26 +9,73 @@ type BSONClassKey = (typeof BSON)[Exclude<
 
 // Turn e.g. 'new Double(...)' into 'Double(...)' but preserve possible leading whitespace
 function removeNewFromInspectResult(str: string): string {
-  return String(str).replace(/^(\s*)(new )/, '$1');
+  return str.replace(/^(\s*)(new )/, '$1');
+}
+
+/** Typed array such as Int8Array have a format like 'Int8Array(3) [1, 2, 3]'
+ *  and we want to remove the prefix and keep just the array contents. */
+function removeTypedArrayPrefixFromInspectResult(str: string): string {
+  return str.replace(/^\s*\S+\s*\(\d+\)\s*/, '');
 }
 
 // Create a Node.js-util-inspect() style custom inspect function that
 // strips 'new ' from inspect results but otherwise uses the Node.js
 // driver's bson library's inspect functions.
-function makeClasslessInspect<K extends BSONClassKey>(className: K) {
+function makeClasslessInspect<K extends BSONClassKey>(
+  className: K
+): CustomInspectFunction {
   const originalInspect = BSON[className].prototype.inspect;
   return function (
     this: (typeof BSON)[typeof className]['prototype'],
-    ...args: any
+    ...args: Parameters<typeof originalInspect>
   ) {
-    return removeNewFromInspectResult(originalInspect.apply(this, args as any));
-  };
+    return removeNewFromInspectResult(originalInspect.apply(this, args));
+  } satisfies CustomInspectFunction;
 }
 
 const binaryInspect = makeClasslessInspect('Binary');
+
+const binaryVectorInspect = function (
+  this: typeof BSON.Binary.prototype,
+  depth: number,
+  options: InspectOptionsStylized
+): string {
+  switch (this.buffer[0]) {
+    case BSON.Binary.VECTOR_TYPE.Int8:
+      return `Binary.fromInt8Array(new Int8Array(${removeTypedArrayPrefixFromInspectResult(
+        utilInspect(this.toInt8Array(), {
+          depth,
+          ...options,
+          // These arrays can be very large, so would prefer to use the default options instead.
+          maxArrayLength: utilInspect.defaultOptions.maxArrayLength,
+        })
+      )}))`;
+    case BSON.Binary.VECTOR_TYPE.Float32:
+      return `Binary.fromFloat32Array(new Float32Array(${removeTypedArrayPrefixFromInspectResult(
+        utilInspect(this.toFloat32Array(), {
+          depth,
+          ...options,
+          // These arrays can be very large, so would prefer to use the default options instead.
+          maxArrayLength: utilInspect.defaultOptions.maxArrayLength,
+        })
+      )}))`;
+    case BSON.Binary.VECTOR_TYPE.PackedBit:
+      return `Binary.fromPackedBits(new Uint8Array(${removeTypedArrayPrefixFromInspectResult(
+        utilInspect(this.toPackedBits(), {
+          depth,
+          ...options,
+          // These arrays can be very large, so would prefer to use the default options instead.
+          maxArrayLength: utilInspect.defaultOptions.maxArrayLength,
+        })
+      )}))`;
+    default:
+      return binaryInspect.call(this, depth, options);
+  }
+} satisfies CustomInspectFunction;
+
 export const bsonStringifiers: Record<
   BSONClassKey | 'ObjectID',
-  (this: any, depth: any, options: any) => string
+  CustomInspectFunction
 > = {
   ObjectId: makeClasslessInspect('ObjectId'),
   ObjectID: makeClasslessInspect('ObjectId'),
@@ -43,10 +92,13 @@ export const bsonStringifiers: Record<
   BSONRegExp: makeClasslessInspect('BSONRegExp'),
   Binary: function (
     this: typeof BSON.Binary.prototype,
-    ...args: any[]
+    ...args: Parameters<CustomInspectFunction>
   ): string {
     const hexString = this.toString('hex');
+
     switch (this.sub_type) {
+      case BSON.Binary.SUBTYPE_VECTOR:
+        return binaryVectorInspect.apply(this, args);
       case BSON.Binary.SUBTYPE_MD5:
         return `MD5('${hexString}')`;
       case BSON.Binary.SUBTYPE_UUID:
@@ -64,7 +116,7 @@ export const bsonStringifiers: Record<
       default:
         return binaryInspect.apply(this, args);
     }
-  },
+  } satisfies CustomInspectFunction,
 };
 
 /**
