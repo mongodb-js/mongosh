@@ -98,7 +98,7 @@
     "node": ">=12.18.4"
   },
   "devDependencies": {
-    "@babel/compat-data": "^7.9.0",
+    "@babel/compat-data": "^7.26.8",
     "@mongodb-js/monorepo-tools": "^1.1.10",
     "@mongodb-js/sbom-tools": "^0.7.0",
     "@pkgjs/nv": "^0.2.2",

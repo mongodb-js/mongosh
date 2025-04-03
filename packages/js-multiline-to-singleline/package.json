@@ -35,8 +35,8 @@
     "unitTestsOnly": true
   },
   "dependencies": {
-    "@babel/core": "^7.16.12",
-    "@babel/types": "^7.21.2"
+    "@babel/core": "^7.26.10",
+    "@babel/types": "^7.27.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
