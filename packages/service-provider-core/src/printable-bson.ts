@@ -26,11 +26,11 @@ function makeClasslessInspect<K extends BSONClassKey>(
 ): CustomInspectFunction {
   const originalInspect = BSON[className].prototype.inspect;
   return function (
-    this: typeof originalInspect,
+    this: (typeof BSON)[typeof className]['prototype'],
     ...args: Parameters<typeof originalInspect>
   ) {
     return removeNewFromInspectResult(originalInspect.apply(this, args));
-  } as CustomInspectFunction;
+  } satisfies CustomInspectFunction;
 }
 
 const binaryInspect = makeClasslessInspect('Binary');
@@ -49,7 +49,7 @@ const binaryVectorInspect = function (
           // These arrays can be very large, so would prefer to use the default options instead.
           maxArrayLength: utilInspect.defaultOptions.maxArrayLength,
         })
-      )})`;
+      )}))`;
     case BSON.Binary.VECTOR_TYPE.Float32:
       return `Binary.fromFloat32Array(new Float32Array(${removeTypedArrayPrefixFromInspectResult(
         utilInspect(this.toFloat32Array(), {
@@ -58,16 +58,16 @@ const binaryVectorInspect = function (
           // These arrays can be very large, so would prefer to use the default options instead.
           maxArrayLength: utilInspect.defaultOptions.maxArrayLength,
         })
-      )})`;
+      )}))`;
     case BSON.Binary.VECTOR_TYPE.PackedBit:
-      return `Binary.fromPackedBitArray(new Uint8Array(${removeTypedArrayPrefixFromInspectResult(
+      return `Binary.fromPackedBits(new Uint8Array(${removeTypedArrayPrefixFromInspectResult(
         utilInspect(this.toPackedBits(), {
           depth,
           ...options,
           // These arrays can be very large, so would prefer to use the default options instead.
           maxArrayLength: utilInspect.defaultOptions.maxArrayLength,
         })
-      )})`;
+      )}))`;
     default:
       return binaryInspect.call(this, depth, options);
   }
