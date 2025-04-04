@@ -38,10 +38,8 @@ import constructShellBson from './shell-bson';
 import { Streams } from './streams';
 import { ShellLog } from './shell-log';
 
-import type {
-  AutocompletionContext,
-  JSONSchema,
-} from '@mongodb-js/mongodb-ts-autocomplete';
+import type { AutocompletionContext } from '@mongodb-js/mongodb-ts-autocomplete';
+import type { JSONSchema } from 'mongodb-schema';
 import { analyzeDocuments } from 'mongodb-schema';
 
 /**
