@@ -19,6 +19,7 @@ on:
         default: CTA-Production
 
 permissions:
+  id-token: write
   contents: read
 
 jobs:
@@ -34,16 +35,27 @@ jobs:
       DOWNLOAD_CENTER_AWS_SECRET: ${{ secrets.DOWNLOAD_CENTER_AWS_SECRET }}
     steps:
       - uses: actions/checkout@v4
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v4.1.0
+        with:
+          role-to-assume: arn:aws:iam::119629040606:role/s3-access.cdn-origin-compass
+          aws-region: us-east-1
+      - name: Sts GetCallerIdentity
+        run: |
+          aws sts get-caller-identity
       - uses: actions/setup-node@v4
         with:
           node-version: ^20.x
           cache: "npm"
-
       - name: Install Dependencies and Compile
         run: |
           npm ci
           npm run compile
 
       - name: Update greeting CTA
+        env:
+          DOWNLOAD_CENTER_AWS_KEY_NEW: "${{ env.AWS_ACCESS_KEY_ID }}"
+          DOWNLOAD_CENTER_AWS_SECRET_NEW: "${{ env.AWS_SECRET_KEY }}"
+          DOWNLOAD_CENTER_AWS_SESSION_TOKEN_NEW: "${{ env.AWS_SESSION_TOKEN }}"
         run: |
           npm run update-cta ${{ github.event.inputs.dry-run && '-- --dry-run' || '' }}
