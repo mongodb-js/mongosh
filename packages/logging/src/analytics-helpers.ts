@@ -3,10 +3,12 @@ import path from 'path';
 
 export type MongoshAnalyticsIdentity =
   | {
+      deviceId?: string;
       userId: string;
       anonymousId?: never;
     }
   | {
+      deviceId?: string;
       userId?: never;
       anonymousId: string;
     };
@@ -16,7 +18,7 @@ export type AnalyticsIdentifyMessage = MongoshAnalyticsIdentity & {
   timestamp?: Date;
 };
 
-type AnalyticsTrackMessage = MongoshAnalyticsIdentity & {
+export type AnalyticsTrackMessage = MongoshAnalyticsIdentity & {
   event: string;
   properties: {
     mongosh_version: string;

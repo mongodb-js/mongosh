@@ -6,6 +6,8 @@ import type { MultiSet } from './helpers';
 export interface MongoshLoggingAndTelemetry {
   attachLogger(logger: MongoLogWriter): void;
   detachLogger(): void;
+  /** Flush any remaining log or telemetry events. */
+  flush(): void;
 }
 
 export type MongoshLoggingAndTelemetryArguments = {
@@ -15,6 +17,8 @@ export type MongoshLoggingAndTelemetryArguments = {
     [key: string]: unknown;
   };
   mongoshVersion: string;
+  /** Machine-specific ID; gets set automatically when omitted */
+  deviceId?: string | undefined;
 };
 
 export type MongoshTrackingProperties = {
