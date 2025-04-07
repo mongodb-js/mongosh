@@ -30,8 +30,7 @@ if [ "$OS" != "Windows_NT" ]; then
     echo "Setting NVM environment home: $NVM_DIR"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
     set +x # nvm is very verbose
-    echo nvm use $NODE_JS_VERSION || nvm use 20.11.1
-    nvm use $NODE_JS_VERSION || nvm use 20.11.1 # see install-node.sh
+    nvm use $NODE_JS_VERSION
     set -x
     export PATH="$NVM_BIN:$PATH"
   else
