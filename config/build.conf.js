@@ -154,7 +154,7 @@ module.exports = {
           packagedFilePath: 'THIRD_PARTY_NOTICES'
         },
         {
-          sourceFilePath: path.resolve(path.dirname(EXECUTABLE_PATH), '.sbom.json'),
+          sourceFilePath: path.resolve(path.dirname(EXECUTABLE_PATH), '.sbom/mongosh/sbom.json'),
           packagedFilePath: '.sbom.json'
         },
       ],

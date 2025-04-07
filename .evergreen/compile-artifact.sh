@@ -96,10 +96,10 @@ if uname -a | grep -q 'Linux.*x86_64'; then
   test $(objdump -d dist/mongosh | grep '\bvmovd\b' | wc -l) -lt 1250
 fi
 
-npm run write-node-js-dep
-npm run create-purls-file
-cp .sbom/purls.txt dist/.purls.txt
-
-cat dist/.purls.txt
-
 npm run create-dependency-sbom-lists
+
+ls -lhA .sbom
+for dir in .sbom/*/; do
+  cp ${dir}purls.txt dist/${dir}purls.txt
+  cat dist/${dir}purls.txt
+done

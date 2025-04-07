@@ -36,7 +36,10 @@
     "webpack-build-dev": "npm run compile && webpack --mode development && cat dist/add-module-mapping.js >> dist/mongosh.js",
     "start-snapshot": "rm -f snapshot.blob && node --snapshot-blob snapshot.blob --build-snapshot dist/mongosh.js && node --snapshot-blob snapshot.blob dist/mongosh.js",
     "prettier": "prettier",
-    "reformat": "npm run prettier -- --write . && npm run eslint --fix"
+    "reformat": "npm run prettier -- --write . && npm run eslint --fix",
+    "create-dependency-sbom-lists": "npm run webpack-build && npm run create-purls-file && npm run create-first-party-dependency-lists",
+    "create-first-party-dependency-lists": "mongodb-sbom-tools fetch-codeql-results --first-party-deps-list-dest=../../.sbom/mongosh/first-party-deps.json --dependencies=../../.sbom/mongosh/dependencies.json --exclude-repos=mongodb-js/kerberos,mongodb-client-encryption",
+    "create-purls-file": "node ../../scripts/create-purls.js ../../.sbom/mongosh/dependencies.json ../../.sbom/node-js-dep.json > ../../.sbom/mongosh/purls.txt"
   },
   "license": "Apache-2.0",
   "publishConfig": {
