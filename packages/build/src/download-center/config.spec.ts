@@ -40,6 +40,7 @@ const packageInformation = (version: string) =>
 
 const DUMMY_ACCESS_KEY = 'accessKey';
 const DUMMY_SECRET_KEY = 'secretKey';
+const DUMMY_SESSION_TOKEN = 'sessionToken';
 const DUMMY_CTA_CONFIG: CTAConfig = {};
 
 describe('DownloadCenter config', function () {
@@ -273,6 +274,9 @@ describe('DownloadCenter config', function () {
           packageInformation('2.0.1'),
           DUMMY_ACCESS_KEY,
           DUMMY_SECRET_KEY,
+          DUMMY_ACCESS_KEY,
+          DUMMY_SECRET_KEY,
+          DUMMY_SESSION_TOKEN,
           '',
           false,
           DUMMY_CTA_CONFIG,
@@ -289,6 +293,12 @@ describe('DownloadCenter config', function () {
           bucket: 'downloads.10gen.com',
           accessKeyId: DUMMY_ACCESS_KEY,
           secretAccessKey: DUMMY_SECRET_KEY,
+        });
+        expect(dlCenter).to.have.been.calledWith({
+          bucket: 'cdn-origin-compass',
+          accessKeyId: DUMMY_ACCESS_KEY,
+          secretAccessKey: DUMMY_SECRET_KEY,
+          sessionToken: DUMMY_SESSION_TOKEN,
         });
 
         expect(uploadConfig).to.be.calledOnce;
@@ -321,7 +331,7 @@ describe('DownloadCenter config', function () {
           tutorial_link: 'test',
         });
 
-        expect(uploadAsset).to.be.calledOnce;
+        expect(uploadAsset).to.be.calledTwice;
         const [assetKey] = uploadAsset.lastCall.args;
         expect(assetKey).to.equal('compass/mongosh.json');
       });
@@ -332,6 +342,9 @@ describe('DownloadCenter config', function () {
           packageInformation('1.2.2'),
           DUMMY_ACCESS_KEY,
           DUMMY_SECRET_KEY,
+          DUMMY_ACCESS_KEY,
+          DUMMY_SECRET_KEY,
+          DUMMY_SESSION_TOKEN,
           '',
           false,
           DUMMY_CTA_CONFIG,
@@ -348,6 +361,12 @@ describe('DownloadCenter config', function () {
           bucket: 'downloads.10gen.com',
           accessKeyId: DUMMY_ACCESS_KEY,
           secretAccessKey: DUMMY_SECRET_KEY,
+        });
+        expect(dlCenter).to.have.been.calledWith({
+          bucket: 'cdn-origin-compass',
+          accessKeyId: DUMMY_ACCESS_KEY,
+          secretAccessKey: DUMMY_SECRET_KEY,
+          sessionToken: DUMMY_SESSION_TOKEN,
         });
 
         expect(uploadConfig).to.be.calledOnce;
@@ -377,7 +396,7 @@ describe('DownloadCenter config', function () {
           tutorial_link: 'test',
         });
 
-        expect(uploadAsset).to.be.calledOnce;
+        expect(uploadAsset).to.be.calledTwice;
         const [assetKey, uploadedAsset] = uploadAsset.lastCall.args;
         expect(assetKey).to.equal('compass/mongosh.json');
         const jsonFeedData = JSON.parse(uploadedAsset);
@@ -431,6 +450,9 @@ describe('DownloadCenter config', function () {
           packageInformation('2.0.0'),
           DUMMY_ACCESS_KEY,
           DUMMY_SECRET_KEY,
+          DUMMY_ACCESS_KEY,
+          DUMMY_SECRET_KEY,
+          DUMMY_SESSION_TOKEN,
           path.resolve(
             __dirname,
             '..',
@@ -454,6 +476,12 @@ describe('DownloadCenter config', function () {
           bucket: 'downloads.10gen.com',
           accessKeyId: DUMMY_ACCESS_KEY,
           secretAccessKey: DUMMY_SECRET_KEY,
+        });
+        expect(dlCenter).to.have.been.calledWith({
+          bucket: 'cdn-origin-compass',
+          accessKeyId: DUMMY_ACCESS_KEY,
+          secretAccessKey: DUMMY_SECRET_KEY,
+          sessionToken: DUMMY_SESSION_TOKEN,
         });
 
         expect(uploadConfig).to.be.calledOnce;
@@ -486,7 +514,7 @@ describe('DownloadCenter config', function () {
           tutorial_link: 'test',
         });
 
-        expect(uploadAsset).to.be.calledOnce;
+        expect(uploadAsset).to.be.calledTwice;
         const [assetKey, uploadedAsset] = uploadAsset.lastCall.args;
         expect(assetKey).to.equal('compass/mongosh.json');
         const jsonFeedData = JSON.parse(uploadedAsset);
@@ -593,6 +621,9 @@ describe('DownloadCenter config', function () {
           config,
           DUMMY_ACCESS_KEY,
           DUMMY_SECRET_KEY,
+          DUMMY_ACCESS_KEY,
+          DUMMY_SECRET_KEY,
+          DUMMY_SESSION_TOKEN,
           dryRun,
           dlCenter as any
         );
@@ -630,6 +661,9 @@ describe('DownloadCenter config', function () {
         config,
         DUMMY_ACCESS_KEY,
         DUMMY_SECRET_KEY,
+        DUMMY_ACCESS_KEY,
+        DUMMY_SECRET_KEY,
+        DUMMY_SESSION_TOKEN,
         false,
         dlCenter as any
       );
@@ -655,6 +689,9 @@ describe('DownloadCenter config', function () {
         ctas,
         DUMMY_ACCESS_KEY,
         DUMMY_SECRET_KEY,
+        DUMMY_ACCESS_KEY,
+        DUMMY_SECRET_KEY,
+        DUMMY_SESSION_TOKEN,
         false,
         dlCenter as any
       );
@@ -677,6 +714,9 @@ describe('DownloadCenter config', function () {
         config,
         DUMMY_ACCESS_KEY,
         DUMMY_SECRET_KEY,
+        DUMMY_ACCESS_KEY,
+        DUMMY_SECRET_KEY,
+        DUMMY_SESSION_TOKEN,
         false,
         dlCenter as any
       );
@@ -699,6 +739,9 @@ describe('DownloadCenter config', function () {
         config,
         DUMMY_ACCESS_KEY,
         DUMMY_SECRET_KEY,
+        DUMMY_ACCESS_KEY,
+        DUMMY_SECRET_KEY,
+        DUMMY_SESSION_TOKEN,
         false,
         dlCenter as any
       );
@@ -721,6 +764,9 @@ describe('DownloadCenter config', function () {
         config,
         DUMMY_ACCESS_KEY,
         DUMMY_SECRET_KEY,
+        DUMMY_ACCESS_KEY,
+        DUMMY_SECRET_KEY,
+        DUMMY_SESSION_TOKEN,
         false,
         dlCenter as any
       );
@@ -750,6 +796,9 @@ describe('DownloadCenter config', function () {
         config,
         DUMMY_ACCESS_KEY,
         DUMMY_SECRET_KEY,
+        DUMMY_ACCESS_KEY,
+        DUMMY_SECRET_KEY,
+        DUMMY_SESSION_TOKEN,
         false,
         dlCenter as any
       );
@@ -779,6 +828,9 @@ describe('DownloadCenter config', function () {
         config,
         DUMMY_ACCESS_KEY,
         DUMMY_SECRET_KEY,
+        DUMMY_ACCESS_KEY,
+        DUMMY_SECRET_KEY,
+        DUMMY_SESSION_TOKEN,
         false,
         dlCenter as any
       );
