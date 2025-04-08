@@ -1821,8 +1821,11 @@ describe('e2e', function () {
 
             // Add the newly created log file
             paths.push(path.join(customLogDir.path, getLogName(shell.logId)));
-            // Expect 6 files to be deleted and 5 to remain (including the new log file)
-            expect(await getFilesState(paths)).equals('00000011111');
+
+            await eventually(async () => {
+              // Expect 6 files to be deleted and 5 to remain (including the new log file)
+              expect(await getFilesState(paths)).equals('00000011111');
+            });
           });
         });
 
@@ -1874,10 +1877,13 @@ describe('e2e', function () {
             await shell.waitForPrompt();
 
             paths.push(path.join(customLogDir.path, getLogName(shell.logId)));
-            // 3 log files without mongosh_ prefix should remain
-            // 2 log file with mongosh_ prefix should be deleted
-            // 2 log files with mongosh_ prefix should remain (including the new log)
-            expect(await getFilesState(paths)).to.equal('1110011');
+
+            await eventually(async () => {
+              // 3 log files without mongosh_ prefix should remain
+              // 2 log file with mongosh_ prefix should be deleted
+              // 2 log files with mongosh_ prefix should remain (including the new log)
+              expect(await getFilesState(paths)).to.equal('1110011');
+            });
           });
 
           it('should delete files once it is above logMaxFileCount', async function () {
@@ -1913,8 +1919,10 @@ describe('e2e', function () {
               await shell.executeLine('config.get("logMaxFileCount")')
             ).contains('4');
 
-            // Expect 7 files to be deleted and 4 to remain (including the new log file)
-            expect(await getFilesState(paths)).to.equal('00000001111');
+            await eventually(async () => {
+              // Expect 7 files to be deleted and 4 to remain (including the new log file)
+              expect(await getFilesState(paths)).to.equal('00000001111');
+            });
           });
         });
 
@@ -1959,9 +1967,11 @@ describe('e2e', function () {
               await shell.executeLine('config.get("logRetentionGB")')
             ).contains(`${4 / 1024}`);
 
-            // Expect 6 files to be deleted and 4 to remain
-            // (including the new log file which should be <1 MB)
-            expect(await getFilesState(paths)).to.equal('00000001111');
+            await eventually(async () => {
+              // Expect 6 files to be deleted and 4 to remain
+              // (including the new log file which should be <1 MB)
+              expect(await getFilesState(paths)).to.equal('00000001111');
+            });
           });
         });
 
