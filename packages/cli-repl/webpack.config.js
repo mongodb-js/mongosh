@@ -27,7 +27,6 @@ const webpackDependenciesPlugin = new WebpackDependenciesPlugin({
     '..',
     '..',
     '.sbom',
-    'mongosh',
     'dependencies.json'
   ),
   includeExternalProductionDependencies: true,

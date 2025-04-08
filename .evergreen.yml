@@ -3687,7 +3687,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/dist/.sbom/mongosh/sbom.json
+        local_file: src/dist/.sbom.json
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}${extra_upload_tag}-sbom.json
         bucket: mciuploads
         permissions: public-read
@@ -3696,26 +3696,8 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/dist/.sbom/mongosh/purls.txt
+        local_file: src/dist/.purls.txt
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}${extra_upload_tag}-purls.txt
-        bucket: mciuploads
-        permissions: public-read
-        content_type: text/plain
-    - command: s3.put
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/dist/.sbom/node-runtime-worker-thread/sbom.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/node-runtime-worker-thread-${executable_os_id}${extra_upload_tag}-sbom.json
-        bucket: mciuploads
-        permissions: public-read
-        content_type: application/json
-    - command: s3.put
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/dist/.sbom/node-runtime-worker-thread/purls.txt
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/node-runtime-worker-thread-${executable_os_id}${extra_upload_tag}-purls.txt
         bucket: mciuploads
         permissions: public-read
         content_type: text/plain
@@ -3749,17 +3731,8 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh/first-party-deps.json
+        local_file: src/.sbom/first-party-deps.json
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}${extra_upload_tag}-first-party-deps.json
-        bucket: mciuploads
-        permissions: public-read
-        content_type: application/json
-    - command: s3.put
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/.sbom/node-runtime-worker-thread/first-party-deps.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/node-runtime-worker-thread-${executable_os_id}${extra_upload_tag}-first-party-deps.json
         bucket: mciuploads
         permissions: public-read
         content_type: application/json
@@ -3856,77 +3829,77 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh/mongosh-darwin-x64-first-party-deps.json
+        local_file: src/.sbom/mongosh-darwin-x64-first-party-deps.json
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-darwin-x64-first-party-deps.json
         bucket: mciuploads
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh/mongosh-darwin-arm64-first-party-deps.json
+        local_file: src/.sbom/mongosh-darwin-arm64-first-party-deps.json
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-darwin-arm64-first-party-deps.json
         bucket: mciuploads
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh/mongosh-linux-x64-first-party-deps.json
+        local_file: src/.sbom/mongosh-linux-x64-first-party-deps.json
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-x64-first-party-deps.json
         bucket: mciuploads
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh/mongosh-linux-x64-openssl11-first-party-deps.json
+        local_file: src/.sbom/mongosh-linux-x64-openssl11-first-party-deps.json
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-x64-openssl11-first-party-deps.json
         bucket: mciuploads
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh/mongosh-linux-x64-openssl3-first-party-deps.json
+        local_file: src/.sbom/mongosh-linux-x64-openssl3-first-party-deps.json
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-x64-openssl3-first-party-deps.json
         bucket: mciuploads
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh/mongosh-linux-arm64-first-party-deps.json
+        local_file: src/.sbom/mongosh-linux-arm64-first-party-deps.json
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-arm64-first-party-deps.json
         bucket: mciuploads
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh/mongosh-linux-arm64-openssl11-first-party-deps.json
+        local_file: src/.sbom/mongosh-linux-arm64-openssl11-first-party-deps.json
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-arm64-openssl11-first-party-deps.json
         bucket: mciuploads
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh/mongosh-linux-arm64-openssl3-first-party-deps.json
+        local_file: src/.sbom/mongosh-linux-arm64-openssl3-first-party-deps.json
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-arm64-openssl3-first-party-deps.json
         bucket: mciuploads
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh/mongosh-linux-ppc64le-first-party-deps.json
+        local_file: src/.sbom/mongosh-linux-ppc64le-first-party-deps.json
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-ppc64le-first-party-deps.json
         bucket: mciuploads
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh/mongosh-linux-s390x-first-party-deps.json
+        local_file: src/.sbom/mongosh-linux-s390x-first-party-deps.json
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-s390x-first-party-deps.json
         bucket: mciuploads
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh/mongosh-win32-first-party-deps.json
+        local_file: src/.sbom/mongosh-win32-first-party-deps.json
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-win32-first-party-deps.json
         bucket: mciuploads
     - command: shell.exec
@@ -3940,7 +3913,7 @@ functions:
           .evergreen/create-static-analysis-report.sh
         env:
           NODE_JS_VERSION: ${node_js_version}
-          FIRST_PARTY_DEPENDENCY_FILENAMES: .sbom/mongosh/mongosh-darwin-x64-first-party-deps.json,.sbom/mongosh/mongosh-darwin-arm64-first-party-deps.json,.sbom/mongosh/mongosh-linux-x64-first-party-deps.json,.sbom/mongosh/mongosh-linux-x64-openssl11-first-party-deps.json,.sbom/mongosh/mongosh-linux-x64-openssl3-first-party-deps.json,.sbom/mongosh/mongosh-linux-arm64-first-party-deps.json,.sbom/mongosh/mongosh-linux-arm64-openssl11-first-party-deps.json,.sbom/mongosh/mongosh-linux-arm64-openssl3-first-party-deps.json,.sbom/mongosh/mongosh-linux-ppc64le-first-party-deps.json,.sbom/mongosh/mongosh-linux-s390x-first-party-deps.json,.sbom/mongosh/mongosh-win32-first-party-deps.json
+          FIRST_PARTY_DEPENDENCY_FILENAMES: .sbom/mongosh-darwin-x64-first-party-deps.json,.sbom/mongosh-darwin-arm64-first-party-deps.json,.sbom/mongosh-linux-x64-first-party-deps.json,.sbom/mongosh-linux-x64-openssl11-first-party-deps.json,.sbom/mongosh-linux-x64-openssl3-first-party-deps.json,.sbom/mongosh-linux-arm64-first-party-deps.json,.sbom/mongosh-linux-arm64-openssl11-first-party-deps.json,.sbom/mongosh-linux-arm64-openssl3-first-party-deps.json,.sbom/mongosh-linux-ppc64le-first-party-deps.json,.sbom/mongosh-linux-s390x-first-party-deps.json,.sbom/mongosh-win32-first-party-deps.json
           GITHUB_TOKEN: ${github_token}
           GITHUB_PR_NUMBER: ${github_pr_number}
     - command: s3.put
@@ -4235,7 +4208,7 @@ functions:
         bucket: mciuploads
         permissions: private
         visibility: signed
-        local_file: src/.sbom/mongosh/dependencies.json
+        local_file: src/.sbom/dependencies.json
         remote_file: ${project}/${revision}_${revision_order_id}/dependencies.json
         content_type: application/json
         optional: true

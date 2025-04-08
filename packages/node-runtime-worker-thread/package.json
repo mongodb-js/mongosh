@@ -31,10 +31,7 @@
     "compile": "tsc -p tsconfig.json",
     "prepublish": "npm run webpack-build",
     "prettier": "prettier",
-    "reformat": "npm run prettier -- --write . && npm run eslint --fix",
-    "create-dependency-sbom-lists": "npm run webpack-build && npm run create-purls-file && npm run create-first-party-dependency-lists",
-    "create-first-party-dependency-lists": "mongodb-sbom-tools fetch-codeql-results --first-party-deps-list-dest=../../.sbom/node-runtime-worker-thread/first-party-deps.json --dependencies=../../.sbom/node-runtime-worker-thread/dependencies.json --exclude-repos=mongodb-js/kerberos,mongodb-client-encryption",
-    "create-purls-file": "node ../../scripts/create-purls.js ../../.sbom/node-runtime-worker-thread/dependencies.json ../../.sbom/node-js-dep.json > ../../.sbom/node-runtime-worker-thread/purls.txt"
+    "reformat": "npm run prettier -- --write . && npm run eslint --fix"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
