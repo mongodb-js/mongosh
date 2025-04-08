@@ -121,6 +121,7 @@ functions:
           NODE_JS_VERSION: ${node_js_version}
           DISTRO_ID: ${distro_id}
           MONOGDB_DRIVER_VERSION_OVERRIDE: ${mongodb_driver_version_override}
+          PUPPETEER_SKIP_DOWNLOAD: "true"
         script: |
           set -e
           set -x
@@ -161,7 +162,7 @@ functions:
           NODE_JS_VERSION: ${node_js_version}
           DISTRO_ID: ${distro_id}
           MONOGDB_DRIVER_VERSION_OVERRIDE: ${mongodb_driver_version_override}
-          PUPPETEER_SKIP_DOWNLOAD: ${puppeteer_skip_download}
+          PUPPETEER_SKIP_DOWNLOAD: ${puppeteer_skip_download|true}
         script: |
           set -e
           set -x
@@ -9677,7 +9678,6 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          PUPPETEER_SKIP_DOWNLOAD: "true" 
           node_js_version: "20.19.0"
       - func: create_static_analysis_report
         vars:
@@ -9705,7 +9705,6 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          PUPPETEER_SKIP_DOWNLOAD: "true" 
           node_js_version: "20.19.0"
       - func: release_draft
         vars:
