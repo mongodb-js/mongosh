@@ -131,8 +131,10 @@ functions:
           DISTRO_ID: ${distro_id}
           MONOGDB_DRIVER_VERSION_OVERRIDE: ${mongodb_driver_version_override}
         script: |
-          source .evergreen/install-node.sh
-          source .evergreen/install-npm-deps.sh
+          set -e
+          set -x
+          .evergreen/install-node.sh
+          .evergreen/install-npm-deps.sh
     - command: shell.exec
       params:
         working_dir: src
@@ -169,8 +171,10 @@ functions:
           DISTRO_ID: ${distro_id}
           MONOGDB_DRIVER_VERSION_OVERRIDE: ${mongodb_driver_version_override}
         script: |
-          source .evergreen/install-node.sh
-          source .evergreen/install-npm-deps.sh
+          set -e
+          set -x
+          .evergreen/install-node.sh
+          .evergreen/install-npm-deps.sh
     - command: s3.get
       type: setup
       params:

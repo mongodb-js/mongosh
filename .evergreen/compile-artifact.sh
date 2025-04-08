@@ -71,7 +71,9 @@ elif [ -n "$MONGOSH_SHARED_OPENSSL" ]; then
     "--shared-openssl-libname='"$MONGOSH_OPENSSL_LIBNAME"'",
     "--shared-zlib"
   ]'
-  export LD_LIBRARY_PATH=/tmp/m/opt/lib
+  # python3's ssl module may not work with the OpenSSL we built here,
+  # so prefix the devtools toolchain one
+  export LD_LIBRARY_PATH=/opt/devtools/lib:/tmp/m/opt/lib
 fi
 
 export PUPPETEER_SKIP_DOWNLOAD="true"
