@@ -170,6 +170,7 @@ functions:
           NODE_JS_VERSION: ${node_js_version}
           DISTRO_ID: ${distro_id}
           MONOGDB_DRIVER_VERSION_OVERRIDE: ${mongodb_driver_version_override}
+          PUPPETEER_SKIP_DOWNLOAD: ${puppeteer_skip_download|true}
         script: |
           set -e
           set -x
@@ -1101,7 +1102,7 @@ tasks:
   # UNIT TESTS
   # E.g. test_m60xc_n20 stands for mongod 6.0.x, community edition, Node.js 20
   ###
-  <% for (const { id, packageName } of UNIT_TESTS) { %>
+  <% for (const { id, packageName, usePuppeteer } of UNIT_TESTS) { %>
   - name: test_<% out(id) %>
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -1120,6 +1121,7 @@ tasks:
           mongosh_test_id: "<% out(id) %>"
           mongosh_run_only_in_package: "<% out(packageName) %>"
           task_name: ${task_name}
+          puppeteer_skip_download: "<% out(usePuppeteer ? "false" : "true") %>"
   <% } %>
 
   ###
@@ -1428,6 +1430,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
+          PUPPETEER_SKIP_DOWNLOAD: "true" 
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
       - func: create_static_analysis_report
         vars:
@@ -1455,6 +1458,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
+          PUPPETEER_SKIP_DOWNLOAD: "true" 
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
       - func: release_draft
         vars:

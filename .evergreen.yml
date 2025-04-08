@@ -161,6 +161,7 @@ functions:
           NODE_JS_VERSION: ${node_js_version}
           DISTRO_ID: ${distro_id}
           MONOGDB_DRIVER_VERSION_OVERRIDE: ${mongodb_driver_version_override}
+          PUPPETEER_SKIP_DOWNLOAD: ${puppeteer_skip_download}
         script: |
           set -e
           set -x
@@ -4943,6 +4944,7 @@ tasks:
           mongosh_test_id: "arg_parser"
           mongosh_run_only_in_package: "arg-parser"
           task_name: ${task_name}
+          puppeteer_skip_download: "true"
   - name: test_async_rewriter2
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -4961,6 +4963,7 @@ tasks:
           mongosh_test_id: "async_rewriter2"
           mongosh_run_only_in_package: "async-rewriter2"
           task_name: ${task_name}
+          puppeteer_skip_download: "true"
   - name: test_autocomplete
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -4979,6 +4982,7 @@ tasks:
           mongosh_test_id: "autocomplete"
           mongosh_run_only_in_package: "autocomplete"
           task_name: ${task_name}
+          puppeteer_skip_download: "true"
   - name: test_browser_repl
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -4997,6 +5001,7 @@ tasks:
           mongosh_test_id: "browser_repl"
           mongosh_run_only_in_package: "browser-repl"
           task_name: ${task_name}
+          puppeteer_skip_download: "false"
   - name: test_browser_runtime_core
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -5015,6 +5020,7 @@ tasks:
           mongosh_test_id: "browser_runtime_core"
           mongosh_run_only_in_package: "browser-runtime-core"
           task_name: ${task_name}
+          puppeteer_skip_download: "true"
   - name: test_browser_runtime_electron
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -5033,6 +5039,7 @@ tasks:
           mongosh_test_id: "browser_runtime_electron"
           mongosh_run_only_in_package: "browser-runtime-electron"
           task_name: ${task_name}
+          puppeteer_skip_download: "true"
   - name: test_build
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -5051,6 +5058,7 @@ tasks:
           mongosh_test_id: "build"
           mongosh_run_only_in_package: "build"
           task_name: ${task_name}
+          puppeteer_skip_download: "true"
   - name: test_cli_repl
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -5069,6 +5077,7 @@ tasks:
           mongosh_test_id: "cli_repl"
           mongosh_run_only_in_package: "cli-repl"
           task_name: ${task_name}
+          puppeteer_skip_download: "true"
   - name: test_connectivity_tests
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -5087,6 +5096,7 @@ tasks:
           mongosh_test_id: "connectivity_tests"
           mongosh_run_only_in_package: "connectivity-tests"
           task_name: ${task_name}
+          puppeteer_skip_download: "true"
   - name: test_e2e_tests
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -5105,6 +5115,7 @@ tasks:
           mongosh_test_id: "e2e_tests"
           mongosh_run_only_in_package: "e2e-tests"
           task_name: ${task_name}
+          puppeteer_skip_download: "true"
   - name: test_editor
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -5123,6 +5134,7 @@ tasks:
           mongosh_test_id: "editor"
           mongosh_run_only_in_package: "editor"
           task_name: ${task_name}
+          puppeteer_skip_download: "true"
   - name: test_errors
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -5141,6 +5153,7 @@ tasks:
           mongosh_test_id: "errors"
           mongosh_run_only_in_package: "errors"
           task_name: ${task_name}
+          puppeteer_skip_download: "true"
   - name: test_history
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -5159,6 +5172,7 @@ tasks:
           mongosh_test_id: "history"
           mongosh_run_only_in_package: "history"
           task_name: ${task_name}
+          puppeteer_skip_download: "true"
   - name: test_i18n
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -5177,6 +5191,7 @@ tasks:
           mongosh_test_id: "i18n"
           mongosh_run_only_in_package: "i18n"
           task_name: ${task_name}
+          puppeteer_skip_download: "true"
   - name: test_java_shell
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -5195,6 +5210,7 @@ tasks:
           mongosh_test_id: "java_shell"
           mongosh_run_only_in_package: "java-shell"
           task_name: ${task_name}
+          puppeteer_skip_download: "true"
   - name: test_js_multiline_to_singleline
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -5213,6 +5229,7 @@ tasks:
           mongosh_test_id: "js_multiline_to_singleline"
           mongosh_run_only_in_package: "js-multiline-to-singleline"
           task_name: ${task_name}
+          puppeteer_skip_download: "true"
   - name: test_logging
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -5231,6 +5248,7 @@ tasks:
           mongosh_test_id: "logging"
           mongosh_run_only_in_package: "logging"
           task_name: ${task_name}
+          puppeteer_skip_download: "true"
   - name: test_mongosh
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -5249,6 +5267,7 @@ tasks:
           mongosh_test_id: "mongosh"
           mongosh_run_only_in_package: "mongosh"
           task_name: ${task_name}
+          puppeteer_skip_download: "true"
   - name: test_node_runtime_worker_thread
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -5267,6 +5286,7 @@ tasks:
           mongosh_test_id: "node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
           task_name: ${task_name}
+          puppeteer_skip_download: "true"
   - name: test_service_provider_core
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -5285,6 +5305,7 @@ tasks:
           mongosh_test_id: "service_provider_core"
           mongosh_run_only_in_package: "service-provider-core"
           task_name: ${task_name}
+          puppeteer_skip_download: "true"
   - name: test_service_provider_node_driver
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -5303,6 +5324,7 @@ tasks:
           mongosh_test_id: "service_provider_node_driver"
           mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
+          puppeteer_skip_download: "true"
   - name: test_shell_api
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -5321,6 +5343,7 @@ tasks:
           mongosh_test_id: "shell_api"
           mongosh_run_only_in_package: "shell-api"
           task_name: ${task_name}
+          puppeteer_skip_download: "true"
   - name: test_shell_evaluator
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -5339,6 +5362,7 @@ tasks:
           mongosh_test_id: "shell_evaluator"
           mongosh_run_only_in_package: "shell-evaluator"
           task_name: ${task_name}
+          puppeteer_skip_download: "true"
   - name: test_snippet_manager
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -5357,6 +5381,7 @@ tasks:
           mongosh_test_id: "snippet_manager"
           mongosh_run_only_in_package: "snippet-manager"
           task_name: ${task_name}
+          puppeteer_skip_download: "true"
   - name: test_types
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -5375,6 +5400,7 @@ tasks:
           mongosh_test_id: "types"
           mongosh_run_only_in_package: "types"
           task_name: ${task_name}
+          puppeteer_skip_download: "true"
 
   ###
   # INTEGRATION TESTS
@@ -9651,6 +9677,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
+          PUPPETEER_SKIP_DOWNLOAD: "true" 
           node_js_version: "20.19.0"
       - func: create_static_analysis_report
         vars:
@@ -9678,6 +9705,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
+          PUPPETEER_SKIP_DOWNLOAD: "true" 
           node_js_version: "20.19.0"
       - func: release_draft
         vars:
