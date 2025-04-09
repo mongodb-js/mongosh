@@ -51,6 +51,7 @@
   },
   "mongosh": {
     "unitTestsOnly": true,
+    "usePuppeteer": true,
     "variants": [
       "darwin"
     ]
