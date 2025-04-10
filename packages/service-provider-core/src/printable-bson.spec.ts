@@ -95,6 +95,34 @@ describe('BSON printers', function () {
     ).to.equal("MD5('0123456789abcdef0123456789abcdef')");
   });
 
+  describe('with Vector types', function () {
+    it('formats Int8Array correctly', function () {
+      expect(
+        inspect(bson.Binary.fromInt8Array(new Int8Array([1, 2, 3])))
+      ).to.equal('Binary.fromInt8Array(new Int8Array([ 1, 2, 3 ]))');
+    });
+
+    it('formats PackedBits correctly', function () {
+      expect(
+        inspect(bson.Binary.fromPackedBits(new Uint8Array([1, 2, 3])))
+      ).to.equal('Binary.fromPackedBits(new Uint8Array([ 1, 2, 3 ]))');
+    });
+
+    it('formats Float32Array correctly', function () {
+      expect(
+        inspect(
+          bson.Binary.fromFloat32Array(
+            new Float32Array([1.1111, 2.2222, 3.3333])
+          ),
+          { compact: true }
+        )
+      ).matches(
+        // Precision is lost because of float handling, so we use regex to match
+        /Binary.fromFloat32Array\(new Float32Array\(\[ 1\.1\d*, 2\.2\d*, 3\.3\d* \]\)\)/
+      );
+    });
+  });
+
   it('formats any other value with the new format using createfromBase64', function () {
     expect(
       inspect(bson.Binary.createFromBase64('SGVsbG8sIFdvcmxkIQo='))

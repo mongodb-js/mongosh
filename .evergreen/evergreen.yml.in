@@ -130,9 +130,12 @@ functions:
           NODE_JS_VERSION: ${node_js_version}
           DISTRO_ID: ${distro_id}
           MONOGDB_DRIVER_VERSION_OVERRIDE: ${mongodb_driver_version_override}
+          PUPPETEER_SKIP_DOWNLOAD: "true"
         script: |
-          source .evergreen/install-node.sh
-          source .evergreen/install-npm-deps.sh
+          set -e
+          set -x
+          .evergreen/install-node.sh
+          .evergreen/install-npm-deps.sh
     - command: shell.exec
       params:
         working_dir: src
@@ -168,9 +171,12 @@ functions:
           NODE_JS_VERSION: ${node_js_version}
           DISTRO_ID: ${distro_id}
           MONOGDB_DRIVER_VERSION_OVERRIDE: ${mongodb_driver_version_override}
+          PUPPETEER_SKIP_DOWNLOAD: ${puppeteer_skip_download|true}
         script: |
-          source .evergreen/install-node.sh
-          source .evergreen/install-npm-deps.sh
+          set -e
+          set -x
+          .evergreen/install-node.sh
+          .evergreen/install-npm-deps.sh
     - command: s3.get
       type: setup
       params:
@@ -949,7 +955,6 @@ functions:
           {
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
-          export PUPPETEER_SKIP_DOWNLOAD="true"
           npm run evergreen-release draft
           git add .
           git commit --no-allow-empty -m "chore(release): bump to prepare for mongosh release"
@@ -969,7 +974,6 @@ functions:
           node_js_version: ${node_js_version}
         script: |
           set -e
-          export PUPPETEER_SKIP_DOWNLOAD="true"
           .evergreen/run-evergreen-release.sh download-and-list-artifacts
     - command: shell.exec
       params:
@@ -998,7 +1002,6 @@ functions:
           node_js_version: ${node_js_version}
         script: |
           set -e
-          export PUPPETEER_SKIP_DOWNLOAD="true"
           .evergreen/run-evergreen-release.sh publish -- --dry-run
 
   release_publish:
@@ -1017,7 +1020,6 @@ functions:
           node_js_version: ${node_js_version}
         script: |
           set -e
-          export PUPPETEER_SKIP_DOWNLOAD="true"
           .evergreen/run-evergreen-release.sh publish
 
   run_perf_tests:
@@ -1097,7 +1099,7 @@ tasks:
   # UNIT TESTS
   # E.g. test_m60xc_n20 stands for mongod 6.0.x, community edition, Node.js 20
   ###
-  <% for (const { id, packageName } of UNIT_TESTS) { %>
+  <% for (const { id, packageName, usePuppeteer } of UNIT_TESTS) { %>
   - name: test_<% out(id) %>
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -1116,6 +1118,7 @@ tasks:
           mongosh_test_id: "<% out(id) %>"
           mongosh_run_only_in_package: "<% out(packageName) %>"
           task_name: ${task_name}
+          puppeteer_skip_download: "<% out(usePuppeteer ? "false" : "true") %>"
   <% } %>
 
   ###

@@ -36,6 +36,8 @@ import type {
   ServerApi,
   ServerApiVersion,
   WriteConcern,
+  AnyClientBulkWriteModel,
+  ClientBulkWriteOptions,
 } from '@mongosh/service-provider-core';
 import type { ConnectionInfo } from '@mongosh/arg-parser';
 import {
@@ -45,6 +47,7 @@ import {
 import type Collection from './collection';
 import Database from './database';
 import type ShellInstanceState from './shell-instance-state';
+import { ClientBulkWriteResult } from './result';
 import { CommandResult } from './result';
 import { redactURICredentials } from '@mongosh/history';
 import { asPrintable, ServerVersions, Topologies } from './enums';
@@ -363,6 +366,40 @@ export default class Mongo extends ShellApiClass {
   }> {
     this._emitMongoApiCall('getDBs', { options });
     return await this._listDatabases(options);
+  }
+
+  @returnsPromise
+  @serverVersions(['8.0.0', ServerVersions.latest])
+  @apiVersions([1])
+  async bulkWrite(
+    models: AnyClientBulkWriteModel<Document>[],
+    options: ClientBulkWriteOptions = {}
+  ): Promise<ClientBulkWriteResult> {
+    this._emitMongoApiCall('bulkWrite', { options });
+
+    const {
+      acknowledged,
+      insertedCount,
+      matchedCount,
+      modifiedCount,
+      deletedCount,
+      upsertedCount,
+      insertResults,
+      updateResults,
+      deleteResults,
+    } = await this._serviceProvider.clientBulkWrite(models, options);
+
+    return new ClientBulkWriteResult({
+      acknowledged,
+      insertedCount,
+      matchedCount,
+      modifiedCount,
+      deletedCount,
+      upsertedCount,
+      insertResults,
+      updateResults,
+      deleteResults,
+    });
   }
 
   @returnsPromise

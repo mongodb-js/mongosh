@@ -2468,6 +2468,18 @@ describe('Shard', function () {
           ]);
         });
       });
+      describe('with a 7.0+ server', function () {
+        skipIfServerVersion(mongos, '< 7.0');
+
+        it('displays automerge status, if explicitly set', async function () {
+          await sh.startAutoMerger();
+          const result = await sh.status();
+
+          expect(result.value.automerge).to.deep.equal({
+            'Currently enabled': 'yes',
+          });
+        });
+      });
     });
     describe('turn on sharding', function () {
       it('enableSharding for a db', async function () {
@@ -2514,6 +2526,35 @@ describe('Shard', function () {
             `'on shard': '${collectionInfo.chunks[0]['on shard']}', 'last modified': Timestamp({ t: 1, i: 0 }) }\n` +
             '  ],\n'
         );
+      });
+    });
+    describe('automerge', function () {
+      it('not shown if sh.status() if not explicitly enabled', async function () {
+        // It might be explicitly set from 7.0
+        skipIfServerVersion(mongos, '>= 7.0');
+
+        // Ensure no previous automerge settings are present
+        await instanceState.currentDb
+          .getSiblingDB('config')
+          .getCollection('settings')
+          .deleteOne({ _id: 'automerge' });
+
+        expect((await sh.status()).value.automerge).is.undefined;
+      });
+      describe('from 7.0', function () {
+        skipIfServerVersion(mongos, '< 7.0'); // Available from 7.0
+        it('stops correctly', async function () {
+          expect((await sh.stopAutoMerger()).acknowledged).to.equal(true);
+          expect(
+            ((await sh.status()).value.automerge ?? {})['Currently enabled']
+          ).to.equal('no');
+        });
+        it('enables correctly', async function () {
+          expect((await sh.startAutoMerger()).acknowledged).to.equal(true);
+          expect(
+            ((await sh.status()).value.automerge ?? {})['Currently enabled']
+          ).to.equal('yes');
+        });
       });
     });
     describe('autosplit', function () {

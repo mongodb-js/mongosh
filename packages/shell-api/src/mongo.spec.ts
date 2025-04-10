@@ -35,6 +35,7 @@ import {
   startSharedTestServer,
 } from '../../../testing/integration-testing-hooks';
 import { dummyOptions } from './helpers.spec';
+import { ClientBulkWriteResult } from './result';
 
 const sampleOpts = {
   causalConsistency: false,
@@ -1013,6 +1014,76 @@ describe('Mongo', function () {
           await (
             await mongo.getDB('test').getCollection('coll').find()
           ).toArray();
+        });
+      });
+
+      context('post-8.0', function () {
+        skipIfServerVersion(testServer, '< 8.0');
+        let mongo: Mongo;
+
+        describe('bulkWrite', function () {
+          beforeEach(async function () {
+            mongo = await instanceState.shellApi.Mongo(uri, undefined, {
+              api: { version: '1' },
+            });
+          });
+
+          it('should allow inserts across collections and databases', async function () {
+            expect(
+              await mongo.bulkWrite([
+                {
+                  name: 'insertOne',
+                  namespace: 'db.authors',
+                  document: { name: 'King' },
+                },
+                {
+                  name: 'deleteOne',
+                  namespace: 'db.authors',
+                  filter: { name: 'King' },
+                },
+                {
+                  name: 'insertOne',
+                  namespace: 'db.moreAuthors',
+                  document: { name: 'Queen' },
+                },
+                {
+                  name: 'insertOne',
+                  namespace: 'otherDb.authors',
+                  document: { name: 'Prince' },
+                },
+              ])
+            ).deep.equals(
+              new ClientBulkWriteResult({
+                acknowledged: true,
+                insertedCount: 3,
+                upsertedCount: 0,
+                matchedCount: 0,
+                modifiedCount: 0,
+                deletedCount: 1,
+                insertResults: undefined,
+                updateResults: undefined,
+                deleteResults: undefined,
+              })
+            );
+
+            expect(
+              await mongo.getDB('db').getCollection('authors').count()
+            ).equals(0);
+
+            expect(
+              await mongo
+                .getDB('db')
+                .getCollection('moreAuthors')
+                .count({ name: 'Queen' })
+            ).equals(1);
+
+            expect(
+              await mongo
+                .getDB('otherDb')
+                .getCollection('authors')
+                .count({ name: 'Prince' })
+            ).equals(1);
+          });
         });
       });
     });

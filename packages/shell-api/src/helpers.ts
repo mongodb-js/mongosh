@@ -328,6 +328,15 @@ export async function getPrintableShardStatus(
       };
     })(),
     (async (): Promise<void> => {
+      // Is automerge currently enabled, available since >= 7.0
+      const automerge = await settingsColl.findOne({ _id: 'automerge' });
+      if (automerge) {
+        result.automerge = {
+          'Currently enabled': automerge.enabled ? 'yes' : 'no',
+        };
+      }
+    })(),
+    (async (): Promise<void> => {
       // Is the balancer currently enabled
       const balancerEnabled = await settingsColl.findOne({ _id: 'balancer' });
       balancerRes['Currently enabled'] =
@@ -711,6 +720,10 @@ export type ShardingStatusResult = {
             };
       }[];
   autosplit: {
+    'Currently enabled': 'yes' | 'no';
+  };
+  /** Shown if explicitly set, available and enabled by default from 7.0.0 */
+  automerge?: {
     'Currently enabled': 'yes' | 'no';
   };
   balancer: {
