@@ -108,6 +108,12 @@ describe('BSON printers', function () {
       ).to.equal('Binary.fromPackedBits(new Uint8Array([ 1, 2, 3 ]))');
     });
 
+    it('formats PackedBits correctly with padding', function () {
+      expect(
+        inspect(bson.Binary.fromPackedBits(new Uint8Array([1, 2, 3]), 7))
+      ).to.equal('Binary.fromPackedBits(new Uint8Array([ 1, 2, 3 ]), 7)');
+    });
+
     it('formats Float32Array correctly', function () {
       expect(
         inspect(
