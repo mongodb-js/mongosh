@@ -8,6 +8,9 @@
     "enabled": false
   },
   "bundledPackages": [
+    "@mongodb-js/devtools-connect",
+    "@mongodb-js/oidc-plugin",
+    "@mongosh/arg-parser",
     "@mongosh/service-provider-core",
     "@mongosh/types",
     "mongodb",
