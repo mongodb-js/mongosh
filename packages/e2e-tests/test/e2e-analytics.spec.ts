@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import { startTestCluster } from '../../../testing/integration-testing-hooks';
 import { eventually } from '../../../testing/eventually';
-import { TestShell } from './test-shell';
 
 describe('e2e Analytics Node', function () {
   const replSetName = 'replicaSet';
@@ -12,8 +11,6 @@ describe('e2e Analytics Node', function () {
     { args: ['--replSet', replSetName] },
     { args: ['--replSet', replSetName] }
   );
-
-  after(TestShell.cleanup);
 
   before(async function () {
     if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
@@ -36,7 +33,7 @@ describe('e2e Analytics Node', function () {
       ],
     };
 
-    const shell = TestShell.start({
+    const shell = this.startTestShell({
       args: [await rs0.connectionString()],
     });
     await shell.waitForPrompt();
@@ -55,7 +52,7 @@ describe('e2e Analytics Node', function () {
 
   context('without readPreference', function () {
     it('a direct connection ends up at primary', async function () {
-      const shell = TestShell.start({
+      const shell = this.startTestShell({
         args: [await rs0.connectionString()],
       });
       await shell.waitForPrompt();
@@ -68,13 +65,13 @@ describe('e2e Analytics Node', function () {
 
   context('specifying readPreference and tags', function () {
     it('ends up at the ANALYTICS node', async function () {
-      const shell = TestShell.start({
+      const shell = this.startTestShell({
         args: [
           `${await rs0.connectionString()}?replicaSet=${replSetName}&readPreference=secondary&readPreferenceTags=nodeType:ANALYTICS`,
         ],
       });
 
-      const directConnectionToAnalyticsShell = TestShell.start({
+      const directConnectionToAnalyticsShell = this.startTestShell({
         args: [`${await rs3.connectionString()}?directConnection=true`],
       });
       await Promise.all([

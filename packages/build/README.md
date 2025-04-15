@@ -32,13 +32,15 @@ Execute the following steps to publish a new release:
    Follow the instructions and ensure that the new draft tag to be created matches the expected release version.
 4. Wait for Evergreen to finish the build and complete the draft stage.\
    _Repeat step 3 if there are any additional changes that need to be part of the release._
-5. Trigger the publication of the release by running:
+5. Sync main branch of the [mongodb-js/homebrew-core](https://github.com/mongodb-js/homebrew-core/) repository with the upstream.
+6. Trigger the publication of the release by running:
    ```
    npm run release publish
    ```
    Follow the instructions and verify the inferred release version is correct.
-6. Wait for Evergreen to finish the publication stage.
-7. Close the Jira ticket for the release, post an update in the `#mongosh` Slack channel and ping the docs team.
+7. Wait for Evergreen to finish the publication stage.
+8. Ensure that the version bump was automatically merged into main and that it is synced up with the `mongosh@x.x.x` tag.
+9. Close the Jira ticket for the release, post an update in the `#mongosh` Slack channel and ping the docs team.
 
 ### Branches and Tags
 

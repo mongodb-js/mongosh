@@ -1,0 +1,48 @@
+name: "Smoke Test Homebrew install"
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke-test-homebrew:
+    name: Test on ${{ matrix.runner }}
+    runs-on: ${{ matrix.runner}}
+    strategy:
+      matrix:
+        runner: [macos-13, macos-14, macos-15]
+      fail-fast: false
+    steps:
+      - name: Install mongosh
+        run: brew install mongosh
+
+      - name: Run smoke tests
+        # 8.0.5 due to us having macos-13 in the platform support list, SERVER-101020
+        env:
+          # MONGOSH-1216, MONGOSH-1120
+          MONGOSH_NO_AUTOMATIC_ENCRYPTION_SUPPORT: 1
+        run: npx --yes mongodb-runner --version 8.0.5-enterprise -- exec -- sh -c 'env MONGOSH_SMOKE_TEST_SERVER=$MONGODB_URI mongosh --smokeTests'
+
+      - name: Report failure
+        if: ${{ failure() }}
+        uses: slackapi/slack-github-action@485a9d42d3a73031f12ec201c457e2162c45d02d # 2.0.0
+        with:
+          payload: |
+            {
+              "text": "Homebrew smoke test failed on ${{ matrix.runner }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "Homebrew smoke test failed on ${{ matrix.runner }}: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.run_id }}>"
+                  }
+                }
+              ]
+            }
+          webhook: ${{ secrets.SLACK_MONGOSH_DEVEL_WEBHOOK_URL }}
+          webhook-type: incoming-webhook

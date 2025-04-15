@@ -1,20 +1,25 @@
 import type { DownloadCenterConfig } from '@mongodb-js/dl-center/dist/download-center-config';
-import type { PackageInformationProvider } from '../packaging';
+import { type PackageInformationProvider } from '../packaging';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import type { PackageVariant } from '../config';
+import type { Config, CTAConfig } from '../config';
+import { type PackageVariant } from '../config';
 import {
   createVersionConfig,
   createDownloadCenterConfig,
   getUpdatedDownloadCenterConfig,
   createAndPublishDownloadCenterConfig,
   createJsonFeedEntry,
+  updateJsonFeedCTA,
 } from './config';
-import { createServer as createHTTPServer } from 'http';
-import type { Server as HTTPServer } from 'http';
-import { once } from 'events';
+import type { JsonFeed } from './config';
+import { promises as fs } from 'fs';
 import path from 'path';
 import fetch from 'node-fetch';
+import { createServer } from 'http';
+import { once } from 'events';
+import { runDownloadAndListArtifacts } from '../run-download-and-list-artifacts';
+import type { AddressInfo } from 'net';
 
 const packageInformation = (version: string) =>
   ((packageVariant: PackageVariant) => {
@@ -33,7 +38,54 @@ const packageInformation = (version: string) =>
     };
   }) as PackageInformationProvider;
 
+const DUMMY_ACCESS_KEY = 'accessKey';
+const DUMMY_SECRET_KEY = 'secretKey';
+const DUMMY_SESSION_TOKEN = 'sessionToken';
+const DUMMY_CTA_CONFIG: CTAConfig = {};
+
 describe('DownloadCenter config', function () {
+  let outputDir: string;
+  before(async function () {
+    outputDir = path.join(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      'tmp',
+      `downloadcenter-outputdir-${Date.now()}`
+    );
+    await fs.mkdir(outputDir, { recursive: true });
+
+    const httpServer = createServer((req, res) => {
+      res.end(req.url);
+    });
+    httpServer.listen(0);
+    await once(httpServer, 'listening');
+    try {
+      const testVersions = ['2.0.1', '2.0.0', '1.2.2'];
+
+      for (const version of testVersions) {
+        const config: Partial<Config> = {
+          outputDir,
+          packageInformation: packageInformation(version),
+        };
+        await runDownloadAndListArtifacts(
+          config as Config,
+          `http://localhost:${(httpServer.address() as AddressInfo).port}/`,
+          'append-to-hash-file-for-testing'
+        );
+      }
+    } finally {
+      httpServer.close();
+      await once(httpServer, 'close');
+    }
+  });
+
+  after(async function () {
+    await fs.rm(outputDir, { recursive: true });
+  });
+
   describe('createVersionConfig', function () {
     it('sets the version correctly', function () {
       const version = createVersionConfig(packageInformation('1.2.2'));
@@ -195,10 +247,9 @@ describe('DownloadCenter config', function () {
     let downloadConfig: sinon.SinonStub;
     let uploadAsset: sinon.SinonStub;
     let downloadAsset: sinon.SinonStub;
-    let mockHttpServer: HTTPServer;
     let baseUrl: string;
 
-    beforeEach(async function () {
+    beforeEach(function () {
       uploadConfig = sinon.stub();
       downloadConfig = sinon.stub();
       uploadAsset = sinon.stub();
@@ -211,18 +262,7 @@ describe('DownloadCenter config', function () {
         uploadAsset,
         downloadAsset,
       });
-      mockHttpServer = createHTTPServer((req, res) => {
-        res.writeHead(200, undefined, { 'content-type': 'text/plain' });
-        res.end(req.url);
-      });
-      mockHttpServer.listen(0);
-      await once(mockHttpServer, 'listening');
-      baseUrl = `http://127.0.0.1:${(mockHttpServer.address() as any).port}/`;
-    });
-
-    afterEach(async function () {
-      mockHttpServer.close();
-      await once(mockHttpServer, 'close');
+      baseUrl = `http://127.0.0.1/`;
     });
 
     context('when a configuration does not exist', function () {
@@ -230,24 +270,35 @@ describe('DownloadCenter config', function () {
         downloadConfig.throws({ code: 'NoSuchKey' });
 
         await createAndPublishDownloadCenterConfig(
+          outputDir,
           packageInformation('2.0.1'),
-          'accessKey',
-          'secretKey',
+          DUMMY_ACCESS_KEY,
+          DUMMY_SECRET_KEY,
+          DUMMY_ACCESS_KEY,
+          DUMMY_SECRET_KEY,
+          DUMMY_SESSION_TOKEN,
           '',
           false,
+          DUMMY_CTA_CONFIG,
           dlCenter as any,
           baseUrl
         );
 
         expect(dlCenter).to.have.been.calledWith({
           bucket: 'info-mongodb-com',
-          accessKeyId: 'accessKey',
-          secretAccessKey: 'secretKey',
+          accessKeyId: DUMMY_ACCESS_KEY,
+          secretAccessKey: DUMMY_SECRET_KEY,
         });
         expect(dlCenter).to.have.been.calledWith({
           bucket: 'downloads.10gen.com',
-          accessKeyId: 'accessKey',
-          secretAccessKey: 'secretKey',
+          accessKeyId: DUMMY_ACCESS_KEY,
+          secretAccessKey: DUMMY_SECRET_KEY,
+        });
+        expect(dlCenter).to.have.been.calledWith({
+          bucket: 'cdn-origin-compass',
+          accessKeyId: DUMMY_ACCESS_KEY,
+          secretAccessKey: DUMMY_SECRET_KEY,
+          sessionToken: DUMMY_SESSION_TOKEN,
         });
 
         expect(uploadConfig).to.be.calledOnce;
@@ -280,31 +331,42 @@ describe('DownloadCenter config', function () {
           tutorial_link: 'test',
         });
 
-        expect(uploadAsset).to.be.calledOnce;
+        expect(uploadAsset).to.be.calledTwice;
         const [assetKey] = uploadAsset.lastCall.args;
         expect(assetKey).to.equal('compass/mongosh.json');
       });
 
       it('publishes the created configuration', async function () {
         await createAndPublishDownloadCenterConfig(
+          outputDir,
           packageInformation('1.2.2'),
-          'accessKey',
-          'secretKey',
+          DUMMY_ACCESS_KEY,
+          DUMMY_SECRET_KEY,
+          DUMMY_ACCESS_KEY,
+          DUMMY_SECRET_KEY,
+          DUMMY_SESSION_TOKEN,
           '',
           false,
+          DUMMY_CTA_CONFIG,
           dlCenter as any,
           baseUrl
         );
 
         expect(dlCenter).to.have.been.calledWith({
           bucket: 'info-mongodb-com',
-          accessKeyId: 'accessKey',
-          secretAccessKey: 'secretKey',
+          accessKeyId: DUMMY_ACCESS_KEY,
+          secretAccessKey: DUMMY_SECRET_KEY,
         });
         expect(dlCenter).to.have.been.calledWith({
           bucket: 'downloads.10gen.com',
-          accessKeyId: 'accessKey',
-          secretAccessKey: 'secretKey',
+          accessKeyId: DUMMY_ACCESS_KEY,
+          secretAccessKey: DUMMY_SECRET_KEY,
+        });
+        expect(dlCenter).to.have.been.calledWith({
+          bucket: 'cdn-origin-compass',
+          accessKeyId: DUMMY_ACCESS_KEY,
+          secretAccessKey: DUMMY_SECRET_KEY,
+          sessionToken: DUMMY_SESSION_TOKEN,
         });
 
         expect(uploadConfig).to.be.calledOnce;
@@ -334,7 +396,7 @@ describe('DownloadCenter config', function () {
           tutorial_link: 'test',
         });
 
-        expect(uploadAsset).to.be.calledOnce;
+        expect(uploadAsset).to.be.calledTwice;
         const [assetKey, uploadedAsset] = uploadAsset.lastCall.args;
         expect(assetKey).to.equal('compass/mongosh.json');
         const jsonFeedData = JSON.parse(uploadedAsset);
@@ -384,9 +446,13 @@ describe('DownloadCenter config', function () {
         downloadAsset.returns(JSON.stringify(existingUploadedJsonFeed));
 
         await createAndPublishDownloadCenterConfig(
+          outputDir,
           packageInformation('2.0.0'),
-          'accessKey',
-          'secretKey',
+          DUMMY_ACCESS_KEY,
+          DUMMY_SECRET_KEY,
+          DUMMY_ACCESS_KEY,
+          DUMMY_SECRET_KEY,
+          DUMMY_SESSION_TOKEN,
           path.resolve(
             __dirname,
             '..',
@@ -396,19 +462,26 @@ describe('DownloadCenter config', function () {
             'mongosh-versions.json'
           ),
           false,
+          DUMMY_CTA_CONFIG,
           dlCenter as any,
           baseUrl
         );
 
         expect(dlCenter).to.have.been.calledWith({
           bucket: 'info-mongodb-com',
-          accessKeyId: 'accessKey',
-          secretAccessKey: 'secretKey',
+          accessKeyId: DUMMY_ACCESS_KEY,
+          secretAccessKey: DUMMY_SECRET_KEY,
         });
         expect(dlCenter).to.have.been.calledWith({
           bucket: 'downloads.10gen.com',
-          accessKeyId: 'accessKey',
-          secretAccessKey: 'secretKey',
+          accessKeyId: DUMMY_ACCESS_KEY,
+          secretAccessKey: DUMMY_SECRET_KEY,
+        });
+        expect(dlCenter).to.have.been.calledWith({
+          bucket: 'cdn-origin-compass',
+          accessKeyId: DUMMY_ACCESS_KEY,
+          secretAccessKey: DUMMY_SECRET_KEY,
+          sessionToken: DUMMY_SESSION_TOKEN,
         });
 
         expect(uploadConfig).to.be.calledOnce;
@@ -441,7 +514,7 @@ describe('DownloadCenter config', function () {
           tutorial_link: 'test',
         });
 
-        expect(uploadAsset).to.be.calledOnce;
+        expect(uploadAsset).to.be.calledTwice;
         const [assetKey, uploadedAsset] = uploadAsset.lastCall.args;
         expect(assetKey).to.equal('compass/mongosh.json');
         const jsonFeedData = JSON.parse(uploadedAsset);
@@ -477,6 +550,7 @@ describe('DownloadCenter config', function () {
       ].filter(Boolean);
 
       const mongoshJsonFeedEntry = await createJsonFeedEntry(
+        outputDir,
         packageInformation('2.0.0'),
         'skip://'
       );
@@ -485,11 +559,291 @@ describe('DownloadCenter config', function () {
       ];
       const mongoshTargets = [
         ...new Set(mongoshJsonFeedEntry.downloads.flatMap((d) => d.targets)),
-      ].filter((t) => t !== 'debian12'); // debian12 is not part of the server platform list at the time of writing
+      ].filter((t) => t !== 'ubuntu2404'); // ubuntu2404 is not part of the server platform list at the time of writing
 
       for (const arch of mongoshArchs) expect(serverArchs).to.include(arch);
       for (const target of mongoshTargets)
         expect(serverTargets).to.include(target);
+    });
+  });
+
+  describe('updateJsonFeedCTA', function () {
+    let dlCenter: sinon.SinonStub;
+    let uploadConfig: sinon.SinonStub;
+    let downloadConfig: sinon.SinonStub;
+    let uploadAsset: sinon.SinonStub;
+    let downloadAsset: sinon.SinonStub;
+
+    const existingUploadedJsonFeed = require(path.resolve(
+      __dirname,
+      '..',
+      '..',
+      'test',
+      'fixtures',
+      'cta-versions.json'
+    )) as JsonFeed;
+
+    const getUploadedJsonFeed = (): JsonFeed => {
+      return JSON.parse(uploadAsset.lastCall.args[1]) as JsonFeed;
+    };
+
+    beforeEach(function () {
+      uploadConfig = sinon.stub();
+      downloadConfig = sinon.stub();
+      uploadAsset = sinon.stub();
+      downloadAsset = sinon.stub();
+      dlCenter = sinon.stub();
+
+      downloadAsset.returns(JSON.stringify(existingUploadedJsonFeed));
+
+      dlCenter.returns({
+        downloadConfig,
+        uploadConfig,
+        uploadAsset,
+        downloadAsset,
+      });
+    });
+
+    for (const dryRun of [false, true]) {
+      it(`when dryRun is ${dryRun}, does ${
+        dryRun ? 'not ' : ''
+      }upload the updated json feed`, async function () {
+        const config: CTAConfig = {
+          '1.10.3': {
+            chunks: [{ text: 'Foo' }],
+          },
+          '*': {
+            chunks: [{ text: 'Bar' }],
+          },
+        };
+
+        await updateJsonFeedCTA(
+          config,
+          DUMMY_ACCESS_KEY,
+          DUMMY_SECRET_KEY,
+          DUMMY_ACCESS_KEY,
+          DUMMY_SECRET_KEY,
+          DUMMY_SESSION_TOKEN,
+          dryRun,
+          dlCenter as any
+        );
+        if (dryRun) {
+          expect(uploadAsset).to.not.have.been.called;
+        } else {
+          expect(uploadAsset).to.have.been.called;
+
+          const updatedJsonFeed = getUploadedJsonFeed();
+          expect(updatedJsonFeed.cta?.chunks).to.deep.equal([{ text: 'Bar' }]);
+          expect(
+            updatedJsonFeed.versions.filter((v) => v.version === '1.10.3')[0]
+              .cta?.chunks
+          ).to.deep.equal([{ text: 'Foo' }]);
+          expect(
+            updatedJsonFeed.versions.filter((v) => v.version === '1.10.4')[0]
+              .cta
+          ).to.be.undefined;
+        }
+      });
+    }
+
+    it('cannot add new versions', async function () {
+      expect(
+        existingUploadedJsonFeed.versions.filter((v) => v.version === '1.10.5')
+      ).to.have.lengthOf(0);
+
+      const config: CTAConfig = {
+        '1.10.5': {
+          chunks: [{ text: 'Foo' }],
+        },
+      };
+
+      await updateJsonFeedCTA(
+        config,
+        DUMMY_ACCESS_KEY,
+        DUMMY_SECRET_KEY,
+        DUMMY_ACCESS_KEY,
+        DUMMY_SECRET_KEY,
+        DUMMY_SESSION_TOKEN,
+        false,
+        dlCenter as any
+      );
+
+      const updatedJsonFeed = getUploadedJsonFeed();
+
+      expect(
+        updatedJsonFeed.versions.filter((v) => v.version === '1.10.5')
+      ).to.have.lengthOf(0);
+    });
+
+    it('can remove global cta', async function () {
+      // Preserve existing CTAs, but omit the global one
+      const ctas = (existingUploadedJsonFeed.versions as any[]).reduce(
+        (acc, current) => {
+          acc[current.version] = current.cta;
+          return acc;
+        },
+        {}
+      );
+      expect(ctas['*']).to.be.undefined;
+      await updateJsonFeedCTA(
+        ctas,
+        DUMMY_ACCESS_KEY,
+        DUMMY_SECRET_KEY,
+        DUMMY_ACCESS_KEY,
+        DUMMY_SECRET_KEY,
+        DUMMY_SESSION_TOKEN,
+        false,
+        dlCenter as any
+      );
+
+      const updatedJsonFeed = getUploadedJsonFeed();
+
+      expect(updatedJsonFeed.cta).to.be.undefined;
+    });
+
+    it('can remove version specific cta', async function () {
+      expect(
+        existingUploadedJsonFeed.versions.map((v) => v.cta).filter((cta) => cta)
+      ).to.have.length.greaterThan(0);
+
+      const config = {
+        '*': existingUploadedJsonFeed.cta!,
+      };
+
+      await updateJsonFeedCTA(
+        config,
+        DUMMY_ACCESS_KEY,
+        DUMMY_SECRET_KEY,
+        DUMMY_ACCESS_KEY,
+        DUMMY_SECRET_KEY,
+        DUMMY_SESSION_TOKEN,
+        false,
+        dlCenter as any
+      );
+
+      const updatedJsonFeed = getUploadedJsonFeed();
+      expect(updatedJsonFeed.cta).to.not.be.undefined;
+      expect(
+        updatedJsonFeed.versions.map((v) => v.cta).filter((cta) => cta)
+      ).to.have.lengthOf(0);
+    });
+
+    it('can update global cta', async function () {
+      const config = {
+        '*': {
+          chunks: [{ text: "It's a beautiful day", style: 'imagePositive' }],
+        },
+      };
+
+      await updateJsonFeedCTA(
+        config,
+        DUMMY_ACCESS_KEY,
+        DUMMY_SECRET_KEY,
+        DUMMY_ACCESS_KEY,
+        DUMMY_SECRET_KEY,
+        DUMMY_SESSION_TOKEN,
+        false,
+        dlCenter as any
+      );
+
+      const updatedJsonFeed = getUploadedJsonFeed();
+
+      expect(updatedJsonFeed.cta).to.deep.equal({
+        chunks: [{ text: "It's a beautiful day", style: 'imagePositive' }],
+      });
+    });
+
+    it('can update version-specific cta', async function () {
+      const config = {
+        '1.10.3': {
+          chunks: [{ text: "It's a beautiful day", style: 'imagePositive' }],
+        },
+      };
+
+      await updateJsonFeedCTA(
+        config,
+        DUMMY_ACCESS_KEY,
+        DUMMY_SECRET_KEY,
+        DUMMY_ACCESS_KEY,
+        DUMMY_SECRET_KEY,
+        DUMMY_SESSION_TOKEN,
+        false,
+        dlCenter as any
+      );
+
+      const updatedJsonFeed = getUploadedJsonFeed();
+
+      expect(
+        updatedJsonFeed.versions.filter((v) => v.version === '1.10.3')[0].cta
+      ).to.deep.equal({
+        chunks: [{ text: "It's a beautiful day", style: 'imagePositive' }],
+      });
+    });
+
+    it('can add global cta', async function () {
+      // Remove the existing cta
+      existingUploadedJsonFeed.cta = undefined;
+
+      const config = {
+        '*': {
+          chunks: [
+            { text: 'Go outside and enjoy the sun', style: 'imagePositive' },
+          ],
+        },
+      };
+
+      await updateJsonFeedCTA(
+        config,
+        DUMMY_ACCESS_KEY,
+        DUMMY_SECRET_KEY,
+        DUMMY_ACCESS_KEY,
+        DUMMY_SECRET_KEY,
+        DUMMY_SESSION_TOKEN,
+        false,
+        dlCenter as any
+      );
+
+      const updatedJsonFeed = getUploadedJsonFeed();
+
+      expect(updatedJsonFeed.cta).to.deep.equal({
+        chunks: [
+          { text: 'Go outside and enjoy the sun', style: 'imagePositive' },
+        ],
+      });
+    });
+
+    it('can add version-specific cta', async function () {
+      // Remove the existing cta
+      existingUploadedJsonFeed.cta = undefined;
+
+      const config = {
+        '1.10.4': {
+          chunks: [
+            { text: 'Go outside and enjoy the sun', style: 'imagePositive' },
+          ],
+        },
+      };
+
+      await updateJsonFeedCTA(
+        config,
+        DUMMY_ACCESS_KEY,
+        DUMMY_SECRET_KEY,
+        DUMMY_ACCESS_KEY,
+        DUMMY_SECRET_KEY,
+        DUMMY_SESSION_TOKEN,
+        false,
+        dlCenter as any
+      );
+
+      const updatedJsonFeed = getUploadedJsonFeed();
+
+      expect(
+        updatedJsonFeed.versions.filter((v) => v.version === '1.10.4')[0].cta
+      ).to.deep.equal({
+        chunks: [
+          { text: 'Go outside and enjoy the sun', style: 'imagePositive' },
+        ],
+      });
     });
   });
 });

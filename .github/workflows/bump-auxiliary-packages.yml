@@ -1,0 +1,62 @@
+name: Bump Auxiliary Packages
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: none # We use the github app to checkout and create PR
+
+env:
+  PUPPETEER_SKIP_DOWNLOAD: "true"
+
+description: |
+  This workflow increases the versions of the auxiliary (i.e. non-mongosh) packages and creates a PR
+  as a first step for a release. Use this workflow when you don't want to do a full mongosh release,
+  but do need to pick up unreleased changes in one of the @mongosh/* packages.
+
+jobs:
+  update_generated_files:
+    name: Bump packages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
+        id: app-token
+        with:
+          app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
+          private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
+      - uses: actions/checkout@v4
+        with:
+          # don't checkout a detached HEAD
+          ref: ${{ github.head_ref }}
+
+          # this is important so git log can pick up on
+          # the whole history to generate the list of AUTHORS
+          fetch-depth: "0"
+          token: ${{ steps.app-token.outputs.token }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.16.0
+          cache: "npm"
+
+      - name: Install npm@10.2.4
+        run: |
+          npm install -g npm@10.2.4
+
+      - name: Install Dependencies
+        run: |
+          npm ci
+
+      - name: Bump packages
+        run: |
+          npm run bump-auxiliary
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # 7.0.5
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          commit-message: "chore(release): bump packages for auxiliary release"
+          branch: ci/bump-auxiliary-packages
+          title: "chore(release): bump packages for auxiliary release"
+          labels: no-title-validation
+          body: |
+            - Bumps auxiliary package versions. Merging will trigger a release of these packages.

@@ -1,4 +1,3 @@
-export { setupLoggerAndTelemetry } from './setup-logger-and-telemetry';
 export {
   MongoshAnalytics,
   ToggleableAnalytics,
@@ -6,3 +5,5 @@ export {
   NoopAnalytics,
   ThrottledAnalytics,
 } from './analytics-helpers';
+export { MongoshLoggingAndTelemetry } from './types';
+export { setupLoggingAndTelemetry } from './logging-and-telemetry';

@@ -8,13 +8,16 @@ import type {
   FindOptions,
   ListCollectionsOptions,
   ListIndexesOptions,
-  AggregationCursor,
-  FindCursor,
   DbOptions,
   ReadPreferenceFromOptions,
   ReadPreferenceLike,
 } from './all-transport-types';
-import type { ChangeStream, ChangeStreamOptions } from './all-transport-types';
+import type { ChangeStreamOptions } from './all-transport-types';
+import type {
+  ServiceProviderAggregationCursor,
+  ServiceProviderChangeStream,
+  ServiceProviderFindCursor,
+} from './cursors';
 
 /**
  * Interface for read operations in the CRUD specification.
@@ -37,7 +40,7 @@ export default interface Readable {
     pipeline: Document[],
     options?: AggregateOptions,
     dbOptions?: DbOptions
-  ): AggregationCursor;
+  ): ServiceProviderAggregationCursor;
 
   /**
    * Run an aggregation pipeline on the DB.
@@ -54,7 +57,7 @@ export default interface Readable {
     pipeline: Document[],
     options?: AggregateOptions,
     dbOptions?: DbOptions
-  ): AggregationCursor;
+  ): ServiceProviderAggregationCursor;
 
   /**
    * Returns the count of documents that would match a find() query for the
@@ -152,7 +155,7 @@ export default interface Readable {
     filter?: Document,
     options?: FindOptions,
     dbOptions?: DbOptions
-  ): FindCursor;
+  ): ServiceProviderFindCursor;
 
   /**
    * Get currently known topology information.
@@ -215,7 +218,7 @@ export default interface Readable {
     dbOptions?: DbOptions,
     db?: string,
     coll?: string
-  ): ChangeStream<Document>;
+  ): ServiceProviderChangeStream;
 
   /**
    * Returns an array of documents that identify and describe the existing

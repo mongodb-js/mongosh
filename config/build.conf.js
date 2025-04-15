@@ -4,8 +4,8 @@ const path = require('path');
 const os = require('os');
 
 const SHARED_LIBRARY_SUFFIX =
-  process.platform === 'win32' ? 'dll' :
-  process.platform === 'darwin' ? 'dylib' : 'so';
+  (process.env.PACKAGE_VARIANT ?? process.platform).startsWith('win32') ? 'dll' :
+  (process.env.PACKAGE_VARIANT ?? process.platform).startsWith('darwin') ? 'dylib' : 'so';
 
 /**
  * The project root.
@@ -48,7 +48,7 @@ const EXECUTABLE_PATH = path.join(OUTPUT_DIR, process.platform === 'win32' ? 'mo
  * We use the name mongosh_crypt_v1 to avoid conflicts with users
  * potentially installing the 'proper' crypt shared library.
  */
-const CRYPT_LIBRARY_PATH = path.resolve(TMP_DIR, 'mongosh_crypt_v1.' + SHARED_LIBRARY_SUFFIX);
+const CRYPT_LIBRARY_PATH = path.resolve(OUTPUT_DIR, 'mongosh_crypt_v1.' + SHARED_LIBRARY_SUFFIX);
 
 /**
  * Build info JSON data file.
@@ -75,6 +75,10 @@ const MANPAGE_NAME = 'mongosh.1.gz'
  */
 const PACKAGE_VARIANT = process.env.PACKAGE_VARIANT;
 
+const CTA_CONFIG = require(path.join(ROOT, 'config', 'cta-config.json'));
+
+const CTA_CONFIG_SCHEMA = require(path.join(ROOT, 'config', 'cta-config.schema.json'));
+
 /**
  * Export the configuration for the build.
  */
@@ -93,6 +97,9 @@ module.exports = {
   evgAwsSecret: process.env.AWS_SECRET,
   downloadCenterAwsKey: process.env.DOWNLOAD_CENTER_AWS_KEY,
   downloadCenterAwsSecret: process.env.DOWNLOAD_CENTER_AWS_SECRET,
+  downloadCenterAwsKeyNew: process.env.DOWNLOAD_CENTER_AWS_KEY_NEW,
+  downloadCenterAwsSecretNew: process.env.DOWNLOAD_CENTER_AWS_SECRET_NEW,
+  downloadCenterAwsSessionTokenNew: process.env.DOWNLOAD_CENTER_AWS_SESSION_TOKEN_NEW,
   injectedJsonFeedFile: path.join(ROOT, 'config', 'mongosh-versions.json'),
   githubToken: process.env.GITHUB_TOKEN,
   segmentKey: process.env.SEGMENT_API_KEY,
@@ -109,6 +116,7 @@ module.exports = {
     repo: 'mongosh'
   },
   artifactUrlFile: process.env.ARTIFACT_URL_FILE,
+  artifactUrlExtraTag: process.env.ARTIFACT_URL_EXTRA_TAG,
   cryptSharedLibPath: CRYPT_LIBRARY_PATH,
   packageInformation: packageVariant => {
     // The shared-openssl suffix for the current package identifer, e.g. 'openssl11'.
@@ -147,7 +155,11 @@ module.exports = {
         {
           sourceFilePath: path.resolve(__dirname, '..', 'THIRD_PARTY_NOTICES.md'),
           packagedFilePath: 'THIRD_PARTY_NOTICES'
-        }
+        },
+        {
+          sourceFilePath: path.resolve(path.dirname(EXECUTABLE_PATH), '.sbom.json'),
+          packagedFilePath: '.sbom.json'
+        },
       ],
       manpage: {
         sourceFilePath: path.resolve(TMP_DIR, 'manpage', MANPAGE_NAME),
@@ -185,8 +197,10 @@ module.exports = {
     };
   },
   manpage: {
-    sourceUrl: 'https://docs.mongodb.com/mongodb-shell/manpages.tar.gz',
+    sourceUrl: 'https://www.mongodb.com/docs/mongodb-shell/manpages.tar.gz',
     downloadPath: path.resolve(TMP_DIR, 'manpage'),
     fileName: MANPAGE_NAME,
   },
+  ctaConfig: CTA_CONFIG,
+  ctaConfigSchema: CTA_CONFIG_SCHEMA,
 };

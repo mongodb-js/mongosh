@@ -101,9 +101,6 @@ export const USAGE = `
         --tlsDisabledProtocols [arg]           ${i18n.__(
           'cli-repl.args.tlsDisabledProtocols'
         )}
-        --tlsUseSystemCA                       ${i18n.__(
-          'cli-repl.args.tlsUseSystemCA'
-        )}
         --tlsFIPSMode                          ${i18n.__(
           'cli-repl.args.tlsFIPSMode'
         )}
@@ -136,6 +133,27 @@ export const USAGE = `
         )}
         --kmsURL [arg]                         ${i18n.__(
           'cli-repl.args.kmsURL'
+        )}
+
+  ${clr(i18n.__('cli-repl.args.oidcOptions'), 'mongosh:section-header')}
+
+        --oidcFlows[=auth-code,device-auth]    ${i18n.__(
+          'cli-repl.args.oidcFlows'
+        )}
+        --oidcRedirectUri[=url]                ${i18n.__(
+          'cli-repl.args.oidcRedirectUri'
+        )}
+        --oidcTrustedEndpoint                  ${i18n.__(
+          'cli-repl.args.oidcTrustedEndpoint'
+        )}
+        --oidcIdTokenAsAccessToken             ${i18n.__(
+          'cli-repl.args.oidcIdTokenAsAccessToken'
+        )}
+        --oidcDumpTokens[=mode]                ${i18n.__(
+          'cli-repl.args.oidcDumpTokens'
+        )}
+        --oidcNoNonce                          ${i18n.__(
+          'cli-repl.args.oidcNoNonce'
         )}
 
   ${clr(i18n.__('cli-repl.args.dbAddressOptions'), 'mongosh:section-header')}

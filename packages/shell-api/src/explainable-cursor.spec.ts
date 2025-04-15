@@ -27,7 +27,7 @@ describe('ExplainableCursor', function () {
       expect(signatures.ExplainableCursor.type).to.equal('ExplainableCursor');
     });
     it('inherited (map) signature', function () {
-      expect(signatures.ExplainableCursor.attributes.map).to.deep.equal({
+      expect(signatures.ExplainableCursor.attributes?.map).to.deep.equal({
         type: 'function',
         returnsPromise: false,
         deprecated: false,
@@ -44,7 +44,7 @@ describe('ExplainableCursor', function () {
   });
   describe('instance', function () {
     let wrappee: any;
-    let eCursor;
+    let eCursor: ExplainableCursor;
     beforeEach(function () {
       wrappee = {
         map: sinon.spy(),
@@ -69,11 +69,11 @@ describe('ExplainableCursor', function () {
     });
 
     it('returns the same ExplainableCursor', function () {
-      expect(eCursor.map()).to.equal(eCursor);
+      expect(eCursor.map((doc) => doc)).to.equal(eCursor);
     });
 
     it('has the correct metadata', function () {
-      expect(eCursor.collation.serverVersions).to.deep.equal([
+      expect((eCursor.collation as any).serverVersions).to.deep.equal([
         '3.4.0',
         ServerVersions.latest,
       ]);

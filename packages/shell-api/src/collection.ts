@@ -26,6 +26,7 @@ import type {
   GenericDatabaseSchema,
   GenericServerSideSchema,
   StringKey,
+  SearchIndexDefinition,
 } from './helpers';
 import {
   adaptAggregateOptions,
@@ -44,6 +45,8 @@ import {
   shouldRunAggregationImmediately,
   coerceToJSNumber,
   buildConfigChunksCollectionMatch,
+  onlyShardedCollectionsInConfigFilter,
+  aggregateBackgroundOptionNotSupportedHelp,
 } from './helpers';
 import type {
   AnyBulkWriteOperation,
@@ -67,6 +70,8 @@ import type {
   UpdateOptions,
   DropCollectionOptions,
   CheckMetadataConsistencyOptions,
+  AggregateOptions,
+  SearchIndexDescription,
 } from '@mongosh/service-provider-core';
 import type { RunCommandCursor, Database } from './index';
 import {
@@ -184,25 +189,31 @@ export class CollectionImpl<
    */
   async aggregate(
     pipeline: Document[],
-    options: Document & { explain?: never }
-  ): Promise<AggregationCursor>;
+    options: AggregateOptions & { explain: ExplainVerbosityLike }
+  ): Promise<Document>;
   async aggregate(
     pipeline: Document[],
-    options: Document & { explain: ExplainVerbosityLike }
-  ): Promise<Document>;
+    options?: AggregateOptions
+  ): Promise<AggregationCursor>;
   async aggregate(...stages: Document[]): Promise<AggregationCursor>;
   @returnsPromise
   @returnType('AggregationCursor')
   @apiVersions([1])
-  async aggregate(...args: any[]): Promise<any> {
-    let options;
-    let pipeline;
+  async aggregate(...args: unknown[]): Promise<AggregationCursor | Document> {
+    let options: AggregateOptions;
+    let pipeline: Document[];
     if (args.length === 0 || Array.isArray(args[0])) {
       options = args[1] || {};
-      pipeline = args[0] || [];
+      pipeline = (args[0] as Document[]) || [];
     } else {
       options = {};
-      pipeline = args || [];
+      pipeline = (args as Document[]) || [];
+    }
+
+    if ('background' in options) {
+      await this._instanceState.printWarning(
+        aggregateBackgroundOptionNotSupportedHelp
+      );
     }
     this._emitCollectionApiCall('aggregate', { options, pipeline });
     const { aggOptions, dbOptions, explain } = adaptAggregateOptions(options);
@@ -503,8 +514,19 @@ export class CollectionImpl<
       FindAndModifyMethodShellOptions,
       'query' | 'update'
     > = { ...options };
+    if (
+      reducedOptions.projection !== undefined &&
+      reducedOptions.fields !== undefined
+    ) {
+      throw new MongoshInvalidInputError(
+        'Cannot specify both .fields and .projection for findAndModify()',
+        CommonErrors.InvalidArgument
+      );
+    }
+    reducedOptions.projection ??= reducedOptions.fields;
     delete (reducedOptions as any).query;
     delete (reducedOptions as any).update;
+    delete (reducedOptions as any).fields;
     if (options.remove) {
       return this.findOneAndDelete(options.query, reducedOptions);
     }
@@ -561,7 +583,7 @@ export class CollectionImpl<
   }
 
   @returnsPromise
-  @apiVersions([])
+  @apiVersions([1])
   async renameCollection(
     newName: string,
     dropTarget?: boolean
@@ -1344,15 +1366,6 @@ export class CollectionImpl<
         return all.sort((a, b) => b.nIndexesWas - a.nIndexesWas)[0];
       }
 
-      if (error?.codeName === 'IndexNotFound') {
-        return {
-          ok: error.ok,
-          errmsg: error.errmsg,
-          code: error.code,
-          codeName: error.codeName,
-        };
-      }
-
       throw error;
     }
   }
@@ -1790,9 +1803,7 @@ export class CollectionImpl<
     try {
       result.sharded = !!(await config.getCollection('collections').findOne({
         _id: timeseriesBucketsNs ?? ns,
-        // Dropped is gone on newer server versions, so check for !== true
-        // rather than for === false (SERVER-51880 and related).
-        dropped: { $ne: true },
+        ...onlyShardedCollectionsInConfigFilter,
       }));
     } catch (e) {
       // A user might not have permissions to check the config. In which
@@ -1874,9 +1885,14 @@ export class CollectionImpl<
 
       return await this._aggregateAndScaleCollStats(collStats, scale);
     } catch (e: any) {
-      if (e?.codeName === 'StaleConfig' || e?.code === 13388) {
+      if (
+        e?.codeName === 'StaleConfig' ||
+        e?.code === 13388 ||
+        e?.codeName === 'FailedToParse'
+      ) {
         // Fallback to the deprecated way of fetching that folks can still
         // fetch the stats of sharded timeseries collections. SERVER-72686
+        // and atlas data federation (MONGOSH-1425)
         try {
           return await this._getLegacyCollStats(scale);
         } catch (legacyCollStatsError) {
@@ -2077,9 +2093,65 @@ export class CollectionImpl<
   @apiVersions([])
   async getShardVersion(): Promise<Document> {
     this._emitCollectionApiCall('getShardVersion', {});
-    return await this._database._runAdminCommand({
+    return await this._database._runAdminReadCommand({
       getShardVersion: `${this._database._name}.${this._name}`,
     });
+  }
+
+  /**
+   * Helper for getting collection info for sharded collections.
+   * @throws If the collection is not sharded.
+   * @returns collection info based on given collStats.
+   */
+  async _getShardedCollectionInfo(
+    config: Database,
+    collStats: Document[]
+  ): Promise<Document> {
+    const ns = `${this._database._name}.${this._name}`;
+    const existingConfigCollectionsInfo = await config
+      .getCollection('collections')
+      .findOne({
+        _id: ns,
+        ...onlyShardedCollectionsInConfigFilter,
+      });
+
+    if (existingConfigCollectionsInfo !== null) {
+      return existingConfigCollectionsInfo;
+    }
+
+    // If the collection info is not found, check if it is timeseries and use the bucket
+    const timeseriesShardStats = collStats.find(
+      (extractedShardStats) =>
+        typeof extractedShardStats.storageStats.timeseries !== 'undefined'
+    );
+
+    if (!timeseriesShardStats) {
+      throw new MongoshInvalidInputError(
+        `Collection ${this._name} is not sharded`,
+        ShellApiErrors.NotConnectedToShardedCluster
+      );
+    }
+
+    const { storageStats } = timeseriesShardStats;
+
+    const timeseries: Document = storageStats.timeseries;
+    const timeseriesBucketNs: string = timeseries.bucketsNs;
+
+    const timeseriesCollectionInfo = await config
+      .getCollection('collections')
+      .findOne({
+        _id: timeseriesBucketNs,
+        ...onlyShardedCollectionsInConfigFilter,
+      });
+
+    if (!timeseriesCollectionInfo) {
+      throw new MongoshRuntimeError(
+        `Error finding collection information for ${timeseriesBucketNs}`,
+        CommonErrors.CommandFailed
+      );
+    }
+
+    return timeseriesCollectionInfo;
   }
 
   @returnsPromise
@@ -2090,22 +2162,6 @@ export class CollectionImpl<
 
     const result = {} as Document;
     const config = this._mongo.getDB('config' as StringKey<M>);
-    const ns = `${this._database._name}.${this._name}`;
-
-    const configCollectionsInfo = await config
-      .getCollection('collections')
-      .findOne({
-        _id: ns,
-        // dropped is gone on newer server versions, so check for !== true
-        // rather than for === false (SERVER-51880 and related)
-        dropped: { $ne: true },
-      });
-    if (!configCollectionsInfo) {
-      throw new MongoshInvalidInputError(
-        `Collection ${this._name} is not sharded`,
-        ShellApiErrors.NotConnectedToShardedCluster
-      );
-    }
 
     const collStats = await (
       await this.aggregate({ $collStats: { storageStats: {} } })
@@ -2121,12 +2177,15 @@ export class CollectionImpl<
       avgObjSize: number;
     }[] = [];
 
-    await Promise.all(
-      collStats.map((extShardStats) =>
-        (async (): Promise<void> => {
-          // Extract and store only the relevant subset of the stats for this shard
-          const { shard } = extShardStats;
+    const configCollectionsInfo = await this._getShardedCollectionInfo(
+      config,
+      collStats
+    );
 
+    await Promise.all(
+      collStats.map((extractedShardStats) =>
+        (async (): Promise<void> => {
+          const { shard } = extractedShardStats;
           // If we have an UUID, use that for lookups. If we have only the ns,
           // use that. (On 5.0+ servers, config.chunk has uses the UUID, before
           // that it had the ns).
@@ -2137,39 +2196,50 @@ export class CollectionImpl<
           const [host, numChunks] = await Promise.all([
             config
               .getCollection('shards')
-              .findOne({ _id: extShardStats.shard }),
+              .findOne({ _id: extractedShardStats.shard }),
             config.getCollection('chunks').countDocuments(countChunksQuery),
           ]);
+
+          // Since 6.0, there can be orphan documents indicated by numOrphanDocs.
+          // These orphan documents need to be accounted for in the size calculation.
+          const orphanDocumentsSize =
+            (extractedShardStats.storageStats.numOrphanDocs ?? 0) *
+            (extractedShardStats.storageStats.avgObjSize ?? 0);
+          const ownedSize =
+            extractedShardStats.storageStats.size - orphanDocumentsSize;
+
           const shardStats = {
             shardId: shard,
             host: host !== null ? host.host : null,
-            size: extShardStats.storageStats.size,
-            count: extShardStats.storageStats.count,
+            size: ownedSize,
+            count: extractedShardStats.storageStats.count,
             numChunks: numChunks,
-            avgObjSize: extShardStats.storageStats.avgObjSize,
+            avgObjSize: extractedShardStats.storageStats.avgObjSize,
           };
 
-          const key = `Shard ${shardStats.shardId} at ${shardStats.host}`;
+          // In sharded timeseries collections we do not have a count
+          // so we intentionally pass NaN as a result to the client.
+          const shardStatsCount: number = shardStats.count ?? NaN;
 
-          const estChunkData =
+          const estimatedChunkDataPerChunk =
             shardStats.numChunks === 0
               ? 0
               : shardStats.size / shardStats.numChunks;
-          const estChunkCount =
+          const estimatedDocsPerChunk =
             shardStats.numChunks === 0
               ? 0
-              : Math.floor(shardStats.count / shardStats.numChunks);
+              : Math.floor(shardStatsCount / shardStats.numChunks);
 
-          result[key] = {
+          result[`Shard ${shardStats.shardId} at ${shardStats.host}`] = {
             data: dataFormat(coerceToJSNumber(shardStats.size)),
-            docs: shardStats.count,
+            docs: shardStatsCount,
             chunks: shardStats.numChunks,
-            'estimated data per chunk': dataFormat(estChunkData),
-            'estimated docs per chunk': estChunkCount,
+            'estimated data per chunk': dataFormat(estimatedChunkDataPerChunk),
+            'estimated docs per chunk': estimatedDocsPerChunk,
           };
 
-          totals.size += coerceToJSNumber(shardStats.size);
-          totals.count += coerceToJSNumber(shardStats.count);
+          totals.size += coerceToJSNumber(ownedSize);
+          totals.count += coerceToJSNumber(shardStatsCount);
           totals.numChunks += coerceToJSNumber(shardStats.numChunks);
 
           conciseShardsStats.push(shardStats);
@@ -2181,7 +2251,7 @@ export class CollectionImpl<
       data: dataFormat(totals.size),
       docs: totals.count,
       chunks: totals.numChunks,
-    } as Document;
+    } as GetShardDistributionResult['Totals'];
 
     for (const shardStats of conciseShardsStats) {
       const estDataPercent =
@@ -2200,7 +2270,11 @@ export class CollectionImpl<
       ];
     }
     result.Totals = totalValue;
-    return new CommandResult('StatsResult', result);
+
+    return new CommandResult<GetShardDistributionResult>(
+      'StatsResult',
+      result as GetShardDistributionResult
+    );
   }
 
   @serverVersions(['3.1.0', ServerVersions.latest])
@@ -2283,7 +2357,7 @@ export class CollectionImpl<
   ): Promise<Document> {
     assertArgsDefinedType([key], [true], 'Collection.analyzeShardKey');
     this._emitCollectionApiCall('analyzeShardKey', { key });
-    return await this._database._runAdminCommand({
+    return await this._database._runAdminReadCommand({
       analyzeShardKey: this.getFullName(),
       key,
       ...options,
@@ -2332,42 +2406,73 @@ export class CollectionImpl<
     return await this._mongo._serviceProvider.getSearchIndexes(
       this._database._name,
       this._name,
-      indexName as string | undefined,
+      indexName,
       { ...(await this._database._baseOptions()), ...options }
     );
   }
 
+  async createSearchIndex(
+    name: string,
+    definition: SearchIndexDefinition
+  ): Promise<string>;
+  async createSearchIndex(
+    name: string,
+    type: 'search' | 'vectorSearch',
+    definition: SearchIndexDefinition
+  ): Promise<string>;
+  async createSearchIndex(
+    definition: SearchIndexDefinition,
+    type?: 'search' | 'vectorSearch'
+  ): Promise<string>;
+  async createSearchIndex(description: SearchIndexDescription): Promise<string>;
   @serverVersions(['6.0.0', ServerVersions.latest])
   @returnsPromise
   @apiVersions([])
-  // TODO(MONGOSH-1471): use SearchIndexDescription once available
   async createSearchIndex(
-    indexName?: string | Document,
-    type?: 'search' | 'vectorSearch' | Document,
-    definition?: Document
+    nameOrOptions?: string | SearchIndexDescription | SearchIndexDefinition,
+    typeOrOptions?: 'search' | 'vectorSearch' | SearchIndexDefinition,
+    definition?: SearchIndexDefinition
   ): Promise<string> {
-    if (typeof type === 'object' && type !== null) {
-      definition = type;
-      type = undefined;
-    }
-    if (typeof indexName === 'object' && indexName !== null) {
-      definition = indexName;
-      indexName = undefined;
+    let indexDescription: SearchIndexDescription;
+
+    if (
+      typeof nameOrOptions === 'object' &&
+      nameOrOptions !== null &&
+      nameOrOptions.definition
+    ) {
+      indexDescription = nameOrOptions as SearchIndexDescription;
+    } else {
+      let indexName: string | undefined;
+      let indexType: 'search' | 'vectorSearch' | undefined;
+
+      if (typeof typeOrOptions === 'object' && typeOrOptions !== null) {
+        definition = typeOrOptions;
+      } else {
+        indexType = typeOrOptions;
+      }
+
+      if (typeof nameOrOptions === 'object' && nameOrOptions !== null) {
+        definition = nameOrOptions;
+      } else {
+        indexName = nameOrOptions;
+      }
+
+      indexDescription = {
+        name: indexName ?? 'default',
+        // Omitting type when it is 'search' for compat with older servers
+        ...(indexType &&
+          indexType !== 'search' && {
+            type: indexType as 'search' | 'vectorSearch',
+          }),
+        definition: { ...definition },
+      };
     }
 
-    this._emitCollectionApiCall('createSearchIndex', { indexName, definition });
+    this._emitCollectionApiCall('createSearchIndex', indexDescription);
     const results = await this._mongo._serviceProvider.createSearchIndexes(
       this._database._name,
       this._name,
-      [
-        {
-          name: (indexName as string | undefined) ?? 'default',
-          // Omitting type when it is 'search' for compat with older servers
-          ...(type &&
-            type !== 'search' && { type: type as 'search' | 'vectorSearch' }),
-          definition: { ...definition },
-        },
-      ]
+      [indexDescription]
     );
     return results[0];
   }
@@ -2375,13 +2480,8 @@ export class CollectionImpl<
   @serverVersions(['6.0.0', ServerVersions.latest])
   @returnsPromise
   @apiVersions([])
-  // TODO(MONGOSH-1471): use SearchIndexDescription once available
   async createSearchIndexes(
-    specs: {
-      name: string;
-      type?: 'search' | 'vectorSearch';
-      definition: Document;
-    }[]
+    specs: SearchIndexDescription[]
   ): Promise<string[]> {
     this._emitCollectionApiCall('createSearchIndexes', { specs });
     return await this._mongo._serviceProvider.createSearchIndexes(
@@ -2424,5 +2524,26 @@ export class CollectionImpl<
     );
   }
 }
+
+export type GetShardDistributionResult = {
+  Totals: {
+    data: string;
+    docs: number;
+    chunks: number;
+  } & {
+    [individualShardDistribution: `Shard ${string}`]: [
+      `${number} % data`,
+      `${number} % docs in cluster`,
+      `${string} avg obj size on shard`
+    ];
+  };
+  [individualShardResult: `Shard ${string} at ${string}`]: {
+    data: string;
+    docs: number;
+    chunks: number;
+    'estimated data per chunk': string;
+    'estimated docs per chunk': number;
+  };
+};
 
 export default Collection;

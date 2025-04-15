@@ -20,9 +20,12 @@ Page](https://www.mongodb.com/try/download/shell). We currently maintain MongoDB
 Shell on three different platforms - Windows (zip), MacOS (zip) and Linux (tgz, deb and rpm).
 Once downloaded, you will have to extract the binary and add it to your PATH
 variable. For detailed instructions for each of our supported platforms, please visit
-[installation documentation](https://docs.mongodb.com/mongodb-shell/install#mdb-shell-install).
+[installation documentation](https://www.mongodb.com/docs/mongodb-shell/install#mdb-shell-install).
 
 ## CLI Usage
+
+<!-- AUTOMATICALLY_INSERT_CLI_USAGE -->
+
 ```shell
   $ mongosh [options] [db address] [file names (ending in .js or .mongodb)]
 
@@ -49,6 +52,9 @@ variable. For detailed instructions for each of our supported platforms, please 
         --authenticationDatabase [arg]         User source (defaults to dbname)
         --authenticationMechanism [arg]        Authentication mechanism
         --awsIamSessionToken [arg]             AWS IAM Temporary Session Token ID
+        --gssapiServiceName [arg]              Service name to use when authenticating using GSSAPI/Kerberos
+        --sspiHostnameCanonicalization [arg]   Specify the SSPI hostname canonicalization (none or forward, available on Windows)
+        --sspiRealmOverride [arg]              Specify the SSPI server realm (available on Windows)
 
   TLS Options:
 
@@ -61,7 +67,6 @@ variable. For detailed instructions for each of our supported platforms, please 
         --tlsCertificateSelector [arg]         TLS Certificate in system store (Windows and macOS only)
         --tlsCRLFile [arg]                     Specifies the .pem file that contains the Certificate Revocation List
         --tlsDisabledProtocols [arg]           Comma separated list of TLS protocols to disable [TLS1_0,TLS1_1,TLS1_2]
-        --tlsUseSystemCA                       Load the operating system trusted certificate list
         --tlsFIPSMode                          Enable the system TLS library's FIPS mode
 
   API version options:
@@ -77,6 +82,15 @@ variable. For detailed instructions for each of our supported platforms, please 
         --awsSessionToken [arg]                Optional AWS Session Token ID
         --keyVaultNamespace [arg]              database.collection to store encrypted FLE parameters
         --kmsURL [arg]                         Test parameter to override the URL of the KMS endpoint
+
+  OIDC auth options:
+
+        --oidcFlows[=auth-code,device-auth]    Supported OIDC auth flows
+        --oidcRedirectUri[=url]                Local auth code flow redirect URL [http://localhost:27097/redirect]
+        --oidcTrustedEndpoint                  Treat the cluster/database mongosh as a trusted endpoint
+        --oidcIdTokenAsAccessToken             Use ID tokens in place of access tokens for auth
+        --oidcDumpTokens[=mode]                Debug OIDC by printing tokens to mongosh's output [redacted|include-secrets]
+        --oidcNoNonce                          Don't send a nonce argument in the OIDC auth request
 
   DB Address Examples:
 
@@ -97,11 +111,13 @@ variable. For detailed instructions for each of our supported platforms, please 
   For more information on usage: https://docs.mongodb.com/mongodb-shell.
 ```
 
+<!-- /AUTOMATICALLY_INSERT_CLI_USAGE -->
+
 ## Local Development
 
 ### Requirements
 
-- Node.js v16.x
+- Node.js v20.x
 
 ### Install
 

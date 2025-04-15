@@ -1,4 +1,4 @@
-import type { DevtoolsConnectOptions } from '@mongosh/service-provider-server/lib/cli-service-provider';
+import type { DevtoolsConnectOptions } from '@mongosh/service-provider-node-driver';
 import { expect } from 'chai';
 import { UUID, Long } from 'bson';
 import {

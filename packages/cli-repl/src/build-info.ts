@@ -1,5 +1,5 @@
 import os from 'os';
-import { CliServiceProvider } from '@mongosh/service-provider-server';
+import { NodeDriverServiceProvider } from '@mongosh/service-provider-node-driver';
 
 export interface BuildInfo {
   version: string;
@@ -15,7 +15,8 @@ export interface BuildInfo {
   opensslVersion: string;
   sharedOpenssl: boolean;
   segmentApiKey?: string;
-  deps: ReturnType<typeof CliServiceProvider.getVersionInformation>;
+  runtimeGlibcVersion: string;
+  deps: ReturnType<typeof NodeDriverServiceProvider.getVersionInformation>;
 }
 
 function getSystemArch(): (typeof process)['arch'] {
@@ -44,6 +45,7 @@ export function baseBuildInfo(): Omit<BuildInfo, 'deps'> {
     // Runtime platform can differ e.g. because homebrew on macOS uses
     // npm packages published from Linux
     runtimePlatform: process.platform,
+    runtimeGlibcVersion: getGlibcVersion() ?? 'N/A',
   };
 
   try {
@@ -77,7 +79,7 @@ export async function buildInfo({
   withSegmentApiKey?: boolean;
 } = {}): Promise<BuildInfo> {
   const dependencyVersionInfo: BuildInfo['deps'] = {
-    ...CliServiceProvider.getVersionInformation(),
+    ...NodeDriverServiceProvider.getVersionInformation(),
   };
 
   const buildInfo = { ...baseBuildInfo(), deps: { ...dependencyVersionInfo } };
@@ -85,4 +87,15 @@ export async function buildInfo({
     delete buildInfo.segmentApiKey;
   }
   return buildInfo;
+}
+
+let cachedGlibcVersion: string | undefined | null = null;
+export function getGlibcVersion(): string | undefined {
+  if (process.platform !== 'linux') return undefined;
+  if (cachedGlibcVersion !== null) return cachedGlibcVersion;
+  try {
+    return (cachedGlibcVersion = require('glibc-version')());
+  } catch {
+    return (cachedGlibcVersion = undefined);
+  }
 }

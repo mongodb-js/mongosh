@@ -25,6 +25,69 @@ export class CommandResult<T = unknown> extends ShellApiValueClass {
   }
 }
 
+export type ClientInsertResult = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  insertedId: any;
+};
+
+export type ClientUpdateResult = {
+  matchedCount: number;
+  modifiedCount: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  upsertedId?: any;
+  didUpsert: boolean;
+};
+
+export type ClientDeleteResult = {
+  deletedCount: number;
+};
+
+@shellApiClassDefault
+export class ClientBulkWriteResult extends ShellApiValueClass {
+  acknowledged: boolean;
+  insertedCount: number;
+  matchedCount: number;
+  modifiedCount: number;
+  deletedCount: number;
+  upsertedCount: number;
+  insertResults?: ReadonlyMap<number, ClientInsertResult>;
+  updateResults?: ReadonlyMap<number, ClientUpdateResult>;
+  deleteResults?: ReadonlyMap<number, ClientDeleteResult>;
+
+  constructor({
+    acknowledged,
+    insertedCount,
+    matchedCount,
+    modifiedCount,
+    deletedCount,
+    upsertedCount,
+    insertResults,
+    updateResults,
+    deleteResults,
+  }: {
+    acknowledged: boolean;
+    insertedCount: number;
+    matchedCount: number;
+    modifiedCount: number;
+    deletedCount: number;
+    upsertedCount: number;
+    insertResults?: ReadonlyMap<number, ClientInsertResult>;
+    updateResults?: ReadonlyMap<number, ClientUpdateResult>;
+    deleteResults?: ReadonlyMap<number, ClientDeleteResult>;
+  }) {
+    super();
+    this.acknowledged = acknowledged;
+    this.insertedCount = insertedCount;
+    this.matchedCount = matchedCount;
+    this.modifiedCount = modifiedCount;
+    this.deletedCount = deletedCount;
+    this.upsertedCount = upsertedCount;
+    this.insertResults = insertResults;
+    this.updateResults = updateResults;
+    this.deleteResults = deleteResults;
+  }
+}
+
 @shellApiClassDefault
 export class BulkWriteResult extends ShellApiValueClass {
   acknowledged: boolean;

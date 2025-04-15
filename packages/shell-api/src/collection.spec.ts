@@ -22,6 +22,8 @@ import type {
   RunCommandCursor as ServiceProviderRunCommandCursor,
   ServiceProvider,
   ClientSession as ServiceProviderSession,
+  Document,
+  AnyBulkWriteOperation,
 } from '@mongosh/service-provider-core';
 import { bson } from '@mongosh/service-provider-core';
 import ShellInstanceState from './shell-instance-state';
@@ -48,7 +50,7 @@ describe('Collection', function () {
       expect(signatures.Collection.type).to.equal('Collection');
     });
     it('attributes', function () {
-      expect(signatures.Collection.attributes.aggregate).to.deep.equal({
+      expect(signatures.Collection.attributes?.aggregate).to.deep.equal({
         type: 'function',
         returnsPromise: true,
         deprecated: false,
@@ -209,8 +211,7 @@ describe('Collection', function () {
 
       it('returns an AggregationCursor that wraps the service provider one', async function () {
         const toArrayResult = [{ foo: 'bar' }];
-        serviceProviderCursor.tryNext.onFirstCall().resolves({ foo: 'bar' });
-        serviceProviderCursor.tryNext.onSecondCall().resolves(null);
+        serviceProviderCursor.toArray.resolves(toArrayResult);
         serviceProvider.aggregate.returns(serviceProviderCursor);
 
         const cursor = await collection.aggregate([
@@ -274,7 +275,7 @@ describe('Collection', function () {
     });
 
     describe('bulkWrite', function () {
-      let requests;
+      let requests: AnyBulkWriteOperation[];
       beforeEach(function () {
         requests = [{ insertOne: { document: { doc: 1 } } }];
       });
@@ -1022,7 +1023,7 @@ describe('Collection', function () {
       });
     });
 
-    ['ensureIndex', 'createIndex'].forEach((method) => {
+    for (const method of ['ensureIndex', 'createIndex'] as const) {
       describe(method, function () {
         beforeEach(function () {
           serviceProvider.createIndexes.resolves(['index_1']);
@@ -1078,11 +1079,15 @@ describe('Collection', function () {
           });
         });
       });
-    });
+    }
 
-    ['getIndexes', 'getIndexSpecs', 'getIndices'].forEach((method) => {
+    for (const method of [
+      'getIndexes',
+      'getIndexSpecs',
+      'getIndices',
+    ] as const) {
       describe(method, function () {
-        let result;
+        let result: Document[];
         beforeEach(function () {
           result = [
             {
@@ -1101,10 +1106,10 @@ describe('Collection', function () {
           expect(await collection[method]()).to.deep.equal(result);
         });
       });
-    });
+    }
 
     describe('getIndexKeys', function () {
-      let result;
+      let result: Document[];
       beforeEach(function () {
         result = [
           {
@@ -1137,7 +1142,7 @@ describe('Collection', function () {
 
     describe('dropIndexes', function () {
       context('when serviceProvider.dropIndexes resolves', function () {
-        let result;
+        let result: Document;
         beforeEach(function () {
           result = { nIndexesWas: 3, ok: 1 };
           serviceProvider.runCommandWithCheck.resolves(result);
@@ -1160,26 +1165,27 @@ describe('Collection', function () {
       context(
         'when serviceProvider.dropIndexes rejects IndexNotFound',
         function () {
+          let expectedError: Error;
           beforeEach(function () {
-            const error = new Error('index not found with name [index_1]');
-            Object.assign(error, {
+            expectedError = new Error('index not found with name [index_1]');
+            Object.assign(expectedError, {
               ok: 0,
               errmsg: 'index not found with name [index_1]',
               code: 27,
               codeName: 'IndexNotFound',
-              name: 'MongoError',
+              name: 'MongoServerError',
             });
 
-            serviceProvider.runCommandWithCheck.rejects(error);
+            serviceProvider.runCommandWithCheck.rejects(expectedError);
           });
 
           it('returns the error as object', async function () {
-            expect(await collection.dropIndexes('index_1')).to.deep.equal({
-              ok: 0,
-              errmsg: 'index not found with name [index_1]',
-              code: 27,
-              codeName: 'IndexNotFound',
-            });
+            let caughtError: Error | undefined;
+            await collection
+              .dropIndexes('index_1')
+              .catch((err) => (caughtError = err));
+
+            expect(caughtError).to.deep.equal(expectedError);
           });
         }
       );
@@ -1226,7 +1232,7 @@ describe('Collection', function () {
       context(
         'when serviceProvider.dropIndexes rejects any other error',
         function () {
-          let error;
+          let error: Error;
           beforeEach(function () {
             error = new Error('Some error');
             serviceProvider.runCommandWithCheck.rejects(
@@ -1235,7 +1241,7 @@ describe('Collection', function () {
           });
 
           it('rejects with error', async function () {
-            let caught;
+            let caught!: Error;
             await collection.dropIndexes('index_1').catch((err) => {
               caught = err;
             });
@@ -1247,7 +1253,7 @@ describe('Collection', function () {
 
     describe('dropIndex', function () {
       context('when collection.dropIndexes resolves', function () {
-        let result;
+        let result: Document;
         beforeEach(function () {
           result = { nIndexesWas: 3, ok: 1 };
           serviceProvider.runCommandWithCheck.resolves(result);
@@ -1258,7 +1264,7 @@ describe('Collection', function () {
         });
 
         it('throws if index is "*"', async function () {
-          let caught;
+          let caught!: Error & { code?: string };
           await collection.dropIndex('*').catch((err) => {
             caught = err;
           });
@@ -1271,7 +1277,7 @@ describe('Collection', function () {
         });
 
         it('throws if index is an array', async function () {
-          let caught;
+          let caught!: Error & { code?: string };
           await collection.dropIndex(['index-1']).catch((err) => {
             caught = err;
           });
@@ -1299,7 +1305,7 @@ describe('Collection', function () {
       });
 
       it('throws an error if called with verbose', async function () {
-        let caught;
+        let caught!: Error & { code?: string };
         await collection.totalIndexSize(true).catch((err) => {
           caught = err;
         });
@@ -1462,70 +1468,89 @@ describe('Collection', function () {
         context(
           'when the aggregation fails with error code `13388`',
           function () {
-            beforeEach(function () {
-              const tryNext = sinon.stub();
-              const mockError: any = new Error('test error');
-              mockError.code = 13388;
-              tryNext.onCall(0).rejects(mockError);
-              serviceProvider.aggregate.returns({ tryNext } as any);
-            });
+            for (const mockError of [
+              {
+                ...new Error('Code 13388'),
+                code: 13388,
+              },
+              {
+                ...new Error('Stale Config'),
+                codeName: 'StaleConfig',
+              },
+              {
+                ...new Error('Failed to Parse'),
+                codeName: 'FailedToParse',
+              },
+            ]) {
+              context(`in case of ${mockError.name} error`, function () {
+                beforeEach(function () {
+                  const tryNext = sinon.stub();
+                  tryNext.onCall(0).rejects(mockError);
+                  serviceProvider.aggregate.returns({ tryNext } as any);
+                });
 
-            it('runs the deprecated collStats command with the default scale', async function () {
-              await collection.stats();
+                it('runs the deprecated collStats command with the default scale', async function () {
+                  await collection.stats();
 
-              expect(
-                serviceProvider.runCommandWithCheck
-              ).to.have.been.calledWith(database._name, {
-                collStats: collection._name,
-                scale: 1,
-              });
-            });
+                  expect(
+                    serviceProvider.runCommandWithCheck
+                  ).to.have.been.calledWith(database._name, {
+                    collStats: collection._name,
+                    scale: 1,
+                  });
+                });
 
-            it('runs the deprecated collStats command with a custom scale', async function () {
-              await collection.stats({
-                scale: 1024, // Scale to kilobytes.
-              });
+                it('runs the deprecated collStats command with a custom scale', async function () {
+                  await collection.stats({
+                    scale: 1024, // Scale to kilobytes.
+                  });
 
-              expect(
-                serviceProvider.runCommandWithCheck
-              ).to.have.been.calledWith(database._name, {
-                collStats: collection._name,
-                scale: 1024,
-              });
-            });
+                  expect(
+                    serviceProvider.runCommandWithCheck
+                  ).to.have.been.calledWith(database._name, {
+                    collStats: collection._name,
+                    scale: 1024,
+                  });
+                });
 
-            it('runs the deprecated collStats command with the legacy scale parameter', async function () {
-              await collection.stats(2);
+                it('runs the deprecated collStats command with the legacy scale parameter', async function () {
+                  await collection.stats(2);
 
-              expect(
-                serviceProvider.runCommandWithCheck
-              ).to.have.been.calledWith(database._name, {
-                collStats: collection._name,
-                scale: 2,
-              });
-            });
+                  expect(
+                    serviceProvider.runCommandWithCheck
+                  ).to.have.been.calledWith(database._name, {
+                    collStats: collection._name,
+                    scale: 2,
+                  });
+                });
 
-            context('when the fallback collStats command fails', function () {
-              beforeEach(function () {
-                serviceProvider.runCommandWithCheck.rejects(
-                  new Error('not our error')
+                context(
+                  'when the fallback collStats command fails',
+                  function () {
+                    beforeEach(function () {
+                      serviceProvider.runCommandWithCheck.rejects(
+                        new Error('not our error')
+                      );
+                    });
+
+                    it('surfaces the original aggregation error', async function () {
+                      const error = await collection.stats().catch((e) => e);
+
+                      expect(serviceProvider.runCommandWithCheck).to.have.been
+                        .called;
+                      expect(error.message).to.equal(mockError.message);
+                    });
+                  }
                 );
               });
-
-              it('surfaces the original aggregation error', async function () {
-                const error = await collection.stats().catch((e) => e);
-
-                expect(serviceProvider.runCommandWithCheck).to.have.been.called;
-                expect(error.message).to.equal('test error');
-              });
-            });
+            }
           }
         );
       });
 
       context('indexDetails', function () {
-        let expectedResult;
-        let indexesResult;
+        let expectedResult: Document;
+        let indexesResult: Document[];
 
         beforeEach(function () {
           expectedResult = {
@@ -1742,7 +1767,7 @@ describe('Collection', function () {
     });
 
     describe('findAndModify', function () {
-      let mockResult;
+      let mockResult: Document;
 
       beforeEach(function () {
         mockResult = { value: {} };
@@ -1799,17 +1824,18 @@ describe('Collection', function () {
           ...options,
         });
 
+        const { fields: projection, ...expectedOptions } = options;
         expect(serviceProvider.findOneAndDelete).to.have.been.calledWith(
           collection._database._name,
           collection._name,
           { query: 1 },
-          { ...options, sort: { sort: 1 } }
+          { ...expectedOptions, sort: { sort: 1 }, projection }
         );
       });
     });
 
     describe('renameCollection', function () {
-      let mockResult;
+      let mockResult: any;
 
       beforeEach(function () {
         mockResult = {};
@@ -2137,11 +2163,11 @@ describe('Collection', function () {
       });
     });
     describe('mapReduce', function () {
-      let mapFn;
-      let reduceFn;
+      let mapFn: () => void;
+      let reduceFn: (a: string, b: string[]) => string;
       beforeEach(function () {
         mapFn = function (): void {};
-        reduceFn = function (keyCustId, valuesPrices): any {
+        reduceFn = function (keyCustId, valuesPrices): string {
           return valuesPrices.reduce((t, s) => t + s);
         };
       });
@@ -2233,8 +2259,16 @@ describe('Collection', function () {
       it('throws when collection is not sharded', async function () {
         const serviceProviderCursor = stubInterface<ServiceProviderCursor>();
         serviceProviderCursor.limit.returns(serviceProviderCursor);
-        serviceProviderCursor.tryNext.returns(null);
-        serviceProvider.find.returns(serviceProviderCursor as any);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        serviceProviderCursor.tryNext.returns(null as any);
+        serviceProvider.find.returns(serviceProviderCursor);
+
+        const tryNext = sinon.stub();
+        tryNext.onCall(0).resolves({ storageStats: {} });
+        tryNext.onCall(1).resolves(null);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        serviceProvider.aggregate.returns({ tryNext } as any);
+
         const error = await collection.getShardDistribution().catch((e) => e);
 
         expect(error).to.be.instanceOf(MongoshInvalidInputError);
@@ -2242,6 +2276,70 @@ describe('Collection', function () {
         expect(error.code).to.equal(
           ShellApiErrors.NotConnectedToShardedCluster
         );
+      });
+
+      describe('with orphan documents', function () {
+        const mockedNumChunks = 2;
+        const mockedCollectionConfigInfo = {};
+        const mockedShardStats = {
+          shard: 'test-shard',
+          storageStats: {
+            size: 1000,
+            numOrphanDocs: 10,
+            avgObjSize: 7,
+            count: 15,
+          },
+        };
+        const mockedShardInfo = {
+          host: 'dummy-host',
+        };
+
+        beforeEach(function () {
+          const serviceProviderCursor = stubInterface<ServiceProviderCursor>();
+
+          // Make find and limit have no effect so the value of findOne is determined by tryNext.
+          serviceProviderCursor.limit.returns(serviceProviderCursor);
+          serviceProvider.find.returns(serviceProviderCursor);
+
+          // Mock according to the order of findOne calls getShardDistribution uses.
+          serviceProviderCursor.tryNext
+            .onCall(0)
+            .resolves(mockedCollectionConfigInfo);
+          serviceProviderCursor.tryNext.onCall(1).resolves(mockedShardInfo);
+          serviceProvider.countDocuments.returns(
+            Promise.resolve(mockedNumChunks)
+          );
+
+          const aggregateTryNext = sinon.stub();
+          aggregateTryNext.onCall(0).resolves(mockedShardStats);
+          aggregateTryNext.onCall(1).resolves(null);
+
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+          serviceProvider.aggregate.returns({
+            tryNext: aggregateTryNext,
+          } as any);
+        });
+
+        it('should account for numOrphanDocs when calculating size', async function () {
+          const shardDistribution = await collection.getShardDistribution();
+
+          const { storageStats } = mockedShardStats;
+          expect(shardDistribution.type).equals('StatsResult');
+          const adjustedSize =
+            storageStats.size -
+            storageStats.numOrphanDocs * storageStats.avgObjSize;
+          expect(shardDistribution.value.Totals.data).equals(
+            `${adjustedSize}B`
+          );
+          const shardField = Object.keys(shardDistribution.value).find(
+            (field) => field !== 'Totals'
+          ) as `Shard ${string} at ${string}`;
+
+          expect(shardField).not.undefined;
+          expect(
+            shardDistribution.value[shardField]['estimated data per chunk']
+          ).equals(`${adjustedSize / mockedNumChunks}B`);
+        });
       });
     });
 
@@ -2328,7 +2426,7 @@ describe('Collection', function () {
 
     describe('return information about the collection as metadata', function () {
       let serviceProviderCursor: StubbedInstance<ServiceProviderCursor>;
-      let proxyCursor;
+      let proxyCursor: ServiceProviderCursor;
 
       beforeEach(function () {
         serviceProviderCursor = stubInterface<ServiceProviderCursor>();
@@ -2462,7 +2560,7 @@ describe('Collection', function () {
     });
 
     describe('getSearchIndexes', function () {
-      let searchIndexes;
+      let searchIndexes: Document[];
 
       beforeEach(function () {
         searchIndexes = [{ name: 'foo' }, { name: 'bar' }];
@@ -2535,31 +2633,7 @@ describe('Collection', function () {
         serviceProvider.createSearchIndexes.resolves(['index_1']);
       });
 
-      context('without anything', function () {
-        it('calls serviceProvider.createIndexes', async function () {
-          await collection.createSearchIndex();
-
-          expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
-            'db1',
-            'coll1',
-            [{ name: 'default', definition: {} }]
-          );
-        });
-      });
-
-      context('with name', function () {
-        it('calls serviceProvider.createIndexes', async function () {
-          await collection.createSearchIndex('my-index');
-
-          expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
-            'db1',
-            'coll1',
-            [{ name: 'my-index', definition: {} }]
-          );
-        });
-      });
-
-      context('with options', function () {
+      context('with definition options', function () {
         it('calls serviceProvider.createIndexes', async function () {
           await collection.createSearchIndex({ mappings: { dynamic: true } });
 
@@ -2571,7 +2645,7 @@ describe('Collection', function () {
         });
       });
 
-      context('with name, options', function () {
+      context('with name, definition options', function () {
         it('calls serviceProvider.createIndexes', async function () {
           await collection.createSearchIndex('my-index', {
             mappings: { dynamic: true },
@@ -2585,7 +2659,7 @@ describe('Collection', function () {
         });
       });
 
-      context('with name, options and type !== search', function () {
+      context('with name, definition options and type !== search', function () {
         it('calls serviceProvider.createSearchIndexes', async function () {
           await collection.createSearchIndex('my-index', 'vectorSearch', {
             mappings: { dynamic: true },
@@ -2605,7 +2679,7 @@ describe('Collection', function () {
         });
       });
 
-      context('with name, options and type === search', function () {
+      context('with name, definition options and type === search', function () {
         it('calls serviceProvider.createSearchIndexes', async function () {
           await collection.createSearchIndex('my-index', 'search', {
             mappings: { dynamic: true },
@@ -2619,7 +2693,7 @@ describe('Collection', function () {
         });
       });
 
-      context('with options and type but no name', function () {
+      context('with definition options and type but no name', function () {
         it('calls serviceProvider.createSearchIndexes', async function () {
           await collection.createSearchIndex(
             { mappings: { dynamic: true } },
@@ -2632,6 +2706,30 @@ describe('Collection', function () {
             [
               {
                 name: 'default',
+                type: 'vectorSearch',
+                definition: { mappings: { dynamic: true } },
+              },
+            ]
+          );
+        });
+      });
+
+      context('with description options', function () {
+        it('calls serviceProvider.createSearchIndexes', async function () {
+          await collection.createSearchIndex({
+            name: 'my-index',
+            type: 'vectorSearch',
+            definition: {
+              mappings: { dynamic: true },
+            },
+          });
+
+          expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
+            'db1',
+            'coll1',
+            [
+              {
+                name: 'my-index',
                 type: 'vectorSearch',
                 definition: { mappings: { dynamic: true } },
               },
@@ -2908,22 +3006,21 @@ describe('Collection', function () {
         roles: [],
         logComponentVerbosity: 1,
       });
-      [
+      for (const k of [
         'bulkWrite',
         'deleteMany',
         'deleteOne',
-        'insert',
         'insertMany',
         'insertOne',
         'replaceOne',
-        'update',
         'updateOne',
         'updateMany',
         'findOneAndDelete',
         'findOneAndReplace',
         'findOneAndUpdate',
-        'findAndModify',
-      ].forEach((k) => serviceProvider[k].resolves({ result: {}, value: {} }));
+      ] as const) {
+        serviceProvider[k].resolves({ result: {}, value: {} } as any);
+      }
       const instanceState = new ShellInstanceState(serviceProvider, bus);
       const mongo = new Mongo(
         instanceState,
@@ -2936,11 +3033,14 @@ describe('Collection', function () {
       collection = session.getDatabase('db1').getCollection('coll');
     });
     context('all commands that use the same command in sp', function () {
-      for (const method of Object.getOwnPropertyNames(
-        Collection.prototype
+      for (const method of (
+        Object.getOwnPropertyNames(Collection.prototype) as (string &
+          keyof (typeof Collection)['prototype'])[]
       ).filter(
         (k) =>
-          !ignore.includes(k as any) && !Object.keys(exceptions).includes(k)
+          typeof k === 'string' &&
+          !ignore.includes(k) &&
+          !Object.keys(exceptions).includes(k)
       )) {
         if (
           !method.startsWith('_') &&
@@ -2955,12 +3055,17 @@ describe('Collection', function () {
                 `Collection.${method} failed, error thrown ${e.message}`
               );
             }
-            expect(serviceProvider[method].calledOnce).to.equal(
+            expect(
+              (serviceProvider[method as keyof ServiceProvider] as any)
+                .calledOnce
+            ).to.equal(
               true,
               `expected sp.${method} to be called but it was not`
             );
             expect(
-              serviceProvider[method].getCall(-1).args[3].session
+              (serviceProvider[method as keyof ServiceProvider] as any).getCall(
+                -1
+              ).args[3].session
             ).to.equal(internalSession);
           });
         }
@@ -2969,11 +3074,11 @@ describe('Collection', function () {
     context('all commands that use other methods', function () {
       for (const method of Object.keys(exceptions).filter(
         (k) => !ignore.includes(k as any)
-      )) {
-        const customA = exceptions[method].a || args;
-        const customM = exceptions[method].m || method;
-        const customI = exceptions[method].i || 3;
-        const customE = exceptions[method].e || false;
+      ) as (string & keyof typeof exceptions)[]) {
+        const customA = exceptions[method]?.a || args;
+        const customM = exceptions[method]?.m || method;
+        const customI = exceptions[method]?.i || 3;
+        const customE = exceptions[method]?.e || false;
         it(`passes the session through for ${method} (args=${JSON.stringify(
           customA
         )}, sp method = ${customM}, index=${customI}, expectFail=${customE})`, async function () {
@@ -2987,11 +3092,15 @@ describe('Collection', function () {
               expect.fail(`${method} failed, error thrown ${e.stack}`);
             }
           }
-          expect(serviceProvider[customM].called).to.equal(
+          expect(
+            (serviceProvider[customM as keyof ServiceProvider] as any).called
+          ).to.equal(
             true,
             `expecting sp.${customM} to be called but it was not`
           );
-          const call = serviceProvider[customM].getCall(-1).args[customI];
+          const call = (
+            serviceProvider[customM as keyof ServiceProvider] as any
+          ).getCall(-1).args[customI];
           if (Array.isArray(call)) {
             for (const k of call) {
               expect(k.session).to.equal(

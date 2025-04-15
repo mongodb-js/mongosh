@@ -22,12 +22,15 @@ module.exports = {
       // only provide features that Node.js also provides out of the box.
       browserslist: path.resolve(__dirname, '..', 'scripts', 'dummy-browserslist.js'),
       tr46: path.resolve(__dirname, '..', 'scripts', 'tr46-stub.js'),
+      // Optional native-addon dependencies of ssh2
+      'cpu-features': false,
+      './crypto/build/Release/sshcrypto.node': false,
     }
   },
 
   externals: {
-    "node:crypto": "commonjs2 crypto",
-    electron: "commonjs2 electron" // optional dep of the OIDC plugin
+    'node:crypto': 'commonjs2 crypto',
+    electron: 'commonjs2 electron', // Optional dep of the OIDC plugin
   },
 
   optimization: {

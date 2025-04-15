@@ -20,7 +20,7 @@ describe('PlanCache', function () {
       expect(signatures.PlanCache.type).to.equal('PlanCache');
     });
     it('attributes', function () {
-      expect(signatures.PlanCache.attributes.list).to.deep.equal({
+      expect(signatures.PlanCache.attributes?.list).to.deep.equal({
         type: 'function',
         returnsPromise: true,
         deprecated: false,

@@ -1,14 +1,15 @@
 import { expect } from 'chai';
-import type { MongoClientOptions } from 'mongodb';
+import type { Db, Document, MongoClientOptions } from 'mongodb';
 import { MongoClient } from 'mongodb';
 import { eventually } from '../../../testing/eventually';
-import { TestShell } from './test-shell';
+import type { TestShell } from './test-shell';
 import {
   skipIfApiStrict,
   startSharedTestServer,
 } from '../../../testing/integration-testing-hooks';
 
-function createAssertUserExists(db, dbName): Function {
+type AssertUserExists = (opts?: Document, username?: string) => Promise<void>;
+function createAssertUserExists(db: Db, dbName: string): AssertUserExists {
   return async (opts = {}, username = 'anna'): Promise<void> => {
     const result = await db.command({ usersInfo: 1 });
     expect(result.users.length).to.equal(1);
@@ -21,7 +22,12 @@ function createAssertUserExists(db, dbName): Function {
   };
 }
 
-function createAssertRoleExists(db, dbName): Function {
+type AssertRoleExists = (
+  roles: Document[],
+  privileges: Document[],
+  rolename?: string
+) => Promise<void>;
+function createAssertRoleExists(db: Db, dbName: string): AssertRoleExists {
   return async (roles, privileges, rolename = 'anna'): Promise<void> => {
     const result = await db.command({
       rolesInfo: 1,
@@ -45,7 +51,16 @@ function createAssertRoleExists(db, dbName): Function {
   };
 }
 
-function createAssertUserAuth(db, connectionString, dbName): Function {
+type AssertUserAuth = (
+  pwd?: string,
+  username?: string,
+  keepClient?: boolean
+) => Promise<void | MongoClient>;
+function createAssertUserAuth(
+  db: Db,
+  connectionString: string,
+  dbName: string
+): AssertUserAuth {
   return async (
     pwd = 'pwd',
     username = 'anna',
@@ -69,26 +84,33 @@ function createAssertUserAuth(db, connectionString, dbName): Function {
   };
 }
 
+/**
+ * @securityTest Authentication End-to-End Tests
+ *
+ * While mongosh is a client-side application and therefore, in many cases not responsible
+ * for correct authentication, we still consider any failure in our authentication tests
+ * a potential warning sign for security-relevant impact.
+ */
 describe('Auth e2e', function () {
   skipIfApiStrict(); // connectionStatus is unversioned.
 
   const testServer = startSharedTestServer();
-  let assertUserExists;
-  let assertUserAuth;
-  let assertRoleExists;
+  let assertUserExists: AssertUserExists;
+  let assertUserAuth: AssertUserAuth;
+  let assertRoleExists: AssertRoleExists;
 
-  let db;
-  let client;
+  let db: Db;
+  let client: MongoClient;
   let shell: TestShell;
   let dbName: string;
-  let examplePrivilege1;
-  let examplePrivilege2;
+  let examplePrivilege1: Document;
+  let examplePrivilege2: Document;
 
   describe('with regular URI', function () {
     beforeEach(async function () {
       const connectionString = await testServer.connectionString();
       dbName = `test-${Date.now()}`;
-      shell = TestShell.start({ args: [connectionString] });
+      shell = this.startTestShell({ args: [connectionString] });
 
       client = await MongoClient.connect(connectionString, {});
 
@@ -113,9 +135,8 @@ describe('Auth e2e', function () {
       await db.dropDatabase();
       await db.command({ dropAllUsersFromDatabase: 1 });
 
-      client.close();
+      await client.close();
     });
-    afterEach(TestShell.cleanup);
 
     describe('user management', function () {
       describe('createUser', function () {
@@ -151,7 +172,7 @@ describe('Auth e2e', function () {
         it('digestPassword', async function () {
           if (
             process.env.MONGOSH_TEST_E2E_FORCE_FIPS ||
-            process.env.DISTRO_ID === 'rhel92-fips'
+            process.env.DISTRO_ID === 'rhel93-fips'
           ) {
             return this.skip(); // No SCRAM-SHA-1 in FIPS mode
           }
@@ -217,7 +238,7 @@ describe('Auth e2e', function () {
         it('digestPassword', async function () {
           if (
             process.env.MONGOSH_TEST_E2E_FORCE_FIPS ||
-            process.env.DISTRO_ID === 'rhel92-fips'
+            process.env.DISTRO_ID === 'rhel93-fips'
           ) {
             return this.skip(); // No SCRAM-SHA-1 in FIPS mode
           }
@@ -282,7 +303,7 @@ describe('Auth e2e', function () {
               shell.assertContainsOutput('{ n: 2, ok: 1 }');
             } catch {
               // The 5.0+ server responds with a Long.
-              shell.assertContainsOutput('{ n: Long("2"), ok: 1 }');
+              shell.assertContainsOutput("{ n: Long('2'), ok: 1 }");
             }
           });
           const result = await db.command({ usersInfo: 1 });
@@ -316,7 +337,7 @@ describe('Auth e2e', function () {
           const result = await db.command({ usersInfo: 1 });
           expect(result.users.length).to.equal(1);
           const user = result.users[0];
-          expect(user.roles.map((k) => k.role)).to.have.members([
+          expect(user.roles.map((k: any) => k.role)).to.have.members([
             'dbOwner',
             'dbAdmin',
             'userAdmin',
@@ -492,7 +513,7 @@ describe('Auth e2e', function () {
               shell.assertContainsOutput('{ n: 2, ok: 1 }');
             } catch {
               // The 5.0+ server responds with a Long.
-              shell.assertContainsOutput('{ n: Long("2"), ok: 1 }');
+              shell.assertContainsOutput("{ n: Long('2'), ok: 1 }");
             }
           });
           const result = await db.command({ rolesInfo: 1 });
@@ -857,7 +878,7 @@ describe('Auth e2e', function () {
           pathname: `/${dbName}`,
         }
       );
-      shell = TestShell.start({ args: [authConnectionString] });
+      shell = this.startTestShell({ args: [authConnectionString] });
       await shell.waitForPrompt();
       shell.assertNoErrors();
       await shell.executeLine(`use ${dbName}`);
@@ -881,7 +902,7 @@ describe('Auth e2e', function () {
           pathname: `/${dbName}`,
         }
       );
-      shell = TestShell.start({ args: [authConnectionString] });
+      shell = this.startTestShell({ args: [authConnectionString] });
       await shell.waitForPrompt();
       shell.assertNoErrors();
       await shell.executeLine(`use ${dbName}`);
@@ -908,7 +929,7 @@ describe('Auth e2e', function () {
     });
     it('can auth when there is -u and -p', async function () {
       const connectionString = await testServer.connectionString();
-      shell = TestShell.start({
+      shell = this.startTestShell({
         args: [
           connectionString,
           '-u',
@@ -938,12 +959,12 @@ describe('Auth e2e', function () {
       it('can auth with SCRAM-SHA-1', async function () {
         if (
           process.env.MONGOSH_TEST_E2E_FORCE_FIPS ||
-          process.env.DISTRO_ID === 'rhel92-fips'
+          process.env.DISTRO_ID === 'rhel93-fips'
         ) {
           return this.skip(); // No SCRAM-SHA-1 in FIPS mode
         }
         const connectionString = await testServer.connectionString();
-        shell = TestShell.start({
+        shell = this.startTestShell({
           args: [
             connectionString,
             '-u',
@@ -967,7 +988,7 @@ describe('Auth e2e', function () {
           // This test is not particularly meaningful if we're using the system OpenSSL installation
           // and it is not properly configured for FIPS to begin with. This is the case on e.g.
           // Ubuntu 22.04 in evergreen CI.
-          const preTestShell = TestShell.start({
+          const preTestShell = this.startTestShell({
             args: [
               '--quiet',
               '--nodb',
@@ -977,7 +998,7 @@ describe('Auth e2e', function () {
             ],
           });
           if (
-            (await preTestShell.waitForExit()) === 1 &&
+            (await preTestShell.waitForAnyExit()) === 1 &&
             preTestShell.output.match(
               /digital envelope routines::unsupported|SSL routines::library has no ciphers/
             )
@@ -987,7 +1008,7 @@ describe('Auth e2e', function () {
         }
 
         const connectionString = await testServer.connectionString();
-        shell = TestShell.start({
+        shell = this.startTestShell({
           args: [
             connectionString,
             '--tlsFIPSMode',
@@ -1001,7 +1022,7 @@ describe('Auth e2e', function () {
             'SCRAM-SHA-1',
           ],
         });
-        await shell.waitForExit();
+        await shell.waitForAnyExit();
         try {
           shell.assertContainsOutput(
             'Auth mechanism SCRAM-SHA-1 is not supported in FIPS mode'
@@ -1012,7 +1033,7 @@ describe('Auth e2e', function () {
       });
       it('can auth with SCRAM-SHA-256', async function () {
         const connectionString = await testServer.connectionString();
-        shell = TestShell.start({
+        shell = this.startTestShell({
           args: [
             connectionString,
             '-u',
@@ -1033,7 +1054,7 @@ describe('Auth e2e', function () {
       });
       it('cannot auth when authenticationMechanism mismatches (sha256 -> sha1)', async function () {
         const connectionString = await testServer.connectionString();
-        shell = TestShell.start({
+        shell = this.startTestShell({
           args: [
             connectionString,
             '-u',
@@ -1054,7 +1075,7 @@ describe('Auth e2e', function () {
       });
       it('cannot auth when authenticationMechanism mismatches (sha1 -> sha256)', async function () {
         const connectionString = await testServer.connectionString();
-        shell = TestShell.start({
+        shell = this.startTestShell({
           args: [
             connectionString,
             '-u',
@@ -1075,7 +1096,7 @@ describe('Auth e2e', function () {
       });
       it('does not fail with kerberos not found for GSSAPI', async function () {
         const connectionString = await testServer.connectionString();
-        shell = TestShell.start({
+        shell = this.startTestShell({
           args: [
             connectionString,
             '-u',
@@ -1088,7 +1109,7 @@ describe('Auth e2e', function () {
             'GSSAPI',
           ],
         });
-        await shell.waitForExit();
+        await shell.waitForAnyExit();
         // Failing to auth with kerberos fails with different error messages on each OS.
         // Sometimes in CI, it also fails because the server received kerberos
         // credentials, most likely because of a successful login by another
@@ -1120,8 +1141,7 @@ describe('Auth e2e', function () {
       await db.dropDatabase();
       await db.command({ dropAllUsersFromDatabase: 1 });
 
-      client.close();
+      await client.close();
     });
-    afterEach(TestShell.cleanup);
   });
 });

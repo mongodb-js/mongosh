@@ -10,6 +10,13 @@ import { EventEmitter } from 'events';
 import { promises as fs } from 'fs';
 import path from 'path';
 
+/**
+ * @securityTest Loading the MongoDB `crypt_shared` library securely
+ *
+ * mongosh loads the `crypt_shared` MongoDB library at runtime. In order to do so securely,
+ * we verify that the path resolution logic used for it adheres to expectations, and e.g.
+ * the shared library will not be loaded if it comes with incorrect filesystem permissions.
+ */
 describe('getCryptLibraryPaths', function () {
   let bus: MongoshBus;
   let events: any[];

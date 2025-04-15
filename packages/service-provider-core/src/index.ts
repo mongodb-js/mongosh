@@ -1,6 +1,6 @@
 import './textencoder-polyfill'; // for mongodb-connection-string-url in the java-shell
 import ServiceProvider, { ServiceProviderCore } from './service-provider';
-import getConnectInfo, { ConnectInfo } from './connect-info';
+import getConnectExtraInfo, { ConnectionExtraInfo } from './connect-info';
 import type { ReplPlatform } from './platform';
 const DEFAULT_DB = 'test';
 import { bsonStringifiers } from './printable-bson';
@@ -13,17 +13,26 @@ export { MapReduceOptions, FinalizeFunction } from './map-reduce-options';
 export {
   CreateEncryptedCollectionOptions,
   CheckMetadataConsistencyOptions,
+  ConnectionInfo,
 } from './admin';
 
 export { bson } from './bson-export';
 
 export {
+  ServiceProviderAbstractCursor,
+  ServiceProviderAggregationCursor,
+  ServiceProviderFindCursor,
+  ServiceProviderRunCommandCursor,
+  ServiceProviderChangeStream,
+} from './cursors';
+
+export {
   ServiceProvider,
   ShellAuthOptions,
-  getConnectInfo,
+  getConnectExtraInfo,
   ReplPlatform,
   DEFAULT_DB,
   ServiceProviderCore,
   bsonStringifiers,
-  ConnectInfo,
+  ConnectionExtraInfo,
 };

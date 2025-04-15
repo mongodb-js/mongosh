@@ -13,10 +13,10 @@ import {
 } from './enums';
 import type { ChangeStream, Document } from '@mongosh/service-provider-core';
 import { startTestCluster } from '../../../testing/integration-testing-hooks';
-import { CliServiceProvider } from '../../service-provider-server/lib';
+import { NodeDriverServiceProvider } from '../../service-provider-node-driver';
 import ShellInstanceState from './shell-instance-state';
 import Mongo from './mongo';
-import { ensureMaster, ensureResult } from '../../../testing/helpers';
+import { ensureMaster, ensureResult } from '../test/helpers';
 import type Database from './database';
 import type Collection from './collection';
 import { MongoshUnimplementedError } from '@mongosh/errors';
@@ -40,7 +40,7 @@ describe('ChangeStreamCursor', function () {
       expect(signatures.ChangeStreamCursor.type).to.equal('ChangeStreamCursor');
     });
     it('next signature', function () {
-      expect(signatures.ChangeStreamCursor.attributes.next).to.deep.equal({
+      expect(signatures.ChangeStreamCursor.attributes?.next).to.deep.equal({
         type: 'function',
         returnsPromise: true,
         deprecated: false,
@@ -57,14 +57,14 @@ describe('ChangeStreamCursor', function () {
   });
   describe('instance', function () {
     let spCursor: StubbedInstance<ChangeStream<Document>>;
-    let cursor;
-    let warnSpy;
+    let cursor: ChangeStreamCursor;
+    let warnSpy: sinon.SinonSpy;
     beforeEach(function () {
       spCursor = stubInterface<ChangeStream<Document>>();
       warnSpy = sinon.spy();
 
       cursor = new ChangeStreamCursor(spCursor, 'source', {
-        _instanceState: { printWarning: warnSpy },
+        _instanceState: { printWarning: warnSpy } as any,
       } as Mongo);
     });
 
@@ -121,7 +121,7 @@ describe('ChangeStreamCursor', function () {
     const [srv0] = startTestCluster('change-stream-cursor', {
       topology: 'replset',
     });
-    let serviceProvider: CliServiceProvider;
+    let serviceProvider: NodeDriverServiceProvider;
     let instanceState: ShellInstanceState;
     let mongo: Mongo;
     let db: Database;
@@ -130,7 +130,7 @@ describe('ChangeStreamCursor', function () {
 
     before(async function () {
       this.timeout(100_000);
-      serviceProvider = await CliServiceProvider.connect(
+      serviceProvider = await NodeDriverServiceProvider.connect(
         await srv0.connectionString(),
         dummyOptions,
         {},
@@ -320,7 +320,7 @@ describe('ChangeStreamCursor', function () {
     });
   });
   describe('unsupported methods', function () {
-    let cursor;
+    let cursor: ChangeStreamCursor;
     beforeEach(function () {
       cursor = new ChangeStreamCursor(
         {} as ChangeStream<Document>,
@@ -329,14 +329,19 @@ describe('ChangeStreamCursor', function () {
       );
     });
 
-    for (const name of ['map', 'forEach', 'toArray', 'objsLeftInBatch']) {
+    for (const name of [
+      'map',
+      'forEach',
+      'toArray',
+      'objsLeftInBatch',
+    ] as const) {
       it(`${name} fails`, function () {
         expect(() => cursor[name]()).to.throw(MongoshUnimplementedError);
       });
     }
-    it('isExhausted fails', async function () {
+    it('isExhausted fails', function () {
       try {
-        await cursor.isExhausted();
+        cursor.isExhausted();
         expect.fail('missed exception');
       } catch (err: any) {
         expect(err.name).to.equal('MongoshInvalidInputError');

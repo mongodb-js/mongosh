@@ -6,48 +6,46 @@ on:
   schedule:
     - cron: "0 0 * * *"
 
+permissions:
+  contents: none # We use the github app to open a PR
+
 jobs:
   update_generated_files:
     name: Update Node.js versions
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
+        id: app-token
         with:
-          # don't checkout a detatched HEAD
+          app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
+          private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v4
+        with:
+          # don't checkout a detached HEAD
           ref: ${{ github.head_ref }}
+          token: ${{ steps.app-token.outputs.token }}
 
-          # this is important so git log can pick up on
-          # the whole history to generate the list of AUTHORS
-          fetch-depth: '0'
-
-      - name: Setup git
-        run: |
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v4
         with:
-          node-version: 16.x
-          cache: 'npm'
+          node-version: 20.x
+          cache: "npm"
 
-      - name: Install npm@8.19.4
+      - name: Install npm@10
         run: |
-          npm install -g npm@8.19.4
+          npm install -g npm@10
 
       - name: Bump packages
         run: |
           npm run update-node-js-versions
           npm run update-evergreen-config
-          git add .
-          git commit --no-allow-empty -m "chore: update node.js version" || true
 
       - name: Create Pull Request
-        id: cpr
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # 7.0.5
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: 'chore: update node.js'
+          token: ${{ steps.app-token.outputs.token }}
+          commit-message: "chore: update node.js version"
           branch: ci/update-node-js-versions
-          title: 'chore: update node.js'
+          title: "chore: update node.js"
           body: |
             - Update node.js

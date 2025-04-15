@@ -1,32 +1,34 @@
 import { Octokit } from '@octokit/rest';
-import { promises as fs } from 'fs';
-import path from 'path';
-import { writeBuildInfo } from './build-info';
-import { Barque } from './barque';
 import { runCompile } from './compile';
 import type { Config } from './config';
 import { getReleaseVersionFromTag, redactConfig } from './config';
 import {
-  createAndPublishDownloadCenterConfig,
   uploadArtifactToDownloadCenter,
+  uploadArtifactToDownloadCenterNew,
 } from './download-center';
 import {
   downloadArtifactFromEvergreen,
   uploadArtifactToEvergreen,
 } from './evergreen';
-import { GithubRepo } from '@mongodb-js/devtools-github-repo';
-import { publishToHomebrew } from './homebrew';
-import { bumpNpmPackages, publishNpmPackages } from './npm-packages';
 import { runPackage } from './packaging';
 import { runDraft } from './run-draft';
-import { runPublish } from './run-publish';
+import { publishMongosh } from './publish-mongosh';
 import { runUpload } from './run-upload';
+import { runSign } from './packaging/run-sign';
+import { runDownloadAndListArtifacts } from './run-download-and-list-artifacts';
+import { runDownloadCryptLibrary } from './packaging/run-download-crypt-library';
+import { PackageBumper } from './npm-packages/bump';
+import { publishAuxiliaryPackages } from './publish-auxiliary';
+import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 
 export type ReleaseCommand =
   | 'bump'
   | 'compile'
   | 'package'
+  | 'sign'
   | 'upload'
+  | 'download-crypt-shared-library'
+  | 'download-and-list-artifacts'
   | 'draft'
   | 'publish';
 
@@ -51,8 +53,11 @@ export async function release(
   );
 
   if (command === 'bump') {
-    // updates the version of internal packages to reflect the tagged one
-    await bumpNpmPackages(config.version);
+    const packageBumper = new PackageBumper();
+    packageBumper.bumpAuxiliaryPackages();
+    if (!config.useAuxiliaryPackagesOnly) {
+      await packageBumper.bumpMongoshReleasePackages(config.version);
+    }
     return;
   }
 
@@ -75,53 +80,35 @@ export async function release(
       };
     });
   }
-
   const githubRepo = new GithubRepo(config.repo, octokit);
-  const homebrewCoreRepo = new GithubRepo(
-    { owner: 'Homebrew', repo: 'homebrew-core' },
-    octokit
-  );
-  const mongoHomebrewForkRepo = new GithubRepo(
-    { owner: 'mongodb-js', repo: 'homebrew-core' },
-    octokit
-  );
 
   if (command === 'compile') {
     await runCompile(config);
   } else if (command === 'package') {
-    const tarballFile = await runPackage(config);
-    await fs.writeFile(
-      path.join(config.outputDir, '.artifact_metadata'),
-      JSON.stringify(tarballFile)
-    );
+    await runPackage(config);
+  } else if (command === 'download-crypt-shared-library') {
+    await runDownloadCryptLibrary(config);
+  } else if (command === 'sign') {
+    await runSign(config);
   } else if (command === 'upload') {
-    const tarballFile = JSON.parse(
-      await fs.readFile(
-        path.join(config.outputDir, '.artifact_metadata'),
-        'utf8'
-      )
-    );
-    await runUpload(config, tarballFile, uploadArtifactToEvergreen);
+    await runUpload(config, uploadArtifactToEvergreen);
   } else if (command === 'draft') {
     await runDraft(
       config,
       githubRepo,
+      new PackageBumper(),
       uploadArtifactToDownloadCenter,
+      uploadArtifactToDownloadCenterNew,
       downloadArtifactFromEvergreen
     );
+  } else if (command === 'download-and-list-artifacts') {
+    await runDownloadAndListArtifacts(config);
   } else if (command === 'publish') {
-    const barque = new Barque(config);
-    await runPublish(
-      config,
-      githubRepo,
-      mongoHomebrewForkRepo,
-      homebrewCoreRepo,
-      barque,
-      createAndPublishDownloadCenterConfig,
-      publishNpmPackages,
-      writeBuildInfo,
-      publishToHomebrew
-    );
+    if (config.useAuxiliaryPackagesOnly) {
+      publishAuxiliaryPackages(config);
+    } else {
+      await publishMongosh(config, octokit);
+    }
   } else {
     throw new Error(`Unknown command: ${command}`);
   }

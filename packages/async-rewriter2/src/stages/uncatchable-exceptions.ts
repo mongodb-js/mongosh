@@ -1,6 +1,16 @@
 import * as babel from '@babel/core';
 import type * as BabelTypes from '@babel/types';
 
+// We mark already-visited try/catch statements using these symbols.
+function asNodeKey(v: any): keyof babel.types.Node {
+  return v;
+}
+const isGeneratedTryCatch = asNodeKey(Symbol('isGeneratedTryCatch'));
+
+const notUncatchableCheck = babel.template.expression`
+(!ERR_IDENTIFIER || !ERR_IDENTIFIER[Symbol.for('@@mongosh.uncatchable')])
+`;
+
 /**
  * In this step, we transform try/catch statements so that there are specific
  * types of exceptions that they cannot catch (marked by
@@ -11,15 +21,6 @@ export default ({
 }: {
   types: typeof BabelTypes;
 }): babel.PluginObj<{}> => {
-  // We mark already-visited try/catch statements using these symbols.
-  function asNodeKey(v: any): keyof babel.types.Node {
-    return v;
-  }
-  const isGeneratedTryCatch = asNodeKey(Symbol('isGeneratedTryCatch'));
-  const notUncatchableCheck = babel.template.expression(`
-    (!ERR_IDENTIFIER || !ERR_IDENTIFIER[Symbol.for('@@mongosh.uncatchable')])
-  `);
-
   return {
     visitor: {
       TryStatement(path) {

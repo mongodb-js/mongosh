@@ -29,7 +29,7 @@ function setServerApi<Key extends keyof ServerApi>(
   const serverApi =
     typeof previousServerApi === 'string'
       ? { version: previousServerApi }
-      : { ...previousServerApi } ?? {};
+      : { ...previousServerApi };
   serverApi[key] = value;
   return setDriver(i, 'serverApi', serverApi as Required<ServerApi>);
 }
@@ -222,7 +222,6 @@ const MAPPINGS: {
   tlsCertificateKeyFile: (i, v) => setUrlParam(i, 'tlsCertificateKeyFile', v),
   tlsCertificateKeyFilePassword: (i, v) =>
     setUrlParam(i, 'tlsCertificateKeyFilePassword', v),
-  tlsUseSystemCA: (i, v) => setDriver(i, 'useSystemCA', v),
   username: (i, v) => setUrl(i, 'username', encodeURIComponent(v)),
   oidcRedirectUri: (i, v) => setOIDC(i, 'redirectURI', v),
   oidcTrustedEndpoint: (i, v) =>
@@ -237,6 +236,8 @@ const MAPPINGS: {
       'allowedFlows',
       v.split(',').filter(Boolean) as OIDCOptions['allowedFlows']
     ),
+  oidcIdTokenAsAccessToken: (i, v) => setOIDC(i, 'passIdTokenAsAccessToken', v),
+  oidcNoNonce: (i, v) => setOIDC(i, 'skipNonceInAuthCodeRequest', v),
   browser: (i, v) =>
     setOIDC(i, 'openBrowser', typeof v === 'string' ? { command: v } : v),
 };

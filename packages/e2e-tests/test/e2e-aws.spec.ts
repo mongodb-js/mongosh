@@ -1,10 +1,9 @@
 import { expect } from 'chai';
 import { spawnSync } from 'child_process';
-import { TestShell } from './test-shell';
 
 function assertEnvVariable(variableName: string): string {
   if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
-    return undefined;
+    return '';
   }
   const value = process.env[variableName];
   if (!value) {
@@ -16,7 +15,7 @@ function assertEnvVariable(variableName: string): string {
       console.error(
         `Expected environment variable but was not set: ${variableName}`
       );
-      return undefined;
+      return '';
     }
   }
   return value;
@@ -84,7 +83,11 @@ function getConnectionString(username?: string, password?: string): string {
 }
 
 describe('e2e AWS AUTH', function () {
-  this.timeout(60_000); // AWS auth tests can take longer than the default timeout in CI
+  // AWS auth tests can take longer than the default timeout in CI
+  // DNS resolution for many hosts in particular can be time-intensive in some
+  // CI environments
+  this.timeout(80_000);
+  const initialWaitForPromptTimeoutOptions = { timeout: 60_000 };
   let expectedAssumedRole: string;
 
   before(function () {
@@ -117,12 +120,10 @@ describe('e2e AWS AUTH', function () {
     ).replace('arn:aws:iam::', 'arn:aws:sts::')}/*`;
   });
 
-  afterEach(TestShell.cleanup);
-
   context('without environment variables being present', function () {
     context('specifying explicit parameters', function () {
       it('connects with access key and secret', async function () {
-        const shell = TestShell.start({
+        const shell = this.startTestShell({
           args: [
             getConnectionString(),
             '--username',
@@ -131,7 +132,9 @@ describe('e2e AWS AUTH', function () {
             AWS_SECRET_ACCESS_KEY,
           ],
         });
-        const result = await shell.waitForPromptOrExit();
+        const result = await shell.waitForPromptOrExit(
+          initialWaitForPromptTimeoutOptions
+        );
         expect(result.state).to.equal('prompt');
 
         const connectionStatus = await shell.executeLine(
@@ -142,7 +145,7 @@ describe('e2e AWS AUTH', function () {
 
       it('connects with access key, secret, and session token for IAM role', async function () {
         const tokenDetails = generateIamSessionToken();
-        const shell = TestShell.start({
+        const shell = this.startTestShell({
           args: [
             getConnectionString(),
             '--username',
@@ -153,7 +156,9 @@ describe('e2e AWS AUTH', function () {
             tokenDetails.token,
           ],
         });
-        const result = await shell.waitForPromptOrExit();
+        const result = await shell.waitForPromptOrExit(
+          initialWaitForPromptTimeoutOptions
+        );
         expect(result.state).to.equal('prompt');
 
         const connectionStatus = await shell.executeLine(
@@ -165,10 +170,12 @@ describe('e2e AWS AUTH', function () {
 
     context('specifying connection string parameters', function () {
       it('connects with access key and secret', async function () {
-        const shell = TestShell.start({
+        const shell = this.startTestShell({
           args: [getConnectionString(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)],
         });
-        const result = await shell.waitForPromptOrExit();
+        const result = await shell.waitForPromptOrExit(
+          initialWaitForPromptTimeoutOptions
+        );
         expect(result.state).to.equal('prompt');
 
         const connectionStatus = await shell.executeLine(
@@ -179,7 +186,7 @@ describe('e2e AWS AUTH', function () {
 
       it('connects with access key, secret, and session token for IAM role', async function () {
         const tokenDetails = generateIamSessionToken();
-        const shell = TestShell.start({
+        const shell = this.startTestShell({
           args: [
             `${getConnectionString(
               tokenDetails.key,
@@ -189,7 +196,9 @@ describe('e2e AWS AUTH', function () {
             )}`,
           ],
         });
-        const result = await shell.waitForPromptOrExit();
+        const result = await shell.waitForPromptOrExit(
+          initialWaitForPromptTimeoutOptions
+        );
         expect(result.state).to.equal('prompt');
 
         const connectionStatus = await shell.executeLine(
@@ -203,7 +212,7 @@ describe('e2e AWS AUTH', function () {
   context('with AWS environment variables', function () {
     context('without any other parameters', function () {
       it('connects for the IAM user', async function () {
-        const shell = TestShell.start({
+        const shell = this.startTestShell({
           args: [getConnectionString()],
           env: {
             ...process.env,
@@ -211,7 +220,9 @@ describe('e2e AWS AUTH', function () {
             AWS_SECRET_ACCESS_KEY,
           },
         });
-        const result = await shell.waitForPromptOrExit();
+        const result = await shell.waitForPromptOrExit(
+          initialWaitForPromptTimeoutOptions
+        );
         expect(result.state).to.equal('prompt');
 
         const connectionStatus = await shell.executeLine(
@@ -222,7 +233,7 @@ describe('e2e AWS AUTH', function () {
 
       it('connects for the IAM role session', async function () {
         const tokenDetails = generateIamSessionToken();
-        const shell = TestShell.start({
+        const shell = this.startTestShell({
           args: [getConnectionString()],
           env: {
             ...process.env,
@@ -231,7 +242,9 @@ describe('e2e AWS AUTH', function () {
             AWS_SESSION_TOKEN: tokenDetails.token,
           },
         });
-        const result = await shell.waitForPromptOrExit();
+        const result = await shell.waitForPromptOrExit(
+          initialWaitForPromptTimeoutOptions
+        );
         expect(result.state).to.equal('prompt');
 
         const connectionStatus = await shell.executeLine(
@@ -243,7 +256,7 @@ describe('e2e AWS AUTH', function () {
 
     context('with invalid environment but valid parameters', function () {
       it('connects for the IAM user', async function () {
-        const shell = TestShell.start({
+        const shell = this.startTestShell({
           args: [
             getConnectionString(),
             '--username',
@@ -257,7 +270,9 @@ describe('e2e AWS AUTH', function () {
             AWS_SECRET_ACCESS_KEY: 'invalid',
           },
         });
-        const result = await shell.waitForPromptOrExit();
+        const result = await shell.waitForPromptOrExit(
+          initialWaitForPromptTimeoutOptions
+        );
         expect(result.state).to.equal('prompt');
 
         const connectionStatus = await shell.executeLine(
@@ -268,7 +283,7 @@ describe('e2e AWS AUTH', function () {
 
       it('connects for the IAM role session', async function () {
         const tokenDetails = generateIamSessionToken();
-        const shell = TestShell.start({
+        const shell = this.startTestShell({
           args: [
             getConnectionString(),
             '--username',
@@ -285,7 +300,9 @@ describe('e2e AWS AUTH', function () {
             AWS_SESSION_TOKEN: 'invalid',
           },
         });
-        const result = await shell.waitForPromptOrExit();
+        const result = await shell.waitForPromptOrExit(
+          initialWaitForPromptTimeoutOptions
+        );
         expect(result.state).to.equal('prompt');
 
         const connectionStatus = await shell.executeLine(

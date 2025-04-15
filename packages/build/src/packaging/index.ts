@@ -6,5 +6,3 @@ export {
   PackageInformation,
   PackageInformationProvider,
 } from './package';
-
-export { notarizeArtifact } from './notary-service';

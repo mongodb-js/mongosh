@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/autocomplete",
-  "version": "0.0.0-dev.0",
+  "version": "3.10.0",
   "description": "MongoDB Shell Autocomplete Package",
   "homepage": "https://github.com/mongodb-js/mongosh",
   "license": "Apache-2.0",
@@ -17,7 +17,7 @@
     "node": ">=14.15.1"
   },
   "scripts": {
-    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
+    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\" --reporter \"../../configs/mocha-config-mongosh/reporter.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
@@ -37,14 +37,14 @@
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "depcheck": "^1.4.3",
+    "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
     "mocha": "^10.2.0",
     "prettier": "^2.8.8"
   },
   "dependencies": {
-    "@mongodb-js/mongodb-constants": "^0.7.1",
-    "@mongosh/shell-api": "0.0.0-dev.0",
+    "@mongodb-js/mongodb-constants": "^0.10.1",
+    "@mongosh/shell-api": "3.10.0",
     "semver": "^7.5.4"
   }
 }

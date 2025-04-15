@@ -1,58 +1,67 @@
-import React from 'react';
+import _ from 'lodash';
+import React, { useState, useEffect } from 'react';
 import sinon from 'sinon';
+import { render, screen, waitFor, configure } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { expect } from '../../testing/chai';
-import type { ReactWrapper, ShallowWrapper } from '../../testing/enzyme';
-import { mount, shallow } from '../../testing/enzyme';
-import { PasswordPrompt } from './password-prompt';
+
 import { Shell } from './shell';
-import { ShellInput } from './shell-input';
-import { ShellOutput } from './shell-output';
 import type { ShellOutputEntry } from './shell-output-line';
+import type { RuntimeEvaluationListener } from '@mongosh/browser-runtime-core';
 
-const wait: (ms?: number) => Promise<void> = (ms = 10) => {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-};
+configure({
+  getElementError: (message) => {
+    // never fun when an element lookup fails inside waitFor
+    return new Error(message ?? 'some error');
+  },
+});
 
-describe('<Shell />', function () {
-  let onOutputChangedSpy;
-  let onHistoryChangedSpy;
-  let onOperationStartedSpy;
-  let onOperationEndSpy;
+function useInitialEval(initialEvaluate?: string | string[]) {
+  const [initialEvalApplied, setInitialEvalApplied] = useState(false);
+  useEffect(() => {
+    setInitialEvalApplied(true);
+  }, [setInitialEvalApplied]);
+  return initialEvalApplied ? undefined : initialEvaluate;
+}
+
+function ShellWrapper({
+  initialEvaluate: _initialEvaluate,
+  ...props
+}: React.ComponentProps<typeof Shell>) {
+  const initialEvaluate = useInitialEval(_initialEvaluate);
+  return <Shell initialEvaluate={initialEvaluate} {...props} />;
+}
+
+function filterEvaluateCalls(calls: any) {
+  return calls.filter((args: any) => {
+    return !args[0].includes('typeof prompt');
+  });
+}
+
+let lastKey = 0;
+
+function stripKeys(output: ShellOutputEntry[]) {
+  return output.map((entry) => {
+    return _.omit(entry, ['key']);
+  });
+}
+
+describe('shell', function () {
   let fakeRuntime;
-  let wrapper: ShallowWrapper | ReactWrapper;
   let scrollIntoView;
   let elementFocus;
-  let onInput;
+  let listener: RuntimeEvaluationListener;
 
   beforeEach(function () {
-    onInput = async (code: string): Promise<void> => {
-      wrapper.find(ShellInput).prop('onInput')(code);
-      await wait();
-      wrapper.update();
+    fakeRuntime = {
+      evaluate: sinon.fake.returns({ printable: 'some result' }),
+      setEvaluationListener: (_listener) => {
+        listener = _listener;
+      },
     };
 
     scrollIntoView = sinon.spy(Element.prototype, 'scrollIntoView');
     elementFocus = sinon.spy(HTMLElement.prototype, 'focus');
-
-    fakeRuntime = {
-      evaluate: sinon.fake.returns({ printable: 'some result' }),
-      setEvaluationListener: () => {},
-    };
-
-    onOutputChangedSpy = sinon.spy();
-    onHistoryChangedSpy = sinon.spy();
-    onOperationStartedSpy = sinon.spy();
-    onOperationEndSpy = sinon.spy();
-
-    wrapper = shallow(
-      <Shell
-        runtime={fakeRuntime}
-        onOutputChanged={onOutputChangedSpy}
-        onHistoryChanged={onHistoryChangedSpy}
-        onOperationStarted={onOperationStartedSpy}
-        onOperationEnd={onOperationEndSpy}
-      />
-    );
   });
 
   afterEach(function () {
@@ -60,460 +69,506 @@ describe('<Shell />', function () {
     elementFocus.restore();
   });
 
-  it('renders a ShellOutput component', function () {
-    expect(wrapper.find(ShellOutput)).to.have.lengthOf(1);
-  });
+  it('renders the shell', function () {
+    render(<ShellWrapper runtime={fakeRuntime} />);
 
-  it('passes the initial output to ShellOutput', function () {
-    expect(wrapper.find(ShellOutput).prop('output')).to.deep.equal([]);
-  });
-
-  it('renders a ShellInput component', function () {
-    expect(wrapper.find(ShellInput)).to.have.lengthOf(1);
-  });
-
-  it('passes runtime as autocompleter to ShellInput', function () {
-    expect(wrapper.find(ShellInput).prop('autocompleter')).to.equal(
-      fakeRuntime
+    expect(screen.getByTestId('shell')).to.exist;
+    expect(screen.getByRole('textbox').getAttribute('aria-readonly')).to.equal(
+      null
     );
+    expect(filterEvaluateCalls(fakeRuntime.evaluate.args)).to.be.empty;
   });
 
-  it('does not set the editor as readOnly by default', function () {
-    expect(wrapper.find(ShellInput).prop('operationInProgress')).to.equal(
-      false
-    );
-  });
-
-  context('when initialOutput is set', function () {
-    it('allows to set intial output', async function () {
-      const initialOutput: ShellOutputEntry[] = [
-        { format: 'input', value: 'line 1' },
-        { format: 'output', value: 'some result' },
-      ];
-
-      wrapper = shallow(
-        <Shell runtime={fakeRuntime} initialOutput={initialOutput} />
-      );
-
-      wrapper.update();
-
-      await wait();
-
-      expect(wrapper.state('output')).to.deep.equal(initialOutput);
-    });
-
-    it('applies max maxOutputLength', function () {
-      const initialOutput: ShellOutputEntry[] = [
-        { format: 'input', value: 'line 1' },
-        { format: 'output', value: 'some result' },
-        { format: 'input', value: 'line 2' },
-        { format: 'output', value: 'some result' },
-      ];
-
-      wrapper = shallow(
-        <Shell
-          runtime={fakeRuntime}
-          maxOutputLength={3}
-          initialOutput={initialOutput}
-        />
-      );
-
-      expect(wrapper.state('output')).to.deep.equal([
-        { format: 'output', value: 'some result' },
-        { format: 'input', value: 'line 2' },
-        { format: 'output', value: 'some result' },
-      ]);
-    });
-  });
-
-  context('when initialHistory is set', function () {
-    it('allows to set intial history', function () {
-      const history: string[] = ['line 1'];
-
-      wrapper = shallow(
-        <Shell runtime={fakeRuntime} initialHistory={history} />
-      );
-
-      expect(wrapper.state('history')).to.deep.equal(history);
-    });
-
-    it('applies max maxHistoryLength', function () {
-      const initialHistory: string[] = ['line3', 'line2', 'line1'];
-
-      wrapper = shallow(
-        <Shell
-          runtime={fakeRuntime}
-          maxHistoryLength={2}
-          initialHistory={initialHistory}
-        />
-      );
-
-      expect(wrapper.state('history')).to.deep.equal(['line3', 'line2']);
-    });
-  });
-
-  context('when an input is entered', function () {
-    beforeEach(async function () {
-      await onInput('some code');
-    });
-
-    it('evaluates the input with runtime', function () {
-      expect(fakeRuntime.evaluate).to.have.been.calledWith('some code');
-    });
-
-    it('adds the evaluated input and output as lines to the output', function () {
-      expect(wrapper.find(ShellOutput).prop('output')).to.deep.equal([
-        { format: 'input', value: 'some code' },
-        { format: 'output', value: 'some result', type: undefined },
-      ]);
-    });
-
-    it('calls onOutputChanged with output', function () {
-      expect(onOutputChangedSpy).to.have.been.calledWith([
-        { format: 'input', value: 'some code' },
-        { format: 'output', value: 'some result', type: undefined },
-      ]);
-    });
-
-    it('applies maxOutputLength', async function () {
-      wrapper = shallow(<Shell runtime={fakeRuntime} maxOutputLength={3} />);
-      await onInput('line 1');
-      await onInput('line 2');
-      expect(wrapper.state('output')).to.deep.equal([
-        { format: 'output', value: 'some result', type: undefined },
-        { format: 'input', value: 'line 2' },
-        { format: 'output', value: 'some result', type: undefined },
-      ]);
-    });
-
-    it('updates the history', async function () {
-      expect(wrapper.find(ShellInput).prop('history')).to.deep.equal([
-        'some code',
-      ]);
-
-      await onInput('some more code');
-
-      const expected = ['some more code', 'some code'];
-
-      expect(wrapper.find(ShellInput).prop('history')).to.deep.equal(expected);
-    });
-
-    it('calls onHistoryChanged', function () {
-      expect(onHistoryChangedSpy).to.have.been.calledOnceWith(['some code']);
-    });
-
-    it('applies maxHistoryLength', async function () {
-      wrapper = shallow(<Shell runtime={fakeRuntime} maxHistoryLength={2} />);
-      await onInput('line 1');
-
-      await onInput('line 2');
-      expect(wrapper.state('history')).to.deep.equal(['line 2', 'line 1']);
-
-      await onInput('line 3');
-      expect(wrapper.state('history')).to.deep.equal(['line 3', 'line 2']);
-    });
-
-    it('redacts history if redactInfo is set', async function () {
-      wrapper = shallow(<Shell runtime={fakeRuntime} redactInfo />);
-      await onInput('some@email.com');
-      expect(wrapper.state('history')).to.deep.equal(['<email>']);
-    });
-
-    it('does not add sensitive commands to the history', async function () {
-      wrapper = shallow(<Shell runtime={fakeRuntime} />);
-      await onInput('db.createUser()');
-      expect(wrapper.state('history')).to.deep.equal([]);
-    });
-
-    it('calls onOperationStarted', function () {
-      expect(onOperationStartedSpy).to.have.been.calledOnce;
-    });
-
-    it('calls onOperationEnd', function () {
-      expect(onOperationEndSpy).to.have.been.calledOnce;
-    });
-  });
-
-  context('when empty input is entered', function () {
-    beforeEach(async function () {
-      await onInput('');
-    });
-
-    it('does not evaluate the input with runtime', function () {
-      expect(fakeRuntime.evaluate).not.to.have.been.calledWith('');
-    });
-
-    it('adds a blank line to the output', function () {
-      expect(wrapper.find(ShellOutput).prop('output')).to.deep.equal([
-        { format: 'input', value: ' ' },
-      ]);
-    });
-
-    it('does not update the history', function () {
-      expect(wrapper.find(ShellInput).prop('history')).to.deep.equal([]);
-    });
-  });
-
-  it('sets the editor as readOnly/operationInProgress true while onInput is executed', async function () {
-    let onInputDone;
-    wrapper = shallow(
-      <Shell
-        runtime={
-          {
-            evaluate: (code: string): Promise<any> => {
-              if (code.includes('typeof prompt')) {
-                return Promise.resolve({});
-              }
-              return new Promise((resolve) => {
-                onInputDone = resolve;
-              });
-            },
-            setEvaluationListener: () => {},
-          } as any
-        }
-      />
-    );
-
-    const onInputStub = wrapper.find(ShellInput).prop('onInput');
-    onInputStub('ok');
-
-    // Check operationInProgress is true while eval is called
-    expect(wrapper.find(ShellInput).prop('operationInProgress')).to.equal(true);
-
-    // Fufill eval.
-    onInputDone();
-    await wait();
-
-    wrapper.update();
-
-    // Ensure operationInProgress is false.
-    expect(wrapper.find(ShellInput).prop('operationInProgress')).to.equal(
-      false
-    );
-  });
-
-  context('when an input is entered and it causes an error', function () {
-    let error;
-
-    beforeEach(async function () {
-      error = new Error('some error');
-      fakeRuntime.evaluate = sinon.fake.returns(Promise.reject(error));
-
-      await onInput('some code');
-    });
-
-    it('adds the evaluated input and an error to the output if the evaluation fails', function () {
-      const output = wrapper.find(ShellOutput).prop('output');
-
-      expect(output).to.deep.equal([
-        { format: 'input', value: 'some code' },
-        { format: 'error', value: error },
-      ]);
-    });
-
-    it('sets the editor as operationInProgress false after the execution', function () {
-      expect(wrapper.find(ShellInput).prop('operationInProgress')).to.equal(
-        false
-      );
-    });
-
-    it('calls onOutputChanged with output', function () {
-      expect(onOutputChangedSpy).to.have.been.calledWith([
-        { format: 'input', value: 'some code' },
-        { format: 'error', value: error },
-      ]);
-    });
-
-    it('updates the history', async function () {
-      expect(wrapper.find(ShellInput).prop('history')).to.deep.equal([
-        'some code',
-      ]);
-
-      await onInput('some more code');
-
-      const expected = ['some more code', 'some code'];
-
-      expect(wrapper.find(ShellInput).prop('history')).to.deep.equal(expected);
-    });
-
-    it('calls onHistoryChanged', function () {
-      expect(onHistoryChangedSpy).to.have.been.calledOnceWith(['some code']);
-    });
-
-    it('calls onOperationEnd', function () {
-      expect(onOperationEndSpy).to.have.been.calledOnce;
-    });
-  });
-
-  it('scrolls the container to the bottom each time the output is updated', function () {
-    wrapper = mount(<Shell runtime={fakeRuntime} />);
-
-    wrapper.setState({
-      output: [
-        { format: 'input', value: 'some code' },
-        { format: 'output', value: 'some result' },
-      ],
-    });
-
-    wrapper.update();
-
-    expect(Element.prototype.scrollIntoView).to.have.been.calledTwice;
-  });
-
-  it('focuses on the input when the background container is clicked', function () {
-    wrapper = mount(<Shell runtime={fakeRuntime} />);
-    const container = wrapper.find('div[data-testid="shell"]');
-
-    const fakeMouseEvent: any = {
-      target: 'a',
-      currentTarget: 'a',
-    };
-    container.prop('onClick')(fakeMouseEvent);
+  it('focuses on the input if the container is clicked', function () {
+    render(<ShellWrapper runtime={fakeRuntime} />);
+    userEvent.click(screen.getByTestId('shell'));
 
     expect(HTMLElement.prototype.focus).to.have.been.calledOnce;
   });
 
-  it('does not focus on the input when an element that is not the background container is clicked', function () {
-    wrapper = mount(<Shell runtime={fakeRuntime} />);
-    const container = wrapper.find('div[data-testid="shell"]');
+  it('takes output', function () {
+    const output: ShellOutputEntry[] = [
+      { key: lastKey++, format: 'output', value: 'Welcome message goes here' },
+    ];
 
-    const fakeMouseEvent: any = {
-      target: 'a',
-      currentTarget: 'b',
-    };
-    container.prop('onClick')(fakeMouseEvent);
+    render(<ShellWrapper runtime={fakeRuntime} output={output} />);
 
-    expect(HTMLElement.prototype.focus).to.not.have.been.called;
+    expect(screen.getByText('Welcome message goes here')).to.exist;
+    expect(filterEvaluateCalls(fakeRuntime.evaluate.args)).to.be.empty;
   });
 
-  it('updated the output when .onPrint is called', function () {
-    wrapper.instance().onPrint([{ type: null, printable: 42 }]);
+  it('calls onOutputChanged', async function () {
+    let output = [];
+    const onOutputChanged = (newOutput) => {
+      output = newOutput;
+    };
 
-    expect(onOutputChangedSpy).to.have.been.calledWith([
-      { format: 'output', value: 42, type: null },
+    const initialEvaluate = 'my command';
+    const { rerender } = render(
+      <ShellWrapper
+        runtime={fakeRuntime}
+        initialEvaluate={initialEvaluate}
+        onOutputChanged={onOutputChanged}
+        output={output}
+      />
+    );
+
+    await waitFor(() => {
+      expect(stripKeys(output)).to.deep.equal([
+        {
+          format: 'input',
+          value: 'my command',
+        },
+        {
+          format: 'output',
+          type: undefined,
+          value: 'some result',
+        },
+      ]);
+    });
+
+    expect(filterEvaluateCalls(fakeRuntime.evaluate.args)).to.have.length(1);
+
+    // scrolls to the bottom initially and every time it outputs
+    await waitFor(() => {
+      expect(Element.prototype.scrollIntoView).to.have.been.calledTwice;
+    });
+
+    // make sure we scroll to the bottom every time output changes
+    rerender(
+      <ShellWrapper
+        runtime={fakeRuntime}
+        initialEvaluate={initialEvaluate}
+        onOutputChanged={onOutputChanged}
+        output={output}
+      />
+    );
+    await waitFor(() => {
+      expect(Element.prototype.scrollIntoView).to.have.been.calledThrice;
+    });
+  });
+
+  it('calls onHistoryChanged', async function () {
+    let history = [];
+    const onHistoryChanged = (newHistory) => {
+      history = newHistory;
+    };
+
+    const initialEvaluate = 'my command';
+    render(
+      <ShellWrapper
+        runtime={fakeRuntime}
+        initialEvaluate={initialEvaluate}
+        onHistoryChanged={onHistoryChanged}
+        history={history}
+      />
+    );
+
+    await waitFor(() => {
+      expect(history).to.deep.equal(['my command']);
+    });
+
+    expect(filterEvaluateCalls(fakeRuntime.evaluate.args)).to.have.length(1);
+  });
+
+  it('takes initialText', function () {
+    const initialText = 'still typing';
+
+    render(<ShellWrapper runtime={fakeRuntime} initialText={initialText} />);
+    expect(screen.getByRole('textbox').textContent).to.equal(initialText);
+    expect(filterEvaluateCalls(fakeRuntime.evaluate.args)).to.be.empty;
+  });
+
+  it('takes isOperationInProgress', function () {
+    const isOperationInProgress = true;
+
+    render(
+      <ShellWrapper
+        runtime={fakeRuntime}
+        isOperationInProgress={isOperationInProgress}
+      />
+    );
+
+    expect(screen.getByRole('textbox').getAttribute('aria-readonly')).to.equal(
+      'true'
+    );
+    expect(filterEvaluateCalls(fakeRuntime.evaluate.args)).to.be.empty;
+  });
+
+  it('calls onOperationStarted and onOperationEnd', async function () {
+    const initialEvaluate = 'my command';
+
+    let isOperationInProgress = false;
+
+    const onOperationStarted = sinon.stub().callsFake(() => {
+      isOperationInProgress = true;
+    });
+
+    const onOperationEnd = sinon.stub().callsFake(() => {
+      isOperationInProgress = false;
+    });
+
+    render(
+      <ShellWrapper
+        runtime={fakeRuntime}
+        initialEvaluate={initialEvaluate}
+        onOperationStarted={onOperationStarted}
+        onOperationEnd={onOperationEnd}
+        isOperationInProgress={isOperationInProgress}
+      />
+    );
+
+    await waitFor(function () {
+      expect(onOperationStarted.callCount).to.equal(1);
+      expect(onOperationEnd.callCount).to.equal(1);
+    });
+
+    expect(isOperationInProgress).to.equal(false);
+
+    expect(filterEvaluateCalls(fakeRuntime.evaluate.args)).to.have.length(1);
+  });
+
+  it('takes redactInfo', async function () {
+    let history = [];
+    const onHistoryChanged = (newHistory) => {
+      history = newHistory;
+    };
+
+    const initialEvaluate = 'some@email.com';
+    const redactInfo = true;
+    render(
+      <ShellWrapper
+        runtime={fakeRuntime}
+        initialEvaluate={initialEvaluate}
+        onHistoryChanged={onHistoryChanged}
+        history={history}
+        redactInfo={redactInfo}
+      />
+    );
+
+    await waitFor(() => {
+      expect(history).to.deep.equal(['<email>']);
+    });
+
+    expect(filterEvaluateCalls(fakeRuntime.evaluate.args)).to.have.length(1);
+  });
+
+  it('does not evaluate empty input', async function () {
+    const initialEvaluate = ' ';
+
+    let output = [];
+    const onOutputChanged = (newOutput) => {
+      output = newOutput;
+    };
+
+    render(
+      <ShellWrapper
+        runtime={fakeRuntime}
+        initialEvaluate={initialEvaluate}
+        onOutputChanged={onOutputChanged}
+        output={output}
+      />
+    );
+
+    await waitFor(() => {
+      expect(stripKeys(output)).to.deep.equal([
+        {
+          format: 'input',
+          value: ' ',
+        },
+      ]);
+    });
+
+    expect(filterEvaluateCalls(fakeRuntime.evaluate.args)).to.be.empty;
+  });
+
+  it('adds errors to output', async function () {
+    const error = new Error('some error');
+    fakeRuntime.evaluate = sinon.fake.returns(Promise.reject(error));
+
+    let output = [];
+    const onOutputChanged = (newOutput) => {
+      output = newOutput;
+    };
+
+    const initialEvaluate = 'my command';
+    render(
+      <ShellWrapper
+        runtime={fakeRuntime}
+        initialEvaluate={initialEvaluate}
+        onOutputChanged={onOutputChanged}
+        output={output}
+      />
+    );
+
+    await waitFor(() => {
+      expect(stripKeys(output)).to.deep.equal([
+        {
+          format: 'input',
+          value: 'my command',
+        },
+        {
+          format: 'error',
+          value: error,
+        },
+      ]);
+    });
+
+    expect(filterEvaluateCalls(fakeRuntime.evaluate.args)).to.have.length(1);
+  });
+
+  it('takes maxOutputLength', async function () {
+    let output: ShellOutputEntry[] = [];
+    for (let i = 0; i < 1000; i++) {
+      output.push({
+        key: lastKey++,
+        format: 'output',
+        type: undefined,
+        value: 'some result',
+      });
+    }
+    const onOutputChanged = (newOutput) => {
+      output = newOutput;
+    };
+
+    const initialEvaluate = 'my command';
+    render(
+      <ShellWrapper
+        runtime={fakeRuntime}
+        maxOutputLength={1}
+        initialEvaluate={initialEvaluate}
+        onOutputChanged={onOutputChanged}
+        output={output}
+      />
+    );
+
+    await waitFor(() => {
+      expect(stripKeys(output)).to.deep.equal([
+        {
+          format: 'output',
+          type: undefined,
+          value: 'some result',
+        },
+      ]);
+    });
+
+    expect(filterEvaluateCalls(fakeRuntime.evaluate.args)).to.have.length(1);
+  });
+
+  it('takes maxHistoryLength', async function () {
+    let history: string[] = [];
+    for (let i = 0; i < 1000; i++) {
+      history.push('foo');
+    }
+    const onHistoryChanged = (newHistory) => {
+      history = newHistory;
+    };
+
+    const initialEvaluate = 'my command';
+    render(
+      <ShellWrapper
+        runtime={fakeRuntime}
+        maxHistoryLength={1}
+        initialEvaluate={initialEvaluate}
+        onHistoryChanged={onHistoryChanged}
+        history={history}
+      />
+    );
+
+    await waitFor(() => {
+      expect(history).to.deep.equal(['my command']);
+    });
+
+    expect(filterEvaluateCalls(fakeRuntime.evaluate.args)).to.have.length(1);
+  });
+
+  it('prints when onPrint is called while evaluating', async function () {
+    fakeRuntime = {
+      evaluate: sinon.stub().callsFake(async (command: string) => {
+        if (command === 'my command') {
+          // don't print every time we update the prompt, only once for the actual command being input
+          await listener?.onPrint?.([
+            { type: null, printable: 'from inside onPrint' },
+          ]);
+        }
+        return { printable: 'some result' };
+      }),
+      setEvaluationListener: (_listener) => {
+        listener = _listener;
+      },
+    };
+
+    const initialEvaluate = 'my command';
+
+    let output = [];
+    const onOutputChanged = (newOutput) => {
+      output = newOutput;
+    };
+
+    render(
+      <ShellWrapper
+        runtime={fakeRuntime}
+        initialEvaluate={initialEvaluate}
+        onOutputChanged={onOutputChanged}
+        output={output}
+      />
+    );
+
+    await waitFor(() => {
+      expect(stripKeys(output)[output.length - 1]).to.deep.equal({
+        format: 'output',
+        type: undefined,
+        value: 'some result',
+      });
+    });
+
+    expect(stripKeys(output)).to.deep.equal([
+      // we typed "my command"
+      { format: 'input', value: 'my command' },
+      // while evaluating it printed something
+      { format: 'output', type: null, value: 'from inside onPrint' },
+      // we then printed the result of the evaluation
+      { format: 'output', type: undefined, value: 'some result' },
     ]);
   });
 
-  it('clears the current output when cls is used', function () {
-    wrapper.setState({
-      output: [
-        { format: 'input', value: 'some code' },
-        { format: 'output', value: 'some result' },
-      ],
+  it('clears the output when onClearCommand is called', async function () {
+    let output: ShellOutputEntry[] = [
+      {
+        key: lastKey++,
+        format: 'output',
+        type: undefined,
+        value: 'some result',
+      },
+    ];
+    const onOutputChanged = (newOutput) => {
+      output = newOutput;
+    };
+    const initialEvaluate = 'my command';
+
+    render(
+      <ShellWrapper
+        runtime={fakeRuntime}
+        initialEvaluate={initialEvaluate}
+        onOutputChanged={onOutputChanged}
+        output={output}
+      />
+    );
+
+    await waitFor(() => expect(listener).to.exist);
+    await listener?.onClearCommand?.();
+
+    await waitFor(() => {
+      expect(output).to.deep.equal([]);
     });
-
-    wrapper.instance().onClearCommand();
-
-    expect(onOutputChangedSpy).to.have.been.calledWith([]);
   });
+
   describe('password prompt', function () {
-    let pressKey: (key: string) => Promise<void>;
-    beforeEach(function () {
-      wrapper = mount(<Shell runtime={fakeRuntime} />);
-      pressKey = async (key: string) => {
-        wrapper
-          .find(PasswordPrompt)
-          .instance()
-          .onKeyDown({
-            key,
-            target: wrapper.find('input').instance(),
-          });
-        await wait();
-        wrapper.update();
-      };
-    });
-
     it('displays a password prompt when asked to', async function () {
-      expect(wrapper.find(PasswordPrompt)).to.have.lengthOf(0);
+      const initialEvaluate = 'my command';
+      render(
+        <ShellWrapper runtime={fakeRuntime} initialEvaluate={initialEvaluate} />
+      );
 
-      const passwordPromise = wrapper
-        .instance()
-        .onPrompt('Enter password', 'password');
-      await wait();
-      wrapper.update();
-      expect(wrapper.state('passwordPrompt')).to.equal('Enter password');
-      expect(wrapper.find(PasswordPrompt)).to.have.lengthOf(1);
-      wrapper.find('input').instance().value = '12345';
-      await pressKey('Enter');
+      await waitFor(() => expect(listener).to.exist);
+      const promise = listener?.onPrompt?.('password?', 'password');
 
-      expect(await passwordPromise).to.equal('12345');
-      expect(HTMLElement.prototype.focus).to.have.been.called;
+      userEvent.type(
+        screen.getByTestId('password-prompt'),
+        'my password{enter}'
+      );
+
+      await promise;
+
+      expect(screen.queryByTestId('password-prompt')).to.be.null;
     });
 
     it('can abort reading the password', async function () {
-      const passwordPromise = wrapper
-        .instance()
-        .onPrompt('Enter password', 'password');
-      await wait();
-      wrapper.update();
-      await pressKey('Esc');
+      const initialEvaluate = 'my command';
+      render(
+        <ShellWrapper runtime={fakeRuntime} initialEvaluate={initialEvaluate} />
+      );
+
+      await waitFor(() => expect(listener).to.exist);
+      const promise = listener?.onPrompt?.('password?', 'password');
+
+      userEvent.type(screen.getByTestId('password-prompt'), '{escape}');
 
       try {
-        await passwordPromise;
-      } catch {
-        expect(HTMLElement.prototype.focus).to.have.been.called;
-        return;
+        await promise;
+        expect.fail('expected error');
+      } catch (err) {
+        expect(err.message).to.equal('Canceled by user');
       }
-      expect.fail('should have been rejected');
+
+      expect(screen.queryByTestId('password-prompt')).to.be.null;
     });
   });
 
-  context('shows a shell prompt', function () {
+  describe('shell prompt', function () {
     it('defaults to >', async function () {
-      wrapper = mount(<Shell runtime={fakeRuntime} />);
-      await wait();
-      expect(wrapper.find('ShellInput').prop('prompt')).to.equal('>');
+      render(<ShellWrapper runtime={fakeRuntime} />);
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('Chevron Right Icon')).to.exist;
+      });
     });
 
     it('initializes with the value of getShellPrompt', async function () {
-      // eslint-disable-next-line @typescript-eslint/require-await
-      fakeRuntime.getShellPrompt = async () => {
-        return 'mongos>';
+      fakeRuntime.getShellPrompt = () => {
+        return '$custom$';
       };
-      wrapper = mount(<Shell runtime={fakeRuntime} />);
-      await wait();
-      wrapper.update();
-      expect(wrapper.find('ShellInput').prop('prompt')).to.equal('mongos>');
+
+      render(<ShellWrapper runtime={fakeRuntime} />);
+
+      await waitFor(() => {
+        expect(screen.getByText('$custom$')).to.exist;
+      });
+    });
+
+    it('works with a custom user-provided prompt', async function () {
+      fakeRuntime.evaluate = () => {
+        return {
+          type: null,
+          printable: 'abc',
+        };
+      };
+
+      render(<ShellWrapper runtime={fakeRuntime} />);
+
+      await waitFor(() => {
+        expect(screen.getByText('abc')).to.exist;
+      });
     });
 
     it('updates after evaluation', async function () {
       let called = 0;
       // eslint-disable-next-line @typescript-eslint/require-await
       fakeRuntime.getShellPrompt = async () => {
-        if (called++ <= 1) {
-          return 'mongos>';
+        called++;
+        if (called === 1) {
+          return 'mongos';
         }
-        return 'rs0:primary>';
+        return 'rs0:primary';
       };
-      // eslint-disable-next-line @typescript-eslint/require-await
-      fakeRuntime.evaluate = async () => {
+
+      fakeRuntime.evaluate = () => {
         return {};
       };
 
-      wrapper = mount(<Shell runtime={fakeRuntime} />);
-      await wait();
-      wrapper.update();
-      expect(wrapper.find('ShellInput').prop('prompt')).to.equal('mongos>');
-
-      await onInput('some code');
-      expect(wrapper.find('ShellInput').prop('prompt')).to.equal(
-        'rs0:primary>'
+      const initialEvaluate = ['command 1', 'command 2'];
+      const onOutputChanged = sinon.spy();
+      render(
+        <ShellWrapper
+          runtime={fakeRuntime}
+          initialEvaluate={initialEvaluate}
+          onOutputChanged={onOutputChanged}
+        />
       );
-    });
 
-    it('works with a custom user-provided prompt', async function () {
-      // eslint-disable-next-line @typescript-eslint/require-await
-      fakeRuntime.evaluate = async () => {
-        return {
-          type: null,
-          printable: 'abc>',
-        };
-      };
-
-      wrapper = mount(<Shell runtime={fakeRuntime} />);
-      await wait();
-      wrapper.update();
-      expect(wrapper.find('ShellInput').prop('prompt')).to.equal('abc>');
+      await waitFor(() => {
+        expect(screen.getByText('rs0:primary')).to.exist;
+      });
     });
   });
 });

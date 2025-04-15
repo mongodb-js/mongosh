@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/node-runtime-worker-thread",
-  "version": "0.0.0-dev.0",
+  "version": "3.3.5",
   "description": "MongoDB shell runtime that lives in a worker thread",
   "homepage": "https://github.com/mongodb-js/mongosh",
   "license": "Apache-2.0",
@@ -17,7 +17,7 @@
     "node": ">=14.15.1"
   },
   "scripts": {
-    "test": "cross-env TS_NODE_PROJECT=./tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 -r ts-node/register \"./src/**/*.spec.ts\"",
+    "test": "mocha -r \"../../scripts/import-expansions.js\" -r \"./tests/register-worker.js \" --timeout 15000 -r ts-node/register --reporter \"../../configs/mocha-config-mongosh/reporter.ts\" \"./src/**/*.spec.ts\"",
     "pretest-ci": "node ../../scripts/run-if-package-requested.js npm run webpack-build -- --no-stats --no-devtool",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
@@ -29,21 +29,24 @@
     "webpack-build": "npm run compile && webpack --mode production",
     "webpack-build-dev": "npm run compile && webpack --mode development",
     "compile": "tsc -p tsconfig.json",
-    "prepublish": "npm run webpack-build",
+    "prepublish": "npm run webpack-build && npm run create-purls-file",
     "prettier": "prettier",
-    "reformat": "npm run prettier -- --write . && npm run eslint --fix"
+    "reformat": "npm run prettier -- --write . && npm run eslint --fix",
+    "create-purls-file": "npm run write-node-js-dep && node ../../scripts/create-purls.js .sbom/dependencies.json .sbom/node-js-dep.json > dist/purls.txt",
+    "write-node-js-dep": "mkdir -p .sbom && node ../../scripts/write-nodejs-dep > .sbom/node-js-dep.json"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
+    "@mongodb-js/sbom-tools": "^0.7.2",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "@mongosh/browser-runtime-core": "0.0.0-dev.0",
-    "@mongosh/browser-runtime-electron": "0.0.0-dev.0",
-    "@mongosh/service-provider-core": "0.0.0-dev.0",
-    "@mongosh/service-provider-server": "0.0.0-dev.0",
-    "@mongosh/types": "0.0.0-dev.0",
-    "bson": "^6.2.0",
-    "depcheck": "^1.4.3",
+    "@mongosh/browser-runtime-core": "3.10.0",
+    "@mongosh/browser-runtime-electron": "3.10.0",
+    "@mongosh/service-provider-core": "3.3.0",
+    "@mongosh/service-provider-node-driver": "3.8.0",
+    "@mongosh/types": "3.6.0",
+    "bson": "^6.10.3",
+    "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
     "mocha": "^10.2.0",
     "postmsg-rpc": "^2.4.0",
@@ -52,6 +55,7 @@
   },
   "dependencies": {
     "interruptor": "^1.0.1",
-    "system-ca": "^1.0.2"
+    "system-ca": "^2.0.1",
+    "web-worker": "^1.3.0"
   }
 }

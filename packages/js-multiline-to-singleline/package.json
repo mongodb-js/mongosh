@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/js-multiline-to-singleline",
-  "version": "0.0.0-dev.0",
+  "version": "2.4.8",
   "description": "Make multiline JS into a single line",
   "main": "./lib/index.js",
   "repository": {
@@ -11,7 +11,7 @@
     "unsafe-perm": true
   },
   "scripts": {
-    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
+    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register --reporter \"../../configs/mocha-config-mongosh/reporter.ts\" \"./{src,lib}/**/*.spec.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
@@ -35,15 +35,15 @@
     "unitTestsOnly": true
   },
   "dependencies": {
-    "@babel/core": "^7.16.12",
-    "@babel/types": "^7.21.2"
+    "@babel/core": "^7.26.10",
+    "@babel/types": "^7.27.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@types/babel__core": "^7.1.18",
-    "depcheck": "^1.4.3",
+    "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
     "prettier": "^2.8.8"
   }

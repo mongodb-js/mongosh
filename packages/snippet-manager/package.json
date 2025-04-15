@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/snippet-manager",
-  "version": "0.0.0-dev.0",
+  "version": "3.10.0",
   "description": "MongoDB Shell Snippet Manager",
   "main": "./lib/index.js",
   "repository": {
@@ -11,7 +11,7 @@
     "unsafe-perm": true
   },
   "scripts": {
-    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
+    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register --reporter \"../../configs/mocha-config-mongosh/reporter.ts\" \"./{src,lib}/**/*.spec.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
@@ -35,24 +35,23 @@
     "unitTestsOnly": true
   },
   "dependencies": {
-    "@mongosh/errors": "0.0.0-dev.0",
-    "@mongosh/shell-api": "0.0.0-dev.0",
-    "@mongosh/types": "0.0.0-dev.0",
-    "bson": "^6.2.0",
-    "cross-spawn": "^7.0.3",
+    "@mongodb-js/devtools-proxy-support": "^0.4.2",
+    "@mongosh/errors": "2.4.0",
+    "@mongosh/shell-api": "3.10.0",
+    "@mongosh/types": "3.6.0",
+    "bson": "^6.10.3",
+    "cross-spawn": "^7.0.5",
     "escape-string-regexp": "^4.0.0",
-    "joi": "^17.4.0",
-    "node-fetch": "^2.6.1",
+    "zod": "^3.24.1",
     "tar": "^6.1.15"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "@types/cross-spawn": "^6.0.2",
-    "@types/node-fetch": "^2.6.4",
+    "@types/cross-spawn": "^6.0.6",
     "@types/tar": "^4.0.4",
-    "depcheck": "^1.4.3",
+    "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
     "nanobus": "^4.5.0",
     "prettier": "^2.8.8"

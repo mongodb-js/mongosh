@@ -30,6 +30,7 @@ import {
   shouldRunAggregationImmediately,
   adjustRunCommand,
   getBadge,
+  aggregateBackgroundOptionNotSupportedHelp,
 } from './helpers';
 
 import {
@@ -57,6 +58,8 @@ import type {
   CreateEncryptedCollectionOptions,
   CheckMetadataConsistencyOptions,
   RunCommandOptions,
+  ExplainVerbosityLike,
+  AggregateOptions,
 } from '@mongosh/service-provider-core';
 
 export type CollectionNamesWithTypes = {
@@ -208,10 +211,14 @@ export class DatabaseImpl<
     cmd: Document,
     options: CommandOperationOptions = {}
   ): Promise<Document> {
-    return this.getSiblingDB('admin')._runCommand(cmd, {
-      ...(await this._baseOptions()),
-      ...options,
-    });
+    return this.getSiblingDB('admin')._runCommand(cmd, options);
+  }
+
+  public async _runAdminReadCommand(
+    cmd: Document,
+    options: CommandOperationOptions = {}
+  ): Promise<Document> {
+    return this.getSiblingDB('admin')._runReadCommand(cmd, options);
   }
 
   public async _runCursorCommand(
@@ -299,7 +306,7 @@ export class DatabaseImpl<
         // are not going to differ from fresh ones, and even if they do, a
         // subsequent autocompletion request will almost certainly have at least
         // the new cached results.
-        await new Promise((resolve) => setTimeout(resolve, 200).unref());
+        await new Promise((resolve) => setTimeout(resolve, 200)?.unref?.());
         return this._cachedCollectionNames;
       })(),
     ]);
@@ -389,11 +396,19 @@ export class DatabaseImpl<
       cmd = { [cmd]: 1 };
     }
 
-    const hiddenCommands = new RegExp(HIDDEN_COMMANDS);
-    if (!Object.keys(cmd).some((k) => hiddenCommands.test(k))) {
-      this._emitDatabaseApiCall('runCommand', { cmd, options });
+    try {
+      const hiddenCommands = new RegExp(HIDDEN_COMMANDS);
+      if (!Object.keys(cmd).some((k) => hiddenCommands.test(k))) {
+        this._emitDatabaseApiCall('runCommand', { cmd, options });
+      }
+      return await this._runCommand(cmd, options);
+    } catch (error: any) {
+      if (error.codeName === 'NotPrimaryNoSecondaryOk') {
+        const message = `not primary - consider passing the readPreference option e.g. db.runCommand({ command }, { readPreference: "secondaryPreferred" })`;
+        (error as Error).message = message;
+      }
+      throw error;
     }
-    return this._runCommand(cmd, options);
   }
 
   /**
@@ -424,20 +439,41 @@ export class DatabaseImpl<
   }
 
   /**
-   * Run an aggregation against the db.
+   * Run an aggregation against the database. Accepts array pipeline and options object OR stages as individual arguments.
    *
-   * @param pipeline
-   * @param options
    * @returns {Promise} The promise of aggregation results.
    */
+  async aggregate(
+    pipeline: Document[],
+    options: AggregateOptions & { explain: ExplainVerbosityLike }
+  ): Promise<Document>;
+  async aggregate(
+    pipeline: Document[],
+    options?: AggregateOptions
+  ): Promise<AggregationCursor>;
+  async aggregate(...stages: Document[]): Promise<AggregationCursor>;
   @returnsPromise
   @returnType('AggregationCursor')
   @apiVersions([1])
-  async aggregate(
-    pipeline: Document[],
-    options?: Document
-  ): Promise<AggregationCursor> {
+  async aggregate(...args: unknown[]): Promise<AggregationCursor | Document> {
+    let options: AggregateOptions;
+    let pipeline: Document[];
+    if (args.length === 0 || Array.isArray(args[0])) {
+      options = args[1] || {};
+      pipeline = (args[0] as Document[]) || [];
+    } else {
+      options = {};
+      pipeline = (args as Document[]) || [];
+    }
+
+    if ('background' in options) {
+      await this._instanceState.printWarning(
+        aggregateBackgroundOptionNotSupportedHelp
+      );
+    }
+
     assertArgsDefinedType([pipeline], [true], 'Database.aggregate');
+
     this._emitDatabaseApiCall('aggregate', { options, pipeline });
 
     const { aggOptions, dbOptions, explain } = adaptAggregateOptions(options);
@@ -1073,7 +1109,12 @@ export class DatabaseImpl<
     }
 
     const adminDb = this.getSiblingDB('admin');
-    const aggregateOptions = { $readPreference: { mode: 'primaryPreferred' } };
+    const aggregateOptions = {
+      $readPreference: { mode: 'primaryPreferred' },
+      // Regex patterns should be instances of BSONRegExp
+      // as there can be issues during conversion otherwise.
+      bsonRegExp: true,
+    };
 
     try {
       const cursor = await adminDb.aggregate(pipeline, aggregateOptions);
@@ -1140,10 +1181,10 @@ export class DatabaseImpl<
   }
 
   @returnsPromise
-  @apiVersions([]) // TODO: Update this after https://jira.mongodb.org/browse/PM-2327
+  @apiVersions([])
   async version(): Promise<string> {
     this._emitDatabaseApiCall('version', {});
-    const info: Document = await this._runAdminCommand({
+    const info: Document = await this._runAdminReadCommand({
       buildInfo: 1,
     });
     if (!info || info.version === undefined) {
@@ -1158,10 +1199,10 @@ export class DatabaseImpl<
   }
 
   @returnsPromise
-  @apiVersions([]) // TODO: Maybe update this after https://jira.mongodb.org/browse/PM-2327
+  @apiVersions([])
   async serverBits(): Promise<Document> {
     this._emitDatabaseApiCall('serverBits', {});
-    const info: Document = await this._runAdminCommand({
+    const info: Document = await this._runAdminReadCommand({
       buildInfo: 1,
     });
     if (!info || info.bits === undefined) {
@@ -1211,7 +1252,7 @@ export class DatabaseImpl<
   @apiVersions([])
   async serverBuildInfo(): Promise<Document> {
     this._emitDatabaseApiCall('serverBuildInfo', {});
-    return await this._runAdminCommand({
+    return await this._runAdminReadCommand({
       buildInfo: 1,
     });
   }
@@ -1220,7 +1261,7 @@ export class DatabaseImpl<
   @apiVersions([])
   async serverStatus(opts = {}): Promise<Document> {
     this._emitDatabaseApiCall('serverStatus', { options: opts });
-    return await this._runAdminCommand({
+    return await this._runAdminReadCommand({
       serverStatus: 1,
       ...opts,
     });
@@ -1249,7 +1290,7 @@ export class DatabaseImpl<
   @apiVersions([])
   async hostInfo(): Promise<Document> {
     this._emitDatabaseApiCall('hostInfo', {});
-    return await this._runAdminCommand({
+    return await this._runAdminReadCommand({
       hostInfo: 1,
     });
   }
@@ -1258,7 +1299,7 @@ export class DatabaseImpl<
   @apiVersions([])
   async serverCmdLineOpts(): Promise<Document> {
     this._emitDatabaseApiCall('serverCmdLineOpts', {});
-    return await this._runAdminCommand({
+    return await this._runAdminReadCommand({
       getCmdLineOpts: 1,
     });
   }
@@ -1367,7 +1408,7 @@ export class DatabaseImpl<
     this._emitDatabaseApiCall('getLogComponents', {});
     const cmdObj = { getParameter: 1, logComponentVerbosity: 1 };
 
-    const result = await this._runAdminCommand(cmdObj);
+    const result = await this._runAdminReadCommand(cmdObj);
     if (!result || result.logComponentVerbosity === undefined) {
       throw new MongoshRuntimeError(
         `Error running command  ${result ? result.errmsg || '' : ''}`,
@@ -1434,6 +1475,7 @@ export class DatabaseImpl<
         CommonErrors.CommandFailed
       );
     }
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     for (const cmdDescription of Object.values(result.commands) as Document[]) {
       if ('slaveOk' in cmdDescription) {
         cmdDescription.secondaryOk = cmdDescription.slaveOk;
@@ -1507,7 +1549,7 @@ export class DatabaseImpl<
     if (
       (await local.getCollection('system.replset').countDocuments({})) !== 0
     ) {
-      const status = await this._runAdminCommand({ replSetGetStatus: 1 });
+      const status = await this._runAdminReadCommand({ replSetGetStatus: 1 });
       // get primary
       let primary = null;
       for (const member of status.members) {
@@ -1730,7 +1772,10 @@ export class DatabaseImpl<
   @serverVersions(['4.4.0', ServerVersions.latest])
   @returnsPromise
   @returnType('AggregationCursor')
-  async sql(sqlString: string, options?: Document): Promise<AggregationCursor> {
+  async sql(
+    sqlString: string,
+    options?: AggregateOptions
+  ): Promise<AggregationCursor> {
     this._emitDatabaseApiCall('sql', { sqlString: sqlString, options });
     await this._instanceState.shellApi.print(
       'Note: this is an experimental feature that may be subject to change in future releases.'

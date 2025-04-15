@@ -1,23 +1,25 @@
 import chai, { expect } from 'chai';
 import sinon from 'sinon';
 import type { GithubRepo } from '@mongodb-js/devtools-github-repo';
-import { publishToHomebrew } from './publish-to-homebrew';
+import type { HomebrewPublisherConfig } from './publish-to-homebrew';
+import { HomebrewPublisher } from './publish-to-homebrew';
 
 chai.use(require('sinon-chai'));
 
-describe('Homebrew publish-to-homebrew', function () {
+describe('HomebrewPublisher', function () {
   let homebrewCore: GithubRepo;
   let homebrewCoreFork: GithubRepo;
   let createPullRequest: sinon.SinonStub;
-  let httpsSha256: sinon.SinonStub;
+  let npmPackageSha256: sinon.SinonStub;
   let generateFormula: sinon.SinonStub;
   let updateHomebrewFork: sinon.SinonStub;
 
-  beforeEach(function () {
+  let testPublisher: HomebrewPublisher;
+
+  const setupHomebrewPublisher = (
+    config: Omit<HomebrewPublisherConfig, 'homebrewCore' | 'homebrewCoreFork'>
+  ) => {
     createPullRequest = sinon.stub();
-    httpsSha256 = sinon.stub();
-    generateFormula = sinon.stub();
-    updateHomebrewFork = sinon.stub();
 
     homebrewCore = {
       repo: {
@@ -32,14 +34,36 @@ describe('Homebrew publish-to-homebrew', function () {
         repo: 'homebrew-core',
       },
     } as unknown as GithubRepo;
+
+    testPublisher = new HomebrewPublisher({
+      ...config,
+      homebrewCore,
+      homebrewCoreFork,
+    });
+
+    npmPackageSha256 = sinon.stub(testPublisher, 'npmPackageSha256');
+    generateFormula = sinon.stub(testPublisher, 'generateFormula');
+    updateHomebrewFork = sinon.stub(testPublisher, 'updateHomebrewFork');
+  };
+
+  beforeEach(function () {
+    setupHomebrewPublisher({
+      packageVersion: '1.0.0',
+      githubReleaseLink: 'githubRelease',
+      isDryRun: false,
+    });
   });
 
   it('creates and merges a PR on update and cleans up', async function () {
-    httpsSha256
+    setupHomebrewPublisher({
+      packageVersion: '1.0.0',
+      githubReleaseLink: 'githubRelease',
+      isDryRun: false,
+    });
+
+    npmPackageSha256
       .rejects()
-      .withArgs(
-        'https://registry.npmjs.org/@mongosh/cli-repl/-/cli-repl-1.0.0.tgz'
-      )
+      .withArgs('https://registry.npmjs.org/@mongosh/cli-repl/1.0.0')
       .resolves('sha');
 
     generateFormula
@@ -69,29 +93,24 @@ describe('Homebrew publish-to-homebrew', function () {
       )
       .resolves({ prNumber: 42, url: 'url' });
 
-    await publishToHomebrew(
-      homebrewCore,
-      homebrewCoreFork,
-      '1.0.0',
-      'githubRelease',
-      false,
-      httpsSha256,
-      generateFormula,
-      updateHomebrewFork
-    );
+    await testPublisher.publish();
 
-    expect(httpsSha256).to.have.been.called;
+    expect(npmPackageSha256).to.have.been.called;
     expect(generateFormula).to.have.been.called;
     expect(updateHomebrewFork).to.have.been.called;
     expect(createPullRequest).to.have.been.called;
   });
 
   it('does not try to push/merge when there is no formula update', async function () {
-    httpsSha256
+    setupHomebrewPublisher({
+      packageVersion: '1.0.0',
+      githubReleaseLink: 'githubRelease',
+      isDryRun: false,
+    });
+
+    npmPackageSha256
       .rejects()
-      .withArgs(
-        'https://registry.npmjs.org/@mongosh/cli-repl/-/cli-repl-1.0.0.tgz'
-      )
+      .withArgs('https://registry.npmjs.org/@mongosh/cli-repl/1.0.0')
       .resolves('sha');
 
     generateFormula
@@ -111,29 +130,18 @@ describe('Homebrew publish-to-homebrew', function () {
       })
       .resolves(undefined);
 
-    await publishToHomebrew(
-      homebrewCore,
-      homebrewCoreFork,
-      '1.0.0',
-      'githubRelease',
-      false,
-      httpsSha256,
-      generateFormula,
-      updateHomebrewFork
-    );
+    await testPublisher.publish();
 
-    expect(httpsSha256).to.have.been.called;
+    expect(npmPackageSha256).to.have.been.called;
     expect(generateFormula).to.have.been.called;
     expect(updateHomebrewFork).to.have.been.called;
     expect(createPullRequest).to.not.have.been.called;
   });
 
   it('silently ignores an error while deleting the PR branch', async function () {
-    httpsSha256
+    npmPackageSha256
       .rejects()
-      .withArgs(
-        'https://registry.npmjs.org/@mongosh/cli-repl/-/cli-repl-1.0.0.tgz'
-      )
+      .withArgs('https://registry.npmjs.org/@mongosh/cli-repl/1.0.0')
       .resolves('sha');
 
     generateFormula
@@ -163,18 +171,9 @@ describe('Homebrew publish-to-homebrew', function () {
       )
       .resolves({ prNumber: 42, url: 'url' });
 
-    await publishToHomebrew(
-      homebrewCore,
-      homebrewCoreFork,
-      '1.0.0',
-      'githubRelease',
-      false,
-      httpsSha256,
-      generateFormula,
-      updateHomebrewFork
-    );
+    await testPublisher.publish();
 
-    expect(httpsSha256).to.have.been.called;
+    expect(npmPackageSha256).to.have.been.called;
     expect(generateFormula).to.have.been.called;
     expect(updateHomebrewFork).to.have.been.called;
     expect(createPullRequest).to.have.been.called;

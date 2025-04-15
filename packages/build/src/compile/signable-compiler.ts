@@ -10,7 +10,7 @@ import { compileJSFileAsBinary } from 'boxednode';
 async function preCompileHook(nodeSourceTree: string) {
   const fleAddonVersion = require(path.join(
     await findModulePath(
-      'service-provider-server',
+      'service-provider-node-driver',
       'mongodb-client-encryption'
     ),
     'package.json'
@@ -32,7 +32,7 @@ async function preCompileHook(nodeSourceTree: string) {
       env: {
         ...process.env,
         FLE_NODE_SOURCE_PATH: nodeSourceTree,
-        LIBMONGOCRYPT_VERSION: `node-v${fleAddonVersion}`,
+        MONGODB_CLIENT_ENCRYPTION_VERSION: `v${fleAddonVersion}`,
       },
       stdio: 'inherit',
     }
@@ -108,25 +108,32 @@ export class SignableCompiler {
   async compile(): Promise<void> {
     const fleAddon = {
       path: await findModulePath(
-        'service-provider-server',
+        'service-provider-node-driver',
         'mongodb-client-encryption'
       ),
       requireRegexp: /\bmongocrypt\.node$/,
     };
     const kerberosAddon = {
-      path: await findModulePath('service-provider-server', 'kerberos'),
+      path: await findModulePath('service-provider-node-driver', 'kerberos'),
       requireRegexp: /\bkerberos\.node$/,
     };
     const osDnsAddon = {
-      path: await findModulePath('service-provider-server', 'os-dns-native'),
+      path: await findModulePath(
+        'service-provider-node-driver',
+        'os-dns-native'
+      ),
       requireRegexp: /\bos_dns_native\.node$/,
     };
     const cryptLibraryVersionAddon = {
       path: await findModulePath('cli-repl', 'mongodb-crypt-library-version'),
       requireRegexp: /\bmongodb_crypt_library_version\.node$/,
     };
+    const glibcVersionAddon = {
+      path: await findModulePath('cli-repl', 'glibc-version'),
+      requireRegexp: /\bglibc_version\.node$/,
+    };
     // Warning! Until https://jira.mongodb.org/browse/MONGOSH-990,
-    // packages/service-provider-server *also* has a copy of these.
+    // packages/service-provider-node-driver *also* has a copy of these.
     // We use the versions included in packages/cli-repl here, so these
     // should be kept in sync!
     const winCAAddon =
@@ -173,18 +180,24 @@ export class SignableCompiler {
           GYP_DEFINES: 'kerberos_use_rtld=true',
         }),
       },
-      addons: [fleAddon, osDnsAddon, kerberosAddon, cryptLibraryVersionAddon]
+      addons: [
+        fleAddon,
+        osDnsAddon,
+        kerberosAddon,
+        cryptLibraryVersionAddon,
+        glibcVersionAddon,
+      ]
         .concat(winCAAddon ? [winCAAddon] : [])
         .concat(winConsoleProcessListAddon ? [winConsoleProcessListAddon] : [])
         .concat(macKeychainAddon ? [macKeychainAddon] : []),
       preCompileHook,
       executableMetadata: this.executableMetadata,
       // Node.js startup snapshots are an experimental feature of Node.js.
-      // TODO(MONGOSH-1605): Re-enable startup snapshots after figuring out
-      // issues with running the binary when CPU features differ
-      // significantly.
-      useCodeCache: true,
-      // useNodeSnapshot: true,
+      // useCodeCache: true,
+      useNodeSnapshot: true,
+      // To account for the fact that we are manually patching Node.js to include
+      // https://github.com/nodejs/node/pull/50453 until we have caught up with upstream
+      nodeSnapshotConfigFlags: ['Default'],
     });
   }
 }

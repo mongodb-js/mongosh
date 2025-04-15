@@ -35,6 +35,8 @@ import type { ClientSideFieldLevelEncryptionOptions } from './field-level-encryp
 import { dirname } from 'path';
 import { ShellUserConfig } from '@mongosh/types';
 import i18n from '@mongosh/i18n';
+import { MONGOSH_VERSION } from './mongosh-version';
+import type { ShellLog } from './shell-log';
 
 const instanceStateSymbol = Symbol.for('@@mongosh.instanceState');
 const loadCallNestingLevelSymbol = Symbol.for('@@mongosh.loadCallNestingLevel');
@@ -43,7 +45,7 @@ const loadCallNestingLevelSymbol = Symbol.for('@@mongosh.loadCallNestingLevel');
  * Class for representing the `config` object in mongosh.
  */
 @shellApiClassDefault
-class ShellConfig extends ShellApiClass {
+export class ShellConfig extends ShellApiClass {
   _instanceState: ShellInstanceState;
   defaults: Readonly<ShellUserConfig>;
 
@@ -187,6 +189,10 @@ export default class ShellApi extends ShellApiClass {
     this.config = new ShellConfig(instanceState);
   }
 
+  get log(): ShellLog {
+    return this[instanceStateSymbol].shellLog;
+  }
+
   get _instanceState(): ShellInstanceState {
     return this[instanceStateSymbol];
   }
@@ -212,9 +218,7 @@ export default class ShellApi extends ShellApiClass {
     return await this._instanceState.currentDb._mongo.show(cmd, arg);
   }
 
-  @directShellCommand
   @returnsPromise
-  @shellCommandCompleter(showCompleter)
   async _untrackedShow(cmd: string, arg?: string): Promise<CommandResult> {
     return await this._instanceState.currentDb._mongo.show(cmd, arg, false);
   }
@@ -289,8 +293,7 @@ export default class ShellApi extends ShellApiClass {
   }
 
   version(): string {
-    const version = require('../package.json').version;
-    return version;
+    return MONGOSH_VERSION;
   }
 
   @returnsPromise
@@ -332,24 +335,32 @@ export default class ShellApi extends ShellApiClass {
   @returnsPromise
   @platforms(['CLI'])
   async enableTelemetry(): Promise<any> {
-    const result = await this._instanceState.evaluationListener.setConfig?.(
-      'enableTelemetry',
-      true
-    );
-    if (result === 'success') {
-      return i18n.__('cli-repl.cli-repl.enabledTelemetry');
+    try {
+      const result = await this._instanceState.evaluationListener.setConfig?.(
+        'enableTelemetry',
+        true
+      );
+      if (result === 'success') {
+        return i18n.__('cli-repl.cli-repl.enabledTelemetry');
+      }
+    } catch (err: unknown) {
+      return String(err);
     }
   }
 
   @returnsPromise
   @platforms(['CLI'])
   async disableTelemetry(): Promise<any> {
-    const result = await this._instanceState.evaluationListener.setConfig?.(
-      'enableTelemetry',
-      false
-    );
-    if (result === 'success') {
-      return i18n.__('cli-repl.cli-repl.disabledTelemetry');
+    try {
+      const result = await this._instanceState.evaluationListener.setConfig?.(
+        'enableTelemetry',
+        false
+      );
+      if (result === 'success') {
+        return i18n.__('cli-repl.cli-repl.disabledTelemetry');
+      }
+    } catch (err: unknown) {
+      return String(err);
     }
   }
 

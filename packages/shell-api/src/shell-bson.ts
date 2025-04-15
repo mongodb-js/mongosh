@@ -261,8 +261,11 @@ export default function constructShellBson(
       },
       { prototype: bson.Long.prototype }
     ),
-    ISODate: function ISODate(input?: string): Date {
-      if (!input) input = new Date().toISOString();
+    ISODate: function ISODate(
+      input?: string | number | Date | undefined
+    ): Date {
+      if (input === undefined) return new Date();
+      if (typeof input !== 'string') return new Date(input);
       const isoDateRegex =
         /^(?<Y>\d{4})-?(?<M>\d{2})-?(?<D>\d{2})([T ](?<h>\d{2})(:?(?<m>\d{2})(:?((?<s>\d{2})(\.(?<ms>\d+))?))?)?(?<tz>Z|([+-])(\d{2}):?(\d{2})?)?)?$/;
       const match = isoDateRegex.exec(input);
@@ -352,7 +355,7 @@ export default function constructShellBson(
     ),
     Int32: assignAll(
       functionCtorWithoutProps(bson.Int32),
-      pickWithExactKeyMatch(bson.Int32, ['prototype'])
+      pickWithExactKeyMatch(bson.Int32, ['prototype', 'fromString'])
     ),
     Long: assignAll(
       functionCtorWithoutProps(bson.Long),
@@ -366,6 +369,7 @@ export default function constructShellBson(
           'fromBytesLE',
           'fromBytes',
           'fromString',
+          'fromStringStrict',
           'fromBigInt',
           'fromNumber',
           'fromInt',
@@ -388,6 +392,10 @@ export default function constructShellBson(
         'prototype',
         'createFromBase64',
         'createFromHexString',
+        'fromInt8Array',
+        'fromFloat32Array',
+        'fromPackedBits',
+        'fromBits',
         'BUFFER_SIZE',
         'SUBTYPE_DEFAULT',
         'SUBTYPE_FUNCTION',
@@ -397,12 +405,15 @@ export default function constructShellBson(
         'SUBTYPE_MD5',
         'SUBTYPE_ENCRYPTED',
         'SUBTYPE_COLUMN',
+        'SUBTYPE_SENSITIVE',
+        'SUBTYPE_VECTOR',
         'SUBTYPE_USER_DEFINED',
+        'VECTOR_TYPE',
       ])
     ),
     Double: assignAll(
       functionCtorWithoutProps(bson.Double),
-      pickWithExactKeyMatch(bson.Double, ['prototype'])
+      pickWithExactKeyMatch(bson.Double, ['prototype', 'fromString'])
     ),
     BSONRegExp: assignAll(
       functionCtorWithoutProps(bson.BSONRegExp),

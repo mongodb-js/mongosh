@@ -5,6 +5,8 @@ import rimraf from 'rimraf';
 import chai from 'chai';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
+import type { MongodSetup } from '../../../testing/integration-testing-hooks';
+import type { MongoLogEntry } from 'mongodb-log-writer';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -46,7 +48,16 @@ function useTmpdir(): { readonly path: string } {
   };
 }
 
-async function readReplLogfile(logPath: string) {
+type MongoLogEntryFromFile = {
+  t?: {
+    $date: string;
+  };
+  id: number;
+} & Omit<MongoLogEntry, 'id' | 't'>;
+
+async function readReplLogFile<T extends MongoLogEntryFromFile>(
+  logPath: string
+): Promise<T[]> {
   return (await fs.readFile(logPath, 'utf8'))
     .split('\n')
     .filter((line) => line.trim())
@@ -129,10 +140,41 @@ const setTemporaryHomeDirectory = () => {
   return { homedir, env };
 };
 
+function getCertPath(filename: string): string {
+  return path.join(
+    __dirname,
+    '..',
+    '..',
+    '..',
+    'testing',
+    'certificates',
+    filename
+  );
+}
+
+// TLS requires matching hostnames, so here we need to explicitly
+// specify `localhost` + IPv4 instead of `127.0.0.1`
+async function connectionStringWithLocalhost(
+  setup: MongodSetup,
+  searchParams: Record<string, string> = {}
+): Promise<string> {
+  const cs = await setup.connectionStringUrl();
+  cs.hosts = cs.hosts.map((host) =>
+    host.replace(/^(127.0.0.1)(?=$|:)/, 'localhost')
+  );
+  cs.searchParams.set('family', '4');
+  for (const [key, value] of Object.entries(searchParams))
+    cs.searchParams.set(key, value);
+  return cs.toString();
+}
+
 // eslint-disable-next-line mocha/no-exports
 export {
   useTmpdir,
-  readReplLogfile,
+  readReplLogFile,
   fakeExternalEditor,
   setTemporaryHomeDirectory,
+  getCertPath,
+  connectionStringWithLocalhost,
+  MongoLogEntryFromFile,
 };

@@ -1,7 +1,9 @@
 import ReactDOM from 'react-dom';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   css,
+  ThemeProvider,
+  Theme,
   Description,
   FormFieldContainer,
   Label,
@@ -14,6 +16,7 @@ import {
 import { IframeRuntime } from './iframe-runtime';
 import { Shell } from './index';
 import type { ShellOutputEntry } from './components/shell-output-line';
+import type { ConnectionInfo } from '@mongosh/service-provider-core';
 
 injectGlobal({
   body: {
@@ -94,7 +97,7 @@ class DemoServiceProvider {
     };
   }
 
-  async getConnectionInfo(): Promise<object> {
+  async getConnectionInfo(): Promise<ConnectionInfo> {
     return {
       buildInfo: await this.buildInfo(),
       extraInfo: {
@@ -148,18 +151,35 @@ class DemoServiceProvider {
 
 const runtime = new IframeRuntime(new DemoServiceProvider() as any);
 
+const lotsOfLines: ShellOutputEntry[] = [];
+for (let i = 0; i < 99; i++) {
+  lotsOfLines.push({ key: `entry-${i}`, format: 'output', value: { i } });
+}
+
 const IframeRuntimeExample: React.FunctionComponent = () => {
+  const [darkMode, setDarkMode] = useState(true);
   const [redactInfo, setRedactInfo] = useState(false);
-  const [maxOutputLength, setMaxOutputLength] = useState(1000);
-  const [maxHistoryLength, setMaxHistoryLength] = useState(1000);
-  const [initialOutput] = useState<ShellOutputEntry[]>([
-    { format: 'output', value: { foo: 1, bar: true, buz: function () {} } },
+  const [maxOutputLength, setMaxOutputLength] = useState(100);
+  const [maxHistoryLength, setMaxHistoryLength] = useState(100);
+  const [initialEvaluate, setInitialEvaluate] = useState<string[]>([]);
+
+  const [initialText, setInitialText] = useState('');
+  const [output, setOutput] = useState<ShellOutputEntry[]>([
+    ...lotsOfLines,
+    {
+      key: 'test',
+      format: 'output',
+      value: { foo: 1, bar: true, buz: function () {} },
+    },
   ]);
-  const [initialHistory, setInitialHistory] = useState([
+  const [history, setHistory] = useState([
     'show dbs',
     'db.coll.stats()',
     '{x: 1, y: {z: 2}, k: [1, 2, 3]}',
+    'passwordPrompt()',
+    '(() => { throw new Error("Whoops!"); })()',
   ]);
+  const [isOperationInProgress, setIsOperationInProgress] = useState(false);
 
   useEffect(() => {
     void runtime.initialize();
@@ -168,24 +188,45 @@ const IframeRuntimeExample: React.FunctionComponent = () => {
     };
   }, []);
 
-  const key = useMemo(() => {
-    return initialHistory.join('');
-  }, [initialHistory]);
-
   return (
     <div className={sandboxContainer}>
       <div className={shellContainer}>
-        <Shell
-          key={key}
-          runtime={runtime}
-          redactInfo={redactInfo}
-          maxOutputLength={maxOutputLength}
-          maxHistoryLength={maxHistoryLength}
-          initialOutput={initialOutput}
-          initialHistory={initialHistory.filter(Boolean)}
-        />
+        <ThemeProvider
+          theme={{ theme: darkMode ? Theme.Dark : Theme.Light, enabled: true }}
+        >
+          <Shell
+            runtime={runtime}
+            redactInfo={redactInfo}
+            maxOutputLength={maxOutputLength}
+            maxHistoryLength={maxHistoryLength}
+            initialText={initialText}
+            initialEvaluate={initialEvaluate.filter(Boolean)}
+            output={output}
+            history={history}
+            isOperationInProgress={isOperationInProgress}
+            onInputChanged={setInitialText}
+            onOutputChanged={setOutput}
+            onHistoryChanged={setHistory}
+            onOperationStarted={() => setIsOperationInProgress(true)}
+            onOperationEnd={() => setIsOperationInProgress(false)}
+          />
+        </ThemeProvider>
       </div>
       <div className={controlsContainer}>
+        <FormFieldContainer className={formField}>
+          <Label id="darkModeLabel" htmlFor="darkMode">
+            darkMode
+          </Label>
+          <Description>Toggle shell dark mode</Description>
+          <Toggle
+            aria-labelledby="darkModeLabel"
+            id="darkMode"
+            size="small"
+            checked={darkMode}
+            onChange={setDarkMode}
+          />
+        </FormFieldContainer>
+
         <FormFieldContainer className={formField}>
           <Label id="redactInfoLabel" htmlFor="redactInfo">
             redactInfo
@@ -242,21 +283,17 @@ const IframeRuntimeExample: React.FunctionComponent = () => {
         </FormFieldContainer>
 
         <FormFieldContainer className={formField}>
-          <Label id="initialHistoryLabel" htmlFor="initialHistory">
-            initialHistory
+          <Label id="initialEvaluateLabel" htmlFor="initialEvaluate">
+            initialEvaluate
           </Label>
           <Description>
-            An array of history entries to prepopulate the history. Can be used
-            to restore the history between sessions. Entries must be ordered
-            from the most recent to the oldest.
-            <br />
-            Note: new entries will not be appended to the array
+            A set of input strings to evaluate right after shell is mounted
           </Description>
           <TextArea
-            aria-labelledby="initialHistory"
-            value={initialHistory.join('\n')}
+            aria-labelledby="initialEvaluate"
+            value={initialEvaluate.join('\n')}
             onChange={(evt) => {
-              setInitialHistory(evt.currentTarget.value.split('\n'));
+              setInitialEvaluate(evt.currentTarget.value.split('\n'));
             }}
             className={cx(textarea, textInput)}
           />

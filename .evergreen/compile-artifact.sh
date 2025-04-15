@@ -6,6 +6,9 @@ cd $(pwd)
 
 source .evergreen/setup-env.sh
 
+# make sure our .sbom files are freshly created
+rm -vrf .sbom && mkdir -vp .sbom
+
 if uname -a | grep -q 'Linux.*x86_64'; then
   rm -rf "tmp/.sccache"
   mkdir -p "tmp/.sccache"
@@ -19,10 +22,11 @@ trap "rm -rf /tmp/m" EXIT
 export TMP=/tmp/m
 export TMPDIR=/tmp/m
 
-if [ `uname` = Darwin ]; then
+if [ $(uname) = Darwin ]; then
   # match what Node.js 20 does on their own builder machines
   export CFLAGS='-mmacosx-version-min=10.15'
   export CXXFLAGS='-mmacosx-version-min=10.15'
+  export MACOSX_DEPLOYMENT_TARGET=10.15
 fi
 
 # The CI machines we have for Windows and x64 macOS are not
@@ -35,10 +39,10 @@ elif uname -a | grep -q 'Darwin.*x86_64'; then
 elif [ -n "$MONGOSH_SHARED_OPENSSL" ]; then
   pushd /tmp/m
   if [ "$MONGOSH_SHARED_OPENSSL" == "openssl11" ]; then
-    curl -sSfLO https://www.openssl.org/source/openssl-1.1.1o.tar.gz
+    curl -sSfLO https://www.openssl.org/source/old/1.1.1/openssl-1.1.1o.tar.gz
     MONGOSH_OPENSSL_LIBNAME=:libcrypto.so.1.1,:libssl.so.1.1
   elif [ "$MONGOSH_SHARED_OPENSSL" == "openssl3" ]; then
-    curl -sSfLO https://www.openssl.org/source/openssl-3.0.5.tar.gz
+    curl -sSfLO https://www.openssl.org/source/old/3.0/openssl-3.0.5.tar.gz
     MONGOSH_OPENSSL_LIBNAME=:libcrypto.so.3,:libssl.so.3
   else
     echo "Unknown MONGOSH_SHARED_OPENSSL value: $MONGOSH_SHARED_OPENSSL"
@@ -67,10 +71,11 @@ elif [ -n "$MONGOSH_SHARED_OPENSSL" ]; then
     "--shared-openssl-libname='"$MONGOSH_OPENSSL_LIBNAME"'",
     "--shared-zlib"
   ]'
-  export LD_LIBRARY_PATH=/tmp/m/opt/lib
+  # python3's ssl module may not work with the OpenSSL we built here,
+  # so prefix the devtools toolchain one
+  export LD_LIBRARY_PATH=/opt/devtools/lib:/tmp/m/opt/lib
 fi
 
-export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
 npm run evergreen-release compile
 dist/mongosh --version
 dist/mongosh --build-info
@@ -92,6 +97,10 @@ if uname -a | grep -q 'Linux.*x86_64'; then
   test $(objdump -d dist/mongosh | grep '\bvmovd\b' | wc -l) -lt 1250
 fi
 
-tar cvzf dist.tgz dist
+npm run write-node-js-dep
+npm run create-purls-file
+cp .sbom/purls.txt dist/.purls.txt
 
-source .evergreen/compilation-context-expansions.sh
+cat dist/.purls.txt
+
+npm run create-dependency-sbom-lists

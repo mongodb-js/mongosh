@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/arg-parser",
-  "version": "0.0.0-dev.0",
+  "version": "3.10.0",
   "description": "MongoDB Shell CLI Argument List Parser Package",
   "main": "./lib/index.js",
   "repository": {
@@ -11,7 +11,7 @@
     "unsafe-perm": true
   },
   "scripts": {
-    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
+    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\" --reporter \"../../configs/mocha-config-mongosh/reporter.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
@@ -35,18 +35,18 @@
     "unitTestsOnly": true
   },
   "dependencies": {
-    "@mongosh/errors": "0.0.0-dev.0",
-    "@mongosh/i18n": "0.0.0-dev.0",
-    "mongodb-connection-string-url": "^3.0.0"
+    "@mongosh/errors": "2.4.0",
+    "@mongosh/i18n": "^2.13.0",
+    "mongodb-connection-string-url": "^3.0.1"
   },
   "devDependencies": {
-    "@mongodb-js/devtools-connect": "^2.4.3",
+    "@mongodb-js/devtools-connect": "^3.4.1",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "depcheck": "^1.4.3",
+    "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
-    "mongodb": "^6.3.0",
+    "mongodb": "^6.14.2",
     "prettier": "^2.8.8"
   }
 }

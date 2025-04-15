@@ -8,9 +8,9 @@ import {
 import type Mongo from './mongo';
 import type {
   Document,
-  FindCursor as ServiceProviderCursor,
-  AggregationCursor as ServiceProviderAggregationCursor,
-  RunCommandCursor as ServiceProviderRunCommandCursor,
+  ServiceProviderFindCursor,
+  ServiceProviderAggregationCursor,
+  ServiceProviderRunCommandCursor,
 } from '@mongosh/service-provider-core';
 import { asPrintable } from './enums';
 import { CursorIterationResult } from './result';
@@ -20,7 +20,7 @@ import { iterate } from './helpers';
 export abstract class AbstractCursor<
   CursorType extends
     | ServiceProviderAggregationCursor
-    | ServiceProviderCursor
+    | ServiceProviderFindCursor
     | ServiceProviderRunCommandCursor
 > extends ShellApiWithMongoClass {
   _mongo: Mongo;
@@ -78,11 +78,15 @@ export abstract class AbstractCursor<
 
   @returnsPromise
   async hasNext(): Promise<boolean> {
-    return this._cursor.hasNext();
+    return await this._cursor.hasNext();
   }
 
   @returnsPromise
   async tryNext(): Promise<Document | null> {
+    return this._tryNext();
+  }
+
+  async _tryNext(): Promise<Document | null> {
     let result = await this._cursor.tryNext();
     if (result !== null && this._transform !== null) {
       result = await this._transform(result);
@@ -90,15 +94,27 @@ export abstract class AbstractCursor<
     return result;
   }
 
+  _canDelegateIterationToUnderlyingCursor(): boolean {
+    return this._transform === null;
+  }
+
   get [Symbol.for('@@mongosh.syntheticAsyncIterable')]() {
     return true;
   }
 
   async *[Symbol.asyncIterator]() {
+    if (
+      this._cursor[Symbol.asyncIterator] &&
+      this._canDelegateIterationToUnderlyingCursor()
+    ) {
+      yield* this._cursor;
+      return;
+    }
+
     let doc;
     // !== null should suffice, but some stubs in our tests return 'undefined'
     // eslint-disable-next-line eqeqeq
-    while ((doc = await this.tryNext()) != null) {
+    while ((doc = await this._tryNext()) != null) {
       yield doc;
     }
   }
@@ -114,7 +130,7 @@ export abstract class AbstractCursor<
   @returnsPromise
   async itcount(): Promise<number> {
     let count = 0;
-    while (await this.tryNext()) {
+    while (await this._tryNext()) {
       count++;
     }
     return count;
@@ -122,6 +138,15 @@ export abstract class AbstractCursor<
 
   @returnsPromise
   async toArray(): Promise<Document[]> {
+    // toArray is always defined for driver cursors, but not necessarily
+    // in tests
+    if (
+      typeof this._cursor.toArray === 'function' &&
+      this._canDelegateIterationToUnderlyingCursor()
+    ) {
+      return await this._cursor.toArray();
+    }
+
     const result = [];
     for await (const doc of this) {
       result.push(doc);

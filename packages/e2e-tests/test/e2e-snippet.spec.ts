@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { expect } from 'chai';
-import { TestShell } from './test-shell';
+import type { TestShell } from './test-shell';
 import { useTmpdir } from './repl-helpers';
 import { eventually } from '../../../testing/eventually';
 
@@ -12,14 +12,14 @@ describe('snippet integration tests', function () {
   let shell: TestShell;
   let makeTestShell: () => TestShell;
   beforeEach(async function () {
-    if (process.env.DISTRO_ID === 'rhel92-fips') {
+    if (process.env.DISTRO_ID === 'rhel93-fips') {
       // TODO: The HTTPS requests we are making for snippet support do not work
-      // with the FIPS configuration on the RHEL 9.2 FIPS-enabled machines.
+      // with the FIPS configuration on the RHEL 9.3 FIPS-enabled machines.
       return this.skip();
     }
 
     makeTestShell = () =>
-      TestShell.start({
+      this.startTestShell({
         args: ['--nodb'],
         cwd: tmpdir.path,
         env: {
@@ -44,7 +44,6 @@ describe('snippet integration tests', function () {
       { recursive: true }
     );
   });
-  afterEach(TestShell.cleanup);
 
   it('allows managing snippets', async function () {
     shell.writeInputLine('snippet install analyze-schema');
@@ -88,7 +87,7 @@ describe('snippet integration tests', function () {
       'config.set("snippetIndexSourceURLs", "http://localhost:1/")'
     );
     shell.writeInputLine('exit');
-    await shell.waitForExit();
+    await shell.waitForSuccessfulExit();
 
     shell = makeTestShell();
     await shell.waitForPrompt();

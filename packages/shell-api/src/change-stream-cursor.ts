@@ -6,7 +6,7 @@ import {
   ShellApiWithMongoClass,
 } from './decorators';
 import type {
-  ChangeStream,
+  ServiceProviderChangeStream,
   Document,
   ResumeToken,
 } from '@mongosh/service-provider-core';
@@ -23,11 +23,15 @@ import type Mongo from './mongo';
 @shellApiClassDefault
 export default class ChangeStreamCursor extends ShellApiWithMongoClass {
   _mongo: Mongo;
-  _cursor: ChangeStream<Document>;
+  _cursor: ServiceProviderChangeStream<Document>;
   _currentIterationResult: CursorIterationResult | null = null;
   _on: string;
 
-  constructor(cursor: ChangeStream<Document>, on: string, mongo: Mongo) {
+  constructor(
+    cursor: ServiceProviderChangeStream<Document>,
+    on: string,
+    mongo: Mongo
+  ) {
     super();
     this._cursor = cursor;
     this._on = on;

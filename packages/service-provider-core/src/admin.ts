@@ -13,7 +13,7 @@ import type {
   AutoEncryptionOptions,
   Collection,
 } from './all-transport-types';
-import type { bson as BSON } from './index';
+import type { bson as BSON, ConnectionExtraInfo } from './index';
 import type { ReplPlatform } from './platform';
 import type {
   AWSEncryptionKeyOptions,
@@ -41,6 +41,12 @@ export interface CheckMetadataConsistencyOptions {
     batchSize: number;
   };
   checkIndexes?: 1;
+}
+
+export interface ConnectionInfo {
+  buildInfo: Document | null;
+  resolvedHostname?: string;
+  extraInfo: (ConnectionExtraInfo & { fcv?: string }) | null;
 }
 
 export default interface Admin {
@@ -87,7 +93,7 @@ export default interface Admin {
   /**
    * Return connection info
    */
-  getConnectionInfo(): Promise<Document>;
+  getConnectionInfo(): Promise<ConnectionInfo>;
 
   /**
    * Authenticate

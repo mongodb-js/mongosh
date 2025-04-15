@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/errors",
-  "version": "0.0.0-dev.0",
+  "version": "2.4.0",
   "description": "MongoDB Shell Errors Package",
   "homepage": "https://github.com/mongodb-js/mongosh",
   "license": "Apache-2.0",
@@ -17,7 +17,7 @@
     "node": ">=14.15.1"
   },
   "scripts": {
-    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 -r ts-node/register \"./src/**/*.spec.ts\"",
+    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 -r ts-node/register --reporter \"../../configs/mocha-config-mongosh/reporter.ts\" \"./src/**/*.spec.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
@@ -27,7 +27,7 @@
     "depcheck": "depcheck",
     "compile": "tsc -p tsconfig.json",
     "prepublish": "npm run compile",
-    "generate-error-overview": "ts-node scripts/extract-errors.ts .. ../../error-overview.md ../../error-overview.rst",
+    "generate-error-overview": "ts-node scripts/extract-errors.ts .. generated/error-overview.md generated/error-overview.rst && npm run reformat",
     "prettier": "prettier",
     "reformat": "npm run prettier -- --write . && npm run eslint --fix"
   },
@@ -40,7 +40,7 @@
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "chalk": "^4.1.2",
-    "depcheck": "^1.4.3",
+    "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
     "handlebars": "^4.7.7",
     "prettier": "^2.8.8",

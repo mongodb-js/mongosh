@@ -173,9 +173,9 @@ describe('AsyncRepl', function () {
       exited = true;
     });
 
-    let resolve;
+    let resolve!: () => void;
     repl.context.asyncFn = () =>
-      new Promise((res) => {
+      new Promise<void>((res) => {
         resolve = res;
       });
 
@@ -312,5 +312,44 @@ describe('AsyncRepl', function () {
         err: ev.err,
       });
     });
+  });
+
+  it('does not run pasted text immediately', async function () {
+    const { input, output } = createDefaultAsyncRepl({
+      terminal: true,
+      useColors: false,
+    });
+
+    output.read(); // Read prompt so it doesn't mess with further output
+    input.write('\x1b[200~1234\n*5678\n\x1b[201~');
+    await tick();
+    // ESC[nG is horizontal cursor movement, ESC[nJ is cursor display reset
+    expect(output.read()).to.equal(
+      '1234\r\n\x1B[1G\x1B[0J... \x1B[5G*5678\r\n\x1B[1G\x1B[0J... \x1B[5G'
+    );
+    input.write('\n');
+    await tick();
+    // Contains the expected result after hitting newline
+    expect(output.read()).to.equal('\r\n7006652\n\x1B[1G\x1B[0J> \x1B[3G');
+  });
+
+  it('allows using ctrl+c to avoid running pasted text', async function () {
+    const { input, output } = createDefaultAsyncRepl({
+      terminal: true,
+      useColors: false,
+    });
+
+    output.read(); // Read prompt so it doesn't mess with further output
+    input.write('\x1b[200~1234\n*5678\n\x1b[201~');
+    await tick();
+    expect(output.read()).to.equal(
+      '1234\r\n\x1B[1G\x1B[0J... \x1B[5G*5678\r\n\x1B[1G\x1B[0J... \x1B[5G'
+    );
+    input.write('\x03'); // Ctrl+C
+    await tick();
+    expect(output.read()).to.equal('\r\n\x1b[1G\x1b[0J> \x1b[3G');
+    input.write('"foo";\n'); // Write something else
+    await tick();
+    expect(output.read()).to.equal(`"foo";\r\n'foo'\n\x1B[1G\x1B[0J> \x1B[3G`);
   });
 });

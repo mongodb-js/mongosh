@@ -25,7 +25,9 @@ try {
 }
 if (v8?.startupSnapshot?.isBuildingSnapshot?.()) {
   v8.startupSnapshot.addSerializeCallback(() => {
+    // Ensure that any lazy loading performed by Babel is part of the snapshot
     eval(new AsyncWriter().runtimeSupportCode());
+    eval(new AsyncWriter().process('1+1'));
     hasAlreadyRunGlobalRuntimeSupportEval = true;
   });
 }
@@ -39,16 +41,19 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
   private hasAppliedAsyncWriterRuntimeSupport = true;
   private asyncWriter: AsyncWriter;
   private markTime?: (category: TimingCategory, label: string) => void;
+  private exposeAsyncRewriter: boolean;
 
   constructor(
     instanceState: ShellInstanceState,
     resultHandler: ResultHandler<EvaluationResultType> = toShellResult as any,
-    markTime?: (category: TimingCategory, label: string) => void
+    markTime?: (category: TimingCategory, label: string) => void,
+    exposeAsyncRewriter?: boolean
   ) {
     this.instanceState = instanceState;
     this.resultHandler = resultHandler;
     this.asyncWriter = new AsyncWriter();
     this.hasAppliedAsyncWriterRuntimeSupport = false;
+    this.exposeAsyncRewriter = !!exposeAsyncRewriter;
     this.markTime = markTime;
   }
 
@@ -85,6 +90,11 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
       !(argv[0] ?? '').startsWith('(')
     ) {
       return shellApi[cmd](...argv);
+    }
+
+    if (this.exposeAsyncRewriter) {
+      (context as any).__asyncRewrite = (rewriteInput: string) =>
+        this.asyncWriter.process(rewriteInput);
     }
 
     this.markTime?.(TimingCategories.AsyncRewrite, 'start async rewrite');

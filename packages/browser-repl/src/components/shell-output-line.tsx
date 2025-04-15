@@ -19,8 +19,8 @@ const shellOutputLine = css({
 });
 
 const shellOutputLineError = css({
-  backgroundColor: palette.red.light2,
-  color: palette.red.dark3,
+  backgroundColor: 'inherit',
+  color: palette.red.light1,
 });
 
 const shellOutputLineIcon = css({
@@ -35,6 +35,7 @@ type ShellOutputEntryValue = any;
 type Glyph = 'ChevronRight' | 'XWithCircle' | 'ChevronLeft';
 
 export interface ShellOutputEntry {
+  key: number | string;
   format: 'input' | 'output' | 'error';
   type?: string | null;
   value: ShellOutputEntryValue;

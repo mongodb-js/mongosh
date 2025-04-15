@@ -341,7 +341,7 @@ describe('SnippetManager', function () {
     await eventually(async () => {
       // This can fail when an index fetch is being written while we are removing
       // the directory; hence, try again.
-      await fs.rmdir(tmpdir, { recursive: true });
+      await fs.rm(tmpdir, { recursive: true });
     });
     httpServer.close();
   });
@@ -440,9 +440,10 @@ describe('SnippetManager', function () {
       await snippetManager.runSnippetCommand(['refresh']);
       expect.fail('missed exception');
     } catch (err: any) {
-      expect(err.message).to.equal(
-        `The specified index file ${indexURL} is not a valid index file: "indexFileVersion" must be less than or equal to 1`
+      expect(err.message).to.include(
+        `The specified index file ${indexURL} is not a valid index file:`
       );
+      expect(err.message).to.include(`Number must be less than or equal to 1`);
     }
   });
 

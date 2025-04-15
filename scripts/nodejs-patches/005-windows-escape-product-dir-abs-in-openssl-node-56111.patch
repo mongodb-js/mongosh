@@ -1,0 +1,77 @@
+diff --git a/deps/openssl/openssl.gyp b/deps/openssl/openssl.gyp
+index f6b157f8d608..ea3a2dc09ef2 100644
+--- a/deps/openssl/openssl.gyp
++++ b/deps/openssl/openssl.gyp
+@@ -5,19 +5,13 @@
+     'nasm_version%': '0.0',
+     'openssl-cli': '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)openssl-cli<(EXECUTABLE_SUFFIX)',
+     'conditions': [
+-      ['OS == "win"', {
+-        'obj_dir_abs': '<(PRODUCT_DIR_ABS)/obj',
+-      }],
+       ['GENERATOR == "ninja"', {
+-        'obj_dir_abs': '<(PRODUCT_DIR_ABS)/obj',
+-        'modules_dir': '<(PRODUCT_DIR_ABS)/obj/lib/openssl-modules',
++        'modules_dir': '<(PRODUCT_DIR_ABS_CSTR)/obj/lib/openssl-modules',
+       }, {
+-        'obj_dir_abs%': '<(PRODUCT_DIR_ABS)/obj.target',
+-        'modules_dir': '<(PRODUCT_DIR_ABS)/obj.target/deps/openssl/lib/openssl-modules',
++        'modules_dir': '<(PRODUCT_DIR_ABS_CSTR)/obj.target/deps/openssl/lib/openssl-modules',
+       }],
+       ['OS=="mac"', {
+-        'obj_dir_abs%': '<(PRODUCT_DIR_ABS)/obj.target',
+-        'modules_dir': '<(PRODUCT_DIR_ABS)/obj.target/deps/openssl/lib/openssl-modules',
++        'modules_dir': '<(PRODUCT_DIR_ABS_CSTR)/obj.target/deps/openssl/lib/openssl-modules',
+       }],
+     ],
+   },
+diff --git a/tools/gyp/pylib/gyp/__init__.py b/tools/gyp/pylib/gyp/__init__.py
+index d6cc01307d99..59333e588459 100755
+--- a/tools/gyp/pylib/gyp/__init__.py
++++ b/tools/gyp/pylib/gyp/__init__.py
+@@ -24,6 +24,17 @@ DEBUG_GENERAL = "general"
+ DEBUG_VARIABLES = "variables"
+ DEBUG_INCLUDES = "includes"
+ 
++def EscapeForCString(string):
++    if isinstance(string, str):
++        string = string.encode(encoding='utf8')
++
++    result = ''
++    for char in string:
++        if not (32 <= char < 127) or char in (ord('\\'), ord('"')):
++            result += '\\%03o' % char
++        else:
++            result += chr(char)
++    return result
+ 
+ def DebugOutput(mode, message, *args):
+     if "all" in gyp.debug or mode in gyp.debug:
+@@ -106,18 +117,19 @@ def Load(
+ 
+     output_dir = params["options"].generator_output or params["options"].toplevel_dir
+     if default_variables["GENERATOR"] == "ninja":
+-        default_variables.setdefault(
+-            "PRODUCT_DIR_ABS",
+-            os.path.join(
+-                output_dir, "out", default_variables.get("build_type", "default")
+-            ),
++        product_dir_abs = os.path.join(
++            output_dir, "out", default_variables.get("build_type", "default")
+         )
+     else:
+-        default_variables.setdefault(
+-            "PRODUCT_DIR_ABS",
+-            os.path.join(output_dir, default_variables["CONFIGURATION_NAME"]),
++        product_dir_abs = os.path.join(
++            output_dir, default_variables["CONFIGURATION_NAME"]
+         )
+ 
++    default_variables.setdefault("PRODUCT_DIR_ABS", product_dir_abs)
++    default_variables.setdefault(
++        "PRODUCT_DIR_ABS_CSTR", EscapeForCString(product_dir_abs)
++    )
++
+     # Give the generator the opportunity to set additional variables based on
+     # the params it will receive in the output phase.
+     if getattr(generator, "CalculateVariables", None):

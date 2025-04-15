@@ -168,7 +168,47 @@ export class Editor extends Component<EditorProps> {
         () => null
       );
     };
-    this.commands = createCommands(this.props);
+    this.commands = createCommands(this);
+  }
+
+  onEnter() {
+    // Do not allow commands that can modify / evaluate the input while
+    // operation is in progress
+    if (this.props.operationInProgress) {
+      return;
+    }
+    return this.props.onEnter();
+  }
+
+  onArrowDownOnLastLine() {
+    // Do not allow commands that can modify / evaluate the input while
+    // operation is in progress
+    if (this.props.operationInProgress) {
+      return Promise.resolve(false);
+    }
+    return this.props.onArrowDownOnLastLine();
+  }
+
+  onArrowUpOnFirstLine() {
+    // Do not allow commands that can modify / evaluate the input while
+    // operation is in progress
+    if (this.props.operationInProgress) {
+      return Promise.resolve(false);
+    }
+    return this.props.onArrowUpOnFirstLine();
+  }
+
+  onClearCommand() {
+    // Do not allow commands that can modify / evaluate the input while
+    // operation is in progress
+    if (this.props.operationInProgress) {
+      return;
+    }
+    return this.props.onClearCommand();
+  }
+
+  onSigInt() {
+    return this.props.onSigInt();
   }
 
   render(): JSX.Element {

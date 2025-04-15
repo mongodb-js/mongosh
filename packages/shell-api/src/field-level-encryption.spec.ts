@@ -5,6 +5,7 @@ import type {
   ServiceProvider,
   ClientEncryptionEncryptOptions,
   ClientEncryptionDataKeyProvider,
+  KMSProviders,
 } from '@mongosh/service-provider-core';
 import { bson } from '@mongosh/service-provider-core';
 import { expect } from 'chai';
@@ -23,14 +24,11 @@ import {
   ALL_TOPOLOGIES,
   ALL_API_VERSIONS,
 } from './enums';
-import type {
-  ClientSideFieldLevelEncryptionOptions,
-  ClientSideFieldLevelEncryptionKmsProvider as KMSProvider,
-} from './field-level-encryption';
+import type { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
 import { ClientEncryption, KeyVault } from './field-level-encryption';
 import Mongo from './mongo';
 import ShellInstanceState from './shell-instance-state';
-import { CliServiceProvider } from '../../service-provider-server';
+import { NodeDriverServiceProvider } from '../../service-provider-node-driver';
 import { startSharedTestServer } from '../../../testing/integration-testing-hooks';
 import {
   makeFakeHTTPConnection,
@@ -38,6 +36,7 @@ import {
 } from '../../../testing/fake-kms';
 import Collection from './collection';
 import { dummyOptions } from './helpers.spec';
+import type { IncomingMessage } from 'http';
 
 const KEY_ID = bson.Binary.createFromBase64('MTIzNA==');
 const DB = 'encryption';
@@ -104,7 +103,7 @@ describe('Field Level Encryption', function () {
   let libmongoc: StubbedInstance<FLEClientEncryption>;
   let clientEncryption: ClientEncryption;
   let keyVault: KeyVault;
-  let clientEncryptionSpy;
+  let clientEncryptionSpy: (...args: any[]) => any;
   describe('Metadata', function () {
     before(function () {
       libmongoc = stubInterface<FLEClientEncryption>();
@@ -155,7 +154,7 @@ describe('Field Level Encryption', function () {
       expect(signatures.ClientEncryption.type).to.equal('ClientEncryption');
     });
     it('attributes', function () {
-      expect(signatures.KeyVault.attributes.createKey).to.deep.equal({
+      expect(signatures.KeyVault.attributes?.createKey).to.deep.equal({
         type: 'function',
         returnsPromise: true,
         deprecated: false,
@@ -168,7 +167,7 @@ describe('Field Level Encryption', function () {
         acceptsRawInput: false,
         shellCommandCompleter: undefined,
       });
-      expect(signatures.ClientEncryption.attributes.encrypt).to.deep.equal({
+      expect(signatures.ClientEncryption.attributes?.encrypt).to.deep.equal({
         type: 'function',
         returnsPromise: true,
         deprecated: false,
@@ -269,13 +268,13 @@ describe('Field Level Encryption', function () {
       };
 
       const options = {
-        algorithm: 'RangePreview',
-        queryType: 'rangePreview',
+        algorithm: 'Range',
+        queryType: 'range',
         contentionFactor: 0,
         rangeOptions: {
           sparsity: new bson.Long(1),
         },
-      } as const;
+      } as any; // TODO Needs a driver update to get correct types.
 
       it('calls encryptExpression with algorithm on libmongoc', async function () {
         libmongoc.encryptExpression.resolves();
@@ -755,15 +754,15 @@ describe('Field Level Encryption', function () {
     const testServer = startSharedTestServer();
     let dbname: string;
     let uri: string;
-    let serviceProvider;
-    let instanceState;
+    let serviceProvider: ServiceProvider;
+    let instanceState: ShellInstanceState;
     let connections: any[];
     let printedOutput: any[];
 
     beforeEach(async function () {
       dbname = `test_fle_${Date.now()}`;
       uri = await testServer.connectionString();
-      serviceProvider = await CliServiceProvider.connect(
+      serviceProvider = await NodeDriverServiceProvider.connect(
         uri,
         dummyOptions,
         {},
@@ -771,7 +770,7 @@ describe('Field Level Encryption', function () {
       );
       instanceState = new ShellInstanceState(serviceProvider);
       instanceState.setEvaluationListener({
-        onPrint: (value: any[]) => printedOutput.push(...value),
+        onPrint: (value: any[]) => void printedOutput.push(...value),
       });
       printedOutput = [];
 
@@ -779,7 +778,7 @@ describe('Field Level Encryption', function () {
       sinon.replace(
         require('tls'),
         'connect',
-        sinon.fake((options, onConnect) => {
+        sinon.fake((options: any, onConnect: Function) => {
           if (options.host === 'kmip.example.com') {
             // KMIP is not http(s)-based, we don't implement strong fakes for it
             // and instead only verify that a connection has occurred.
@@ -811,14 +810,14 @@ describe('Field Level Encryption', function () {
     });
 
     afterEach(async function () {
-      await serviceProvider.dropDatabase(dbname);
+      await serviceProvider.dropDatabase(dbname, {});
       await instanceState.close(true);
       sinon.restore();
     });
 
     const kms: [
-      keyof KMSProvider,
-      KMSProvider[keyof KMSProvider] & {
+      keyof KMSProviders,
+      KMSProviders[keyof KMSProviders] & {
         tlsOptions?: ClientEncryptionTlsOptions;
       }
     ][] = [
@@ -897,6 +896,7 @@ srDVjIT3LsvTqw==`,
             explicitEncryptionOnly: true,
             tlsOptions: { [kmsName]: kmsAndTlsOptions.tlsOptions ?? undefined },
           },
+          {},
           serviceProvider
         );
         await mongo.connect();
@@ -942,6 +942,7 @@ srDVjIT3LsvTqw==`,
               expect(connections).to.deep.equal([
                 {
                   options: {
+                    autoSelectFamily: true,
                     host: 'kmip.example.com',
                     servername: 'kmip.example.com',
                     port: 123,
@@ -982,7 +983,9 @@ srDVjIT3LsvTqw==`,
           expect(
             connections
               .map((conn) =>
-                conn.requests.map((req) => req.headers['x-amz-security-token'])
+                conn.requests.map(
+                  (req: IncomingMessage) => req.headers['x-amz-security-token']
+                )
               )
               .flat()
           ).to.include(kmsOptions.sessionToken);
@@ -1001,6 +1004,7 @@ srDVjIT3LsvTqw==`,
           kmsProviders: { local: { key: 'A'.repeat(128) } },
           explicitEncryptionOnly: true,
         },
+        {},
         serviceProvider
       );
       await mongo.connect();
@@ -1013,7 +1017,7 @@ srDVjIT3LsvTqw==`,
       await keyVault.addKeyAlternateName(uuid, 'a');
 
       expect(
-        (await kv.findOne({}, { keyAltNames: 1, _id: 0 })).keyAltNames.sort()
+        (await kv.findOne({}, { keyAltNames: 1, _id: 0 }))?.keyAltNames.sort()
       ).to.deep.equal(['a', 'b']);
 
       expect(printedOutput).to.deep.equal([]);
@@ -1028,6 +1032,7 @@ srDVjIT3LsvTqw==`,
           kmsProviders: { local: { key: 'A'.repeat(128) } },
           explicitEncryptionOnly: true,
         },
+        {},
         serviceProvider
       );
       await mongo.connect();
@@ -1062,6 +1067,7 @@ srDVjIT3LsvTqw==`,
           kmsProviders: { local: { key: 'A'.repeat(128) } },
           explicitEncryptionOnly: true,
         },
+        {},
         serviceProvider
       );
       await mongo.connect();

@@ -1,3 +1,4 @@
+import type { CustomInspectFunction } from 'util';
 import { inspect as utilInspect } from 'util';
 import { bsonStringifiers } from '@mongosh/service-provider-core';
 
@@ -14,18 +15,16 @@ import { bsonStringifiers } from '@mongosh/service-provider-core';
 const customInspect = utilInspect.custom || 'inspect';
 const visitedObjects = new WeakSet();
 
-function tryAddInspect(
-  obj: any,
-  stringifier: (this: any, depth: any, options: any) => string
-): void {
+function tryAddInspect(obj: unknown, stringifier: CustomInspectFunction): void {
   try {
     Object.defineProperty(obj, customInspect, {
       writable: true,
       configurable: true,
       enumerable: false,
-      value: function (...args: [any, any]) {
+      value: function (...args: Parameters<CustomInspectFunction>): string {
         try {
           return stringifier.call(this, ...args);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
           // eslint-disable-next-line no-console
           console.warn('Could not inspect bson object', { obj: this, err });

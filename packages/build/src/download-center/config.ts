@@ -9,13 +9,14 @@ import type {
 } from '@mongodb-js/dl-center/dist/download-center-config';
 import {
   ARTIFACTS_BUCKET,
-  ARTIFACTS_FOLDER,
+  ARTIFACTS_BUCKET_NEW,
+  JSON_FEED_ARTIFACT_KEY,
   ARTIFACTS_URL_PUBLIC_BASE,
   CONFIGURATION_KEY,
   CONFIGURATIONS_BUCKET,
   ARTIFACTS_FALLBACK,
 } from './constants';
-import type { PackageVariant } from '../config';
+import type { CTAConfig, GreetingCTADetails, PackageVariant } from '../config';
 import {
   ALL_PACKAGE_VARIANTS,
   getDownloadCenterDistroDescription,
@@ -28,21 +29,39 @@ import {
 import type { PackageInformationProvider } from '../packaging';
 import { getPackageFile } from '../packaging';
 import { promises as fs } from 'fs';
-import { createHash } from 'crypto';
-import { once } from 'events';
-import fetch from 'node-fetch';
 import path from 'path';
-import { promisify } from 'util';
 import semver from 'semver';
+import { hashListFiles } from '../run-download-and-list-artifacts';
 
-const delay = promisify(setTimeout);
+async function getCurrentJsonFeed(
+  dlcenterArtifacts: DownloadCenterCls
+): Promise<JsonFeed | undefined> {
+  let existingJsonFeedText;
+  try {
+    existingJsonFeedText = await dlcenterArtifacts.downloadAsset(
+      JSON_FEED_ARTIFACT_KEY
+    );
+  } catch (err: any) {
+    console.warn('Failed to get existing JSON feed text', err);
+    if (err?.code !== 'NoSuchKey') throw err;
+  }
+
+  return existingJsonFeedText
+    ? JSON.parse(existingJsonFeedText.toString())
+    : undefined;
+}
 
 export async function createAndPublishDownloadCenterConfig(
+  outputDir: string,
   packageInformation: PackageInformationProvider,
   awsAccessKeyId: string,
   awsSecretAccessKey: string,
+  awsAccessKeyIdNew: string,
+  awsSecretAccessKeyNew: string,
+  awsSessionTokenNew: string,
   injectedJsonFeedFile: string,
   isDryRun: boolean,
+  ctaConfig: CTAConfig,
   DownloadCenter: typeof DownloadCenterCls = DownloadCenterCls,
   publicArtifactBaseUrl: string = ARTIFACTS_URL_PUBLIC_BASE
 ): Promise<void> {
@@ -84,24 +103,20 @@ export async function createAndPublishDownloadCenterConfig(
     accessKeyId: awsAccessKeyId,
     secretAccessKey: awsSecretAccessKey,
   });
-  const jsonFeedArtifactkey = `${ARTIFACTS_FOLDER}/mongosh.json`;
-  let existingJsonFeedText;
-  try {
-    existingJsonFeedText = await dlcenterArtifacts.downloadAsset(
-      jsonFeedArtifactkey
-    );
-  } catch (err: any) {
-    console.warn('Failed to get existing JSON feed text', err);
-    if (err?.code !== 'NoSuchKey') throw err;
-  }
 
-  const existingJsonFeed: JsonFeed | undefined = existingJsonFeedText
-    ? JSON.parse(existingJsonFeedText.toString())
-    : undefined;
+  const dlcenterArtifactsNew = new DownloadCenter({
+    bucket: ARTIFACTS_BUCKET_NEW,
+    accessKeyId: awsAccessKeyIdNew,
+    secretAccessKey: awsSecretAccessKeyNew,
+    sessionToken: awsSessionTokenNew,
+  });
+
+  const existingJsonFeed = await getCurrentJsonFeed(dlcenterArtifacts);
   const injectedJsonFeed: JsonFeed | undefined = injectedJsonFeedFile
     ? JSON.parse(await fs.readFile(injectedJsonFeedFile, 'utf8'))
     : undefined;
   const currentJsonFeedEntry = await createJsonFeedEntry(
+    outputDir,
     packageInformation,
     publicArtifactBaseUrl
   );
@@ -117,6 +132,8 @@ export async function createAndPublishDownloadCenterConfig(
     currentJsonFeedWrapped
   );
 
+  populateJsonFeedCTAs(newJsonFeed, ctaConfig);
+
   if (isDryRun) {
     console.warn('Not uploading download center config in dry-run mode');
     return;
@@ -125,10 +142,66 @@ export async function createAndPublishDownloadCenterConfig(
   await Promise.all([
     dlcenter.uploadConfig(CONFIGURATION_KEY, config),
     dlcenterArtifacts.uploadAsset(
-      jsonFeedArtifactkey,
+      JSON_FEED_ARTIFACT_KEY,
       JSON.stringify(newJsonFeed, null, 2)
     ),
   ]);
+
+  await dlcenterArtifactsNew.uploadAsset(
+    JSON_FEED_ARTIFACT_KEY,
+    JSON.stringify(newJsonFeed, null, 2)
+  );
+}
+
+export async function updateJsonFeedCTA(
+  config: CTAConfig,
+  awsAccessKeyId: string,
+  awsSecretAccessKey: string,
+  awsAccessKeyIdNew: string,
+  awsSecretAccessKeyNew: string,
+  awsSessionTokenNew: string,
+  isDryRun: boolean,
+  DownloadCenter: typeof DownloadCenterCls = DownloadCenterCls
+) {
+  const dlcenterArtifacts = new DownloadCenter({
+    bucket: ARTIFACTS_BUCKET,
+    accessKeyId: awsAccessKeyId,
+    secretAccessKey: awsSecretAccessKey,
+  });
+
+  const dlcenterArtifactsNew = new DownloadCenter({
+    bucket: ARTIFACTS_BUCKET_NEW,
+    accessKeyId: awsAccessKeyIdNew,
+    secretAccessKey: awsSecretAccessKeyNew,
+    sessionToken: awsSessionTokenNew,
+  });
+
+  const jsonFeed = await getCurrentJsonFeed(dlcenterArtifacts);
+  if (!jsonFeed) {
+    throw new Error('No existing JSON feed found');
+  }
+
+  populateJsonFeedCTAs(jsonFeed, config);
+
+  const patchedJsonFeed = JSON.stringify(jsonFeed, null, 2);
+  if (isDryRun) {
+    console.warn('Not uploading JSON feed in dry-run mode');
+    console.warn(`Patched JSON feed: ${patchedJsonFeed}`);
+    return;
+  }
+
+  await dlcenterArtifacts.uploadAsset(JSON_FEED_ARTIFACT_KEY, patchedJsonFeed);
+  await dlcenterArtifactsNew.uploadAsset(
+    JSON_FEED_ARTIFACT_KEY,
+    patchedJsonFeed
+  );
+}
+
+function populateJsonFeedCTAs(jsonFeed: JsonFeed, ctas: CTAConfig) {
+  jsonFeed.cta = ctas['*'];
+  for (const version of jsonFeed.versions) {
+    version.cta = ctas[version.version];
+  }
 }
 
 export function getUpdatedDownloadCenterConfig(
@@ -204,13 +277,15 @@ export function createVersionConfig(
   };
 }
 
-interface JsonFeed {
+export interface JsonFeed {
   versions: JsonFeedVersionEntry[];
+  cta?: GreetingCTADetails;
 }
 
 interface JsonFeedVersionEntry {
   version: string;
   downloads: JsonFeedDownloadEntry[];
+  cta?: GreetingCTADetails;
 }
 
 interface JsonFeedDownloadEntry {
@@ -227,6 +302,7 @@ interface JsonFeedDownloadEntry {
 }
 
 export async function createJsonFeedEntry(
+  outputDir: string,
   packageInformation: PackageInformationProvider,
   publicArtifactBaseUrl: string
 ): Promise<JsonFeedVersionEntry> {
@@ -242,7 +318,7 @@ export async function createJsonFeedEntry(
           packageInformation
         ).path;
         const url = publicArtifactBaseUrl + filename;
-        const { sha1, sha256 } = await getHashes(url);
+        const { sha1, sha256 } = await getHashes(outputDir, filename);
 
         return {
           arch: getServerLikeArchName(arch),
@@ -277,39 +353,34 @@ function mergeFeeds(...args: (JsonFeed | undefined)[]): JsonFeed {
       if (index === -1) newFeed.versions.unshift(version);
       else newFeed.versions.splice(index, 1, version);
     }
+
+    newFeed.cta = feed?.cta ?? newFeed.cta;
   }
   newFeed.versions.sort((a, b) => semver.rcompare(a.version, b.version));
   return newFeed;
 }
 
 async function getHashes(
-  url: string,
-  retriesLeft = 5
+  outputDir: string,
+  packagedFilename: string
 ): Promise<{ sha1: string; sha256: string }> {
-  if (new URL(url).protocol === 'skip:') return { sha1: '', sha256: '' }; // for testing only
-  let is4xxError = false;
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      is4xxError ||= response.status >= 400 && response.status < 500;
-      throw new Error(`unexpected response ${response.statusText} for ${url}`);
-    }
-    const sha256 = createHash('sha256');
-    const sha1 = createHash('sha1');
-    response.body.pipe(sha256);
-    response.body.pipe(sha1);
-    await Promise.all([once(sha1, 'finish'), once(sha256, 'finish')]);
-    return { sha1: sha1.digest('hex'), sha256: sha256.digest('hex') };
-  } catch (err) {
-    if (is4xxError || retriesLeft === 0) throw err;
-    console.error(
-      'Got error',
-      err,
-      'while trying to hash file',
-      url,
-      ', retrying...'
-    );
-    await delay(5000);
-    return await getHashes(url, retriesLeft - 1);
-  }
+  return Object.fromEntries(
+    await Promise.all(
+      hashListFiles.map(async ({ filename, hash }) => {
+        const content = await fs.readFile(
+          path.join(outputDir, filename),
+          'utf8'
+        );
+        const line = content
+          .split('\n')
+          .find((line) => line.trim().startsWith(packagedFilename));
+        if (!line) {
+          throw new Error(
+            `Could not find entry for ${packagedFilename} in ${filename}`
+          );
+        }
+        return [hash, line.trim().split(/\s+/)[1]] as const;
+      })
+    )
+  ) as { sha1: string; sha256: string };
 }

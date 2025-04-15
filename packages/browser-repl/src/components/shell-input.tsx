@@ -20,6 +20,8 @@ interface ShellInputProps {
   prompt?: string;
   onSigInt?(): Promise<boolean>;
   editorRef?: (editor: EditorRef | null) => void;
+  initialText?: string;
+  onTextChange?: (text: string) => void;
 }
 
 interface ShellInputState {
@@ -29,7 +31,7 @@ interface ShellInputState {
 
 export class ShellInput extends Component<ShellInputProps, ShellInputState> {
   readonly state: ShellInputState = {
-    currentValue: '',
+    currentValue: this.props.initialText ?? '',
     readOnly: false,
   };
 
@@ -61,6 +63,7 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
   }
 
   private onChange = (value: string): void => {
+    this.props.onTextChange?.(value);
     this.setState({ currentValue: value });
   };
 
@@ -106,11 +109,14 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
   };
 
   private onEnter = async (): Promise<void> => {
-    if (this.props.onInput) {
-      await this.props.onInput(this.state.currentValue);
-    }
-
+    const value = this.state.currentValue;
+    // clear the value before evaluating the input because it could take a long
+    // time
     this.setState({ currentValue: '' });
+
+    if (this.props.onInput) {
+      await this.props.onInput(value);
+    }
   };
 
   render(): JSX.Element {

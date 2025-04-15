@@ -1,0 +1,3 @@
+<!-- An empty test suite which is needed as not all tasks produce XUnit results and the current Evergreen setup always expects some file to be uploaded -->
+<testsuite name="empty" tests="0" failures="0" errors="0" skipped="0" timestamp="Fri, 18 Oct 2024 09:21:06 GMT" time="8.907">
+</testsuite>

@@ -3,12 +3,10 @@ import { promises as fs } from 'fs';
 import { MongoClient, MongoClientOptions } from 'mongodb';
 import path from 'path';
 import semver from 'semver';
-import { URL } from 'url';
 import { promisify } from 'util';
 import which from 'which';
 import { ConnectionString } from 'mongodb-connection-string-url';
 import { MongoCluster, MongoClusterOptions } from 'mongodb-runner';
-import { downloadMongoDb } from '@mongodb-js/mongodb-downloader';
 import { downloadCryptLibrary } from '../packages/build/src/packaging/download-crypt-library';
 
 const execFile = promisify(child_process.execFile);
@@ -126,7 +124,7 @@ export class MongoRunnerSetup extends MongodSetup {
   private static _usedDirPrefix: Record<string, 0> = {};
 
   private static _buildDirPath(id: string, version?: string, topology?: string) {
-    const prefix = [id, version, topology].filter(Boolean).join('-');
+    const prefix = [id, version, topology].filter(Boolean).join('-').replace(/[^a-zA-Z0-9_.-]/g, '');
 
     this._usedDirPrefix[prefix] ??= 0;
 
@@ -178,9 +176,9 @@ async function getInstalledMongodVersion(): Promise<string> {
 
 export async function downloadCurrentCryptSharedLibrary(): Promise<string> {
   if (process.platform === 'linux') {
-    return await downloadCryptLibrary(`linux-${process.arch.replace('ppc64', 'ppc64le')}` as any);
+    return (await downloadCryptLibrary(`linux-${process.arch.replace('ppc64', 'ppc64le')}` as any)).cryptLibrary;
   }
-  return downloadCryptLibrary('host');
+  return (await downloadCryptLibrary('host')).cryptLibrary;
 }
 
 /**

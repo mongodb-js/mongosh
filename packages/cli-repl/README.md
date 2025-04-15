@@ -4,7 +4,12 @@
 
 CLI interface for [MongoDB Shell][mongosh], an extension to Node.js REPL with MongoDB API.
 
+This package is a convenience distribution of mongosh. To download a fully supported version
+of mongosh, visit https://www.mongodb.com/try/download/shell.
+
 ## Usage
+
+<!-- AUTOMATICALLY_INSERT_CLI_USAGE -->
 
 ```shell
   $ mongosh [options] [db address] [file names (ending in .js or .mongodb)]
@@ -32,6 +37,9 @@ CLI interface for [MongoDB Shell][mongosh], an extension to Node.js REPL with Mo
         --authenticationDatabase [arg]         User source (defaults to dbname)
         --authenticationMechanism [arg]        Authentication mechanism
         --awsIamSessionToken [arg]             AWS IAM Temporary Session Token ID
+        --gssapiServiceName [arg]              Service name to use when authenticating using GSSAPI/Kerberos
+        --sspiHostnameCanonicalization [arg]   Specify the SSPI hostname canonicalization (none or forward, available on Windows)
+        --sspiRealmOverride [arg]              Specify the SSPI server realm (available on Windows)
 
   TLS Options:
 
@@ -42,8 +50,8 @@ CLI interface for [MongoDB Shell][mongosh], an extension to Node.js REPL with Mo
         --tlsAllowInvalidHostnames             Allow connections to servers with non-matching hostnames
         --tlsAllowInvalidCertificates          Allow connections to servers with invalid certificates
         --tlsCertificateSelector [arg]         TLS Certificate in system store (Windows and macOS only)
+        --tlsCRLFile [arg]                     Specifies the .pem file that contains the Certificate Revocation List
         --tlsDisabledProtocols [arg]           Comma separated list of TLS protocols to disable [TLS1_0,TLS1_1,TLS1_2]
-        --tlsUseSystemCA                       Load the operating system trusted certificate list
         --tlsFIPSMode                          Enable the system TLS library's FIPS mode
 
   API version options:
@@ -59,6 +67,15 @@ CLI interface for [MongoDB Shell][mongosh], an extension to Node.js REPL with Mo
         --awsSessionToken [arg]                Optional AWS Session Token ID
         --keyVaultNamespace [arg]              database.collection to store encrypted FLE parameters
         --kmsURL [arg]                         Test parameter to override the URL of the KMS endpoint
+
+  OIDC auth options:
+
+        --oidcFlows[=auth-code,device-auth]    Supported OIDC auth flows
+        --oidcRedirectUri[=url]                Local auth code flow redirect URL [http://localhost:27097/redirect]
+        --oidcTrustedEndpoint                  Treat the cluster/database mongosh as a trusted endpoint
+        --oidcIdTokenAsAccessToken             Use ID tokens in place of access tokens for auth
+        --oidcDumpTokens[=mode]                Debug OIDC by printing tokens to mongosh's output [redacted|include-secrets]
+        --oidcNoNonce                          Don't send a nonce argument in the OIDC auth request
 
   DB Address Examples:
 
@@ -77,8 +94,9 @@ CLI interface for [MongoDB Shell][mongosh], an extension to Node.js REPL with Mo
         $ mongosh mongodb://192.168.0.5:9999/ships
 
   For more information on usage: https://docs.mongodb.com/mongodb-shell.
-
 ```
+
+<!-- /AUTOMATICALLY_INSERT_CLI_USAGE -->
 
 ### Log Format
 

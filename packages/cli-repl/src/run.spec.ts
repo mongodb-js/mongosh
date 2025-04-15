@@ -97,4 +97,48 @@ describe('CLI entry point', function () {
       'MongoshInvalidInputError: [COMMON-10001] Invalid URI: /'
     );
   });
+
+  context('prompts for password', function () {
+    it('requests password when user is not redirecting output', async function () {
+      const args = [...pathToRun, 'mongodb://amy@localhost:27017'];
+      const proc = childProcess.spawn(process.execPath, args, {
+        stdio: ['pipe'],
+        env: { ...process.env, TEST_USE_STDOUT_FOR_PASSWORD: '1' },
+      });
+      let stdout = '';
+      let promptedForPassword = false;
+      proc.stdout?.setEncoding('utf8').on('data', (chunk) => {
+        stdout += chunk;
+        if (stdout.includes('Enter password')) {
+          promptedForPassword = true;
+          proc.stdin?.write('\n');
+        }
+      });
+
+      const [code] = await once(proc, 'exit');
+      expect(code).to.equal(1);
+      expect(promptedForPassword).to.be.true;
+    });
+
+    it('requests password when user is redirecting output', async function () {
+      const args = [...pathToRun, 'mongodb://amy@localhost:27017'];
+      const proc = childProcess.spawn(process.execPath, args, {
+        stdio: ['pipe', 'ignore', 'pipe'],
+        env: { ...process.env },
+      });
+      let stderr = '';
+      let promptedForPassword = false;
+      proc.stderr?.setEncoding('utf8').on('data', (chunk) => {
+        stderr += chunk;
+        if (stderr.includes('Enter password')) {
+          promptedForPassword = true;
+          proc.stdin?.write('\n');
+        }
+      });
+
+      const [code] = await once(proc, 'exit');
+      expect(code).to.equal(1);
+      expect(promptedForPassword).to.be.true;
+    });
+  });
 });

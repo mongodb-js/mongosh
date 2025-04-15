@@ -21,28 +21,26 @@ export function makeFakeHTTPConnection(handlerList: HandlerList): Duplex & { req
 
 type FakeHTTPServer = http.Server & { requests: http.IncomingMessage[] };
 export function makeFakeHTTPServer(handlerList: HandlerList): FakeHTTPServer {
-  // Using an version of the Node.js HTTP parser with relaxed security guarantees
-  // here since Node.js 16.16.0+ require CRLF header delimiting in requests,
-  // and reject LF header delimiting.
-  // MONGOCRYPT-457 has been filed to potentially address this on the libmongocrypt
-  // side.
-  const server = http.createServer({ insecureHTTPParser: true }, (req, res) => {
+  // NB: We previously set `insecureHTTPParser: true` here because of MONGOCRYPT-457
+  // and can do so again if libmongocrypt regresses at some point.
+  const server = http.createServer((req, res) => {
     (server as FakeHTTPServer).requests.push(req);
-    let handler: HandlerFunction | undefined;
+    let foundHandler: HandlerFunction | undefined;
     const host = req.headers['host'];
     for (const potentialHandler of handlerList) {
-      if (potentialHandler.host.test(host)) {
-        handler = potentialHandler.handler;
+      if (potentialHandler.host.test(host ?? '')) {
+        foundHandler = potentialHandler.handler;
         break;
       }
     }
-    if (!handler) {
+    if (!foundHandler) {
       res.writeHead(404, {
         'Content-Type': 'text/plain'
       });
       res.end(`Host ${host} not found`);
       return;
     }
+    const handler = foundHandler; // Makes TS happy
 
     let body = '';
     req.setEncoding('utf8').on('data', chunk => { body += chunk; });
@@ -50,7 +48,7 @@ export function makeFakeHTTPServer(handlerList: HandlerList): FakeHTTPServer {
       res.writeHead(200, {
         'Content-Type': 'application/json'
       });
-      res.end(JSON.stringify(handler({ url: req.url, body })));
+      res.end(JSON.stringify(handler({ url: req.url ?? '', body })));
     });
   });
   return Object.assign(server, { requests: [] });

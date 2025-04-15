@@ -11,7 +11,7 @@ export type MongoshAnalyticsIdentity =
       anonymousId: string;
     };
 
-type AnalyticsIdentifyMessage = MongoshAnalyticsIdentity & {
+export type AnalyticsIdentifyMessage = MongoshAnalyticsIdentity & {
   traits: { platform: string; session_id: string };
   timestamp?: Date;
 };
@@ -34,9 +34,7 @@ export interface MongoshAnalytics {
 
   track(message: AnalyticsTrackMessage): void;
 
-  // NB: Callback and not a promise to match segment analytics interface so it's
-  // easier to pass it to the helpers constructor
-  flush(callback: (err?: Error) => void): void;
+  flush(): Promise<void>;
 }
 
 class Queue<T> {
@@ -84,8 +82,8 @@ class Queue<T> {
 export class NoopAnalytics implements MongoshAnalytics {
   identify(): void {}
   track(): void {}
-  flush(cb: () => void) {
-    cb();
+  flush() {
+    return Promise.resolve();
   }
 }
 
@@ -170,8 +168,8 @@ export class ToggleableAnalytics implements MongoshAnalytics {
     }
   }
 
-  flush(callback: (err?: Error | undefined) => void): void {
-    return this._target.flush(callback);
+  async flush(): Promise<void> {
+    return await this._target.flush();
   }
 }
 
@@ -351,31 +349,28 @@ export class ThrottledAnalytics implements MongoshAnalytics {
     return this.throttleState.count < this.throttleOptions.rate;
   }
 
-  flush(callback: (err?: Error | undefined) => void): void {
+  async flush(): Promise<void> {
     if (!this.throttleOptions) {
-      this.target.flush(callback);
+      await this.target.flush();
       return;
     }
 
     if (!this.currentUserId) {
-      callback(
-        new Error('Trying to persist throttle state before userId is set')
-      );
-      return;
+      throw new Error('Trying to persist throttle state before userId is set');
     }
 
-    this.restorePromise.finally(async () => {
-      try {
-        await fs.promises.writeFile(
-          this.metadataPath,
-          JSON.stringify(this.throttleState)
-        );
-        await this.unlock();
-        this.target.flush(callback);
-      } catch (e) {
-        callback(e as Error);
-      }
-    });
+    try {
+      await this.restorePromise;
+    } catch {
+      // Ignored.
+    }
+
+    await fs.promises.writeFile(
+      this.metadataPath,
+      JSON.stringify(this.throttleState)
+    );
+    await this.unlock();
+    await this.target.flush();
   }
 }
 
@@ -405,7 +400,7 @@ export class SampledAnalytics implements MongoshAnalytics {
     this.isEnabled && this.target.track(message);
   }
 
-  flush(callback: (err?: Error | undefined) => void): void {
-    this.target.flush(callback);
+  async flush(): Promise<void> {
+    return await this.target.flush();
   }
 }

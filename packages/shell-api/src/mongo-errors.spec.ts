@@ -61,6 +61,17 @@ describe('mongo-errors', function () {
         expect(r.code).to.equal(13435);
         expect(r.message).to.contain('setReadPref');
       });
+
+      it('does not rephrase a NotPrimaryNoSecondaryOk error with db.runCommand example', function () {
+        const e = new MongoError(
+          'not primary - consider passing the readPreference option e.g. db.runCommand({ command }, { readPreference: "secondaryPreferred" })'
+        );
+        e.code = 13435;
+        const r = rephraseMongoError(e);
+        expect(r).to.equal(e);
+        expect(r.code).to.equal(13435);
+        expect(r.message).not.to.contain('setReadPref');
+      });
     });
   });
 
@@ -101,7 +112,7 @@ describe('mongo-errors', function () {
         expect.fail('expected error');
       } catch (e: any) {
         expect(e).to.equal(error);
-        expect(e.message).to.contain('not primary and secondaryOk=false');
+        expect(e.message).to.contain('not primary');
         expect(e.message).to.contain('db.getMongo().setReadPref()');
         expect(e.message).to.contain('readPreference');
       }

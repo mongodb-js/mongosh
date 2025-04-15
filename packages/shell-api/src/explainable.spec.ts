@@ -4,6 +4,7 @@ import type { StubbedInstance } from 'ts-sinon';
 import { stubInterface } from 'ts-sinon';
 import type { EventEmitter } from 'events';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
+import type { ExplainableCursor } from './index';
 import { signatures, toShellResult } from './index';
 import Database from './database';
 import type Cursor from './cursor';
@@ -31,7 +32,7 @@ describe('Explainable', function () {
       expect(signatures.Explainable.type).to.equal('Explainable');
     });
     it('attributes', function () {
-      expect(signatures.Explainable.attributes.find).to.deep.equal({
+      expect(signatures.Explainable.attributes?.find).to.deep.equal({
         type: 'function',
         returnsPromise: true,
         deprecated: false,
@@ -110,46 +111,86 @@ describe('Explainable', function () {
     });
 
     describe('find', function () {
-      let cursorStub;
-      let explainResult;
-      beforeEach(async function () {
-        explainResult = { ok: 1 };
+      context('without options', function () {
+        let cursorStub: ExplainableCursor;
+        let explainResult: Document;
 
-        const cursorSpy = {
-          explain: sinon.spy(() => explainResult),
-        } as unknown;
-        collection.find = sinon.spy(() => Promise.resolve(cursorSpy as Cursor));
+        beforeEach(async function () {
+          explainResult = { ok: 1 };
 
-        cursorStub = await explainable.find({ query: 1 }, { projection: 1 });
-      });
+          const cursorSpy = {
+            explain: sinon.spy(() => explainResult),
+          } as unknown;
+          collection.find = sinon.spy(() =>
+            Promise.resolve(cursorSpy as Cursor)
+          );
 
-      it('calls collection.find with arguments', function () {
-        expect(collection.find).to.have.been.calledOnceWithExactly(
-          { query: 1 },
-          { projection: 1 }
+          cursorStub = await explainable.find({ query: 1 }, { projection: 1 });
+        });
+
+        it('calls collection.find with arguments', function () {
+          expect(collection.find).to.have.been.calledOnceWithExactly(
+            { query: 1 },
+            { projection: 1 },
+            {}
+          );
+        });
+
+        it('returns an cursor that has toShellResult when evaluated', async function () {
+          expect((await toShellResult(cursorStub)).type).to.equal(
+            'ExplainableCursor'
+          );
+        });
+
+        context(
+          'when calling toShellResult().printable on the result',
+          function () {
+            it('calls explain with verbosity', function () {
+              expect(cursorStub._verbosity).to.equal('queryPlanner');
+            });
+
+            it('returns the explain result', async function () {
+              expect((await toShellResult(cursorStub)).printable).to.equal(
+                explainResult
+              );
+            });
+          }
         );
       });
 
-      it('returns an cursor that has toShellResult when evaluated', async function () {
-        expect((await toShellResult(cursorStub)).type).to.equal(
-          'ExplainableCursor'
-        );
+      context('with options', function () {
+        let cursorStub: ExplainableCursor;
+        let explainResult: Document;
+
+        beforeEach(async function () {
+          explainResult = { ok: 1 };
+
+          const cursorSpy = {
+            explain: sinon.spy(() => explainResult),
+          } as unknown;
+          collection.find = sinon.spy(() =>
+            Promise.resolve(cursorSpy as Cursor)
+          );
+
+          cursorStub = await explainable.find({}, undefined, {
+            collation: { locale: 'simple' },
+          });
+        });
+
+        it('calls collection.find with arguments', function () {
+          expect(collection.find).to.have.been.calledOnceWithExactly(
+            {},
+            undefined,
+            { collation: { locale: 'simple' } }
+          );
+        });
+
+        it('returns an cursor that has toShellResult when evaluated', async function () {
+          expect((await toShellResult(cursorStub)).type).to.equal(
+            'ExplainableCursor'
+          );
+        });
       });
-
-      context(
-        'when calling toShellResult().printable on the result',
-        function () {
-          it('calls explain with verbosity', function () {
-            expect(cursorStub._verbosity).to.equal('queryPlanner');
-          });
-
-          it('returns the explain result', async function () {
-            expect((await toShellResult(cursorStub)).printable).to.equal(
-              explainResult
-            );
-          });
-        }
-      );
     });
 
     describe('aggregate', function () {

@@ -1,8 +1,11 @@
+#!/bin/bash
 set -e
 set -x
+export BASEDIR="$PWD/.evergreen"
+
+. "$BASEDIR/setup-env.sh"
 
 npm ci --verbose
-
 echo "MONOGDB_DRIVER_VERSION_OVERRIDE:$MONOGDB_DRIVER_VERSION_OVERRIDE"
 
 # if MONOGDB_DRIVER_VERSION_OVERRIDE is set, then we want to replace the package version
@@ -26,8 +29,6 @@ npm run mark-ci-required-optional-dependencies
 # platforms), then install again ignoring scripts so that the package installs
 # along with its types, but npm wouldn't try and compile the addon
 (npm ci && test -e node_modules/mongodb-client-encryption) || npm ci --ignore-scripts
-
-npm run evergreen-release bump
 
 echo "npm packages after installation"
 npm ls || true

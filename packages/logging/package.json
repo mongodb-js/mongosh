@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/logging",
-  "version": "0.0.0-dev.0",
+  "version": "3.6.0",
   "description": "MongoDB Shell Logging Utilities Package",
   "homepage": "https://github.com/mongodb-js/mongosh",
   "license": "Apache-2.0",
@@ -17,23 +17,23 @@
     "node": ">=14.15.1"
   },
   "dependencies": {
-    "@mongodb-js/devtools-connect": "^2.4.3",
-    "@mongosh/errors": "0.0.0-dev.0",
-    "@mongosh/history": "0.0.0-dev.0",
-    "@mongosh/types": "0.0.0-dev.0",
-    "mongodb-log-writer": "^1.4.0",
-    "mongodb-redact": "^0.2.2"
+    "@mongodb-js/devtools-connect": "^3.4.1",
+    "@mongosh/errors": "2.4.0",
+    "@mongosh/history": "2.4.6",
+    "@mongosh/types": "3.6.0",
+    "mongodb-log-writer": "^2.3.1",
+    "mongodb-redact": "^1.1.5"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "depcheck": "^1.4.3",
+    "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
     "prettier": "^2.8.8"
   },
   "scripts": {
-    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 -r ts-node/register \"./src/**/*.spec.ts\"",
+    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 -r ts-node/register --reporter \"../../configs/mocha-config-mongosh/reporter.ts\" \"./src/**/*.spec.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",

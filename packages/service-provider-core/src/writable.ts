@@ -1,4 +1,4 @@
-import type { RunCommandCursor, RunCursorCommandOptions } from 'mongodb';
+import type { RunCursorCommandOptions } from 'mongodb';
 import type {
   Document,
   InsertOneOptions,
@@ -10,6 +10,9 @@ import type {
   FindOneAndUpdateOptions,
   BulkWriteOptions,
   AnyBulkWriteOperation,
+  AnyClientBulkWriteModel,
+  ClientBulkWriteResult,
+  ClientBulkWriteOptions,
   DeleteOptions,
   DeleteResult,
   InsertManyResult,
@@ -24,7 +27,9 @@ import type {
   DbOptions,
   OrderedBulkOperation,
   UnorderedBulkOperation,
+  SearchIndexDescription,
 } from './all-transport-types';
+import type { ServiceProviderRunCommandCursor } from './cursors';
 
 /**
  * Interface for write operations in the CRUD specification.
@@ -70,7 +75,7 @@ export default interface Writable {
     spec: Document,
     options: RunCursorCommandOptions,
     dbOptions?: DbOptions
-  ): RunCommandCursor;
+  ): ServiceProviderRunCommandCursor;
 
   /**
    * Drop a database
@@ -105,6 +110,18 @@ export default interface Writable {
     options: BulkWriteOptions,
     dbOptions?: DbOptions
   ): Promise<BulkWriteResult>;
+
+  /**
+   * Executes a client bulk write operation, available on server 8.0+.
+   * @param models - The client bulk write models.
+   * @param options - The bulk write options.
+   *
+   * @returns {Promise} The promise of the result.
+   */
+  clientBulkWrite(
+    models: AnyClientBulkWriteModel<Document>[],
+    options: ClientBulkWriteOptions
+  ): Promise<ClientBulkWriteResult>;
 
   /**
    * Delete multiple documents from the collection.
@@ -311,7 +328,7 @@ export default interface Writable {
    *
    * @param {String} database - The db name.
    * @param {String} collection - The collection name.
-   * @param {Object[]} indexSpecs the spec of the indexes to be created.
+   * @param {Object[]} indexSpecs - The spec of the indexes to be created.
    * @param {Object} options - The command options.
    * @param {DbOptions} dbOptions - The database options
    * @return {Promise}
@@ -384,12 +401,7 @@ export default interface Writable {
   createSearchIndexes(
     database: string,
     collection: string,
-    // TODO(MONGOSH-1471): use SearchIndexDescription[] once available
-    specs: {
-      name: string;
-      type?: 'search' | 'vectorSearch';
-      definition: Document;
-    }[],
+    descriptions: SearchIndexDescription[],
     dbOptions?: DbOptions
   ): Promise<string[]>;
 

@@ -1,15 +1,17 @@
 import { expect } from 'chai';
 import NoDatabase from './no-db';
+import type Mongo from './mongo';
+
 describe('NoDatabase', function () {
-  let nomongo;
-  let nodb;
+  let nomongo: Mongo;
+  let nodb: NoDatabase;
   beforeEach(function () {
     nodb = new NoDatabase();
     nomongo = nodb._mongo;
   });
-  it('throws for show', function () {
+  it('throws for show', async function () {
     try {
-      nodb._mongo.show('dbs');
+      await nodb._mongo.show('dbs');
     } catch (e: any) {
       return expect(e.name).to.equal('MongoshInvalidInputError');
     }

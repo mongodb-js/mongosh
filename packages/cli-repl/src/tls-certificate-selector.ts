@@ -6,10 +6,10 @@ import { createRequire } from 'module';
 
 type TlsCertificateExporter = (
   search: { subject: string } | { thumbprint: Buffer }
-) => { passphrase: string; pfx: Buffer };
-export function getTlsCertificateSelector(
+) => Promise<{ passphrase: string; pfx: Buffer }>;
+export async function getTlsCertificateSelector(
   selector: string | undefined
-): { passphrase: string; pfx: Buffer } | undefined {
+): Promise<{ passphrase: string; pfx: Buffer } | undefined> {
   if (!selector) {
     return;
   }
@@ -34,7 +34,7 @@ export function getTlsCertificateSelector(
       : { thumbprint: Buffer.from(value, 'hex') };
 
   try {
-    const { passphrase, pfx } = exportCertificateAndPrivateKey(search);
+    const { passphrase, pfx } = await exportCertificateAndPrivateKey(search);
     return { passphrase, pfx };
   } catch (err: any) {
     throw new MongoshInvalidInputError(
@@ -58,9 +58,13 @@ function getCertificateExporter(): TlsCertificateExporter | undefined {
   try {
     switch (process.platform) {
       case 'win32':
-        return require('win-export-certificate-and-key');
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        return require('win-export-certificate-and-key')
+          .exportCertificateAndPrivateKeyAsync;
       case 'darwin':
-        return require('macos-export-certificate-and-key');
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        return require('macos-export-certificate-and-key')
+          .exportCertificateAndPrivateKeyAsync;
       default:
         return undefined;
     }

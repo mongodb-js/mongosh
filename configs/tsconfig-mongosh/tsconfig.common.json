@@ -2,6 +2,7 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "downlevelIteration": true,
+    "skipLibCheck": true,
     "sourceMap": true,
 
     "strict": true,

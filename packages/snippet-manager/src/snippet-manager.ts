@@ -16,7 +16,13 @@ import { once } from 'events';
 import tar from 'tar';
 import zlib from 'zlib';
 import bson from 'bson';
-import joi from 'joi';
+import { z } from 'zod';
+import type {
+  AgentWithInitialize,
+  DevtoolsProxyOptions,
+  Response,
+} from '@mongodb-js/devtools-proxy-support';
+import { createFetch } from '@mongodb-js/devtools-proxy-support';
 const pipeline = promisify(stream.pipeline);
 const brotliCompress = promisify(zlib.brotliCompress);
 const brotliDecompress = promisify(zlib.brotliDecompress);
@@ -25,59 +31,49 @@ export interface SnippetOptions {
   installdir: string;
   instanceState: ShellInstanceState;
   skipInitialIndexLoad?: boolean;
+  proxyOptions?: DevtoolsProxyOptions | AgentWithInitialize;
 }
 
-export interface ErrorMatcher {
-  matches: RegExp[];
-  message: string;
+interface NpmMetaDataResponse {
+  dist?: {
+    tarball?: string;
+  };
 }
 
-export interface SnippetDescription {
-  name: string;
-  snippetName: string;
-  installSpec?: string;
-  version: string;
-  description: string;
-  license: string;
-  readme: string;
-  errorMatchers?: ErrorMatcher[];
-}
-
-export interface SnippetIndexFile {
-  indexFileVersion: 1;
-  index: SnippetDescription[];
-  metadata: { homepage: string };
-  sourceURL: string;
-}
-
-const indexFileSchema = joi.object({
-  indexFileVersion: joi.number().integer().max(1).required(),
-
-  metadata: joi.object({
-    homepage: joi.string(),
-  }),
-
-  index: joi
-    .array()
-    .required()
-    .items(
-      joi.object({
-        name: joi.string().required(),
-        snippetName: joi.string().required(),
-        installSpec: joi.string(),
-        version: joi.string().required(),
-        description: joi.string().required().allow(''),
-        license: joi.string().required(),
-        readme: joi.string().required().allow(''),
-        errorMatchers: joi.array().items(
-          joi.object({
-            message: joi.string().required(),
-            matches: joi.array().required().items(joi.object().regex()),
-          })
-        ),
-      })
-    ),
+const regExpTag = Object.prototype.toString.call(/foo/);
+const errorMatcherSchema = z.object({
+  message: z.string(),
+  matches: z.array(
+    z.custom<RegExp>((val) => Object.prototype.toString.call(val) === regExpTag)
+  ),
 });
+const indexDescriptionSchema = z.object({
+  name: z.string(),
+  snippetName: z.string(),
+  installSpec: z.string().optional(),
+  version: z.string(),
+  description: z.string(),
+  license: z.string(),
+  readme: z.string(),
+  errorMatchers: z.array(errorMatcherSchema).optional(),
+});
+const indexFileSchema = z.object({
+  indexFileVersion: z.number().int().max(1),
+
+  metadata: z
+    .object({
+      homepage: z.string(),
+    })
+    .passthrough(),
+
+  index: z.array(indexDescriptionSchema),
+});
+
+export type ErrorMatcher = z.infer<typeof errorMatcherSchema>;
+export type SnippetIndexFile = z.infer<typeof indexFileSchema> & {
+  sourceURL: string;
+};
+export type SnippetDescription = z.infer<typeof indexDescriptionSchema>;
 
 async function unpackBSON<T = any>(data: Buffer): Promise<T> {
   return bson.deserialize(await brotliDecompress(data)) as T;
@@ -101,11 +97,13 @@ export class SnippetManager implements ShellPlugin {
   print: (...args: any[]) => Promise<void>;
   npmArgv: string[];
   inflightFetchIndexPromise: Promise<SnippetIndexFile[]> | null = null;
+  fetch: (url: string) => Promise<Response>;
 
   constructor({
     installdir,
     instanceState,
     skipInitialIndexLoad,
+    proxyOptions = {},
   }: SnippetOptions) {
     const { load, config, print, require } = instanceState.context;
     this._instanceState = instanceState;
@@ -119,6 +117,7 @@ export class SnippetManager implements ShellPlugin {
     this.installdir = installdir;
     this.repos = null;
     this.npmArgv = [];
+    this.fetch = createFetch(proxyOptions);
 
     if (!skipInitialIndexLoad) {
       this.prepareIndex().catch(() => {});
@@ -185,12 +184,6 @@ export class SnippetManager implements ShellPlugin {
     return this._instanceState.messageBus;
   }
 
-  async fetch(url: string) {
-    // 'http' is not supported in startup snapshots yet.
-    const fetch = await import('node-fetch');
-    return await fetch.default(url);
-  }
-
   async prepareNpm(): Promise<string[]> {
     const npmdir = path.join(this.installdir, 'node_modules', 'npm');
     const npmclipath = path.join(npmdir, 'bin', 'npm-cli.js');
@@ -240,7 +233,9 @@ export class SnippetManager implements ShellPlugin {
       );
     }
     interrupted.checkpoint();
-    const npmTarballURL = (await npmMetadataResponse.json())?.dist?.tarball;
+    const npmTarballURL = (
+      (await npmMetadataResponse.json()) as NpmMetaDataResponse
+    )?.dist?.tarball;
     if (!npmTarballURL) {
       this.messageBus.emit('mongosh-snippets:npm-download-failed', {
         npmMetadataURL,
@@ -253,7 +248,7 @@ export class SnippetManager implements ShellPlugin {
     interrupted.checkpoint();
     await this.print(`Downloading npm from ${npmTarballURL}...`);
     const npmTarball = await this.fetch(npmTarballURL);
-    if (!npmTarball.ok) {
+    if (!npmTarball.ok || !npmTarball.body) {
       this.messageBus.emit('mongosh-snippets:npm-download-failed', {
         npmMetadataURL,
         npmTarballURL,
@@ -332,11 +327,12 @@ export class SnippetManager implements ShellPlugin {
                   `The specified index file ${url} could not be read: ${repoRes.statusText}`
                 );
               }
-              const rawData = await repoRes.buffer();
+              const arrayBuffer = await repoRes.arrayBuffer();
+              const buffer = Buffer.from(arrayBuffer);
               let data;
               try {
                 data = await unpackBSON<Omit<SnippetIndexFile, 'sourceURL'>>(
-                  rawData
+                  buffer
                 );
               } catch (err: any) {
                 this.messageBus.emit('mongosh-snippets:fetch-index-error', {
@@ -348,9 +344,8 @@ export class SnippetManager implements ShellPlugin {
                   `The specified index file ${url} could not be parsed: ${err.message}`
                 );
               }
-              const { error } = indexFileSchema.validate(data, {
-                allowUnknown: true,
-              });
+              const { error, data: parsedData } =
+                indexFileSchema.safeParse(data);
               if (error) {
                 this.messageBus.emit('mongosh-snippets:fetch-index-error', {
                   action: 'validate-fetched',
@@ -361,7 +356,7 @@ export class SnippetManager implements ShellPlugin {
                   `The specified index file ${url} is not a valid index file: ${error.message}`
                 );
               }
-              return { ...data, sourceURL: url };
+              return { ...parsedData, sourceURL: url };
             })
           );
           // If possible, write the result to disk for caching.

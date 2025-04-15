@@ -1,17 +1,55 @@
-import fs from 'fs';
+import { promises as fs, constants as fsConstants } from 'fs';
+import path from 'path';
 import type { Config } from './config';
 import { getReleaseVersionFromTag } from './config';
 import type { uploadArtifactToEvergreen as uploadArtifactToEvergreenFn } from './evergreen';
-import type { PackageFile } from './packaging';
+import { getPackageFile } from './packaging';
+import { validatePackageVariant } from './config';
 
 export async function runUpload(
   config: Config,
-  tarballFile: PackageFile,
-  uploadToEvergreen: typeof uploadArtifactToEvergreenFn
+  uploadToEvergreen: typeof uploadArtifactToEvergreenFn,
+  fsAccess: typeof fs.access = fs.access
 ): Promise<void> {
-  for (const key of ['evgAwsKey', 'evgAwsSecret', 'project', 'revision']) {
-    if (typeof (config as any)[key] !== 'string') {
+  const requiredConfigKeys: (keyof Config)[] = [
+    'evgAwsKey',
+    'evgAwsSecret',
+    'project',
+    'revision',
+    'packageVariant',
+    'outputDir',
+  ];
+  for (const key of requiredConfigKeys) {
+    if (typeof config[key] !== 'string') {
       throw new Error(`Missing build config key: ${key}`);
+    }
+  }
+
+  const packageVariant = config.packageVariant;
+  validatePackageVariant(packageVariant);
+
+  const packageInformation = (
+    config.packageInformation as Required<Config>['packageInformation']
+  )(packageVariant);
+  const tarballFile = path.join(
+    config.outputDir,
+    getPackageFile(packageVariant, () => packageInformation).path
+  );
+
+  await fsAccess(tarballFile, fsConstants.R_OK);
+  let signatureFile: string | undefined = tarballFile + '.sig';
+  try {
+    await fsAccess(signatureFile, fsConstants.R_OK);
+    console.info('Signature file present, uploading with tarball', tarballFile);
+  } catch (err: any) {
+    if (err?.code === 'ENOENT') {
+      console.info(
+        'No signature file present, only uploading tarball',
+        tarballFile
+      );
+      signatureFile = undefined;
+    } else {
+      throw err;
     }
   }
 
@@ -22,15 +60,19 @@ export async function runUpload(
     : (config.revision as string);
 
   // we uploaded to evergreen to have a common place to grab the packaged artifact from
-  const uploadedArtifactUrl = await uploadToEvergreen(
-    tarballFile.path,
-    config.evgAwsKey as string,
-    config.evgAwsSecret as string,
-    config.project as string,
-    revisionOrVersion
-  );
+  const upload = async (file: string) =>
+    await uploadToEvergreen(
+      file,
+      config.evgAwsKey as string,
+      config.evgAwsSecret as string,
+      config.project as string,
+      revisionOrVersion,
+      config.artifactUrlExtraTag
+    );
+  const uploadedArtifactUrl = await upload(tarballFile);
+  if (signatureFile) await upload(signatureFile);
 
   if (config.artifactUrlFile) {
-    await fs.promises.writeFile(config.artifactUrlFile, uploadedArtifactUrl);
+    await fs.writeFile(config.artifactUrlFile, uploadedArtifactUrl);
   }
 }

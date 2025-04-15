@@ -1,3 +1,4 @@
+import type { Schema } from 'ajv';
 import type { PackageInformationProvider } from '../packaging/package';
 import type { PackageVariant } from './build-variant';
 
@@ -6,6 +7,21 @@ interface ManPageConfig {
   downloadPath: string;
   fileName: string;
 }
+
+// This needs to match the interface in cli-repl/update-notification-manager.ts
+export interface GreetingCTADetails {
+  chunks: {
+    text: string;
+    // This is actually cli-repl/clr.ts/StyleDefinition, but we can't import it here.
+    // The correct type is already enforced in json schema, so treating it as a generic
+    // string is fine.
+    style?: string;
+  }[];
+}
+
+export type CTAConfig = {
+  [version: string | '*']: GreetingCTADetails;
+};
 
 /**
  * Defines the configuration interface for the build system.
@@ -25,6 +41,9 @@ export interface Config {
   evgAwsSecret?: string;
   downloadCenterAwsKey?: string;
   downloadCenterAwsSecret?: string;
+  downloadCenterAwsKeyNew?: string;
+  downloadCenterAwsSecretNew?: string;
+  downloadCenterAwsSessionTokenNew?: string;
   injectedJsonFeedFile?: string;
   githubToken?: string;
   segmentKey?: string;
@@ -43,6 +62,10 @@ export interface Config {
   packageInformation?: PackageInformationProvider;
   cryptSharedLibPath: string;
   artifactUrlFile?: string;
+  artifactUrlExtraTag?: string;
   manpage?: ManPageConfig;
   isDryRun?: boolean;
+  useAuxiliaryPackagesOnly?: boolean;
+  ctaConfig: CTAConfig;
+  ctaConfigSchema: Schema;
 }

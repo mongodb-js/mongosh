@@ -19,23 +19,25 @@ import {
   topologies,
   deprecated,
 } from './decorators';
-import {
-  type ChangeStreamOptions,
-  type ClientSessionOptions,
-  type CommandOperationOptions,
-  type Document,
-  type ListDatabasesOptions,
-  type ReadConcernLevel,
-  type ReadPreference,
-  type ReadPreferenceLike,
-  type ReadPreferenceMode,
-  type ServiceProvider,
-  type TransactionOptions,
-  type MongoClientOptions,
-  type AutoEncryptionOptions as SPAutoEncryption,
-  type ServerApi,
-  type ServerApiVersion,
-  type WriteConcern,
+import type {
+  ChangeStreamOptions,
+  ClientSessionOptions,
+  CommandOperationOptions,
+  Document,
+  ListDatabasesOptions,
+  ReadConcernLevel,
+  ReadPreference,
+  ReadPreferenceLike,
+  ReadPreferenceMode,
+  ServiceProvider,
+  TransactionOptions,
+  MongoClientOptions,
+  AutoEncryptionOptions as SPAutoEncryption,
+  ServerApi,
+  ServerApiVersion,
+  WriteConcern,
+  AnyClientBulkWriteModel,
+  ClientBulkWriteOptions,
 } from '@mongosh/service-provider-core';
 import type { ConnectionInfo } from '@mongosh/arg-parser';
 import {
@@ -45,6 +47,7 @@ import {
 import type { Database } from './database';
 import { DatabaseImpl } from './database';
 import type ShellInstanceState from './shell-instance-state';
+import { ClientBulkWriteResult } from './result';
 import { CommandResult } from './result';
 import { redactURICredentials } from '@mongosh/history';
 import { asPrintable, ServerVersions, Topologies } from './enums';
@@ -63,6 +66,7 @@ import { ShellApiErrors } from './error-codes';
 import type { LogEntry } from './log-entry';
 import { parseAnyLogEntry } from './log-entry';
 import type { Collection } from './collection';
+import type { ShellBson } from './shell-bson';
 
 /* Utility, inverse of Readonly<T> */
 type Mutable<T> = {
@@ -132,7 +136,7 @@ export default class Mongo<
       // the parent service provider. For example, it could
       // appear to be odd that --awsAccessKeyId applies to
       // programmatically created Mongo() instances but
-      // --apiVersion or --tlsUseSystemCA does not.
+      // --apiVersion does not.
       const spFleOptions = sp?.getFleOptions?.();
       if (spFleOptions) {
         this._connectionInfo.driverOptions.autoEncryption = spFleOptions;
@@ -322,7 +326,12 @@ export default class Mongo<
   }
 
   async _listDatabases(opts: ListDatabasesOptions = {}): Promise<{
-    databases: { name: string; sizeOnDisk: number; empty: boolean }[];
+    databases: {
+      name: string;
+      sizeOnDisk: number | ShellBson['Long'];
+      empty: boolean;
+    }[];
+    ok: 1;
   }> {
     const result = await this._serviceProvider.listDatabases('admin', {
       ...this._getExplicitlyRequestedReadPref(),
@@ -350,7 +359,7 @@ export default class Mongo<
       (async () => {
         // See the comment in _getCollectionNamesForCompletion/database.ts
         // for the choice of 200 ms.
-        await new Promise((resolve) => setTimeout(resolve, 200).unref());
+        await new Promise((resolve) => setTimeout(resolve, 200)?.unref?.());
         return this._cachedDatabaseNames;
       })(),
     ]);
@@ -359,10 +368,49 @@ export default class Mongo<
   @returnsPromise
   @apiVersions([1])
   async getDBs(options: ListDatabasesOptions = {}): Promise<{
-    databases: { name: string; sizeOnDisk: number; empty: boolean }[];
+    databases: {
+      name: string;
+      sizeOnDisk: number | ShellBson['Long'];
+      empty: boolean;
+    }[];
+    ok: 1;
   }> {
     this._emitMongoApiCall('getDBs', { options });
     return await this._listDatabases(options);
+  }
+
+  @returnsPromise
+  @serverVersions(['8.0.0', ServerVersions.latest])
+  @apiVersions([1])
+  async bulkWrite(
+    models: AnyClientBulkWriteModel<Document>[],
+    options: ClientBulkWriteOptions = {}
+  ): Promise<ClientBulkWriteResult> {
+    this._emitMongoApiCall('bulkWrite', { options });
+
+    const {
+      acknowledged,
+      insertedCount,
+      matchedCount,
+      modifiedCount,
+      deletedCount,
+      upsertedCount,
+      insertResults,
+      updateResults,
+      deleteResults,
+    } = await this._serviceProvider.clientBulkWrite(models, options);
+
+    return new ClientBulkWriteResult({
+      acknowledged,
+      insertedCount,
+      matchedCount,
+      modifiedCount,
+      deletedCount,
+      upsertedCount,
+      insertResults,
+      updateResults,
+      deleteResults,
+    });
   }
 
   @returnsPromise
@@ -500,7 +548,8 @@ export default class Mongo<
         // Although very unlikely but if we cannot determine wether we are connected to a fake mongodb
         // or not, we assume that we are connected to a real mongodb and won't show the warning
         const isGenuine =
-          this._instanceState.connectionInfo?.extraInfo?.is_genuine ?? true;
+          (await this._instanceState.fetchConnectionInfo())?.extraInfo
+            ?.is_genuine ?? true;
         if (isGenuine) {
           return new CommandResult('ShowBannerResult', null);
         }
@@ -524,7 +573,7 @@ export default class Mongo<
     }
   }
 
-  async close(force: boolean): Promise<void> {
+  async close(force?: boolean): Promise<void> {
     const index = this._instanceState.mongos.indexOf(this);
     if (index === -1) {
       process.emitWarning(
@@ -536,7 +585,7 @@ export default class Mongo<
       this._instanceState.mongos.splice(index, 1);
     }
 
-    await this._serviceProvider.close(force);
+    await this._serviceProvider.close(!!force);
   }
 
   async _suspend(): Promise<() => Promise<void>> {
@@ -712,7 +761,11 @@ export default class Mongo<
       }
     }
 
-    const allSessionOptions = ['causalConsistency', 'snapshot'] as const;
+    const allSessionOptions = [
+      'causalConsistency',
+      'snapshot',
+      'defaultTimeoutMS',
+    ] as const;
     function assertAllSessionOptionsUsed(
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       _options: (typeof allSessionOptions)[number] | 'defaultTransactionOptions'

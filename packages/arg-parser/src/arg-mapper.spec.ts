@@ -374,6 +374,22 @@ describe('arg-mapper.mapCliToDriver', function () {
     });
   });
 
+  context('when cli args have oidcIdTokenAsAccessToken', function () {
+    const cliOptions: CliOptions = {
+      oidcIdTokenAsAccessToken: true,
+    };
+
+    it('maps to oidc passIdTokenAsAccessToken', function () {
+      expect(optionsTest(cliOptions)).to.deep.equal({
+        driver: {
+          oidc: {
+            passIdTokenAsAccessToken: true,
+          },
+        },
+      });
+    });
+  });
+
   context('when cli args have oidcTrustedEndpoint', function () {
     function actual(cs: string) {
       return mapCliToDriver(
@@ -430,6 +446,22 @@ describe('arg-mapper.mapCliToDriver', function () {
       });
       expect(optionsTest({ oidcFlows: ',' })).to.deep.equal({
         driver: { oidc: { allowedFlows: [] } },
+      });
+    });
+  });
+
+  context('when cli args have oidcNoNonce', function () {
+    const cliOptions: CliOptions = {
+      oidcNoNonce: true,
+    };
+
+    it('maps to oidc skipNonceInAuthCodeRequest', function () {
+      expect(optionsTest(cliOptions)).to.deep.equal({
+        driver: {
+          oidc: {
+            skipNonceInAuthCodeRequest: true,
+          },
+        },
       });
     });
   });

@@ -26,69 +26,55 @@ BUILDROOT="$MONGOSH_ROOT_DIR"/tmp/fle-buildroot
 rm -rf "$BUILDROOT"
 mkdir -p "$BUILDROOT"
 cd "$BUILDROOT"
-PREBUILT_OSNAME=''
 
-[ -z "$LIBMONGOCRYPT_VERSION" ] && LIBMONGOCRYPT_VERSION=latest
+[ -z "$MONGODB_CLIENT_ENCRYPTION_VERSION" ] && MONGODB_CLIENT_ENCRYPTION_VERSION=main
 
-echo Using libmongocrypt at git tag "$LIBMONGOCRYPT_VERSION"
+echo Using mongodb-client-encryption at git tag "$MONGODB_CLIENT_ENCRYPTION_VERSION"
 
-if [ x"$FLE_NODE_SOURCE_PATH" != x"" -a -z "$BUILD_FLE_FROM_SOURCE" ]; then
-  # Use prebuilt binaries where available.
-  case `uname -a` in
-      Darwin*x86_64*)                   PREBUILT_OSNAME=macos;;
-      Linux*x86_64*)                    PREBUILT_OSNAME=rhel-70-64-bit;;
-      Linux*s390x*)                     PREBUILT_OSNAME=rhel72-zseries-test;;
-      Linux*aarch64*)                   PREBUILT_OSNAME=ubuntu1804-arm64;;
-      Linux*ppc64le*)                   PREBUILT_OSNAME=rhel-71-ppc64el;;
-      CYGWIN*|MINGW32*|MSYS*|MINGW*)    PREBUILT_OSNAME=windows-test;;
-  esac
+git clone https://github.com/mongodb-js/mongodb-client-encryption --branch "$MONGODB_CLIENT_ENCRYPTION_VERSION" --depth 2
+
+cd mongodb-client-encryption
+
+unset IS_WINDOWS
+case $(uname -a) in
+  CYGWIN*|MINGW32*|MSYS*|MINGW*) IS_WINDOWS="true";;
+esac
+
+if [[ $IS_WINDOWS == "true" ]]; then
+  CMAKE_VERSION="3.25.1"
+  archive="cmake-$CMAKE_VERSION-windows-x86_64.zip"
+  url="https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-windows-x86_64.zip"
+  extract_dir="cmake_$CMAKE_VERSION"
+  curl --retry 5 -LsS --max-time 120 --fail --output "$archive" "$url"
+  unzip -o -qq "$archive" -d "cmake_$CMAKE_VERSION"
+  mv -- $extract_dir/cmake-$CMAKE_VERSION-*/* "$extract_dir"
+  chmod +x $extract_dir/bin/*
+
+  PATH=$PWD/$extract_dir/bin:$PATH
+  export PATH
+  hash -r
+  which cmake
+  cmake --version
 fi
 
-if [ x"$PREBUILT_OSNAME" != x"" ]; then
-  if [ $LIBMONGOCRYPT_VERSION != latest ]; then
-    # Replace LIBMONGOCRYPT_VERSION through its git SHA
-    git clone https://github.com/mongodb/libmongocrypt --branch $LIBMONGOCRYPT_VERSION --depth 2
-    LIBMONGOCRYPT_VERSION=$(cd libmongocrypt && git rev-parse HEAD)
-    rm -rf libmongocrypt
-  fi
+# The script in `mongodb-js/mongodb-client-encryption` will download or build the libmongocrypt version specified in
+# mongodb-client-encryption's package.json at "mongodb:libmongocrypt"
+npm run install:libmongocrypt -- --skip-bindings ${IS_WINDOWS:+--build}
 
-  # Download and extract prebuilt binaries.
-  curl -sSfLO https://s3.amazonaws.com/mciuploads/libmongocrypt/$PREBUILT_OSNAME/master/$LIBMONGOCRYPT_VERSION/libmongocrypt.tar.gz
-  if tar -tzf libmongocrypt.tar.gz lib64; then LIB=lib64; else LIB=lib; fi
-  mkdir -p prebuilts
-  tar -xzvf libmongocrypt.tar.gz -C prebuilts nocrypto/ $LIB/
-  mkdir -p lib
-  mv -v prebuilts/nocrypto/$LIB/* lib
-  mv -v prebuilts/nocrypto/include include
-  mv -v prebuilts/$LIB/*bson* lib
-  rm -rf prebuilts
-else
-  if [ `uname` = Darwin ]; then
-    export CFLAGS="-mmacosx-version-min=10.15";
-  fi
-
-  if [ -z "$CMAKE" ]; then CMAKE=cmake; fi
-
-  # libmongocrypt currently determines its own version at build time by using
-  # `git describe`, so there's no way to do anything but a full checkout of the
-  # repository at this point.
-  git clone https://github.com/mongodb/libmongocrypt
-  if [ $LIBMONGOCRYPT_VERSION != "latest" ]; then
-    (cd libmongocrypt && git checkout $LIBMONGOCRYPT_VERSION)
-  fi
-
-  # build libmongocrypt
-  cd libmongocrypt
-  mkdir -p cmake-build
-  cd cmake-build
-  "$CMAKE" -DCMAKE_INSTALL_PREFIX="$BUILDROOT" -DCMAKE_PREFIX_PATH="$BUILDROOT" -DDISABLE_NATIVE_CRYPTO=1 ..
-  make -j8 install
-  cd ../../
-fi
+# The "deps" directory will be populated
+# Structure:
+# deps/
+#   include/kms_message
+#   include/mongocrypt
+# lib/
+#   libbson-static-for-libmongocrypt.a
+#   libkms_message-static.a
+#   libmongocrypt-static.a
 
 if [ x"$FLE_NODE_SOURCE_PATH" != x"" ]; then
   mkdir -p "$FLE_NODE_SOURCE_PATH"/deps/lib
   mkdir -p "$FLE_NODE_SOURCE_PATH"/deps/include
-  cp -rv "$BUILDROOT"/lib*/*-static* "$FLE_NODE_SOURCE_PATH"/deps/lib
-  cp -rv "$BUILDROOT"/include/*{kms,mongocrypt}* "$FLE_NODE_SOURCE_PATH"/deps/include
+  cp -rv ./deps/lib*/*-static* "$FLE_NODE_SOURCE_PATH"/deps/lib
+  cp -rv ./deps/include/*kms* "$FLE_NODE_SOURCE_PATH"/deps/include
+  cp -rv ./deps/include/*mongocrypt* "$FLE_NODE_SOURCE_PATH"/deps/include
 fi

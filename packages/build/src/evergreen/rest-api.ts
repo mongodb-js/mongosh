@@ -95,7 +95,7 @@ export class EvergreenApi {
         } - ${await response.text()}`
       );
     }
-    return await response.json();
+    return (await response.json()) as T;
   }
 
   private getApiHeaders(): Record<string, string> {

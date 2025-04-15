@@ -24,9 +24,15 @@ export async function uploadArtifactToEvergreen(
   awsKey: string,
   awsSecret: string,
   project: string,
-  revisionOrVersion: string
+  revisionOrVersion: string,
+  artifactUrlExtraTag: string | undefined
 ): Promise<string> {
-  const key = getS3ObjectKey(project, revisionOrVersion, artifact);
+  const key = getS3ObjectKey(
+    project,
+    revisionOrVersion,
+    artifact,
+    artifactUrlExtraTag
+  );
   console.info(
     `mongosh: uploading ${artifact} to evergreen bucket:`,
     BUCKET,
@@ -47,7 +53,12 @@ export async function uploadArtifactToEvergreen(
     })
     .promise();
 
-  const url = getArtifactUrl(project, revisionOrVersion, artifact);
+  const url = getArtifactUrl(
+    project,
+    revisionOrVersion,
+    artifact,
+    artifactUrlExtraTag
+  );
   console.info(`mongosh: artifact download url: ${url}`);
   return url;
 }
@@ -56,9 +67,15 @@ export async function downloadArtifactFromEvergreen(
   artifact: string,
   project: string,
   revisionOrVersion: string,
-  localDirectory: string
+  localDirectory: string,
+  artifactUrlExtraTag?: string | undefined
 ): Promise<string> {
-  const artifactUrl = getArtifactUrl(project, revisionOrVersion, artifact);
+  const artifactUrl = getArtifactUrl(
+    project,
+    revisionOrVersion,
+    artifact,
+    artifactUrlExtraTag
+  );
   console.info(
     `mongosh: downloading to ${localDirectory} from evergreen:`,
     artifactUrl
@@ -75,16 +92,28 @@ export async function downloadArtifactFromEvergreen(
 export function getArtifactUrl(
   project: string,
   revisionOrVersion: string,
-  artifact: string
+  artifact: string,
+  artifactUrlExtraTag?: string | undefined
 ): string {
-  const key = getS3ObjectKey(project, revisionOrVersion, artifact);
+  const key = getS3ObjectKey(
+    project,
+    revisionOrVersion,
+    artifact,
+    artifactUrlExtraTag
+  );
   return `https://s3.amazonaws.com/${BUCKET}/${key}`;
 }
 
 function getS3ObjectKey(
   project: string,
   revisionOrVersion: string,
-  artifact: string
+  artifact: string,
+  artifactUrlExtraTag: string | undefined
 ) {
-  return `${project}/${revisionOrVersion}/${path.basename(artifact)}`;
+  return `${project}/${revisionOrVersion}/${[
+    artifactUrlExtraTag,
+    path.basename(artifact),
+  ]
+    .filter(Boolean)
+    .join('/')}`;
 }

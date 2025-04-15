@@ -7,6 +7,7 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import type { MongoshBus, MongoshBusEventsMap } from '@mongosh/types';
+import type { ReadStream, WriteStream } from 'tty';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -74,18 +75,22 @@ async function waitCompletion(bus: MongoshBus) {
   await tick();
 }
 
-const fakeTTYProps = {
+const fakeTTYProps: Partial<ReadStream & WriteStream> = {
   isTTY: true,
   isRaw: true,
-  setRawMode() {
-    return false;
+  setRawMode(newValue: boolean) {
+    this.isRaw = newValue;
+    return this as ReadStream & WriteStream;
   },
   getColorDepth() {
     return 256;
   },
 };
 
-async function readReplLogfile(logPath: string) {
+async function readReplLogFile(
+  logPath?: string | null | undefined
+): Promise<any[]> {
+  if (!logPath) return [];
   return (await fs.readFile(logPath, 'utf8'))
     .split('\n')
     .filter((line) => line.trim())
@@ -102,5 +107,5 @@ export {
   waitEval,
   waitCompletion,
   fakeTTYProps,
-  readReplLogfile,
+  readReplLogFile,
 };

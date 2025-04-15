@@ -20,13 +20,13 @@ function try_connect_connection_string() {
 }
 
 function test_for_version() {
-  MONGODB_VERSION="$1" docker-compose -f docker/ldap/docker-compose.yaml up -d
+  MONGODB_VERSION="$1" docker compose -f docker/ldap/docker-compose.yaml up -d
 
   sleep 10 # let mongod start up
   FAILED_EXPLICIT=$(try_connect_explicit 'writer@EXAMPLE.COM' 'Password1!')
   FAILED_CONNECTION_STRING=$(try_connect_connection_string 'mongodb://writer%40EXAMPLE.COM:Password1!@localhost:30017/$external?authMechanism=PLAIN' 'writer@EXAMPLE.COM')
 
-  MONGODB_VERSION="$1" docker-compose -f docker/ldap/docker-compose.yaml down
+  MONGODB_VERSION="$1" docker compose -f docker/ldap/docker-compose.yaml down
 
   if [ $FAILED_EXPLICIT = yes ]; then
     ANY_FAILED=yes

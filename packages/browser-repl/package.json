@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/browser-repl",
-  "version": "0.0.0-dev.0",
+  "version": "3.10.0",
   "description": "Browser presentation component for Mongo Shell",
   "engines": {
     "node": ">=14.15.1"
@@ -10,14 +10,14 @@
   "exports": {
     ".": {
       "types": "./lib/index.d.ts",
-      "require": "./lib/index.js"
+      "default": "./lib/index.js"
     },
     "./shell": {
       "types": "./lib/components/shell.d.ts",
-      "require": "./lib/components/shell.js"
+      "default": "./lib/components/shell.js"
     },
     "./package.json": {
-      "require": "./package.json"
+      "default": "./package.json"
     }
   },
   "scripts": {
@@ -35,7 +35,8 @@
     "depcheck": "depcheck",
     "compile": "tsc -p tsconfig.json",
     "prettier": "prettier",
-    "reformat": "npm run prettier -- --write . && npm run eslint --fix"
+    "reformat": "npm run prettier -- --write . && npm run eslint --fix",
+    "sync-to-compass": "node scripts/sync-to-compass.js"
   },
   "config": {
     "unsafe-perm": true
@@ -50,31 +51,36 @@
   },
   "mongosh": {
     "unitTestsOnly": true,
+    "usePuppeteer": true,
     "variants": [
       "darwin"
     ]
   },
   "dependencies": {
-    "@mongosh/browser-runtime-core": "0.0.0-dev.0",
-    "@mongosh/errors": "0.0.0-dev.0",
-    "@mongosh/history": "0.0.0-dev.0",
-    "@mongosh/i18n": "0.0.0-dev.0",
-    "@mongosh/node-runtime-worker-thread": "0.0.0-dev.0",
-    "@mongosh/service-provider-core": "0.0.0-dev.0",
+    "@mongosh/browser-runtime-core": "3.10.0",
+    "@mongosh/errors": "2.4.0",
+    "@mongosh/history": "2.4.6",
+    "@mongosh/i18n": "^2.13.0",
+    "@mongosh/node-runtime-worker-thread": "3.3.5",
+    "@mongosh/service-provider-core": "3.3.0",
     "numeral": "^2.0.6",
     "text-table": "^0.2.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.19.6",
-    "@babel/plugin-proposal-class-properties": "^7.8.3",
-    "@babel/preset-react": "^7.18.6",
-    "@babel/preset-typescript": "^7.18.6",
+    "@babel/core": "^7.26.10",
+    "@babel/plugin-proposal-class-properties": "^7.18.6",
+    "@babel/preset-react": "^7.26.3",
+    "@babel/preset-typescript": "^7.27.0",
+    "mongodb": "^6.14.2",
     "@mongodb-js/compass-components": "*",
     "@mongodb-js/compass-editor": "*",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.8",
+    "@testing-library/dom": "^8.20.1",
+    "@testing-library/react": "^12.1.5",
+    "@testing-library/user-event": "^13.5.0",
     "@types/numeral": "^2.0.2",
     "@types/react": "^16.9.17",
     "@types/react-dom": "^18.0.8",
@@ -84,7 +90,7 @@
     "@wojtekmaj/enzyme-adapter-react-17": "^0.8.0",
     "babel-loader": "^8.3.0",
     "buffer": "^6.0.3",
-    "depcheck": "^1.4.3",
+    "depcheck": "^1.4.7",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
     "html-webpack-plugin": "^5.5.0",
@@ -95,6 +101,7 @@
     "karma-mocha-reporter": "^2.2.5",
     "karma-typescript": "^5.5.4",
     "karma-webpack": "^5.0.0",
+    "lodash": "^4.17.21",
     "path-browserify": "^1.0.1",
     "prettier": "^2.8.8",
     "prop-types": "^15.7.2",

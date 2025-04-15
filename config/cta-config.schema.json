@@ -1,0 +1,94 @@
+{
+    "$id": "https://mongodb.com/schemas/mongosh/cta-config",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "CTAConfig",
+    "type": "object",
+    "properties": {
+        "*": {
+            "$ref": "#/definitions/GreetingCTADetails",
+            "description": "The default CTA for all versions that don't have an explicit one defined."
+        },
+        "$schema": {
+            "type": "string"
+        }
+    },
+    "patternProperties": {
+        "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$": {
+            "$ref": "#/definitions/GreetingCTADetails",
+            "description": "The CTA for a specific version.",
+            "$comment": "The property name must be a valid semver string."
+        }
+    },
+    "additionalProperties": false,
+    "definitions": {
+        "GreetingCTADetails": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "chunks": {
+                    "description": "The chunks that make up the CTA. They will be combined sequentially with no additional spacing added.",
+                    "items": {
+                        "properties": {
+                            "style": {
+                                "description": "The style to apply to the text. It must match the values from clr.ts/StyleDefinition.",
+                                "enum": [
+                                    "reset",
+                                    "bold",
+                                    "italic",
+                                    "underline",
+                                    "fontDefault",
+                                    "font2",
+                                    "font3",
+                                    "font4",
+                                    "font5",
+                                    "font6",
+                                    "imageNegative",
+                                    "imagePositive",
+                                    "black",
+                                    "red",
+                                    "green",
+                                    "yellow",
+                                    "blue",
+                                    "magenta",
+                                    "cyan",
+                                    "white",
+                                    "grey",
+                                    "gray",
+                                    "bg-black",
+                                    "bg-red",
+                                    "bg-green",
+                                    "bg-yellow",
+                                    "bg-blue",
+                                    "bg-magenta",
+                                    "bg-cyan",
+                                    "bg-white",
+                                    "bg-grey",
+                                    "bg-gray",
+                                    "mongosh:warning",
+                                    "mongosh:error",
+                                    "mongosh:section-header",
+                                    "mongosh:uri",
+                                    "mongosh:filename",
+                                    "mongosh:additional-error-info"
+                                ],
+                                "type": "string"
+                            },
+                            "text": {
+                                "type": "string",
+                                "description": "The text in the chunk."
+                            }
+                        },
+                        "type": "object",
+                        "required": [
+                            "text"
+                        ]
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "chunks"
+            ]
+        }
+    }
+}

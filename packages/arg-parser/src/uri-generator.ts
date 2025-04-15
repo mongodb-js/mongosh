@@ -107,15 +107,11 @@ function validateHost(host: string): void {
  * returns an individual `<host>:<port>` array.
  */
 function validateHostSeedList(
-  hosts: string,
+  hosts: string[],
   fixedPort: string | undefined
 ): string[] {
-  const trimmedHosts = hosts
-    .split(',')
-    .map((h) => h.trim())
-    .filter((h) => !!h);
   const hostList: string[] = [];
-  for (const h of trimmedHosts) {
+  for (const h of hosts) {
     // Split at the last colon to separate the port from the host
     // (if that colon is followed exclusively by digits)
     const { host, port } =
@@ -175,6 +171,27 @@ function generatePort(options: CliOptions): string {
   return options.port ? options.port : DEFAULT_PORT;
 }
 
+function parseHostOption(value: string | undefined): {
+  replSetName?: string;
+  hosts?: string[];
+} {
+  // Parse [<replSetName>/]<hostname1>[<:port>][,<hostname2>[<:port>][,<...>]]
+  if (!value) return {};
+  // replSetName is optional and we only allow one slash in the whole string at most
+  const [hostList, replSetName, ...rest] = value.split('/').reverse();
+  if (rest.length) return {};
+  const hosts = hostList.split(',').filter(Boolean);
+  // All hosts follow the pattern (hostname|ipv4|ipv6)[(:port)]
+  if (
+    !hosts.every((host) =>
+      /^([A-Za-z0-9._-]+|\[[0-9a-fA-F:]+\])(:\d+)?$/.test(host)
+    )
+  ) {
+    return {};
+  }
+  return { replSetName, hosts };
+}
+
 /**
  * Generate a URI from the provided CLI options.
  *
@@ -208,36 +225,16 @@ export function generateUri(options: Readonly<CliOptions>): string {
 function generateUriNormalized(options: CliOptions): ConnectionString {
   const uri = options.connectionSpecifier;
 
-  // If the --host argument contains /, it has the format
-  // <replSetName>/<hostname1><:port>,<hostname2><:port>,<...>
-  const replSetHostMatch =
-    /^(?<replSetName>[^/]+)\/(?<hosts>(([A-Za-z0-9._-]+|\[[0-9a-fA-F:]+\])(:\d+)?,?)+)$/.exec(
-      options.host ?? ''
-    );
-  if (replSetHostMatch) {
-    const { replSetName, hosts } = replSetHostMatch.groups as {
-      replSetName: string;
-      hosts: string;
-    };
+  // The --host argument has the format
+  // [<replSetName>/]<hostname1>[<:port>][,<hostname2>[<:port>][,<...>]]
+  const { replSetName, hosts } = parseHostOption(options.host);
+  if (replSetName || (hosts ?? []).length > 1) {
     const connectionString = new ConnectionString(
       `mongodb://replacemeHost/${encodeURIComponent(uri || '')}`
     );
-    connectionString.hosts = validateHostSeedList(hosts, options.port);
-    connectionString.searchParams.set('replicaSet', replSetName);
-    return addShellConnectionStringParameters(connectionString);
-  }
-
-  // If the --host argument contains multiple hosts as a seed list
-  // we directly do not do additional host/port parsing
-  const seedList = /^(?<hosts>([A-Za-z0-9._-]+(:\d+)?,?)+)$/.exec(
-    options.host ?? ''
-  );
-  if (seedList && options.host?.includes(',')) {
-    const { hosts } = seedList.groups as { hosts: string };
-    const connectionString = new ConnectionString(
-      `mongodb://replacemeHost/${encodeURIComponent(uri || '')}`
-    );
-    connectionString.hosts = validateHostSeedList(hosts, options.port);
+    connectionString.hosts = validateHostSeedList(hosts ?? [], options.port);
+    if (replSetName)
+      connectionString.searchParams.set('replicaSet', replSetName);
     return addShellConnectionStringParameters(connectionString);
   }
 
@@ -264,7 +261,7 @@ function generateUriNormalized(options: CliOptions): ConnectionString {
 
   // Capture host, port and db from the string and generate a URI from
   // the parts. If there is a db part, it *must* start with /.
-  const uriMatch = /^([A-Za-z0-9][A-Za-z0-9._-]+):?(\d+)?(?:\/(\S*))?$/gi;
+  const uriMatch = /^([A-Za-z0-9][A-Za-z0-9._-]+)(?::(\d+))?(?:\/(\S*))?$/gi;
   let parts: string[] | null = uriMatch.exec(uri);
 
   if (parts === null) {

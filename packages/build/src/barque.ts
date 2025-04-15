@@ -10,6 +10,7 @@ import tar from 'tar-fs';
 import tmp from 'tmp-promise';
 import util, { promisify } from 'util';
 import type { PackageVariant, Config } from './config';
+import semver from 'semver';
 import {
   getArch,
   getDistro,
@@ -18,6 +19,12 @@ import {
   Platform,
 } from './config';
 import { withRetries } from './helpers';
+import type {
+  PPARepository,
+  SupportedServerVersion,
+  PPARepositoryAndServerVersions,
+} from './config/server-with-ppa';
+import { getSupportedServersForPPAs } from './config/server-with-ppa';
 
 const pipeline = util.promisify(stream.pipeline);
 const execFile = util.promisify(childProcess.execFile);
@@ -29,25 +36,6 @@ export const LATEST_CURATOR =
 tmp.setGracefulCleanup();
 
 /**
- * All the possible per-Linux-distro repositories that we publish to.
- */
-type PPARepository =
-  | 'ubuntu1804'
-  | 'ubuntu2004'
-  | 'ubuntu2204'
-  | 'debian10'
-  | 'debian11'
-  | 'debian12'
-  | 'rhel70'
-  | 'rhel80'
-  | 'rhel90'
-  | 'amazon1'
-  | 'amazon2'
-  | 'amazon2023'
-  | 'suse12'
-  | 'suse15';
-
-/**
  * Return the full list of [distro, arch] combinations that we upload for
  * a given package variant (where 'distro' refers to a distro in the package
  * repository, e.g. Ubuntu 20.04).
@@ -55,7 +43,7 @@ type PPARepository =
  * /config/repo-config.yml needs to be kept in sync with this.
  */
 export function getReposAndArch(packageVariant: PackageVariant): {
-  ppas: PPARepository[];
+  ppas: PPARepositoryAndServerVersions[];
   arch: string;
 } {
   switch (getDistro(packageVariant)) {
@@ -66,20 +54,21 @@ export function getReposAndArch(packageVariant: PackageVariant): {
       return { ppas: [], arch: '' };
     case 'deb':
       return {
-        ppas: [
+        ppas: getSupportedServersForPPAs([
           'ubuntu1804',
           'ubuntu2004',
           'ubuntu2204',
+          'ubuntu2404',
           'debian10',
           'debian11',
           'debian12',
-        ],
+        ]),
         arch: getDebArchName(getArch(packageVariant)),
       };
     case 'rpm':
       if (getArch(packageVariant) === 'x64') {
         return {
-          ppas: [
+          ppas: getSupportedServersForPPAs([
             'rhel70',
             'rhel80',
             'rhel90',
@@ -88,13 +77,18 @@ export function getReposAndArch(packageVariant: PackageVariant): {
             'amazon2023',
             'suse12',
             'suse15',
-          ],
+          ]),
           arch: getRPMArchName(getArch(packageVariant)),
         };
       }
       if (getArch(packageVariant) === 'arm64') {
         return {
-          ppas: ['rhel80', 'rhel90', 'amazon2', 'amazon2023'],
+          ppas: getSupportedServersForPPAs([
+            'rhel80',
+            'rhel90',
+            'amazon2',
+            'amazon2023',
+          ]),
           arch: getRPMArchName(getArch(packageVariant)),
         };
       }
@@ -103,7 +97,7 @@ export function getReposAndArch(packageVariant: PackageVariant): {
         getArch(packageVariant) === 's390x'
       ) {
         return {
-          ppas: ['rhel70', 'rhel80'],
+          ppas: getSupportedServersForPPAs(['rhel70', 'rhel80']),
           arch: getRPMArchName(getArch(packageVariant)),
         };
       }
@@ -116,11 +110,13 @@ export function getReposAndArch(packageVariant: PackageVariant): {
 export class Barque {
   private config: Config;
   private mongodbEditions: string[];
-  private mongodbVersions: {
-    version: string;
-    notaryKeyName: string;
-    notaryToken: string;
-  }[];
+  private serverVersionNotaryKeys: Record<
+    SupportedServerVersion,
+    {
+      notaryKeyName: string;
+      notaryToken: string;
+    }
+  >;
   private downloadedCuratorPromise: Promise<string> | undefined;
 
   constructor(config: Config) {
@@ -131,28 +127,28 @@ export class Barque {
     this.config = config;
     this.mongodbEditions = ['org', 'enterprise'];
     // linux mongodb versions to release to.
-    this.mongodbVersions = [
-      {
-        version: '4.4.0',
+    this.serverVersionNotaryKeys = {
+      '4.4.0': {
         notaryKeyName: 'server-4.4',
         notaryToken: process.env.SIGNING_AUTH_TOKEN_44 ?? '',
       },
-      {
-        version: '5.0.0',
+      '5.0.0': {
         notaryKeyName: 'server-5.0',
         notaryToken: process.env.SIGNING_AUTH_TOKEN_50 ?? '',
       },
-      {
-        version: '6.0.0',
+      '6.0.0': {
         notaryKeyName: 'server-6.0',
         notaryToken: process.env.SIGNING_AUTH_TOKEN_60 ?? '',
       },
-      {
-        version: '7.0.0',
+      '7.0.0': {
         notaryKeyName: 'server-7.0',
         notaryToken: process.env.SIGNING_AUTH_TOKEN_70 ?? '',
       },
-    ];
+      '8.0.0': {
+        notaryKeyName: 'server-8.0',
+        notaryToken: process.env.SIGNING_AUTH_TOKEN_80 ?? '',
+      },
+    };
   }
 
   /**
@@ -215,15 +211,29 @@ export class Barque {
     curatorDirPath: string,
     packageUrl: string,
     repoConfig: string,
-    ppas: PPARepository[],
+    ppasWithServerVersions: PPARepositoryAndServerVersions[],
     architecture: string,
     curatorService: string
   ): Promise<string[]> {
     const results: Promise<string>[] = [];
-    for (const ppa of ppas) {
-      for (const { version, notaryKeyName, notaryToken } of this
-        .mongodbVersions) {
+    for (const { repo: ppa, serverVersions } of ppasWithServerVersions) {
+      for (const version of serverVersions) {
         for (const edition of this.mongodbEditions) {
+          // For ppc64le and s390x, we only publish enterprise edition only
+          // starting server version 6. But in order to keep the current publishing
+          // behaviour, we will only skip publishing for server version 8.0 community
+          // edition.
+          if (
+            edition === 'org' &&
+            ['ppc64le', 's390x'].includes(architecture) &&
+            semver.gte(version, '8.0.0')
+          ) {
+            console.info(
+              `Skipping publishing community v${version} for ${architecture}`
+            );
+            continue;
+          }
+
           const args = [
             '--level',
             'debug',
@@ -253,8 +263,10 @@ export class Barque {
                     execFile(`${curatorDirPath}/curator`, args, {
                       // curator looks for these options in env
                       env: {
-                        NOTARY_KEY_NAME: notaryKeyName,
-                        NOTARY_TOKEN: notaryToken,
+                        NOTARY_KEY_NAME:
+                          this.serverVersionNotaryKeys[version].notaryKeyName,
+                        NOTARY_TOKEN:
+                          this.serverVersionNotaryKeys[version].notaryToken,
                         BARQUE_API_KEY: process.env.BARQUE_API_KEY,
                         BARQUE_USERNAME: process.env.BARQUE_USERNAME,
                       },
@@ -309,6 +321,8 @@ export class Barque {
         return `${base}/apt/ubuntu/dists/focal/mongodb-${edition}/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
       case 'ubuntu2204':
         return `${base}/apt/ubuntu/dists/jammy/mongodb-${edition}/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
+      case 'ubuntu2404':
+        return `${base}/apt/ubuntu/dists/noble/mongodb-${edition}/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
       case 'debian10':
         return `${base}/apt/debian/dists/buster/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
       case 'debian11':
@@ -416,7 +430,7 @@ export class Barque {
    */
   async extractLatestCurator(dest: string): Promise<any> {
     const response = await fetch(LATEST_CURATOR);
-    if (response.ok) {
+    if (response.ok && response.body) {
       return pipeline(response.body, zlib.createGunzip(), tar.extract(dest));
     }
   }

@@ -35,200 +35,190 @@ interface AsyncFunctionIdentifiers {
   assertNotSyntheticPromise: babel.types.Identifier;
 }
 
+// We mark certain AST nodes as 'already visited' using these symbols.
+function asNodeKey(v: any): keyof babel.types.Node {
+  return v;
+}
+
+const isGeneratedInnerFunction = asNodeKey(Symbol('isGeneratedInnerFunction'));
+const isWrappedForOfLoop = asNodeKey(Symbol('isWrappedForOfLoop'));
+const isGeneratedHelper = asNodeKey(Symbol('isGeneratedHelper'));
+const isOriginalBody = asNodeKey(Symbol('isOriginalBody'));
+const isAlwaysSyncFunction = asNodeKey(Symbol('isAlwaysSyncFunction'));
+const isExpandedTypeof = asNodeKey(Symbol('isExpandedTypeof'));
+// Using this key, we store data on Function nodes that contains the identifiers
+// of helpers which are available inside the function.
+const identifierGroupKey = '@@mongosh.identifierGroup';
+
+// NB: babel.template.expression(`foo`) will defer parsing the argument until runtime
+// babel.template.expression `foo` will parse immediately
+const syntheticPromiseSymbolTemplate = babel.template.statements`
+  const SP_IDENTIFIER = Symbol.for("@@mongosh.syntheticPromise");
+  const SAI_IDENTIFIER = Symbol.for("@@mongosh.syntheticAsyncIterable");
+`;
+
+const markSyntheticPromiseTemplate = babel.template.statement`
+  function MSP_IDENTIFIER(p) {
+    return Object.defineProperty(p, SP_IDENTIFIER, {
+      value: true
+    });
+  }
+`;
+
+const isSyntheticPromiseTemplate = babel.template.statement`
+  function ISP_IDENTIFIER(p) {
+    return p && p[SP_IDENTIFIER];
+  }
+`;
+
+const assertNotSyntheticPromiseTemplate = babel.template.statement`
+  function ANSP_IDENTIFIER(p, s, i = false) {
+    if (p && p[SP_IDENTIFIER]) {
+      throw new CUSTOM_ERROR_BUILDER(
+        'Result of expression "' + s + '" cannot be used in this context',
+        'SyntheticPromiseInAlwaysSyncContext');
+    }
+    if (i && p && p[SAI_IDENTIFIER]) {
+      throw new CUSTOM_ERROR_BUILDER(
+        'Result of expression "' + s + '" cannot be iterated in this context',
+        'SyntheticAsyncIterableInAlwaysSyncContext');
+    }
+    return p;
+  }
+`;
+
+const adaptAsyncIterableToSyncIterableTemplate = babel.template.statement`
+  function AAITSI_IDENTIFIER(original) {
+    if (!original || !original[SAI_IDENTIFIER]) {
+      return { iterable: original, isSyntheticAsyncIterable: false };
+    }
+    const originalIterator = original[Symbol.asyncIterator]();
+    let next;
+    let returned;
+
+    return {
+      isSyntheticAsyncIterable: true,
+      iterable: {
+        [Symbol.iterator]() {
+          return this;
+        },
+        next() {
+          let _next = next;
+          next = undefined;
+          return _next;
+        },
+        return(value) {
+          returned = { value };
+          return {
+            value,
+            done: true
+          }
+        },
+        async expectNext() {
+          next ??= await originalIterator.next();
+        },
+        async syncReturn() {
+          if (returned) {
+            await originalIterator.return(returned.value);
+          }
+        }
+      }
+    }
+  }
+`;
+
+const asyncTryCatchWrapperTemplate = babel.template.expression`
+  async () => {
+    try {
+      ORIGINAL_CODE;
+    } catch (err) {
+      if (FUNCTION_STATE_IDENTIFIER === "sync") {
+        SYNC_RETURN_VALUE_IDENTIFIER = err;
+        FUNCTION_STATE_IDENTIFIER = "threw";
+      } else throw err;
+    } finally {
+      if (FUNCTION_STATE_IDENTIFIER !== "threw") FUNCTION_STATE_IDENTIFIER = "returned";
+    }
+  }
+`;
+
+const expressionHolderVariableTemplate = babel.template.statement`
+  let EXPRESSION_HOLDER_IDENTIFIER;`;
+
+const wrapperFunctionTemplate = babel.template.statements`
+  let FUNCTION_STATE_IDENTIFIER = "sync",
+      SYNC_RETURN_VALUE_IDENTIFIER;
+
+  const ASYNC_RETURN_VALUE_IDENTIFIER = (ASYNC_TRY_CATCH_WRAPPER)();
+
+  if (FUNCTION_STATE_IDENTIFIER === "returned")
+    return SYNC_RETURN_VALUE_IDENTIFIER;
+  else if (FUNCTION_STATE_IDENTIFIER === "threw")
+    throw SYNC_RETURN_VALUE_IDENTIFIER;
+  FUNCTION_STATE_IDENTIFIER = "async";
+  return MSP_IDENTIFIER(ASYNC_RETURN_VALUE_IDENTIFIER);
+`;
+
+const awaitSyntheticPromiseTemplate = babel.template.expression`(
+  ORIGINAL_SOURCE,
+  EXPRESSION_HOLDER = NODE,
+  ISP_IDENTIFIER(EXPRESSION_HOLDER) ? await EXPRESSION_HOLDER : EXPRESSION_HOLDER
+)`;
+
+const rethrowTemplate = babel.template.statement`
+  try {
+    ORIGINAL_CODE;
+  } catch (err) {
+    throw err;
+  }
+`;
+
+const forOfLoopTemplate = babel.template.statement`{
+  const ITERABLE_INFO = AAITSI_IDENTIFIER(ORIGINAL_ITERABLE);
+  const ITERABLE_ISAI = (ITERABLE_INFO).isSyntheticAsyncIterable;
+  const ITERABLE = (ITERABLE_INFO).iterable;
+
+  try {
+    ITERABLE_ISAI && await (ITERABLE).expectNext();
+    for (const ITEM of (ORIGINAL_ITERABLE_SOURCE, ITERABLE)) {
+      ORIGINAL_DECLARATION;
+      try {
+        ORIGINAL_BODY;
+      } finally {
+        ITERABLE_ISAI && await (ITERABLE).expectNext();
+      }
+    }
+  } finally {
+    ITERABLE_ISAI && await (ITERABLE).syncReturn();
+  }
+}`;
+
+// If we encounter an error object, we fix up the error message from something
+// like `("a" , foo(...)(...)) is not a function` to `a is not a function`.
+// For that, we look for a) the U+FEFF markers we use to tag the original source
+// code with, and b) drop everything else in this parenthesis group (this uses
+// the fact that currently, parentheses in error messages are nested at most
+// two levels deep, which makes it something that we can tackle with regexps).
+const demangleErrorTemplate = babel.template.statement`
+  function DE_IDENTIFIER(err) {
+    if (Object.prototype.toString.call(err) === '[object Error]' &&
+        err.message.includes('\\ufeff')) {
+      err.message = err.message.replace(/\\(\\s*"\\ufeff(.+?)\\ufeff"\\s*,(?:[^\\(]|\\([^\)]*\\))*\\)/g, (m,o) => o);
+    }
+    return err;
+  }
+`;
+
+const returnValueWrapperTemplate = babel.template.expression`(
+  SYNC_RETURN_VALUE_IDENTIFIER = NODE,
+  FUNCTION_STATE_IDENTIFIER === 'async' ? SYNC_RETURN_VALUE_IDENTIFIER : null
+)`;
+
 export default ({
   types: t,
 }: {
   types: typeof BabelTypes;
 }): babel.PluginObj<{ file: babel.BabelFile }> => {
-  // We mark certain AST nodes as 'already visited' using these symbols.
-  function asNodeKey(v: any): keyof babel.types.Node {
-    return v;
-  }
-  const isGeneratedInnerFunction = asNodeKey(
-    Symbol('isGeneratedInnerFunction')
-  );
-  const isWrappedForOfLoop = asNodeKey(Symbol('isWrappedForOfLoop'));
-  const isGeneratedHelper = asNodeKey(Symbol('isGeneratedHelper'));
-  const isOriginalBody = asNodeKey(Symbol('isOriginalBody'));
-  const isAlwaysSyncFunction = asNodeKey(Symbol('isAlwaysSyncFunction'));
-  const isExpandedTypeof = asNodeKey(Symbol('isExpandedTypeof'));
-  // Using this key, we store data on Function nodes that contains the identifiers
-  // of helpers which are available inside the function.
-  const identifierGroupKey = '@@mongosh.identifierGroup';
-
-  const syntheticPromiseSymbolTemplate = babel.template.statements(`
-    const SP_IDENTIFIER = Symbol.for("@@mongosh.syntheticPromise");
-    const SAI_IDENTIFIER = Symbol.for("@@mongosh.syntheticAsyncIterable");
-  `);
-
-  const markSyntheticPromiseTemplate = babel.template.statement(`
-    function MSP_IDENTIFIER(p) {
-      return Object.defineProperty(p, SP_IDENTIFIER, {
-        value: true
-      });
-    }
-  `);
-
-  const isSyntheticPromiseTemplate = babel.template.statement(`
-    function ISP_IDENTIFIER(p) {
-      return p && p[SP_IDENTIFIER];
-    }
-  `);
-
-  const assertNotSyntheticPromiseTemplate = babel.template.statement(`
-    function ANSP_IDENTIFIER(p, s, i = false) {
-      if (p && p[SP_IDENTIFIER]) {
-        throw new CUSTOM_ERROR_BUILDER(
-          'Result of expression "' + s + '" cannot be used in this context',
-          'SyntheticPromiseInAlwaysSyncContext');
-      }
-      if (i && p && p[SAI_IDENTIFIER]) {
-        throw new CUSTOM_ERROR_BUILDER(
-          'Result of expression "' + s + '" cannot be iterated in this context',
-          'SyntheticAsyncIterableInAlwaysSyncContext');
-      }
-      return p;
-    }
-  `);
-
-  const adaptAsyncIterableToSyncIterableTemplate = babel.template.statement(`
-    function AAITSI_IDENTIFIER(original) {
-      if (!original || !original[SAI_IDENTIFIER]) {
-        return { iterable: original, isSyntheticAsyncIterable: false };
-      }
-      const originalIterator = original[Symbol.asyncIterator]();
-      let next;
-      let returned;
-
-      return {
-        isSyntheticAsyncIterable: true,
-        iterable: {
-          [Symbol.iterator]() {
-            return this;
-          },
-          next() {
-            let _next = next;
-            next = undefined;
-            return _next;
-          },
-          return(value) {
-            returned = { value };
-            return {
-              value,
-              done: true
-            }
-          },
-          async expectNext() {
-            next ??= await originalIterator.next();
-          },
-          async syncReturn() {
-            if (returned) {
-              await originalIterator.return(returned.value);
-            }
-          }
-        }
-      }
-    }
-  `);
-
-  const asyncTryCatchWrapperTemplate = babel.template.expression(`
-    async () => {
-      try {
-        ORIGINAL_CODE;
-      } catch (err) {
-        if (FUNCTION_STATE_IDENTIFIER === "sync") {
-          SYNC_RETURN_VALUE_IDENTIFIER = err;
-          FUNCTION_STATE_IDENTIFIER = "threw";
-        } else throw err;
-      } finally {
-        if (FUNCTION_STATE_IDENTIFIER !== "threw") FUNCTION_STATE_IDENTIFIER = "returned";
-      }
-    }
-  `);
-
-  const expressionHolderVariableTemplate = babel.template.statement(`
-    let EXPRESSION_HOLDER_IDENTIFIER;`);
-
-  const wrapperFunctionTemplate = babel.template.statements(`
-    let FUNCTION_STATE_IDENTIFIER = "sync",
-        SYNC_RETURN_VALUE_IDENTIFIER;
-
-    const ASYNC_RETURN_VALUE_IDENTIFIER = (ASYNC_TRY_CATCH_WRAPPER)();
-
-    if (FUNCTION_STATE_IDENTIFIER === "returned")
-      return SYNC_RETURN_VALUE_IDENTIFIER;
-    else if (FUNCTION_STATE_IDENTIFIER === "threw")
-      throw SYNC_RETURN_VALUE_IDENTIFIER;
-    FUNCTION_STATE_IDENTIFIER = "async";
-    return MSP_IDENTIFIER(ASYNC_RETURN_VALUE_IDENTIFIER);
-  `);
-
-  const awaitSyntheticPromiseTemplate = babel.template.expression(
-    `(
-    ORIGINAL_SOURCE,
-    EXPRESSION_HOLDER = NODE,
-    ISP_IDENTIFIER(EXPRESSION_HOLDER) ? await EXPRESSION_HOLDER : EXPRESSION_HOLDER
-  )`,
-    {
-      allowAwaitOutsideFunction: true,
-    }
-  );
-
-  const rethrowTemplate = babel.template.statement(`
-    try {
-      ORIGINAL_CODE;
-    } catch (err) {
-      throw err;
-    }
-  `);
-
-  const forOfLoopTemplate = babel.template.statement(`{
-    const ITERABLE_INFO = AAITSI_IDENTIFIER(ORIGINAL_ITERABLE);
-    const ITERABLE_ISAI = (ITERABLE_INFO).isSyntheticAsyncIterable;
-    const ITERABLE = (ITERABLE_INFO).iterable;
-
-    try {
-      ITERABLE_ISAI && await (ITERABLE).expectNext();
-      for (const ITEM of (ORIGINAL_ITERABLE_SOURCE, ITERABLE)) {
-        ORIGINAL_DECLARATION;
-        try {
-          ORIGINAL_BODY;
-        } finally {
-          ITERABLE_ISAI && await (ITERABLE).expectNext();
-        }
-      }
-    } finally {
-      ITERABLE_ISAI && await (ITERABLE).syncReturn();
-    }
-  }`);
-
-  // If we encounter an error object, we fix up the error message from something
-  // like `("a" , foo(...)(...)) is not a function` to `a is not a function`.
-  // For that, we look for a) the U+FEFF markers we use to tag the original source
-  // code with, and b) drop everything else in this parenthesis group (this uses
-  // the fact that currently, parentheses in error messages are nested at most
-  // two levels deep, which makes it something that we can tackle with regexps).
-  const demangleErrorTemplate = babel.template.statement(
-    String.raw`
-    function DE_IDENTIFIER(err) {
-      if (Object.prototype.toString.call(err) === '[object Error]' &&
-          err.message.includes('\ufeff')) {
-        err.message = err.message.replace(/\(\s*"\ufeff(.+?)\ufeff"\s*,(?:[^\(]|\([^\)]*\))*\)/g, '$1');
-      }
-      return err;
-    }
-  `,
-    {
-      placeholderPattern: false,
-      placeholderWhitelist: new Set(['DE_IDENTIFIER']),
-    }
-  );
-
-  const returnValueWrapperTemplate = babel.template.expression(`(
-    SYNC_RETURN_VALUE_IDENTIFIER = NODE,
-    FUNCTION_STATE_IDENTIFIER === 'async' ? SYNC_RETURN_VALUE_IDENTIFIER : null
-  )`);
-
   // Transform expression `foo` into
   // `('\uFEFFfoo\uFEFF', ex = foo, isSyntheticPromise(ex) ? await ex : ex)`
   // The first part of the sequence expression is used to identify this

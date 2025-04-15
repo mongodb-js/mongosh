@@ -1,60 +1,88 @@
 import type { GithubRepo } from '@mongodb-js/devtools-github-repo';
-import { generateUpdatedFormula } from './generate-formula';
-import { updateHomebrewFork } from './update-homebrew-fork';
-import { httpsSha256 } from './utils';
+import { generateUpdatedFormula as generateUpdatedFormulaFn } from './generate-formula';
+import { updateHomebrewFork as updateHomebrewForkFn } from './update-homebrew-fork';
+import { npmPackageSha256 as npmPackageSha256Fn } from './utils';
 
-export async function publishToHomebrew(
-  homebrewCore: GithubRepo,
-  homebrewCoreFork: GithubRepo,
-  packageVersion: string,
-  githubReleaseLink: string,
-  isDryRun: boolean,
-  httpsSha256Fn = httpsSha256,
-  generateFormulaFn = generateUpdatedFormula,
-  updateHomebrewForkFn = updateHomebrewFork
-): Promise<void> {
-  const cliReplPackageUrl = `https://registry.npmjs.org/@mongosh/cli-repl/-/cli-repl-${packageVersion}.tgz`;
-  const packageSha = isDryRun
-    ? `dryRun-fakesha256-${Date.now()}`
-    : await httpsSha256Fn(cliReplPackageUrl);
+export type HomebrewPublisherConfig = {
+  homebrewCore: GithubRepo;
+  homebrewCoreFork: GithubRepo;
+  packageVersion: string;
+  githubReleaseLink: string;
+  isDryRun?: boolean;
+};
 
-  const homebrewFormula = await generateFormulaFn(
-    { version: packageVersion, sha: packageSha },
-    homebrewCore,
-    isDryRun
-  );
-  if (!homebrewFormula) {
-    console.warn('There are no changes to the homebrew formula');
-    return;
+export class HomebrewPublisher {
+  readonly npmPackageSha256: typeof npmPackageSha256Fn;
+  readonly generateFormula: typeof generateUpdatedFormulaFn;
+  readonly updateHomebrewFork: typeof updateHomebrewForkFn;
+
+  constructor(
+    public config: HomebrewPublisherConfig,
+    {
+      npmPackageSha256 = npmPackageSha256Fn,
+      generateFormula = generateUpdatedFormulaFn,
+      updateHomebrewFork = updateHomebrewForkFn,
+    } = {}
+  ) {
+    this.npmPackageSha256 = npmPackageSha256;
+    this.generateFormula = generateFormula;
+    this.updateHomebrewFork = updateHomebrewFork;
   }
 
-  const forkBranch = await updateHomebrewForkFn({
-    packageVersion,
-    packageSha,
-    homebrewFormula,
-    homebrewCore,
-    homebrewCoreFork,
-    isDryRun,
-  });
-  if (!forkBranch) {
-    console.warn('There are no changes to the homebrew formula');
-    return;
-  }
+  async publish(): Promise<void> {
+    const {
+      isDryRun,
+      homebrewCore,
+      packageVersion,
+      homebrewCoreFork,
+      githubReleaseLink,
+    } = this.config;
 
-  const description = `This PR was created automatically and bumps \`mongosh\` to the latest published version \`${packageVersion}\`.\n\nFor additional details see ${githubReleaseLink}.`;
+    const cliReplPackageUrl = `https://registry.npmjs.org/@mongosh/cli-repl/${packageVersion}`;
+    const packageSha = isDryRun
+      ? `dryRun-fakesha256-${Date.now()}`
+      : await this.npmPackageSha256(cliReplPackageUrl);
 
-  if (isDryRun) {
-    await homebrewCoreFork.deleteBranch(forkBranch);
-    console.warn('Deleted branch instead of creating homebrew PR');
-    return;
+    const homebrewFormula = await this.generateFormula(
+      { version: packageVersion, sha: packageSha },
+      homebrewCore,
+      isDryRun || false
+    );
+    if (!homebrewFormula) {
+      console.warn('There are no changes to the homebrew formula');
+      return;
+    }
+
+    const forkBranch = await this.updateHomebrewFork({
+      packageVersion,
+      packageSha,
+      homebrewFormula,
+      homebrewCore,
+      homebrewCoreFork,
+      isDryRun: isDryRun || false,
+    });
+    if (!forkBranch) {
+      console.warn('There are no changes to the homebrew formula');
+      return;
+    }
+
+    const description = `This PR was created automatically and bumps \`mongosh\` to the latest published version \`${packageVersion}\`.\n\nFor additional details see ${githubReleaseLink}.`;
+
+    if (isDryRun) {
+      await homebrewCoreFork.deleteBranch(forkBranch);
+      console.warn('Deleted branch instead of creating homebrew PR');
+      return;
+    }
+    const pr = await homebrewCore.createPullRequest(
+      `mongosh ${packageVersion}`,
+      description,
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      `${homebrewCoreFork.repo.owner}:${forkBranch}`,
+      'master'
+    );
+    console.info(
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      `Created PR #${pr.prNumber} in ${homebrewCore.repo.owner}/${homebrewCore.repo.repo}: ${pr.url}`
+    );
   }
-  const pr = await homebrewCore.createPullRequest(
-    `mongosh ${packageVersion}`,
-    description,
-    `${homebrewCoreFork.repo.owner}:${forkBranch}`,
-    'master'
-  );
-  console.info(
-    `Created PR #${pr.prNumber} in ${homebrewCore.repo.owner}/${homebrewCore.repo.repo}: ${pr.url}`
-  );
 }

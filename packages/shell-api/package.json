@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/shell-api",
-  "version": "0.0.0-dev.0",
+  "version": "3.10.0",
   "description": "MongoDB Shell API Classes Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -21,7 +21,7 @@
     "depcheck": "depcheck",
     "report-missing-help": "ts-node bin/report-missing-help.ts",
     "report-supported-api": "ts-node bin/report-supported-api.ts",
-    "test": "cross-env TS_NODE_PROJECT=../../configs/tsconfig-mongosh/tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./src/**/*.spec.ts\"",
+    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register --reporter \"../../configs/mocha-config-mongosh/reporter.ts\" \"./src/**/*.spec.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
@@ -41,23 +41,23 @@
     "build"
   ],
   "dependencies": {
-    "@mongosh/arg-parser": "0.0.0-dev.0",
-    "@mongosh/errors": "0.0.0-dev.0",
-    "@mongosh/history": "0.0.0-dev.0",
-    "@mongosh/i18n": "0.0.0-dev.0",
-    "@mongosh/service-provider-core": "0.0.0-dev.0",
-    "mongodb-redact": "^0.2.2"
+    "@mongosh/arg-parser": "3.10.0",
+    "@mongosh/errors": "2.4.0",
+    "@mongosh/history": "2.4.6",
+    "@mongosh/i18n": "^2.13.0",
+    "@mongosh/service-provider-core": "3.3.0",
+    "mongodb-redact": "^1.1.5"
   },
   "devDependencies": {
     "@microsoft/api-extractor": "^7.39.3",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "@mongosh/types": "0.0.0-dev.0",
-    "bson": "^6.2.0",
-    "depcheck": "^1.4.3",
+    "@mongosh/types": "3.6.0",
+    "bson": "^6.10.3",
+    "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
-    "mongodb": "^6.3.0",
+    "mongodb": "^6.14.2",
     "prettier": "^2.8.8",
     "semver": "^7.5.3"
   }

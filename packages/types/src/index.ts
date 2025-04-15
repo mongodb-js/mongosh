@@ -1,4 +1,5 @@
 import type { ConnectEventMap } from '@mongodb-js/devtools-connect';
+import path from 'path';
 
 export interface ApiEventArguments {
   pipeline?: any[];
@@ -43,23 +44,28 @@ export interface ShowEvent {
 }
 
 export interface ConnectEvent {
-  is_atlas: boolean;
-  is_localhost: boolean;
-  is_do: boolean;
-  server_version: string;
+  is_atlas?: boolean;
+  resolved_hostname?: string;
+  is_localhost?: boolean;
+  is_do_url?: boolean;
+  server_version?: string;
   server_os?: string;
   server_arch?: string;
-  is_enterprise: boolean;
+  is_enterprise?: boolean;
   auth_type?: string;
-  is_data_federation: boolean;
+  is_data_federation?: boolean;
+  is_stream?: boolean;
   dl_version?: string;
-  is_genuine: boolean;
-  non_genuine_server_name: string;
+  atlas_version?: string;
+  is_genuine?: boolean;
+  non_genuine_server_name?: string;
   api_version?: string;
   api_strict?: boolean;
   api_deprecation_errors?: boolean;
-  node_version: string;
-  uri: string;
+  node_version?: string;
+  uri?: string;
+  is_local_atlas?: boolean;
+  is_atlas_url?: boolean;
 }
 
 export interface ScriptLoadFileEvent {
@@ -168,17 +174,28 @@ export interface EditorReadVscodeExtensionsFailedEvent {
 export interface FetchingUpdateMetadataEvent {
   updateURL: string;
   localFilePath: string;
+  currentVersion: string;
 }
 
 export interface FetchingUpdateMetadataCompleteEvent {
   latest: string | null;
+  currentVersion: string;
+  hasGreetingCTA: boolean;
 }
 
 export interface SessionStartedEvent {
   isInteractive: boolean;
+  jsContext: string;
   timings: {
     [category: string]: number;
   };
+}
+
+export interface WriteCustomLogEvent {
+  method: 'info' | 'error' | 'warn' | 'fatal' | 'debug';
+  message: string;
+  attr?: unknown;
+  level?: 1 | 2 | 3 | 4 | 5;
 }
 
 export interface MongoshBusEventsMap extends ConnectEventMap {
@@ -261,6 +278,11 @@ export interface MongoshBusEventsMap extends ConnectEventMap {
   'mongosh:start-loading-cli-scripts': (
     event: StartLoadingCliScriptsEvent
   ) => void;
+  /**
+   * Signals to start writing log to the disc after MongoLogManager is initialized.
+   */
+  'mongosh:write-custom-log': (ev: WriteCustomLogEvent) => void;
+
   /**
    * Signals the successful startup of the mongosh REPL after initial files and configuration
    * have been loaded.
@@ -375,6 +397,8 @@ export interface MongoshBusEventsMap extends ConnectEventMap {
   'mongosh:fetching-update-metadata-complete': (
     ev: FetchingUpdateMetadataCompleteEvent
   ) => void;
+  /** Signals that logging has been initialized. */
+  'mongosh:log-initialized': () => void;
 }
 
 export interface MongoshBus {
@@ -400,6 +424,7 @@ export class ShellUserConfig {
   maxTimeMS: number | null = null;
   enableTelemetry = false;
   editor: string | null = null;
+  logLocation: string | undefined;
 }
 
 export class ShellUserConfigValidator {
@@ -486,6 +511,12 @@ export class CliUserConfig extends SnippetShellUserConfig {
   oidcTrustedEndpoints: undefined | string[] = undefined;
   browser: undefined | false | string = undefined;
   updateURL = 'https://downloads.mongodb.com/compass/mongosh.json';
+  disableLogging = false;
+  logLocation: string | undefined = undefined;
+  logRetentionDays = 30;
+  logMaxFileCount = 100;
+  logCompressionEnabled = false;
+  logRetentionGB: number | undefined = undefined;
 }
 
 export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
@@ -508,12 +539,21 @@ export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
         return null;
       case 'inspectDepth':
       case 'historyLength':
+      case 'logRetentionDays':
+      case 'logMaxFileCount':
         if (typeof value !== 'number' || value < 0) {
           return `${key} must be a positive integer`;
         }
         return null;
+      case 'logRetentionGB':
+        if (value !== undefined && (typeof value !== 'number' || value < 0)) {
+          return `${key} must be a positive number or undefined`;
+        }
+        return null;
+      case 'disableLogging':
       case 'forceDisableTelemetry':
       case 'showStackTraces':
+      case 'logCompressionEnabled':
         if (typeof value !== 'boolean') {
           return `${key} must be a boolean`;
         }
@@ -557,6 +597,14 @@ export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
           return `${key} must be a valid URL or empty`;
         }
         return null;
+      case 'logLocation':
+        if (
+          value !== undefined &&
+          (typeof value !== 'string' || !path.isAbsolute(value))
+        ) {
+          return `${key} must be a valid absolute path or undefined`;
+        }
+        return null;
       default:
         return super.validate(
           key as keyof SnippetShellUserConfig,
@@ -567,12 +615,16 @@ export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
 }
 
 export interface ConfigProvider<T> {
-  getConfig<K extends keyof T>(key: K): Promise<T[K] | undefined> | undefined;
+  getConfig<K extends keyof T>(
+    key: K
+  ): Promise<T[K] | undefined> | T[K] | undefined;
   setConfig<K extends keyof T>(
     key: K,
     value: T[K]
-  ): Promise<'success' | 'ignored'>;
-  resetConfig<K extends keyof T>(key: K): Promise<'success' | 'ignored'>;
+  ): Promise<'success' | 'ignored'> | 'success' | 'ignored';
+  resetConfig<K extends keyof T>(
+    key: K
+  ): Promise<'success' | 'ignored'> | 'success' | 'ignored';
   validateConfig<K extends keyof T>(
     key: K,
     value: T[K]

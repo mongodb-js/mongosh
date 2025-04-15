@@ -381,6 +381,15 @@ describe('Shell BSON', function () {
       }
       expect.fail('expected error');
     });
+    it('passes through non-string args to `new Date()`', function () {
+      expect(shellBson.ISODate()).to.be.an.instanceOf(Date);
+      expect(shellBson.ISODate(0).getTime()).to.equal(0);
+      expect(shellBson.ISODate(null).getTime()).to.equal(0);
+      expect(shellBson.ISODate(1234).getTime()).to.equal(1234);
+      expect(shellBson.ISODate(shellBson.ISODate(1234)).getTime()).to.equal(
+        1234
+      );
+    });
   });
   describe('BinData', function () {
     it('expects strings as base 64', function () {
@@ -740,7 +749,7 @@ describe('Shell BSON', function () {
   });
 
   describe('BSON constructor properties', function () {
-    for (const key of Object.keys(bson)) {
+    for (const key of Object.keys(bson) as (keyof typeof bson)[]) {
       it(`matches original BSON constructor properties (${key})`, function () {
         if (!(key in shellBson) || bson[key] === shellBson[key]) {
           return;
@@ -759,12 +768,13 @@ describe('Shell BSON', function () {
         delete bsonProperties.prototype?.writable;
 
         // Non-public methods:
-        delete bsonProperties.fromExtendedJSON; // Long.fromExtendedJSON was not made public on purpose
+        delete (bsonProperties as any).fromExtendedJSON; // Long.fromExtendedJSON was not made public on purpose
         delete bsonProperties.BSON_BINARY_SUBTYPE_DEFAULT; // private
         delete bsonProperties.createPk; // @internal
         delete bsonProperties.getInc; // private
         delete bsonProperties.is; // private
         delete bsonProperties._fromString; // private
+        delete bsonProperties.validateHexString; // private
 
         try {
           expect(shellProperties).to.deep.equal(bsonProperties);

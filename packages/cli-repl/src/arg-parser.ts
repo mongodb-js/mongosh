@@ -31,6 +31,7 @@ const OPTIONS = {
     'gssapiServiceName',
     'sspiHostnameCanonicalization',
     'sspiRealmOverride',
+    'jsContext',
     'host',
     'keyVaultNamespace',
     'kmsURL',
@@ -57,11 +58,15 @@ const OPTIONS = {
     'apiDeprecationErrors',
     'apiStrict',
     'buildInfo',
+    'exposeAsyncRewriter',
     'help',
     'ipv6',
     'nodb',
     'norc',
     'oidcTrustedEndpoint',
+    'oidcIdTokenAsAccessToken',
+    'oidcNoNonce',
+    'perfTests',
     'quiet',
     'retryWrites',
     'shell',
@@ -87,7 +92,9 @@ const OPTIONS = {
     'build-info': 'buildInfo',
     json: 'json', // List explicitly here since it can be a boolean or a string
     browser: 'browser', // ditto
+    oidcDumpTokens: 'oidcDumpTokens', // ditto
     oidcRedirectUrl: 'oidcRedirectUri', // I'd get this wrong about 50% of the time
+    oidcIDTokenAsAccessToken: 'oidcIdTokenAsAccessToken', // ditto
   },
   configuration: {
     'camel-case-expansion': false,
@@ -154,6 +161,7 @@ function isConnectionSpecifier(arg?: string): boolean {
  */
 export function parseCliArgs(args: string[]): CliOptions & {
   smokeTests: boolean;
+  perfTests: boolean;
   buildInfo: boolean;
   _argParseWarnings: string[];
 } {
@@ -162,6 +170,7 @@ export function parseCliArgs(args: string[]): CliOptions & {
 
   const parsed = parser(programArgs, OPTIONS) as unknown as CliOptions & {
     smokeTests: boolean;
+    perfTests: boolean;
     buildInfo: boolean;
     _argParseWarnings: string[];
     _?: string[];
@@ -204,6 +213,17 @@ export function verifyCliArguments(args: any /* CliOptions */): string[] {
   if (![undefined, true, false, 'relaxed', 'canonical'].includes(args.json)) {
     throw new MongoshUnimplementedError(
       '--json can only have the values relaxed or canonical',
+      CommonErrors.InvalidArgument
+    );
+  }
+
+  if (
+    ![undefined, true, false, 'redacted', 'include-secrets'].includes(
+      args.oidcDumpTokens
+    )
+  ) {
+    throw new MongoshUnimplementedError(
+      '--oidcDumpTokens can only have the values redacted or include-secrets',
       CommonErrors.InvalidArgument
     );
   }

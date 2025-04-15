@@ -31,6 +31,7 @@ import type {
   FindOneAndDeleteOptions,
   FindOneAndReplaceOptions,
   FindOneAndUpdateOptions,
+  FindOptions,
 } from '@mongosh/service-provider-core';
 
 @shellApiClassDefault
@@ -97,11 +98,12 @@ export default class Explainable extends ShellApiWithMongoClass {
   @returnsPromise
   async find(
     query?: Document,
-    projection?: Document
+    projection?: Document,
+    options: FindOptions = {}
   ): Promise<ExplainableCursor> {
     this._emitExplainableApiCall('find', { query, projection });
 
-    const cursor = await this._collection.find(query, projection);
+    const cursor = await this._collection.find(query, projection, options);
     return new ExplainableCursor(this._mongo, cursor, this._verbosity);
   }
 

@@ -1,20 +1,21 @@
 import { expect } from 'chai';
+import type { Db } from 'mongodb';
 import { MongoClient } from 'mongodb';
 import { bson } from '@mongosh/service-provider-core';
-import { TestShell } from './test-shell';
+import type { TestShell } from './test-shell';
 import { startSharedTestServer } from '../../../testing/integration-testing-hooks';
 
 describe('BSON e2e', function () {
   const testServer = startSharedTestServer();
-  let db;
-  let client;
+  let db: Db;
+  let client: MongoClient;
   let shell: TestShell;
-  let dbName;
+  let dbName: string;
 
   beforeEach(async function () {
     const connectionString = await testServer.connectionString();
     dbName = `test-${Date.now()}`;
-    shell = TestShell.start({ args: [connectionString] });
+    shell = this.startTestShell({ args: [connectionString] });
 
     client = await MongoClient.connect(connectionString, {});
 
@@ -29,7 +30,7 @@ describe('BSON e2e', function () {
 
     await client.close();
   });
-  afterEach(TestShell.cleanup);
+
   describe('printed BSON', function () {
     const outputDoc = {
       ObjectId: "ObjectId('5f16b8bebe434dc98cdfc9ca')",

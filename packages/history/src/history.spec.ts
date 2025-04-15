@@ -1,6 +1,12 @@
 import { changeHistory } from './history';
 import { expect } from 'chai';
 
+/**
+ * @securityTest Shell History Redaction Tests
+ *
+ * The MongoDB Shell redacts items from the shell history file when it detects
+ * potentially sensitive information in them. Our tests verify this behavior.
+ */
 describe('changeHistory', function () {
   const history = ['db.shipwrecks.findOne()', 'use ships'];
 

@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import Session from './session';
 import type {
+  Document,
   ServiceProvider,
   ClientSession as ServiceProviderSession,
 } from '@mongosh/service-provider-core';
@@ -17,13 +18,13 @@ import {
   ALL_SERVER_VERSIONS,
   ALL_TOPOLOGIES,
 } from './enums';
-import { CliServiceProvider } from '../../service-provider-server';
+import { NodeDriverServiceProvider } from '../../service-provider-node-driver';
 import {
   startTestCluster,
   skipIfServerVersion,
   skipIfApiStrict,
 } from '../../../testing/integration-testing-hooks';
-import { ensureMaster, ensureSessionExists } from '../../../testing/helpers';
+import { ensureMaster, ensureSessionExists } from '../test/helpers';
 import Database from './database';
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import { EventEmitter } from 'events';
@@ -42,7 +43,7 @@ describe('Session', function () {
       expect(signatures.Session.type).to.equal('Session');
     });
     it('map signature', function () {
-      expect(signatures.Session.attributes.endSession).to.deep.equal({
+      expect(signatures.Session.attributes?.endSession).to.deep.equal({
         type: 'function',
         returnsPromise: true,
         deprecated: false,
@@ -60,7 +61,7 @@ describe('Session', function () {
   describe('instance', function () {
     let serviceProviderSession: StubbedInstance<ServiceProviderSession>;
     let mongo: Mongo;
-    let options;
+    let options: Document;
     let session: Session;
     let instanceState: ShellInstanceState;
     let serviceProvider: StubbedInstance<ServiceProvider>;
@@ -177,7 +178,7 @@ describe('Session', function () {
   });
   describe('integration', function () {
     const [srv0] = startTestCluster('session', { topology: 'replset' });
-    let serviceProvider: CliServiceProvider;
+    let serviceProvider: NodeDriverServiceProvider;
     let instanceState: ShellInstanceState;
     let mongo: Mongo;
     let session: Session;
@@ -193,7 +194,7 @@ describe('Session', function () {
 
     beforeEach(async function () {
       databaseName = `test-${Date.now()}`;
-      serviceProvider = await CliServiceProvider.connect(
+      serviceProvider = await NodeDriverServiceProvider.connect(
         await srv0.connectionString(),
         dummyOptions,
         {},
@@ -231,7 +232,7 @@ describe('Session', function () {
         await ensureSessionExists(
           mongo,
           1000,
-          JSON.stringify(session.id.id.toUUID())
+          JSON.stringify(session.id?.id.toUUID())
         );
         expect(session.hasEnded()).to.be.false;
         await session.endSession();
@@ -258,7 +259,7 @@ describe('Session', function () {
           await ensureSessionExists(
             mongo,
             1000,
-            JSON.stringify(s.id.id.toUUID())
+            JSON.stringify(s.id?.id.toUUID())
           );
         }
         for (const s of sessions) {
@@ -346,7 +347,7 @@ describe('Session', function () {
         const testColl = mongo.getDB(databaseName).getCollection('coll');
         await testColl.drop();
         await testColl.insertOne(doc);
-        expect((await testColl.findOne({ value: 'test' })).count).to.equal(0);
+        expect((await testColl.findOne({ value: 'test' }))?.count).to.equal(0);
         session = mongo.startSession();
         session.startTransaction();
         const sessionColl = session
@@ -360,16 +361,16 @@ describe('Session', function () {
             )
           ).acknowledged
         ).to.be.true;
-        expect((await testColl.findOne({ value: 'test' })).count).to.equal(0);
+        expect((await testColl.findOne({ value: 'test' }))?.count).to.equal(0);
         await session.commitTransaction();
-        expect((await testColl.findOne({ value: 'test' })).count).to.equal(1);
+        expect((await testColl.findOne({ value: 'test' }))?.count).to.equal(1);
       });
       it('aborts a transaction', async function () {
         const doc = { value: 'test', count: 0 };
         const testColl = mongo.getDB(databaseName).getCollection('coll');
         await testColl.drop();
         await testColl.insertOne(doc);
-        expect((await testColl.findOne({ value: 'test' })).count).to.equal(0);
+        expect((await testColl.findOne({ value: 'test' }))?.count).to.equal(0);
         session = mongo.startSession();
         session.startTransaction();
         const sessionColl = session
@@ -383,16 +384,16 @@ describe('Session', function () {
             )
           ).acknowledged
         ).to.be.true;
-        expect((await testColl.findOne({ value: 'test' })).count).to.equal(0);
+        expect((await testColl.findOne({ value: 'test' }))?.count).to.equal(0);
         await session.abortTransaction();
-        expect((await testColl.findOne({ value: 'test' })).count).to.equal(0);
+        expect((await testColl.findOne({ value: 'test' }))?.count).to.equal(0);
       });
       it('can run withTransaction in the success case', async function () {
         const doc = { value: 'test', count: 0 };
         const testColl = mongo.getDB(databaseName).getCollection('coll');
         await testColl.drop();
         await testColl.insertOne(doc);
-        expect((await testColl.findOne({ value: 'test' })).count).to.equal(0);
+        expect((await testColl.findOne({ value: 'test' }))?.count).to.equal(0);
         session = mongo.startSession();
         await session.withTransaction(async () => {
           const sessionColl = session
@@ -406,16 +407,18 @@ describe('Session', function () {
               )
             ).acknowledged
           ).to.be.true;
-          expect((await testColl.findOne({ value: 'test' })).count).to.equal(0);
+          expect((await testColl.findOne({ value: 'test' }))?.count).to.equal(
+            0
+          );
         });
-        expect((await testColl.findOne({ value: 'test' })).count).to.equal(1);
+        expect((await testColl.findOne({ value: 'test' }))?.count).to.equal(1);
       });
       it('can run withTransaction in the failure case', async function () {
         const doc = { value: 'test', count: 0 };
         const testColl = mongo.getDB(databaseName).getCollection('coll');
         await testColl.drop();
         await testColl.insertOne(doc);
-        expect((await testColl.findOne({ value: 'test' })).count).to.equal(0);
+        expect((await testColl.findOne({ value: 'test' }))?.count).to.equal(0);
         session = mongo.startSession();
         const { err } = await session
           .withTransaction(async () => {
@@ -430,14 +433,14 @@ describe('Session', function () {
                 )
               ).acknowledged
             ).to.be.true;
-            expect((await testColl.findOne({ value: 'test' })).count).to.equal(
+            expect((await testColl.findOne({ value: 'test' }))?.count).to.equal(
               0
             );
             throw new Error('fails');
           })
           .catch((err) => ({ err }));
         expect(err.message).to.equal('fails');
-        expect((await testColl.findOne({ value: 'test' })).count).to.equal(0);
+        expect((await testColl.findOne({ value: 'test' }))?.count).to.equal(0);
       });
     });
     describe('after resetting connection will error with expired session', function () {
@@ -451,7 +454,7 @@ describe('Session', function () {
             .getCollection('coll')
             .insertOne({});
         } catch (e: any) {
-          return expect(e.message).to.include('expired');
+          expect(e.message).to.include('expired');
         }
       });
       it('authentication', async function () {
@@ -467,7 +470,7 @@ describe('Session', function () {
             .insertOne({});
         } catch (e: any) {
           await mongo.getDB(databaseName).logout();
-          return expect(e.message).to.include('expired');
+          expect(e.message).to.include('expired');
         }
       });
     });

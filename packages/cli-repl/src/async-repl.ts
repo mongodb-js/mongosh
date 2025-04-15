@@ -5,6 +5,7 @@ import type { ReadLineOptions } from 'readline';
 import type { ReplOptions, REPLServer } from 'repl';
 import type { start as originalStart } from 'repl';
 import { promisify } from 'util';
+import type { KeypressKey } from './repl-paste-support';
 
 // Utility, inverse of Readonly<T>
 type Mutable<T> = {
@@ -75,13 +76,15 @@ function getPrompt(repl: any): string {
 export function start(opts: AsyncREPLOptions): REPLServer {
   // 'repl' is not supported in startup snapshots yet.
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { Recoverable, start: originalStart } = require('repl');
+  const { Recoverable, start: originalStart } =
+    // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+    require('repl') as typeof import('repl');
   const { asyncEval, wrapCallbackError = (err) => err, onAsyncSigint } = opts;
   if (onAsyncSigint) {
     (opts as ReplOptions).breakEvalOnSigint = true;
   }
 
-  const repl = (opts.start ?? originalStart)(opts);
+  const repl: REPLServer = (opts.start ?? originalStart)(opts);
   const originalEval = promisify(
     wrapPauseInput(repl.input, wrapNoSyncDomainError(repl.eval.bind(repl)))
     // string, Context, string is not string, any, string
@@ -96,12 +99,28 @@ export function start(opts: AsyncREPLOptions): REPLServer {
     return wasInRawMode;
   };
 
+  // TODO(MONGOSH-1911): Upstream this feature into Node.js core.
+  let isPasting = false;
+  repl.input.on('keypress', (s: string, key: KeypressKey) => {
+    if (key.name === 'paste-start') {
+      isPasting = true;
+    } else if (key.name === 'paste-end') {
+      isPasting = false;
+    }
+  });
+
   (repl as Mutable<typeof repl>).eval = (
     input: string,
     context: any,
     filename: string,
     callback: (err: Error | null, result?: any) => void
   ): void => {
+    if (isPasting) {
+      return callback(
+        new Recoverable(new Error('recoverable because pasting in progress'))
+      );
+    }
+
     async function _eval() {
       let previouslyInRawMode;
 

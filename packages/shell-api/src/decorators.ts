@@ -398,11 +398,11 @@ interface Signatures {
 // object instead of a global list, or even more radical changes
 // such as removing the concept of signatures altogether.
 const signaturesGlobalIdentifier = '@@@mdb.signatures@@@';
-if (!(global as any)[signaturesGlobalIdentifier]) {
-  (global as any)[signaturesGlobalIdentifier] = {};
+if (!(globalThis as any)[signaturesGlobalIdentifier]) {
+  (globalThis as any)[signaturesGlobalIdentifier] = {};
 }
 
-const signatures: Signatures = (global as any)[signaturesGlobalIdentifier];
+const signatures: Signatures = (globalThis as any)[signaturesGlobalIdentifier];
 signatures.Document = { type: 'Document', attributes: {} };
 export { signatures };
 
@@ -475,14 +475,22 @@ function shellApiClassGeneric<T extends { prototype: any }>(
       constructor.prototype,
       propertyName
     );
+
+    if (toIgnore.includes(propertyName) || propertyName.startsWith('_')) {
+      continue;
+    }
+
     const isMethod =
       descriptor?.value && typeof descriptor.value === 'function';
-    if (
-      !isMethod ||
-      toIgnore.includes(propertyName) ||
-      propertyName.startsWith('_')
-    )
+    if (!isMethod) {
+      const attributeHelpKeyPrefix = `${classHelpKeyPrefix}.attributes.${propertyName}`;
+      classHelp.attr.push({
+        name: propertyName,
+        description: `${attributeHelpKeyPrefix}.description`,
+      });
       continue;
+    }
+
     let method: any = (descriptor as any).value;
 
     if ((constructor as any)[addSourceToResultsSymbol]) {

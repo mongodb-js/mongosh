@@ -2,9 +2,11 @@ import chai, { expect } from 'chai';
 import sinon from 'sinon';
 import type { Config } from './config';
 import { ALL_PACKAGE_VARIANTS } from './config';
-import type { uploadArtifactToDownloadCenter as uploadArtifactToDownloadCenterFn } from './download-center';
+import type {
+  uploadArtifactToDownloadCenter as uploadArtifactToDownloadCenterFn,
+  uploadArtifactToDownloadCenterNew as uploadArtifactToDownloadCenterFnNew,
+} from './download-center';
 import type { downloadArtifactFromEvergreen as downloadArtifactFromEvergreenFn } from './evergreen';
-import type { notarizeArtifact as notarizeArtifactFn } from './packaging';
 import type { generateChangelog as generateChangelogFn } from './git';
 import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import {
@@ -12,6 +14,7 @@ import {
   runDraft,
 } from './run-draft';
 import { dummyConfig } from '../test/helpers';
+import { PackageBumper } from './npm-packages';
 
 chai.use(require('sinon-chai'));
 
@@ -26,20 +29,21 @@ describe('draft', function () {
   let config: Config;
   let githubRepo: GithubRepo;
   let uploadArtifactToDownloadCenter: typeof uploadArtifactToDownloadCenterFn;
+  let uploadArtifactToDownloadCenterNew: typeof uploadArtifactToDownloadCenterFnNew;
   let downloadArtifactFromEvergreen: typeof downloadArtifactFromEvergreenFn;
-  let notarizeArtifact: typeof notarizeArtifactFn;
 
   beforeEach(function () {
     config = { ...dummyConfig };
 
     uploadArtifactToDownloadCenter = sinon.spy();
+    uploadArtifactToDownloadCenterNew = sinon.spy();
     downloadArtifactFromEvergreen = sinon.spy(() =>
       Promise.resolve('filename')
     );
-    notarizeArtifact = sinon.spy();
   });
 
   describe('runDraft', function () {
+    let packageBumper: PackageBumper;
     let ensureGithubReleaseExistsAndUpdateChangelog: typeof ensureGithubReleaseExistsAndUpdateChangelogFn;
 
     beforeEach(function () {
@@ -50,6 +54,12 @@ describe('draft', function () {
       let uploadReleaseAsset: sinon.SinonStub;
 
       beforeEach(async function () {
+        packageBumper = new PackageBumper({
+          spawnSync: sinon.stub().resolves(),
+        });
+        sinon.stub(packageBumper, 'bumpAuxiliaryPackages').resolves();
+        sinon.stub(packageBumper, 'bumpMongoshReleasePackages').resolves();
+
         uploadReleaseAsset = sinon.stub();
         githubRepo = createStubRepo({
           uploadReleaseAsset,
@@ -59,10 +69,11 @@ describe('draft', function () {
         await runDraft(
           config,
           githubRepo,
+          packageBumper,
           uploadArtifactToDownloadCenter,
+          uploadArtifactToDownloadCenterNew,
           downloadArtifactFromEvergreen,
-          ensureGithubReleaseExistsAndUpdateChangelog,
-          notarizeArtifact
+          ensureGithubReleaseExistsAndUpdateChangelog
         );
       });
 
@@ -78,25 +89,19 @@ describe('draft', function () {
 
       it('downloads existing artifacts from evergreen', function () {
         expect(downloadArtifactFromEvergreen).to.have.been.callCount(
-          ALL_PACKAGE_VARIANTS.length
-        );
-      });
-
-      it('asks the notary service to sign files', function () {
-        expect(notarizeArtifact).to.have.been.callCount(
-          ALL_PACKAGE_VARIANTS.length
+          ALL_PACKAGE_VARIANTS.length * 2 // artifacts + signatures
         );
       });
 
       it('uploads artifacts to download center', function () {
         expect(uploadArtifactToDownloadCenter).to.have.been.callCount(
-          ALL_PACKAGE_VARIANTS.length
+          ALL_PACKAGE_VARIANTS.length * 2
         );
       });
 
       it('uploads the artifacts to the github release', function () {
         expect(uploadReleaseAsset).to.have.been.callCount(
-          ALL_PACKAGE_VARIANTS.length
+          ALL_PACKAGE_VARIANTS.length * 2
         );
       });
     });
@@ -110,10 +115,11 @@ describe('draft', function () {
       await runDraft(
         config,
         githubRepo,
+        packageBumper,
         uploadArtifactToDownloadCenter,
+        uploadArtifactToDownloadCenterNew,
         downloadArtifactFromEvergreen,
-        ensureGithubReleaseExistsAndUpdateChangelog,
-        notarizeArtifact
+        ensureGithubReleaseExistsAndUpdateChangelog
       );
       expect(ensureGithubReleaseExistsAndUpdateChangelog).to.not.have.been
         .called;
@@ -134,10 +140,11 @@ describe('draft', function () {
         await runDraft(
           config,
           githubRepo,
+          packageBumper,
           uploadArtifactToDownloadCenter,
+          uploadArtifactToDownloadCenterNew,
           downloadArtifactFromEvergreen,
-          ensureGithubReleaseExistsAndUpdateChangelog,
-          notarizeArtifact
+          ensureGithubReleaseExistsAndUpdateChangelog
         );
       } catch (e: any) {
         expect(e.message).to.contain('Missing package information from config');
@@ -146,7 +153,6 @@ describe('draft', function () {
         expect(downloadArtifactFromEvergreen).to.not.have.been.called;
         expect(uploadArtifactToDownloadCenter).to.not.have.been.called;
         expect(uploadReleaseAsset).to.not.have.been.called;
-        expect(notarizeArtifact).to.not.have.been.called;
         return;
       }
       expect.fail('Expected error');

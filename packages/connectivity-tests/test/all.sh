@@ -17,7 +17,7 @@ else
   export MONGOSH="${MONGOSH_ROOT_DIR}/${TEST_MONGOSH_EXECUTABLE}"
 fi
 
-git clone git@github.com:mongodb-js/devtools-docker-test-envs.git test-envs
+git clone https://github.com/mongodb-js/devtools-docker-test-envs.git test-envs
 cd test-envs
 
 git checkout ca4bacd23e6f7ea07618c303b20556e3e4c9c2e6

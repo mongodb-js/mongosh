@@ -1,3 +1,4 @@
+import type { ShardedDataDistribution } from './helpers';
 import {
   assertArgsDefinedType,
   coerceToJSNumber,
@@ -11,14 +12,15 @@ import { Database, Mongo, ShellInstanceState } from './index';
 import constructShellBson from './shell-bson';
 import type { ServiceProvider } from '@mongosh/service-provider-core';
 import { bson } from '@mongosh/service-provider-core';
-import type { DevtoolsConnectOptions } from '../../service-provider-server';
-import { CliServiceProvider } from '../../service-provider-server'; // avoid cyclic dep just for test
+import type { DevtoolsConnectOptions } from '../../service-provider-node-driver';
+import { NodeDriverServiceProvider } from '../../service-provider-node-driver'; // avoid cyclic dep just for test
 import { startSharedTestServer } from '../../../testing/integration-testing-hooks';
-import { makeFakeConfigDatabase } from '../../../testing/shard-test-fake-data';
+import { makeFakeConfigDatabase } from '../test/shard-test-fake-data';
 import sinon from 'ts-sinon';
 import chai, { expect } from 'chai';
 import { EventEmitter } from 'events';
 import sinonChai from 'sinon-chai';
+import { stub } from 'sinon';
 chai.use(sinonChai);
 
 const fakeConfigDb = makeFakeConfigDatabase(
@@ -133,8 +135,23 @@ describe('getPrintableShardStatus', function () {
   let serviceProvider: ServiceProvider;
   let inBalancerRound = false;
 
+  const mockedShardedDataDistribution: ShardedDataDistribution = [
+    {
+      ns: 'test.ns',
+      shards: [
+        {
+          shardName: 'test',
+          numOrphanedDocs: 1,
+          numOwnedDocuments: 5,
+          orphanedSizeBytes: 20,
+          ownedSizeBytes: 80,
+        },
+      ],
+    },
+  ];
+
   beforeEach(async function () {
-    serviceProvider = await CliServiceProvider.connect(
+    serviceProvider = await NodeDriverServiceProvider.connect(
       await testServer.connectionString(),
       dummyOptions,
       {},
@@ -158,7 +175,7 @@ describe('getPrintableShardStatus', function () {
       if (db === 'admin' && cmd.balancerStatus) {
         return { ok: 1, inBalancerRound };
       }
-      return origRunCommandWithCheck.call(serviceProvider, db, cmd);
+      return origRunCommandWithCheck.call(serviceProvider, db, cmd, {});
     };
 
     await Promise.all(
@@ -186,9 +203,23 @@ describe('getPrintableShardStatus', function () {
   });
 
   it('returns an object with sharding information', async function () {
+    const mockedAdminDb = {
+      aggregate: stub()
+        .withArgs([{ $shardedDataDistribution: {} }])
+        .resolves({
+          toArray: stub().resolves(mockedShardedDataDistribution),
+        }),
+    };
+    const getSiblingDB = stub();
+    getSiblingDB.withArgs('admin').returns(mockedAdminDb);
+    getSiblingDB.withArgs('config').returns(configDatabase);
+
+    configDatabase.getSiblingDB = getSiblingDB;
+    configDatabase._maybeCachedHello = stub().returns({ msg: 'isdbgrid' });
+
     const status = await getPrintableShardStatus(configDatabase, false);
     expect(status.shardingVersion.clusterId).to.be.instanceOf(bson.ObjectId);
-    expect(status.shards.map(({ host }) => host)).to.include(
+    expect(status.shards.map(({ host }: { host: string }) => host)).to.include(
       'shard01/localhost:27018,localhost:27019,localhost:27020'
     );
     expect(status['most recently active mongoses']).to.have.lengthOf(1);
@@ -202,6 +233,10 @@ describe('getPrintableShardStatus', function () {
     );
     expect(status.databases).to.have.lengthOf(1);
     expect(status.databases[0].database._id).to.equal('config');
+
+    expect(status.shardedDataDistribution).to.equal(
+      mockedShardedDataDistribution
+    );
   });
 
   describe('hides all internal deprecated fields in shardingVersion', function () {
@@ -214,7 +249,9 @@ describe('getPrintableShardStatus', function () {
     ]) {
       it(`does not show ${hiddenField} in shardingVersion`, async function () {
         const status = await getPrintableShardStatus(configDatabase, false);
-        expect(status.shardingVersion[hiddenField]).to.equal(undefined);
+        expect((status.shardingVersion as any)[hiddenField]).to.equal(
+          undefined
+        );
       });
     }
   });
@@ -235,8 +272,10 @@ describe('getPrintableShardStatus', function () {
 
   it('returns an object with verbose sharding information if requested', async function () {
     const status = await getPrintableShardStatus(configDatabase, true);
-    expect(status['most recently active mongoses'][0].up).to.be.a('number');
-    expect(status['most recently active mongoses'][0].waiting).to.be.a(
+    expect((status['most recently active mongoses'][0] as any).up).to.be.a(
+      'number'
+    );
+    expect((status['most recently active mongoses'][0] as any).waiting).to.be.a(
       'boolean'
     );
   });
@@ -281,7 +320,7 @@ describe('getPrintableShardStatus', function () {
       status.balancer['Collections with active migrations']
     ).to.have.lengthOf(1);
     expect(
-      status.balancer['Collections with active migrations'].join('')
+      status.balancer['Collections with active migrations']?.join('')
     ).to.include('asdf');
   });
 

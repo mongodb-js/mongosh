@@ -7,15 +7,17 @@ import {
 import type {
   Document,
   ExplainVerbosityLike,
-  FindCursor as ServiceProviderCursor,
-  AggregationCursor as ServiceProviderAggregationCursor,
+  ServiceProviderFindCursor,
+  ServiceProviderAggregationCursor,
 } from '@mongosh/service-provider-core';
 import { validateExplainableVerbosity, markAsExplainOutput } from './helpers';
 import { AbstractCursor } from './abstract-cursor';
 
 @shellApiClassNoHelp
 export abstract class AggregateOrFindCursor<
-  CursorType extends ServiceProviderAggregationCursor | ServiceProviderCursor
+  CursorType extends
+    | ServiceProviderAggregationCursor
+    | ServiceProviderFindCursor
 > extends AbstractCursor<CursorType> {
   @returnType('this')
   projection(spec: Document): this {

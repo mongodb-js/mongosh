@@ -1,12 +1,12 @@
 {
   "name": "@mongosh/async-rewriter2",
-  "version": "0.0.0-dev.0",
+  "version": "2.4.8",
   "description": "MongoDB Shell Async Rewriter Package",
   "main": "./lib/index.js",
   "scripts": {
     "pretest": "npm run compile",
     "benchmark": "node -r ts-node/register benchmark/index.ts",
-    "test": "mocha --experimental-vm-modules -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
+    "test": "mocha --experimental-vm-modules -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\" --reporter \"../../configs/mocha-config-mongosh/reporter.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
@@ -40,18 +40,18 @@
     "unitTestsOnly": true
   },
   "dependencies": {
-    "@babel/core": "^7.22.8",
-    "@babel/plugin-transform-destructuring": "^7.22.5",
-    "@babel/plugin-transform-parameters": "^7.22.5",
-    "@babel/plugin-transform-shorthand-properties": "^7.22.5",
-    "@babel/types": "^7.22.5",
-    "@types/babel__core": "^7.20.1"
+    "@babel/core": "^7.26.10",
+    "@babel/plugin-transform-destructuring": "^7.25.9",
+    "@babel/plugin-transform-parameters": "^7.25.9",
+    "@babel/plugin-transform-shorthand-properties": "^7.25.9",
+    "@babel/types": "^7.27.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "depcheck": "^1.4.3",
+    "@types/babel__core": "^7.20.1",
+    "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
     "prettier": "^2.8.8"
   }

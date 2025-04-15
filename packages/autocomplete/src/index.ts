@@ -17,14 +17,14 @@ import {
 type TypeSignatureAttributes = { [key: string]: TypeSignature };
 
 export interface AutocompleteParameters {
-  topology: () => Topologies;
+  topology: () => Topologies | undefined;
   connectionInfo: () =>
     | undefined
     | {
-        is_atlas: boolean;
-        is_data_federation: boolean;
-        server_version: string;
-        is_local_atlas: boolean;
+        is_atlas?: boolean;
+        is_data_federation?: boolean;
+        server_version?: string;
+        is_local_atlas?: boolean;
       };
   apiVersionInfo: () => { version: string; strict: boolean } | undefined;
   getCollectionCompletionsForCurrentDb: (
@@ -97,6 +97,10 @@ async function completer(
   const CONFIG_COMPLETIONS = shellSignatures.ShellConfig
     .attributes as TypeSignatureAttributes;
   const SHARD_COMPLETE = shellSignatures.Shard
+    .attributes as TypeSignatureAttributes;
+  const SP_COMPLETIONS = shellSignatures.Streams
+    .attributes as TypeSignatureAttributes;
+  const SP_INSTANCE_COMPLETIONS = shellSignatures.StreamProcessor
     .attributes as TypeSignatureAttributes;
 
   // Split at space-to-non-space transitions when looking at this as a command,
@@ -265,6 +269,20 @@ async function completer(
       splitLine
     );
     return [hits.length ? hits : [], line];
+  } else if (/\bsp\b/.exec(firstLineEl)) {
+    let expressions: TypeSignatureAttributes | undefined;
+    if (splitLine.length === 2) {
+      expressions = SP_COMPLETIONS;
+    } else if (splitLine.length === 3) {
+      // something like sp.spName.start()
+      expressions = SP_INSTANCE_COMPLETIONS;
+    }
+
+    const hits =
+      expressions &&
+      filterShellAPI(params, expressions, elToComplete, splitLine);
+
+    return [hits?.length ? hits : [], line];
   }
 
   return [[], line];
@@ -288,7 +306,7 @@ function isAcceptable(
   } else {
     isAcceptableVersion =
       !entry[versionKey] ||
-      // TODO: when https://jira.mongodb.org/browse/PM-2327 is done we can rely on server_version being present
+      // TODO: when https://jira.mongodb.org/browse/SPM-2327 is done we can rely on server_version being present
       !connectionInfo?.server_version ||
       semver.gte(connectionInfo.server_version, entry[versionKey] as string);
   }
@@ -355,18 +373,20 @@ function filterShellAPI(
         +apiVersionInfo.version <= acceptableApiVersions[1];
     } else {
       const serverVersion = params.connectionInfo()?.server_version;
-      if (!serverVersion) return true;
-
       const acceptableVersions = completions[c].serverVersions;
       isAcceptableVersion =
         !acceptableVersions ||
+        !serverVersion ||
         (semver.gte(serverVersion, acceptableVersions[0]) &&
           semver.lte(serverVersion, acceptableVersions[1]));
     }
 
     const acceptableTopologies = completions[c].topologies;
+    const topology = params.topology();
     const isAcceptableTopology =
-      !acceptableTopologies || acceptableTopologies.includes(params.topology());
+      !acceptableTopologies ||
+      !topology ||
+      acceptableTopologies.includes(topology);
 
     return isAcceptableVersion && isAcceptableTopology;
   });

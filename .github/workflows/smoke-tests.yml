@@ -1,0 +1,39 @@
+name: "Run Smoke Tests"
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke-tests:
+    name: "OS: ${{ matrix.runner }}, node@${{ matrix.node }}"
+    strategy:
+      matrix:
+        runner: [ubuntu, macos, windows]
+        node: [20.x, 22.x, 23.x]
+      fail-fast: false
+    runs-on: ${{ matrix.runner }}-latest
+    timeout-minutes: 15
+    env:
+      npm_config_loglevel: verbose
+      npm_config_foreground_scripts: "true"
+      PUPPETEER_SKIP_DOWNLOAD: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: "npm"
+
+      - name: Install npm@10
+        run: npm install -g npm@10
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run smoke tests
+        run: npx mongodb-runner -- exec -- sh -c 'env MONGOSH_SMOKE_TEST_SERVER=$MONGODB_URI npm run test-smoke'

@@ -3,6 +3,7 @@ import {
   type TimingCategory,
   type TimingInterface,
 } from '@mongosh/types';
+import v8 from 'v8';
 
 const jsTimingEntries: [string, string, bigint][] = [];
 
@@ -58,24 +59,36 @@ const timing: TimingInterface = linkTimingInterface();
 export const markTime = timing.markTime;
 export const getTimingData = timing.getTimingData;
 
-if (process.env.MONGOSH_SHOW_TIMING_DATA) {
-  process.on('exit', function () {
-    const rawTimingData = getTimingData();
-    if (process.env.MONGOSH_SHOW_TIMING_DATA === 'json') {
-      console.log(JSON.stringify(rawTimingData));
-    } else {
-      console.table(
-        rawTimingData.map(([category, label, time], i) => [
-          category,
-          label,
-          `${(time / 1_000_000).toFixed(2)}ms`,
-          i > 0
-            ? `+${((time - rawTimingData[i - 1][2]) / 1_000_000).toFixed(2)}ms`
-            : '',
-        ])
-      );
-    }
+function installExitHandler() {
+  if (process.env.MONGOSH_SHOW_TIMING_DATA) {
+    process.on('exit', function () {
+      const rawTimingData = getTimingData();
+      if (process.env.MONGOSH_SHOW_TIMING_DATA === 'json') {
+        console.log(JSON.stringify(rawTimingData));
+      } else {
+        console.table(
+          rawTimingData.map(([category, label, time], i) => [
+            category,
+            label,
+            `${(time / 1_000_000).toFixed(2)}ms`,
+            i > 0
+              ? `+${((time - rawTimingData[i - 1][2]) / 1_000_000).toFixed(
+                  2
+                )}ms`
+              : '',
+          ])
+        );
+      }
+    });
+  }
+}
+
+if ((v8 as any)?.startupSnapshot?.isBuildingSnapshot?.()) {
+  (v8 as any).startupSnapshot.addDeserializeCallback(() => {
+    installExitHandler();
   });
+} else {
+  installExitHandler();
 }
 
 markTime(TimingCategories.REPLInstantiation, 'cli-repl timing initialized');

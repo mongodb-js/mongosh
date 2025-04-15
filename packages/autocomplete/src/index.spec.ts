@@ -92,7 +92,7 @@ const localAtlas600 = {
 };
 
 const noParams = {
-  topology: () => Topologies.Standalone,
+  topology: () => undefined,
   apiVersionInfo: () => undefined,
   connectionInfo: () => undefined,
   getCollectionCompletionsForCurrentDb: () => collections,
@@ -460,9 +460,9 @@ describe('completer.completer', function () {
       ]);
       expect(await completer(standalone600, query)).to.deep.equal([
         [
-          'db.aggregate([{$documents',
           'db.aggregate([{$changeStream',
           'db.aggregate([{$currentOp',
+          'db.aggregate([{$documents',
           'db.aggregate([{$listLocalSessions',
         ],
         query,
@@ -818,8 +818,8 @@ describe('completer.completer', function () {
       ]);
     });
 
-    it('does not complete unsupported methods like db.test.renameCollection', async function () {
-      const i = 'db.test.renameC';
+    it('does not complete unsupported methods like db.test.compactStructuredEncryptionData', async function () {
+      const i = 'db.test.compactS';
       expect(await completer(apiStrictParams, i)).to.deep.equal([[], i]);
     });
 
@@ -834,6 +834,24 @@ describe('completer.completer', function () {
     it('does not complete unsupported aggregation stages', async function () {
       const i = 'db.test.aggregate([{$indexSta';
       expect(await completer(apiStrictParams, i)).to.deep.equal([[], i]);
+    });
+  });
+
+  context('with stream processing sp', function () {
+    it('completes supported methods sp.listStreamProcessor', async function () {
+      const i = 'sp.listS';
+      expect(await completer(apiStrictParams, i)).to.deep.equal([
+        ['sp.listStreamProcessors'],
+        i,
+      ]);
+    });
+
+    it('completes methods on processors like sp.name.drop', async function () {
+      const i = 'sp.processorName.d';
+      expect(await completer(apiStrictParams, i)).to.deep.equal([
+        ['sp.processorName.drop'],
+        i,
+      ]);
     });
   });
 });

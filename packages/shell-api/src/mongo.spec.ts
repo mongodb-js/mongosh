@@ -10,6 +10,7 @@ import { signatures, toShellResult } from './index';
 import type { StubbedInstance } from 'ts-sinon';
 import { stubInterface } from 'ts-sinon';
 import type {
+  MongoClientOptions,
   ReadConcern,
   ReadPreference,
   ServiceProvider,
@@ -28,12 +29,13 @@ import {
   MongoshInternalError,
   MongoshUnimplementedError,
 } from '@mongosh/errors';
-import { CliServiceProvider } from '../../service-provider-server';
+import { NodeDriverServiceProvider } from '../../service-provider-node-driver';
 import {
   skipIfServerVersion,
   startSharedTestServer,
 } from '../../../testing/integration-testing-hooks';
 import { dummyOptions } from './helpers.spec';
+import { ClientBulkWriteResult } from './result';
 
 const sampleOpts = {
   causalConsistency: false,
@@ -55,7 +57,7 @@ describe('Mongo', function () {
       expect(signatures.Mongo.type).to.equal('Mongo');
     });
     it('attributes', function () {
-      expect(signatures.Mongo.attributes.show).to.deep.equal({
+      expect(signatures.Mongo.attributes?.show).to.deep.equal({
         type: 'function',
         returnsPromise: true,
         deprecated: false,
@@ -437,9 +439,10 @@ describe('Mongo', function () {
 
       describe('nonGenuineMongoDBCheck', function () {
         it('returns no warnings for a genuine mongodb connection', async function () {
-          instanceState.connectionInfo = {
-            extraInfo: { is_genuine: true },
-          };
+          serviceProvider.getConnectionInfo.resolves({
+            extraInfo: { is_genuine: true, uri: '' },
+            buildInfo: {},
+          });
 
           const result = await mongo.show('nonGenuineMongoDBCheck');
           expect(result.type).to.equal('ShowBannerResult');
@@ -450,9 +453,10 @@ describe('Mongo', function () {
           'when connected deployment is not a genuine mongodb deployment',
           function () {
             beforeEach(function () {
-              instanceState.connectionInfo = {
-                extraInfo: { is_genuine: false },
-              };
+              serviceProvider.getConnectionInfo.resolves({
+                extraInfo: { is_genuine: false, uri: '' },
+                buildInfo: {},
+              });
             });
 
             const warning = [
@@ -626,7 +630,7 @@ describe('Mongo', function () {
       });
     });
     describe('setWriteConcern', function () {
-      [
+      for (const { args, opts } of [
         { args: ['majority'], opts: { w: 'majority' } },
         { args: ['majority', 200], opts: { w: 'majority', wtimeoutMS: 200 } },
         {
@@ -641,17 +645,20 @@ describe('Mongo', function () {
           args: [{ w: 'majority', wtimeout: 200, fsync: 1 }],
           opts: { w: 'majority', wtimeoutMS: 200, journal: true },
         },
-      ].forEach(({ args, opts }) => {
+      ] as {
+        args: Parameters<typeof mongo.setWriteConcern>;
+        opts: MongoClientOptions;
+      }[]) {
         it(`calls serviceProvider.resetConnectionOptions for args ${JSON.stringify(
           args
         )}`, async function () {
           serviceProvider.resetConnectionOptions.resolves();
-          await mongo.setWriteConcern.call(mongo, ...args); // tricking TS into thinking the arguments are correct
+          await mongo.setWriteConcern(...args);
           expect(
             serviceProvider.resetConnectionOptions
           ).to.have.been.calledWith(opts);
         });
-      });
+      }
 
       it('throws if resetConnectionOptions errors', async function () {
         const expectedError = new Error();
@@ -822,7 +829,7 @@ describe('Mongo', function () {
         expect.fail();
       });
       it('setSecondaryOk (starts as primary)', async function () {
-        const printCalls = [];
+        const printCalls: any[][] = [];
         instanceState.setEvaluationListener({
           onPrint(...args: any[]) {
             printCalls.push(args);
@@ -840,7 +847,7 @@ describe('Mongo', function () {
         ]);
       });
       it('setSecondaryOk (starts as secondary)', async function () {
-        const printCalls = [];
+        const printCalls: any[][] = [];
         instanceState.setEvaluationListener({
           onPrint(...args: any[]) {
             printCalls.push(args);
@@ -961,7 +968,7 @@ describe('Mongo', function () {
 
     beforeEach(async function () {
       uri = await testServer.connectionString();
-      serviceProvider = await CliServiceProvider.connect(
+      serviceProvider = await NodeDriverServiceProvider.connect(
         uri,
         dummyOptions,
         {},
@@ -980,7 +987,7 @@ describe('Mongo', function () {
 
         it('errors if an API version is specified', async function () {
           try {
-            const mongo = await instanceState.shellApi.Mongo(uri, null, {
+            const mongo = await instanceState.shellApi.Mongo(uri, undefined, {
               api: { version: '1' },
             });
             await (
@@ -997,7 +1004,7 @@ describe('Mongo', function () {
         skipIfServerVersion(testServer, '<= 4.4');
 
         it('can specify an API version', async function () {
-          const mongo = await instanceState.shellApi.Mongo(uri, null, {
+          const mongo = await instanceState.shellApi.Mongo(uri, undefined, {
             api: { version: '1' },
           });
           expect(mongo._connectionInfo.driverOptions).to.deep.equal({
@@ -1007,6 +1014,76 @@ describe('Mongo', function () {
           await (
             await mongo.getDB('test').getCollection('coll').find()
           ).toArray();
+        });
+      });
+
+      context('post-8.0', function () {
+        skipIfServerVersion(testServer, '< 8.0');
+        let mongo: Mongo;
+
+        describe('bulkWrite', function () {
+          beforeEach(async function () {
+            mongo = await instanceState.shellApi.Mongo(uri, undefined, {
+              api: { version: '1' },
+            });
+          });
+
+          it('should allow inserts across collections and databases', async function () {
+            expect(
+              await mongo.bulkWrite([
+                {
+                  name: 'insertOne',
+                  namespace: 'db.authors',
+                  document: { name: 'King' },
+                },
+                {
+                  name: 'deleteOne',
+                  namespace: 'db.authors',
+                  filter: { name: 'King' },
+                },
+                {
+                  name: 'insertOne',
+                  namespace: 'db.moreAuthors',
+                  document: { name: 'Queen' },
+                },
+                {
+                  name: 'insertOne',
+                  namespace: 'otherDb.authors',
+                  document: { name: 'Prince' },
+                },
+              ])
+            ).deep.equals(
+              new ClientBulkWriteResult({
+                acknowledged: true,
+                insertedCount: 3,
+                upsertedCount: 0,
+                matchedCount: 0,
+                modifiedCount: 0,
+                deletedCount: 1,
+                insertResults: undefined,
+                updateResults: undefined,
+                deleteResults: undefined,
+              })
+            );
+
+            expect(
+              await mongo.getDB('db').getCollection('authors').count()
+            ).equals(0);
+
+            expect(
+              await mongo
+                .getDB('db')
+                .getCollection('moreAuthors')
+                .count({ name: 'Queen' })
+            ).equals(1);
+
+            expect(
+              await mongo
+                .getDB('otherDb')
+                .getCollection('authors')
+                .count({ name: 'Prince' })
+            ).equals(1);
+          });
         });
       });
     });

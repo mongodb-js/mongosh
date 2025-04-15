@@ -20,12 +20,14 @@ export interface CliOptions {
   cryptSharedLibPath?: string;
   db?: string;
   eval?: string[];
+  exposeAsyncRewriter?: boolean; // internal testing only
   gssapiServiceName?: string;
   sspiHostnameCanonicalization?: string;
   sspiRealmOverride?: string;
   help?: boolean;
   host?: string;
   ipv6?: boolean;
+  jsContext?: 'repl' | 'plain-vm' | 'auto';
   json?: boolean | 'canonical' | 'relaxed';
   keyVaultNamespace?: string;
   kmsURL?: string;
@@ -46,12 +48,14 @@ export interface CliOptions {
   tlsCRLFile?: string;
   tlsDisabledProtocols?: boolean;
   tlsFIPSMode?: boolean;
-  tlsUseSystemCA?: boolean;
   username?: string;
   verbose?: boolean; // No-op since driver v5.0.0 (see also MONGOSH-970)
   version?: boolean;
   oidcFlows?: string;
   oidcRedirectUri?: string;
   oidcTrustedEndpoint?: boolean;
+  oidcIdTokenAsAccessToken?: boolean;
+  oidcDumpTokens?: boolean | 'redacted' | 'include-secrets';
+  oidcNoNonce?: boolean;
   browser?: string | false;
 }

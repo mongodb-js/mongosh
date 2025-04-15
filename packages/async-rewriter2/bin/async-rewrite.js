@@ -2,6 +2,6 @@
 'use strict';
 const AsyncWriter = require('../').default;
 const fs = require('fs');
-const input = fs.readFileSync(process.argv[2]);
+const input = fs.readFileSync(process.argv[2], 'utf8');
 const asyncWriter = new AsyncWriter();
 process.stdout.write(asyncWriter.process(input));

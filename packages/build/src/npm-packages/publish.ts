@@ -1,93 +1,139 @@
-import path from 'path';
-import { LERNA_BIN, PLACEHOLDER_VERSION, PROJECT_ROOT } from './constants';
-import type { LernaPackageDescription } from './list';
-import { listNpmPackages as listNpmPackagesFn } from './list';
-import { spawnSync } from '../helpers/spawn-sync';
+import {
+  EXCLUDE_RELEASE_PACKAGES,
+  LERNA_BIN,
+  MONGOSH_RELEASE_PACKAGES,
+  PROJECT_ROOT,
+} from './constants';
+import { spawnSync as spawnSyncFn } from '../helpers/spawn-sync';
+import { type SpawnSyncOptionsWithStringEncoding } from 'child_process';
+import type { LernaPackageDescription, PackagePublisherConfig } from './types';
 
-export function publishNpmPackages(
-  isDryRun: boolean,
-  listNpmPackages: typeof listNpmPackagesFn = listNpmPackagesFn,
-  markBumpedFilesAsAssumeUnchangedFn: typeof markBumpedFilesAsAssumeUnchanged = markBumpedFilesAsAssumeUnchanged,
-  spawnSyncFn: typeof spawnSync = spawnSync
-): void {
-  const packages = listNpmPackages();
+export class PackagePublisher {
+  readonly config: PackagePublisherConfig;
+  private readonly spawnSync: typeof spawnSyncFn;
 
-  const versions = Array.from(new Set(packages.map(({ version }) => version)));
-
-  if (versions.length !== 1) {
-    throw new Error(
-      `Refusing to publish packages with multiple versions: ${versions}`
-    );
+  constructor(
+    config: PackagePublisherConfig,
+    { spawnSync = spawnSyncFn } = {}
+  ) {
+    this.config = config;
+    this.spawnSync = spawnSync;
   }
 
-  if (versions[0] === PLACEHOLDER_VERSION) {
-    throw new Error('Refusing to publish packages with placeholder version');
-  }
+  public publishToNpm(): void {
+    const commandOptions: SpawnSyncOptionsWithStringEncoding = {
+      stdio: 'inherit',
+      cwd: PROJECT_ROOT,
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        ...(this.config.isDryRun ? { npm_config_dry_run: 'true' } : {}),
+      },
+    };
 
-  // Lerna requires a clean repository for a publish from-package (--force-publish does not have any effect here)
-  // we use git update-index --assume-unchanged on files we know have been bumped
-  markBumpedFilesAsAssumeUnchangedFn(packages, true);
-  try {
-    spawnSyncFn(
+    // There seems to be a bug where lerna does not run prepublish topologically
+    // during the publish step, causing build errors. This ensures all packages are topologically
+    // compiled beforehand.
+    this.spawnSync(LERNA_BIN, ['run', 'prepublish', '--sort'], commandOptions);
+
+    // Lerna requires a clean repository for a publish from-package
+    // we use git update-index --assume-unchanged on files we know have been bumped
+    this.spawnSync(
       LERNA_BIN,
       [
         'publish',
         'from-package',
         '--no-private',
         '--no-changelog',
-        '--no-push',
         '--exact',
-        '--no-git-tag-version',
-        '--force-publish',
         '--yes',
         '--no-verify-access',
       ],
+      commandOptions
+    );
+  }
+
+  public listNpmPackages(): LernaPackageDescription[] {
+    const lernaListOutput = this.spawnSync(
+      LERNA_BIN,
+      ['list', '--json', '--all'],
       {
-        stdio: 'inherit',
         cwd: PROJECT_ROOT,
         encoding: 'utf8',
-        env: {
-          ...process.env,
-          ...(isDryRun ? { npm_config_dry_run: 'true' } : {}),
-        },
       }
     );
-  } finally {
-    markBumpedFilesAsAssumeUnchangedFn(packages, false);
-  }
-}
 
-export function markBumpedFilesAsAssumeUnchanged(
-  packages: LernaPackageDescription[],
-  assumeUnchanged: boolean,
-  spawnSyncFn: typeof spawnSync = spawnSync
-): void {
-  const filesToAssume = [
-    path.resolve(PROJECT_ROOT, 'lerna.json'),
-    path.resolve(PROJECT_ROOT, 'package.json'),
-    path.resolve(PROJECT_ROOT, 'package-lock.json'),
-  ];
-  for (const { location } of packages) {
-    filesToAssume.push(path.resolve(location, 'package.json'));
+    return JSON.parse(lernaListOutput.stdout);
   }
 
-  for (const f of filesToAssume) {
-    spawnSyncFn(
-      'git',
-      [
-        'update-index',
-        assumeUnchanged ? '--assume-unchanged' : '--no-assume-unchanged',
-        f,
-      ],
-      {
-        stdio: 'inherit',
-        cwd: PROJECT_ROOT,
-        encoding: 'utf8',
+  public pushTags() {
+    const allReleasablePackages = this.listNpmPackages().filter(
+      (packageConfig) => !EXCLUDE_RELEASE_PACKAGES.includes(packageConfig.name)
+    );
+
+    const packages: LernaPackageDescription[] = this.config
+      .useAuxiliaryPackagesOnly
+      ? allReleasablePackages.filter(
+          (packageConfig) =>
+            !MONGOSH_RELEASE_PACKAGES.includes(packageConfig.name)
+        )
+      : allReleasablePackages;
+
+    const commandOptions: SpawnSyncOptionsWithStringEncoding = {
+      stdio: 'inherit',
+      cwd: PROJECT_ROOT,
+      encoding: 'utf8',
+      env: {
+        ...process.env,
       },
-      true
-    );
-    console.info(
-      `File ${f} is now ${assumeUnchanged ? '' : 'NOT '}assumed to be unchanged`
-    );
+    };
+
+    for (const packageInfo of packages) {
+      const { name, version } = packageInfo;
+      const newTag = `${name}@${version}`;
+
+      if (this.existsTag(newTag)) {
+        console.warn(`${newTag} tag already exists. Skipping...`);
+        continue;
+      }
+      this.spawnSync(
+        'git',
+        ['tag', '-a', newTag, '-m', newTag],
+        commandOptions
+      );
+    }
+
+    if (!this.config.useAuxiliaryPackagesOnly) {
+      const mongoshVersion = packages.find(
+        (packageConfig) => packageConfig.name === 'mongosh'
+      )?.version;
+
+      if (!mongoshVersion) {
+        throw new Error('mongosh package not found');
+      }
+    }
+
+    if (!this.config.isDryRun) {
+      this.spawnSync('git', ['push', '--tags'], commandOptions);
+    }
+  }
+  /** Returns true if the tag exists in the remote repository. */
+  public existsTag(tag: string): boolean {
+    // rev-parse will return the hash of tagged commit
+    // if it exists or throw otherwise.
+    try {
+      const revParseResult = this.spawnSync(
+        'git',
+        ['rev-parse', '--quiet', '--verify', `refs/tags/${tag}`],
+        {
+          cwd: PROJECT_ROOT,
+          encoding: 'utf8',
+          stdio: 'pipe',
+        }
+      );
+      return revParseResult.status === 0;
+    } catch (error) {
+      return false;
+    }
   }
 }

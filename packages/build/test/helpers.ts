@@ -75,4 +75,6 @@ export const dummyConfig: Config = Object.freeze({
     } as PackageInformation),
   execNodeVersion: process.version,
   rootDir: path.resolve(__dirname, '..', '..'),
+  ctaConfig: {},
+  ctaConfigSchema: {},
 });

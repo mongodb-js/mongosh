@@ -35,17 +35,33 @@ import * as asyncRepl from './async-repl';
 import type { StyleDefinition } from './clr';
 import clr from './clr';
 import { MONGOSH_WIKI, TELEMETRY_GREETING_MESSAGE } from './constants';
-import formatOutput, { formatError } from './format-output';
+import {
+  formatOutput,
+  formatError,
+  CONTROL_CHAR_REGEXP,
+} from './format-output';
 import { makeMultilineJSIntoSingleLine } from '@mongosh/js-multiline-to-singleline';
 import { LineByLineInput } from './line-by-line-input';
 import type { FormatOptions } from './format-output';
 import { markTime } from './startup-timing';
+import type { Context } from 'vm';
+import { Script, createContext, runInContext } from 'vm';
+import { installPasteSupport } from './repl-paste-support';
+import util from 'util';
+
+declare const __non_webpack_require__: any;
 
 /**
  * All CLI flags that are useful for {@link MongoshNodeRepl}.
  */
 export type MongoshCliOptions = ShellCliOptions & {
   quiet?: boolean;
+  /**
+   * Whether to instantiate a Node.js REPL instance, including support
+   * for async error tracking, or not.
+   */
+  jsContext?: JSContext;
+  exposeAsyncRewriter?: boolean;
 };
 
 /**
@@ -63,7 +79,10 @@ export type MongoshIOProvider = Omit<
   ): Promise<{ contents: string; absolutePath: string }>;
   getCryptLibraryOptions(): Promise<AutoEncryptionOptions['extraOptions']>;
   bugReportErrorMessageInfo?(): string | undefined;
+  getLogPath(): string | undefined;
 };
+
+export type JSContext = 'repl' | 'plain-vm';
 
 /**
  * Options required for MongoshNodeRepl instance to communicate with
@@ -97,8 +116,14 @@ export type InitializationToken = { __initialized: 'yes' };
 type MongoshRuntimeState = {
   shellEvaluator: ShellEvaluator<any>;
   instanceState: ShellInstanceState;
-  repl: REPLServer;
+  repl: REPLServer | null;
+  context: Context;
   console: Console;
+};
+
+type GreetingDetails = {
+  moreRecentMongoshVersion?: string | null;
+  currentVersionCTA?: { text: string; style?: StyleDefinition }[];
 };
 
 /* Utility, inverse of Readonly<T> */
@@ -113,9 +138,12 @@ type Mutable<T> = {
  */
 class MongoshNodeRepl implements EvaluationListener {
   _runtimeState: MongoshRuntimeState | null;
+  closeTrace?: string;
+  exitPromise?: Promise<never>;
   input: Readable;
   lineByLineInput: LineByLineInput;
   output: Writable;
+  outputFinishString = ''; // Can add ANSI escape codes to reset state from previously written ones
   bus: MongoshBus;
   nodeReplOptions: Partial<ReplOptions>;
   shellCliOptions: Partial<MongoshCliOptions>;
@@ -164,33 +192,54 @@ class MongoshNodeRepl implements EvaluationListener {
    */
   async initialize(
     serviceProvider: ServiceProvider,
-    moreRecentMongoshVersion?: string | null
+    greeting?: GreetingDetails
   ): Promise<InitializationToken> {
+    const usePlainVMContext = this.shellCliOptions.jsContext === 'plain-vm';
+
     const instanceState = new ShellInstanceState(
       serviceProvider,
       this.bus,
       this.shellCliOptions
     );
+
     const shellEvaluator = new ShellEvaluator(
       instanceState,
       (value: any) => value,
-      markTime
+      markTime,
+      !!this.shellCliOptions.exposeAsyncRewriter
     );
     instanceState.setEvaluationListener(this);
-    await instanceState.fetchConnectionInfo();
-    markTime(TimingCategories.REPLInstantiation, 'fetched connection info');
 
-    const { buildInfo, extraInfo } = instanceState.connectionInfo;
-    let mongodVersion = extraInfo?.is_stream
-      ? 'Atlas Stream Processing'
-      : buildInfo?.version;
-    const apiVersion = serviceProvider.getRawClient()?.serverApi?.version;
-    if (apiVersion) {
-      mongodVersion =
-        (mongodVersion ? mongodVersion + ' ' : '') +
-        `(API Version ${apiVersion})`;
+    // Fetch connection metadata if not in quiet mode or in REPL mode:
+    // not-quiet mode -> We'll need it for the greeting message (and need it now)
+    // REPL mode -> We'll want it for fast autocomplete (and need it soon-ish, but not now)
+    instanceState.setPreFetchCollectionAndDatabaseNames(!usePlainVMContext);
+    // `if` commented out because we currently still want the connection info for
+    // logging/telemetry but we may want to revisit that in the future:
+    // if (!this.shellCliOptions.quiet || !usePlainVMContext)
+    {
+      const connectionInfoPromise = instanceState.fetchConnectionInfo();
+      connectionInfoPromise.catch(() => {
+        // Ignore potential unhandled rejection warning
+      });
+      if (!this.shellCliOptions.quiet) {
+        const connectionInfo = await connectionInfoPromise;
+        markTime(TimingCategories.REPLInstantiation, 'fetched connection info');
+
+        const { buildInfo, extraInfo } = connectionInfo ?? {};
+        let mongodVersion = extraInfo?.is_stream
+          ? 'Atlas Stream Processing'
+          : buildInfo?.version;
+        const apiVersion = serviceProvider.getRawClient()?.serverApi?.version;
+        if (apiVersion) {
+          mongodVersion =
+            (mongodVersion ? mongodVersion + ' ' : '') +
+            `(API Version ${apiVersion})`;
+        }
+        await this.greet(mongodVersion, greeting);
+      }
     }
-    await this.greet(mongodVersion, moreRecentMongoshVersion);
+
     await this.printBasicConnectivityWarning(instanceState);
     markTime(TimingCategories.REPLInstantiation, 'greeted');
 
@@ -204,40 +253,86 @@ class MongoshNodeRepl implements EvaluationListener {
       (await this.getConfig('redactHistory')) ?? this.redactHistory;
     markTime(TimingCategories.UserConfigLoading, 'fetched config vars');
 
-    const repl = asyncRepl.start({
-      // 'repl' is not supported in startup snapshots yet.
+    let repl: REPLServer | null = null;
+    let context: Context;
+    if (!usePlainVMContext) {
+      repl = asyncRepl.start({
+        // 'repl' is not supported in startup snapshots yet.
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        start: require('pretty-repl').start,
+        input: this.lineByLineInput,
+        output: this.output,
+        prompt: '',
+        writer: this.writer.bind(this),
+        breakEvalOnSigint: true,
+        preview: false,
+        asyncEval: this.eval.bind(this),
+        historySize: await this.getConfig('historyLength'),
+        wrapCallbackError: (err: Error) =>
+          Object.assign(new MongoshInternalError(err.message), {
+            stack: err.stack,
+          }),
+        onAsyncSigint: this.onAsyncSigint.bind(this),
+        ...this.nodeReplOptions,
+      });
+      context = repl.context;
+    } else {
+      // https://nodejs.org/api/repl.html#replbuiltinmodules not represented in TS types
+      // repl is not supported in startup snapshots yet
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      start: require('pretty-repl').start,
-      input: this.lineByLineInput as unknown as Readable,
-      output: this.output,
-      prompt: '',
-      writer: this.writer.bind(this),
-      breakEvalOnSigint: true,
-      preview: false,
-      asyncEval: this.eval.bind(this),
-      historySize: await this.getConfig('historyLength'),
-      wrapCallbackError: (err: Error) =>
-        Object.assign(new MongoshInternalError(err.message), {
-          stack: err.stack,
-        }),
-      onAsyncSigint: this.onAsyncSigint.bind(this),
-      ...this.nodeReplOptions,
-    });
+      const { builtinModules: nodeReplBuiltinModules } = require('repl');
+      context = createContext();
+      // Allow tests to easily verify that they are in the right environment,
+      // and fetch a list of built-in global property names
+      const jsBuiltinGlobalNames = runInContext(
+        'globalThis[Symbol.for("@@mongosh.usingPlainVMContext")] = true;' +
+          'Object.getOwnPropertyNames(globalThis)',
+        context
+      );
+      // copy over things like setTimeout, Crypto, URL, etc.
+      for (const nodeJsGlobal of Object.getOwnPropertyNames(globalThis)) {
+        if (!jsBuiltinGlobalNames.includes(nodeJsGlobal))
+          Object.defineProperty(context, nodeJsGlobal, {
+            ...Object.getOwnPropertyDescriptor(globalThis, nodeJsGlobal),
+          });
+      }
+      // make built-in modules like `fs` available as global variables
+      for (const builtin of nodeReplBuiltinModules as string[]) {
+        let value;
+        Object.defineProperty(context, builtin, {
+          enumerable: false,
+          configurable: true,
+          get() {
+            return (value ??=
+              typeof __non_webpack_require__ === 'function'
+                ? __non_webpack_require__(builtin)
+                : require(builtin));
+          },
+          set(v) {
+            value = v;
+          },
+        });
+      }
+      context.global = context;
+      context.require = require('node:module').createRequire(
+        process.cwd() + '/index.js'
+      );
+    }
 
     const console = new Console({
       stdout: this.output,
       stderr: this.output,
       colorMode: this.getFormatOptions().colors,
     });
-    delete repl.context.parcelRequire; // MONGOSH-965
-    delete repl.context.__webpack_require__;
-    delete repl.context.__non_webpack_require__;
+    delete context.parcelRequire; // MONGOSH-965
+    delete context.__webpack_require__;
+    delete context.__non_webpack_require__;
     this.onClearCommand = console.clear.bind(console);
-    repl.context.console = console;
+    context.console = console;
 
     // Copy our context's Date object into the inner one because we have a custom
     // util.inspect override for Date objects.
-    repl.context.Date = Date;
+    context.Date = Date;
 
     {
       // Node.js 18+ defines `crypto` in the REPL to be the global WebCrypto object,
@@ -245,13 +340,13 @@ class MongoshNodeRepl implements EvaluationListener {
       // separately from the Node.js upgrade cycle, so we always use the Node.js builtin
       // module for now.
       const globalCryptoDescriptor =
-        Object.getOwnPropertyDescriptor(repl.context, 'crypto') ?? {};
+        Object.getOwnPropertyDescriptor(context, 'crypto') ?? {};
       if (
         globalCryptoDescriptor.value?.subtle ||
         globalCryptoDescriptor.get?.call(null)?.subtle
       ) {
-        delete repl.context.crypto;
-        repl.context.crypto = await import('node:crypto');
+        delete context.crypto;
+        context.crypto = await import('node:crypto');
       }
     }
 
@@ -259,60 +354,144 @@ class MongoshNodeRepl implements EvaluationListener {
       shellEvaluator,
       instanceState,
       repl,
+      context,
       console,
     };
+
+    markTime(
+      TimingCategories.REPLInstantiation,
+      'basic repl/vm initialization complete'
+    );
+
+    await this.finishInitializingNodeRepl();
+    instanceState.setCtx(context);
+
+    this.setupHistoryCommand();
+
+    if (!this.shellCliOptions.nodb && !this.shellCliOptions.quiet) {
+      // cf. legacy shell:
+      // https://github.com/mongodb/mongo/blob/a6df396047a77b90bf1ce9463eecffbee16fb864/src/mongo/shell/mongo_main.cpp#L1003-L1026
+      const { shellApi } = instanceState;
+      // Assuming `instanceState.fetchConnectionInfo()` was already called above
+      const connectionInfo = instanceState.cachedConnectionInfo();
+      // Skipping startup warnings (see https://jira.mongodb.org/browse/MONGOSH-1776)
+      const bannerCommands = connectionInfo?.extraInfo?.is_local_atlas
+        ? ['automationNotices', 'nonGenuineMongoDBCheck']
+        : ['startupWarnings', 'automationNotices', 'nonGenuineMongoDBCheck'];
+      const banners = await Promise.all(
+        bannerCommands.map(
+          async (command) => await shellApi._untrackedShow(command)
+        )
+      );
+      for (const banner of banners) {
+        if (banner.value) {
+          await shellApi.print(banner);
+        }
+      }
+    }
+
+    markTime(TimingCategories.REPLInstantiation, 'finished initialization');
+    return { __initialized: 'yes' };
+  }
+
+  setupHistoryCommand(): void {
+    const history = () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const replHistory: string[] = (this.runtimeState().repl as any).history;
+      const formattedHistory =
+        // Remove the history call from the formatted history
+        replHistory.slice(1).reverse();
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      formattedHistory[util.inspect.custom as any] = ((
+        depth: number | null,
+        options: util.InspectOptions,
+        inspect: typeof util.inspect
+      ) => {
+        // We pass a copy of the array without the util.inspect.custom set
+        // to prevent infinite recursion.
+        return inspect(formattedHistory.concat(), {
+          ...options,
+          depth,
+          maxArrayLength: Infinity,
+        });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      }) as any;
+      return formattedHistory;
+    };
+
+    this.runtimeState().context.history = history;
+  }
+
+  private async finishInitializingNodeRepl(): Promise<void> {
+    const { repl, instanceState } = this.runtimeState();
+    if (!repl) return;
+
+    this.outputFinishString += installPasteSupport(repl);
 
     const origReplCompleter = promisify(repl.completer.bind(repl)); // repl.completer is callback-style
     const mongoshCompleter = completer.bind(
       null,
       instanceState.getAutocompleteParameters()
     );
-    (repl as Mutable<typeof repl>).completer = callbackify(
+    const innerCompleter = async (
+      text: string
+    ): Promise<[string[], string]> => {
+      // Merge the results from the repl completer and the mongosh completer.
+      const [
+        [replResults, replOrig],
+        [mongoshResults, , mongoshResultsExclusive],
+      ] = await Promise.all([
+        (async () => (await origReplCompleter(text)) || [[]])(),
+        (async () => await mongoshCompleter(text))(),
+      ]);
+      this.bus.emit('mongosh:autocompletion-complete'); // For testing.
+
+      // Sometimes the mongosh completion knows that what it is doing is right,
+      // and that autocompletion based on inspecting the actual objects that
+      // are being accessed will not be helpful, e.g. in `use a<tab>`, we know
+      // that we want *only* database names and not e.g. `assert`.
+      if (mongoshResultsExclusive) {
+        return [mongoshResults, text];
+      }
+
+      // The REPL completer may not complete the entire string; for example,
+      // when completing ".ed" to ".editor", it reports as having completed
+      // only the last piece ("ed"), or when completing "{ $g", it completes
+      // only "$g" and not the entire result.
+      // The mongosh completer always completes on the entire string.
+      // In order to align them, we always extend the REPL results to include
+      // the full string prefix.
+      const replResultPrefix = replOrig
+        ? text.substr(0, text.lastIndexOf(replOrig))
+        : '';
+      const longReplResults = replResults.map(
+        (result: string) => replResultPrefix + result
+      );
+
+      // Remove duplicates, because shell API methods might otherwise show
+      // up in both completions.
+      const deduped = [...new Set([...longReplResults, ...mongoshResults])];
+
+      return [deduped, text];
+    };
+
+    const nodeReplCompleter = callbackify(
       async (text: string): Promise<[string[], string]> => {
         this.insideAutoCompleteOrGetPrompt = true;
         try {
-          // Merge the results from the repl completer and the mongosh completer.
-          const [
-            [replResults, replOrig],
-            [mongoshResults, , mongoshResultsExclusive],
-          ] = await Promise.all([
-            (async () => (await origReplCompleter(text)) || [[]])(),
-            (async () => await mongoshCompleter(text))(),
-          ]);
-          this.bus.emit('mongosh:autocompletion-complete'); // For testing.
-
-          // Sometimes the mongosh completion knows that what it is doing is right,
-          // and that autocompletion based on inspecting the actual objects that
-          // are being accessed will not be helpful, e.g. in `use a<tab>`, we know
-          // that we want *only* database names and not e.g. `assert`.
-          if (mongoshResultsExclusive) {
-            return [mongoshResults, text];
-          }
-
-          // The REPL completer may not complete the entire string; for example,
-          // when completing ".ed" to ".editor", it reports as having completed
-          // only the last piece ("ed"), or when completing "{ $g", it completes
-          // only "$g" and not the entire result.
-          // The mongosh completer always completes on the entire string.
-          // In order to align them, we always extend the REPL results to include
-          // the full string prefix.
-          const replResultPrefix = replOrig
-            ? text.substr(0, text.lastIndexOf(replOrig))
-            : '';
-          const longReplResults = replResults.map(
-            (result: string) => replResultPrefix + result
+          // eslint-disable-next-line prefer-const
+          let [results, completeOn] = await innerCompleter(text);
+          results = results.filter(
+            (result) => !CONTROL_CHAR_REGEXP.test(result)
           );
-
-          // Remove duplicates, because shell API methods might otherwise show
-          // up in both completions.
-          const deduped = [...new Set([...longReplResults, ...mongoshResults])];
-
-          return [deduped, text];
+          return [results, completeOn];
         } finally {
           this.insideAutoCompleteOrGetPrompt = false;
         }
       }
     );
+    (repl as Mutable<typeof repl>).completer = nodeReplCompleter;
 
     // This is used below for multiline history manipulation.
     let originalHistory: string[] | null = null;
@@ -358,7 +537,7 @@ class MongoshNodeRepl implements EvaluationListener {
       // repl.history is an array of previous commands. We need to hijack the
       // value we just typed, and shift it off the history array if the info is
       // sensitive.
-      repl.on('flushHistory', () => {
+      repl.on('line', () => {
         if (this.redactHistory !== 'keep') {
           const history: string[] = (repl as any).history;
           changeHistory(
@@ -415,6 +594,8 @@ class MongoshNodeRepl implements EvaluationListener {
     }
 
     markTime(TimingCategories.UserConfigLoading, 'set up history file');
+
+    // Similar calls are added for plain-vm evaluation below
     (repl as any).on(asyncRepl.evalStart, () => {
       this.bus.emit('mongosh:evaluate-started');
     });
@@ -423,31 +604,12 @@ class MongoshNodeRepl implements EvaluationListener {
     });
 
     repl.on('exit', () => {
+      // repl is already closed, no need to close it again via this.close()
+      if (this._runtimeState) this._runtimeState.repl = null;
       this.onExit().catch(() => {
         /* ... */
       });
     });
-
-    instanceState.setCtx(repl.context);
-
-    if (!this.shellCliOptions.nodb && !this.shellCliOptions.quiet) {
-      // cf. legacy shell:
-      // https://github.com/mongodb/mongo/blob/a6df396047a77b90bf1ce9463eecffbee16fb864/src/mongo/shell/mongo_main.cpp#L1003-L1026
-      const { shellApi } = instanceState;
-      const banners = await Promise.all([
-        (async () => await shellApi._untrackedShow('startupWarnings'))(),
-        (async () => await shellApi._untrackedShow('automationNotices'))(),
-        (async () => await shellApi._untrackedShow('nonGenuineMongoDBCheck'))(),
-      ]);
-      for (const banner of banners) {
-        if (banner.value) {
-          await shellApi.print(banner);
-        }
-      }
-    }
-
-    markTime(TimingCategories.REPLInstantiation, 'finished initialization');
-    return { __initialized: 'yes' };
   }
 
   /**
@@ -459,11 +621,18 @@ class MongoshNodeRepl implements EvaluationListener {
   async startRepl(_initializationToken: InitializationToken): Promise<void> {
     this.started = true;
     const { repl } = this.runtimeState();
+    if (!repl) {
+      throw new MongoshInternalError(
+        'Cannot start REPL when not in REPL evaluation mode'
+      );
+    }
+    // Set up the prompt before consuming input so that we do not end up
+    // running the prompt function in parallel with actual input code.
+    repl.setPrompt(await this.getShellPrompt());
     // Only start reading from the input *after* we set up everything, including
-    // instanceState.setCtx().
+    // instanceState.setCtx() and configuring the REPL prompt.
     this.lineByLineInput.start();
     this.input.resume();
-    repl.setPrompt(await this.getShellPrompt());
     repl.displayPrompt();
   }
 
@@ -472,7 +641,7 @@ class MongoshNodeRepl implements EvaluationListener {
    */
   async greet(
     mongodVersion: string,
-    moreRecentMongoshVersion?: string | null
+    greeting?: GreetingDetails
   ): Promise<void> {
     if (this.shellCliOptions.quiet) {
       return;
@@ -486,15 +655,23 @@ class MongoshNodeRepl implements EvaluationListener {
       'Using Mongosh',
       'mongosh:section-header'
     )}:\t\t${version}\n`;
-    if (moreRecentMongoshVersion) {
+    if (greeting?.moreRecentMongoshVersion) {
       text += `mongosh ${this.clr(
-        moreRecentMongoshVersion,
+        greeting.moreRecentMongoshVersion,
         'bold'
       )} is available for download: ${this.clr(
         'https://www.mongodb.com/try/download/shell',
         'mongosh:uri'
       )}\n`;
     }
+
+    if (greeting?.currentVersionCTA) {
+      for (const run of greeting.currentVersionCTA) {
+        text += this.clr(run.text, run.style);
+      }
+      text += '\n';
+    }
+
     text += `${MONGOSH_WIKI}\n`;
     if (!(await this.getConfig('disableGreetingMessage'))) {
       text += `${TELEMETRY_GREETING_MESSAGE}\n`;
@@ -604,7 +781,7 @@ class MongoshNodeRepl implements EvaluationListener {
       throw err;
     } finally {
       markTime(TimingCategories.Eval, 'done repl eval');
-      if (!this.insideAutoCompleteOrGetPrompt && !interrupted) {
+      if (!this.insideAutoCompleteOrGetPrompt && !interrupted && repl) {
         // In case of an interrupt, onAsyncSigint will print the prompt when completed
         repl.setPrompt(await this.getShellPrompt());
       }
@@ -658,8 +835,41 @@ class MongoshNodeRepl implements EvaluationListener {
     input: string,
     filename: string
   ): Promise<ShellResult> {
-    const { repl } = this.runtimeState();
-    return await promisify(repl.eval.bind(repl))(input, repl.context, filename);
+    const { repl, context } = this.runtimeState();
+    if (repl) {
+      return await promisify(repl.eval.bind(repl))(input, context, filename);
+    }
+
+    let asyncSigintHandler!: () => void;
+    const asyncSigintPromise = new Promise((resolve, reject) => {
+      asyncSigintHandler = () => {
+        void this.onAsyncSigint();
+        setImmediate(() =>
+          reject(
+            new Error('Asynchronous execution was interrupted by `SIGINT`')
+          )
+        );
+      };
+    });
+    this.bus.emit('mongosh:evaluate-started');
+    try {
+      process.addListener('SIGINT', asyncSigintHandler);
+      return await Promise.race([
+        asyncSigintPromise,
+        this.eval(
+          (input, context, filename) =>
+            new Script(input, { filename }).runInContext(context, {
+              breakOnSigint: true,
+            }),
+          input,
+          context,
+          filename
+        ),
+      ]);
+    } finally {
+      process.removeListener('SIGINT', asyncSigintHandler);
+      this.bus.emit('mongosh:evaluate-finished');
+    }
   }
 
   /**
@@ -677,7 +887,7 @@ class MongoshNodeRepl implements EvaluationListener {
     this.output.write('Stopping execution...');
 
     const mongodVersion: string | undefined =
-      instanceState.connectionInfo.buildInfo?.version;
+      instanceState.cachedConnectionInfo()?.buildInfo?.version;
     if (mongodVersion?.match(/^(4\.0\.|3\.)\d+/)) {
       this.output.write(
         this.clr(
@@ -709,7 +919,9 @@ class MongoshNodeRepl implements EvaluationListener {
     this.bus.emit('mongosh:interrupt-complete'); // For testing purposes.
 
     const { repl } = this.runtimeState();
-    repl.setPrompt(await this.getShellPrompt());
+    if (repl) {
+      repl.setPrompt(await this.getShellPrompt());
+    }
 
     return true;
   }
@@ -763,18 +975,21 @@ class MongoshNodeRepl implements EvaluationListener {
    * @param values A list of values to be printed.
    */
   onPrint(values: ShellResult[], type: 'print' | 'printjson'): void {
-    const extraOptions: Partial<FormatOptions> | undefined =
-      // MONGOSH-955: when `printjson()` is called in mongosh, we will try to
-      // replicate the format of the old shell: start every object on the new
-      // line, and set all the collapse options threshold to infinity
-      type === 'printjson'
-        ? {
-            compact: false,
-            depth: Infinity,
-            maxArrayLength: Infinity,
-            maxStringLength: Infinity,
-          }
-        : undefined;
+    let extraOptions: Partial<FormatOptions> = {
+      allowControlCharacters: true,
+    };
+    // MONGOSH-955: when `printjson()` is called in mongosh, we will try to
+    // replicate the format of the old shell: start every object on the new
+    // line, and set all the collapse options threshold to infinity
+    if (type === 'printjson') {
+      extraOptions = {
+        ...extraOptions,
+        compact: false,
+        depth: Infinity,
+        maxArrayLength: Infinity,
+        maxStringLength: Infinity,
+      };
+    }
     const joined = values
       .map((value) => this.formatShellResult(value, extraOptions))
       .join(' ');
@@ -792,6 +1007,10 @@ class MongoshNodeRepl implements EvaluationListener {
     question: string,
     type: 'password' | 'yesno'
   ): Promise<string> {
+    // Make sure we are in async evaluation mode, see comments in the
+    // function for details
+    await enterAsynchronousExecutionForPrompt();
+
     if (type === 'password') {
       const passwordPromise = askpassword({
         input: this.input,
@@ -863,11 +1082,12 @@ class MongoshNodeRepl implements EvaluationListener {
    * Provides the current set of output formatting options used for this shell.
    */
   getFormatOptions(): FormatOptions {
-    const output = this.output as WriteStream;
+    const output: Writable &
+      Partial<Pick<WriteStream, 'isTTY' | 'getColorDepth'>> = this.output;
     return {
       colors:
         this._runtimeState?.repl?.useColors ??
-        (output.isTTY && output.getColorDepth() > 1),
+        !!(output.isTTY && (output?.getColorDepth?.() ?? 0) > 1),
       compact: this.inspectCompact,
       depth: this.inspectDepth,
       showStackTraces: this.showStackTraces,
@@ -881,7 +1101,13 @@ class MongoshNodeRepl implements EvaluationListener {
    */
   runtimeState(): MongoshRuntimeState {
     if (this._runtimeState === null) {
-      throw new MongoshInternalError('Mongosh not initialized yet');
+      // This error can be really hard to debug, so we always attach stack traces
+      // from both when .close() was called and when
+      throw new MongoshInternalError(
+        `mongosh not initialized yet\nCurrent trace: ${
+          new Error().stack
+        }\nClose trace: ${this.closeTrace}`
+      );
     }
     return this._runtimeState;
   }
@@ -896,9 +1122,16 @@ class MongoshNodeRepl implements EvaluationListener {
     const rs = this._runtimeState;
     if (rs) {
       this._runtimeState = null;
-      rs.repl.close();
+      this.closeTrace = new Error().stack;
+      if (rs.repl) {
+        // Can be null if the repl already emitted 'exit'
+        rs.repl.close();
+        await once(rs.repl, 'exit');
+      }
       await rs.instanceState.close(true);
-      await new Promise((resolve) => this.output.write('', resolve));
+      await new Promise((resolve) =>
+        this.output.write(this.outputFinishString, resolve)
+      );
     }
   }
 
@@ -908,8 +1141,10 @@ class MongoshNodeRepl implements EvaluationListener {
    * @param exitCode The user-specified exit code, if any.
    */
   async onExit(exitCode?: number): Promise<never> {
-    await this.close();
-    return this.ioProvider.exit(exitCode);
+    return (this.exitPromise ??= (async () => {
+      await this.close();
+      return this.ioProvider.exit(exitCode);
+    })());
   }
 
   /**
@@ -919,6 +1154,13 @@ class MongoshNodeRepl implements EvaluationListener {
     key: K
   ): Promise<CliUserConfig[K] | undefined> {
     return this.ioProvider.getConfig(key);
+  }
+
+  /**
+   * Implements getLogPath from the {@link ConfigProvider} interface.
+   */
+  getLogPath(): string | undefined {
+    return this.ioProvider.getLogPath();
   }
 
   /**
@@ -988,11 +1230,11 @@ class MongoshNodeRepl implements EvaluationListener {
    * Figure out the current prompt to use.
    */
   private async getShellPrompt(): Promise<string> {
-    const { repl, instanceState } = this.runtimeState();
+    const { context, instanceState } = this.runtimeState();
 
     try {
       this.insideAutoCompleteOrGetPrompt = true;
-      if (typeof repl.context.prompt !== 'undefined') {
+      if (typeof context.prompt !== 'undefined') {
         const promptResult = await this.loadExternalCode(
           `
         (() => {
@@ -1021,6 +1263,10 @@ class MongoshNodeRepl implements EvaluationListener {
     }
     return '> ';
   }
+
+  jsContext(): JSContext {
+    return this.runtimeState().repl ? 'repl' : 'plain-vm';
+  }
 }
 
 /**
@@ -1037,6 +1283,36 @@ function isErrorLike(value: any): boolean {
   } catch (err: any) {
     throw new MongoshInternalError(err?.message || String(err));
   }
+}
+
+async function enterAsynchronousExecutionForPrompt(): Promise<void> {
+  // Make sure we always start out in an asynchronous state when
+  // presenting a prompt to the user.
+  // This is to work around/solve https://jira.mongodb.org/browse/MONGOSH-1667,
+  // where the sequence of events was as follows:
+  //
+  //  1. User types input (in raw mode), which contains a call to e.g.
+  //     passwordPrompt().
+  //  2. Our AsyncRepl implementation disables raw mode (for Ctrl+C support).
+  //  3. The Node.js REPL implementation disables raw mode (also for Ctrl+C
+  //      support, but targeting synchronous execution only).
+  //  4. The prompt implementation enables raw mode (to prevent echoing input)
+  //     while in the synchronous portion of evaluation, then waits for input.
+  //  5. Synchronous evaluation ends and the Node.js REPL restores the previous
+  //     raw mode, i.e. disabled it, because that is the state our AsyncRepl set
+  //     just before the Node.js REPL started evaluating.
+  //     (The prompt implementation observed this "auto-reset" but assumed it was
+  //     an intentional override of its own set-raw-mode behavior).
+  //  6. The prompt value (e.g. password) is entered and echoes back to the
+  //     terminal because raw mode is disabled.
+  //  7. Only after that does the AsyncRepl instance restore raw mode for
+  //     getting user input.
+  //
+  // Solving this issue by ensuring that the prompt is unaffected by our REPL
+  // raw mode setting/resetting seems like a reasonably self-contained approach
+  // to this issue.
+
+  await new Promise(setImmediate);
 }
 
 export default MongoshNodeRepl;

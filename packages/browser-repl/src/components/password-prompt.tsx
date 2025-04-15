@@ -1,18 +1,15 @@
 import React, { Component } from 'react';
-import { css, palette, fontFamilies } from '@mongodb-js/compass-components';
+import { css, fontFamilies, TextInput } from '@mongodb-js/compass-components';
 
 const passwordPrompt = css({
   paddingLeft: 23,
   '& input': {
-    fontSize: '13px',
-    lineHeight: '24px',
     fontFamily: fontFamilies.code,
-    backgroundColor: palette.gray.dark4,
-    color: palette.gray.light3,
-    padding: '0 3px',
-    border: `1px solid ${palette.gray.light3}`,
-    borderRadius: 3,
   },
+});
+
+const passwordPropmtInputStyles = css({
+  display: 'inline-block',
 });
 
 interface PasswordPromptProps {
@@ -42,9 +39,17 @@ export class PasswordPrompt extends Component<PasswordPromptProps> {
 
   render(): JSX.Element {
     return (
-      <label className={passwordPrompt}>
+      <label id="password-prompt-label" className={passwordPrompt}>
         {this.props.prompt}:&nbsp;
-        <input type="password" onKeyDown={this.onKeyDown} autoFocus />
+        <TextInput
+          data-testid="password-prompt"
+          aria-labelledby="password-prompt-label"
+          type="password"
+          onKeyDown={this.onKeyDown}
+          className={passwordPropmtInputStyles}
+          sizeVariant="xsmall"
+          autoFocus
+        ></TextInput>
       </label>
     );
   }

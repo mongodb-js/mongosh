@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/cli-repl",
-  "version": "0.0.0-dev.0",
+  "version": "2.5.0",
   "description": "MongoDB Shell CLI REPL Package",
   "homepage": "https://github.com/mongodb-js/mongosh",
   "author": "Compass Team <compass@mongodb.com>",
@@ -21,18 +21,20 @@
     "compile": "tsc -p tsconfig.json",
     "start": "node bin/mongosh.js",
     "pretest": "npm run compile",
-    "test": "cross-env TS_NODE_PROJECT=../../configs/tsconfig-mongosh/tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./src/**/*.spec.ts\"",
+    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register --reporter \"../../configs/mocha-config-mongosh/reporter.ts\" \"./src/**/*.spec.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
     "test-apistrict-ci": "cross-env MONGOSH_TEST_FORCE_API_STRICT=1 npm run test-ci",
+    "test-smoke": "node bin/mongosh.js --smokeTests",
     "eslint": "eslint",
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "check": "npm run lint && npm run depcheck",
     "depcheck": "depcheck",
     "prepublish": "npm run compile",
-    "webpack-build": "npm run compile && webpack --mode production",
-    "webpack-build-dev": "npm run compile && webpack --mode development",
+    "webpack-build": "npm run compile && webpack --mode production && cat dist/add-module-mapping.js >> dist/mongosh.js",
+    "webpack-build-dev": "npm run compile && webpack --mode development && cat dist/add-module-mapping.js >> dist/mongosh.js",
+    "start-snapshot": "rm -f snapshot.blob && node --snapshot-blob snapshot.blob --build-snapshot dist/mongosh.js && node --snapshot-blob snapshot.blob dist/mongosh.js",
     "prettier": "prettier",
     "reformat": "npm run prettier -- --write . && npm run eslint --fix"
   },
@@ -41,7 +43,7 @@
     "access": "public"
   },
   "engines": {
-    "node": ">=16.15.0"
+    "node": ">=18.19.0"
   },
   "mongosh": {
     "ciRequiredOptionalDependencies": {
@@ -53,45 +55,51 @@
       ],
       "get-console-process-list": [
         "win32"
+      ],
+      "glibc-version": [
+        "linux"
       ]
     }
   },
   "dependencies": {
-    "@mongosh/arg-parser": "0.0.0-dev.0",
-    "@mongosh/autocomplete": "0.0.0-dev.0",
-    "@mongosh/editor": "0.0.0-dev.0",
-    "@mongosh/errors": "0.0.0-dev.0",
-    "@mongosh/history": "0.0.0-dev.0",
-    "@mongosh/i18n": "0.0.0-dev.0",
-    "@mongosh/js-multiline-to-singleline": "0.0.0-dev.0",
-    "@mongosh/logging": "0.0.0-dev.0",
-    "@mongosh/service-provider-core": "0.0.0-dev.0",
-    "@mongosh/service-provider-server": "0.0.0-dev.0",
-    "@mongosh/shell-api": "0.0.0-dev.0",
-    "@mongosh/shell-evaluator": "0.0.0-dev.0",
-    "@mongosh/snippet-manager": "0.0.0-dev.0",
-    "@mongosh/types": "0.0.0-dev.0",
-    "analytics-node": "^5.1.2",
+    "@mongodb-js/devtools-proxy-support": "^0.4.2",
+    "@mongosh/arg-parser": "3.10.0",
+    "@mongosh/autocomplete": "3.10.0",
+    "@mongosh/editor": "3.10.0",
+    "@mongosh/errors": "2.4.0",
+    "@mongosh/history": "2.4.6",
+    "@mongosh/i18n": "^2.13.0",
+    "@mongosh/js-multiline-to-singleline": "2.4.8",
+    "@mongosh/logging": "3.6.0",
+    "@mongosh/service-provider-core": "3.3.0",
+    "@mongosh/service-provider-node-driver": "3.8.0",
+    "@mongosh/shell-api": "3.10.0",
+    "@mongosh/shell-evaluator": "3.10.0",
+    "@mongosh/snippet-manager": "3.10.0",
+    "@mongosh/types": "3.6.0",
+    "@segment/analytics-node": "^1.3.0",
     "ansi-escape-sequences": "^5.1.2",
-    "askcharacter": "^1.0.0",
-    "askpassword": "^1.2.4",
+    "askcharacter": "^2.0.4",
+    "askpassword": "^2.0.2",
+    "escape-string-regexp": "^4.0.0",
     "is-recoverable-error": "^1.0.3",
     "js-yaml": "^4.1.0",
-    "mongodb-connection-string-url": "^3.0.0",
-    "mongodb-log-writer": "^1.4.0",
+    "mongodb-connection-string-url": "^3.0.1",
+    "mongodb-log-writer": "^2.3.1",
     "numeral": "^2.0.6",
-    "pretty-repl": "^4.0.0",
+    "pretty-repl": "^4.0.1",
     "semver": "^7.5.4",
     "strip-ansi": "^6.0.0",
     "text-table": "^0.2.0",
-    "yargs-parser": "^20.2.4"
+    "yargs-parser": "^20.2.4",
+    "glibc-version": "^1.0.0"
   },
   "devDependencies": {
+    "mongodb": "^6.14.2",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
-    "@mongodb-js/sbom-tools": "^0.5.2",
+    "@mongodb-js/sbom-tools": "^0.7.2",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "@types/analytics-node": "^3.1.3",
     "@types/ansi-escape-sequences": "^4.0.0",
     "@types/js-yaml": "^4.0.5",
     "@types/node": "^14.14.6",
@@ -100,17 +108,17 @@
     "@types/yargs-parser": "^15.0.0",
     "@types/chai-as-promised": "^7.1.3",
     "chai-as-promised": "^7.1.1",
-    "depcheck": "^1.4.3",
+    "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
     "mongodb-crypt-library-dummy": "^1.0.2",
-    "node-fetch": "^2.6.1",
     "prettier": "^2.8.8",
     "webpack-merge": "^5.8.0"
   },
   "optionalDependencies": {
-    "get-console-process-list": "^1.0.4",
-    "macos-export-certificate-and-key": "^1.1.1",
-    "mongodb-crypt-library-version": "^1.0.3",
-    "win-export-certificate-and-key": "^1.1.1"
+    "get-console-process-list": "^1.0.5",
+    "glibc-version": "^1.0.0",
+    "macos-export-certificate-and-key": "^1.2.4",
+    "mongodb-crypt-library-version": "^1.0.5",
+    "win-export-certificate-and-key": "^2.1.0"
   }
 }

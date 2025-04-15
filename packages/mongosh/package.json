@@ -1,6 +1,6 @@
 {
   "name": "mongosh",
-  "version": "0.0.0-dev.0",
+  "version": "2.5.0",
   "description": "MongoDB Shell CLI REPL",
   "keywords": [
     "mongosh",
@@ -39,6 +39,6 @@
     "variants": []
   },
   "dependencies": {
-    "@mongosh/cli-repl": "0.0.0-dev.0"
+    "@mongosh/cli-repl": "2.5.0"
   }
 }
