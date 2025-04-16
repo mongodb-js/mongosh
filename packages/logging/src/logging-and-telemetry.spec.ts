@@ -217,7 +217,10 @@ describe('MongoshLoggingAndTelemetry', function () {
 
     it('uses device ID "unknown" and logs error if it fails to resolve it', async function () {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      sinon.stub(require('child_process'), 'exec').throws(new Error('Test'));
+      sinon
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        .stub(require('native-machine-id'), 'getMachineId')
+        .rejects(new Error('Test'));
       const loggingAndTelemetry = setupLoggingAndTelemetry({
         ...testLoggingArguments,
         bus,
@@ -289,7 +292,7 @@ describe('MongoshLoggingAndTelemetry', function () {
       });
       sinon
         // eslint-disable-next-line @typescript-eslint/no-var-requires
-        .stub(require('node-machine-id'), 'machineId')
+        .stub(require('native-machine-id'), 'getMachineId')
         .resolves(delayedTelemetry);
 
       const loggingAndTelemetry = setupLoggingAndTelemetry({
