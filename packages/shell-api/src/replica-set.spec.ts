@@ -23,7 +23,7 @@ import {
   skipIfApiStrict,
 } from '../../../testing/integration-testing-hooks';
 import { NodeDriverServiceProvider } from '../../service-provider-node-driver';
-import Database from './database';
+import { DatabaseImpl } from './database';
 import {
   ADMIN_DB,
   ALL_PLATFORMS,
@@ -94,7 +94,7 @@ describe('ReplicaSet', function () {
     let rs: ReplicaSet;
     let bus: StubbedInstance<EventEmitter>;
     let instanceState: ShellInstanceState;
-    let db: Database;
+    let db: DatabaseImpl;
 
     beforeEach(function () {
       bus = stubInterface<EventEmitter>();
@@ -113,8 +113,8 @@ describe('ReplicaSet', function () {
         undefined,
         serviceProvider
       );
-      db = new Database(mongo, 'testdb');
-      rs = new ReplicaSet(db);
+      db = new DatabaseImpl(mongo, 'testdb');
+      rs = new ReplicaSet(db._typeLaunder());
     });
 
     describe('initiate', function () {
@@ -832,7 +832,7 @@ describe('ReplicaSet', function () {
     let additionalServer: MongodSetup;
     let serviceProvider: NodeDriverServiceProvider;
     let instanceState: ShellInstanceState;
-    let db: Database;
+    let db: DatabaseImpl;
     let rs: ReplicaSet;
 
     before(async function () {
@@ -855,7 +855,7 @@ describe('ReplicaSet', function () {
       );
       instanceState = new ShellInstanceState(serviceProvider);
       db = instanceState.currentDb;
-      rs = new ReplicaSet(db);
+      rs = new ReplicaSet(db._typeLaunder());
 
       // check replset uninitialized
       try {

@@ -352,7 +352,7 @@ export class ShellInstanceState {
     contextObject.sp = Streams.newInstance(this.currentDb);
 
     const setFunc = (newDb: any): Database => {
-      if (getShellApiType(newDb) !== 'Database') {
+      if (getShellApiType(newDb) !== 'DatabaseImpl') {
         throw new MongoshInvalidInputError(
           "Cannot reassign 'db' to non-Database type",
           CommonErrors.InvalidOperation

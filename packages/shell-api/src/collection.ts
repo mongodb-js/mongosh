@@ -2157,7 +2157,9 @@ export class CollectionImpl<
   @returnsPromise
   @topologies([Topologies.Sharded])
   @apiVersions([])
-  async getShardDistribution(): Promise<CommandResult> {
+  async getShardDistribution(): Promise<
+    CommandResult<GetShardDistributionResult>
+  > {
     this._emitCollectionApiCall('getShardDistribution', {});
 
     const result = {} as Document;

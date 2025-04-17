@@ -496,7 +496,7 @@ describe('ShellApi', function () {
           'username',
           'pwd'
         );
-        expect((await toShellResult(db)).type).to.equal('Database');
+        expect((await toShellResult(db)).type).to.equal('DatabaseImpl');
         expect(db.getMongo()._uri).to.equal(
           'mongodb://username:pwd@localhost:27017/?directConnection=true&serverSelectionTimeoutMS=2000'
         );
@@ -624,7 +624,7 @@ describe('ShellApi', function () {
         const db = await instanceState.context.connect(
           'mongodb://127.0.0.1:27017'
         );
-        expect((await toShellResult(db)).type).to.equal('Database');
+        expect((await toShellResult(db)).type).to.equal('DatabaseImpl');
         expect(db.getMongo()._uri).to.equal(
           'mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000'
         );
@@ -636,7 +636,7 @@ describe('ShellApi', function () {
           'username',
           'pwd'
         );
-        expect((await toShellResult(db)).type).to.equal('Database');
+        expect((await toShellResult(db)).type).to.equal('DatabaseImpl');
         expect(db.getMongo()._uri).to.equal(
           'mongodb://username:pwd@127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000'
         );

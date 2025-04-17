@@ -4,6 +4,16 @@
   "description": "MongoDB Shell API Classes Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "default": "./lib/index.js",
+      "types": "./lib/index.d.ts"
+    },
+    "./api": {
+      "default": "./lib/api.js",
+      "types": "./lib/api.d.ts"
+    }
+  },
   "config": {
     "unsafe-perm": true
   },
