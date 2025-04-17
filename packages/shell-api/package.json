@@ -10,8 +10,7 @@
       "types": "./lib/index.d.ts"
     },
     "./api": {
-      "default": "./lib/api.js",
-      "types": "./lib/api.d.ts"
+      "types": "./lib/api-processed.d.ts"
     }
   },
   "config": {
