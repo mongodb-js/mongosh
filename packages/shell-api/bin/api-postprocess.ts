@@ -6,6 +6,7 @@ import { signatures } from '../';
 
 function applyAsyncRewriterChanges() {
   return ({
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     types: t,
   }: {
     types: typeof BabelTypes;
@@ -30,6 +31,7 @@ function applyAsyncRewriterChanges() {
                   ([cls, method]) => cls === className && method === methodName
                 )
               ) {
+                // eslint-disable-next-line no-console
                 console.error(
                   `Expected to find and transpile type for @returnsPromise-annotated method ${className}.${methodName}`
                 );
@@ -131,6 +133,11 @@ type MongodbServerSchema = {
 declare global {
   // second argument optional
   var db: Database<MongodbServerSchema, MongodbServerSchema['test']>;
+  var rs: ReplicaSet<MongodbServerSchema, MongodbServerSchema['test']>;
+  var sh: Shard<MongodbServerSchema, MongodbServerSchema['test']>;
+  // not sure this is correct because sp is usually made using static method
+  // Streams.newInstance(), but here Streams is only a type
+  var sp: Streams<MongodbServerSchema, MongodbServerSchema['test']>;
 
   var use: (collection: StringKey<MongodbServerSchema>) => void;
 }

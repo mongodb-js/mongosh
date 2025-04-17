@@ -1,6 +1,6 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
-  "mainEntryPointFilePath": "<projectFolder>/lib/index.d.ts",
+  "mainEntryPointFilePath": "<projectFolder>/lib/api.d.ts",
   "apiReport": {
     "enabled": false
   },
@@ -9,6 +9,7 @@
   },
   "bundledPackages": [
     "@mongodb-js/devtools-connect",
+    "@mongodb-js/devtools-proxy-support",
     "@mongodb-js/oidc-plugin",
     "@mongosh/arg-parser",
     "@mongosh/service-provider-core",
@@ -40,8 +41,11 @@
         "addToApiReportFile": false
       },
       "ae-forgotten-export": {
-        "logLevel": "error",
+        "logLevel": "warning",
         "addToApiReportFile": false
+      },
+      "ae-missing-release-tag": {
+        "logLevel": "none"
       }
     },
     "tsdocMessageReporting": {
