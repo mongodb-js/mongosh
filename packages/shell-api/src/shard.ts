@@ -12,7 +12,12 @@ import type {
   Document,
   CheckMetadataConsistencyOptions,
 } from '@mongosh/service-provider-core';
-import type { ShardInfo, ShardingStatusResult } from './helpers';
+import type {
+  ShardInfo,
+  ShardingStatusResult,
+  GenericDatabaseSchema,
+  GenericServerSideSchema,
+} from './helpers';
 import {
   assertArgsDefinedType,
   getConfigDB,
@@ -28,15 +33,18 @@ import type RunCommandCursor from './run-command-cursor';
 import semver from 'semver';
 
 @shellApiClassDefault
-export default class Shard extends ShellApiWithMongoClass {
-  _database: Database;
+export default class Shard<
+  M extends GenericServerSideSchema = GenericServerSideSchema,
+  D extends GenericDatabaseSchema = GenericDatabaseSchema
+> extends ShellApiWithMongoClass {
+  _database: Database<M, D>;
 
-  constructor(database: Database) {
+  constructor(database: Database<M, D>) {
     super();
     this._database = database;
   }
 
-  get _mongo(): Mongo {
+  get _mongo(): Mongo<M> {
     return this._database._mongo;
   }
 
@@ -205,7 +213,7 @@ export default class Shard extends ShellApiWithMongoClass {
   @apiVersions([1])
   async status(
     verbose = false,
-    configDB?: Database
+    configDB?: Database<M, D>
   ): Promise<CommandResult<ShardingStatusResult>> {
     const result = await getPrintableShardStatus(
       configDB ?? (await getConfigDB(this._database)),

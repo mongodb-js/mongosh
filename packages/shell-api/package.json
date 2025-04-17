@@ -4,6 +4,15 @@
   "description": "MongoDB Shell API Classes Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "default": "./lib/index.js",
+      "types": "./lib/index.d.ts"
+    },
+    "./api": {
+      "types": "./lib/api-processed.d.ts"
+    }
+  },
   "config": {
     "unsafe-perm": true
   },
@@ -13,6 +22,7 @@
   },
   "scripts": {
     "compile": "tsc -p tsconfig.json",
+    "api-generate": "api-extractor run ; ts-node bin/api-postprocess.ts",
     "pretest": "npm run compile",
     "eslint": "eslint",
     "lint": "npm run eslint . && npm run prettier -- --check .",
@@ -48,6 +58,7 @@
     "mongodb-redact": "^1.1.5"
   },
   "devDependencies": {
+    "@microsoft/api-extractor": "^7.39.3",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",

@@ -36,6 +36,7 @@ describe('AggregationCursor', function () {
         type: 'function',
         returnsPromise: false,
         deprecated: false,
+        inherited: true,
         returnType: 'AggregationCursor',
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,

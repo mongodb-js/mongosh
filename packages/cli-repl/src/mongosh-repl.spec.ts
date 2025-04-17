@@ -2,7 +2,7 @@
 import { MongoshCommandFailed } from '@mongosh/errors';
 import type { ServiceProvider } from '@mongosh/service-provider-core';
 import { bson } from '@mongosh/service-provider-core';
-import { ADMIN_DB } from '@mongosh/shell-api/lib/enums';
+import { ADMIN_DB } from '../../shell-api/lib/enums';
 import { CliUserConfig } from '@mongosh/types';
 import { EventEmitter, once } from 'events';
 import path from 'path';
