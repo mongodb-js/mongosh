@@ -77,6 +77,8 @@ export async function release(
           content: { sha: '0'.repeat(40) },
           commit: { sha: '0'.repeat(40) },
         },
+        status: 200,
+        url: options.url,
       };
     });
   }
