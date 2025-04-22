@@ -23,7 +23,7 @@
   "scripts": {
     "compile": "tsc -p tsconfig.json",
     "api-generate": "api-extractor run ; ts-node bin/api-postprocess.ts",
-    "pretest": "npm run compile",
+    "pretest": "npm run compile && npm run api-generate",
     "eslint": "eslint",
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "check": "npm run lint && npm run depcheck",
@@ -35,7 +35,7 @@
     "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
     "test-apistrict-ci": "cross-env MONGOSH_TEST_FORCE_API_STRICT=1 npm run test-ci",
-    "prepublish": "npm run compile",
+    "prepublish": "npm run compile && npm run api-generate",
     "prettier": "prettier",
     "reformat": "npm run prettier -- --write . && npm run eslint --fix"
   },
