@@ -106,7 +106,8 @@ async function main() {
       plugins: ['typescript'],
     },
   });
-  let code = result?.code ?? '';
+  const code = result?.code ?? '';
+  /*
   code += `
 // REPLACEME
 type MongodbServerSchema = {
@@ -142,6 +143,7 @@ declare global {
   var use: (collection: StringKey<MongodbServerSchema>) => void;
 }
 `;
+  */
   await fs.writeFile(
     path.resolve(__dirname, '..', 'lib', 'api-processed.d.ts'),
     code
