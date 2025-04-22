@@ -50,6 +50,8 @@
     "build"
   ],
   "dependencies": {
+    "@babel/core": "^7.26.10",
+    "@babel/types": "^7.26.10",
     "@mongosh/arg-parser": "3.10.0",
     "@mongosh/errors": "2.4.0",
     "@mongosh/history": "2.4.6",
