@@ -6,6 +6,11 @@ export NODE_JS_VERSION=${NODE_JS_VERSION}
 export ARTIFACT_URL_FILE="$PWD/../artifact-url.txt"
 
 source .evergreen/setup-env.sh
+notarymode="notarizeAndSign"
+
+if [ "$REQUESTER" == "github_pr" ]; then
+  notarymode="sign"
+fi
 
 (mkdir -p dist/ && cd dist/ && bash "$BASEDIR/retry-with-backoff.sh" curl -sSfLO --url "$(cat "$ARTIFACT_URL_FILE")")
 ls -lh dist/
@@ -24,15 +29,20 @@ if [ "$(uname)" == Darwin ]; then
   # notarize the client
   ./darwin_amd64/macnotary \
     -f "$FILE" \
-    -m notarizeAndSign -u https://dev.macos-notary.build.10gen.cc/api \
+    -m $notarymode -u https://dev.macos-notary.build.10gen.cc/api \
     -b com.mongodb.mongosh \
     -e config/macos-entitlements.xml \
     -o "$FILE-signed.zip"
   mv -v "$FILE-signed.zip" "$FILE"
 
-  # Verify signing
+  # Verify signing and notarization
   unzip "$FILE"
-  spctl -a -vvv -t install mongosh-*/bin/mongosh
+  if [ "$notarymode" == "sign" ]; then
+    codesign --verify --deep --strict --verbose=2 mongosh-*/bin/mongosh
+  else
+    spctl -a -vvv -t install mongosh-*/bin/mongosh
+  fi
+
 else
   npm run evergreen-release sign
 fi
