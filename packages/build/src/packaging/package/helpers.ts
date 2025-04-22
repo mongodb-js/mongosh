@@ -13,7 +13,9 @@ export async function execFile(
 ): Promise<ReturnType<typeof execFileWithoutLogging>> {
   const joinedCommand = [args[0], ...(args[1] ?? [])].join(' ');
   console.info(
-    'Running "' + joinedCommand + '" in ' + args[2]?.cwd ?? process.cwd()
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore TS2869 Right operand of ?? is unreachable because the left operand is never nullish.
+    `Running "${joinedCommand}" in ${args[2]?.cwd ?? process.cwd()}`
   );
   const result = await execFileWithoutLogging(...args);
   console.info('"' + joinedCommand + '" resulted in:', {
