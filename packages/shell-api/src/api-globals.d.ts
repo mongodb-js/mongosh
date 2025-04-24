@@ -5,8 +5,7 @@ declare global {
   const quit: ShellApi['quit'];
   const Mongo: ShellApi['Mongo'];
   const connect: ShellApi['connect'];
-  // TODO: mocha is making ts or eslint think this is a duplicate variable
-  //const it: ShellApi['it'];
+  const it: ShellApi['it'];
   const version: ShellApi['version'];
   const load: ShellApi['load'];
   const enableTelemetry: ShellApi['enableTelemetry'];
