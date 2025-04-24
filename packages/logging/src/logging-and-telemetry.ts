@@ -53,7 +53,7 @@ import type {
   MongoshLoggingAndTelemetryArguments,
   MongoshTrackingProperties,
 } from './types';
-import { machineId } from 'node-machine-id';
+import { getMachineId } from 'native-machine-id';
 import { createHmac } from 'crypto';
 
 export function setupLoggingAndTelemetry(
@@ -66,13 +66,15 @@ export function setupLoggingAndTelemetry(
 }
 
 /**
- * @returns A hashed, unique identifier for the running device.
- * @throws If something goes wrong when getting the device ID.
+ * @returns A hashed, unique identifier for the running device or `undefined` if not known.
  */
-export async function getDeviceId(): Promise<string> {
+export async function getDeviceId(): Promise<string | 'unknown'> {
   // Create a hashed format from the all uppercase version of the machine ID
   // to match it exactly with the denisbrodbeck/machineid library that Atlas CLI uses.
-  const originalId = (await machineId(true)).toUpperCase();
+  const originalId = (await getMachineId({ raw: true }))?.toUpperCase();
+  if (!originalId) {
+    return 'unknown';
+  }
   const hmac = createHmac('sha256', originalId);
 
   /** This matches the message used to create the hashes in Atlas CLI */
