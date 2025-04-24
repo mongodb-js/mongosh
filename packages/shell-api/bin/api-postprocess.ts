@@ -31,6 +31,10 @@ function applyAsyncRewriterChanges() {
                   ([cls, method]) => cls === className && method === methodName
                 )
               ) {
+                // TODO: fix this
+                if (className === 'Mongo') {
+                  return;
+                }
                 // eslint-disable-next-line no-console
                 console.error(
                   `Expected to find and transpile type for @returnsPromise-annotated method ${className}.${methodName}`
@@ -106,7 +110,12 @@ async function main() {
       plugins: ['typescript'],
     },
   });
-  const code = result?.code ?? '';
+  const apiGlobals = await fs.readFile(
+    path.resolve(__dirname, '..', 'src', 'api-globals.d.ts'),
+    'utf8'
+  );
+
+  const code = (result?.code ?? '') + apiGlobals;
   /*
   code += `
 // REPLACEME

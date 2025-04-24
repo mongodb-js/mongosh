@@ -1,0 +1,45 @@
+declare global {
+  const use: ShellApi['use'];
+  const show: ShellApi['show'];
+  const exit: ShellApi['exit'];
+  const quit: ShellApi['quit'];
+  const Mongo: ShellApi['Mongo'];
+  const connect: ShellApi['connect'];
+  // TODO: mocha is making ts or eslint think this is a duplicate variable
+  //const it: ShellApi['it'];
+  const version: ShellApi['version'];
+  const load: ShellApi['load'];
+  const enableTelemetry: ShellApi['enableTelemetry'];
+  const disableTelemetry: ShellApi['disableTelemetry'];
+  const passwordPrompt: ShellApi['passwordPrompt'];
+  const sleep: ShellApi['sleep'];
+  const print: ShellApi['print'];
+  const printjson: ShellApi['printjson'];
+  const convertShardKeyToHashed: ShellApi['convertShardKeyToHashed'];
+  const cls: ShellApi['cls'];
+  const isInteractive: ShellApi['isInteractive'];
+
+  const DBRef: ShellBson['DBRef'];
+  const bsonsize: ShellBson['bsonsize'];
+  const MaxKey: ShellBson['MaxKey'];
+  const MinKey: ShellBson['MinKey'];
+  const ObjectId: ShellBson['ObjectId'];
+  const Timestamp: ShellBson['Timestamp'];
+  const Code: ShellBson['Code'];
+  const NumberDecimal: ShellBson['NumberDecimal'];
+  const NumberInt: ShellBson['NumberInt'];
+  const NumberLong: ShellBson['NumberLong'];
+  const ISODate: ShellBson['ISODate'];
+  const BinData: ShellBson['BinData'];
+  const HexData: ShellBson['HexData'];
+  const UUID: ShellBson['UUID'];
+  const MD5: ShellBson['MD5'];
+  const Decimal128: ShellBson['Decimal128'];
+  const BSONSymbol: ShellBson['BSONSymbol'];
+  const Int32: ShellBson['Int32'];
+  const Long: ShellBson['Long'];
+  const Binary: ShellBson['Binary'];
+  const Double: ShellBson['Double'];
+  const EJSON: ShellBson['EJSON'];
+  const BSONRegExp: ShellBson['BSONRegExp'];
+}

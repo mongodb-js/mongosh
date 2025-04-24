@@ -15,7 +15,6 @@ export {
   ShellPlugin,
   AutocompleteParameters,
 } from './shell-instance-state';
-export type { ShellBson } from './shell-bson';
 import Shard from './shard';
 import ReplicaSet from './replica-set';
 import ShellApi from './shell-api';
@@ -39,6 +38,7 @@ export {
 } from './decorators';
 import { Topologies, ServerVersions } from './enums';
 import { InterruptFlag } from './interruptor';
+import { ShellBson } from './shell-bson';
 export type {
   GenericCollectionSchema,
   GenericDatabaseSchema,
@@ -65,6 +65,7 @@ export {
   Shard,
   ReplicaSet,
   ShellApi,
+  ShellBson,
   ServerVersions,
   Topologies,
   InterruptFlag,
