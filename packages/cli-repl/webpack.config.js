@@ -87,12 +87,6 @@ const config = {
       'commonjs2 ../build/Release/mongocrypt.node',
     '../build/Debug/mongocrypt.node':
       'commonjs2 ../build/Debug/mongocrypt.node',
-    '../build/Release/native_machine_id.node':
-      'commonjs2 ../build/Release/native_machine_id.node',
-    '../build/Debug/native_machine_id.node':
-      'commonjs2 ../build/Debug/native_machine_id.node',
-    './build/Release/native_machine_id.node':
-      'commonjs2 ./build/Release/native_machine_id.node',
   },
 
   externalsPresets: {
