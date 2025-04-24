@@ -53,7 +53,6 @@ import type {
   MongoshLoggingAndTelemetryArguments,
   MongoshTrackingProperties,
 } from './types';
-import { getMachineId } from 'native-machine-id';
 import { createHmac } from 'crypto';
 
 export function setupLoggingAndTelemetry(
@@ -71,7 +70,10 @@ export function setupLoggingAndTelemetry(
 export async function getDeviceId(): Promise<string | 'unknown'> {
   // Create a hashed format from the all uppercase version of the machine ID
   // to match it exactly with the denisbrodbeck/machineid library that Atlas CLI uses.
-  const originalId = (await getMachineId({ raw: true }))?.toUpperCase();
+  const originalId = (
+    await require('native-machine-id').getMachineId({ raw: true })
+  )?.toUpperCase();
+
   if (!originalId) {
     return 'unknown';
   }
