@@ -70,7 +70,7 @@ export function setupLoggingAndTelemetry(
 export async function getDeviceId(): Promise<string | 'unknown'> {
   // Create a hashed format from the all uppercase version of the machine ID
   // to match it exactly with the denisbrodbeck/machineid library that Atlas CLI uses.
-  const originalId = (
+  const originalId: string = (
     await require('native-machine-id').getMachineId({ raw: true })
   )?.toUpperCase();
 
