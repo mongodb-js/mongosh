@@ -3,6 +3,18 @@ import type * as BabelTypes from '@babel/types';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { signatures } from '../';
+import enUs from '../../i18n/src/locales/en_US';
+
+function getHelpClassName(className: string) {
+  switch (className) {
+    case 'CollectionImpl':
+      return 'Collection';
+    case 'DatabaseImpl':
+      return 'Database';
+    default:
+      return className;
+  }
+}
 
 function applyAsyncRewriterChanges() {
   return ({
@@ -67,6 +79,25 @@ function applyAsyncRewriterChanges() {
             throw new Error(`Duplicate method: ${className}.${methodName}`);
           }
           this.processedMethods.push([className, methodName, path.parent]);
+
+          const classHelp = (enUs['shell-api'] as any).classes[
+            getHelpClassName(className)
+          ];
+          if (
+            classHelp &&
+            classHelp.help.attributes &&
+            classHelp.help.attributes[methodName]
+          ) {
+            const methodHelp = classHelp.help.attributes[methodName];
+            if (methodHelp && methodHelp.description) {
+              //console.log(`${className}.${methodName}`, methodHelp.description);
+              path.addComment(
+                'leading',
+                `\n${methodHelp.description as string}\n`,
+                false
+              );
+            }
+          }
 
           if (!signatures[className]?.attributes?.[methodName]?.returnsPromise)
             return;
