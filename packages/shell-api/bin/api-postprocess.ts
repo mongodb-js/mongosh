@@ -115,7 +115,7 @@ async function main() {
     'utf8'
   );
 
-  const code = (result?.code ?? '') + apiGlobals;
+  const code = (result?.code ?? '') + '\n' + apiGlobals;
   /*
   code += `
 // REPLACEME
