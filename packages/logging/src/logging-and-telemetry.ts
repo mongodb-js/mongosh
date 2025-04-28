@@ -396,7 +396,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         this.busEventState.telemetryAnonymousId =
           newTelemetryUserIdentity.anonymousId;
 
-        void identify();
+        identify();
       }
     );
 
@@ -412,7 +412,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         } else {
           this.busEventState.userId = updatedTelemetryUserIdentity.userId;
         }
-        void identify();
+        identify();
         this.log.info(
           'MONGOSH',
           mongoLogId(1_000_000_005),
