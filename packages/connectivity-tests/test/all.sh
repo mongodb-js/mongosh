@@ -20,7 +20,7 @@ fi
 git clone https://github.com/mongodb-js/devtools-docker-test-envs.git test-envs
 cd test-envs
 
-git checkout ca4bacd23e6f7ea07618c303b20556e3e4c9c2e6
+git checkout ac8e6675fcd769f0bfc868c3ac73cdd8bcdcc792
 
 "$CONNECTIVITY_TEST_SOURCE_DIR/ldap.sh"
 "$CONNECTIVITY_TEST_SOURCE_DIR/localhost.sh"
