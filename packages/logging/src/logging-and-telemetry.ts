@@ -64,28 +64,6 @@ export function setupLoggingAndTelemetry(
   return loggingAndTelemetry;
 }
 
-/**
- * @returns A hashed, unique identifier for the running device or `undefined` if not known.
- */
-export async function getDeviceId(): Promise<string | 'unknown'> {
-  // Create a hashed format from the all uppercase version of the machine ID
-  // to match it exactly with the denisbrodbeck/machineid library that Atlas CLI uses.
-  const originalId: string = (
-    await require('native-machine-id').getMachineId({ raw: true })
-  )?.toUpperCase();
-
-  if (!originalId) {
-    return 'unknown';
-  }
-  const hmac = createHmac('sha256', originalId);
-
-  /** This matches the message used to create the hashes in Atlas CLI */
-  const DEVICE_ID_HASH_MESSAGE = 'atlascli';
-
-  hmac.update(DEVICE_ID_HASH_MESSAGE);
-  return hmac.digest('hex');
-}
-
 /** @internal */
 export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
   private static dummyLogger = new MongoLogWriter(
@@ -158,19 +136,43 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
     this.resolveDeviceId('unknown');
   }
 
+  /**
+   * @returns A hashed, unique identifier for the running device or `"unknown"` if not known.
+   */
+  private async getDeviceId(): Promise<string | 'unknown'> {
+    try {
+      // Create a hashed format from the all uppercase version of the machine ID
+      // to match it exactly with the denisbrodbeck/machineid library that Atlas CLI uses.
+      const originalId: string =
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        await require('native-machine-id').getMachineId({
+          raw: true,
+        });
+
+      if (!originalId) {
+        return 'unknown';
+      }
+      const hmac = createHmac('sha256', originalId);
+
+      /** This matches the message used to create the hashes in Atlas CLI */
+      const DEVICE_ID_HASH_MESSAGE = 'atlascli';
+
+      hmac.update(DEVICE_ID_HASH_MESSAGE);
+      return hmac.digest('hex');
+    } catch (error) {
+      this.bus.emit('mongosh:error', error as Error, 'telemetry');
+      return 'unknown';
+    }
+  }
+
   private async setupTelemetry(): Promise<void> {
     if (!this.deviceId) {
-      try {
-        this.deviceId ??= await Promise.race([
-          getDeviceId(),
-          new Promise<string>((resolve) => {
-            this.resolveDeviceId = resolve;
-          }),
-        ]);
-      } catch (error) {
-        this.bus.emit('mongosh:error', error as Error, 'telemetry');
-        this.deviceId = 'unknown';
-      }
+      this.deviceId = await Promise.race([
+        this.getDeviceId(),
+        new Promise<string>((resolve) => {
+          this.resolveDeviceId = resolve;
+        }),
+      ]);
     }
 
     this.runAndClearPendingTelemetryEvents();

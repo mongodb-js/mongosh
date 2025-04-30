@@ -771,6 +771,20 @@ describe('e2e', function () {
       ).to.include('string');
     });
 
+    it('sets device ID for telemetry', async function () {
+      const deviceId = (
+        await shell.executeLine(
+          'db._mongo._instanceState.evaluationListener.ioProvider.loggingAndTelemetry.deviceId'
+        )
+      )
+        .replace(/test>/g, '')
+        .trim();
+
+      expect(deviceId).not.to.equal('unknown');
+      // Our hashed key is 64 hex chars
+      expect(deviceId).to.match(/^[a-f0-9]{64}$/);
+    });
+
     context('post-4.2', function () {
       skipIfServerVersion(testServer, '< 4.4');
       it('allows calling convertShardKeyToHashed() as a global function', async function () {
