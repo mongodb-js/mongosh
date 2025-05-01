@@ -777,12 +777,17 @@ describe('e2e', function () {
           'db._mongo._instanceState.evaluationListener.ioProvider.loggingAndTelemetry.deviceId'
         )
       )
-        .replace(/test>/g, '')
-        .trim();
+        .split('\n')[0]
+        // Remove all whitespace
+        .replace(/\s+/g, '');
 
       expect(deviceId).not.to.equal('unknown');
       // Our hashed key is 64 hex chars
-      expect(deviceId).to.match(/^[a-f0-9]{64}$/);
+
+      expect(deviceId).to.match(
+        /^[a-f0-9]{64}$/,
+        `deviceId did not match: |${deviceId}|`
+      );
     });
 
     context('post-4.2', function () {
