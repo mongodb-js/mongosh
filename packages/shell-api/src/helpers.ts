@@ -1307,6 +1307,16 @@ export function buildConfigChunksCollectionMatch(
     : { ns: configCollectionsInfo._id }; // old format
 }
 
+export interface GenericCollectionSchema {
+  schema: Document;
+}
+export interface GenericDatabaseSchema {
+  [key: string]: GenericCollectionSchema;
+}
+export interface GenericServerSideSchema {
+  [key: string]: GenericDatabaseSchema;
+}
+export type StringKey<T> = keyof T & string;
 export const aggregateBackgroundOptionNotSupportedHelp =
   'the background option is not supported by the aggregate method and will be ignored, ' +
   'use runCommand to use { background: true } with Atlas Data Federation';

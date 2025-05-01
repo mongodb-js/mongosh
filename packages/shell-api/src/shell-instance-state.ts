@@ -142,7 +142,7 @@ const CONTROL_CHAR_REGEXP = /[\x00-\x1F\x7F-\x9F]/g;
  * shell API is concerned) and keeps track of all open connections (a.k.a. Mongo
  * instances).
  */
-export default class ShellInstanceState {
+export class ShellInstanceState {
   public currentCursor:
     | Cursor
     | AggregationCursor
@@ -352,7 +352,7 @@ export default class ShellInstanceState {
     contextObject.sp = Streams.newInstance(this.currentDb);
 
     const setFunc = (newDb: any): Database => {
-      if (getShellApiType(newDb) !== 'Database') {
+      if (getShellApiType(newDb) !== 'DatabaseImpl') {
         throw new MongoshInvalidInputError(
           "Cannot reassign 'db' to non-Database type",
           CommonErrors.InvalidOperation
@@ -728,3 +728,5 @@ export default class ShellInstanceState {
     }
   }
 }
+
+export default ShellInstanceState;

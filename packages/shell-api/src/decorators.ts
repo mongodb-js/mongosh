@@ -381,6 +381,7 @@ export interface TypeSignature {
   isDirectShellCommand?: boolean;
   acceptsRawInput?: boolean;
   shellCommandCompleter?: ShellCommandCompleter;
+  inherited?: boolean;
 }
 
 /**
@@ -426,6 +427,7 @@ type ClassSignature = {
       isDirectShellCommand: boolean;
       acceptsRawInput?: boolean;
       shellCommandCompleter?: ShellCommandCompleter;
+      inherited?: true;
     };
   };
 };
@@ -582,6 +584,7 @@ function shellApiClassGeneric<T extends { prototype: any }>(
         isDirectShellCommand: method.isDirectShellCommand,
         acceptsRawInput: method.acceptsRawInput,
         shellCommandCompleter: method.shellCommandCompleter,
+        inherited: true,
       };
 
       const attributeHelpKeyPrefix = `${superClassHelpKeyPrefix}.attributes.${propertyName}`;

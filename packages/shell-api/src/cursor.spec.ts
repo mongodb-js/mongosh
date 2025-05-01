@@ -55,6 +55,7 @@ describe('Cursor', function () {
         type: 'function',
         returnsPromise: false,
         deprecated: false,
+        inherited: true,
         returnType: 'Cursor',
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,

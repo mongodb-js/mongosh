@@ -34,7 +34,7 @@ import {
   makeFakeHTTPConnection,
   fakeAWSHandlers,
 } from '../../../testing/fake-kms';
-import Collection from './collection';
+import { CollectionImpl } from './collection';
 import { dummyOptions } from './helpers.spec';
 import type { IncomingMessage } from 'http';
 
@@ -602,7 +602,7 @@ describe('Field Level Encryption', function () {
             collName,
             createCollectionOptions
           );
-        expect(collection).to.be.instanceOf(Collection);
+        expect(collection).to.be.instanceOf(CollectionImpl);
         expect(encryptedFields).to.deep.equal(
           libmongocResponse.encryptedFields
         );

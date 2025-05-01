@@ -4,6 +4,15 @@
   "description": "MongoDB Shell API Classes Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "default": "./lib/index.js",
+      "types": "./lib/index.d.ts"
+    },
+    "./api": {
+      "types": "./lib/api-processed.d.ts"
+    }
+  },
   "config": {
     "unsafe-perm": true
   },
@@ -13,7 +22,8 @@
   },
   "scripts": {
     "compile": "tsc -p tsconfig.json",
-    "pretest": "npm run compile",
+    "api-generate": "api-extractor run ; ts-node bin/api-postprocess.ts",
+    "pretest": "npm run compile && npm run api-generate",
     "eslint": "eslint",
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "check": "npm run lint && npm run depcheck",
@@ -25,7 +35,7 @@
     "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
     "test-apistrict-ci": "cross-env MONGOSH_TEST_FORCE_API_STRICT=1 npm run test-ci",
-    "prepublish": "npm run compile",
+    "prepublish": "npm run compile && npm run api-generate",
     "prettier": "prettier",
     "reformat": "npm run prettier -- --write . && npm run eslint --fix"
   },
@@ -40,6 +50,8 @@
     "build"
   ],
   "dependencies": {
+    "@babel/core": "^7.26.10",
+    "@babel/types": "^7.26.10",
     "@mongosh/arg-parser": "3.10.0",
     "@mongosh/errors": "2.4.0",
     "@mongosh/history": "2.4.6",
@@ -48,6 +60,7 @@
     "mongodb-redact": "^1.1.5"
   },
   "devDependencies": {
+    "@microsoft/api-extractor": "^7.39.3",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",

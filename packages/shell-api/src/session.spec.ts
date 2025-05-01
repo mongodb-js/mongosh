@@ -25,7 +25,7 @@ import {
   skipIfApiStrict,
 } from '../../../testing/integration-testing-hooks';
 import { ensureMaster, ensureSessionExists } from '../test/helpers';
-import Database from './database';
+import { DatabaseImpl } from './database';
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import { EventEmitter } from 'events';
 import { dummyOptions } from './helpers.spec';
@@ -101,12 +101,12 @@ describe('Session', function () {
     describe('getDatabase', function () {
       it('works for a regular database', function () {
         const db = session.getDatabase('test');
-        expect(db).to.deep.equal(new Database(mongo, 'test', session));
+        expect(db).to.deep.equal(new DatabaseImpl(mongo, 'test', session));
         expect(session.getDatabase('test')).to.equal(db); // reuses db
       });
       it('also affects Database.getSiblingDB', function () {
         const db = session.getDatabase('othername').getSiblingDB('test');
-        expect(db).to.deep.equal(new Database(mongo, 'test', session));
+        expect(db).to.deep.equal(new DatabaseImpl(mongo, 'test', session));
         expect(session.getDatabase('test')).to.equal(db); // reuses db
       });
       it('throws for an invalid name', function () {

@@ -6,10 +6,10 @@ import type { EventEmitter } from 'events';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
 import type { ExplainableCursor } from './index';
 import { signatures, toShellResult } from './index';
-import Database from './database';
+import { DatabaseImpl } from './database';
 import type Cursor from './cursor';
 import Mongo from './mongo';
-import Collection from './collection';
+import { CollectionImpl } from './collection';
 import Explainable from './explainable';
 import type { ServiceProvider, Document } from '@mongosh/service-provider-core';
 import { bson } from '@mongosh/service-provider-core';
@@ -49,8 +49,8 @@ describe('Explainable', function () {
   });
   describe('metadata', function () {
     const mongo: any = { _instanceState: { emitApiCallWithArgs: sinon.spy() } };
-    const db = new Database(mongo, 'myDB');
-    const coll = new Collection(mongo, db, 'myCollection');
+    const db = new DatabaseImpl(mongo, 'myDB');
+    const coll = new CollectionImpl(mongo, db._typeLaunder(), 'myCollection');
     const explainable = new Explainable(mongo, coll, 'queryPlannerExtended');
     it('toShellResult', async function () {
       const result = await toShellResult(explainable);
@@ -61,10 +61,10 @@ describe('Explainable', function () {
   describe('commands', function () {
     let mongo: Mongo;
     let serviceProvider: StubbedInstance<ServiceProvider>;
-    let database: Database;
+    let database: DatabaseImpl;
     let bus: StubbedInstance<EventEmitter>;
     let instanceState: ShellInstanceState;
-    let collection: Collection;
+    let collection: CollectionImpl;
     let explainable: Explainable;
 
     beforeEach(function () {
@@ -80,8 +80,8 @@ describe('Explainable', function () {
         undefined,
         serviceProvider
       );
-      database = new Database(mongo, 'db1');
-      collection = new Collection(mongo, database, 'coll1');
+      database = new DatabaseImpl(mongo, 'db1');
+      collection = new CollectionImpl(mongo, database._typeLaunder(), 'coll1');
       explainable = new Explainable(mongo, collection, 'queryPlanner');
     });
     describe('getCollection', function () {

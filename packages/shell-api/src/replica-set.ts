@@ -18,6 +18,7 @@ import {
 import { asPrintable } from './enums';
 import { assertArgsDefinedType } from './helpers';
 import type { CommandResult } from './result';
+import type { GenericDatabaseSchema, GenericServerSideSchema } from './helpers';
 
 export type ReplSetMemberConfig = {
   _id: number;
@@ -35,15 +36,18 @@ export type ReplSetConfig = {
 };
 
 @shellApiClassDefault
-export default class ReplicaSet extends ShellApiWithMongoClass {
-  _database: Database;
+export default class ReplicaSet<
+  M extends GenericServerSideSchema = GenericServerSideSchema,
+  D extends GenericDatabaseSchema = GenericDatabaseSchema
+> extends ShellApiWithMongoClass {
+  _database: Database<M, D>;
 
-  constructor(database: Database) {
+  constructor(database: Database<M, D>) {
     super();
     this._database = database;
   }
 
-  get _mongo(): Mongo {
+  get _mongo(): Mongo<M> {
     return this._database._mongo;
   }
 
