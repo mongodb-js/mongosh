@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import completer from '@mongosh/autocomplete';
 import { MongoshInternalError, MongoshWarning } from '@mongosh/errors';
 import { changeHistory } from '@mongosh/history';
@@ -7,6 +8,7 @@ import type {
 } from '@mongosh/service-provider-core';
 import type {
   EvaluationListener,
+  Mongo,
   OnLoadResult,
   ShellCliOptions,
 } from '@mongosh/shell-api';
@@ -48,6 +50,11 @@ import type { Context } from 'vm';
 import { Script, createContext, runInContext } from 'vm';
 import { installPasteSupport } from './repl-paste-support';
 import util from 'util';
+
+import { MongoDBAutocompleter } from '@mongodb-js/mongodb-ts-autocomplete';
+import type { AutocompletionContext } from '@mongodb-js/mongodb-ts-autocomplete';
+import type { JSONSchema } from 'mongodb-schema';
+import { analyzeDocuments } from 'mongodb-schema';
 
 declare const __non_webpack_require__: any;
 
@@ -130,6 +137,53 @@ type GreetingDetails = {
 type Mutable<T> = {
   -readonly [P in keyof T]: T[P];
 };
+
+function filterStartingWith({
+  kind,
+  name,
+  trigger,
+}: {
+  kind: string;
+  name: string;
+  trigger: string;
+}): boolean {
+  name = name.toLocaleLowerCase();
+  trigger = trigger.toLocaleLowerCase();
+
+  /*
+  1. If the trigger was blank and the kind is not property/method filter out the
+     result. This way if you autocomplete db.test.find({ you don't get all the
+     global variables, just the known collection field names and mql but you can
+     still autocomplete global variables and functions if you type part of the
+     name.
+  2. Don't filter out exact matches (where filter === name) so that we match the
+     behaviour of the node completer.
+  3. Make sure the name starts with the trigger, otherwise it will return every
+     possible property/name that's available at that level. ie. all the "peer"
+     properties of the things that match.
+  */
+  //console.log(name, kind);
+  // TODO: This can be improved further if we first see if there are any
+  // property/method kind completions and then just use those, then if there
+  // aren't return all completions. The reason is that db.test.find({m makes it
+  // through this filter and then you get all globals starting with m anyway.
+  // But to properly solve it we need more context. ie. if you're after { (ie.
+  // inside an object literal) and you're to the left of a : (or there isn't
+  // one) then you probably don't want globals regardless. If you're to the
+  // right of a : it is probably fine because you could be using a variable.
+  return (
+    (trigger !== '' || kind === 'property' || kind === 'method') &&
+    name.startsWith(trigger)
+  );
+}
+
+function transformAutocompleteResults(
+  line: string,
+  results: { result: string }[]
+): [string[], string] | [string[], string, 'exclusive'] {
+  // TODO: actually use 'exclusive' when we should
+  return [results.map((result) => result.result), line];
+}
 
 /**
  * An instance of a `mongosh` REPL, without any of the actual I/O.
@@ -423,6 +477,88 @@ class MongoshNodeRepl implements EvaluationListener {
     this.runtimeState().context.history = history;
   }
 
+  // TODO: probably better to have this on instanceState
+  public _getMongoByConnectionId(
+    instanceState: ShellInstanceState,
+    connectionId: string
+  ): Mongo {
+    for (const mongo of instanceState.mongos) {
+      if (connectionIdFromURI(mongo.getURI()) === connectionId) {
+        return mongo;
+      }
+    }
+    throw new Error(`mongo with connection id ${connectionId} not found`);
+  }
+
+  public getAutocompletionContext(
+    instanceState: ShellInstanceState
+  ): AutocompletionContext {
+    return {
+      currentDatabaseAndConnection: () => {
+        return {
+          connectionId: connectionIdFromURI(
+            instanceState.currentDb.getMongo().getURI()
+          ),
+          databaseName: instanceState.currentDb.getName(),
+        };
+      },
+      databasesForConnection: async (
+        connectionId: string
+      ): Promise<string[]> => {
+        const mongo = this._getMongoByConnectionId(instanceState, connectionId);
+        try {
+          const dbNames = await mongo._getDatabaseNamesForCompletion();
+          return dbNames.filter(
+            (name: string) => !CONTROL_CHAR_REGEXP.test(name)
+          );
+        } catch (err: any) {
+          // TODO: move this code to a method in the shell instance so we don't
+          // have to hardcode the error code or export it.
+          if (err?.code === 'SHAPI-10004' || err?.codeName === 'Unauthorized') {
+            return [];
+          }
+          throw err;
+        }
+      },
+      collectionsForDatabase: async (
+        connectionId: string,
+        databaseName: string
+      ): Promise<string[]> => {
+        const mongo = this._getMongoByConnectionId(instanceState, connectionId);
+        try {
+          const collectionNames = await mongo
+            ._getDb(databaseName)
+            ._getCollectionNamesForCompletion();
+          return collectionNames.filter(
+            (name: string) => !CONTROL_CHAR_REGEXP.test(name)
+          );
+        } catch (err: any) {
+          // TODO: move this code to a method in the shell instance so we don't
+          // have to hardcode the error code or export it.
+          if (err?.code === 'SHAPI-10004' || err?.codeName === 'Unauthorized') {
+            return [];
+          }
+          throw err;
+        }
+      },
+      schemaInformationForCollection: async (
+        connectionId: string,
+        databaseName: string,
+        collectionName: string
+      ): Promise<JSONSchema> => {
+        const mongo = this._getMongoByConnectionId(instanceState, connectionId);
+        const docs = await mongo
+          ._getDb(databaseName)
+          .getCollection(collectionName)
+          ._getSampleDocsForCompletion();
+        const schemaAccessor = await analyzeDocuments(docs);
+
+        const schema = await schemaAccessor.getMongoDBJsonSchema();
+        return schema;
+      },
+    };
+  }
+
   private async finishInitializingNodeRepl(): Promise<void> {
     const { repl, instanceState } = this.runtimeState();
     if (!repl) return;
@@ -430,10 +566,23 @@ class MongoshNodeRepl implements EvaluationListener {
     this.outputFinishString += installPasteSupport(repl);
 
     const origReplCompleter = promisify(repl.completer.bind(repl)); // repl.completer is callback-style
-    const mongoshCompleter = completer.bind(
-      null,
-      instanceState.getAutocompleteParameters()
-    );
+    let newMongoshCompleter: MongoDBAutocompleter;
+    let oldMongoshCompleter: (
+      line: string
+    ) => Promise<[string[], string, 'exclusive'] | [string[], string]>;
+    if (process.env.USE_NEW_AUTOCOMPLETE) {
+      const autocompletionContext =
+        this.getAutocompletionContext(instanceState);
+      newMongoshCompleter = new MongoDBAutocompleter({
+        context: autocompletionContext,
+        autocompleterOptions: { filter: filterStartingWith },
+      });
+    } else {
+      oldMongoshCompleter = completer.bind(
+        null,
+        instanceState.getAutocompleteParameters()
+      );
+    }
     const innerCompleter = async (
       text: string
     ): Promise<[string[], string]> => {
@@ -442,8 +591,19 @@ class MongoshNodeRepl implements EvaluationListener {
         [replResults, replOrig],
         [mongoshResults, , mongoshResultsExclusive],
       ] = await Promise.all([
-        (async () => (await origReplCompleter(text)) || [[]])(),
-        (async () => await mongoshCompleter(text))(),
+        (async () => {
+          const nodeResults = (await origReplCompleter(text)) || [[]];
+          return nodeResults;
+        })(),
+        (async () => {
+          if (process.env.USE_NEW_AUTOCOMPLETE) {
+            const results = await newMongoshCompleter.autocomplete(text);
+            const transformed = transformAutocompleteResults(text, results);
+            return transformed;
+          } else {
+            return oldMongoshCompleter(text);
+          }
+        })(),
       ]);
       this.bus.emit('mongosh:autocompletion-complete'); // For testing.
 
@@ -1313,6 +1473,14 @@ async function enterAsynchronousExecutionForPrompt(): Promise<void> {
   // to this issue.
 
   await new Promise(setImmediate);
+}
+
+function connectionIdFromURI(uri: string): string {
+  // turn the uri into something we can safely use as part of a "filename"
+  // inside autocomplete
+  const hash = crypto.createHash('sha256');
+  hash.update(uri);
+  return hash.digest('hex');
 }
 
 export default MongoshNodeRepl;

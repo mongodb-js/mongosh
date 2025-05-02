@@ -57,7 +57,8 @@
     "@mongosh/history": "2.4.6",
     "@mongosh/i18n": "^2.13.0",
     "@mongosh/service-provider-core": "3.3.0",
-    "mongodb-redact": "^1.1.5"
+    "mongodb-redact": "^1.1.5",
+    "mongodb-schema": "^12.6.2"
   },
   "devDependencies": {
     "@microsoft/api-extractor": "^7.39.3",

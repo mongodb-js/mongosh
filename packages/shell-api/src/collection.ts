@@ -122,6 +122,7 @@ export class CollectionImpl<
   _mongo: Mongo<M>;
   _database: Database<M, D>;
   _name: N;
+  _cachedSampleDocs: Document[] = [];
 
   _typeLaunder(): Collection<M, D> {
     return this as Collection<M, D>;
@@ -2524,6 +2525,31 @@ export class CollectionImpl<
       indexName,
       definition
     );
+  }
+
+  async _getSampleDocs(): Promise<Document[]> {
+    this._cachedSampleDocs = await (
+      await this.aggregate([{ $sample: { size: 10 } }])
+    ).toArray();
+    return this._cachedSampleDocs;
+  }
+
+  async _getSampleDocsForCompletion(): Promise<Document[]> {
+    return await Promise.race([
+      (async () => {
+        return await this._getSampleDocs();
+      })(),
+      (async () => {
+        // 200ms should be a good compromise between giving the server a chance
+        // to reply and responsiveness for human perception. It's not the end
+        // of the world if we end up using the cached results; usually, they
+        // are not going to differ from fresh ones, and even if they do, a
+        // subsequent autocompletion request will almost certainly have at least
+        // the new cached results.
+        await new Promise((resolve) => setTimeout(resolve, 200)?.unref?.());
+        return this._cachedSampleDocs;
+      })(),
+    ]);
   }
 }
 
