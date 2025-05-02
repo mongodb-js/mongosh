@@ -625,9 +625,12 @@ class MongoshNodeRepl implements EvaluationListener {
       const replResultPrefix = replOrig
         ? text.substr(0, text.lastIndexOf(replOrig))
         : '';
-      const longReplResults = replResults.map(
-        (result: string) => replResultPrefix + result
-      );
+      // TODO: this is just a temporary hack to make it unembiguous where
+      // results are coming from. We probably want to keep merging with the node
+      // repl results, so the plan is to undo this again.
+      const longReplResults = process.env.USE_NEW_AUTOCOMPLETE
+        ? []
+        : replResults.map((result: string) => replResultPrefix + result);
 
       // Remove duplicates, because shell API methods might otherwise show
       // up in both completions.
