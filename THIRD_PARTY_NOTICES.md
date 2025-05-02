@@ -329,7 +329,7 @@ Package|Version|License
 **[mongodb-crypt-library-version](#003bd2892d6f6fdac0613ba8f9a2fbb054ddd1c26901e1d2fc7e83861b21cf4d)**|1.0.5|Apache-2.0
 **[mongodb-log-writer](#861a6f7bbd07f1fc008955cc04714e6aa3e540a7449a2ab621b7dae0ad51ff96)**|2.3.1|Apache-2.0
 **[mongodb-redact](#6fe8cef9beca5f3e1e3e999f47975ae99dcf4488419b28fc6d5eafc436081623)**|1.1.5|Apache-2.0
-**[mongodb](#a52473fc1187a982574f4e63f3941340138879361b742ea77aacf6aec6561f1a)**|6.14.2|Apache-2.0
+**[mongodb](#2114ddfcee0415ece72f81bf453743c03ad28e8103695a7d8f1339463d5697f6)**|6.16.0|Apache-2.0
 **[ms](#484b814b85d5028e34246147c8fc901d33570202bd7cdc3703c0ed1078eba0aa)**|2.0.0|MIT
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
 **[ms](#2083576c5af8054927640b4788059806d07e250a26066c9ccb2d928394fb9226)**|2.1.3|MIT
@@ -27603,8 +27603,8 @@ License files:
       
 
 
-<a id="a52473fc1187a982574f4e63f3941340138879361b742ea77aacf6aec6561f1a"></a>
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 6.14.2)
+<a id="2114ddfcee0415ece72f81bf453743c03ad28e8103695a7d8f1339463d5697f6"></a>
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 6.16.0)
 License tags: Apache-2.0
 
 License files:
