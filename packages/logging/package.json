@@ -17,6 +17,7 @@
     "node": ">=14.15.1"
   },
   "dependencies": {
+    "@mongodb-js/device-id": "^0.2.0",
     "@mongodb-js/devtools-connect": "^3.4.1",
     "@mongosh/errors": "2.4.0",
     "@mongosh/history": "2.4.6",
