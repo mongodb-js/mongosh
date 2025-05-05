@@ -8,9 +8,10 @@ import type { Writable } from 'stream';
 import type { MongoshLoggingAndTelemetry } from '.';
 import { setupLoggingAndTelemetry } from '.';
 import type { LoggingAndTelemetry } from './logging-and-telemetry';
-import { getDeviceId } from './logging-and-telemetry';
 import sinon from 'sinon';
 import type { MongoshLoggingAndTelemetryArguments } from './types';
+import { getDeviceId } from '@mongodb-js/device-id';
+import { getMachineId } from 'native-machine-id';
 
 describe('MongoshLoggingAndTelemetry', function () {
   let logOutput: any[];
@@ -263,7 +264,10 @@ describe('MongoshLoggingAndTelemetry', function () {
 
       bus.emit('mongosh:new-user', { userId, anonymousId: userId });
 
-      const deviceId = await getDeviceId();
+      const deviceId = await getDeviceId({
+        getMachineId: () => getMachineId({ raw: true }),
+        isNodeMachineId: false,
+      }).value;
 
       await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
 
@@ -1183,14 +1187,5 @@ describe('MongoshLoggingAndTelemetry', function () {
         },
       ],
     ]);
-  });
-
-  describe('getDeviceId()', function () {
-    it('is consistent on the same machine', async function () {
-      const idA = await getDeviceId();
-      const idB = await getDeviceId();
-
-      expect(idA).equals(idB);
-    });
   });
 });
