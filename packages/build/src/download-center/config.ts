@@ -149,7 +149,10 @@ export async function createAndPublishDownloadCenterConfig(
 
   await dlcenterArtifactsNew.uploadAsset(
     JSON_FEED_ARTIFACT_KEY,
-    JSON.stringify(newJsonFeed, null, 2)
+    JSON.stringify(newJsonFeed, null, 2),
+    {
+      acl: 'private',
+    }
   );
 }
 
@@ -193,7 +196,10 @@ export async function updateJsonFeedCTA(
   await dlcenterArtifacts.uploadAsset(JSON_FEED_ARTIFACT_KEY, patchedJsonFeed);
   await dlcenterArtifactsNew.uploadAsset(
     JSON_FEED_ARTIFACT_KEY,
-    patchedJsonFeed
+    patchedJsonFeed,
+    {
+      acl: 'private',
+    }
   );
 }
 

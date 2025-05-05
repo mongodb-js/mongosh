@@ -41,6 +41,9 @@ export async function uploadArtifactToDownloadCenterNew(
 
   await dlcenter.uploadAsset(
     `${ARTIFACTS_FOLDER}/${path.basename(filePath)}`,
-    fs.createReadStream(filePath)
+    fs.createReadStream(filePath),
+    {
+      acl: 'private',
+    }
   );
 }
