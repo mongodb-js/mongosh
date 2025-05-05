@@ -53,40 +53,8 @@ import type {
   MongoshLoggingAndTelemetryArguments,
   MongoshTrackingProperties,
 } from './types';
-import { createHmac } from 'crypto';
-
-/**
- * @returns A hashed, unique identifier for the running device or `"unknown"` if not known.
- */
-export async function getDeviceId({
-  onError,
-}: {
-  onError?: (error: Error) => void;
-} = {}): Promise<string | 'unknown'> {
-  try {
-    // Create a hashed format from the all uppercase version of the machine ID
-    // to match it exactly with the denisbrodbeck/machineid library that Atlas CLI uses.
-    const originalId: string =
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      await require('native-machine-id').getMachineId({
-        raw: true,
-      });
-
-    if (!originalId) {
-      return 'unknown';
-    }
-    const hmac = createHmac('sha256', originalId);
-
-    /** This matches the message used to create the hashes in Atlas CLI */
-    const DEVICE_ID_HASH_MESSAGE = 'atlascli';
-
-    hmac.update(DEVICE_ID_HASH_MESSAGE);
-    return hmac.digest('hex');
-  } catch (error) {
-    onError?.(error as Error);
-    return 'unknown';
-  }
-}
+import { getDeviceId } from '@mongodb-js/device-id';
+import { getMachineId } from 'native-machine-id';
 
 export function setupLoggingAndTelemetry(
   props: MongoshLoggingAndTelemetryArguments
@@ -171,15 +139,14 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
 
   private async setupTelemetry(): Promise<void> {
     if (!this.deviceId) {
-      this.deviceId = await Promise.race([
-        getDeviceId({
-          onError: (error) =>
-            this.bus.emit('mongosh:error', error, 'telemetry'),
-        }),
-        new Promise<string>((resolve) => {
-          this.resolveDeviceId = resolve;
-        }),
-      ]);
+      const { value: deviceId, resolve: resolveDeviceId } = getDeviceId({
+        getMachineId: () => getMachineId({ raw: true }),
+        isNodeMachineId: false,
+        onError: (error) => this.bus.emit('mongosh:error', error, 'telemetry'),
+      });
+
+      this.resolveDeviceId = resolveDeviceId;
+      this.deviceId = await deviceId;
     }
 
     this.runAndClearPendingTelemetryEvents();
