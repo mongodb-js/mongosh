@@ -54,7 +54,6 @@ import type {
   MongoshTrackingProperties,
 } from './types';
 import { getDeviceId } from '@mongodb-js/device-id';
-import { getMachineId } from 'native-machine-id';
 
 export function setupLoggingAndTelemetry(
   props: MongoshLoggingAndTelemetryArguments
@@ -139,6 +138,8 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
 
   private async setupTelemetry(): Promise<void> {
     if (!this.deviceId) {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const getMachineId = require('native-machine-id').getMachineId;
       const { value: deviceId, resolve: resolveDeviceId } = getDeviceId({
         getMachineId: () => getMachineId({ raw: true }),
         isNodeMachineId: false,
