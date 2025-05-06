@@ -3965,6 +3965,7 @@ functions:
           PACKAGE_VARIANT: ${package_variant}
           MACOS_NOTARY_KEY: ${macos_notary_key}
           MACOS_NOTARY_SECRET: ${macos_notary_secret}
+          REQUESTER: ${requester}
   verify_artifact:
     - command: expansions.write
       type: setup
