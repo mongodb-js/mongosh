@@ -27,6 +27,7 @@
   "devDependencies": {
     "@wasm-tool/wasm-pack-plugin": "^1.7.0",
     "depcheck": "^1.4.3",
+    "wasm-pack": "^0.13.1",
     "webpack-merge": "^5.8.0"
   }
 }
