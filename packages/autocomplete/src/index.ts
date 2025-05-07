@@ -84,9 +84,9 @@ async function completer(
 ): Promise<[string[], string, 'exclusive'] | [string[], string]> {
   const SHELL_COMPLETIONS = shellSignatures.ShellApi
     .attributes as TypeSignatureAttributes;
-  const COLL_COMPLETIONS = shellSignatures.Collection
+  const COLL_COMPLETIONS = shellSignatures.CollectionImpl
     .attributes as TypeSignatureAttributes;
-  const DB_COMPLETIONS = shellSignatures.Database
+  const DB_COMPLETIONS = shellSignatures.DatabaseImpl
     .attributes as TypeSignatureAttributes;
   const AGG_CURSOR_COMPLETIONS = shellSignatures.AggregationCursor
     .attributes as TypeSignatureAttributes;

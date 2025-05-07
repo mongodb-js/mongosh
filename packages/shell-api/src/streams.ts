@@ -10,11 +10,18 @@ import StreamProcessor from './stream-processor';
 import { ADMIN_DB, asPrintable, shellApiType } from './enums';
 import type Database from './database';
 import type Mongo from './mongo';
+import type { GenericDatabaseSchema, GenericServerSideSchema } from './helpers';
 
 @shellApiClassDefault
-export class Streams extends ShellApiWithMongoClass {
-  public static newInstance(database: Database) {
-    return new Proxy(new Streams(database), {
+export class Streams<
+  M extends GenericServerSideSchema = GenericServerSideSchema,
+  D extends GenericDatabaseSchema = GenericDatabaseSchema
+> extends ShellApiWithMongoClass {
+  public static newInstance<
+    M extends GenericServerSideSchema = GenericServerSideSchema,
+    D extends GenericDatabaseSchema = GenericDatabaseSchema
+  >(database: Database<M, D>) {
+    return new Proxy(new Streams<M, D>(database), {
       get(target, prop) {
         const v = (target as any)[prop];
         if (v !== undefined) {
@@ -27,14 +34,14 @@ export class Streams extends ShellApiWithMongoClass {
     });
   }
 
-  private _database: Database;
+  private _database: Database<M, D>;
 
-  constructor(database: Database) {
+  constructor(database: Database<M, D>) {
     super();
     this._database = database;
   }
 
-  get _mongo(): Mongo {
+  get _mongo(): Mongo<M> {
     return this._database._mongo;
   }
 
@@ -42,7 +49,7 @@ export class Streams extends ShellApiWithMongoClass {
     return 'Atlas Stream Processing';
   }
 
-  getProcessor(name: string) {
+  getProcessor(name: string): StreamProcessor {
     return new StreamProcessor(this, name);
   }
 

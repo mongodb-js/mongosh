@@ -29,7 +29,8 @@ import {
   skipIfServerVersion,
   skipIfApiStrict,
 } from '../../../testing/integration-testing-hooks';
-import Database from './database';
+import type Database from './database';
+import { DatabaseImpl } from './database';
 import { inspect } from 'util';
 import { dummyOptions } from './helpers.spec';
 
@@ -116,7 +117,7 @@ describe('Shard', function () {
         undefined,
         serviceProvider
       );
-      db = new Database(mongo, 'testDb');
+      db = new DatabaseImpl(mongo, 'testDb')._typeLaunder();
       shard = new Shard(db);
     });
     describe('enableSharding', function () {

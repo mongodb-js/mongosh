@@ -3053,7 +3053,7 @@ describe('Shell API (integration)', function () {
       expect(events.length).to.be.greaterThan(1);
       expect(events[0]).to.deep.equal({
         method: 'printShardingStatus',
-        class: 'Database',
+        class: 'DatabaseImpl',
         deprecated: false,
         callDepth: 0,
         isAsync: true,
