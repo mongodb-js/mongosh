@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/service-provider-node-driver",
-  "version": "3.8.1",
+  "version": "3.8.3",
   "description": "MongoDB Shell Server Service Provider Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -50,8 +50,8 @@
     "@mongodb-js/devtools-connect": "^3.4.1",
     "@mongodb-js/oidc-plugin": "^1.1.7",
     "@mongosh/errors": "2.4.0",
-    "@mongosh/service-provider-core": "3.3.1",
-    "@mongosh/types": "3.6.0",
+    "@mongosh/service-provider-core": "3.3.3",
+    "@mongosh/types": "3.6.2",
     "aws4": "^1.12.0",
     "mongodb": "^6.16.0",
     "mongodb-connection-string-url": "^3.0.1",

@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/arg-parser",
-  "version": "3.10.0",
+  "version": "3.10.2",
   "description": "MongoDB Shell CLI Argument List Parser Package",
   "main": "./lib/index.js",
   "repository": {
