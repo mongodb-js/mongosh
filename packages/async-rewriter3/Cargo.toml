@@ -4,7 +4,11 @@ version = "0.1.0"
 edition = "2021"
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "async-rewriter3"
+path = "src/main.rs"
 
 # adapted from https://github.com/rustwasm/rust-webpack-template/blob/24f3af83206b52e0241d95ee10cebf930ec8bf08/template/Cargo.toml
 [dependencies]
