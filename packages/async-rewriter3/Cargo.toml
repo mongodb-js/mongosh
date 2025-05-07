@@ -12,7 +12,11 @@ path = "src/main.rs"
 
 # adapted from https://github.com/rustwasm/rust-webpack-template/blob/24f3af83206b52e0241d95ee10cebf930ec8bf08/template/Cargo.toml
 [dependencies]
-rslint_parser = "0.3.1"
+oxc_allocator = "0.68.1"
+oxc_ast = "0.68.1"
+oxc_parser = "0.68.1"
+oxc_semantic = "0.68.1"
+oxc_span = "0.68.1"
 wasm-bindgen = "0.2.92"
 
 [profile.release]
