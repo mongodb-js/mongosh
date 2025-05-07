@@ -1,5 +1,5 @@
-use std::io::Read;
 use async_rewriter3::async_rewrite;
+use std::io::Read;
 
 fn main() {
     let mut input = String::new();

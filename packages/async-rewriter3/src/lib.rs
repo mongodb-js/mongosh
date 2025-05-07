@@ -1,16 +1,22 @@
+use oxc_allocator::Allocator;
+use oxc_ast::{
+    ast::{
+        ArrowFunctionExpression, Expression, Function, FunctionBody, IdentifierReference,
+        ParenthesizedExpression, UnaryOperator,
+    },
+    AstKind, AstType,
+};
+use oxc_parser::{ParseOptions, Parser};
+use oxc_semantic::{AstNode, Semantic, SemanticBuilder};
+use oxc_span::GetSpan;
+use oxc_span::{SourceType, Span};
 use std::{borrow::Cow, cmp::Ordering, collections::VecDeque};
 use wasm_bindgen::prelude::*;
-use oxc_parser::{ParseOptions, Parser};
-use oxc_allocator::Allocator;
-use oxc_span::{SourceType, Span};
-use oxc_ast::{ast::{ArrowFunctionExpression, Expression, Function, FunctionBody, IdentifierReference, ParenthesizedExpression, UnaryOperator}, AstKind, AstType};
-use oxc_span::GetSpan;
-use oxc_semantic::{AstNode, Semantic, SemanticBuilder};
 
 #[derive(Debug)]
 enum InsertionText {
     Static(&'static str),
-    Dynamic(String)
+    Dynamic(String),
 }
 
 #[derive(Debug)]
@@ -27,7 +33,7 @@ impl Insertion {
             offset,
             text: InsertionText::Static(text),
             original_ordering: None,
-            reverse
+            reverse,
         }
     }
 
@@ -36,14 +42,14 @@ impl Insertion {
             offset,
             text: InsertionText::Dynamic(text),
             original_ordering: None,
-            reverse
+            reverse,
         }
     }
 
     pub fn len(&self) -> usize {
         match &self.text {
             InsertionText::Static(str) => str.len(),
-            InsertionText::Dynamic(str) => str.len()
+            InsertionText::Dynamic(str) => str.len(),
         }
     }
 }
@@ -58,7 +64,7 @@ impl InsertionList {
     pub const fn new() -> InsertionList {
         InsertionList {
             list: VecDeque::new(),
-            vars: Vec::new()
+            vars: Vec::new(),
         }
     }
 
@@ -102,7 +108,9 @@ impl InsertionList {
 }
 
 fn make_start_fn_insertion(offset: u32) -> Insertion {
-    Insertion::new(offset, r#"
+    Insertion::new(
+        offset,
+        r#"
     ;const _syntheticPromise = __SymbolFor('@@mongosh.syntheticPromise');
 
     function _markSyntheticPromise(p) {
@@ -119,8 +127,9 @@ fn make_start_fn_insertion(offset: u32) -> Insertion {
 
     const _asynchronousReturnValue = (async () => {
     try {
-    "#
-, false)
+    "#,
+        false,
+    )
 }
 
 fn make_end_fn_insertion(offset: u32) -> Insertion {
@@ -151,8 +160,9 @@ fn make_end_fn_insertion(offset: u32) -> Insertion {
 
         _functionState = 'async';
         return _markSyntheticPromise(_asynchronousReturnValue);
-        "#
-    , true)
+        "#,
+        true,
+    )
 }
 
 fn fn_start_insertion(body: &FunctionBody, has_block_body: bool) -> InsertionList {
@@ -163,8 +173,9 @@ fn fn_start_insertion(body: &FunctionBody, has_block_body: bool) -> InsertionLis
     if !has_block_body {
         ret.push_back(Insertion::new(
             offset,
-             "return (_synchronousReturnValue = ("
-        , false));
+            "return (_synchronousReturnValue = (",
+            false,
+        ));
     }
     ret
 }
@@ -174,16 +185,24 @@ fn fn_end_insertion(body: &FunctionBody, has_block_body: bool) -> InsertionList 
     ret.push_back(Insertion::new(offset, "}", true));
     ret.push_back(make_end_fn_insertion(offset));
     if !has_block_body {
-        ret.push_back(Insertion::new(offset, "), _functionState === 'async' ? _synchronousReturnValue : null);", true));
+        ret.push_back(Insertion::new(
+            offset,
+            "), _functionState === 'async' ? _synchronousReturnValue : null);",
+            true,
+        ));
     }
     ret
 }
 
-fn get_identifier_reference_from_parenthesized_expression<'a>(node: &'a ParenthesizedExpression<'a>) -> Option<&'a IdentifierReference<'a>> {
+fn get_identifier_reference_from_parenthesized_expression<'a>(
+    node: &'a ParenthesizedExpression<'a>,
+) -> Option<&'a IdentifierReference<'a>> {
     match node.expression {
         Expression::Identifier(ref expr) => Some(expr),
-        Expression::ParenthesizedExpression(ref expr) => get_identifier_reference_from_parenthesized_expression(expr),
-        _ => None
+        Expression::ParenthesizedExpression(ref expr) => {
+            get_identifier_reference_from_parenthesized_expression(expr)
+        }
+        _ => None,
     }
 }
 
@@ -204,13 +223,18 @@ enum AnyFunctionParent<'a> {
 
 fn collect_insertions(node: &AstNode, semantic: &Semantic) -> Result<InsertionList, &'static str> {
     let ast_nodes = &semantic.nodes();
-    let function_parent =
-        &ast_nodes.ancestor_kinds(node.id())
-            .skip(1)
-            .filter_map(|n| n.as_function().map(|f| AnyFunctionParent::Function(f)).or_else(
-                || n.as_arrow_function_expression().map(|f| AnyFunctionParent::ArrowFunction(f))
-            ))
-            .find(|_| true);
+    let function_parent = &ast_nodes
+        .ancestor_kinds(node.id())
+        .skip(1)
+        .filter_map(|n| {
+            n.as_function()
+                .map(|f| AnyFunctionParent::Function(f))
+                .or_else(|| {
+                    n.as_arrow_function_expression()
+                        .map(|f| AnyFunctionParent::ArrowFunction(f))
+                })
+        })
+        .find(|_| true);
     let function_parent_is_async = match function_parent {
         Some(AnyFunctionParent::Function(f)) => f.r#async,
         Some(AnyFunctionParent::ArrowFunction(f)) => f.r#async,
@@ -219,7 +243,11 @@ fn collect_insertions(node: &AstNode, semantic: &Semantic) -> Result<InsertionLi
 
     let get_parent = |node: &AstNode| ast_nodes.parent_node(node.id());
     let get_parent_kind = |node: &AstNode| get_parent(node).map(|p| p.kind());
-    let get_parent_type = |node: &AstNode| get_parent_kind(node).map(|p| p.ty()).unwrap_or(AstType::Program);
+    let get_parent_type = |node: &AstNode| {
+        get_parent_kind(node)
+            .map(|p| p.ty())
+            .unwrap_or(AstType::Program)
+    };
 
     let get_source = |node: &dyn GetSpan| {
         let Span { start, end, .. } = node.span();
@@ -233,9 +261,11 @@ fn collect_insertions(node: &AstNode, semantic: &Semantic) -> Result<InsertionLi
     let mut insertions = InsertionList::new();
 
     {
-        insertions.push_back(Insertion::new_dynamic(span.start,
-            format!(" /*{ty:#?}*/ ")
-        , false));
+        insertions.push_back(Insertion::new_dynamic(
+            span.start,
+            format!(" /*{ty:#?}*/ "),
+            false,
+        ));
     }
     if let AstKind::Function(as_fn) = node.kind() {
         let body = as_fn.body.as_ref().ok_or("bad FnDecl without body")?;
@@ -243,11 +273,13 @@ fn collect_insertions(node: &AstNode, semantic: &Semantic) -> Result<InsertionLi
             match &as_fn.id {
                 None => {
                     insertions.push_back(Insertion::new(span.start, "/*no ident token*/", false));
-                },
+                }
                 Some(name) => {
                     insertions.push_back(Insertion::new(name.span().end, "__", false));
-                    insertions.push_back(Insertion::new_dynamic(span.end,
-                        format!(";\n_cr = {name} = {name}__;\n", name = name.name.as_str()), true
+                    insertions.push_back(Insertion::new_dynamic(
+                        span.end,
+                        format!(";\n_cr = {name} = {name}__;\n", name = name.name.as_str()),
+                        true,
                     ));
                     insertions.add_variable(name.to_string());
                 }
@@ -270,23 +302,28 @@ fn collect_insertions(node: &AstNode, semantic: &Semantic) -> Result<InsertionLi
     if let AstKind::Class(as_class_decl) = node.kind() {
         if !function_parent.is_some() {
             if let Some(name) = as_class_decl.name() {
-                insertions.push_back(Insertion::new_dynamic(span.start,
-                format!("_cr = {name} = ", name = name.as_str())
-                ,false));
-                insertions.push_back(Insertion::new(span.end,
-                    ";"
-                ,true));
+                insertions.push_back(Insertion::new_dynamic(
+                    span.start,
+                    format!("_cr = {name} = ", name = name.as_str()),
+                    false,
+                ));
+                insertions.push_back(Insertion::new(span.end, ";", true));
                 insertions.add_variable(name.to_string());
             }
         }
         return Ok(insertions);
     }
     if let AstKind::VariableDeclaration(as_var_decl) = node.kind() {
-        if get_parent_type(node) != AstType::ForStatementInit &&
-           !function_parent.is_some() {
+        if get_parent_type(node) != AstType::ForStatementInit && !function_parent.is_some() {
             let decl_span = Span::new(
-                    as_var_decl.span().start,
-                    as_var_decl.declarations.iter().map(|d| d.span().start).min().unwrap());
+                as_var_decl.span().start,
+                as_var_decl
+                    .declarations
+                    .iter()
+                    .map(|d| d.span().start)
+                    .min()
+                    .unwrap(),
+            );
 
             insertions.push_back(Insertion::new(decl_span.start, "/*", false));
             insertions.push_back(Insertion::new(decl_span.end, "*/;(", false));
@@ -296,20 +333,27 @@ fn collect_insertions(node: &AstNode, semantic: &Semantic) -> Result<InsertionLi
                 }
             }
             insertions.push_back(Insertion::new(
-                as_var_decl.declarations.iter().map(|d| d.span().end).max().unwrap(),
-                ")", true));
+                as_var_decl
+                    .declarations
+                    .iter()
+                    .map(|d| d.span().end)
+                    .max()
+                    .unwrap(),
+                ")",
+                true,
+            ));
         }
         return Ok(insertions);
     }
     if let AstKind::ExpressionStatement(as_expr_stmt) = node.kind() {
-        if !(get_parent_type(node) == AstType::FunctionBody && get_parent_type(get_parent(node).unwrap()) == AstType::ArrowFunctionExpression) {
+        if !(get_parent_type(node) == AstType::FunctionBody
+            && get_parent_type(get_parent(node).unwrap()) == AstType::ArrowFunctionExpression)
+        {
             let expr_span = as_expr_stmt.expression.span();
-            insertions.push_back(Insertion::new(expr_span.start, ";", false ));
-            if !function_parent.is_some() {
-                insertions.push_back(Insertion::new(expr_span.start, "_cr = (", false));
-            }
+            insertions.push_back(Insertion::new(expr_span.start, ";", false));
             insertions.push_back(Insertion::new(expr_span.end, ";", true));
             if !function_parent.is_some() {
+                insertions.push_back(Insertion::new(expr_span.start, "_cr = (", false));
                 insertions.push_back(Insertion::new(expr_span.end, ")", true));
             }
         }
@@ -318,10 +362,16 @@ fn collect_insertions(node: &AstNode, semantic: &Semantic) -> Result<InsertionLi
     if let AstKind::ReturnStatement(as_ret_stmt) = node.kind() {
         if function_parent.is_some() && !function_parent_is_async {
             if let Some(expr) = &as_ret_stmt.argument {
-                insertions.push_back(
-                    Insertion::new(expr.span().start, "(_synchronousReturnValue = (", false));
-                insertions.push_back(
-                    Insertion::new(expr.span().end, "), _functionState === 'async' ? _synchronousReturnValue : null);", true));
+                insertions.push_back(Insertion::new(
+                    expr.span().start,
+                    "(_synchronousReturnValue = (",
+                    false,
+                ));
+                insertions.push_back(Insertion::new(
+                    expr.span().end,
+                    "), _functionState === 'async' ? _synchronousReturnValue : null);",
+                    true,
+                ));
             }
         }
         return Ok(insertions);
@@ -333,7 +383,8 @@ fn collect_insertions(node: &AstNode, semantic: &Semantic) -> Result<InsertionLi
     let mut is_identifier = false;
 
     if let Some(expr) = get_identifier_reference(node) {
-        if get_parent_type(node) == AstType::ObjectProperty { // Handles shorthands `{ foo }`, TBD verify correctness
+        if get_parent_type(node) == AstType::ObjectProperty {
+            // Handles shorthands `{ foo }`, TBD verify correctness
             return Ok(insertions);
         }
         is_identifier = true;
@@ -365,25 +416,35 @@ fn collect_insertions(node: &AstNode, semantic: &Semantic) -> Result<InsertionLi
             wrap_expr_span = None;
         }
     }
-    if get_parent_type(node) == AstType::ForStatementInit ||
-       get_parent_type(node) == AstType::AssignmentTarget ||
-       get_parent_type(node) == AstType::SimpleAssignmentTarget ||
-       get_parent_type(node) == AstType::AssignmentTargetPattern ||
-       get_parent_type(node) == AstType::AssignmentTargetWithDefault ||
-       get_parent_type(node) == AstType::AwaitExpression ||
-       get_parent_type(node) == AstType::FormalParameter {
+    if get_parent_type(node) == AstType::ForStatementInit
+        || get_parent_type(node) == AstType::AssignmentTarget
+        || get_parent_type(node) == AstType::SimpleAssignmentTarget
+        || get_parent_type(node) == AstType::AssignmentTargetPattern
+        || get_parent_type(node) == AstType::AssignmentTargetWithDefault
+        || get_parent_type(node) == AstType::AwaitExpression
+        || get_parent_type(node) == AstType::FormalParameter
+    {
         wrap_expr_span = None;
     }
 
     if is_named_typeof_rhs {
-        insertions.push_back(Insertion::new_dynamic(get_parent_kind(node).unwrap().span().start,
-            format!("(typeof {original} === 'undefined' ? 'undefined' : ", original = get_source(node)), false
+        insertions.push_back(Insertion::new_dynamic(
+            get_parent_kind(node).unwrap().span().start,
+            format!(
+                "(typeof {original} === 'undefined' ? 'undefined' : ",
+                original = get_source(node)
+            ),
+            false,
         ));
         insertions.push_back(Insertion::new(span.end, ")", true));
     }
     if let Some(s) = wrap_expr_span {
         insertions.push_back(Insertion::new(s.start, "(_ex = ", false));
-        insertions.push_back(Insertion::new(s.end, ", _isp(_ex) ? await _ex : _ex)", true));
+        insertions.push_back(Insertion::new(
+            s.end,
+            ", _isp(_ex) ? await _ex : _ex)",
+            true,
+        ));
     }
 
     return Ok(insertions);
@@ -394,10 +455,20 @@ pub fn async_rewrite(input: &str, with_debug_tags: bool) -> Result<String, Strin
     let allocator = Allocator::default();
     let source_type = SourceType::cjs();
     let parsed = Parser::new(&allocator, &input, source_type)
-        .with_options(ParseOptions { parse_regular_expression: true, ..ParseOptions::default() })
+        .with_options(ParseOptions {
+            parse_regular_expression: true,
+            ..ParseOptions::default()
+        })
         .parse();
     if parsed.errors.len() > 0 {
-        return Err(format!("Parse errors: {:?}", parsed.errors.iter().map(|e| &e.message).collect::<Vec<&Cow<'static, str>>>()));
+        return Err(format!(
+            "Parse errors: {:?}",
+            parsed
+                .errors
+                .iter()
+                .map(|e| &e.message)
+                .collect::<Vec<&Cow<'static, str>>>()
+        ));
     }
     assert!(!parsed.panicked);
     let semantic_ret = SemanticBuilder::new().build(allocator.alloc(parsed.program));
@@ -410,27 +481,47 @@ pub fn async_rewrite(input: &str, with_debug_tags: bool) -> Result<String, Strin
     {
         let vars = &collected_insertions.vars;
         for var in vars {
-            insertions.push_back(Insertion::new_dynamic(
-                0,
-                format!("var {};", var), false));
+            insertions.push_back(Insertion::new_dynamic(0, format!("var {};", var), false));
         }
     }
     let end = input.len().try_into().unwrap();
-    for directive in &semantic_ret.semantic.nodes().root_node().unwrap().kind().as_program().unwrap().directives {
-        insertions.push_back(Insertion::new_dynamic(0, format!("\"{}\"", directive.directive.as_str()), false));
+    for directive in &semantic_ret
+        .semantic
+        .nodes()
+        .root_node()
+        .unwrap()
+        .kind()
+        .as_program()
+        .unwrap()
+        .directives
+    {
+        insertions.push_back(Insertion::new_dynamic(
+            0,
+            format!("\"{}\"", directive.directive.as_str()),
+            false,
+        ));
     }
-    insertions.push_back(Insertion::new(0, ";(() => { const __SymbolFor = Symbol.for;", false));
+    insertions.push_back(Insertion::new(
+        0,
+        ";(() => { const __SymbolFor = Symbol.for;",
+        false,
+    ));
     insertions.push_back(make_start_fn_insertion(0));
     insertions.push_back(Insertion::new(0, "var _cr;", false));
     insertions.push_back(Insertion::new(end, "})()", true));
     insertions.push_back(make_end_fn_insertion(input.len().try_into().unwrap()));
-    insertions.push_back(Insertion::new(end, ";\n return _synchronousReturnValue = _cr;", true));
+    insertions.push_back(Insertion::new(
+        end,
+        ";\n return _synchronousReturnValue = _cr;",
+        true,
+    ));
     insertions.append(&mut collected_insertions);
 
     insertions.sort();
 
     let mut previous_offset = 0;
-    let mut result = String::with_capacity(input.len() + insertions.list.iter().map(|s| s.len()).sum::<usize>());
+    let mut result =
+        String::with_capacity(input.len() + insertions.list.iter().map(|s| s.len()).sum::<usize>());
     let mut debug_tag = "".to_string();
     for insertion in insertions.list {
         if insertion.offset != previous_offset {
@@ -441,8 +532,12 @@ pub fn async_rewrite(input: &str, with_debug_tags: bool) -> Result<String, Strin
 
         let text;
         match &insertion.text {
-            InsertionText::Dynamic(str) => { text = str.as_str(); }
-            InsertionText::Static(str) => { text = str; }
+            InsertionText::Dynamic(str) => {
+                text = str.as_str();
+            }
+            InsertionText::Static(str) => {
+                text = str;
+            }
         }
 
         if with_debug_tags {
