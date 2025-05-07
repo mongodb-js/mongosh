@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/browser-runtime-core",
-  "version": "3.10.1",
+  "version": "3.10.3",
   "description": "Mongosh browser runtime core",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -41,7 +41,7 @@
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "@mongosh/types": "3.6.0",
+    "@mongosh/types": "3.6.2",
     "bson": "^6.10.3",
     "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
@@ -49,9 +49,9 @@
     "rimraf": "^3.0.2"
   },
   "dependencies": {
-    "@mongosh/autocomplete": "^3.10.1",
-    "@mongosh/service-provider-core": "3.3.1",
-    "@mongosh/shell-api": "^3.10.1",
-    "@mongosh/shell-evaluator": "^3.10.1"
+    "@mongosh/autocomplete": "^3.10.3",
+    "@mongosh/service-provider-core": "3.3.3",
+    "@mongosh/shell-api": "^3.10.3",
+    "@mongosh/shell-evaluator": "^3.10.3"
   }
 }
