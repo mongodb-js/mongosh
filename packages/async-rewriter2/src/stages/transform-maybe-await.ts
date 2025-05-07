@@ -46,6 +46,11 @@ const isGeneratedHelper = asNodeKey(Symbol('isGeneratedHelper'));
 const isOriginalBody = asNodeKey(Symbol('isOriginalBody'));
 const isAlwaysSyncFunction = asNodeKey(Symbol('isAlwaysSyncFunction'));
 const isExpandedTypeof = asNodeKey(Symbol('isExpandedTypeof'));
+const isExpandedReturnExpression = asNodeKey(
+  Symbol('isExpandedReturnExpression')
+);
+const isExpandedExpression = asNodeKey(Symbol('isExpandedExpression'));
+const isExpandedCatchClause = asNodeKey(Symbol('isExpandedCatchClause'));
 // Using this key, we store data on Function nodes that contains the identifiers
 // of helpers which are available inside the function.
 const identifierGroupKey = '@@mongosh.identifierGroup';
@@ -509,6 +514,8 @@ export default ({
             path.replaceWith(t.blockStatement([t.returnStatement(path.node)]));
           }
 
+          if (path.node[isExpandedExpression]) return;
+
           // If there is a [isGeneratedHelper] between the function we're in
           // and this node, that means we've already handled this node.
           if (
@@ -518,8 +525,7 @@ export default ({
           ) {
             return path.skip();
           }
-        },
-        exit(path) {
+
           // We have seen an expression. If we're not inside an async function,
           // or a function that we explicitly marked as needing always-synchronous
           // treatment, we don't care.
@@ -558,7 +564,7 @@ export default ({
             }
             if (
               path.parentPath.isReturnStatement() &&
-              !path.node[isGeneratedHelper]
+              !path.node[isExpandedReturnExpression]
             ) {
               // If this is inside a return statement that we have not already handled,
               // we replace the `return ...` with
@@ -571,7 +577,7 @@ export default ({
                     FUNCTION_STATE_IDENTIFIER: identifierGroup.functionState,
                     NODE: path.node,
                   }),
-                  { [isGeneratedHelper]: true }
+                  { [isExpandedReturnExpression]: true }
                 )
               );
               return;
@@ -679,25 +685,35 @@ export default ({
             return;
           }
 
+          if (
+            path.node.type === 'CallExpression' &&
+            path.node.callee.type === 'Identifier' &&
+            path.node.callee.name === isSyntheticPromise.name
+          )
+            return;
+
           path.replaceWith(
             Object.assign(
               awaitSyntheticPromiseTemplate({
-                ORIGINAL_SOURCE: getOriginalSourceString(this, path.node),
+                ORIGINAL_SOURCE: Object.assign(
+                  getOriginalSourceString(this, path.node),
+                  { [isGeneratedHelper]: true }
+                ),
                 EXPRESSION_HOLDER: expressionHolder,
                 ISP_IDENTIFIER: isSyntheticPromise,
-                NODE: path.node,
+                NODE: Object.assign(path.node, {
+                  [isExpandedExpression]: true,
+                }),
               }),
-              { [isGeneratedHelper]: true }
+              { [isExpandedExpression]: true }
             )
           );
-          // We are exiting from the current path and don't need to visit it again.
-          path.skip();
         },
       },
       CatchClause: {
-        exit(path) {
+        enter(path) {
           if (
-            path.node[isGeneratedHelper] ||
+            path.node[isExpandedCatchClause] ||
             !path.node.param ||
             path.node.param.type !== 'Identifier'
           )
@@ -724,7 +740,7 @@ export default ({
                   path.node.body,
                 ])
               ),
-              { [isGeneratedHelper]: true }
+              { [isExpandedCatchClause]: true }
             )
           );
         },
