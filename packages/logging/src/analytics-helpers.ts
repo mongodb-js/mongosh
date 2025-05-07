@@ -1,20 +1,18 @@
 import fs from 'fs';
 import path from 'path';
+import type { IdentifyParams as SegmentIdentity } from '@segment/analytics-node';
 
-export type MongoshAnalyticsIdentity =
-  | {
-      deviceId?: string;
-      userId: string;
-      anonymousId?: never;
-    }
-  | {
-      deviceId?: string;
-      userId?: never;
-      anonymousId: string;
-    };
+export type MongoshAnalyticsIdentity = Omit<
+  SegmentIdentity,
+  'context' | 'traits' | 'timestamp'
+>;
 
 export type AnalyticsIdentifyMessage = MongoshAnalyticsIdentity & {
-  traits: { platform: string; session_id: string };
+  traits: {
+    platform: string;
+    session_id: string;
+    device_id: string;
+  };
   timestamp?: Date;
 };
 
@@ -275,7 +273,10 @@ export class ThrottledAnalytics implements MongoshAnalytics {
     if (this.currentUserId) {
       throw new Error('Identify can only be called once per user session');
     }
-    this.currentUserId = message.userId ?? message.anonymousId;
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    this.currentUserId = message.userId ?? message.anonymousId!;
+
     this.restorePromise = this.restoreThrottleState().then((enabled) => {
       if (!enabled) {
         this.trackQueue.disable();
