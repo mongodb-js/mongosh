@@ -1,9 +1,9 @@
-use std::{cmp::Ordering, collections::VecDeque};
+use std::{borrow::Cow, cmp::Ordering, collections::VecDeque};
 use wasm_bindgen::prelude::*;
 use oxc_parser::{ParseOptions, Parser};
 use oxc_allocator::Allocator;
 use oxc_span::{SourceType, Span};
-use oxc_ast::{ast::{FunctionBody, UnaryOperator}, AstKind, AstType};
+use oxc_ast::{ast::{ArrowFunctionExpression, Expression, Function, FunctionBody, IdentifierReference, ParenthesizedExpression, UnaryOperator}, AstKind, AstType};
 use oxc_span::GetSpan;
 use oxc_semantic::{AstNode, Semantic, SemanticBuilder};
 
@@ -157,12 +157,8 @@ fn make_end_fn_insertion(offset: u32) -> Insertion {
 
 fn fn_start_insertion(body: &FunctionBody, has_block_body: bool) -> InsertionList {
     let mut ret = InsertionList::new();
-    let mut offset = body.span().start;
-    if !has_block_body {
-        ret.push_back(Insertion::new(offset, "{", false));
-    } else {
-        offset = offset.checked_add(1).unwrap();
-    }
+    let offset = body.span().start;
+    ret.push_back(Insertion::new(offset, "{", false));
     ret.push_back(make_start_fn_insertion(offset));
     if !has_block_body {
         ret.push_back(Insertion::new(
@@ -174,32 +170,69 @@ fn fn_start_insertion(body: &FunctionBody, has_block_body: bool) -> InsertionLis
 }
 fn fn_end_insertion(body: &FunctionBody, has_block_body: bool) -> InsertionList {
     let mut ret = InsertionList::new();
-    let mut offset = body.span().end;
-    if has_block_body {
-        offset = offset.checked_sub(1).unwrap();
-    } else {
-        ret.push_back(Insertion::new(offset, "), _functionState === 'async' ? _synchronousReturnValue : null);", true));
-    }
+    let offset = body.span().end;
+    ret.push_back(Insertion::new(offset, "}", true));
     ret.push_back(make_end_fn_insertion(offset));
     if !has_block_body {
-        ret.push_back(Insertion::new(offset, "}", true));
+        ret.push_back(Insertion::new(offset, "), _functionState === 'async' ? _synchronousReturnValue : null);", true));
     }
     ret
 }
 
+fn get_identifier_reference_from_parenthesized_expression<'a>(node: &'a ParenthesizedExpression<'a>) -> Option<&'a IdentifierReference<'a>> {
+    match node.expression {
+        Expression::Identifier(ref expr) => Some(expr),
+        Expression::ParenthesizedExpression(ref expr) => get_identifier_reference_from_parenthesized_expression(expr),
+        _ => None
+    }
+}
+
+fn get_identifier_reference<'a>(node: &AstNode<'a>) -> Option<&'a IdentifierReference<'a>> {
+    if let AstKind::IdentifierReference(expr) = node.kind() {
+        Some(expr)
+    } else if let AstKind::ParenthesizedExpression(expr) = node.kind() {
+        get_identifier_reference_from_parenthesized_expression(expr)
+    } else {
+        None
+    }
+}
+
+enum AnyFunctionParent<'a> {
+    Function(&'a Function<'a>),
+    ArrowFunction(&'a ArrowFunctionExpression<'a>),
+}
+
 fn collect_insertions(node: &AstNode, semantic: &Semantic) -> Result<InsertionList, &'static str> {
-    let ast_nodes = semantic.nodes();
-    let function_parent = ast_nodes.ancestor_kinds(node.id()).filter_map(|n| n.as_function()).find(|_| true);
-    let mut insertions = InsertionList::new();
+    let ast_nodes = &semantic.nodes();
+    let function_parent =
+        &ast_nodes.ancestor_kinds(node.id())
+            .skip(1)
+            .filter_map(|n| n.as_function().map(|f| AnyFunctionParent::Function(f)).or_else(
+                || n.as_arrow_function_expression().map(|f| AnyFunctionParent::ArrowFunction(f))
+            ))
+            .find(|_| true);
+    let function_parent_is_async = match function_parent {
+        Some(AnyFunctionParent::Function(f)) => f.r#async,
+        Some(AnyFunctionParent::ArrowFunction(f)) => f.r#async,
+        None => false,
+    };
+
     let get_parent = |node: &AstNode| ast_nodes.parent_node(node.id());
     let get_parent_kind = |node: &AstNode| get_parent(node).map(|p| p.kind());
     let get_parent_type = |node: &AstNode| get_parent_kind(node).map(|p| p.ty()).unwrap_or(AstType::Program);
 
+    let get_source = |node: &dyn GetSpan| {
+        let Span { start, end, .. } = node.span();
+        return semantic.source_text()[(start as usize)..(end as usize)].to_string();
+    };
+
     let span = node.span();
-    let kind = node.kind();
+    let kind = &node.kind();
     let ty = kind.ty();
+
+    let mut insertions = InsertionList::new();
+
     {
-        // XXX template literal handling?
         insertions.push_back(Insertion::new_dynamic(span.start,
             format!(" /*{ty:#?}*/ ")
         , false));
@@ -240,7 +273,6 @@ fn collect_insertions(node: &AstNode, semantic: &Semantic) -> Result<InsertionLi
                 insertions.push_back(Insertion::new_dynamic(span.start,
                 format!("_cr = {name} = ", name = name.as_str())
                 ,false));
-                // XXX child insertions
                 insertions.push_back(Insertion::new(span.end,
                     ";"
                 ,true));
@@ -270,17 +302,21 @@ fn collect_insertions(node: &AstNode, semantic: &Semantic) -> Result<InsertionLi
         return Ok(insertions);
     }
     if let AstKind::ExpressionStatement(as_expr_stmt) = node.kind() {
-        let expr_span = as_expr_stmt.expression.span();
-        insertions.push_back(Insertion::new(expr_span.start, ";", false ));
-        if !function_parent.is_some() {
-            insertions.push_back(Insertion::new(expr_span.start, "_cr = (", false));
-            insertions.push_back(Insertion::new(expr_span.end, ")", true));
+        if !(get_parent_type(node) == AstType::FunctionBody && get_parent_type(get_parent(node).unwrap()) == AstType::ArrowFunctionExpression) {
+            let expr_span = as_expr_stmt.expression.span();
+            insertions.push_back(Insertion::new(expr_span.start, ";", false ));
+            if !function_parent.is_some() {
+                insertions.push_back(Insertion::new(expr_span.start, "_cr = (", false));
+            }
+            insertions.push_back(Insertion::new(expr_span.end, ";", true));
+            if !function_parent.is_some() {
+                insertions.push_back(Insertion::new(expr_span.end, ")", true));
+            }
         }
-        insertions.push_back(Insertion::new(expr_span.end, ";", true));
         return Ok(insertions);
     }
     if let AstKind::ReturnStatement(as_ret_stmt) = node.kind() {
-        if function_parent.map_or(false, |f| !f.r#async) {
+        if function_parent.is_some() && !function_parent_is_async {
             if let Some(expr) = &as_ret_stmt.argument {
                 insertions.push_back(
                     Insertion::new(expr.span().start, "(_synchronousReturnValue = (", false));
@@ -292,10 +328,14 @@ fn collect_insertions(node: &AstNode, semantic: &Semantic) -> Result<InsertionLi
     }
 
     // This is where expression handling starts
-    let mut wrap_expr_span: Option<Span> = None;
+    let mut wrap_expr_span = None;
     let mut is_named_typeof_rhs = false;
     let mut is_identifier = false;
-    if let AstKind::IdentifierReference(expr) = node.kind() {
+
+    if let Some(expr) = get_identifier_reference(node) {
+        if get_parent_type(node) == AstType::ObjectProperty { // Handles shorthands `{ foo }`, TBD verify correctness
+            return Ok(insertions);
+        }
         is_identifier = true;
         let name = expr.name.as_str();
         let is_eval_this_super_reference = ["eval", "this", "super"].iter().any(|n| *n == name);
@@ -321,29 +361,29 @@ fn collect_insertions(node: &AstNode, semantic: &Semantic) -> Result<InsertionLi
         if is_identifier && unary_parent.operator == UnaryOperator::Typeof {
             is_named_typeof_rhs = true;
         }
+        if unary_parent.operator == UnaryOperator::Delete {
+            wrap_expr_span = None;
+        }
     }
     if get_parent_type(node) == AstType::ForStatementInit ||
        get_parent_type(node) == AstType::AssignmentTarget ||
+       get_parent_type(node) == AstType::SimpleAssignmentTarget ||
+       get_parent_type(node) == AstType::AssignmentTargetPattern ||
+       get_parent_type(node) == AstType::AssignmentTargetWithDefault ||
        get_parent_type(node) == AstType::AwaitExpression ||
        get_parent_type(node) == AstType::FormalParameter {
         wrap_expr_span = None;
     }
 
-    let get_source = |node: &dyn GetSpan| {
-        let Span { start, end, .. } = node.span();
-        return semantic.source_text()[(start as usize)..(end as usize)].to_string();
-    };
     if is_named_typeof_rhs {
         insertions.push_back(Insertion::new_dynamic(get_parent_kind(node).unwrap().span().start,
             format!("(typeof {original} === 'undefined' ? 'undefined' : ", original = get_source(node)), false
         ));
+        insertions.push_back(Insertion::new(span.end, ")", true));
     }
     if let Some(s) = wrap_expr_span {
         insertions.push_back(Insertion::new(s.start, "(_ex = ", false));
         insertions.push_back(Insertion::new(s.end, ", _isp(_ex) ? await _ex : _ex)", true));
-    }
-    if is_named_typeof_rhs {
-        insertions.push_back(Insertion::new(span.end, ")", true));
     }
 
     return Ok(insertions);
@@ -356,6 +396,9 @@ pub fn async_rewrite(input: &str, with_debug_tags: bool) -> Result<String, Strin
     let parsed = Parser::new(&allocator, &input, source_type)
         .with_options(ParseOptions { parse_regular_expression: true, ..ParseOptions::default() })
         .parse();
+    if parsed.errors.len() > 0 {
+        return Err(format!("Parse errors: {:?}", parsed.errors.iter().map(|e| &e.message).collect::<Vec<&Cow<'static, str>>>()));
+    }
     assert!(!parsed.panicked);
     let semantic_ret = SemanticBuilder::new().build(allocator.alloc(parsed.program));
 
@@ -373,13 +416,16 @@ pub fn async_rewrite(input: &str, with_debug_tags: bool) -> Result<String, Strin
         }
     }
     let end = input.len().try_into().unwrap();
+    for directive in &semantic_ret.semantic.nodes().root_node().unwrap().kind().as_program().unwrap().directives {
+        insertions.push_back(Insertion::new_dynamic(0, format!("\"{}\"", directive.directive.as_str()), false));
+    }
     insertions.push_back(Insertion::new(0, ";(() => { const __SymbolFor = Symbol.for;", false));
     insertions.push_back(make_start_fn_insertion(0));
     insertions.push_back(Insertion::new(0, "var _cr;", false));
-    insertions.append(&mut collected_insertions);
-    insertions.push_back(Insertion::new(end, ";\n return _synchronousReturnValue = _cr;", true));
-    insertions.push_back(make_end_fn_insertion(input.len().try_into().unwrap()));
     insertions.push_back(Insertion::new(end, "})()", true));
+    insertions.push_back(make_end_fn_insertion(input.len().try_into().unwrap()));
+    insertions.push_back(Insertion::new(end, ";\n return _synchronousReturnValue = _cr;", true));
+    insertions.append(&mut collected_insertions);
 
     insertions.sort();
 
