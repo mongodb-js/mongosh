@@ -17,6 +17,9 @@
     "node": ">=14.15.1"
   },
   "scripts": {
+    "prebuild-addon": "cargo build --release",
+    "build-addon": "node-gyp rebuild",
+    "install": "npm run build-addon",
     "compile": "npm run webpack-build",
     "prewebpack": "rm -rf dist pkg",
     "webpack": "webpack",
@@ -29,5 +32,6 @@
     "depcheck": "^1.4.3",
     "wasm-pack": "^0.13.1",
     "webpack-merge": "^5.8.0"
-  }
+  },
+  "gypfile": true
 }

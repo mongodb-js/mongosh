@@ -10,6 +10,7 @@ use oxc_parser::{ParseOptions, Parser};
 use oxc_semantic::{AstNode, Semantic, SemanticBuilder};
 use oxc_span::GetSpan;
 use oxc_span::{SourceType, Span};
+use core::slice;
 use std::{borrow::Cow, cmp::Ordering, collections::VecDeque};
 use wasm_bindgen::prelude::*;
 
@@ -606,4 +607,44 @@ pub fn async_rewrite(input: &str, debug_level: DebugLevel) -> Result<String, Str
     result.push_str(&input[previous_offset as usize..]);
 
     Ok(result)
+}
+
+#[no_mangle]
+pub extern "C" fn async_rewrite_c(
+    input: *const u8,
+    input_len: usize,
+    output: *mut *mut i8,
+    output_len: *mut usize,
+    debug_level: u8,
+) -> u8 {
+    let input = unsafe { String::from_utf8_lossy(slice::from_raw_parts(input, input_len)) };
+
+    let result = async_rewrite(input.as_ref(), match debug_level {
+        0 => DebugLevel::None,
+        1 => DebugLevel::TypesOnly,
+        2 => DebugLevel::Verbose,
+        _ => return 1,
+    });
+    match result {
+        Ok(output_str) => {
+            let output_cstr = std::ffi::CString::new(output_str).unwrap();
+            unsafe {
+                *output_len = output_cstr.as_bytes().len();
+                *output = output_cstr.into_raw();
+            }
+            0
+        }
+        Err(_) => 1,
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn async_rewrite_free_result(
+    result: *mut i8,
+) -> () {
+    if !result.is_null() {
+        unsafe {
+            drop(std::ffi::CString::from_raw(result));
+        }
+    }
 }
