@@ -147,43 +147,6 @@ async function main() {
   );
 
   const code = (result?.code ?? '') + '\n' + apiGlobals;
-  /*
-  code += `
-// REPLACEME
-type MongodbServerSchema = {
-  admin: {},
-  config: {},
-  test: {
-    test: {
-      schema: {
-        _id: ObjectId;
-        foo: number;
-      }
-    },
-    with: { schema: never },
-    'with.dots': {
-      schema: {
-        _id: ObjectId;
-        bar: string;
-      }
-    }
-  }
-}
-// REPLACEME
-
-declare global {
-  // second argument optional
-  var db: Database<MongodbServerSchema, MongodbServerSchema['test']>;
-  var rs: ReplicaSet<MongodbServerSchema, MongodbServerSchema['test']>;
-  var sh: Shard<MongodbServerSchema, MongodbServerSchema['test']>;
-  // not sure this is correct because sp is usually made using static method
-  // Streams.newInstance(), but here Streams is only a type
-  var sp: Streams<MongodbServerSchema, MongodbServerSchema['test']>;
-
-  var use: (collection: StringKey<MongodbServerSchema>) => void;
-}
-`;
-  */
   await fs.writeFile(
     path.resolve(__dirname, '..', 'lib', 'api-processed.d.ts'),
     code
