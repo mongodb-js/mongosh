@@ -160,31 +160,31 @@ fn make_fn_insertions(span: impl GetSpan) -> (Insertion, Insertion) {
     const _asynchronousReturnValue = (async () => {
     try {"#,
         r#"
-        } catch (err) {
-            if (_functionState === 'sync') {
-                /* Forward synchronous exceptions. */
-                _synchronousReturnValue = err;
-                _functionState = 'threw';
-            } else {
-                throw err;
-            }
-            } finally {
-            if (_functionState !== 'threw') {
-                _functionState = 'returned';
-            }
+    } catch (err) {
+        if (_functionState === 'sync') {
+            /* Forward synchronous exceptions. */
+            _synchronousReturnValue = err;
+            _functionState = 'threw';
+        } else {
+            throw err;
         }
-
-        })();
-
-        if (_functionState === 'returned') {
-            return _synchronousReturnValue;
-        } else if (_functionState === 'threw') {
-            throw _synchronousReturnValue;
+    } finally {
+        if (_functionState !== 'threw') {
+            _functionState = 'returned';
         }
+    }
 
-        _functionState = 'async';
-        return _markSyntheticPromise(_asynchronousReturnValue);
-        "#,
+    })();
+
+    if (_functionState === 'returned') {
+        return _synchronousReturnValue;
+    } else if (_functionState === 'threw') {
+        throw _synchronousReturnValue;
+    }
+
+    _functionState = 'async';
+    return _markSyntheticPromise(_asynchronousReturnValue);
+    "#,
     )
 }
 
@@ -239,7 +239,11 @@ enum AnyFunctionParent<'a> {
 
 /// Collect all insertions for a given node.
 /// This is the main function that does the work of rewriting the source code.
-fn collect_insertions(node: &AstNode, semantic: &Semantic, debug_level: DebugLevel) -> Result<InsertionList, &'static str> {
+fn collect_insertions(
+    node: &AstNode,
+    semantic: &Semantic,
+    debug_level: DebugLevel,
+) -> Result<InsertionList, &'static str> {
     let ast_nodes = &semantic.nodes();
     // Look up the nearest function parent, if any.
     let function_parent = &ast_nodes
@@ -294,11 +298,11 @@ fn collect_insertions(node: &AstNode, semantic: &Semantic, debug_level: DebugLev
                 Some(name) => {
                     // `function foo() {}` -> `var foo; ... function foo__() {}; _cr = foo = foo__;`
                     // so that if somebody writes `function foo() {}` we consider it a valid completion record.
-                    insertions.push_pair(
-                        Insertion::pair(
-                            Span::new(name.span().end, span.end),
-                            "__",
-                            format!(";\n_cr = {name} = {name}__;\n", name = name.name.as_str())));
+                    insertions.push_pair(Insertion::pair(
+                        Span::new(name.span().end, span.end),
+                        "__",
+                        format!(";\n_cr = {name} = {name}__;\n", name = name.name.as_str()),
+                    ));
                     insertions.add_variable(name.to_string());
                 }
             }
@@ -521,7 +525,11 @@ pub fn async_rewrite(input: &str, debug_level: DebugLevel) -> Result<String, Str
     let mut insertions = InsertionList::new();
     let mut collected_insertions = InsertionList::new();
     for node in semantic_ret.semantic.nodes() {
-        collected_insertions.append(&mut collect_insertions(node, &semantic_ret.semantic, debug_level)?);
+        collected_insertions.append(&mut collect_insertions(
+            node,
+            &semantic_ret.semantic,
+            debug_level,
+        )?);
     }
     {
         let vars = &collected_insertions.vars;

@@ -6,5 +6,8 @@ fn main() {
 
     //std::fs::File::open("../../node_modules/sinon/pkg/sinon.js").unwrap()
     std::io::stdin().read_to_string(&mut input).unwrap();
-    println!("{}", async_rewrite(input.as_str(), DebugLevel::TypesOnly).unwrap());
+    println!(
+        "{}",
+        async_rewrite(input.as_str(), DebugLevel::TypesOnly).unwrap()
+    );
 }
