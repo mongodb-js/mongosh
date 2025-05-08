@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Wed May 07 2025.
+This document was automatically generated on Thu May 08 2025.
 
 ## List of dependencies
 
@@ -439,7 +439,7 @@ Package|Version|License
 **[web-streams-polyfill](#2349028b62115a87d9af122218c79a38cd90411e2b53a91c1cff7249e16f45f0)**|3.3.3|MIT
 **[webidl-conversions](#3604b2bfa479706fe7bd8068257240d32158704a3bffae30b414963343027aa1)**|3.0.1|BSD-2-Clause
 **[webidl-conversions](#cb7c681998e7ee3c598e6e37432bcf448946924eefe816636c3cb122bae46e1c)**|7.0.0|BSD-2-Clause
-**[webpack](#bd55cdb69f5b1b336d12c3f00d849ccb1f2c39987c257c89027d6a790f947496)**|5.94.0|MIT
+**[webpack](#c3f09fb695a0ed59dcddbcf24e53a52d44c5910a864814763c2bb3dfdf6a3e0e)**|5.99.8|MIT
 **[whatwg-url](#3a968d9d3fed498fc1edf2f65459cc89b6a2fea277b5c9b5c3f3a0b41390835a)**|13.0.0|MIT
 **[whatwg-url](#cd3f81c4a0fd856ab1d9c9fc99c1d7eaf2c12c4867b218e9901e5020a1ffcd85)**|5.0.0|MIT
 **[which](#5a71f2b741944bf107d6e7f067241798a6e277e42e8ca1e28c4608ccc233f8ec)**|2.0.2|ISC
@@ -31562,8 +31562,8 @@ License files:
       
 
 
-<a id="bd55cdb69f5b1b336d12c3f00d849ccb1f2c39987c257c89027d6a790f947496"></a>
-### [webpack](https://www.npmjs.com/package/webpack) (version 5.94.0)
+<a id="c3f09fb695a0ed59dcddbcf24e53a52d44c5910a864814763c2bb3dfdf6a3e0e"></a>
+### [webpack](https://www.npmjs.com/package/webpack) (version 5.99.8)
 License tags: MIT
 
 License files:
