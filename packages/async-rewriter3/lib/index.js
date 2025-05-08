@@ -28,8 +28,8 @@ module.exports = class AsyncWriter {
           ' (not supported while snapshotting)' :
           '');
     }
-    const { async_rewrite } = await importPromise;
-    return async_rewrite(code, false);
+    const { async_rewrite, DebugLevel } = await importPromise;
+    return async_rewrite(code, DebugLevel[process.env.MONGOSH_ASYNC_REWRITER3_DEBUG_LEVEL] ?? DebugLevel.TypesOnly);
   }
   processSync(code) {
     if (!syncImport) {
@@ -38,8 +38,8 @@ module.exports = class AsyncWriter {
           ' (not supported while snapshotting)' :
           '');
     }
-    const { async_rewrite } = syncImport;
-    return async_rewrite(code, !!process.env.MONGOSH_ASYNC_REWRITER3_DEBUG_TAGS);
+    const { async_rewrite, DebugLevel } = syncImport;
+    return async_rewrite(code, DebugLevel[process.env.MONGOSH_ASYNC_REWRITER3_DEBUG_LEVEL] ?? DebugLevel.TypesOnly);
   }
   runtimeSupportCode() {
     return '';

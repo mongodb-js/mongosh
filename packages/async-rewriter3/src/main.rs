@@ -1,4 +1,4 @@
-use async_rewriter3::async_rewrite;
+use async_rewriter3::{async_rewrite, DebugLevel};
 use std::io::Read;
 
 fn main() {
@@ -6,5 +6,5 @@ fn main() {
 
     //std::fs::File::open("../../node_modules/sinon/pkg/sinon.js").unwrap()
     std::io::stdin().read_to_string(&mut input).unwrap();
-    println!("{}", async_rewrite(input.as_str(), false).unwrap());
+    println!("{}", async_rewrite(input.as_str(), DebugLevel::TypesOnly).unwrap());
 }
