@@ -43,10 +43,6 @@ function applyAsyncRewriterChanges() {
                   ([cls, method]) => cls === className && method === methodName
                 )
               ) {
-                // TODO: fix this
-                if (className === 'Mongo') {
-                  return;
-                }
                 // eslint-disable-next-line no-console
                 console.error(
                   `Expected to find and transpile type for @returnsPromise-annotated method ${className}.${methodName}`
