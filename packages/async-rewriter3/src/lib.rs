@@ -476,7 +476,7 @@ fn collect_insertions(
         // as `typeof` applied to the value of `foo`, but also checks whether the
         // identifier `foo` exists and in particular does not fail if it does not.
         // So we transform `typeof foo` into
-        // `(typeof foo === undefined ? 'undefined' : typeof (shouldAwait(foo) ? await foo : foo))`.
+        // `(typeof foo === 'undefined' ? 'undefined' : typeof (shouldAwait(foo) ? await foo : foo))`.
         insertions.push_pair(Insertion::pair(
             get_parent_kind(node).unwrap(),
             format!(
