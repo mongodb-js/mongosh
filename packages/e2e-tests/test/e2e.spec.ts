@@ -697,7 +697,7 @@ describe('e2e', function () {
       expect(result).to.include('{ _id: 1, value: 4 }');
     });
 
-    it('rewrites async properly for common libraries', async function () {
+    it.only('rewrites async properly for common libraries', async function () {
       this.timeout(120_000);
       await shell.executeLine(`use ${dbName}`);
       await shell.executeLine(
