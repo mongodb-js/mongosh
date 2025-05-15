@@ -240,10 +240,9 @@ export class Editor {
     const { spawn } =
       // eslint-disable-next-line
       require('child_process') as typeof import('child_process');
-    const proc = spawn(editor, [path.basename(tmpDoc)], {
+    const proc = spawn(editor, [tmpDoc], {
       stdio: 'inherit',
       cwd: path.dirname(tmpDoc),
-      shell: true,
     });
 
     // Pause the parent readable stream to stop emitting data events
