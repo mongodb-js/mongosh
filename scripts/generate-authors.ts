@@ -15,7 +15,8 @@ const packageRootPath = path.resolve(__dirname, '..');
 
 function getAuthorsGitLog(packagePath: string): string[] {
   return execSync(
-    `git log --reverse --format='%aN <%aE>' --use-mailmap -- ${packagePath}`,
+    'git',
+    ['log', '--reverse', '--format=%aN <%aE>', '--use-mailmap', '--', packagePath],
     { cwd: packageRootPath }
   ).toString().trim().split('\n');
 }
@@ -40,7 +41,8 @@ interface Package {
 function getAllPackages(): Package[] {
   return JSON.parse(
     execSync(
-      `lerna list -a --loglevel=error --json`,
+      'lerna',
+      ['list', '-a', '--loglevel=error', '--json'],
       { cwd: packageRootPath }
     ).toString().trim()
   );
