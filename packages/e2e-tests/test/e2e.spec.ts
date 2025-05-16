@@ -606,6 +606,30 @@ describe('e2e', function () {
       shell.assertNoErrors();
     });
 
+    it('prints only multiline dots between prompts', async function () {
+      await shell.waitForPrompt();
+      const outputOffsetBefore = shell.output.length;
+      shell.writeInputLine(`
+        const foo = {
+          bar: "baz"
+        };
+      `);
+
+      // Wait for some multiline dots
+      await eventually(() => {
+        shell.assertContainsOutput('... ...');
+      });
+      const outputOffsetAfterDots = shell.output.length;
+      const output = shell.output
+        .substring(outputOffsetBefore, outputOffsetAfterDots)
+        .trim();
+      // Expect just the multiline dots
+      expect(output.startsWith('... ...')).equals(
+        true,
+        `Expected output to start with dots, got '${output}'`
+      );
+    });
+
     it('runs help command', async function () {
       expect(await shell.executeLine('help')).to.include('Shell Help');
       shell.assertNoErrors();
