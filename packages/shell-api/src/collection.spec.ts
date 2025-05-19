@@ -48,7 +48,6 @@ describe('Collection', function () {
   });
   describe('signatures', function () {
     it('type', function () {
-      // TODO: do we want the signatures to be CollectionImpl or Collection?
       expect(signatures.CollectionImpl.type).to.equal('CollectionImpl');
     });
     it('attributes', function () {
