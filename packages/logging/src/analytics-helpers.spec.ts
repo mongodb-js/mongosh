@@ -40,7 +40,11 @@ describe('analytics helpers', function () {
 
       toggleable.identify({
         userId: 'me',
-        traits: { platform: '1234', session_id: 'abc' },
+        traits: {
+          platform: '1234',
+          session_id: 'abc',
+          device_id: 'test-device-id',
+        },
         timestamp,
       });
       toggleable.track({
@@ -80,7 +84,11 @@ describe('analytics helpers', function () {
           'identify',
           {
             userId: 'me',
-            traits: { platform: '1234', session_id: 'abc' },
+            traits: {
+              platform: '1234',
+              session_id: 'abc',
+              device_id: 'test-device-id',
+            },
             timestamp,
           },
         ],
@@ -124,7 +132,14 @@ describe('analytics helpers', function () {
   describe('ThrottledAnalytics', function () {
     const metadataPath = os.tmpdir();
     const userId = 'u-' + Date.now();
-    const iEvt = { userId, traits: { platform: 'what', session_id: 'abc' } };
+    const iEvt = {
+      userId,
+      traits: {
+        platform: 'what',
+        session_id: 'abc',
+        device_id: 'test-device-id',
+      },
+    };
     const tEvt = {
       userId,
       event: 'hi',
@@ -252,7 +267,14 @@ describe('analytics helpers', function () {
 
   describe('SampledAnalytics', function () {
     const userId = `u-${Date.now()}`;
-    const iEvt = { userId, traits: { platform: 'what', session_id: 'abc' } };
+    const iEvt = {
+      userId,
+      traits: {
+        platform: 'what',
+        session_id: 'abc',
+        device_id: 'test-device-id',
+      },
+    };
     const tEvt = {
       userId,
       event: 'hi',
