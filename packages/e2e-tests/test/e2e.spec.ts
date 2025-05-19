@@ -771,6 +771,25 @@ describe('e2e', function () {
       ).to.include('string');
     });
 
+    it('sets device ID for telemetry', async function () {
+      const deviceId = (
+        await shell.executeLine(
+          'db._mongo._instanceState.evaluationListener.ioProvider.loggingAndTelemetry.deviceId'
+        )
+      )
+        .split('\n')[0]
+        // Remove all whitespace
+        .replace(/\s+/g, '');
+
+      expect(deviceId).not.to.equal('unknown');
+      // Our hashed key is 64 hex chars
+
+      expect(deviceId).to.match(
+        /^[a-f0-9]{64}$/,
+        `deviceId did not match: |${deviceId}|`
+      );
+    });
+
     context('post-4.2', function () {
       skipIfServerVersion(testServer, '< 4.4');
       it('allows calling convertShardKeyToHashed() as a global function', async function () {
@@ -1821,8 +1840,11 @@ describe('e2e', function () {
 
             // Add the newly created log file
             paths.push(path.join(customLogDir.path, getLogName(shell.logId)));
-            // Expect 6 files to be deleted and 5 to remain (including the new log file)
-            expect(await getFilesState(paths)).equals('00000011111');
+
+            await eventually(async () => {
+              // Expect 6 files to be deleted and 5 to remain (including the new log file)
+              expect(await getFilesState(paths)).equals('00000011111');
+            });
           });
         });
 
@@ -1874,10 +1896,13 @@ describe('e2e', function () {
             await shell.waitForPrompt();
 
             paths.push(path.join(customLogDir.path, getLogName(shell.logId)));
-            // 3 log files without mongosh_ prefix should remain
-            // 2 log file with mongosh_ prefix should be deleted
-            // 2 log files with mongosh_ prefix should remain (including the new log)
-            expect(await getFilesState(paths)).to.equal('1110011');
+
+            await eventually(async () => {
+              // 3 log files without mongosh_ prefix should remain
+              // 2 log file with mongosh_ prefix should be deleted
+              // 2 log files with mongosh_ prefix should remain (including the new log)
+              expect(await getFilesState(paths)).to.equal('1110011');
+            });
           });
 
           it('should delete files once it is above logMaxFileCount', async function () {
@@ -1913,8 +1938,10 @@ describe('e2e', function () {
               await shell.executeLine('config.get("logMaxFileCount")')
             ).contains('4');
 
-            // Expect 7 files to be deleted and 4 to remain (including the new log file)
-            expect(await getFilesState(paths)).to.equal('00000001111');
+            await eventually(async () => {
+              // Expect 7 files to be deleted and 4 to remain (including the new log file)
+              expect(await getFilesState(paths)).to.equal('00000001111');
+            });
           });
         });
 
@@ -1959,9 +1986,11 @@ describe('e2e', function () {
               await shell.executeLine('config.get("logRetentionGB")')
             ).contains(`${4 / 1024}`);
 
-            // Expect 6 files to be deleted and 4 to remain
-            // (including the new log file which should be <1 MB)
-            expect(await getFilesState(paths)).to.equal('00000001111');
+            await eventually(async () => {
+              // Expect 6 files to be deleted and 4 to remain
+              // (including the new log file which should be <1 MB)
+              expect(await getFilesState(paths)).to.equal('00000001111');
+            });
           });
         });
 
