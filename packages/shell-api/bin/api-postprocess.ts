@@ -147,6 +147,19 @@ async function main() {
     path.resolve(__dirname, '..', 'lib', 'api-processed.d.ts'),
     code
   );
+
+  const exportCode = `"use strict";
+module.exports = ${JSON.stringify(code)};
+`;
+  await fs.writeFile(
+    path.resolve(__dirname, '..', 'lib', 'api-export.js'),
+    exportCode
+  );
+
+  await fs.writeFile(
+    path.resolve(__dirname, '..', 'lib', 'api-export.d.ts'),
+    'declare const _default: string; export default _default;'
+  );
 }
 
 main().catch((err) =>
