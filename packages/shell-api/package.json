@@ -23,7 +23,7 @@
   },
   "scripts": {
     "compile": "tsc -p tsconfig.json",
-    "api-generate": "api-extractor run ; ts-node bin/api-postprocess.ts",
+    "api-generate": "api-extractor run && ts-node bin/api-postprocess.ts",
     "pretest": "npm run compile && npm run api-generate",
     "eslint": "eslint",
     "lint": "npm run eslint . && npm run prettier -- --check .",
