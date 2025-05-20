@@ -1,7 +1,7 @@
-export { Collection } from './collection';
+export { CollectionWithSchema } from './collection';
 export { ShellBson } from './shell-bson';
 export { Streams } from './streams';
-export { Database } from './database';
+export { DatabaseWithSchema } from './database';
 import Shard from './shard';
 import ReplicaSet from './replica-set';
 import ShellApi from './shell-api';
