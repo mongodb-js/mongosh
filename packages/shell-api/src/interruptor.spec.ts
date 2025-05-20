@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import type { EventEmitter } from 'events';
 import type { StubbedInstance } from 'ts-sinon';
 import { stubInterface } from 'ts-sinon';
-import { DatabaseImpl } from './database';
+import { Database } from './database';
 import Mongo from './mongo';
 import { InterruptFlag, MongoshInterruptedError } from './interruptor';
 import ShellInstanceState from './shell-instance-state';
@@ -51,7 +51,7 @@ describe('interruptor', function () {
   describe('with Shell API functions', function () {
     let mongo: Mongo;
     let serviceProvider: StubbedInstance<ServiceProvider>;
-    let database: DatabaseImpl;
+    let database: Database;
     let bus: StubbedInstance<EventEmitter>;
     let instanceState: ShellInstanceState;
 
@@ -70,7 +70,7 @@ describe('interruptor', function () {
         undefined,
         serviceProvider
       );
-      database = new DatabaseImpl(mongo, 'db1');
+      database = new Database(mongo, 'db1');
     });
 
     it('causes an interrupt error to be thrown on entry', async function () {

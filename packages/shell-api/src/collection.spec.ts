@@ -11,9 +11,9 @@ import {
   shellApiType,
   ADMIN_DB,
 } from './enums';
-import { DatabaseImpl } from './database';
+import { Database } from './database';
 import Mongo from './mongo';
-import { CollectionImpl } from './collection';
+import { Collection } from './collection';
 import ChangeStreamCursor from './change-stream-cursor';
 import Explainable from './explainable';
 import type {
@@ -40,7 +40,7 @@ const sinonChai = require('sinon-chai'); // weird with import
 use(sinonChai);
 describe('Collection', function () {
   describe('help', function () {
-    const apiClass = new CollectionImpl({} as any, {} as any, 'name');
+    const apiClass = new Collection({} as any, {} as any, 'name');
     it('calls help function', async function () {
       expect((await toShellResult(apiClass.help())).type).to.equal('Help');
       expect((await toShellResult(apiClass.help)).type).to.equal('Help');
@@ -48,10 +48,10 @@ describe('Collection', function () {
   });
   describe('signatures', function () {
     it('type', function () {
-      expect(signatures.CollectionImpl.type).to.equal('CollectionImpl');
+      expect(signatures.Collection.type).to.equal('Collection');
     });
     it('attributes', function () {
-      expect(signatures.CollectionImpl.attributes?.aggregate).to.deep.equal({
+      expect(signatures.Collection.attributes?.aggregate).to.deep.equal({
         type: 'function',
         returnsPromise: true,
         deprecated: false,
@@ -69,14 +69,14 @@ describe('Collection', function () {
   describe('metadata', function () {
     describe('toShellResult', function () {
       const mongo = sinon.spy();
-      const db = new DatabaseImpl(mongo as any, 'myDB');
-      const coll = new CollectionImpl(
+      const db = new Database(mongo as any, 'myDB');
+      const coll = new Collection(
         mongo as any,
         db._typeLaunder(),
         'myCollection'
       );
       it('toShellResult', async function () {
-        expect((await toShellResult(coll)).type).to.equal('CollectionImpl');
+        expect((await toShellResult(coll)).type).to.equal('Collection');
         expect((await toShellResult(coll)).printable).to.equal(
           'myDB.myCollection'
         );
@@ -85,25 +85,25 @@ describe('Collection', function () {
   });
   describe('.collections', function () {
     it('allows to get a collection as property if is not one of the existing methods', function () {
-      const database = new DatabaseImpl(
+      const database = new Database(
         { _instanceState: { emitApiCallWithArgs: (): void => {} } } as any,
         'db1'
       );
-      const coll: any = new CollectionImpl(
+      const coll: any = new Collection(
         {} as any,
         database._typeLaunder(),
         'coll'
       );
-      expect(coll.someCollection).to.have.instanceOf(CollectionImpl);
+      expect(coll.someCollection).to.have.instanceOf(Collection);
       expect(coll.someCollection._name).to.equal('coll.someCollection');
     });
 
     it('reuses collections', function () {
-      const database: any = new DatabaseImpl(
+      const database: any = new Database(
         { _instanceState: { emitApiCallWithArgs: (): void => {} } } as any,
         'db1'
       );
-      const coll: any = new CollectionImpl({} as any, database, 'coll');
+      const coll: any = new Collection({} as any, database, 'coll');
       expect(coll.someCollection).to.equal(
         database.getCollection('coll.someCollection')
       );
@@ -112,26 +112,26 @@ describe('Collection', function () {
 
     it('does not return a collection starting with _', function () {
       // this is the behaviour in the old shell
-      const database: any = new DatabaseImpl({} as any, 'db1');
-      const coll: any = new CollectionImpl({} as any, database, 'coll');
+      const database: any = new Database({} as any, 'db1');
+      const coll: any = new Collection({} as any, database, 'coll');
       expect(coll._someProperty).to.equal(undefined);
     });
 
     it('does not return a collection for symbols', function () {
-      const database: any = new DatabaseImpl({} as any, 'db1');
-      const coll: any = new CollectionImpl({} as any, database, 'coll');
+      const database: any = new Database({} as any, 'db1');
+      const coll: any = new Collection({} as any, database, 'coll');
       expect(coll[Symbol('someProperty')]).to.equal(undefined);
     });
 
     it('does not return a collection with invalid name', function () {
-      const database: any = new DatabaseImpl({} as any, 'db1');
-      const coll: any = new CollectionImpl({} as any, database, 'coll');
+      const database: any = new Database({} as any, 'db1');
+      const coll: any = new Collection({} as any, database, 'coll');
       expect(coll.foo$bar).to.equal(undefined);
     });
 
     it('allows to access _name', function () {
-      const database: any = new DatabaseImpl({} as any, 'db1');
-      const coll: any = new CollectionImpl({} as any, database, 'coll');
+      const database: any = new Database({} as any, 'db1');
+      const coll: any = new Collection({} as any, database, 'coll');
       expect(coll._name).to.equal('coll');
     });
   });
@@ -145,10 +145,10 @@ describe('Collection', function () {
     };
     let mongo: Mongo<ServerSchema>;
     let serviceProvider: StubbedInstance<ServiceProvider>;
-    let database: DatabaseImpl<ServerSchema, ServerSchema['db1']>;
+    let database: Database<ServerSchema, ServerSchema['db1']>;
     let bus: StubbedInstance<EventEmitter>;
     let instanceState: ShellInstanceState;
-    let collection: CollectionImpl<
+    let collection: Collection<
       ServerSchema,
       ServerSchema['db1'],
       ServerSchema['db1']['coll1']
@@ -169,11 +169,11 @@ describe('Collection', function () {
         undefined,
         serviceProvider
       );
-      database = new DatabaseImpl<ServerSchema, ServerSchema['db1']>(
+      database = new Database<ServerSchema, ServerSchema['db1']>(
         mongo,
         'db1' as StringKey<ServerSchema>
       );
-      collection = new CollectionImpl<
+      collection = new Collection<
         ServerSchema,
         ServerSchema['db1'],
         ServerSchema['db1']['coll1']
@@ -2839,10 +2839,10 @@ describe('Collection', function () {
     let mongo1: Mongo<ServerSchema>;
     let mongo2: Mongo<ServerSchema>;
     let serviceProvider: StubbedInstance<ServiceProvider>;
-    let database: DatabaseImpl<ServerSchema, ServerSchema['db1']>;
+    let database: Database<ServerSchema, ServerSchema['db1']>;
     let bus: StubbedInstance<EventEmitter>;
     let instanceState: ShellInstanceState;
-    let collection: CollectionImpl<
+    let collection: Collection<
       ServerSchema,
       ServerSchema['db1'],
       ServerSchema['db1']['collfle2']
@@ -2875,11 +2875,11 @@ describe('Collection', function () {
         undefined,
         serviceProvider
       );
-      database = new DatabaseImpl<ServerSchema, ServerSchema['db1']>(
+      database = new Database<ServerSchema, ServerSchema['db1']>(
         mongo1,
         'db1' as StringKey<ServerSchema>
       );
-      collection = new CollectionImpl(
+      collection = new Collection(
         mongo1,
         database._typeLaunder(),
         'collfle2' as StringKey<ServerSchema['db1']>
@@ -2942,10 +2942,10 @@ describe('Collection', function () {
   });
   describe('with session', function () {
     let serviceProvider: StubbedInstance<ServiceProvider>;
-    let collection: CollectionImpl;
+    let collection: Collection;
     let internalSession: StubbedInstance<ServiceProviderSession>;
     const exceptions: {
-      [key in keyof (typeof CollectionImpl)['prototype']]?: {
+      [key in keyof (typeof Collection)['prototype']]?: {
         a?: any;
         m?: string;
         i?: number;
@@ -3007,7 +3007,7 @@ describe('Collection', function () {
       getSearchIndexes: { i: 3 },
       checkMetadataConsistency: { m: 'runCursorCommand', i: 2 },
     };
-    const ignore: (keyof (typeof CollectionImpl)['prototype'])[] = [
+    const ignore: (keyof (typeof Collection)['prototype'])[] = [
       'getShardDistribution',
       'stats',
       'isCapped',
@@ -3080,8 +3080,8 @@ describe('Collection', function () {
     });
     context('all commands that use the same command in sp', function () {
       for (const method of (
-        Object.getOwnPropertyNames(CollectionImpl.prototype) as (string &
-          keyof (typeof CollectionImpl)['prototype'])[]
+        Object.getOwnPropertyNames(Collection.prototype) as (string &
+          keyof (typeof Collection)['prototype'])[]
       ).filter(
         (k) =>
           typeof k === 'string' &&
@@ -3091,7 +3091,7 @@ describe('Collection', function () {
         if (
           !method.startsWith('_') &&
           !method.startsWith('print') &&
-          CollectionImpl.prototype[method].returnsPromise
+          Collection.prototype[method].returnsPromise
         ) {
           it(`passes the session through for ${method}`, async function () {
             try {

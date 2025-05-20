@@ -11,7 +11,7 @@ import type { EventEmitter } from 'events';
 import type { StubbedInstance } from 'ts-sinon';
 import { stubInterface } from 'ts-sinon';
 import Bulk, { BulkFindOp } from './bulk';
-import { CollectionImpl } from './collection';
+import { Collection } from './collection';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
 import { signatures, toShellResult } from './index';
 import { BulkWriteResult } from './result';
@@ -57,7 +57,7 @@ describe('Bulk API', function () {
     });
     describe('Metadata', function () {
       describe('toShellResult', function () {
-        const collection = stubInterface<CollectionImpl>();
+        const collection = stubInterface<Collection>();
         const b = new Bulk(collection, {
           batches: [1, 2, 3, 4],
         } as any);
@@ -77,7 +77,7 @@ describe('Bulk API', function () {
     ['ordered', 'unordered'].forEach((t) => {
       describe(t, function () {
         describe('commands', function () {
-          let collection: CollectionImpl;
+          let collection: Collection;
           let serviceProvider: StubbedInstance<ServiceProvider>;
           let bulk: Bulk;
           let bus: StubbedInstance<EventEmitter>;
@@ -101,7 +101,7 @@ describe('Bulk API', function () {
             serviceProvider.runCommand.resolves({ ok: 1 });
             instanceState = new ShellInstanceState(serviceProvider, bus);
             const db = instanceState.currentDb;
-            collection = new CollectionImpl(db._mongo, db, 'coll1');
+            collection = new Collection(db._mongo, db, 'coll1');
             innerStub = stubInterface<any>();
             innerStub.batches = [
               { originalZeroIndex: 0 },

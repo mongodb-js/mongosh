@@ -1667,7 +1667,7 @@ describe('CliRepl', function () {
             )
             .flat();
           expect(apiEvents).to.have.lengthOf(1);
-          expect(apiEvents[0].properties.class).to.equal('DatabaseImpl');
+          expect(apiEvents[0].properties.class).to.equal('Database');
           expect(apiEvents[0].properties.method).to.equal(
             'printShardingStatus'
           );
@@ -1738,8 +1738,8 @@ describe('CliRepl', function () {
               e.properties.count,
             ])
           ).to.deep.equal([
-            ['DatabaseImpl', 'hello', 2],
-            ['DatabaseImpl', 'hello', 1],
+            ['Database', 'hello', 2],
+            ['Database', 'hello', 1],
           ]);
         });
 

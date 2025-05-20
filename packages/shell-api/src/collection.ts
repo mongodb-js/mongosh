@@ -73,7 +73,7 @@ import type {
   AggregateOptions,
   SearchIndexDescription,
 } from '@mongosh/service-provider-core';
-import type { RunCommandCursor, Database } from './index';
+import type { RunCommandCursor, DatabaseWithSchema } from './index';
 import {
   AggregationCursor,
   BulkWriteResult,
@@ -97,12 +97,12 @@ import PlanCache from './plan-cache';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ShellApiErrors } from './error-codes';
 
-export type Collection<
+export type CollectionWithSchema<
   M extends GenericServerSideSchema = GenericServerSideSchema,
   D extends GenericDatabaseSchema = M[keyof M],
   C extends GenericCollectionSchema = D[keyof D],
   N extends StringKey<D> = StringKey<D>
-> = CollectionImpl<M, D, C, N> & {
+> = Collection<M, D, C, N> & {
   [k in StringKey<D> as k extends `${N}.${infer S}` ? S : never]: Collection<
     M,
     D,
@@ -113,21 +113,21 @@ export type Collection<
 
 @shellApiClassDefault
 @addSourceToResults
-export class CollectionImpl<
+export class Collection<
   M extends GenericServerSideSchema = GenericServerSideSchema,
   D extends GenericDatabaseSchema = M[keyof M],
   C extends GenericCollectionSchema = D[keyof D],
   N extends StringKey<D> = StringKey<D>
 > extends ShellApiWithMongoClass {
   _mongo: Mongo<M>;
-  _database: Database<M, D>;
+  _database: DatabaseWithSchema<M, D>;
   _name: N;
 
-  _typeLaunder(): Collection<M, D> {
-    return this as Collection<M, D>;
+  _typeLaunder(): CollectionWithSchema<M, D> {
+    return this as CollectionWithSchema<M, D>;
   }
 
-  constructor(mongo: Mongo<M>, database: Database<M, D>, name: N) {
+  constructor(mongo: Mongo<M>, database: DatabaseWithSchema<M, D>, name: N) {
     super();
     this._mongo = mongo;
     this._database = database;
@@ -1444,10 +1444,10 @@ export class CollectionImpl<
   /**
    * Returns the collection database.
    *
-   * @return {Database}
+   * @return {DatabaseWithSchema}
    */
-  @returnType('Database')
-  getDB(): Database<M, D> {
+  @returnType('DatabaseWithSchema')
+  getDB(): DatabaseWithSchema<M, D> {
     this._emitCollectionApiCall('getDB');
     return this._database;
   }
@@ -2104,7 +2104,7 @@ export class CollectionImpl<
    * @returns collection info based on given collStats.
    */
   async _getShardedCollectionInfo(
-    config: Database,
+    config: DatabaseWithSchema<M, D>,
     collStats: Document[]
   ): Promise<Document> {
     const ns = `${this._database._name}.${this._name}`;
@@ -2163,7 +2163,10 @@ export class CollectionImpl<
     this._emitCollectionApiCall('getShardDistribution', {});
 
     const result = {} as Document;
-    const config = this._mongo.getDB('config' as StringKey<M>);
+    // TODO: can we get around casting here?
+    const config = this._mongo.getDB(
+      'config' as StringKey<M>
+    ) as DatabaseWithSchema<M, D>;
 
     const collStats = await (
       await this.aggregate({ $collStats: { storageStats: {} } })
@@ -2547,5 +2550,3 @@ export type GetShardDistributionResult = {
     'estimated docs per chunk': number;
   };
 };
-
-export default Collection;

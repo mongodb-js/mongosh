@@ -1,6 +1,6 @@
 import type Mongo from './mongo';
-import type Collection from './collection';
-import { CollectionImpl } from './collection';
+import type { CollectionWithSchema } from './collection';
+import { Collection } from './collection';
 import {
   returnsPromise,
   returnType,
@@ -74,34 +74,37 @@ type AuthDoc = {
   mechanism?: string;
 };
 
-export type Database<
+export type DatabaseWithSchema<
   M extends GenericServerSideSchema = GenericServerSideSchema,
   D extends GenericDatabaseSchema = GenericDatabaseSchema
-> = DatabaseImpl<M, D> & {
+> = Database<M, D> & {
   [k in StringKey<D>]: Collection<M, D, D[k], k>;
 };
 
 @shellApiClassDefault
-export class DatabaseImpl<
+export class Database<
   M extends GenericServerSideSchema = GenericServerSideSchema,
   D extends GenericDatabaseSchema = GenericDatabaseSchema
 > extends ShellApiWithMongoClass {
   _mongo: Mongo<M>;
   _name: StringKey<M>;
-  _collections: Record<string, Collection<M, D>>;
+  _collections: Record<StringKey<D>, CollectionWithSchema<M, D>>;
   _session: Session | undefined;
   _cachedCollectionNames: StringKey<D>[] = [];
   _cachedHello: Document | null = null;
 
-  _typeLaunder(): Database<M, D> {
-    return this as Database<M, D>;
+  _typeLaunder(): DatabaseWithSchema<M, D> {
+    return this as DatabaseWithSchema<M, D>;
   }
 
   constructor(mongo: Mongo<M>, name: StringKey<M>, session?: Session) {
     super();
     this._mongo = mongo;
     this._name = name;
-    const collections: Record<string, Collection<M, D>> = Object.create(null);
+    const collections: Record<
+      string,
+      CollectionWithSchema<M, D>
+    > = Object.create(null);
     this._collections = collections;
     this._session = session;
     const proxy = new Proxy(this._typeLaunder(), {
@@ -119,11 +122,7 @@ export class DatabaseImpl<
         }
 
         if (!collections[prop]) {
-          collections[prop] = new CollectionImpl(
-            mongo,
-            proxy,
-            prop
-          )._typeLaunder();
+          collections[prop] = new Collection(mongo, proxy, prop)._typeLaunder();
         }
 
         return collections[prop];
@@ -507,7 +506,9 @@ export class DatabaseImpl<
   }
 
   @returnType('Collection')
-  getCollection<K extends StringKey<D>>(coll: K): Collection<M, D, D[K], K> {
+  getCollection<K extends StringKey<D>>(
+    coll: K
+  ): CollectionWithSchema<M, D, D[K], K> {
     assertArgsDefinedType([coll], ['string'], 'Database.getColl');
     this._emitDatabaseApiCall('getCollection', { coll });
     if (!isValidCollectionName(coll)) {
@@ -517,17 +518,18 @@ export class DatabaseImpl<
       );
     }
 
-    const collections: Record<string, Collection<M, D>> = this._collections;
+    const collections: Record<string, CollectionWithSchema<M, D>> = this
+      ._collections;
 
     if (!collections[coll]) {
-      collections[coll] = new CollectionImpl(
+      collections[coll] = new Collection(
         this._mongo,
         this._typeLaunder(),
         coll
       )._typeLaunder();
     }
 
-    return collections[coll] as Collection<M, D, D[K], K>;
+    return collections[coll] as CollectionWithSchema<M, D, D[K], K>;
   }
 
   @returnsPromise
@@ -1825,5 +1827,3 @@ export class DatabaseImpl<
     });
   }
 }
-
-export default Database;

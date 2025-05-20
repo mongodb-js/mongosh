@@ -8,7 +8,7 @@ import {
   tsToSeconds,
   validateExplainableVerbosity,
 } from './helpers';
-import { DatabaseImpl, Mongo, ShellInstanceState } from './index';
+import { Database, Mongo, ShellInstanceState } from './index';
 import constructShellBson from './shell-bson';
 import type { ServiceProvider } from '@mongosh/service-provider-core';
 import { bson } from '@mongosh/service-provider-core';
@@ -131,7 +131,7 @@ describe('getPrintableShardStatus', function () {
   const testServer = startSharedTestServer();
 
   let mongo: Mongo;
-  let configDatabase: DatabaseImpl;
+  let configDatabase: Database;
   let serviceProvider: ServiceProvider;
   let inBalancerRound = false;
 
@@ -164,7 +164,7 @@ describe('getPrintableShardStatus', function () {
       undefined,
       serviceProvider
     );
-    configDatabase = new DatabaseImpl(mongo, 'config_test');
+    configDatabase = new Database(mongo, 'config_test');
     expect(configDatabase.getName()).to.equal('config_test');
 
     const origRunCommandWithCheck = serviceProvider.runCommandWithCheck;

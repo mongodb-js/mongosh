@@ -14,8 +14,8 @@ import type {
 } from '@mongosh/service-provider-core';
 import { asPrintable } from './enums';
 import type Mongo from './mongo';
-import type Database from './database';
-import { DatabaseImpl } from './database';
+import type { DatabaseWithSchema } from './database';
+import { Database } from './database';
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import type { GenericServerSideSchema, StringKey } from './helpers';
 import { assertArgsDefinedType, isValidDatabaseName } from './helpers';
@@ -29,7 +29,7 @@ export default class Session<
   public _session: ClientSession;
   public _options: ClientSessionOptions;
   public _mongo: Mongo<M>;
-  private _databases: Record<string, Database<M>>;
+  private _databases: Record<string, DatabaseWithSchema<M>>;
 
   constructor(
     mongo: Mongo<M>,
@@ -51,7 +51,7 @@ export default class Session<
     return this._session.id;
   }
 
-  getDatabase<K extends StringKey<M>>(name: K): Database<M, M[K]> {
+  getDatabase<K extends StringKey<M>>(name: K): DatabaseWithSchema<M, M[K]> {
     assertArgsDefinedType([name], ['string'], 'Session.getDatabase');
 
     if (!isValidDatabaseName(name)) {
@@ -62,13 +62,13 @@ export default class Session<
     }
 
     if (!(name in this._databases)) {
-      this._databases[name] = new DatabaseImpl(
+      this._databases[name] = new Database(
         this._mongo,
         name,
         this
       )._typeLaunder();
     }
-    return this._databases[name] as Database<M, M[K]>;
+    return this._databases[name] as DatabaseWithSchema<M, M[K]>;
   }
 
   advanceOperationTime(ts: TimestampType): void {

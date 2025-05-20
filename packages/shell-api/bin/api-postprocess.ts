@@ -5,17 +5,6 @@ import path from 'path';
 import { signatures } from '../';
 import enUs from '../../i18n/src/locales/en_US';
 
-function getHelpClassName(className: string) {
-  switch (className) {
-    case 'CollectionImpl':
-      return 'Collection';
-    case 'DatabaseImpl':
-      return 'Database';
-    default:
-      return className;
-  }
-}
-
 function applyAsyncRewriterChanges() {
   return ({
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -76,9 +65,7 @@ function applyAsyncRewriterChanges() {
           }
           this.processedMethods.push([className, methodName, path.parent]);
 
-          const classHelp = (enUs['shell-api'] as any).classes[
-            getHelpClassName(className)
-          ];
+          const classHelp = (enUs['shell-api'] as any).classes[className];
           if (
             classHelp &&
             classHelp.help.attributes &&

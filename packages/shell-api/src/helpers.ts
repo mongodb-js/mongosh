@@ -16,8 +16,8 @@ import {
   MongoshUnimplementedError,
 } from '@mongosh/errors';
 import crypto from 'crypto';
-import type Database from './database';
-import type Collection from './collection';
+import type { Database } from './database';
+import type { Collection } from './collection';
 import type { CursorIterationResult } from './result';
 import { ShellApiErrors } from './error-codes';
 import type {

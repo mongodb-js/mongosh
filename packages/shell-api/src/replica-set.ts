@@ -7,7 +7,7 @@ import {
 import { redactURICredentials } from '@mongosh/history';
 import type { Document } from '@mongosh/service-provider-core';
 import type Mongo from './mongo';
-import type Database from './database';
+import type { DatabaseWithSchema } from './database';
 import {
   deprecated,
   returnsPromise,
@@ -40,9 +40,9 @@ export default class ReplicaSet<
   M extends GenericServerSideSchema = GenericServerSideSchema,
   D extends GenericDatabaseSchema = GenericDatabaseSchema
 > extends ShellApiWithMongoClass {
-  _database: Database<M, D>;
+  _database: DatabaseWithSchema<M, D>;
 
-  constructor(database: Database<M, D>) {
+  constructor(database: DatabaseWithSchema<M, D>) {
     super();
     this._database = database;
   }

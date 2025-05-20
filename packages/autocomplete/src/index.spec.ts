@@ -294,7 +294,7 @@ describe('completer.completer', function () {
 
     it('returns all suggestions', async function () {
       const i = 'db.';
-      const attr = shellSignatures.DatabaseImpl.attributes as any;
+      const attr = shellSignatures.Database.attributes as any;
       const dbComplete = Object.keys(attr);
       const adjusted = dbComplete
         .filter((c) => !attr[c].deprecated)
@@ -347,7 +347,7 @@ describe('completer.completer', function () {
     it('returns all suggestions', async function () {
       const i = 'db.shipwrecks.';
       const collComplete = Object.keys(
-        shellSignatures.CollectionImpl.attributes as any
+        shellSignatures.Collection.attributes as any
       );
       const adjusted = collComplete
         .filter(

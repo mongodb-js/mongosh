@@ -6,8 +6,8 @@ import { stubInterface } from 'ts-sinon';
 import type { EventEmitter } from 'events';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
 import { signatures, toShellResult } from './index';
-import { DatabaseImpl } from './database';
-import { CollectionImpl } from './collection';
+import { Database } from './database';
+import { Collection } from './collection';
 import Mongo from './mongo';
 import type {
   AggregationCursor as ServiceProviderAggCursor,
@@ -41,7 +41,7 @@ describe('Database', function () {
     .update('anna:mongo:pwd')
     .digest('hex');
   describe('help', function () {
-    const apiClass: any = new DatabaseImpl({} as any, 'name');
+    const apiClass: any = new Database({} as any, 'name');
     it('calls help function', async function () {
       expect((await toShellResult(apiClass.help())).type).to.equal('Help');
       expect((await toShellResult(apiClass.help)).type).to.equal('Help');
@@ -57,49 +57,49 @@ describe('Database', function () {
   });
   describe('collections', function () {
     it('allows to get a collection as property if is not one of the existing methods', function () {
-      const database: any = new DatabaseImpl({} as any, 'db1');
-      expect(database.someCollection).to.have.instanceOf(CollectionImpl);
+      const database: any = new Database({} as any, 'db1');
+      expect(database.someCollection).to.have.instanceOf(Collection);
       expect(database.someCollection._name).to.equal('someCollection');
     });
 
     it('reuses collections', function () {
-      const database: any = new DatabaseImpl({} as any, 'db1');
+      const database: any = new Database({} as any, 'db1');
       expect(database.someCollection).to.equal(database.someCollection);
     });
 
     it('does not return a collection starting with _', function () {
       // this is the behaviour in the old shell
 
-      const database: any = new DatabaseImpl({} as any, 'db1');
+      const database: any = new Database({} as any, 'db1');
       expect(database._someProperty).to.equal(undefined);
     });
 
     it('does not return a collection for symbols', function () {
-      const database: any = new DatabaseImpl({} as any, 'db1');
+      const database: any = new Database({} as any, 'db1');
       expect(database[Symbol('someProperty')]).to.equal(undefined);
     });
 
     it('does not return a collection with invalid name', function () {
-      const database: any = new DatabaseImpl({} as any, 'db1');
+      const database: any = new Database({} as any, 'db1');
       expect(database.foo$bar).to.equal(undefined);
     });
 
     it('allows to access _name', function () {
-      const database: any = new DatabaseImpl({} as any, 'db1');
+      const database: any = new Database({} as any, 'db1');
       expect(database._name).to.equal('db1');
     });
 
     it('allows to access collections', function () {
-      const database: any = new DatabaseImpl({} as any, 'db1');
+      const database: any = new Database({} as any, 'db1');
       expect(database._collections).to.deep.equal({});
     });
   });
   describe('signatures', function () {
     it('type', function () {
-      expect(signatures.DatabaseImpl.type).to.equal('DatabaseImpl');
+      expect(signatures.Database.type).to.equal('Database');
     });
     it('attributes', function () {
-      expect(signatures.DatabaseImpl.attributes?.aggregate).to.deep.equal({
+      expect(signatures.Database.attributes?.aggregate).to.deep.equal({
         type: 'function',
         returnsPromise: true,
         deprecated: false,
@@ -117,26 +117,26 @@ describe('Database', function () {
   describe('Metadata', function () {
     describe('toShellResult', function () {
       const mongo = sinon.spy();
-      const db = new DatabaseImpl(mongo as any, 'myDB');
+      const db = new Database(mongo as any, 'myDB');
       it('value', async function () {
         expect((await toShellResult(db)).printable).to.equal('myDB');
       });
       it('type', async function () {
-        expect((await toShellResult(db)).type).to.equal('DatabaseImpl');
+        expect((await toShellResult(db)).type).to.equal('Database');
       });
     });
   });
   describe('attributes', function () {
     const mongo = sinon.spy();
-    const db = new DatabaseImpl(mongo as any, 'myDB') as any;
+    const db = new Database(mongo as any, 'myDB') as any;
     it('creates new collection for attribute', async function () {
-      expect((await toShellResult(db.coll)).type).to.equal('CollectionImpl');
+      expect((await toShellResult(db.coll)).type).to.equal('Collection');
     });
   });
   describe('commands', function () {
     let mongo: Mongo;
     let serviceProvider: StubbedInstance<ServiceProvider>;
-    let database: DatabaseImpl;
+    let database: Database;
     let bus: StubbedInstance<EventEmitter>;
     let instanceState: ShellInstanceState;
 
@@ -155,7 +155,7 @@ describe('Database', function () {
         undefined,
         serviceProvider
       );
-      database = new DatabaseImpl(mongo, 'db1');
+      database = new Database(mongo, 'db1');
     });
     describe('getCollectionInfos', function () {
       it('returns the result of serviceProvider.listCollections', async function () {
@@ -494,7 +494,7 @@ describe('Database', function () {
     describe('getSiblingDB', function () {
       it('returns a database', function () {
         const otherDb = database.getSiblingDB('otherdb');
-        expect(otherDb).to.be.instanceOf(DatabaseImpl);
+        expect(otherDb).to.be.instanceOf(Database);
         expect(otherDb._name).to.equal('otherdb');
       });
 
@@ -525,7 +525,7 @@ describe('Database', function () {
     describe('getCollection', function () {
       it('returns a collection for the database', function () {
         const coll = database.getCollection('coll');
-        expect(coll).to.be.instanceOf(CollectionImpl);
+        expect(coll).to.be.instanceOf(Collection);
         expect(coll._name).to.equal('coll');
         expect(coll._database).to.equal(database);
       });
@@ -533,12 +533,12 @@ describe('Database', function () {
       it('returns a collection for Object.prototype keys', function () {
         {
           const coll = database.getCollection('__proto__');
-          expect(coll).to.be.instanceOf(CollectionImpl);
+          expect(coll).to.be.instanceOf(Collection);
           expect(coll._name).to.equal('__proto__');
         }
         {
           const coll = database.getCollection('hasOwnProperty');
-          expect(coll).to.be.instanceOf(CollectionImpl);
+          expect(coll).to.be.instanceOf(Collection);
           expect(coll._name).to.equal('hasOwnProperty');
         }
       });
@@ -584,13 +584,13 @@ describe('Database', function () {
 
       it('allows to use collection names that would collide with methods', function () {
         const coll = database.getCollection('getCollection');
-        expect(coll).to.be.instanceOf(CollectionImpl);
+        expect(coll).to.be.instanceOf(Collection);
         expect(coll._name).to.equal('getCollection');
       });
 
       it('allows to use collection names that starts with _', function () {
         const coll = database.getCollection('_coll1');
-        expect(coll).to.be.instanceOf(CollectionImpl);
+        expect(coll).to.be.instanceOf(Collection);
         expect(coll._name).to.equal('_coll1');
       });
 
@@ -776,7 +776,7 @@ describe('Database', function () {
 
       context('on $external database', function () {
         beforeEach(function () {
-          database = new DatabaseImpl(mongo, '$external');
+          database = new Database(mongo, '$external');
         });
 
         it('can create a user without password', async function () {
@@ -2986,7 +2986,7 @@ describe('Database', function () {
   });
   describe('with session', function () {
     let serviceProvider: StubbedInstance<ServiceProvider>;
-    let database: DatabaseImpl;
+    let database: Database;
     let internalSession: StubbedInstance<ServiceProviderSession>;
     const exceptions = {
       getCollectionNames: { m: 'listCollections' },
@@ -3064,8 +3064,8 @@ describe('Database', function () {
     });
     it('all commands that use runCommandWithCheck', async function () {
       for (const method of (
-        Object.getOwnPropertyNames(DatabaseImpl.prototype) as (string &
-          keyof DatabaseImpl)[]
+        Object.getOwnPropertyNames(Database.prototype) as (string &
+          keyof Database)[]
       ).filter(
         (k) =>
           typeof k === 'string' &&

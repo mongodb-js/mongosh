@@ -17,10 +17,10 @@ import type {
   WriteConcern,
 } from '@mongosh/service-provider-core';
 import { bson } from '@mongosh/service-provider-core';
-import type { Database, DatabaseImpl } from './database';
+import type { DatabaseWithSchema } from './database';
 import { EventEmitter } from 'events';
 import ShellInstanceState from './shell-instance-state';
-import { CollectionImpl } from './collection';
+import { Collection } from './collection';
 import type Cursor from './cursor';
 import ChangeStreamCursor from './change-stream-cursor';
 import NoDatabase from './no-db';
@@ -99,7 +99,7 @@ describe('Mongo', function () {
     const driverSession = { driverSession: 1 };
     let mongo: Mongo;
     let serviceProvider: StubbedInstance<ServiceProvider>;
-    let database: StubbedInstance<DatabaseImpl>;
+    let database: StubbedInstance<DatabaseWithSchema>;
     let bus: StubbedInstance<EventEmitter>;
     let instanceState: ShellInstanceState;
 
@@ -118,8 +118,8 @@ describe('Mongo', function () {
         undefined,
         serviceProvider
       );
-      database = stubInterface<DatabaseImpl>();
-      instanceState.currentDb = database as unknown as Database;
+      database = stubInterface<DatabaseWithSchema>();
+      instanceState.currentDb = database;
     });
     describe('show', function () {
       it('should send telemetry by default', async function () {
@@ -311,7 +311,7 @@ describe('Mongo', function () {
       });
       describe('profile', function () {
         it('calls database.count but not find when count < 1', async function () {
-          const syscoll = stubInterface<CollectionImpl>();
+          const syscoll = stubInterface<Collection>();
           database.getCollection.returns(syscoll);
           syscoll.countDocuments.resolves(0);
           syscoll.find.rejects(new Error());
@@ -325,7 +325,7 @@ describe('Mongo', function () {
         });
         it('calls database.count and find when count > 0', async function () {
           const expectedResult = [{ a: 'a' }, { b: 'b' }];
-          const syscoll = stubInterface<CollectionImpl>();
+          const syscoll = stubInterface<Collection>();
           const cursor = stubInterface<Cursor>();
           cursor.sort.returns(cursor);
           cursor.limit.returns(cursor);
@@ -349,7 +349,7 @@ describe('Mongo', function () {
         });
 
         it('throws if collection.find throws', async function () {
-          const syscoll = stubInterface<CollectionImpl>();
+          const syscoll = stubInterface<Collection>();
           database.getCollection.returns(syscoll);
           syscoll.countDocuments.resolves(1);
           const expectedError = new Error();
@@ -358,7 +358,7 @@ describe('Mongo', function () {
           expect(caughtError).to.equal(expectedError);
         });
         it('throws if collection.countDocuments rejects', async function () {
-          const syscoll = stubInterface<CollectionImpl>();
+          const syscoll = stubInterface<Collection>();
           database.getCollection.returns(syscoll);
           const expectedError = new Error();
           syscoll.countDocuments.rejects(expectedError);
@@ -928,14 +928,14 @@ describe('Mongo', function () {
     describe('getCollection', function () {
       it('returns a collection for the database', function () {
         const coll = mongo.getCollection('db1.coll');
-        expect(coll).to.be.instanceOf(CollectionImpl);
+        expect(coll).to.be.instanceOf(Collection);
         expect(coll._name).to.equal('coll');
         expect(coll._database._name).to.equal('db1');
       });
 
       it('returns a collection for the database with multiple .', function () {
         const coll = mongo.getCollection('db1.coll.subcoll');
-        expect(coll).to.be.instanceOf(CollectionImpl);
+        expect(coll).to.be.instanceOf(Collection);
         expect(coll._name).to.equal('coll.subcoll');
         expect(coll._database._name).to.equal('db1');
       });

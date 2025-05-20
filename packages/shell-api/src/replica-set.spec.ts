@@ -23,7 +23,7 @@ import {
   skipIfApiStrict,
 } from '../../../testing/integration-testing-hooks';
 import { NodeDriverServiceProvider } from '../../service-provider-node-driver';
-import { DatabaseImpl } from './database';
+import { Database } from './database';
 import {
   ADMIN_DB,
   ALL_PLATFORMS,
@@ -94,7 +94,7 @@ describe('ReplicaSet', function () {
     let rs: ReplicaSet;
     let bus: StubbedInstance<EventEmitter>;
     let instanceState: ShellInstanceState;
-    let db: DatabaseImpl;
+    let db: Database;
 
     beforeEach(function () {
       bus = stubInterface<EventEmitter>();
@@ -113,7 +113,7 @@ describe('ReplicaSet', function () {
         undefined,
         serviceProvider
       );
-      db = new DatabaseImpl(mongo, 'testdb');
+      db = new Database(mongo, 'testdb');
       rs = new ReplicaSet(db._typeLaunder());
     });
 
@@ -832,7 +832,7 @@ describe('ReplicaSet', function () {
     let additionalServer: MongodSetup;
     let serviceProvider: NodeDriverServiceProvider;
     let instanceState: ShellInstanceState;
-    let db: DatabaseImpl;
+    let db: Database;
     let rs: ReplicaSet;
 
     before(async function () {
@@ -1132,7 +1132,7 @@ describe('ReplicaSet', function () {
 
       const instanceState = new ShellInstanceState(serviceProvider);
       const db = instanceState.currentDb;
-      const rs = new ReplicaSet(db);
+      const rs = new ReplicaSet(db._typeLaunder());
       const addArbWithRetry = createRetriableMethod(rs, 'addArb');
       /**
        * Small hack warning:

@@ -8,7 +8,7 @@ import {
 } from './decorators';
 import StreamProcessor from './stream-processor';
 import { ADMIN_DB, asPrintable, shellApiType } from './enums';
-import type Database from './database';
+import type { DatabaseWithSchema } from './database';
 import type Mongo from './mongo';
 import type { GenericDatabaseSchema, GenericServerSideSchema } from './helpers';
 
@@ -20,7 +20,7 @@ export class Streams<
   public static newInstance<
     M extends GenericServerSideSchema = GenericServerSideSchema,
     D extends GenericDatabaseSchema = GenericDatabaseSchema
-  >(database: Database<M, D>) {
+  >(database: DatabaseWithSchema<M, D>) {
     return new Proxy(new Streams<M, D>(database), {
       get(target, prop) {
         const v = (target as any)[prop];
@@ -34,9 +34,9 @@ export class Streams<
     });
   }
 
-  private _database: Database<M, D>;
+  private _database: DatabaseWithSchema<M, D>;
 
-  constructor(database: Database<M, D>) {
+  constructor(database: DatabaseWithSchema<M, D>) {
     super();
     this._database = database;
   }

@@ -25,8 +25,8 @@ import type {
   AggregationCursor,
   Cursor,
   RunCommandCursor,
-  Database,
   ShellResult,
+  DatabaseWithSchema,
 } from './index';
 import { getShellApiType, Mongo, ReplicaSet, Shard, ShellApi } from './index';
 import { InterruptFlag } from './interruptor';
@@ -149,7 +149,7 @@ export class ShellInstanceState {
     | ChangeStreamCursor
     | RunCommandCursor
     | null;
-  public currentDb: Database;
+  public currentDb: DatabaseWithSchema;
   public messageBus: MongoshBus;
   public initialServiceProvider: ServiceProvider; // the initial service provider
   private connectionInfoCache: {
@@ -219,7 +219,7 @@ export class ShellInstanceState {
         initialServiceProvider.initialDb || DEFAULT_DB
       );
     } else {
-      this.currentDb = new NoDatabase() as Database;
+      this.currentDb = new NoDatabase() as DatabaseWithSchema;
     }
     this.currentCursor = null;
     this.context = {};
@@ -282,7 +282,7 @@ export class ShellInstanceState {
     this.preFetchCollectionAndDatabaseNames = value;
   }
 
-  public setDbFunc(newDb: any): Database {
+  public setDbFunc(newDb: any): DatabaseWithSchema {
     this.currentDb = newDb;
     this.context.rs = new ReplicaSet(this.currentDb);
     this.context.sh = new Shard(this.currentDb);
@@ -351,8 +351,8 @@ export class ShellInstanceState {
     contextObject.sh = new Shard(this.currentDb);
     contextObject.sp = Streams.newInstance(this.currentDb);
 
-    const setFunc = (newDb: any): Database => {
-      if (getShellApiType(newDb) !== 'DatabaseImpl') {
+    const setFunc = (newDb: any): DatabaseWithSchema => {
+      if (getShellApiType(newDb) !== 'Database') {
         throw new MongoshInvalidInputError(
           "Cannot reassign 'db' to non-Database type",
           CommonErrors.InvalidOperation

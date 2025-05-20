@@ -1,4 +1,4 @@
-import type Database from './database';
+import type { DatabaseWithSchema } from './database';
 import {
   shellApiClassDefault,
   returnsPromise,
@@ -37,9 +37,9 @@ export default class Shard<
   M extends GenericServerSideSchema = GenericServerSideSchema,
   D extends GenericDatabaseSchema = GenericDatabaseSchema
 > extends ShellApiWithMongoClass {
-  _database: Database<M, D>;
+  _database: DatabaseWithSchema<M, D>;
 
-  constructor(database: Database<M, D>) {
+  constructor(database: DatabaseWithSchema<M, D>) {
     super();
     this._database = database;
   }
@@ -213,7 +213,7 @@ export default class Shard<
   @apiVersions([1])
   async status(
     verbose = false,
-    configDB?: Database<M, D>
+    configDB?: DatabaseWithSchema<M, D>
   ): Promise<CommandResult<ShardingStatusResult>> {
     const result = await getPrintableShardStatus(
       configDB ?? (await getConfigDB(this._database)),

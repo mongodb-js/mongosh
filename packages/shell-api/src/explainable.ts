@@ -1,4 +1,4 @@
-import type Collection from './collection';
+import type { CollectionWithSchema } from './collection';
 import type Mongo from './mongo';
 import ExplainableCursor from './explainable-cursor';
 import {
@@ -37,11 +37,11 @@ import type {
 @shellApiClassDefault
 export default class Explainable extends ShellApiWithMongoClass {
   _mongo: Mongo;
-  _collection: Collection;
+  _collection: CollectionWithSchema;
   _verbosity: ExplainVerbosityLike;
   constructor(
     mongo: Mongo,
-    collection: Collection,
+    collection: CollectionWithSchema,
     verbosity: ExplainVerbosityLike
   ) {
     super();
@@ -77,7 +77,7 @@ export default class Explainable extends ShellApiWithMongoClass {
     });
   }
 
-  getCollection(): Collection {
+  getCollection(): CollectionWithSchema {
     this._emitExplainableApiCall('getCollection');
     return this._collection;
   }

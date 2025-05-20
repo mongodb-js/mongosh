@@ -5,10 +5,10 @@ import type { StubbedInstance } from 'ts-sinon';
 import { stubInterface } from 'ts-sinon';
 import type { ServiceProvider } from '@mongosh/service-provider-core';
 import { bson } from '@mongosh/service-provider-core';
-import { DatabaseImpl } from './database';
+import { Database } from './database';
 import type { EventEmitter } from 'events';
 import ShellInstanceState from './shell-instance-state';
-import { CollectionImpl } from './collection';
+import { Collection } from './collection';
 
 class MongoError extends Error {
   code?: number;
@@ -78,10 +78,10 @@ describe('mongo-errors', function () {
   describe('intercepts shell API calls', function () {
     let mongo: Mongo;
     let serviceProvider: StubbedInstance<ServiceProvider>;
-    let database: DatabaseImpl;
+    let database: Database;
     let bus: StubbedInstance<EventEmitter>;
     let instanceState: ShellInstanceState;
-    let collection: CollectionImpl;
+    let collection: Collection;
 
     beforeEach(function () {
       bus = stubInterface<EventEmitter>();
@@ -98,8 +98,8 @@ describe('mongo-errors', function () {
         undefined,
         serviceProvider
       );
-      database = new DatabaseImpl(mongo, 'db1');
-      collection = new CollectionImpl(mongo, database._typeLaunder(), 'coll1');
+      database = new Database(mongo, 'db1');
+      collection = new Collection(mongo, database._typeLaunder(), 'coll1');
     });
 
     it('on collection.find error', async function () {

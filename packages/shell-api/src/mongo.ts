@@ -44,8 +44,8 @@ import {
   mapCliToDriver,
   generateConnectionInfoFromCliArgs,
 } from '@mongosh/arg-parser';
-import type { Database } from './database';
-import { DatabaseImpl } from './database';
+import type { DatabaseWithSchema } from './database';
+import { Database } from './database';
 import type ShellInstanceState from './shell-instance-state';
 import { ClientBulkWriteResult } from './result';
 import { CommandResult } from './result';
@@ -79,7 +79,7 @@ export default class Mongo<
   M extends GenericServerSideSchema = GenericServerSideSchema
 > extends ShellApiClass {
   private __serviceProvider: ServiceProvider | null = null;
-  public readonly _databases: Record<StringKey<M>, Database<M>> =
+  public readonly _databases: Record<StringKey<M>, DatabaseWithSchema<M>> =
     Object.create(null);
   public _instanceState: ShellInstanceState;
   public _connectionInfo: ConnectionInfo;
@@ -257,7 +257,7 @@ export default class Mongo<
     }
   }
 
-  _getDb<K extends StringKey<M>>(name: K): Database<M, M[K]> {
+  _getDb<K extends StringKey<M>>(name: K): DatabaseWithSchema<M, M[K]> {
     assertArgsDefinedType([name], ['string']);
     if (!isValidDatabaseName(name)) {
       throw new MongoshInvalidInputError(
@@ -267,13 +267,13 @@ export default class Mongo<
     }
 
     if (!(name in this._databases)) {
-      this._databases[name] = new DatabaseImpl(this, name)._typeLaunder();
+      this._databases[name] = new Database(this, name)._typeLaunder();
     }
-    return this._databases[name] as Database<M, M[K]>;
+    return this._databases[name] as DatabaseWithSchema<M, M[K]>;
   }
 
   @returnType('Database')
-  getDB<K extends StringKey<M>>(db: K): Database<M, M[K]> {
+  getDB<K extends StringKey<M>>(db: K): DatabaseWithSchema<M, M[K]> {
     assertArgsDefinedType([db], ['string'], 'Mongo.getDB');
     this._instanceState.messageBus.emit('mongosh:getDB', { db });
     return this._getDb(db);

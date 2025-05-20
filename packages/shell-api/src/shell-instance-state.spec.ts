@@ -43,7 +43,7 @@ describe('ShellInstanceState', function () {
     it('provides printing ability for shell API objects', async function () {
       await run('print(db)');
       expect(evaluationListener.onPrint?.lastCall.args[0][0].type).to.equal(
-        'DatabaseImpl'
+        'Database'
       );
     });
 
