@@ -62,7 +62,7 @@ export default class Session<
     }
 
     if (!(name in this._databases)) {
-      this._databases[name] = new Database(
+      this._databases[name] = new Database<M>(
         this._mongo,
         name,
         this

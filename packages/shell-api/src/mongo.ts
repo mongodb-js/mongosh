@@ -267,7 +267,7 @@ export default class Mongo<
     }
 
     if (!(name in this._databases)) {
-      this._databases[name] = new Database(this, name) as DatabaseWithSchema<
+      this._databases[name] = new Database<M>(this, name) as DatabaseWithSchema<
         M,
         M[K]
       >;
