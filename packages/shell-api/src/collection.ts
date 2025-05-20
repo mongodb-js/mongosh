@@ -73,7 +73,7 @@ import type {
   AggregateOptions,
   SearchIndexDescription,
 } from '@mongosh/service-provider-core';
-import type { RunCommandCursor, DatabaseWithSchema } from './index';
+import type { RunCommandCursor, Database, DatabaseWithSchema } from './index';
 import {
   AggregationCursor,
   BulkWriteResult,
@@ -123,14 +123,14 @@ export class Collection<
   _database: DatabaseWithSchema<M, D>;
   _name: N;
 
-  _typeLaunder(): CollectionWithSchema<M, D> {
-    return this as CollectionWithSchema<M, D>;
-  }
-
-  constructor(mongo: Mongo<M>, database: DatabaseWithSchema<M, D>, name: N) {
+  constructor(
+    mongo: Mongo<M>,
+    database: DatabaseWithSchema<M, D> | Database<M, D>,
+    name: N
+  ) {
     super();
     this._mongo = mongo;
-    this._database = database;
+    this._database = database as DatabaseWithSchema<M, D>;
     this._name = name;
     const proxy = new Proxy(this, {
       get: (target, prop): any => {
@@ -1637,7 +1637,7 @@ export class Collection<
   explain(verbosity: ExplainVerbosityLike = 'queryPlanner'): Explainable {
     verbosity = validateExplainableVerbosity(verbosity);
     this._emitCollectionApiCall('explain', { verbosity });
-    return new Explainable(this._mongo, this._typeLaunder(), verbosity);
+    return new Explainable(this._mongo, this, verbosity);
   }
 
   /**
@@ -2008,7 +2008,7 @@ export class Collection<
       true,
       await this._database._baseOptions()
     );
-    return new Bulk(this._typeLaunder(), innerBulk, true);
+    return new Bulk(this, innerBulk, true);
   }
 
   @returnsPromise
@@ -2022,14 +2022,14 @@ export class Collection<
       false,
       await this._database._baseOptions()
     );
-    return new Bulk(this._typeLaunder(), innerBulk);
+    return new Bulk(this, innerBulk);
   }
 
   @returnType('PlanCache')
   @apiVersions([])
   getPlanCache(): PlanCache {
     this._emitCollectionApiCall('getPlanCache');
-    return new PlanCache(this._typeLaunder());
+    return new PlanCache(this);
   }
 
   @returnsPromise
@@ -2341,7 +2341,7 @@ export class Collection<
   @apiVersions([1])
   async hideIndex(index: string | Document): Promise<Document> {
     this._emitCollectionApiCall('hideIndex');
-    return setHideIndex(this._typeLaunder(), index, true);
+    return setHideIndex(this, index, true);
   }
 
   @serverVersions(['4.4.0', ServerVersions.latest])
@@ -2349,7 +2349,7 @@ export class Collection<
   @apiVersions([1])
   async unhideIndex(index: string | Document): Promise<Document> {
     this._emitCollectionApiCall('unhideIndex');
-    return setHideIndex(this._typeLaunder(), index, false);
+    return setHideIndex(this, index, false);
   }
 
   @serverVersions(['7.0.0', ServerVersions.latest])

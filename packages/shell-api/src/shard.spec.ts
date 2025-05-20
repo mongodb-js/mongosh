@@ -117,8 +117,8 @@ describe('Shard', function () {
         undefined,
         serviceProvider
       );
-      db = new Database(mongo, 'testDb')._typeLaunder();
-      shard = new Shard(db._typeLaunder());
+      db = new Database(mongo, 'testDb');
+      shard = new Shard(db);
     });
     describe('enableSharding', function () {
       it('calls serviceProvider.runCommandWithCheck without optional arg', async function () {

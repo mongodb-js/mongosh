@@ -1,4 +1,4 @@
-import type { DatabaseWithSchema } from './database';
+import type { Database, DatabaseWithSchema } from './database';
 import {
   shellApiClassDefault,
   returnsPromise,
@@ -39,9 +39,9 @@ export default class Shard<
 > extends ShellApiWithMongoClass {
   _database: DatabaseWithSchema<M, D>;
 
-  constructor(database: DatabaseWithSchema<M, D>) {
+  constructor(database: DatabaseWithSchema<M, D> | Database<M, D>) {
     super();
-    this._database = database;
+    this._database = database as DatabaseWithSchema<M, D>;
   }
 
   get _mongo(): Mongo<M> {

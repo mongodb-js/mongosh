@@ -70,11 +70,7 @@ describe('Collection', function () {
     describe('toShellResult', function () {
       const mongo = sinon.spy();
       const db = new Database(mongo as any, 'myDB');
-      const coll = new Collection(
-        mongo as any,
-        db._typeLaunder(),
-        'myCollection'
-      );
+      const coll = new Collection(mongo as any, db, 'myCollection');
       it('toShellResult', async function () {
         expect((await toShellResult(coll)).type).to.equal('Collection');
         expect((await toShellResult(coll)).printable).to.equal(
@@ -89,11 +85,7 @@ describe('Collection', function () {
         { _instanceState: { emitApiCallWithArgs: (): void => {} } } as any,
         'db1'
       );
-      const coll: any = new Collection(
-        {} as any,
-        database._typeLaunder(),
-        'coll'
-      );
+      const coll: any = new Collection({} as any, database, 'coll');
       expect(coll.someCollection).to.have.instanceOf(Collection);
       expect(coll.someCollection._name).to.equal('coll.someCollection');
     });
@@ -177,7 +169,7 @@ describe('Collection', function () {
         ServerSchema,
         ServerSchema['db1'],
         ServerSchema['db1']['coll1']
-      >(mongo, database._typeLaunder(), 'coll1');
+      >(mongo, database, 'coll1');
     });
     describe('aggregate', function () {
       let serviceProviderCursor: StubbedInstance<ServiceProviderAggregationCursor>;
@@ -2881,7 +2873,7 @@ describe('Collection', function () {
       );
       collection = new Collection(
         mongo1,
-        database._typeLaunder(),
+        database,
         'collfle2' as StringKey<ServerSchema['db1']>
       );
       mongo2 = new Mongo(

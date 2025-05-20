@@ -24,7 +24,7 @@ describe('Streams', function () {
       },
     } as unknown as Mongo;
     const db = new Database(mongo, 'testDb');
-    streams = new Streams(db._typeLaunder());
+    streams = new Streams(db);
   });
 
   describe('createStreamProcessor', function () {

@@ -267,7 +267,10 @@ export default class Mongo<
     }
 
     if (!(name in this._databases)) {
-      this._databases[name] = new Database(this, name)._typeLaunder();
+      this._databases[name] = new Database(this, name) as DatabaseWithSchema<
+        M,
+        M[K]
+      >;
     }
     return this._databases[name] as DatabaseWithSchema<M, M[K]>;
   }

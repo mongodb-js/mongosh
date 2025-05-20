@@ -66,7 +66,7 @@ export default class Session<
         this._mongo,
         name,
         this
-      )._typeLaunder();
+      ) as DatabaseWithSchema<M, M[K]>;
     }
     return this._databases[name] as DatabaseWithSchema<M, M[K]>;
   }

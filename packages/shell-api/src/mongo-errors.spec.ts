@@ -99,7 +99,7 @@ describe('mongo-errors', function () {
         serviceProvider
       );
       database = new Database(mongo, 'db1');
-      collection = new Collection(mongo, database._typeLaunder(), 'coll1');
+      collection = new Collection(mongo, database, 'coll1');
     });
 
     it('on collection.find error', async function () {

@@ -50,7 +50,7 @@ describe('Explainable', function () {
   describe('metadata', function () {
     const mongo: any = { _instanceState: { emitApiCallWithArgs: sinon.spy() } };
     const db = new Database(mongo, 'myDB');
-    const coll = new Collection(mongo, db._typeLaunder(), 'myCollection');
+    const coll = new Collection(mongo, db, 'myCollection');
     const explainable = new Explainable(mongo, coll, 'queryPlannerExtended');
     it('toShellResult', async function () {
       const result = await toShellResult(explainable);
@@ -81,7 +81,7 @@ describe('Explainable', function () {
         serviceProvider
       );
       database = new Database(mongo, 'db1');
-      collection = new Collection(mongo, database._typeLaunder(), 'coll1');
+      collection = new Collection(mongo, database, 'coll1');
       explainable = new Explainable(mongo, collection, 'queryPlanner');
     });
     describe('getCollection', function () {

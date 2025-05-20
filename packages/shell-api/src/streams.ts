@@ -8,7 +8,7 @@ import {
 } from './decorators';
 import StreamProcessor from './stream-processor';
 import { ADMIN_DB, asPrintable, shellApiType } from './enums';
-import type { DatabaseWithSchema } from './database';
+import type { Database, DatabaseWithSchema } from './database';
 import type Mongo from './mongo';
 import type { GenericDatabaseSchema, GenericServerSideSchema } from './helpers';
 
@@ -36,9 +36,9 @@ export class Streams<
 
   private _database: DatabaseWithSchema<M, D>;
 
-  constructor(database: DatabaseWithSchema<M, D>) {
+  constructor(database: DatabaseWithSchema<M, D> | Database<M, D>) {
     super();
-    this._database = database;
+    this._database = database as DatabaseWithSchema<M, D>;
   }
 
   get _mongo(): Mongo<M> {

@@ -114,7 +114,7 @@ describe('ReplicaSet', function () {
         serviceProvider
       );
       db = new Database(mongo, 'testdb');
-      rs = new ReplicaSet(db._typeLaunder());
+      rs = new ReplicaSet(db);
     });
 
     describe('initiate', function () {
@@ -855,7 +855,7 @@ describe('ReplicaSet', function () {
       );
       instanceState = new ShellInstanceState(serviceProvider);
       db = instanceState.currentDb;
-      rs = new ReplicaSet(db._typeLaunder());
+      rs = new ReplicaSet(db);
 
       // check replset uninitialized
       try {
@@ -1132,7 +1132,7 @@ describe('ReplicaSet', function () {
 
       const instanceState = new ShellInstanceState(serviceProvider);
       const db = instanceState.currentDb;
-      const rs = new ReplicaSet(db._typeLaunder());
+      const rs = new ReplicaSet(db);
       const addArbWithRetry = createRetriableMethod(rs, 'addArb');
       /**
        * Small hack warning:

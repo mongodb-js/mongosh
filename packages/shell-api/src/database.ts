@@ -93,10 +93,6 @@ export class Database<
   _cachedCollectionNames: StringKey<D>[] = [];
   _cachedHello: Document | null = null;
 
-  _typeLaunder(): DatabaseWithSchema<M, D> {
-    return this as DatabaseWithSchema<M, D>;
-  }
-
   constructor(mongo: Mongo<M>, name: StringKey<M>, session?: Session) {
     super();
     this._mongo = mongo;
@@ -107,7 +103,7 @@ export class Database<
     > = Object.create(null);
     this._collections = collections;
     this._session = session;
-    const proxy = new Proxy(this._typeLaunder(), {
+    const proxy = new Proxy(this, {
       get: (target, prop): any => {
         if (prop in target) {
           return (target as any)[prop];
@@ -122,7 +118,11 @@ export class Database<
         }
 
         if (!collections[prop]) {
-          collections[prop] = new Collection(mongo, proxy, prop)._typeLaunder();
+          collections[prop] = new Collection<M, D>(
+            mongo,
+            proxy,
+            prop
+          ) as CollectionWithSchema<M, D>;
         }
 
         return collections[prop];
@@ -522,11 +522,11 @@ export class Database<
       ._collections;
 
     if (!collections[coll]) {
-      collections[coll] = new Collection(
+      collections[coll] = new Collection<M, D>(
         this._mongo,
-        this._typeLaunder(),
+        this,
         coll
-      )._typeLaunder();
+      ) as CollectionWithSchema<M, D>;
     }
 
     return collections[coll] as CollectionWithSchema<M, D, D[K], K>;
@@ -1535,7 +1535,7 @@ export class Database<
   async printShardingStatus(verbose = false): Promise<CommandResult> {
     this._emitDatabaseApiCall('printShardingStatus', { verbose });
     const result = await getPrintableShardStatus(
-      await getConfigDB(this._typeLaunder()),
+      await getConfigDB(this),
       verbose
     );
     return new CommandResult('StatsResult', result);
