@@ -940,7 +940,7 @@ describe('Mongo', function () {
         expect(coll._database._name).to.equal('db1');
       });
 
-      it('throws if name is not a valid collnection string', function () {
+      it('throws if name is not a valid collection string', function () {
         expect(() => {
           // @ts-expect-error db is not valid, but that's the point of the test
           mongo.getCollection('db');
