@@ -326,7 +326,7 @@ export class KeyVault extends ShellApiWithMongoClass {
     if (typeof masterKeyOrAltNamesOrDataKeyOptions === 'string') {
       if (kms === 'local' && masterKeyOrAltNamesOrDataKeyOptions === '') {
         // allowed in the old shell - even enforced prior to 4.2.3
-        // https://docs.mongodb.com/manual/reference/method/KeyVault.createKey/
+        // https://mongodb.com/docs/manual/reference/method/KeyVault.createKey/
         masterKey = undefined;
       } else {
         throw new MongoshInvalidInputError(

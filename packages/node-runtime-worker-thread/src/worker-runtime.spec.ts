@@ -207,7 +207,7 @@ describe('worker-runtime', function () {
             expect(printable).to.have.property('help', 'Shell Help');
             expect(printable)
               .to.have.property('docs')
-              .match(/https:\/\/docs.mongodb.com/);
+              .match(/https:\/\/mongodb.com\/docs/);
           },
         ],
       ];

@@ -1100,7 +1100,7 @@ export function markAsExplainOutput<T extends NotAPromise>(value: T): T {
   return value;
 }
 
-// https://docs.mongodb.com/v5.0/reference/limits/#naming-restrictions
+// https://mongodb.com/docs/v5.0/reference/limits/#naming-restrictions
 // For db names, $ can be valid in some contexts (e.g. $external),
 // so we let the server reject it if necessary.
 export function isValidDatabaseName(name: string): boolean {

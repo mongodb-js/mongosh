@@ -2016,7 +2016,7 @@ export default class Collection extends ShellApiWithMongoClass {
     optionsOrOutString: MapReduceShellOptions
   ): Promise<Document> {
     await this._instanceState.printDeprecationWarning(
-      'Collection.mapReduce() is deprecated. Use an aggregation instead.\nSee https://docs.mongodb.com/manual/core/map-reduce for details.'
+      'Collection.mapReduce() is deprecated. Use an aggregation instead.\nSee https://mongodb.com/docs/manual/core/map-reduce for details.'
     );
     assertArgsDefinedType(
       [map, reduce, optionsOrOutString],
