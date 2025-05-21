@@ -242,7 +242,7 @@ Package|Version|License
 **[forwarded](#2d7f4275b09b041fd821b7672ebae7c9ccad3c87f3f37b6bd91306973c02b9a3)**|0.2.0|MIT
 **[fresh](#d7c677c373e09a5e9c7fe1d1ce69ca3147fe0455bf5606a26251970181d9efc4)**|0.5.2|MIT
 **[fs-constants](#9961a9f7535cded379a7696ad6d002a62d4826a3a8c2ffb5624383b942c879e5)**|1.0.0|MIT
-**[fs-extra](#f4bda72fc58b809b6533077d1826716805d4bec29651a76697ededec9689e0a4)**|11.2.0|MIT
+**[fs-extra](#e862edbd1eefa8dd5325b1fe3ddc6e8be0374791bd73fea93d80c18d281f1ec4)**|11.3.0|MIT
 **[fs-minipass](#c2c405232aa58245a067fead9e0e8bd8330cda684111af434bcab882090c44fa)**|2.1.0|ISC
 **[function-bind](#83de3b394293d96fb3fea968392a9d9ffb8b461f6c173bbb76a5bc51db5bec52)**|1.1.2|MIT
 **[gensync](#c49cbe8d63515db5596a717f0d65eab2f06a623b4f1dfbd512d61bbdccf1aa4c)**|1.0.0-beta.2|MIT
@@ -23014,8 +23014,8 @@ License files:
       
 
 
-<a id="f4bda72fc58b809b6533077d1826716805d4bec29651a76697ededec9689e0a4"></a>
-### [fs-extra](https://www.npmjs.com/package/fs-extra) (version 11.2.0)
+<a id="e862edbd1eefa8dd5325b1fe3ddc6e8be0374791bd73fea93d80c18d281f1ec4"></a>
+### [fs-extra](https://www.npmjs.com/package/fs-extra) (version 11.3.0)
 License tags: MIT
 
 License files:
@@ -23023,7 +23023,7 @@ License files:
 
       (The MIT License)
       
-      Copyright (c) 2011-2017 JP Richardson
+      Copyright (c) 2011-2024 JP Richardson
       
       Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
       (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify,
