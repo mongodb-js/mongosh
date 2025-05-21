@@ -11,7 +11,7 @@ import type { EventEmitter } from 'events';
 import type { StubbedInstance } from 'ts-sinon';
 import { stubInterface } from 'ts-sinon';
 import Bulk, { BulkFindOp } from './bulk';
-import Collection from './collection';
+import { Collection } from './collection';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
 import { signatures, toShellResult } from './index';
 import { BulkWriteResult } from './result';

@@ -29,7 +29,8 @@ import {
   skipIfServerVersion,
   skipIfApiStrict,
 } from '../../../testing/integration-testing-hooks';
-import Database from './database';
+import type { DatabaseWithSchema } from './database';
+import { Database } from './database';
 import { inspect } from 'util';
 import { dummyOptions } from './helpers.spec';
 
@@ -37,7 +38,7 @@ describe('Shard', function () {
   skipIfApiStrict();
 
   describe('help', function () {
-    const apiClass: any = new Shard({} as any);
+    const apiClass: any = new Shard({} as DatabaseWithSchema);
     it('calls help function', async function () {
       expect((await toShellResult(apiClass.help())).type).to.equal('Help');
       expect((await toShellResult(apiClass.help)).type).to.equal('Help');
@@ -76,7 +77,7 @@ describe('Shard', function () {
   describe('Metadata', function () {
     describe('toShellResult', function () {
       const mongo = { _uri: 'test_uri' } as Mongo;
-      const db = { _mongo: mongo, _name: 'test' } as Database;
+      const db = { _mongo: mongo, _name: 'test' } as DatabaseWithSchema;
       const sh = new Shard(db);
       it('value', async function () {
         expect((await toShellResult(sh)).printable).to.equal(
@@ -2455,7 +2456,7 @@ describe('Shard', function () {
           const instanceState = new ShellInstanceState(
             apiStrictServiceProvider
           );
-          const sh = new Shard(instanceState.currentDb);
+          const sh = new Shard(instanceState.currentDb as DatabaseWithSchema);
 
           const result = await sh.status();
           expect(result.type).to.equal('StatsResult');
@@ -3439,7 +3440,7 @@ describe('Shard', function () {
         new EventEmitter()
       );
       instanceState = new ShellInstanceState(serviceProvider);
-      sh = new Shard(instanceState.currentDb);
+      sh = new Shard(instanceState.currentDb as DatabaseWithSchema);
 
       // check replset uninitialized
       let members = await (

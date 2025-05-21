@@ -4,6 +4,16 @@
   "description": "MongoDB Shell API Classes Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "default": "./lib/index.js",
+      "types": "./lib/index.d.ts"
+    },
+    "./api": {
+      "default": "./lib/api-export.js",
+      "types": "./lib/api-export.d.ts"
+    }
+  },
   "config": {
     "unsafe-perm": true
   },
@@ -12,7 +22,8 @@
     "url": "git://github.com/mongodb-js/mongosh.git"
   },
   "scripts": {
-    "compile": "tsc -p tsconfig.json",
+    "compile": "tsc -p tsconfig.json && npm run api-generate",
+    "api-generate": "api-extractor run && ts-node bin/api-postprocess.ts",
     "pretest": "npm run compile",
     "eslint": "eslint",
     "lint": "npm run eslint . && npm run prettier -- --check .",
@@ -40,6 +51,8 @@
     "build"
   ],
   "dependencies": {
+    "@babel/core": "^7.26.10",
+    "@babel/types": "^7.26.10",
     "@mongosh/arg-parser": "^3.10.2",
     "@mongosh/errors": "2.4.0",
     "@mongosh/history": "2.4.6",
@@ -48,6 +61,7 @@
     "mongodb-redact": "^1.1.5"
   },
   "devDependencies": {
+    "@microsoft/api-extractor": "^7.39.3",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",

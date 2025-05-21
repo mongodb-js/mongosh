@@ -16,7 +16,7 @@ import { Duplex } from 'stream';
 import sinon from 'sinon';
 import type { StubbedInstance } from 'ts-sinon';
 import { stubInterface } from 'ts-sinon';
-import type Database from './database';
+import type { Database } from './database';
 import { signatures, toShellResult } from './decorators';
 import {
   ALL_PLATFORMS,
@@ -34,7 +34,7 @@ import {
   makeFakeHTTPConnection,
   fakeAWSHandlers,
 } from '../../../testing/fake-kms';
-import Collection from './collection';
+import { Collection } from './collection';
 import { dummyOptions } from './helpers.spec';
 import type { IncomingMessage } from 'http';
 
@@ -112,7 +112,7 @@ describe('Field Level Encryption', function () {
       sp.createClientEncryption?.returns(libmongoc);
       sp.initialDb = 'test';
       instanceState = new ShellInstanceState(sp, stubInterface<EventEmitter>());
-      instanceState.currentDb = stubInterface<Database>();
+      instanceState.currentDb = stubInterface<Database>() as any;
       mongo = new Mongo(
         instanceState,
         'localhost:27017',
@@ -195,7 +195,7 @@ describe('Field Level Encryption', function () {
       });
       sp.initialDb = 'test';
       instanceState = new ShellInstanceState(sp, stubInterface<EventEmitter>());
-      instanceState.currentDb = stubInterface<Database>();
+      instanceState.currentDb = stubInterface<Database>() as any;
       mongo = new Mongo(
         instanceState,
         'localhost:27017',
@@ -617,7 +617,7 @@ describe('Field Level Encryption', function () {
       sp.createClientEncryption?.returns(libmongoc);
       sp.initialDb = 'test';
       instanceState = new ShellInstanceState(sp, stubInterface<EventEmitter>());
-      instanceState.currentDb = stubInterface<Database>();
+      instanceState.currentDb = stubInterface<Database>() as any;
     });
     it('accepts the same local key twice', function () {
       const localKmsOptions: ClientSideFieldLevelEncryptionOptions = {
@@ -709,7 +709,7 @@ describe('Field Level Encryption', function () {
       sp.createClientEncryption?.returns(libmongoc);
       sp.initialDb = 'test';
       instanceState = new ShellInstanceState(sp, stubInterface<EventEmitter>());
-      instanceState.currentDb = stubInterface<Database>();
+      instanceState.currentDb = stubInterface<Database>() as any;
     });
     it('fails to construct when FLE options are missing on Mongo', function () {
       mongo = new Mongo(

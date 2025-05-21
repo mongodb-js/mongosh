@@ -5,10 +5,10 @@ import type { StubbedInstance } from 'ts-sinon';
 import { stubInterface } from 'ts-sinon';
 import type { ServiceProvider } from '@mongosh/service-provider-core';
 import { bson } from '@mongosh/service-provider-core';
-import Database from './database';
+import { Database } from './database';
 import type { EventEmitter } from 'events';
 import ShellInstanceState from './shell-instance-state';
-import Collection from './collection';
+import { Collection } from './collection';
 
 class MongoError extends Error {
   code?: number;

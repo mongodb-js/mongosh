@@ -2466,8 +2466,8 @@ describe('CliRepl', function () {
       });
 
       afterEach(async function () {
-        expect(output).not.to.include('Tab completion error');
-        expect(output).not.to.include(
+        expect(output, output).not.to.include('Tab completion error');
+        expect(output, output).not.to.include(
           'listCollections requires authentication'
         );
         await cliRepl.mongoshRepl.close();
