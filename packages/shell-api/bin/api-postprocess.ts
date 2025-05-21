@@ -107,6 +107,8 @@ function applyAsyncRewriterChanges() {
 }
 
 async function main() {
+  // eslint-disable-next-line no-console
+  console.log('Postprocessing lib/api-raw.d.ts as lib/api-processed.d.ts...');
   const apiRaw = await fs.readFile(
     path.resolve(__dirname, '..', 'lib', 'api-raw.d.ts'),
     'utf8'
@@ -135,6 +137,8 @@ async function main() {
     code
   );
 
+  // eslint-disable-next-line no-console
+  console.log('Writing lib/api-export.js...');
   const exportCode = `"use strict";
 module.exports = { api: ${JSON.stringify(code)} };
 `;
@@ -143,6 +147,8 @@ module.exports = { api: ${JSON.stringify(code)} };
     exportCode
   );
 
+  // eslint-disable-next-line no-console
+  console.log('Writing lib/api-export.d.ts...');
   await fs.writeFile(
     path.resolve(__dirname, '..', 'lib', 'api-export.d.ts'),
     'export declare const api;'
