@@ -136,7 +136,7 @@ async function main() {
   );
 
   const exportCode = `"use strict";
-module.exports = ${JSON.stringify(code)};
+module.exports = { api: ${JSON.stringify(code)} };
 `;
   await fs.writeFile(
     path.resolve(__dirname, '..', 'lib', 'api-export.js'),
@@ -145,7 +145,7 @@ module.exports = ${JSON.stringify(code)};
 
   await fs.writeFile(
     path.resolve(__dirname, '..', 'lib', 'api-export.d.ts'),
-    'declare const _default: string; export default _default;'
+    'export declare const api;'
   );
 }
 
