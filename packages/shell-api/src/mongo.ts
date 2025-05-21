@@ -65,7 +65,7 @@ import { KeyVault, ClientEncryption } from './field-level-encryption';
 import { ShellApiErrors } from './error-codes';
 import type { LogEntry } from './log-entry';
 import { parseAnyLogEntry } from './log-entry';
-import type { Collection } from './collection';
+import type { CollectionWithSchema } from './collection';
 import type { ShellBson } from './shell-bson';
 
 /* Utility, inverse of Readonly<T> */
@@ -285,7 +285,7 @@ export default class Mongo<
   @returnType('Collection')
   getCollection<KD extends StringKey<M>, KC extends StringKey<M[KD]>>(
     name: `${KD}.${KC}`
-  ): Collection<M, M[KD], M[KD][KC]> {
+  ): CollectionWithSchema<M, M[KD], M[KD][KC]> {
     assertArgsDefinedType([name], ['string']);
     const { db, coll } = /^(?<db>[^.]+)\.(?<coll>.+)$/.exec(name)?.groups ?? {};
     if (!db || !coll) {
@@ -294,11 +294,9 @@ export default class Mongo<
         CommonErrors.InvalidArgument
       );
     }
-    return this._getDb(db as StringKey<M>).getCollection(coll) as Collection<
-      M,
-      M[KD],
-      M[KD][KC]
-    >;
+    return this._getDb(db as StringKey<M>).getCollection(
+      coll
+    ) as CollectionWithSchema<M, M[KD], M[KD][KC]>;
   }
 
   getURI(): string {

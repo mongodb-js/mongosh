@@ -496,11 +496,11 @@ export class Database<
   }
 
   @returnType('Database')
-  getSiblingDB<K extends StringKey<M>>(db: K): Database<M, M[K]> {
+  getSiblingDB<K extends StringKey<M>>(db: K): DatabaseWithSchema<M, M[K]> {
     assertArgsDefinedType([db], ['string'], 'Database.getSiblingDB');
     this._emitDatabaseApiCall('getSiblingDB', { db });
     if (this._session) {
-      return this._session.getDatabase(db) as Database<M, M[K]>;
+      return this._session.getDatabase(db) as DatabaseWithSchema<M, M[K]>;
     }
     return this._mongo._getDb(db);
   }
