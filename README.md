@@ -8,7 +8,7 @@ This repository is a monorepo for all the various components in the MongoDB Shel
 all environments (REPL, Browser, Compass, etc).
 
 For our official documentation, please visit [MongoDB Docs
-page](https://docs.mongodb.com/mongodb-shell).
+page](https://mongodb.com/docs/mongodb-shell).
 
 MongoDB Shell works with MongoDB servers >= 4.0.
 
@@ -108,7 +108,7 @@ variable. For detailed instructions for each of our supported platforms, please 
         Start mongosh using 'ships' database on specified connection string:
         $ mongosh mongodb://192.168.0.5:9999/ships
 
-  For more information on usage: https://docs.mongodb.com/mongodb-shell.
+  For more information on usage: https://mongodb.com/docs/mongodb-shell.
 ```
 
 <!-- /AUTOMATICALLY_INSERT_CLI_USAGE -->

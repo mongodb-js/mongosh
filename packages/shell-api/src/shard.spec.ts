@@ -29,7 +29,8 @@ import {
   skipIfServerVersion,
   skipIfApiStrict,
 } from '../../../testing/integration-testing-hooks';
-import Database from './database';
+import type { DatabaseWithSchema } from './database';
+import { Database } from './database';
 import { inspect } from 'util';
 import { dummyOptions } from './helpers.spec';
 
@@ -37,7 +38,7 @@ describe('Shard', function () {
   skipIfApiStrict();
 
   describe('help', function () {
-    const apiClass: any = new Shard({} as any);
+    const apiClass: any = new Shard({} as DatabaseWithSchema);
     it('calls help function', async function () {
       expect((await toShellResult(apiClass.help())).type).to.equal('Help');
       expect((await toShellResult(apiClass.help)).type).to.equal('Help');
@@ -76,7 +77,7 @@ describe('Shard', function () {
   describe('Metadata', function () {
     describe('toShellResult', function () {
       const mongo = { _uri: 'test_uri' } as Mongo;
-      const db = { _mongo: mongo, _name: 'test' } as Database;
+      const db = { _mongo: mongo, _name: 'test' } as DatabaseWithSchema;
       const sh = new Shard(db);
       it('value', async function () {
         expect((await toShellResult(sh)).printable).to.equal(
@@ -2455,7 +2456,7 @@ describe('Shard', function () {
           const instanceState = new ShellInstanceState(
             apiStrictServiceProvider
           );
-          const sh = new Shard(instanceState.currentDb);
+          const sh = new Shard(instanceState.currentDb as DatabaseWithSchema);
 
           const result = await sh.status();
           expect(result.type).to.equal('StatsResult');
@@ -2466,6 +2467,18 @@ describe('Shard', function () {
             'balancer',
             'databases',
           ]);
+        });
+      });
+      describe('with a 7.0+ server', function () {
+        skipIfServerVersion(mongos, '< 7.0');
+
+        it('displays automerge status, if explicitly set', async function () {
+          await sh.startAutoMerger();
+          const result = await sh.status();
+
+          expect(result.value.automerge).to.deep.equal({
+            'Currently enabled': 'yes',
+          });
         });
       });
     });
@@ -2514,6 +2527,35 @@ describe('Shard', function () {
             `'on shard': '${collectionInfo.chunks[0]['on shard']}', 'last modified': Timestamp({ t: 1, i: 0 }) }\n` +
             '  ],\n'
         );
+      });
+    });
+    describe('automerge', function () {
+      it('not shown if sh.status() if not explicitly enabled', async function () {
+        // It might be explicitly set from 7.0
+        skipIfServerVersion(mongos, '>= 7.0');
+
+        // Ensure no previous automerge settings are present
+        await instanceState.currentDb
+          .getSiblingDB('config')
+          .getCollection('settings')
+          .deleteOne({ _id: 'automerge' });
+
+        expect((await sh.status()).value.automerge).is.undefined;
+      });
+      describe('from 7.0', function () {
+        skipIfServerVersion(mongos, '< 7.0'); // Available from 7.0
+        it('stops correctly', async function () {
+          expect((await sh.stopAutoMerger()).acknowledged).to.equal(true);
+          expect(
+            ((await sh.status()).value.automerge ?? {})['Currently enabled']
+          ).to.equal('no');
+        });
+        it('enables correctly', async function () {
+          expect((await sh.startAutoMerger()).acknowledged).to.equal(true);
+          expect(
+            ((await sh.status()).value.automerge ?? {})['Currently enabled']
+          ).to.equal('yes');
+        });
       });
     });
     describe('autosplit', function () {
@@ -3398,7 +3440,7 @@ describe('Shard', function () {
         new EventEmitter()
       );
       instanceState = new ShellInstanceState(serviceProvider);
-      sh = new Shard(instanceState.currentDb);
+      sh = new Shard(instanceState.currentDb as DatabaseWithSchema);
 
       // check replset uninitialized
       let members = await (

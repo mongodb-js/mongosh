@@ -1,8 +1,12 @@
 import AggregationCursor from './aggregation-cursor';
 import RunCommandCursor from './run-command-cursor';
-import Collection from './collection';
+import { CollectionWithSchema, Collection } from './collection';
 import Cursor from './cursor';
-import Database, { CollectionNamesWithTypes } from './database';
+import {
+  Database,
+  DatabaseWithSchema,
+  CollectionNamesWithTypes,
+} from './database';
 import Explainable from './explainable';
 import ExplainableCursor from './explainable-cursor';
 import Help, { HelpProperties } from './help';
@@ -42,7 +46,9 @@ export {
   Cursor,
   CursorIterationResult,
   Database,
+  DatabaseWithSchema,
   Collection,
+  CollectionWithSchema,
   Explainable,
   ExplainableCursor,
   Help,

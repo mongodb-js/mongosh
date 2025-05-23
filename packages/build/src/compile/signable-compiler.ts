@@ -132,6 +132,10 @@ export class SignableCompiler {
       path: await findModulePath('cli-repl', 'glibc-version'),
       requireRegexp: /\bglibc_version\.node$/,
     };
+    const nativeMachineIdAddon = {
+      path: await findModulePath('logging', 'native-machine-id'),
+      requireRegexp: /\bnative_machine_id\.node$/,
+    };
     // Warning! Until https://jira.mongodb.org/browse/MONGOSH-990,
     // packages/service-provider-node-driver *also* has a copy of these.
     // We use the versions included in packages/cli-repl here, so these
@@ -186,6 +190,7 @@ export class SignableCompiler {
         kerberosAddon,
         cryptLibraryVersionAddon,
         glibcVersionAddon,
+        nativeMachineIdAddon,
       ]
         .concat(winCAAddon ? [winCAAddon] : [])
         .concat(winConsoleProcessListAddon ? [winConsoleProcessListAddon] : [])

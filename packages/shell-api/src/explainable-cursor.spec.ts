@@ -31,6 +31,7 @@ describe('ExplainableCursor', function () {
         type: 'function',
         returnsPromise: false,
         deprecated: false,
+        inherited: true,
         returnType: 'ExplainableCursor',
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,

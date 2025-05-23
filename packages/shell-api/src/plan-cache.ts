@@ -7,16 +7,16 @@ import {
   ShellApiWithMongoClass,
 } from './decorators';
 import type { Document } from '@mongosh/service-provider-core';
-import type Collection from './collection';
+import type { CollectionWithSchema } from './collection';
 import { asPrintable, ServerVersions } from './enums';
 import { MongoshDeprecatedError } from '@mongosh/errors';
 import type Mongo from './mongo';
 
 @shellApiClassDefault
 export default class PlanCache extends ShellApiWithMongoClass {
-  _collection: Collection;
+  _collection: CollectionWithSchema;
 
-  constructor(collection: Collection) {
+  constructor(collection: CollectionWithSchema) {
     super();
     this._collection = collection;
   }

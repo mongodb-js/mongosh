@@ -14,7 +14,7 @@ import {
 } from './decorators';
 import { asPrintable } from './enums';
 import Mongo from './mongo';
-import type Database from './database';
+import type { DatabaseWithSchema } from './database';
 import type { CommandResult } from './result';
 import { CursorIterationResult } from './result';
 import type ShellInstanceState from './shell-instance-state';
@@ -266,7 +266,11 @@ export default class ShellApi extends ShellApiClass {
   @returnsPromise
   @returnType('Database')
   @platforms(['CLI'])
-  async connect(uri: string, user?: string, pwd?: string): Promise<Database> {
+  async connect(
+    uri: string,
+    user?: string,
+    pwd?: string
+  ): Promise<DatabaseWithSchema> {
     assertArgsDefinedType(
       [uri, user, pwd],
       ['string', [undefined, 'string'], [undefined, 'string']],

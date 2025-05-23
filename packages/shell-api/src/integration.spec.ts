@@ -3,8 +3,8 @@ import { NodeDriverServiceProvider } from '../../service-provider-node-driver'; 
 import ShellInstanceState from './shell-instance-state';
 import type Cursor from './cursor';
 import Explainable from './explainable';
-import type Database from './database';
-import type Collection from './collection';
+import type { DatabaseWithSchema } from './database';
+import type { CollectionWithSchema } from './collection';
 import {
   skipIfServerVersion,
   skipIfApiStrict,
@@ -69,7 +69,9 @@ describe('Shell API (integration)', function () {
     expect(collectionNames).to.not.include(collectionName);
   };
 
-  const loadQueryCache = async (collection: Collection): Promise<any> => {
+  const loadQueryCache = async (
+    collection: CollectionWithSchema
+  ): Promise<any> => {
     const res = await collection.insertMany([
       { _id: 1, item: 'abc', price: 12, quantity: 2, type: 'apparel' },
       { _id: 2, item: 'jkl', price: 20, quantity: 1, type: 'electronics' },
@@ -103,7 +105,9 @@ describe('Shell API (integration)', function () {
     ).toArray();
   };
 
-  const loadMRExample = async (collection: Collection): Promise<any> => {
+  const loadMRExample = async (
+    collection: CollectionWithSchema
+  ): Promise<any> => {
     const res = await collection.insertMany([
       {
         _id: 1,
@@ -225,8 +229,8 @@ describe('Shell API (integration)', function () {
   let shellApi: ShellApi;
   let mongo: Mongo;
   let dbName: string;
-  let database: Database;
-  let collection: Collection;
+  let database: DatabaseWithSchema;
+  let collection: CollectionWithSchema;
   let collectionName: string;
 
   beforeEach(async function () {

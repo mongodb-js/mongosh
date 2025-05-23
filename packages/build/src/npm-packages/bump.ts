@@ -81,6 +81,10 @@ export class PackageBumper {
       stdio: 'inherit',
       cwd: monorepoRootPath,
       encoding: 'utf8',
+      env: {
+        ...process.env,
+        PUPPETEER_SKIP_DOWNLOAD: 'true',
+      },
     });
   }
 

@@ -3,6 +3,7 @@ import path from 'path';
 import type { Config } from './config';
 import { ALL_PACKAGE_VARIANTS, getReleaseVersionFromTag } from './config';
 import { uploadArtifactToDownloadCenter as uploadArtifactToDownloadCenterFn } from './download-center';
+import { uploadArtifactToDownloadCenterNew as uploadArtifactToDownloadCenterFnNew } from './download-center';
 import { downloadArtifactFromEvergreen as downloadArtifactFromEvergreenFn } from './evergreen';
 import { generateChangelog as generateChangelogFn } from './git';
 import { getPackageFile } from './packaging';
@@ -14,6 +15,7 @@ export async function runDraft(
   githubRepo: GithubRepo,
   packageBumper: PackageBumper,
   uploadToDownloadCenter: typeof uploadArtifactToDownloadCenterFn = uploadArtifactToDownloadCenterFn,
+  uploadToDownloadCenterNew: typeof uploadArtifactToDownloadCenterFnNew = uploadArtifactToDownloadCenterFnNew,
   downloadArtifactFromEvergreen: typeof downloadArtifactFromEvergreenFn = downloadArtifactFromEvergreenFn,
   ensureGithubReleaseExistsAndUpdateChangelog: typeof ensureGithubReleaseExistsAndUpdateChangelogFn = ensureGithubReleaseExistsAndUpdateChangelogFn
 ): Promise<void> {
@@ -88,6 +90,13 @@ export async function runDraft(
             contentType,
           }),
         ]);
+
+        await uploadToDownloadCenterNew(
+          downloadedArtifact,
+          config.downloadCenterAwsKeyNew as string,
+          config.downloadCenterAwsSecretNew as string,
+          config.downloadCenterAwsSessionTokenNew as string
+        );
       })
     );
   }

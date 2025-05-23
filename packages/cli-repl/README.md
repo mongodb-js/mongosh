@@ -93,7 +93,7 @@ of mongosh, visit https://www.mongodb.com/try/download/shell.
         Start mongosh using 'ships' database on specified connection string:
         $ mongosh mongodb://192.168.0.5:9999/ships
 
-  For more information on usage: https://docs.mongodb.com/mongodb-shell.
+  For more information on usage: https://mongodb.com/docs/mongodb-shell.
 ```
 
 <!-- /AUTOMATICALLY_INSERT_CLI_USAGE -->
@@ -306,5 +306,5 @@ npm install --save @mongosh/cli-repl
 [mongosh]: https://github.com/mongodb-js/mongosh
 [evergreen-url]: https://evergreen.mongodb.com/waterfall/mongosh
 [pino-js]: https://github.com/pinojs/pino
-[object-id]: https://docs.mongodb.com/manual/reference/method/ObjectId/
+[object-id]: https://mongodb.com/docs/manual/reference/method/ObjectId/
 [error-object]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error

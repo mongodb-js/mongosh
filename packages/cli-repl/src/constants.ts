@@ -181,7 +181,7 @@ export const USAGE = `
         ${clr('$ mongosh mongodb://192.168.0.5:9999/ships', 'mongosh:uri')}
 
   ${clr(i18n.__('cli-repl.args.moreInformation'), 'bold')} ${clr(
-  'https://docs.mongodb.com/mongodb-shell',
+  'https://mongodb.com/docs/mongodb-shell',
   'mongosh:uri'
 )}.
 `

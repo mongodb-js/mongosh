@@ -130,9 +130,12 @@ functions:
           NODE_JS_VERSION: ${node_js_version}
           DISTRO_ID: ${distro_id}
           MONOGDB_DRIVER_VERSION_OVERRIDE: ${mongodb_driver_version_override}
+          PUPPETEER_SKIP_DOWNLOAD: "true"
         script: |
-          source .evergreen/install-node.sh
-          source .evergreen/install-npm-deps.sh
+          set -e
+          set -x
+          .evergreen/install-node.sh
+          .evergreen/install-npm-deps.sh
     - command: shell.exec
       params:
         working_dir: src
@@ -168,9 +171,12 @@ functions:
           NODE_JS_VERSION: ${node_js_version}
           DISTRO_ID: ${distro_id}
           MONOGDB_DRIVER_VERSION_OVERRIDE: ${mongodb_driver_version_override}
+          PUPPETEER_SKIP_DOWNLOAD: ${puppeteer_skip_download|true}
         script: |
-          source .evergreen/install-node.sh
-          source .evergreen/install-npm-deps.sh
+          set -e
+          set -x
+          .evergreen/install-node.sh
+          .evergreen/install-npm-deps.sh
     - command: s3.get
       type: setup
       params:
@@ -604,6 +610,7 @@ functions:
           PACKAGE_VARIANT: ${package_variant}
           MACOS_NOTARY_KEY: ${macos_notary_key}
           MACOS_NOTARY_SECRET: ${macos_notary_secret}
+          REQUESTER: ${requester}
   verify_artifact:
     - command: expansions.write
       type: setup
@@ -940,16 +947,22 @@ functions:
       params:
         file: tmp/expansions.yaml
         redacted: true
+    - command: ec2.assume_role
+      params:
+        role_arn: "arn:aws:iam::119629040606:role/s3-access.cdn-origin-compass"
     - command: shell.exec
       params:
         working_dir: src
         shell: bash
+        env:
+          DOWNLOAD_CENTER_AWS_KEY_NEW: ${AWS_ACCESS_KEY_ID}
+          DOWNLOAD_CENTER_AWS_SECRET_NEW: ${AWS_SECRET_ACCESS_KEY}
+          DOWNLOAD_CENTER_AWS_SESSION_TOKEN_NEW: ${AWS_SESSION_TOKEN}
         script: |
           set -e
           {
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
-          export PUPPETEER_SKIP_DOWNLOAD="true"
           npm run evergreen-release draft
           git add .
           git commit --no-allow-empty -m "chore(release): bump to prepare for mongosh release"
@@ -969,7 +982,6 @@ functions:
           node_js_version: ${node_js_version}
         script: |
           set -e
-          export PUPPETEER_SKIP_DOWNLOAD="true"
           .evergreen/run-evergreen-release.sh download-and-list-artifacts
     - command: shell.exec
       params:
@@ -998,7 +1010,6 @@ functions:
           node_js_version: ${node_js_version}
         script: |
           set -e
-          export PUPPETEER_SKIP_DOWNLOAD="true"
           .evergreen/run-evergreen-release.sh publish -- --dry-run
 
   release_publish:
@@ -1007,6 +1018,9 @@ functions:
       params:
         file: tmp/expansions.yaml
         redacted: true
+    - command: ec2.assume_role
+      params:
+        role_arn: "arn:aws:iam::119629040606:role/s3-access.cdn-origin-compass"
     - command: shell.exec
       # silent: true
       params:
@@ -1015,9 +1029,11 @@ functions:
         env:
           devtoolsbot_npm_token: ${devtoolsbot_npm_token}
           node_js_version: ${node_js_version}
+          DOWNLOAD_CENTER_AWS_KEY_NEW: ${AWS_ACCESS_KEY_ID}
+          DOWNLOAD_CENTER_AWS_SECRET_NEW: ${AWS_SECRET_ACCESS_KEY}
+          DOWNLOAD_CENTER_AWS_SESSION_TOKEN_NEW: ${AWS_SESSION_TOKEN}
         script: |
           set -e
-          export PUPPETEER_SKIP_DOWNLOAD="true"
           .evergreen/run-evergreen-release.sh publish
 
   run_perf_tests:
@@ -1097,7 +1113,7 @@ tasks:
   # UNIT TESTS
   # E.g. test_m60xc_n20 stands for mongod 6.0.x, community edition, Node.js 20
   ###
-  <% for (const { id, packageName } of UNIT_TESTS) { %>
+  <% for (const { id, packageName, usePuppeteer } of UNIT_TESTS) { %>
   - name: test_<% out(id) %>
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -1116,6 +1132,7 @@ tasks:
           mongosh_test_id: "<% out(id) %>"
           mongosh_run_only_in_package: "<% out(packageName) %>"
           task_name: ${task_name}
+          puppeteer_skip_download: "<% out(usePuppeteer ? "false" : "true") %>"
   <% } %>
 
   ###

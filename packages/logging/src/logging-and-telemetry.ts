@@ -39,6 +39,7 @@ import { MongoLogWriter } from 'mongodb-log-writer';
 import { mongoLogId } from 'mongodb-log-writer';
 import type {
   AnalyticsIdentifyMessage,
+  AnalyticsTrackMessage,
   MongoshAnalytics,
   MongoshAnalyticsIdentity,
 } from './analytics-helpers';
@@ -52,6 +53,40 @@ import type {
   MongoshLoggingAndTelemetryArguments,
   MongoshTrackingProperties,
 } from './types';
+import { createHmac } from 'crypto';
+
+/**
+ * @returns A hashed, unique identifier for the running device or `"unknown"` if not known.
+ */
+export async function getDeviceId({
+  onError,
+}: {
+  onError?: (error: Error) => void;
+} = {}): Promise<string | 'unknown'> {
+  try {
+    // Create a hashed format from the all uppercase version of the machine ID
+    // to match it exactly with the denisbrodbeck/machineid library that Atlas CLI uses.
+    const originalId: string =
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      await require('native-machine-id').getMachineId({
+        raw: true,
+      });
+
+    if (!originalId) {
+      return 'unknown';
+    }
+    const hmac = createHmac('sha256', originalId);
+
+    /** This matches the message used to create the hashes in Atlas CLI */
+    const DEVICE_ID_HASH_MESSAGE = 'atlascli';
+
+    hmac.update(DEVICE_ID_HASH_MESSAGE);
+    return hmac.digest('hex');
+  } catch (error) {
+    onError?.(error as Error);
+    return 'unknown';
+  }
+}
 
 export function setupLoggingAndTelemetry(
   props: MongoshLoggingAndTelemetryArguments
@@ -62,7 +97,8 @@ export function setupLoggingAndTelemetry(
   return loggingAndTelemetry;
 }
 
-class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
+/** @internal */
+export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
   private static dummyLogger = new MongoLogWriter(
     '',
     null,
@@ -82,30 +118,71 @@ class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
   private readonly mongoshVersion: string;
 
   private log: MongoLogWriter;
-  private pendingLogEvents: CallableFunction[] = [];
+  private pendingBusEvents: CallableFunction[] = [];
+  private pendingTelemetryEvents: CallableFunction[] = [];
   private isSetup = false;
-  private isBufferingEvents = false;
+  private isBufferingBusEvents = false;
+  private isBufferingTelemetryEvents = false;
+
+  private deviceId: string | undefined;
+  /** @internal */
+  public setupTelemetryPromise: Promise<void> = Promise.resolve();
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  private resolveDeviceId: (value: string) => void = () => {};
 
   constructor({
     bus,
     analytics,
     userTraits,
     mongoshVersion,
+    deviceId,
   }: MongoshLoggingAndTelemetryArguments) {
     this.bus = bus;
     this.analytics = analytics;
     this.log = LoggingAndTelemetry.dummyLogger;
     this.userTraits = userTraits;
     this.mongoshVersion = mongoshVersion;
+    this.deviceId = deviceId;
   }
 
   public setup(): void {
     if (this.isSetup) {
       throw new Error('Setup can only be called once.');
     }
+    this.isBufferingTelemetryEvents = true;
+    this.isBufferingBusEvents = true;
+
+    this.setupTelemetryPromise = this.setupTelemetry();
     this.setupBusEventListeners();
+
     this.isSetup = true;
-    this.isBufferingEvents = true;
+  }
+
+  public flush(): void {
+    // Run any telemetry events even if device ID hasn't been resolved yet
+    this.runAndClearPendingTelemetryEvents();
+
+    // Run any other pending events with the set or dummy log for telemetry purposes.
+    this.runAndClearPendingBusEvents();
+
+    this.resolveDeviceId('unknown');
+  }
+
+  private async setupTelemetry(): Promise<void> {
+    if (!this.deviceId) {
+      this.deviceId = await Promise.race([
+        getDeviceId({
+          onError: (error) =>
+            this.bus.emit('mongosh:error', error, 'telemetry'),
+        }),
+        new Promise<string>((resolve) => {
+          this.resolveDeviceId = resolve;
+        }),
+      ]);
+    }
+
+    this.runAndClearPendingTelemetryEvents();
   }
 
   public attachLogger(logger: MongoLogWriter): void {
@@ -119,24 +196,32 @@ class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       );
     }
     this.log = logger;
-    this.isBufferingEvents = false;
 
-    this.runAndClearPendingEvents();
+    this.runAndClearPendingBusEvents();
 
     this.bus.emit('mongosh:log-initialized');
   }
 
   public detachLogger() {
     this.log = LoggingAndTelemetry.dummyLogger;
-    // Still run any remaining pending events with the dummy log for telemetry purposes.
-    this.runAndClearPendingEvents();
+
+    this.flush();
   }
 
-  private runAndClearPendingEvents() {
+  private runAndClearPendingBusEvents() {
     let pendingEvent: CallableFunction | undefined;
-    while ((pendingEvent = this.pendingLogEvents.shift())) {
+    while ((pendingEvent = this.pendingBusEvents.shift())) {
       pendingEvent();
     }
+    this.isBufferingBusEvents = false;
+  }
+
+  private runAndClearPendingTelemetryEvents() {
+    let pendingEvent: CallableFunction | undefined;
+    while ((pendingEvent = this.pendingTelemetryEvents.shift())) {
+      pendingEvent();
+    }
+    this.isBufferingTelemetryEvents = false;
   }
 
   /** Information used and set by different bus events. */
@@ -171,11 +256,10 @@ class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       listener: (...args: Parameters<EventsMap[K]>) => void
     ) => {
       this.bus.on(event, ((...args: Parameters<EventsMap[K]>) => {
-        if (this.isBufferingEvents) {
-          this.pendingLogEvents.push(() => listener(...args));
+        if (this.isBufferingBusEvents) {
+          this.pendingBusEvents.push(() => listener(...args));
           return;
         }
-
         listener(...args);
       }) as MongoshBusEventsMap[K]);
       return this.bus;
@@ -193,10 +277,50 @@ class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
 
     const getTelemetryUserIdentity = (): MongoshAnalyticsIdentity => {
       return {
+        deviceId: this.deviceId,
         anonymousId:
           this.busEventState.telemetryAnonymousId ??
           (this.busEventState.userId as string),
       };
+    };
+
+    const track = (
+      message: Pick<AnalyticsTrackMessage, 'event' | 'timestamp'> & {
+        properties?: Omit<
+          AnalyticsTrackMessage['properties'],
+          keyof MongoshTrackingProperties
+        >;
+      }
+    ): void => {
+      const callback = () =>
+        this.analytics.track({
+          ...getTelemetryUserIdentity(),
+          ...message,
+          properties: {
+            ...getTrackingProperties(),
+            ...message.properties,
+          },
+        });
+
+      if (this.isBufferingTelemetryEvents) {
+        this.pendingTelemetryEvents.push(callback);
+      } else {
+        callback();
+      }
+    };
+
+    const identify = (): void => {
+      const callback = () =>
+        this.analytics.identify({
+          ...getTelemetryUserIdentity(),
+          traits: getUserTraits(),
+        });
+
+      if (this.isBufferingTelemetryEvents) {
+        this.pendingTelemetryEvents.push(callback);
+      } else {
+        callback();
+      }
     };
 
     onBus('mongosh:start-mongosh-repl', (ev: StartMongoshReplEvent) => {
@@ -230,7 +354,6 @@ class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         atlas_hostname: args.is_atlas ? resolved_hostname : null,
       };
       const properties = {
-        ...getTrackingProperties(),
         ...argsWithoutUriAndHostname,
         ...atlasHostname,
       };
@@ -248,8 +371,7 @@ class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         }
       );
 
-      this.analytics.track({
-        ...getTelemetryUserIdentity(),
+      track({
         event: 'New Connection',
         properties,
       });
@@ -264,11 +386,9 @@ class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       );
 
       const normalizedTimings = Object.fromEntries(normalizedTimingsArray);
-      this.analytics.track({
-        ...getTelemetryUserIdentity(),
+      track({
         event: 'Startup Time',
         properties: {
-          ...getTrackingProperties(),
           is_interactive: args.isInteractive,
           js_context: args.jsContext,
           ...normalizedTimings,
@@ -284,10 +404,8 @@ class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         }
         this.busEventState.telemetryAnonymousId =
           newTelemetryUserIdentity.anonymousId;
-        this.analytics.identify({
-          anonymousId: newTelemetryUserIdentity.anonymousId,
-          traits: getUserTraits(),
-        });
+
+        identify();
       }
     );
 
@@ -303,10 +421,7 @@ class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         } else {
           this.busEventState.userId = updatedTelemetryUserIdentity.userId;
         }
-        this.analytics.identify({
-          ...getTelemetryUserIdentity(),
-          traits: getUserTraits(),
-        });
+        identify();
         this.log.info(
           'MONGOSH',
           mongoLogId(1_000_000_005),
@@ -334,11 +449,9 @@ class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       );
 
       if (error.name.includes('Mongosh')) {
-        this.analytics.track({
-          ...getTelemetryUserIdentity(),
+        track({
           event: 'Error',
           properties: {
-            ...getTrackingProperties(),
             name: mongoshError.name,
             code: mongoshError.code,
             scope: mongoshError.scope,
@@ -388,12 +501,8 @@ class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         args
       );
 
-      this.analytics.track({
-        ...getTelemetryUserIdentity(),
+      track({
         event: 'Use',
-        properties: {
-          ...getTrackingProperties(),
-        },
       });
     });
 
@@ -406,11 +515,9 @@ class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         args
       );
 
-      this.analytics.track({
-        ...getTelemetryUserIdentity(),
+      track({
         event: 'Show',
         properties: {
-          ...getTrackingProperties(),
           method: args.method,
         },
       });
@@ -452,13 +559,11 @@ class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         args
       );
 
-      this.analytics.track({
-        ...getTelemetryUserIdentity(),
+      track({
         event: this.busEventState.hasStartedMongoshRepl
           ? 'Script Loaded'
           : 'Script Loaded CLI',
         properties: {
-          ...getTrackingProperties(),
           nested: args.nested,
           ...(this.busEventState.hasStartedMongoshRepl
             ? {}
@@ -475,11 +580,9 @@ class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         'Evaluating script passed on the command line'
       );
 
-      this.analytics.track({
-        ...getTelemetryUserIdentity(),
+      track({
         event: 'Script Evaluated',
         properties: {
-          ...getTrackingProperties(),
           shell: this.busEventState.usesShellOption,
         },
       });
@@ -493,12 +596,8 @@ class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         'Loading .mongoshrc.js'
       );
 
-      this.analytics.track({
-        ...getTelemetryUserIdentity(),
+      track({
         event: 'Mongoshrc Loaded',
-        properties: {
-          ...getTrackingProperties(),
-        },
       });
     });
 
@@ -510,12 +609,8 @@ class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         'Warning about .mongorc.js/.mongoshrc.js mismatch'
       );
 
-      this.analytics.track({
-        ...getTelemetryUserIdentity(),
+      track({
         event: 'Mongorc Warning',
-        properties: {
-          ...getTrackingProperties(),
-        },
       });
     });
 
@@ -680,12 +775,8 @@ class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       );
 
       if (ev.args[0] === 'install') {
-        this.analytics.track({
-          ...getTelemetryUserIdentity(),
+        track({
           event: 'Snippet Install',
-          properties: {
-            ...getTrackingProperties(),
-          },
         });
       }
     });
@@ -738,21 +829,17 @@ class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
           entry
         );
 
-        this.analytics.track({
-          ...getTelemetryUserIdentity(),
+        track({
           event: 'Deprecated Method',
           properties: {
-            ...getTrackingProperties(),
             ...entry,
           },
         });
       }
       for (const [entry, count] of apiCalls) {
-        this.analytics.track({
-          ...getTelemetryUserIdentity(),
+        track({
           event: 'API Call',
           properties: {
-            ...getTrackingProperties(),
             ...entry,
             count,
           },

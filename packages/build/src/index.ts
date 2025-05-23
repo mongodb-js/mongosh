@@ -81,6 +81,9 @@ if (require.main === module) {
           ctaConfig,
           downloadCenterAwsKey,
           downloadCenterAwsSecret,
+          downloadCenterAwsKeyNew,
+          downloadCenterAwsSecretNew,
+          downloadCenterAwsSessionTokenNew,
           isDryRun,
         } = getBuildConfig();
 
@@ -88,10 +91,21 @@ if (require.main === module) {
           throw new Error('Missing AWS credentials for download center');
         }
 
+        if (
+          !downloadCenterAwsKeyNew ||
+          !downloadCenterAwsSecretNew ||
+          !downloadCenterAwsSessionTokenNew
+        ) {
+          throw new Error('Missing AWS credentials for new download center');
+        }
+
         await updateJsonFeedCTA(
           ctaConfig,
           downloadCenterAwsKey,
           downloadCenterAwsSecret,
+          downloadCenterAwsKeyNew,
+          downloadCenterAwsSecretNew,
+          downloadCenterAwsSessionTokenNew,
           !!isDryRun
         );
         break;
