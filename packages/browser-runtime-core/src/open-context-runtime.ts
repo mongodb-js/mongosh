@@ -29,6 +29,7 @@ export interface InterpreterEnvironment {
  */
 export class OpenContextRuntime implements Runtime {
   private interpreterEnvironment: InterpreterEnvironment;
+  // TODO: we have to also port this to the new autocomplete
   private autocompleter: ShellApiAutocompleter | null = null;
   private shellEvaluator: ShellEvaluator;
   private instanceState: ShellInstanceState;

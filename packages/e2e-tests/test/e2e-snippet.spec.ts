@@ -72,6 +72,7 @@ describe('snippet integration tests', function () {
     shell.assertNoErrors();
   });
 
+  // TODO: port to the new autocomplete
   it('autocompletes snippet commands', async function () {
     if (process.arch === 's390x') {
       return this.skip(); // https://jira.mongodb.org/browse/MONGOSH-746
