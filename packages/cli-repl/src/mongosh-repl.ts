@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import completer from '@mongosh/autocomplete';
 import { MongoshInternalError, MongoshWarning } from '@mongosh/errors';
 import { changeHistory } from '@mongosh/history';
@@ -7,6 +8,7 @@ import type {
 } from '@mongosh/service-provider-core';
 import type {
   EvaluationListener,
+  Mongo,
   OnLoadResult,
   ShellCliOptions,
 } from '@mongosh/shell-api';
@@ -50,6 +52,9 @@ import { installPasteSupport } from './repl-paste-support';
 import util from 'util';
 
 import { MongoDBAutocompleter } from '@mongodb-js/mongodb-ts-autocomplete';
+import type { AutocompletionContext } from '@mongodb-js/mongodb-ts-autocomplete';
+import type { JSONSchema } from 'mongodb-schema';
+import { analyzeDocuments } from 'mongodb-schema';
 
 declare const __non_webpack_require__: any;
 
@@ -433,6 +438,88 @@ class MongoshNodeRepl implements EvaluationListener {
     this.runtimeState().context.history = history;
   }
 
+  // TODO: probably better to have this on instanceState
+  public _getMongoByConnectionId(
+    instanceState: ShellInstanceState,
+    connectionId: string
+  ): Mongo {
+    for (const mongo of instanceState.mongos) {
+      if (connectionIdFromURI(mongo.getURI()) === connectionId) {
+        return mongo;
+      }
+    }
+    throw new Error(`mongo with connection id ${connectionId} not found`);
+  }
+
+  public getAutocompletionContext(
+    instanceState: ShellInstanceState
+  ): AutocompletionContext {
+    return {
+      currentDatabaseAndConnection: () => {
+        return {
+          connectionId: connectionIdFromURI(
+            instanceState.currentDb.getMongo().getURI()
+          ),
+          databaseName: instanceState.currentDb.getName(),
+        };
+      },
+      databasesForConnection: async (
+        connectionId: string
+      ): Promise<string[]> => {
+        const mongo = this._getMongoByConnectionId(instanceState, connectionId);
+        try {
+          const dbNames = await mongo._getDatabaseNamesForCompletion();
+          return dbNames.filter(
+            (name: string) => !CONTROL_CHAR_REGEXP.test(name)
+          );
+        } catch (err: any) {
+          // TODO: move this code to a method in the shell instance so we don't
+          // have to hardcode the error code or export it.
+          if (err?.code === 'SHAPI-10004' || err?.codeName === 'Unauthorized') {
+            return [];
+          }
+          throw err;
+        }
+      },
+      collectionsForDatabase: async (
+        connectionId: string,
+        databaseName: string
+      ): Promise<string[]> => {
+        const mongo = this._getMongoByConnectionId(instanceState, connectionId);
+        try {
+          const collectionNames = await mongo
+            ._getDb(databaseName)
+            ._getCollectionNamesForCompletion();
+          return collectionNames.filter(
+            (name: string) => !CONTROL_CHAR_REGEXP.test(name)
+          );
+        } catch (err: any) {
+          // TODO: move this code to a method in the shell instance so we don't
+          // have to hardcode the error code or export it.
+          if (err?.code === 'SHAPI-10004' || err?.codeName === 'Unauthorized') {
+            return [];
+          }
+          throw err;
+        }
+      },
+      schemaInformationForCollection: async (
+        connectionId: string,
+        databaseName: string,
+        collectionName: string
+      ): Promise<JSONSchema> => {
+        const mongo = this._getMongoByConnectionId(instanceState, connectionId);
+        const docs = await mongo
+          ._getDb(databaseName)
+          .getCollection(collectionName)
+          ._getSampleDocsForCompletion();
+        const schemaAccessor = await analyzeDocuments(docs);
+
+        const schema = await schemaAccessor.getMongoDBJsonSchema();
+        return schema;
+      },
+    };
+  }
+
   private async finishInitializingNodeRepl(): Promise<void> {
     const { repl, instanceState } = this.runtimeState();
     if (!repl) return;
@@ -445,7 +532,8 @@ class MongoshNodeRepl implements EvaluationListener {
       line: string
     ) => Promise<[string[], string, 'exclusive'] | [string[], string]>;
     if (process.env.USE_NEW_AUTOCOMPLETE) {
-      const autocompletionContext = instanceState.getAutocompletionContext();
+      const autocompletionContext =
+        this.getAutocompletionContext(instanceState);
       newMongoshCompleter = new MongoDBAutocompleter({
         context: autocompletionContext,
       });
@@ -1345,6 +1433,14 @@ async function enterAsynchronousExecutionForPrompt(): Promise<void> {
   // to this issue.
 
   await new Promise(setImmediate);
+}
+
+function connectionIdFromURI(uri: string): string {
+  // turn the uri into something we can safely use as part of a "filename"
+  // inside autocomplete
+  const hash = crypto.createHash('sha256');
+  hash.update(uri);
+  return hash.digest('hex');
 }
 
 export default MongoshNodeRepl;
