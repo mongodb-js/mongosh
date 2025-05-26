@@ -548,7 +548,11 @@ class MongoshNodeRepl implements EvaluationListener {
           }
         })(),
       ]);
-      this.bus.emit('mongosh:autocompletion-complete'); // For testing.
+      this.bus.emit(
+        'mongosh:autocompletion-complete',
+        replResults,
+        mongoshResults
+      ); // For testing.
 
       // Sometimes the mongosh completion knows that what it is doing is right,
       // and that autocompletion based on inspecting the actual objects that

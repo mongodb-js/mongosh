@@ -20,6 +20,7 @@ import {
   tick,
   useTmpdir,
   waitEval,
+  waitMongoshCompletionResults,
 } from '../test/repl-helpers';
 import type { MongoshIOProvider, MongoshNodeReplOptions } from './mongosh-repl';
 import MongoshNodeRepl from './mongosh-repl';
@@ -364,12 +365,7 @@ describe('MongoshNodeRepl', function () {
     const tabtab = async () => {
       await tab();
       if (process.env.USE_NEW_AUTOCOMPLETE) {
-        // TODO: This is because autocomplete() is async and will either list
-        // databases or collections or sample documents, any of which takes time
-        // to complete and can time out. There is probably a better way.
-        await new Promise((resolve) => {
-          setTimeout(resolve, 210);
-        });
+        await waitMongoshCompletionResults(bus);
       }
       await tab();
     };
