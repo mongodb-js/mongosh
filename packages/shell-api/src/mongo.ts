@@ -303,7 +303,7 @@ export default class Mongo<
     ) as CollectionWithSchema<M, M[KD], M[KD][KC]>;
   }
 
-  getConnectionId(): string {
+  _getConnectionId(): string {
     return `connection_${this._connectionId}`;
   }
 

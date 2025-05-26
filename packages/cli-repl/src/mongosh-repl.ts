@@ -442,7 +442,7 @@ class MongoshNodeRepl implements EvaluationListener {
     return {
       currentDatabaseAndConnection: () => {
         return {
-          connectionId: instanceState.currentDb.getMongo().getConnectionId(),
+          connectionId: instanceState.currentDb.getMongo()._getConnectionId(),
           databaseName: instanceState.currentDb.getName(),
         };
       },

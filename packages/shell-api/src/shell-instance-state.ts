@@ -404,7 +404,7 @@ export class ShellInstanceState {
 
   public getMongoByConnectionId(connectionId: string): Mongo {
     for (const mongo of this.mongos) {
-      if (mongo.getConnectionId() === connectionId) {
+      if (mongo._getConnectionId() === connectionId) {
         return mongo;
       }
     }
