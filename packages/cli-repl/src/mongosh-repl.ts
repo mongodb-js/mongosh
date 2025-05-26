@@ -140,7 +140,7 @@ function transformAutocompleteResults(
   line: string,
   results: { result: string }[]
 ): [string[], string] | [string[], string, 'exclusive'] {
-  // TODO: actually use 'exclusive' when we should
+  // TODO(MONGOSH-2206): actually use 'exclusive' when we should
   return [results.map((result) => result.result), line];
 }
 
