@@ -435,9 +435,10 @@ export class ShellInstanceState {
             (name: string) => !CONTROL_CHAR_REGEXP.test(name)
           );
         } catch (err: any) {
-          // TODO: move this code to a method in the shell instance so we don't
-          // have to hardcode the error code or export it.
-          if (err?.code === 'SHAPI-10004' || err?.codeName === 'Unauthorized') {
+          if (
+            err?.code === ShellApiErrors.NotConnected ||
+            err?.codeName === 'Unauthorized'
+          ) {
             return [];
           }
           throw err;
@@ -456,9 +457,10 @@ export class ShellInstanceState {
             (name: string) => !CONTROL_CHAR_REGEXP.test(name)
           );
         } catch (err: any) {
-          // TODO: move this code to a method in the shell instance so we don't
-          // have to hardcode the error code or export it.
-          if (err?.code === 'SHAPI-10004' || err?.codeName === 'Unauthorized') {
+          if (
+            err?.code === ShellApiErrors.NotConnected ||
+            err?.codeName === 'Unauthorized'
+          ) {
             return [];
           }
           throw err;
