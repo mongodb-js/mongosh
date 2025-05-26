@@ -50,9 +50,6 @@ import { installPasteSupport } from './repl-paste-support';
 import util from 'util';
 
 import { MongoDBAutocompleter } from '@mongodb-js/mongodb-ts-autocomplete';
-import type { AutocompletionContext } from '@mongodb-js/mongodb-ts-autocomplete';
-import type { JSONSchema } from 'mongodb-schema';
-import { analyzeDocuments } from 'mongodb-schema';
 
 declare const __non_webpack_require__: any;
 
@@ -436,73 +433,6 @@ class MongoshNodeRepl implements EvaluationListener {
     this.runtimeState().context.history = history;
   }
 
-  public getAutocompletionContext(
-    instanceState: ShellInstanceState
-  ): AutocompletionContext {
-    return {
-      currentDatabaseAndConnection: () => {
-        return {
-          connectionId: instanceState.currentDb.getMongo()._getConnectionId(),
-          databaseName: instanceState.currentDb.getName(),
-        };
-      },
-      databasesForConnection: async (
-        connectionId: string
-      ): Promise<string[]> => {
-        const mongo = instanceState.getMongoByConnectionId(connectionId);
-        try {
-          const dbNames = await mongo._getDatabaseNamesForCompletion();
-          return dbNames.filter(
-            (name: string) => !CONTROL_CHAR_REGEXP.test(name)
-          );
-        } catch (err: any) {
-          // TODO: move this code to a method in the shell instance so we don't
-          // have to hardcode the error code or export it.
-          if (err?.code === 'SHAPI-10004' || err?.codeName === 'Unauthorized') {
-            return [];
-          }
-          throw err;
-        }
-      },
-      collectionsForDatabase: async (
-        connectionId: string,
-        databaseName: string
-      ): Promise<string[]> => {
-        const mongo = instanceState.getMongoByConnectionId(connectionId);
-        try {
-          const collectionNames = await mongo
-            ._getDb(databaseName)
-            ._getCollectionNamesForCompletion();
-          return collectionNames.filter(
-            (name: string) => !CONTROL_CHAR_REGEXP.test(name)
-          );
-        } catch (err: any) {
-          // TODO: move this code to a method in the shell instance so we don't
-          // have to hardcode the error code or export it.
-          if (err?.code === 'SHAPI-10004' || err?.codeName === 'Unauthorized') {
-            return [];
-          }
-          throw err;
-        }
-      },
-      schemaInformationForCollection: async (
-        connectionId: string,
-        databaseName: string,
-        collectionName: string
-      ): Promise<JSONSchema> => {
-        const mongo = instanceState.getMongoByConnectionId(connectionId);
-        const docs = await mongo
-          ._getDb(databaseName)
-          .getCollection(collectionName)
-          ._getSampleDocsForCompletion();
-        const schemaAccessor = await analyzeDocuments(docs);
-
-        const schema = await schemaAccessor.getMongoDBJsonSchema();
-        return schema;
-      },
-    };
-  }
-
   private async finishInitializingNodeRepl(): Promise<void> {
     const { repl, instanceState } = this.runtimeState();
     if (!repl) return;
@@ -516,7 +446,7 @@ class MongoshNodeRepl implements EvaluationListener {
     ) => Promise<[string[], string, 'exclusive'] | [string[], string]>;
     if (process.env.USE_NEW_AUTOCOMPLETE) {
       const autocompletionContext =
-        this.getAutocompletionContext(instanceState);
+        instanceState.getAutocompletionContext(instanceState);
       newMongoshCompleter = new MongoDBAutocompleter({
         context: autocompletionContext,
       });

@@ -37,6 +37,10 @@ import constructShellBson from './shell-bson';
 import { Streams } from './streams';
 import { ShellLog } from './shell-log';
 
+import type { AutocompletionContext } from '@mongodb-js/mongodb-ts-autocomplete';
+import type { JSONSchema } from 'mongodb-schema';
+import { analyzeDocuments } from 'mongodb-schema';
+
 /**
  * The subset of CLI options that is relevant for the shell API's behavior itself.
  */
@@ -409,6 +413,73 @@ export class ShellInstanceState {
       }
     }
     throw new Error(`mongo with connection id ${connectionId} not found`);
+  }
+
+  public getAutocompletionContext(
+    instanceState: ShellInstanceState
+  ): AutocompletionContext {
+    return {
+      currentDatabaseAndConnection: () => {
+        return {
+          connectionId: instanceState.currentDb.getMongo()._getConnectionId(),
+          databaseName: instanceState.currentDb.getName(),
+        };
+      },
+      databasesForConnection: async (
+        connectionId: string
+      ): Promise<string[]> => {
+        const mongo = instanceState.getMongoByConnectionId(connectionId);
+        try {
+          const dbNames = await mongo._getDatabaseNamesForCompletion();
+          return dbNames.filter(
+            (name: string) => !CONTROL_CHAR_REGEXP.test(name)
+          );
+        } catch (err: any) {
+          // TODO: move this code to a method in the shell instance so we don't
+          // have to hardcode the error code or export it.
+          if (err?.code === 'SHAPI-10004' || err?.codeName === 'Unauthorized') {
+            return [];
+          }
+          throw err;
+        }
+      },
+      collectionsForDatabase: async (
+        connectionId: string,
+        databaseName: string
+      ): Promise<string[]> => {
+        const mongo = instanceState.getMongoByConnectionId(connectionId);
+        try {
+          const collectionNames = await mongo
+            ._getDb(databaseName)
+            ._getCollectionNamesForCompletion();
+          return collectionNames.filter(
+            (name: string) => !CONTROL_CHAR_REGEXP.test(name)
+          );
+        } catch (err: any) {
+          // TODO: move this code to a method in the shell instance so we don't
+          // have to hardcode the error code or export it.
+          if (err?.code === 'SHAPI-10004' || err?.codeName === 'Unauthorized') {
+            return [];
+          }
+          throw err;
+        }
+      },
+      schemaInformationForCollection: async (
+        connectionId: string,
+        databaseName: string,
+        collectionName: string
+      ): Promise<JSONSchema> => {
+        const mongo = instanceState.getMongoByConnectionId(connectionId);
+        const docs = await mongo
+          ._getDb(databaseName)
+          .getCollection(collectionName)
+          ._getSampleDocsForCompletion();
+        const schemaAccessor = await analyzeDocuments(docs);
+
+        const schema = await schemaAccessor.getMongoDBJsonSchema();
+        return schema;
+      },
+    };
   }
 
   public getAutocompleteParameters(): AutocompleteParameters {
