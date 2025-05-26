@@ -415,20 +415,18 @@ export class ShellInstanceState {
     throw new Error(`mongo with connection id ${connectionId} not found`);
   }
 
-  public getAutocompletionContext(
-    instanceState: ShellInstanceState
-  ): AutocompletionContext {
+  public getAutocompletionContext(): AutocompletionContext {
     return {
       currentDatabaseAndConnection: () => {
         return {
-          connectionId: instanceState.currentDb.getMongo()._getConnectionId(),
-          databaseName: instanceState.currentDb.getName(),
+          connectionId: this.currentDb.getMongo()._getConnectionId(),
+          databaseName: this.currentDb.getName(),
         };
       },
       databasesForConnection: async (
         connectionId: string
       ): Promise<string[]> => {
-        const mongo = instanceState.getMongoByConnectionId(connectionId);
+        const mongo = this.getMongoByConnectionId(connectionId);
         try {
           const dbNames = await mongo._getDatabaseNamesForCompletion();
           return dbNames.filter(
@@ -448,7 +446,7 @@ export class ShellInstanceState {
         connectionId: string,
         databaseName: string
       ): Promise<string[]> => {
-        const mongo = instanceState.getMongoByConnectionId(connectionId);
+        const mongo = this.getMongoByConnectionId(connectionId);
         try {
           const collectionNames = await mongo
             ._getDb(databaseName)
@@ -471,7 +469,7 @@ export class ShellInstanceState {
         databaseName: string,
         collectionName: string
       ): Promise<JSONSchema> => {
-        const mongo = instanceState.getMongoByConnectionId(connectionId);
+        const mongo = this.getMongoByConnectionId(connectionId);
         const docs = await mongo
           ._getDb(databaseName)
           .getCollection(collectionName)

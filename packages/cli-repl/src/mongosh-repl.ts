@@ -444,8 +444,7 @@ class MongoshNodeRepl implements EvaluationListener {
       line: string
     ) => Promise<[string[], string, 'exclusive'] | [string[], string]>;
     if (process.env.USE_NEW_AUTOCOMPLETE) {
-      const autocompletionContext =
-        instanceState.getAutocompletionContext(instanceState);
+      const autocompletionContext = instanceState.getAutocompletionContext();
       newMongoshCompleter = new MongoDBAutocompleter({
         context: autocompletionContext,
       });
