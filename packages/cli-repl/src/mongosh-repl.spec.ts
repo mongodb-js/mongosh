@@ -396,7 +396,7 @@ describe('MongoshNodeRepl', function () {
 
     context(
       `autocompleting during .editor [${
-        process.env.USE_NEW_AUTOCOMPLETE ?? 'old'
+        process.env.USE_NEW_AUTOCOMPLETE ? 'new' : 'old'
       }]`,
       function () {
         it('does not stop input when autocompleting during .editor', async function () {
@@ -474,7 +474,7 @@ describe('MongoshNodeRepl', function () {
     });
 
     context(
-      `autocompletion [${process.env.USE_NEW_AUTOCOMPLETE ?? 'old'}]`,
+      `autocompletion [${process.env.USE_NEW_AUTOCOMPLETE ? 'new' : 'old'}]`,
       function () {
         it('autocompletes collection methods', async function () {
           input.write('db.coll.');
