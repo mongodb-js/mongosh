@@ -1,4 +1,3 @@
-import crypto from 'crypto';
 import completer from '@mongosh/autocomplete';
 import { MongoshInternalError, MongoshWarning } from '@mongosh/errors';
 import { changeHistory } from '@mongosh/history';
@@ -8,7 +7,6 @@ import type {
 } from '@mongosh/service-provider-core';
 import type {
   EvaluationListener,
-  Mongo,
   OnLoadResult,
   ShellCliOptions,
 } from '@mongosh/shell-api';
@@ -438,35 +436,20 @@ class MongoshNodeRepl implements EvaluationListener {
     this.runtimeState().context.history = history;
   }
 
-  // TODO: probably better to have this on instanceState
-  public _getMongoByConnectionId(
-    instanceState: ShellInstanceState,
-    connectionId: string
-  ): Mongo {
-    for (const mongo of instanceState.mongos) {
-      if (connectionIdFromURI(mongo.getURI()) === connectionId) {
-        return mongo;
-      }
-    }
-    throw new Error(`mongo with connection id ${connectionId} not found`);
-  }
-
   public getAutocompletionContext(
     instanceState: ShellInstanceState
   ): AutocompletionContext {
     return {
       currentDatabaseAndConnection: () => {
         return {
-          connectionId: connectionIdFromURI(
-            instanceState.currentDb.getMongo().getURI()
-          ),
+          connectionId: instanceState.currentDb.getMongo().getConnectionId(),
           databaseName: instanceState.currentDb.getName(),
         };
       },
       databasesForConnection: async (
         connectionId: string
       ): Promise<string[]> => {
-        const mongo = this._getMongoByConnectionId(instanceState, connectionId);
+        const mongo = instanceState.getMongoByConnectionId(connectionId);
         try {
           const dbNames = await mongo._getDatabaseNamesForCompletion();
           return dbNames.filter(
@@ -485,7 +468,7 @@ class MongoshNodeRepl implements EvaluationListener {
         connectionId: string,
         databaseName: string
       ): Promise<string[]> => {
-        const mongo = this._getMongoByConnectionId(instanceState, connectionId);
+        const mongo = instanceState.getMongoByConnectionId(connectionId);
         try {
           const collectionNames = await mongo
             ._getDb(databaseName)
@@ -507,7 +490,7 @@ class MongoshNodeRepl implements EvaluationListener {
         databaseName: string,
         collectionName: string
       ): Promise<JSONSchema> => {
-        const mongo = this._getMongoByConnectionId(instanceState, connectionId);
+        const mongo = instanceState.getMongoByConnectionId(connectionId);
         const docs = await mongo
           ._getDb(databaseName)
           .getCollection(collectionName)
@@ -1433,14 +1416,6 @@ async function enterAsynchronousExecutionForPrompt(): Promise<void> {
   // to this issue.
 
   await new Promise(setImmediate);
-}
-
-function connectionIdFromURI(uri: string): string {
-  // turn the uri into something we can safely use as part of a "filename"
-  // inside autocomplete
-  const hash = crypto.createHash('sha256');
-  hash.update(uri);
-  return hash.digest('hex');
 }
 
 export default MongoshNodeRepl;

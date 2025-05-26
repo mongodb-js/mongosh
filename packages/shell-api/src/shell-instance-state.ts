@@ -402,6 +402,15 @@ export class ShellInstanceState {
     this.evaluationListener = listener;
   }
 
+  public getMongoByConnectionId(connectionId: string): Mongo {
+    for (const mongo of this.mongos) {
+      if (mongo.getConnectionId() === connectionId) {
+        return mongo;
+      }
+    }
+    throw new Error(`mongo with connection id ${connectionId} not found`);
+  }
+
   public getAutocompleteParameters(): AutocompleteParameters {
     return {
       topology: () => {
