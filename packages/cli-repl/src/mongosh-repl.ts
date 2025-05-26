@@ -136,8 +136,7 @@ type Mutable<T> = {
 function transformAutocompleteResults(
   line: string,
   results: { result: string }[]
-): [string[], string] | [string[], string, 'exclusive'] {
-  // TODO(MONGOSH-2206): actually use 'exclusive' when we should
+): [string[], string] {
   return [results.map((result) => result.result), line];
 }
 
