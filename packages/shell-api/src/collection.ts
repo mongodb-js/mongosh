@@ -2389,7 +2389,7 @@ export class Collection<
   ): Promise<RunCommandCursor> {
     this._emitCollectionApiCall('checkMetadataConsistency', { options });
 
-    return this._database._runCursorCommand({
+    return await this._database._runCursorCommand({
       checkMetadataConsistency: this._name,
     });
   }
@@ -2531,7 +2531,11 @@ export class Collection<
 
   async _getSampleDocs(): Promise<Document[]> {
     this._cachedSampleDocs = await (
-      await this.aggregate([{ $sample: { size: 10 } }])
+      await this.aggregate([{ $sample: { size: 10 } }], {
+        allowDiskUse: true,
+        maxTimeMS: 1000,
+        readPreference: 'secondaryPreferred',
+      })
     ).toArray();
     return this._cachedSampleDocs;
   }
