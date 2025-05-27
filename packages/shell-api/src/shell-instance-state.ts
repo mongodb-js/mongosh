@@ -37,6 +37,10 @@ import constructShellBson from './shell-bson';
 import { Streams } from './streams';
 import { ShellLog } from './shell-log';
 
+import type { AutocompletionContext } from '@mongodb-js/mongodb-ts-autocomplete';
+import type { JSONSchema } from 'mongodb-schema';
+import { analyzeDocuments } from 'mongodb-schema';
+
 /**
  * The subset of CLI options that is relevant for the shell API's behavior itself.
  */
@@ -400,6 +404,82 @@ export class ShellInstanceState {
 
   public setEvaluationListener(listener: EvaluationListener): void {
     this.evaluationListener = listener;
+  }
+
+  public getMongoByConnectionId(connectionId: string): Mongo {
+    for (const mongo of this.mongos) {
+      if (mongo._getConnectionId() === connectionId) {
+        return mongo;
+      }
+    }
+    throw new Error(`mongo with connection id ${connectionId} not found`);
+  }
+
+  public getAutocompletionContext(): AutocompletionContext {
+    return {
+      currentDatabaseAndConnection: () => {
+        return {
+          connectionId: this.currentDb.getMongo()._getConnectionId(),
+          databaseName: this.currentDb.getName(),
+        };
+      },
+      databasesForConnection: async (
+        connectionId: string
+      ): Promise<string[]> => {
+        const mongo = this.getMongoByConnectionId(connectionId);
+        try {
+          const dbNames = await mongo._getDatabaseNamesForCompletion();
+          return dbNames.filter(
+            (name: string) => !CONTROL_CHAR_REGEXP.test(name)
+          );
+        } catch (err: any) {
+          if (
+            err?.code === ShellApiErrors.NotConnected ||
+            err?.codeName === 'Unauthorized'
+          ) {
+            return [];
+          }
+          throw err;
+        }
+      },
+      collectionsForDatabase: async (
+        connectionId: string,
+        databaseName: string
+      ): Promise<string[]> => {
+        const mongo = this.getMongoByConnectionId(connectionId);
+        try {
+          const collectionNames = await mongo
+            ._getDb(databaseName)
+            ._getCollectionNamesForCompletion();
+          return collectionNames.filter(
+            (name: string) => !CONTROL_CHAR_REGEXP.test(name)
+          );
+        } catch (err: any) {
+          if (
+            err?.code === ShellApiErrors.NotConnected ||
+            err?.codeName === 'Unauthorized'
+          ) {
+            return [];
+          }
+          throw err;
+        }
+      },
+      schemaInformationForCollection: async (
+        connectionId: string,
+        databaseName: string,
+        collectionName: string
+      ): Promise<JSONSchema> => {
+        const mongo = this.getMongoByConnectionId(connectionId);
+        const docs = await mongo
+          ._getDb(databaseName)
+          .getCollection(collectionName)
+          ._getSampleDocsForCompletion();
+        const schemaAccessor = await analyzeDocuments(docs);
+
+        const schema = await schemaAccessor.getMongoDBJsonSchema();
+        return schema;
+      },
+    };
   }
 
   public getAutocompleteParameters(): AutocompleteParameters {
