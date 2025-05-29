@@ -1,6 +1,9 @@
 /* eslint-disable no-control-regex */
 import { MongoshCommandFailed } from '@mongosh/errors';
-import type { ServiceProvider } from '@mongosh/service-provider-core';
+import type {
+  AggregationCursor,
+  ServiceProvider,
+} from '@mongosh/service-provider-core';
 import { bson } from '@mongosh/service-provider-core';
 import { ADMIN_DB } from '../../shell-api/lib/enums';
 import { CliUserConfig } from '@mongosh/types';
@@ -17,6 +20,7 @@ import {
   tick,
   useTmpdir,
   waitEval,
+  waitMongoshCompletionResults,
 } from '../test/repl-helpers';
 import type { MongoshIOProvider, MongoshNodeReplOptions } from './mongosh-repl';
 import MongoshNodeRepl from './mongosh-repl';
@@ -89,6 +93,14 @@ describe('MongoshNodeRepl', function () {
       },
     });
     sp.runCommandWithCheck.resolves({ ok: 1 });
+
+    if (process.env.USE_NEW_AUTOCOMPLETE) {
+      sp.listCollections.resolves([{ name: 'coll' }]);
+      const aggCursor = stubInterface<AggregationCursor>();
+      aggCursor.toArray.resolves([{ foo: 1, bar: 2 }]);
+      sp.aggregate.returns(aggCursor);
+    }
+
     serviceProvider = sp;
     calledServiceProviderFunctions = () =>
       Object.fromEntries(
@@ -352,6 +364,9 @@ describe('MongoshNodeRepl', function () {
     };
     const tabtab = async () => {
       await tab();
+      if (process.env.USE_NEW_AUTOCOMPLETE) {
+        await waitMongoshCompletionResults(bus);
+      }
       await tab();
     };
 
@@ -379,19 +394,28 @@ describe('MongoshNodeRepl', function () {
       expect(output).to.include('65537');
     });
 
-    it('does not stop input when autocompleting during .editor', async function () {
-      input.write('.editor\n');
-      await tick();
-      expect(output).to.include('Entering editor mode');
-      output = '';
-      input.write('db.');
-      await tabtab();
-      await tick();
-      input.write('version()\n');
-      input.write('\u0004'); // Ctrl+D
-      await waitEval(bus);
-      expect(output).to.include('Error running command serverBuildInfo');
-    });
+    context(
+      `autocompleting during .editor [${
+        process.env.USE_NEW_AUTOCOMPLETE ? 'new' : 'old'
+      }]`,
+      function () {
+        it('does not stop input when autocompleting during .editor', async function () {
+          input.write('.editor\n');
+          await tick();
+          expect(output).to.include('Entering editor mode');
+          output = '';
+          input.write('db.');
+          await tabtab();
+          await tick();
+          input.write('version()\n');
+          input.write('\u0004'); // Ctrl+D
+          await waitEval(bus);
+          expect(output, output).to.include(
+            'Error running command serverBuildInfo'
+          );
+        });
+      }
+    );
 
     it('can enter multiline code', async function () {
       for (const line of multilineCode.split('\n')) {
@@ -449,73 +473,86 @@ describe('MongoshNodeRepl', function () {
       expect(code).to.equal(undefined);
     });
 
-    context('autocompletion', function () {
-      it('autocompletes collection methods', async function () {
-        input.write('db.coll.');
-        await tabtab();
-        await tick();
-        expect(output).to.include('db.coll.updateOne');
-      });
-      it('autocompletes shell-api methods (once)', async function () {
-        input.write('vers');
-        await tabtab();
-        await tick();
-        expect(output).to.include('version');
-        expect(output).to.not.match(/version[ \t]+version/);
-      });
-      it('autocompletes async shell api methods', async function () {
-        input.write('db.coll.find().');
-        await tabtab();
-        await tick();
-        expect(output).to.include('db.coll.find().close');
-      });
-      it('autocompletes local variables', async function () {
-        input.write('let somelongvariable = 0\n');
-        await waitEval(bus);
-        output = '';
-        input.write('somelong');
-        await tabtab();
-        await tick();
-        expect(output).to.include('somelongvariable');
-      });
-      it('autocompletes partial repl commands', async function () {
-        input.write('.e');
-        await tabtab();
-        await tick();
-        expect(output).to.include('editor');
-        expect(output).to.include('exit');
-      });
-      it('autocompletes full repl commands', async function () {
-        input.write('.ed');
-        await tabtab();
-        await tick();
-        expect(output).to.include('.editor');
-        expect(output).not.to.include('exit');
-      });
-      it('autocompletion during .editor does not reset the prompt', async function () {
-        input.write('.editor\n');
-        await tick();
-        output = '';
-        expect((mongoshRepl.runtimeState().repl as any)._prompt).to.equal('');
-        input.write('db.');
-        await tabtab();
-        await tick();
-        input.write('foo\nbar\n');
-        expect((mongoshRepl.runtimeState().repl as any)._prompt).to.equal('');
-        input.write('\u0003'); // Ctrl+C for abort
-        await tick();
-        expect((mongoshRepl.runtimeState().repl as any)._prompt).to.equal(
-          'test> '
-        );
-        expect(stripAnsi(output)).to.equal('db.foo\r\nbar\r\n\r\ntest> ');
-      });
-      it('does not autocomplete tab-indented code', async function () {
-        output = '';
-        input.write('\t\tfoo');
-        await tick();
-        expect(output).to.equal('\t\tfoo');
-      });
-    });
+    context(
+      `autocompletion [${process.env.USE_NEW_AUTOCOMPLETE ? 'new' : 'old'}]`,
+      function () {
+        it('autocompletes collection methods', async function () {
+          input.write('db.coll.');
+          await tabtab();
+          await tick();
+          expect(output, output).to.include('db.coll.updateOne');
+        });
+        it('autocompletes collection schema fields', async function () {
+          if (!process.env.USE_NEW_AUTOCOMPLETE) {
+            // not supported in the old autocomplete
+            this.skip();
+          }
+          input.write('db.coll.find({');
+          await tabtab();
+          await tick();
+          expect(output, output).to.include('db.coll.find({foo');
+        });
+        it('autocompletes shell-api methods (once)', async function () {
+          input.write('vers');
+          await tabtab();
+          await tick();
+          expect(output, output).to.include('version');
+          expect(output, output).to.not.match(/version[ \t]+version/);
+        });
+        it('autocompletes async shell api methods', async function () {
+          input.write('db.coll.find().');
+          await tabtab();
+          await tick();
+          expect(output, output).to.include('db.coll.find().toArray');
+        });
+        it('autocompletes local variables', async function () {
+          input.write('let somelongvariable = 0\n');
+          await waitEval(bus);
+          output = '';
+          input.write('somelong');
+          await tabtab();
+          await tick();
+          expect(output, output).to.include('somelongvariable');
+        });
+        it('autocompletes partial repl commands', async function () {
+          input.write('.e');
+          await tabtab();
+          await tick();
+          expect(output, output).to.include('editor');
+          expect(output, output).to.include('exit');
+        });
+        it('autocompletes full repl commands', async function () {
+          input.write('.ed');
+          await tabtab();
+          await tick();
+          expect(output, output).to.include('.editor');
+          expect(output, output).not.to.include('exit');
+        });
+        it('autocompletion during .editor does not reset the prompt', async function () {
+          input.write('.editor\n');
+          await tick();
+          output = '';
+          expect((mongoshRepl.runtimeState().repl as any)._prompt).to.equal('');
+          input.write('db.');
+          await tabtab();
+          await tick();
+          input.write('foo\nbar\n');
+          expect((mongoshRepl.runtimeState().repl as any)._prompt).to.equal('');
+          input.write('\u0003'); // Ctrl+C for abort
+          await tick();
+          expect((mongoshRepl.runtimeState().repl as any)._prompt).to.equal(
+            'test> '
+          );
+          expect(stripAnsi(output)).to.equal('db.foo\r\nbar\r\n\r\ntest> ');
+        });
+        it('does not autocomplete tab-indented code', async function () {
+          output = '';
+          input.write('\t\tfoo');
+          await tick();
+          expect(output, output).to.equal('\t\tfoo');
+        });
+      }
+    );
 
     context('history support', function () {
       const arrowUp = '\x1b[A';
