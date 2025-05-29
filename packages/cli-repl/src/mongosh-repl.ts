@@ -49,7 +49,7 @@ import { Script, createContext, runInContext } from 'vm';
 import { installPasteSupport } from './repl-paste-support';
 import util from 'util';
 
-import { MongoDBAutocompleter } from '@mongodb-js/mongodb-ts-autocomplete';
+import type { MongoDBAutocompleter } from '@mongodb-js/mongodb-ts-autocomplete';
 
 declare const __non_webpack_require__: any;
 
@@ -439,21 +439,21 @@ class MongoshNodeRepl implements EvaluationListener {
     this.outputFinishString += installPasteSupport(repl);
 
     const origReplCompleter = promisify(repl.completer.bind(repl)); // repl.completer is callback-style
-    let newMongoshCompleter: MongoDBAutocompleter;
+
+    let newMongoshCompleter: MongoDBAutocompleter | undefined;
     let oldMongoshCompleter: (
       line: string
     ) => Promise<[string[], string, 'exclusive'] | [string[], string]>;
+
     if (process.env.USE_NEW_AUTOCOMPLETE) {
-      const autocompletionContext = instanceState.getAutocompletionContext();
-      newMongoshCompleter = new MongoDBAutocompleter({
-        context: autocompletionContext,
-      });
+      // we will lazily instantiate the new autocompleter on first use
     } else {
       oldMongoshCompleter = completer.bind(
         null,
         instanceState.getAutocompleteParameters()
       );
     }
+
     const innerCompleter = async (
       text: string
     ): Promise<[string[], string]> => {
@@ -468,6 +468,20 @@ class MongoshNodeRepl implements EvaluationListener {
         })(),
         (async () => {
           if (process.env.USE_NEW_AUTOCOMPLETE) {
+            if (!newMongoshCompleter) {
+              // only import the autocompleter code the first time we need it to
+              // hide the time it takes from the initial startup time
+              const { MongoDBAutocompleter } = await import(
+                '@mongodb-js/mongodb-ts-autocomplete'
+              );
+
+              const autocompletionContext =
+                instanceState.getAutocompletionContext();
+              newMongoshCompleter = new MongoDBAutocompleter({
+                context: autocompletionContext,
+              });
+            }
+
             const results = await newMongoshCompleter.autocomplete(text);
             const transformed = transformAutocompleteResults(text, results);
             return transformed;
