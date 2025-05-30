@@ -73,6 +73,8 @@ type Mutable<T> = {
   -readonly [P in keyof T]: T[P];
 };
 
+let nextId = 1;
+
 @shellApiClassDefault
 @classPlatforms(['CLI'])
 export default class Mongo<
@@ -81,6 +83,7 @@ export default class Mongo<
   private __serviceProvider: ServiceProvider | null = null;
   public readonly _databases: Record<StringKey<M>, DatabaseWithSchema<M>> =
     Object.create(null);
+  private _connectionId: number;
   public _instanceState: ShellInstanceState;
   public _connectionInfo: ConnectionInfo;
   private _explicitEncryptionOnly = false;
@@ -97,6 +100,7 @@ export default class Mongo<
     sp?: ServiceProvider
   ) {
     super();
+    this._connectionId = nextId++;
     this._instanceState = instanceState;
     if (sp) {
       this.__serviceProvider = sp;
@@ -297,6 +301,10 @@ export default class Mongo<
     return this._getDb(db as StringKey<M>).getCollection(
       coll
     ) as CollectionWithSchema<M, M[KD], M[KD][KC]>;
+  }
+
+  _getConnectionId(): string {
+    return `connection_${this._connectionId}`;
   }
 
   getURI(): string {

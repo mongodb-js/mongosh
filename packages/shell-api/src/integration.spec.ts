@@ -2772,6 +2772,44 @@ describe('Shell API (integration)', function () {
       });
     });
 
+    describe('getAutocompletionContext', function () {
+      beforeEach(async function () {
+        // Make sure the collection is present so it is included in autocompletion.
+        await collection.insertOne({});
+        // Make sure 'database' is the current db in the eyes of the instance state object.
+        instanceState.setDbFunc(database);
+      });
+
+      it('returns information for autocomplete', async function () {
+        const context = instanceState.getAutocompletionContext();
+        const { connectionId, databaseName } =
+          context.currentDatabaseAndConnection();
+        const databaseNames = await context.databasesForConnection(
+          connectionId
+        );
+        expect(databaseNames).to.include(database.getName());
+        const collectionNames = await context.collectionsForDatabase(
+          connectionId,
+          databaseName
+        );
+        expect(collectionNames).to.include(collection.getName());
+        const schema = await context.schemaInformationForCollection(
+          connectionId,
+          database.getName(),
+          collection.getName()
+        );
+        expect(schema).to.deep.equal({
+          bsonType: 'object',
+          properties: {
+            _id: {
+              bsonType: 'objectId',
+            },
+          },
+          required: ['_id'],
+        });
+      });
+    });
+
     describe('getAutocompleteParameters', function () {
       let connectionString: string;
       beforeEach(async function () {
