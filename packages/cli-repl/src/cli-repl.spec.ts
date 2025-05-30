@@ -2620,11 +2620,6 @@ describe('CliRepl', function () {
       });
 
       it('completes shell commands', async function () {
-        if (process.env.USE_NEW_AUTOCOMPLETE) {
-          // TODO(MONGOSH-2035): not supported yet
-          this.skip();
-        }
-
         input.write('const dSomeVariableStartingWithD = 10;\n');
         await waitEval(cliRepl.bus);
 
@@ -2636,11 +2631,6 @@ describe('CliRepl', function () {
       });
 
       it('completes use <db>', async function () {
-        if (process.env.USE_NEW_AUTOCOMPLETE) {
-          // TODO(MONGOSH-2035): not supported yet
-          this.skip();
-        }
-
         if (!hasDatabaseNames) return this.skip();
         input.write('db.getMongo()._listDatabases()\n'); // populate database cache
         await waitEval(cliRepl.bus);

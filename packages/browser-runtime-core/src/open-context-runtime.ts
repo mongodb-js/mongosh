@@ -29,7 +29,6 @@ export interface InterpreterEnvironment {
  */
 export class OpenContextRuntime implements Runtime {
   private interpreterEnvironment: InterpreterEnvironment;
-  // TODO(MONGOSH-2205): we have to also port this to the new autocomplete
   private autocompleter: ShellApiAutocompleter | null = null;
   private shellEvaluator: ShellEvaluator;
   private instanceState: ShellInstanceState;
@@ -53,9 +52,7 @@ export class OpenContextRuntime implements Runtime {
 
   async getCompletions(code: string): Promise<Completion[]> {
     if (!this.autocompleter) {
-      this.autocompleter = new ShellApiAutocompleter(
-        this.instanceState.getAutocompleteParameters()
-      );
+      this.autocompleter = new ShellApiAutocompleter(this.instanceState);
       this.updatedConnectionInfoPromise ??=
         this.instanceState.fetchConnectionInfo();
       await this.updatedConnectionInfoPromise;
