@@ -417,7 +417,10 @@ export class ShellInstanceState {
 
   public getAutocompletionContext(): AutocompletionContext {
     return {
-      currentDatabaseAndConnection: () => {
+      currentDatabaseAndConnection: (): {
+        connectionId: string;
+        databaseName: string;
+      } => {
         return {
           connectionId: this.currentDb.getMongo()._getConnectionId(),
           databaseName: this.currentDb.getName(),
@@ -470,12 +473,22 @@ export class ShellInstanceState {
         collectionName: string
       ): Promise<JSONSchema> => {
         const mongo = this.getMongoByConnectionId(connectionId);
-        const docs = await mongo
-          ._getDb(databaseName)
-          .getCollection(collectionName)
-          ._getSampleDocsForCompletion();
-        const schemaAccessor = await analyzeDocuments(docs);
+        let docs: Document[] = [];
+        try {
+          docs = await mongo
+            ._getDb(databaseName)
+            .getCollection(collectionName)
+            ._getSampleDocsForCompletion();
+        } catch (err: any) {
+          if (
+            err?.code !== ShellApiErrors.NotConnected &&
+            err?.codeName !== 'Unauthorized'
+          ) {
+            throw err;
+          }
+        }
 
+        const schemaAccessor = await analyzeDocuments(docs);
         const schema = await schemaAccessor.getMongoDBJsonSchema();
         return schema;
       },

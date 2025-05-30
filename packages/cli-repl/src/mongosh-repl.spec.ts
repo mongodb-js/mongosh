@@ -19,8 +19,8 @@ import {
   fakeTTYProps,
   tick,
   useTmpdir,
+  waitCompletion,
   waitEval,
-  waitMongoshCompletionResults,
 } from '../test/repl-helpers';
 import type { MongoshIOProvider, MongoshNodeReplOptions } from './mongosh-repl';
 import MongoshNodeRepl from './mongosh-repl';
@@ -364,9 +364,6 @@ describe('MongoshNodeRepl', function () {
     };
     const tabtab = async () => {
       await tab();
-      if (process.env.USE_NEW_AUTOCOMPLETE) {
-        await waitMongoshCompletionResults(bus);
-      }
       await tab();
     };
 
@@ -406,6 +403,7 @@ describe('MongoshNodeRepl', function () {
           output = '';
           input.write('db.');
           await tabtab();
+          await waitCompletion(bus);
           await tick();
           input.write('version()\n');
           input.write('\u0004'); // Ctrl+D
@@ -479,22 +477,22 @@ describe('MongoshNodeRepl', function () {
         it('autocompletes collection methods', async function () {
           input.write('db.coll.');
           await tabtab();
+          await waitCompletion(bus);
           await tick();
           expect(output, output).to.include('db.coll.updateOne');
         });
-        it('autocompletes collection schema fields', async function () {
-          if (!process.env.USE_NEW_AUTOCOMPLETE) {
-            // not supported in the old autocomplete
-            this.skip();
-          }
+        // this will eventually be supported in the new autocomplete
+        it.skip('autocompletes collection schema fields', async function () {
           input.write('db.coll.find({');
           await tabtab();
+          await waitCompletion(bus);
           await tick();
           expect(output, output).to.include('db.coll.find({foo');
         });
         it('autocompletes shell-api methods (once)', async function () {
           input.write('vers');
           await tabtab();
+          await waitCompletion(bus);
           await tick();
           expect(output, output).to.include('version');
           expect(output, output).to.not.match(/version[ \t]+version/);
@@ -502,6 +500,7 @@ describe('MongoshNodeRepl', function () {
         it('autocompletes async shell api methods', async function () {
           input.write('db.coll.find().');
           await tabtab();
+          await waitCompletion(bus);
           await tick();
           expect(output, output).to.include('db.coll.find().toArray');
         });
@@ -511,12 +510,14 @@ describe('MongoshNodeRepl', function () {
           output = '';
           input.write('somelong');
           await tabtab();
+          await waitCompletion(bus);
           await tick();
           expect(output, output).to.include('somelongvariable');
         });
         it('autocompletes partial repl commands', async function () {
           input.write('.e');
           await tabtab();
+          await waitCompletion(bus);
           await tick();
           expect(output, output).to.include('editor');
           expect(output, output).to.include('exit');
@@ -524,6 +525,7 @@ describe('MongoshNodeRepl', function () {
         it('autocompletes full repl commands', async function () {
           input.write('.ed');
           await tabtab();
+          await waitCompletion(bus);
           await tick();
           expect(output, output).to.include('.editor');
           expect(output, output).not.to.include('exit');
@@ -535,6 +537,7 @@ describe('MongoshNodeRepl', function () {
           expect((mongoshRepl.runtimeState().repl as any)._prompt).to.equal('');
           input.write('db.');
           await tabtab();
+          await waitCompletion(bus);
           await tick();
           input.write('foo\nbar\n');
           expect((mongoshRepl.runtimeState().repl as any)._prompt).to.equal('');

@@ -71,26 +71,10 @@ async function waitEval(bus: MongoshBus) {
 }
 
 async function waitCompletion(bus: MongoshBus) {
-  await waitBus(bus, 'mongosh:autocompletion-complete');
-  await tick();
-}
-
-async function waitMongoshCompletionResults(bus: MongoshBus) {
-  // Waiting for the completion results can "time out" if an async action such
-  // as listing the databases or collections or loading the schema takes longer
-  // than 200ms (at the time of writing), but by the next try or at least
-  // eventually the action should complete and then the next autocomplete call
-  // will return the cached result.
-  let found = false;
-  while (!found) {
-    const [, mongoshResults] = await waitBus(
-      bus,
-      'mongosh:autocompletion-complete'
-    );
-    if (mongoshResults.length === 0) {
-      found = true;
-    }
-  }
+  await Promise.race([
+    waitBus(bus, 'mongosh:autocompletion-complete'),
+    new Promise((resolve) => setTimeout(resolve, 5000)?.unref?.()),
+  ]);
   await tick();
 }
 
@@ -125,7 +109,6 @@ export {
   waitBus,
   waitEval,
   waitCompletion,
-  waitMongoshCompletionResults,
   fakeTTYProps,
   readReplLogFile,
 };

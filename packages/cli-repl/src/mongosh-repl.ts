@@ -482,6 +482,11 @@ class MongoshNodeRepl implements EvaluationListener {
               });
             }
 
+            // mongodb-ts-autocomplete requires a connection and a schema
+            if (this.shellCliOptions.nodb) {
+              return [[], text];
+            }
+
             const results = await newMongoshCompleter.autocomplete(text);
             const transformed = transformAutocompleteResults(text, results);
             return transformed;

@@ -336,7 +336,7 @@ export interface MongoshBusEventsMap extends ConnectEventMap {
    * _ONLY AVAILABLE FOR TESTING._
    */
   'mongosh:autocompletion-complete': (
-    resplResults: string[],
+    replResults: string[],
     mongoshResults: string[]
   ) => void;
   /**
