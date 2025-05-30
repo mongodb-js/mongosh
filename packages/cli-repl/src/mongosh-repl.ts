@@ -49,7 +49,10 @@ import { Script, createContext, runInContext } from 'vm';
 import { installPasteSupport } from './repl-paste-support';
 import util from 'util';
 
-import type { MongoDBAutocompleter } from '@mongodb-js/mongodb-ts-autocomplete';
+import type {
+  AutocompletionContext,
+  MongoDBAutocompleter,
+} from '@mongodb-js/mongodb-ts-autocomplete';
 
 declare const __non_webpack_require__: any;
 
@@ -138,6 +141,23 @@ function transformAutocompleteResults(
   results: { result: string }[]
 ): [string[], string] {
   return [results.map((result) => result.result), line];
+}
+
+function hasActiveConnection(
+  autocompletionContext: AutocompletionContext
+): boolean {
+  try {
+    // mongodb-ts-autocomplete uses this to find the active connection. If it
+    // errors, then it means that (at least right now) it is not possible for us
+    // to determine the active connection.
+    autocompletionContext.currentDatabaseAndConnection();
+    return true;
+  } catch (err: any) {
+    if (err.name === 'MongoshInvalidInputError') {
+      return false;
+    }
+    throw err;
+  }
 }
 
 /**
@@ -440,6 +460,7 @@ class MongoshNodeRepl implements EvaluationListener {
 
     const origReplCompleter = promisify(repl.completer.bind(repl)); // repl.completer is callback-style
 
+    let autocompletionContext: AutocompletionContext;
     let newMongoshCompleter: MongoDBAutocompleter | undefined;
     let oldMongoshCompleter: (
       line: string
@@ -475,15 +496,14 @@ class MongoshNodeRepl implements EvaluationListener {
                 '@mongodb-js/mongodb-ts-autocomplete'
               );
 
-              const autocompletionContext =
-                instanceState.getAutocompletionContext();
+              autocompletionContext = instanceState.getAutocompletionContext();
               newMongoshCompleter = new MongoDBAutocompleter({
                 context: autocompletionContext,
               });
             }
 
             // mongodb-ts-autocomplete requires a connection and a schema
-            if (this.shellCliOptions.nodb) {
+            if (!hasActiveConnection(autocompletionContext)) {
               return [[], text];
             }
 
