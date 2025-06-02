@@ -96,7 +96,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
   /** @internal Used for awaiting the telemetry setup in tests. */
   public setupTelemetryPromise: Promise<void> = Promise.resolve();
 
-  private readonly telemetrySetup: AbortController = new AbortController();
+  private readonly telemetrySetupAbort: AbortController = new AbortController();
 
   constructor({
     bus,
@@ -132,7 +132,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
 
     // Abort setup, which will cause the device ID to be set to 'unknown'
     // and run any remaining telemetry events
-    this.telemetrySetup.abort();
+    this.telemetrySetupAbort.abort();
   }
 
   private async setupTelemetry(): Promise<void> {
@@ -141,9 +141,14 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       const getMachineId = require('native-machine-id').getMachineId;
       this.deviceId = await getDeviceId({
         getMachineId: () => getMachineId({ raw: true }),
-        onError: (_, error) =>
-          this.bus.emit('mongosh:error', error, 'telemetry'),
-        abortSignal: this.telemetrySetup.signal,
+        onError: (reason, error) => {
+          if (reason === 'abort') {
+            return;
+          }
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+          this.bus.emit('mongosh:error', error, 'telemetry');
+        },
+        abortSignal: this.telemetrySetupAbort.signal,
       });
     }
 
