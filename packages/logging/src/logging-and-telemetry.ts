@@ -95,8 +95,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
   /** @internal */
   public setupTelemetryPromise: Promise<void> = Promise.resolve();
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  private resolveDeviceId: (value: string) => void = () => {};
+  private readonly abortController: AbortController = new AbortController();
 
   constructor({
     bus,
@@ -133,21 +132,19 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
     // Run any other pending events with the set or dummy log for telemetry purposes.
     this.runAndClearPendingBusEvents();
 
-    this.resolveDeviceId('unknown');
+    this.abortController.abort();
   }
 
   private async setupTelemetry(): Promise<void> {
     if (!this.deviceId) {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const getMachineId = require('native-machine-id').getMachineId;
-      const { value: deviceId, resolve: resolveDeviceId } = getDeviceId({
+      this.deviceId = await getDeviceId({
         getMachineId: () => getMachineId({ raw: true }),
-        isNodeMachineId: false,
-        onError: (error) => this.bus.emit('mongosh:error', error, 'telemetry'),
+        onError: (_, error) =>
+          this.bus.emit('mongosh:error', error, 'telemetry'),
+        abortSignal: this.abortController.signal,
       });
-
-      this.resolveDeviceId = resolveDeviceId;
-      this.deviceId = await deviceId;
     }
 
     this.runAndClearPendingTelemetryEvents();

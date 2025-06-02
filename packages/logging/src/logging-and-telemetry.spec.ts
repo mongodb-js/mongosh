@@ -254,6 +254,7 @@ describe('MongoshLoggingAndTelemetry', function () {
     });
 
     it('automatically sets up device ID for telemetry', async function () {
+      const abortController = new AbortController();
       const loggingAndTelemetry = setupLoggingAndTelemetry({
         ...testLoggingArguments,
         bus,
@@ -266,8 +267,8 @@ describe('MongoshLoggingAndTelemetry', function () {
 
       const deviceId = await getDeviceId({
         getMachineId: () => getMachineId({ raw: true }),
-        isNodeMachineId: false,
-      }).value;
+        abortSignal: abortController.signal,
+      });
 
       await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
 
