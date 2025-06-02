@@ -19,6 +19,7 @@ describe('MongoshLoggingAndTelemetry', function () {
 
   const userId = '53defe995fa47e6c13102d9d';
   const logId = '5fb3c20ee1507e894e5340f3';
+  const deviceId = 'test-device';
 
   let logger: MongoLogWriter;
 
@@ -39,7 +40,6 @@ describe('MongoshLoggingAndTelemetry', function () {
   const testLoggingArguments: Omit<MongoshLoggingAndTelemetryArguments, 'bus'> =
     {
       analytics,
-      deviceId: 'test-device',
       userTraits: {
         platform: process.platform,
         arch: process.arch,
@@ -54,6 +54,7 @@ describe('MongoshLoggingAndTelemetry', function () {
 
     loggingAndTelemetry = setupLoggingAndTelemetry({
       ...testLoggingArguments,
+      deviceId,
       bus,
     });
 
@@ -117,8 +118,8 @@ describe('MongoshLoggingAndTelemetry', function () {
         'identify',
         {
           anonymousId: userId,
-          deviceId: 'test-device',
           traits: {
+            device_id: deviceId,
             arch: process.arch,
             platform: process.platform,
             session_id: logId,
@@ -129,7 +130,6 @@ describe('MongoshLoggingAndTelemetry', function () {
         'track',
         {
           anonymousId: userId,
-          deviceId: 'test-device',
           event: 'New Connection',
           properties: {
             mongosh_version: '1.0.0',
@@ -178,8 +178,8 @@ describe('MongoshLoggingAndTelemetry', function () {
         'identify',
         {
           anonymousId: userId,
-          deviceId: 'test-device',
           traits: {
+            device_id: deviceId,
             arch: process.arch,
             platform: process.platform,
             session_id: logId,
@@ -190,7 +190,6 @@ describe('MongoshLoggingAndTelemetry', function () {
         'track',
         {
           anonymousId: userId,
-          deviceId: 'test-device',
           event: 'New Connection',
           properties: {
             mongosh_version: '1.0.0',
@@ -235,9 +234,9 @@ describe('MongoshLoggingAndTelemetry', function () {
         [
           'identify',
           {
-            deviceId: 'unknown',
             anonymousId: userId,
             traits: {
+              device_id: 'unknown',
               platform: process.platform,
               arch: process.arch,
               session_id: logId,
@@ -272,9 +271,9 @@ describe('MongoshLoggingAndTelemetry', function () {
         [
           'identify',
           {
-            deviceId,
             anonymousId: userId,
             traits: {
+              device_id: deviceId,
               platform: process.platform,
               arch: process.arch,
               session_id: logId,
@@ -299,7 +298,7 @@ describe('MongoshLoggingAndTelemetry', function () {
         ...testLoggingArguments,
         bus,
         deviceId: undefined,
-      });
+      }) as LoggingAndTelemetry;
 
       loggingAndTelemetry.attachLogger(logger);
 
@@ -310,13 +309,13 @@ describe('MongoshLoggingAndTelemetry', function () {
       expect(analyticsOutput).to.have.lengthOf(0);
 
       resolveTelemetry('1234');
-      await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
+      await loggingAndTelemetry.setupTelemetryPromise;
 
       expect(logOutput).to.have.lengthOf(1);
       expect(analyticsOutput).to.have.lengthOf(1);
 
       // Hash created from machine ID 1234
-      expect(analyticsOutput[0][1].deviceId).equals(
+      expect(loggingAndTelemetry['deviceId']).equals(
         '8c9f929608f0ef13bfd5a290e0233f283e2cc25ffefc2ad8d9ef0650eb224a52'
       );
     });
@@ -719,8 +718,8 @@ describe('MongoshLoggingAndTelemetry', function () {
         'identify',
         {
           anonymousId: userId,
-          deviceId: 'test-device',
           traits: {
+            device_id: deviceId,
             platform: process.platform,
             arch: process.arch,
             session_id: logId,
@@ -731,8 +730,8 @@ describe('MongoshLoggingAndTelemetry', function () {
         'identify',
         {
           anonymousId: userId,
-          deviceId: 'test-device',
           traits: {
+            device_id: deviceId,
             platform: process.platform,
             arch: process.arch,
             session_id: logId,
@@ -743,7 +742,6 @@ describe('MongoshLoggingAndTelemetry', function () {
         'track',
         {
           anonymousId: userId,
-          deviceId: 'test-device',
           event: 'Startup Time',
           properties: {
             is_interactive: true,
@@ -759,7 +757,6 @@ describe('MongoshLoggingAndTelemetry', function () {
         'track',
         {
           anonymousId: '53defe995fa47e6c13102d9d',
-          deviceId: 'test-device',
           event: 'Error',
           properties: {
             mongosh_version: '1.0.0',
@@ -775,7 +772,6 @@ describe('MongoshLoggingAndTelemetry', function () {
         'track',
         {
           anonymousId: '53defe995fa47e6c13102d9d',
-          deviceId: 'test-device',
           event: 'Error',
           properties: {
             mongosh_version: '1.0.0',
@@ -791,7 +787,6 @@ describe('MongoshLoggingAndTelemetry', function () {
         'track',
         {
           anonymousId: '53defe995fa47e6c13102d9d',
-          deviceId: 'test-device',
           event: 'Use',
           properties: {
             mongosh_version: '1.0.0',
@@ -803,7 +798,6 @@ describe('MongoshLoggingAndTelemetry', function () {
         'track',
         {
           anonymousId: '53defe995fa47e6c13102d9d',
-          deviceId: 'test-device',
           event: 'Show',
           properties: {
             mongosh_version: '1.0.0',
@@ -823,7 +817,6 @@ describe('MongoshLoggingAndTelemetry', function () {
             shell: true,
           },
           anonymousId: '53defe995fa47e6c13102d9d',
-          deviceId: 'test-device',
         },
       ],
       [
@@ -836,7 +829,6 @@ describe('MongoshLoggingAndTelemetry', function () {
             nested: false,
           },
           anonymousId: '53defe995fa47e6c13102d9d',
-          deviceId: 'test-device',
         },
       ],
       [
@@ -848,7 +840,6 @@ describe('MongoshLoggingAndTelemetry', function () {
             session_id: logId,
           },
           anonymousId: '53defe995fa47e6c13102d9d',
-          deviceId: 'test-device',
         },
       ],
       [
@@ -860,7 +851,6 @@ describe('MongoshLoggingAndTelemetry', function () {
             session_id: logId,
           },
           anonymousId: '53defe995fa47e6c13102d9d',
-          deviceId: 'test-device',
         },
       ],
       [
@@ -873,14 +863,12 @@ describe('MongoshLoggingAndTelemetry', function () {
             shell: true,
           },
           anonymousId: '53defe995fa47e6c13102d9d',
-          deviceId: 'test-device',
         },
       ],
       [
         'track',
         {
           anonymousId: '53defe995fa47e6c13102d9d',
-          deviceId: 'test-device',
           event: 'Snippet Install',
           properties: {
             mongosh_version: '1.0.0',
@@ -976,7 +964,6 @@ describe('MongoshLoggingAndTelemetry', function () {
         'track',
         {
           anonymousId: '53defe995fa47e6c13102d9d',
-          deviceId: 'test-device',
           event: 'Deprecated Method',
           properties: {
             mongosh_version: '1.0.0',
@@ -990,7 +977,6 @@ describe('MongoshLoggingAndTelemetry', function () {
         'track',
         {
           anonymousId: '53defe995fa47e6c13102d9d',
-          deviceId: 'test-device',
           event: 'Deprecated Method',
           properties: {
             mongosh_version: '1.0.0',
@@ -1004,7 +990,6 @@ describe('MongoshLoggingAndTelemetry', function () {
         'track',
         {
           anonymousId: '53defe995fa47e6c13102d9d',
-          deviceId: 'test-device',
           event: 'Deprecated Method',
           properties: {
             mongosh_version: '1.0.0',
@@ -1018,7 +1003,6 @@ describe('MongoshLoggingAndTelemetry', function () {
         'track',
         {
           anonymousId: '53defe995fa47e6c13102d9d',
-          deviceId: 'test-device',
           event: 'API Call',
           properties: {
             mongosh_version: '1.0.0',
@@ -1033,7 +1017,6 @@ describe('MongoshLoggingAndTelemetry', function () {
         'track',
         {
           anonymousId: '53defe995fa47e6c13102d9d',
-          deviceId: 'test-device',
           event: 'API Call',
           properties: {
             mongosh_version: '1.0.0',
@@ -1188,7 +1171,6 @@ describe('MongoshLoggingAndTelemetry', function () {
         'track',
         {
           anonymousId: undefined,
-          deviceId: 'test-device',
           event: 'New Connection',
           properties: {
             mongosh_version: '1.0.0',

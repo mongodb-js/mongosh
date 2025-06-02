@@ -267,6 +267,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
 
     const getUserTraits = (): AnalyticsIdentifyMessage['traits'] => ({
       ...this.userTraits,
+      device_id: this.deviceId ?? 'unknown',
       session_id: this.log.logId,
     });
 
@@ -277,7 +278,6 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
 
     const getTelemetryUserIdentity = (): MongoshAnalyticsIdentity => {
       return {
-        deviceId: this.deviceId,
         anonymousId:
           this.busEventState.telemetryAnonymousId ??
           (this.busEventState.userId as string),
