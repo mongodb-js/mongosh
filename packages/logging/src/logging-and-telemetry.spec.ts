@@ -288,6 +288,50 @@ describe('MongoshLoggingAndTelemetry', function () {
       ]);
     });
 
+    it('resolves device ID setup when flushed', async function () {
+      const loggingAndTelemetry = setupLoggingAndTelemetry({
+        ...testLoggingArguments,
+        bus,
+        deviceId: undefined,
+      });
+      sinon
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        .stub(require('native-machine-id'), 'getMachineId')
+        .resolves(
+          new Promise((resolve) => setTimeout(resolve, 10_000).unref())
+        );
+
+      loggingAndTelemetry.attachLogger(logger);
+
+      // Start the device ID setup
+      const setupPromise = (loggingAndTelemetry as LoggingAndTelemetry)
+        .setupTelemetryPromise;
+
+      // Flush before it completes
+      loggingAndTelemetry.flush();
+
+      // Emit an event that would trigger analytics
+      bus.emit('mongosh:new-user', { userId, anonymousId: userId });
+
+      await setupPromise;
+
+      // Should still identify but with unknown device ID
+      expect(analyticsOutput).deep.equal([
+        [
+          'identify',
+          {
+            deviceId: 'unknown',
+            anonymousId: userId,
+            traits: {
+              platform: process.platform,
+              arch: process.arch,
+              session_id: logId,
+            },
+          },
+        ],
+      ]);
+    });
+
     it('only delays analytic outputs, not logging', async function () {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       let resolveTelemetry: (value: unknown) => void = () => {};

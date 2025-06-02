@@ -92,10 +92,11 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
   private isBufferingTelemetryEvents = false;
 
   private deviceId: string | undefined;
-  /** @internal */
+
+  /** @internal Used for awaiting the telemetry setup in tests. */
   public setupTelemetryPromise: Promise<void> = Promise.resolve();
 
-  private readonly abortController: AbortController = new AbortController();
+  private readonly telemetrySetup: AbortController = new AbortController();
 
   constructor({
     bus,
@@ -126,13 +127,12 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
   }
 
   public flush(): void {
-    // Run any telemetry events even if device ID hasn't been resolved yet
-    this.runAndClearPendingTelemetryEvents();
-
     // Run any other pending events with the set or dummy log for telemetry purposes.
     this.runAndClearPendingBusEvents();
 
-    this.abortController.abort();
+    // Abort setup, which will cause the device ID to be set to 'unknown'
+    // and run any remaining telemetry events
+    this.telemetrySetup.abort();
   }
 
   private async setupTelemetry(): Promise<void> {
@@ -143,7 +143,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         getMachineId: () => getMachineId({ raw: true }),
         onError: (_, error) =>
           this.bus.emit('mongosh:error', error, 'telemetry'),
-        abortSignal: this.abortController.signal,
+        abortSignal: this.telemetrySetup.signal,
       });
     }
 
