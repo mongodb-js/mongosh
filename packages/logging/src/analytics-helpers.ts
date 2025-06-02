@@ -1,9 +1,9 @@
 import fs from 'fs';
 import path from 'path';
-import type { IdentifyParams as SegmentIdentity } from '@segment/analytics-node';
+import type { Analytics as SegmentAnalytics } from '@segment/analytics-node';
 
 export type MongoshAnalyticsIdentity = Pick<
-  SegmentIdentity,
+  Parameters<SegmentAnalytics['identify']>[0],
   'userId' | 'anonymousId'
 >;
 
