@@ -7,9 +7,7 @@ import type {
 
 type Timestamp = SegmentTrackParams['timestamp'];
 
-export type MongoshAnalyticsIdentity = SegmentIdentifyParams & {
-  anonymousId: string;
-};
+export type MongoshAnalyticsIdentity = SegmentIdentifyParams;
 
 export type AnalyticsIdentifyMessage = MongoshAnalyticsIdentity & {
   traits: {
@@ -281,7 +279,8 @@ export class ThrottledAnalytics implements MongoshAnalytics {
       throw new Error('Identify can only be called once per user session');
     }
 
-    this.currentUserId = message.userId ?? message.anonymousId;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    this.currentUserId = message.userId ?? message.anonymousId!;
 
     this.restorePromise = this.restoreThrottleState().then((enabled) => {
       if (!enabled) {
