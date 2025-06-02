@@ -137,19 +137,24 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
 
   private async setupTelemetry(): Promise<void> {
     if (!this.deviceId) {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const getMachineId = require('native-machine-id').getMachineId;
-      this.deviceId = await getDeviceId({
-        getMachineId: () => getMachineId({ raw: true }),
-        onError: (reason, error) => {
-          if (reason === 'abort') {
-            return;
-          }
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          this.bus.emit('mongosh:error', error, 'telemetry');
-        },
-        abortSignal: this.telemetrySetupAbort.signal,
-      });
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const getMachineId = require('native-machine-id').getMachineId;
+        this.deviceId = await getDeviceId({
+          getMachineId: () => getMachineId({ raw: true }),
+          onError: (reason, error) => {
+            if (reason === 'abort') {
+              return;
+            }
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+            this.bus.emit('mongosh:error', error, 'telemetry');
+          },
+          abortSignal: this.telemetrySetupAbort.signal,
+        });
+      } catch (error) {
+        this.deviceId = 'unknown';
+        this.bus.emit('mongosh:error', error as Error, 'telemetry');
+      }
     }
 
     this.runAndClearPendingTelemetryEvents();
