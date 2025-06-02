@@ -2,9 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import type { IdentifyParams as SegmentIdentity } from '@segment/analytics-node';
 
-export type MongoshAnalyticsIdentity = Omit<
+export type MongoshAnalyticsIdentity = Pick<
   SegmentIdentity,
-  'context' | 'traits' | 'timestamp'
+  'userId' | 'anonymousId'
 >;
 
 export type AnalyticsIdentifyMessage = MongoshAnalyticsIdentity & {
