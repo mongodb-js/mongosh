@@ -1,16 +1,23 @@
 import fs from 'fs';
 import path from 'path';
-import type { IdentifyParams as SegmentIndetifyParams } from '@segment/analytics-node';
+import type {
+  IdentifyParams as SegmentIdentifyParams,
+  TrackParams as SegmentTrackParams,
+} from '@segment/analytics-node';
 
-export type MongoshAnalyticsIdentity = SegmentIndetifyParams;
+type Timestamp = SegmentTrackParams['timestamp'];
+
+export type MongoshAnalyticsIdentity = SegmentIdentifyParams & {
+  anonymousId: string;
+};
 
 export type AnalyticsIdentifyMessage = MongoshAnalyticsIdentity & {
   traits: {
     platform: string;
     session_id: string;
     device_id: string;
-  } & SegmentIndetifyParams['traits'];
-  timestamp?: Date & SegmentIndetifyParams['timestamp'];
+  } & SegmentIdentifyParams['traits'];
+  timestamp?: SegmentIdentifyParams['timestamp'];
 };
 
 export type AnalyticsTrackMessage = MongoshAnalyticsIdentity & {
@@ -20,7 +27,7 @@ export type AnalyticsTrackMessage = MongoshAnalyticsIdentity & {
     session_id: string;
     [key: string]: any;
   };
-  timestamp?: Date;
+  timestamp?: Timestamp;
 };
 
 /**
@@ -88,10 +95,14 @@ type AnalyticsEventsQueueItem =
   | ['identify', Parameters<MongoshAnalytics['identify']>]
   | ['track', Parameters<MongoshAnalytics['track']>];
 
-function addTimestamp<T extends { timestamp?: Date }>(
+function addTimestamp<T extends { timestamp?: Timestamp }>(
   message: T
-): T & { timestamp: Date } {
-  return { ...message, timestamp: message.timestamp ?? new Date() };
+): T & { timestamp: Timestamp } {
+  const timestampDate =
+    message.timestamp instanceof Date || message.timestamp === undefined
+      ? message.timestamp
+      : new Date(message.timestamp);
+  return { ...message, timestamp: timestampDate };
 }
 
 /**
@@ -271,8 +282,7 @@ export class ThrottledAnalytics implements MongoshAnalytics {
       throw new Error('Identify can only be called once per user session');
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    this.currentUserId = message.userId ?? message.anonymousId!;
+    this.currentUserId = message.userId ?? message.anonymousId;
 
     this.restorePromise = this.restoreThrottleState().then((enabled) => {
       if (!enabled) {
