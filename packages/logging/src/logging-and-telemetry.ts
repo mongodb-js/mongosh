@@ -53,40 +53,7 @@ import type {
   MongoshLoggingAndTelemetryArguments,
   MongoshTrackingProperties,
 } from './types';
-import { createHmac } from 'crypto';
-
-/**
- * @returns A hashed, unique identifier for the running device or `"unknown"` if not known.
- */
-export async function getDeviceId({
-  onError,
-}: {
-  onError?: (error: Error) => void;
-} = {}): Promise<string | 'unknown'> {
-  try {
-    // Create a hashed format from the all uppercase version of the machine ID
-    // to match it exactly with the denisbrodbeck/machineid library that Atlas CLI uses.
-    const originalId: string =
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      await require('native-machine-id').getMachineId({
-        raw: true,
-      });
-
-    if (!originalId) {
-      return 'unknown';
-    }
-    const hmac = createHmac('sha256', originalId);
-
-    /** This matches the message used to create the hashes in Atlas CLI */
-    const DEVICE_ID_HASH_MESSAGE = 'atlascli';
-
-    hmac.update(DEVICE_ID_HASH_MESSAGE);
-    return hmac.digest('hex');
-  } catch (error) {
-    onError?.(error as Error);
-    return 'unknown';
-  }
-}
+import { getDeviceId } from '@mongodb-js/device-id';
 
 export function setupLoggingAndTelemetry(
   props: MongoshLoggingAndTelemetryArguments
@@ -125,11 +92,11 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
   private isBufferingTelemetryEvents = false;
 
   private deviceId: string | undefined;
-  /** @internal */
+
+  /** @internal Used for awaiting the telemetry setup in tests. */
   public setupTelemetryPromise: Promise<void> = Promise.resolve();
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  private resolveDeviceId: (value: string) => void = () => {};
+  private readonly telemetrySetupAbort: AbortController = new AbortController();
 
   constructor({
     bus,
@@ -160,26 +127,34 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
   }
 
   public flush(): void {
-    // Run any telemetry events even if device ID hasn't been resolved yet
-    this.runAndClearPendingTelemetryEvents();
-
     // Run any other pending events with the set or dummy log for telemetry purposes.
     this.runAndClearPendingBusEvents();
 
-    this.resolveDeviceId('unknown');
+    // Abort setup, which will cause the device ID to be set to 'unknown'
+    // and run any remaining telemetry events
+    this.telemetrySetupAbort.abort();
   }
 
   private async setupTelemetry(): Promise<void> {
     if (!this.deviceId) {
-      this.deviceId = await Promise.race([
-        getDeviceId({
-          onError: (error) =>
-            this.bus.emit('mongosh:error', error, 'telemetry'),
-        }),
-        new Promise<string>((resolve) => {
-          this.resolveDeviceId = resolve;
-        }),
-      ]);
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const getMachineId = require('native-machine-id').getMachineId;
+        this.deviceId = await getDeviceId({
+          getMachineId: () => getMachineId({ raw: true }),
+          onError: (reason, error) => {
+            if (reason === 'abort') {
+              return;
+            }
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+            this.bus.emit('mongosh:error', error, 'telemetry');
+          },
+          abortSignal: this.telemetrySetupAbort.signal,
+        });
+      } catch (error) {
+        this.deviceId = 'unknown';
+        this.bus.emit('mongosh:error', error as Error, 'telemetry');
+      }
     }
 
     this.runAndClearPendingTelemetryEvents();
