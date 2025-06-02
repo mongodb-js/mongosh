@@ -2,18 +2,15 @@ import fs from 'fs';
 import path from 'path';
 import type { IdentifyParams as SegmentIndetifyParams } from '@segment/analytics-node';
 
-export type MongoshAnalyticsIdentity = Pick<
-  SegmentIndetifyParams,
-  'userId' | 'anonymousId'
->;
+export type MongoshAnalyticsIdentity = SegmentIndetifyParams;
 
 export type AnalyticsIdentifyMessage = MongoshAnalyticsIdentity & {
   traits: {
     platform: string;
     session_id: string;
     device_id: string;
-  };
-  timestamp?: Date;
+  } & SegmentIndetifyParams['traits'];
+  timestamp?: Date & SegmentIndetifyParams['timestamp'];
 };
 
 export type AnalyticsTrackMessage = MongoshAnalyticsIdentity & {
