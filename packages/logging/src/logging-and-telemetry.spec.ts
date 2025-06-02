@@ -320,9 +320,9 @@ describe('MongoshLoggingAndTelemetry', function () {
         [
           'identify',
           {
-            deviceId: 'unknown',
             anonymousId: userId,
             traits: {
+              device_id: 'unknown',
               platform: process.platform,
               arch: process.arch,
               session_id: logId,
