@@ -17,7 +17,6 @@ export type AnalyticsIdentifyMessage = MongoshAnalyticsIdentity & {
     session_id: string;
     device_id: string;
   } & SegmentIdentifyParams['traits'];
-  timestamp?: SegmentIdentifyParams['timestamp'];
 };
 
 export type AnalyticsTrackMessage = MongoshAnalyticsIdentity & {
