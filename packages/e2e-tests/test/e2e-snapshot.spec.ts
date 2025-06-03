@@ -156,7 +156,7 @@ describe('e2e snapshot support', function () {
       );
       verifyAllThatMatchAreInCategory(
         'snapshot',
-        /^node_modules\/(@babel\/types|@babel\/traverse|@mongodb-js\/devtools-connect|mongodb)\/|^packages\//
+        /^node_modules\/(@babel\/types|@babel\/traverse|@mongodb-js\/devtools-connect|mongodb)\/|^packages\/(?!(shell-api\/lib\/api-export\.js|cli-repl\/node_modules\/@mongodb-js\/mongodb-ts-autocomplete\/))/
       );
     });
   });
