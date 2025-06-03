@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/shell-api",
-  "version": "3.11.0",
+  "version": "3.13.0",
   "description": "MongoDB Shell API Classes Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -65,7 +65,7 @@
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "@mongosh/types": "3.6.2",
+    "@mongosh/types": "3.8.0",
     "bson": "^6.10.3",
     "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
