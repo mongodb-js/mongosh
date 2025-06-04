@@ -52,6 +52,7 @@ describe('Bulk API', function () {
           isDirectShellCommand: false,
           acceptsRawInput: false,
           shellCommandCompleter: undefined,
+          newShellCommandCompleter: undefined,
         });
       });
     });
@@ -272,6 +273,7 @@ describe('Bulk API', function () {
           isDirectShellCommand: false,
           acceptsRawInput: false,
           shellCommandCompleter: undefined,
+          newShellCommandCompleter: undefined,
         });
       });
     });
