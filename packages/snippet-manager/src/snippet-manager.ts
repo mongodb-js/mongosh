@@ -85,7 +85,7 @@ async function packBSON(data: any): Promise<Buffer> {
 
 function completeSnippetsCommand(
   args: string[],
-  snippets: SnippetManager['snippets']
+  snippets: SnippetDescription[]
 ) {
   const plainCommands = [
     'update',
