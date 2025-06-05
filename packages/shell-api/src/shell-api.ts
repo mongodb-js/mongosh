@@ -145,16 +145,11 @@ async function newUseCompleter(
 ): Promise<string[] | undefined> {
   if (args.length > 2) return undefined;
 
-  let connectionId: string;
-
-  try {
-    ({ connectionId } = context.currentDatabaseAndConnection());
-  } catch (err: any) {
-    if (err.name === 'MongoshInvalidInputError') {
-      return [];
-    }
-    throw err;
+  const dbAndConnection = context.currentDatabaseAndConnection();
+  if (!dbAndConnection) {
+    return [];
   }
+  const { connectionId } = dbAndConnection;
 
   const dbNames = await context.databasesForConnection(connectionId);
 
