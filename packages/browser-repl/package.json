@@ -114,7 +114,7 @@
     "util": "^0.12.5",
     "webpack": "^5.99.8",
     "webpack-cli": "^4.3.1",
-    "webpack-dev-server": "^4.11.1"
+    "webpack-dev-server": "^5.2.1"
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "*",
