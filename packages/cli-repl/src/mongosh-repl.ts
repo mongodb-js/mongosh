@@ -1,4 +1,5 @@
-import completer from '@mongosh/autocomplete';
+import type { CompletionResults } from '@mongosh/autocomplete';
+import { completer, initNewAutocompleter } from '@mongosh/autocomplete';
 import { MongoshInternalError, MongoshWarning } from '@mongosh/errors';
 import { changeHistory } from '@mongosh/history';
 import type {
@@ -48,8 +49,6 @@ import type { Context } from 'vm';
 import { Script, createContext, runInContext } from 'vm';
 import { installPasteSupport } from './repl-paste-support';
 import util from 'util';
-
-import type { MongoDBAutocompleter } from '@mongodb-js/mongodb-ts-autocomplete';
 
 declare const __non_webpack_require__: any;
 
@@ -132,13 +131,6 @@ type GreetingDetails = {
 type Mutable<T> = {
   -readonly [P in keyof T]: T[P];
 };
-
-function transformAutocompleteResults(
-  line: string,
-  results: { result: string }[]
-): [string[], string] {
-  return [results.map((result) => result.result), line];
-}
 
 /**
  * An instance of a `mongosh` REPL, without any of the actual I/O.
@@ -440,18 +432,14 @@ class MongoshNodeRepl implements EvaluationListener {
 
     const origReplCompleter = promisify(repl.completer.bind(repl)); // repl.completer is callback-style
 
-    let newMongoshCompleter: MongoDBAutocompleter | undefined;
-    let oldMongoshCompleter: (
-      line: string
-    ) => Promise<[string[], string, 'exclusive'] | [string[], string]>;
+    let newMongoshCompleter: (line: string) => Promise<CompletionResults>;
+    let oldMongoshCompleter: (line: string) => Promise<CompletionResults>;
 
     if (process.env.USE_NEW_AUTOCOMPLETE) {
       // we will lazily instantiate the new autocompleter on first use
     } else {
-      oldMongoshCompleter = completer.bind(
-        null,
-        instanceState.getAutocompleteParameters()
-      );
+      const autocompleteParams = instanceState.getAutocompleteParameters();
+      oldMongoshCompleter = completer.bind(null, autocompleteParams);
     }
 
     const innerCompleter = async (
@@ -469,22 +457,10 @@ class MongoshNodeRepl implements EvaluationListener {
         (async () => {
           if (process.env.USE_NEW_AUTOCOMPLETE) {
             if (!newMongoshCompleter) {
-              // only import the autocompleter code the first time we need it to
-              // hide the time it takes from the initial startup time
-              const { MongoDBAutocompleter } = await import(
-                '@mongodb-js/mongodb-ts-autocomplete'
-              );
-
-              const autocompletionContext =
-                instanceState.getAutocompletionContext();
-              newMongoshCompleter = new MongoDBAutocompleter({
-                context: autocompletionContext,
-              });
+              newMongoshCompleter = await initNewAutocompleter(instanceState);
             }
 
-            const results = await newMongoshCompleter.autocomplete(text);
-            const transformed = transformAutocompleteResults(text, results);
-            return transformed;
+            return newMongoshCompleter(text);
           } else {
             return oldMongoshCompleter(text);
           }

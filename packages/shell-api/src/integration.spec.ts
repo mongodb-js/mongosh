@@ -2782,8 +2782,11 @@ describe('Shell API (integration)', function () {
 
       it('returns information for autocomplete', async function () {
         const context = instanceState.getAutocompletionContext();
-        const { connectionId, databaseName } =
-          context.currentDatabaseAndConnection();
+        const dbAndConnection = context.currentDatabaseAndConnection();
+        if (!dbAndConnection) {
+          throw new Error('No current database and connection found');
+        }
+        const { connectionId, databaseName } = dbAndConnection;
         const databaseNames = await context.databasesForConnection(
           connectionId
         );

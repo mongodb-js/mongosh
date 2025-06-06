@@ -417,14 +417,23 @@ export class ShellInstanceState {
 
   public getAutocompletionContext(): AutocompletionContext {
     return {
-      currentDatabaseAndConnection: (): {
-        connectionId: string;
-        databaseName: string;
-      } => {
-        return {
-          connectionId: this.currentDb.getMongo()._getConnectionId(),
-          databaseName: this.currentDb.getName(),
-        };
+      currentDatabaseAndConnection: ():
+        | {
+            connectionId: string;
+            databaseName: string;
+          }
+        | undefined => {
+        try {
+          return {
+            connectionId: this.currentDb.getMongo()._getConnectionId(),
+            databaseName: this.currentDb.getName(),
+          };
+        } catch (err: any) {
+          if (err.name === 'MongoshInvalidInputError') {
+            return undefined;
+          }
+          throw err;
+        }
       },
       databasesForConnection: async (
         connectionId: string

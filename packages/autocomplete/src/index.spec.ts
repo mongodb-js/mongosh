@@ -1,4 +1,4 @@
-import completer, { BASE_COMPLETIONS } from './';
+import { completer, BASE_COMPLETIONS } from './';
 import { signatures as shellSignatures, Topologies } from '@mongosh/shell-api';
 
 import { expect } from 'chai';
