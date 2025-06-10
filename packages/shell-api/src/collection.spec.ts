@@ -2363,6 +2363,79 @@ describe('Collection', function () {
       });
     });
 
+    describe('getShardLocation', function () {
+      let collections: Document[];
+      let serviceProviderCursor: StubbedInstance<ServiceProviderAggregationCursor>;
+      this.beforeEach(function () {
+        collections = [];
+        serviceProviderCursor =
+          stubInterface<ServiceProviderAggregationCursor>();
+        serviceProvider.aggregateDb.returns(serviceProviderCursor);
+
+        serviceProviderCursor[Symbol.asyncIterator].callsFake(
+          // eslint-disable-next-line @typescript-eslint/require-await
+          async function* () {
+            yield* collections;
+          }
+        );
+      });
+
+      it('calls $listClusterCatalog', async function () {
+        collections = [
+          {
+            ns: `${database.getName()}.otherCollection`,
+            shards: ['a', 'b'],
+            sharded: false,
+          },
+          {
+            ns: collection.getFullName(),
+            shards: ['foo', 'bar'],
+            sharded: true,
+          },
+        ];
+
+        const shardLocation = await collection.getShardLocation();
+        expect(shardLocation).to.deep.equal({
+          shards: ['foo', 'bar'],
+          sharded: true,
+        });
+
+        expect(serviceProvider.aggregateDb).to.have.been.calledOnce;
+        const args = serviceProvider.aggregateDb.getCall(0).args;
+        expect(args[0]).to.equal(database.getName());
+        expect(args[1]).to.deep.equal([
+          {
+            $listClusterCatalog: {
+              shards: true,
+            },
+          },
+        ]);
+      });
+
+      it('throws for non-existent collection', async function () {
+        collections = [
+          {
+            ns: `${database.getName()}.otherCollection`,
+            shards: ['a', 'b'],
+            sharded: false,
+          },
+        ];
+
+        try {
+          await collection.getShardLocation();
+          expect.fail('Expected getShardLocation to throw');
+        } catch (err) {
+          if (err instanceof MongoshRuntimeError) {
+            expect(err.message).to.include(
+              `Error finding location information for ${collection.getFullName()}`
+            );
+          } else {
+            expect.fail('Expected error to be a MongoshRuntimeError');
+          }
+        }
+      });
+    });
+
     describe('analyzeShardKey', function () {
       it('calls serviceProvider.runCommand on the admin database', async function () {
         await collection.analyzeShardKey({ myKey: 1 });
@@ -2999,6 +3072,11 @@ describe('Collection', function () {
       watch: { i: 1 },
       getSearchIndexes: { i: 3 },
       checkMetadataConsistency: { m: 'runCursorCommand', i: 2 },
+      getShardLocation: {
+        i: 2,
+        m: 'aggregateDb',
+        e: true,
+      },
     };
     const ignore: (keyof (typeof Collection)['prototype'])[] = [
       'getShardDistribution',

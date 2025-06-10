@@ -2282,6 +2282,38 @@ export class Collection<
     );
   }
 
+  @returnsPromise
+  @topologies([Topologies.Sharded])
+  @apiVersions([])
+  @serverVersions(['8.0.10', ServerVersions.latest])
+  async getShardLocation(): Promise<{
+    shards: string[];
+    sharded: boolean;
+  }> {
+    this._emitCollectionApiCall('getShardLocation', {});
+
+    const result = await this._database.aggregate([
+      {
+        $listClusterCatalog: {
+          shards: true,
+        },
+      },
+    ]);
+
+    for await (const doc of result) {
+      if (doc.ns === this.getFullName()) {
+        return {
+          shards: doc.shards,
+          sharded: doc.sharded,
+        };
+      }
+    }
+    throw new MongoshRuntimeError(
+      `Error finding location information for ${this.getFullName()}`,
+      CommonErrors.CommandFailed
+    );
+  }
+
   @serverVersions(['3.1.0', ServerVersions.latest])
   @topologies([Topologies.ReplSet, Topologies.Sharded])
   @apiVersions([1])
