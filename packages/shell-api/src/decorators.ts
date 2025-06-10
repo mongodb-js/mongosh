@@ -1,5 +1,6 @@
 import { MongoshInternalError } from '@mongosh/errors';
 import type { ReplPlatform } from '@mongosh/service-provider-core';
+import type { AutocompletionContext } from '@mongodb-js/mongodb-ts-autocomplete';
 import type { Mongo, ShellInstanceState } from '.';
 import type { Topologies } from './enums';
 import {
@@ -350,11 +351,13 @@ function getShellInstanceState(apiObject: any): ShellInstanceState | undefined {
  * as needed.
  */
 export interface ShellCommandAutocompleteParameters {
-  getCollectionCompletionsForCurrentDb: (
-    collName: string
-  ) => string[] | Promise<string[]>;
   getDatabaseCompletions: (dbName: string) => string[] | Promise<string[]>;
 }
+
+export type NewShellCommandAutocompleteParameters = Pick<
+  AutocompletionContext,
+  'currentDatabaseAndConnection' | 'databasesForConnection'
+>;
 
 /**
  * Provide a suggested list of completions for the last item in a shell command,
@@ -362,6 +365,11 @@ export interface ShellCommandAutocompleteParameters {
  */
 export type ShellCommandCompleter = (
   params: ShellCommandAutocompleteParameters,
+  args: string[]
+) => Promise<string[] | undefined>;
+
+export type NewShellCommandCompleter = (
+  context: NewShellCommandAutocompleteParameters,
   args: string[]
 ) => Promise<string[] | undefined>;
 
@@ -381,6 +389,7 @@ export interface TypeSignature {
   isDirectShellCommand?: boolean;
   acceptsRawInput?: boolean;
   shellCommandCompleter?: ShellCommandCompleter;
+  newShellCommandCompleter?: NewShellCommandCompleter;
   inherited?: boolean;
 }
 
@@ -427,6 +436,7 @@ type ClassSignature = {
       isDirectShellCommand: boolean;
       acceptsRawInput?: boolean;
       shellCommandCompleter?: ShellCommandCompleter;
+      newShellCommandCompleter?: NewShellCommandCompleter;
       inherited?: true;
     };
   };
@@ -511,6 +521,8 @@ function shellApiClassGeneric<T extends { prototype: any }>(
     method.isDirectShellCommand = method.isDirectShellCommand || false;
     method.acceptsRawInput = method.acceptsRawInput || false;
     method.shellCommandCompleter = method.shellCommandCompleter || undefined;
+    method.newShellCommandCompleter =
+      method.newShellCommandCompleter || undefined;
 
     classSignature.attributes[propertyName] = {
       type: 'function',
@@ -524,6 +536,7 @@ function shellApiClassGeneric<T extends { prototype: any }>(
       isDirectShellCommand: method.isDirectShellCommand,
       acceptsRawInput: method.acceptsRawInput,
       shellCommandCompleter: method.shellCommandCompleter,
+      newShellCommandCompleter: method.newShellCommandCompleter,
     };
 
     const attributeHelpKeyPrefix = `${classHelpKeyPrefix}.attributes.${propertyName}`;
@@ -584,6 +597,7 @@ function shellApiClassGeneric<T extends { prototype: any }>(
         isDirectShellCommand: method.isDirectShellCommand,
         acceptsRawInput: method.acceptsRawInput,
         shellCommandCompleter: method.shellCommandCompleter,
+        newShellCommandCompleter: method.newShellCommandCompleter,
         inherited: true,
       };
 
@@ -797,14 +811,21 @@ export function directShellCommand<T extends Function>(
  * @param completer The completer to use for autocomplete
  */
 export function shellCommandCompleter(
-  shellCommandCompleter: ShellCommandCompleter
+  shellCommandCompleter: ShellCommandCompleter,
+  newShellCommandCompleter: NewShellCommandCompleter
 ) {
   return function <T extends Function>(
     value: T,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     context: ClassMethodDecoratorContext
-  ): T & { shellCommandCompleter: ShellCommandCompleter } {
-    return Object.assign(value, { shellCommandCompleter });
+  ): T & {
+    shellCommandCompleter: ShellCommandCompleter;
+    newShellCommandCompleter: NewShellCommandCompleter;
+  } {
+    return Object.assign(value, {
+      shellCommandCompleter,
+      newShellCommandCompleter,
+    });
   };
 }
 

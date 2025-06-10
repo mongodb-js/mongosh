@@ -58,11 +58,13 @@
     "@mongosh/history": "2.4.6",
     "@mongosh/i18n": "^2.13.1",
     "@mongosh/service-provider-core": "3.3.3",
-    "mongodb-redact": "^1.1.5"
+    "mongodb-redact": "^1.1.5",
+    "mongodb-schema": "^12.6.2"
   },
   "devDependencies": {
     "@microsoft/api-extractor": "^7.39.3",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
+    "@mongodb-js/mongodb-ts-autocomplete": "^0.2.5",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@mongosh/types": "3.6.2",

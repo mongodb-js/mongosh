@@ -166,6 +166,7 @@ describe('Field Level Encryption', function () {
         isDirectShellCommand: false,
         acceptsRawInput: false,
         shellCommandCompleter: undefined,
+        newShellCommandCompleter: undefined,
       });
       expect(signatures.ClientEncryption.attributes?.encrypt).to.deep.equal({
         type: 'function',
@@ -179,6 +180,7 @@ describe('Field Level Encryption', function () {
         isDirectShellCommand: false,
         acceptsRawInput: false,
         shellCommandCompleter: undefined,
+        newShellCommandCompleter: undefined,
       });
     });
   });

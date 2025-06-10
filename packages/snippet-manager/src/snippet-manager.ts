@@ -83,6 +83,36 @@ async function packBSON(data: any): Promise<Buffer> {
   return await brotliCompress(bson.serialize(data));
 }
 
+function completeSnippetsCommand(
+  args: string[],
+  snippets: SnippetDescription[]
+) {
+  const plainCommands = [
+    'update',
+    'search',
+    'ls',
+    'outdated',
+    'info',
+    'refresh',
+    'load-all',
+  ];
+  const pkgCommands = ['install', 'uninstall', 'help'];
+  if (args.length >= 2 && pkgCommands.includes(args[1])) {
+    const allSnippetNames = snippets.map(({ snippetName }) => snippetName);
+    if (args.length === 2) {
+      return allSnippetNames.map((str) => `${args[1]} ${str}`);
+    }
+    return allSnippetNames.filter((str) =>
+      str.startsWith(args[args.length - 1] ?? '')
+    );
+  } else if (args.length === 2) {
+    return [...plainCommands, ...pkgCommands].filter((str) =>
+      str.startsWith(args[1] ?? '')
+    );
+  }
+  return undefined;
+}
+
 export class SnippetManager implements ShellPlugin {
   _instanceState: ShellInstanceState;
   installdir: string;
@@ -143,32 +173,14 @@ export class SnippetManager implements ShellPlugin {
         args: string[]
         // eslint-disable-next-line @typescript-eslint/require-await
       ): Promise<string[] | undefined> => {
-        const plainCommands = [
-          'update',
-          'search',
-          'ls',
-          'outdated',
-          'info',
-          'refresh',
-          'load-all',
-        ];
-        const pkgCommands = ['install', 'uninstall', 'help'];
-        if (args.length >= 2 && pkgCommands.includes(args[1])) {
-          const allSnippetNames = this.snippets.map(
-            ({ snippetName }) => snippetName
-          );
-          if (args.length === 2) {
-            return allSnippetNames.map((str) => `${args[1]} ${str}`);
-          }
-          return allSnippetNames.filter((str) =>
-            str.startsWith(args[args.length - 1] ?? '')
-          );
-        } else if (args.length === 2) {
-          return [...plainCommands, ...pkgCommands].filter((str) =>
-            str.startsWith(args[1] ?? '')
-          );
-        }
-        return undefined;
+        return completeSnippetsCommand(args, this.snippets);
+      },
+      newShellCommandCompleter: async (
+        context: unknown,
+        args: string[]
+        // eslint-disable-next-line @typescript-eslint/require-await
+      ): Promise<string[] | undefined> => {
+        return completeSnippetsCommand(args, this.snippets);
       },
     } as TypeSignature;
     instanceState.registerPlugin(this);
