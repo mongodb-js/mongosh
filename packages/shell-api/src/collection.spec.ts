@@ -2366,33 +2366,25 @@ describe('Collection', function () {
     describe('getShardLocation', function () {
       let collections: Document[];
       let serviceProviderCursor: StubbedInstance<ServiceProviderAggregationCursor>;
-      this.beforeEach(function () {
+
+      beforeEach(function () {
         collections = [];
         serviceProviderCursor =
           stubInterface<ServiceProviderAggregationCursor>();
         serviceProvider.aggregateDb.returns(serviceProviderCursor);
 
-        serviceProviderCursor[Symbol.asyncIterator].callsFake(
-          // eslint-disable-next-line @typescript-eslint/require-await
-          async function* () {
-            yield* collections;
-          }
-        );
+        serviceProviderCursor.toArray.resolves(collections);
       });
 
       it('calls $listClusterCatalog', async function () {
         collections = [
-          {
-            ns: `${database.getName()}.otherCollection`,
-            shards: ['a', 'b'],
-            sharded: false,
-          },
           {
             ns: collection.getFullName(),
             shards: ['foo', 'bar'],
             sharded: true,
           },
         ];
+        serviceProviderCursor.toArray.resolves(collections);
 
         const shardLocation = await collection.getShardLocation();
         expect(shardLocation).to.deep.equal({
@@ -2409,18 +2401,22 @@ describe('Collection', function () {
               shards: true,
             },
           },
+          {
+            $match: {
+              ns: collection.getFullName(),
+            },
+          },
+          {
+            $project: {
+              _id: 0,
+              shards: 1,
+              sharded: 1,
+            },
+          },
         ]);
       });
 
       it('throws for non-existent collection', async function () {
-        collections = [
-          {
-            ns: `${database.getName()}.otherCollection`,
-            shards: ['a', 'b'],
-            sharded: false,
-          },
-        ];
-
         try {
           await collection.getShardLocation();
           expect.fail('Expected getShardLocation to throw');

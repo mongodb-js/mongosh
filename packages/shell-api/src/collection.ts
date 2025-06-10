@@ -2292,22 +2292,35 @@ export class Collection<
   }> {
     this._emitCollectionApiCall('getShardLocation', {});
 
-    const result = await this._database.aggregate([
-      {
-        $listClusterCatalog: {
-          shards: true,
+    const result = await (
+      await this._database.aggregate([
+        {
+          $listClusterCatalog: {
+            shards: true,
+          },
         },
-      },
-    ]);
+        {
+          $match: {
+            ns: this.getFullName(),
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            shards: 1,
+            sharded: 1,
+          },
+        },
+      ])
+    ).toArray();
 
-    for await (const doc of result) {
-      if (doc.ns === this.getFullName()) {
-        return {
-          shards: doc.shards,
-          sharded: doc.sharded,
-        };
-      }
+    if (result.length > 0) {
+      return {
+        shards: result[0].shards,
+        sharded: result[0].sharded,
+      };
     }
+
     throw new MongoshRuntimeError(
       `Error finding location information for ${this.getFullName()}`,
       CommonErrors.CommandFailed
