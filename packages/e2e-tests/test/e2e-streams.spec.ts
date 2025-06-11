@@ -66,7 +66,7 @@ describe('e2e Streams', function () {
         ],
         removeSigintListeners: true,
       });
-      await shell.waitForPromptOrExit({ timeout: 60_000 });
+      await shell.waitForPromptOrExit({ timeout: 45_000 });
 
       processorName = `spi${new bson.ObjectId().toHexString()}`;
       client = await MongoClient.connect(
@@ -99,7 +99,8 @@ describe('e2e Streams', function () {
       const createResult = await shell.executeLine(
         `sp.createStreamProcessor("${processorName}", ${JSON.stringify(
           aggPipeline
-        )})`
+        )})`,
+        { timeout: 45_000 }
       );
       expect(createResult).to.include(
         `Atlas Stream Processor: ${processorName}`
@@ -111,7 +112,9 @@ describe('e2e Streams', function () {
         await db.dropDatabase();
         await client.close();
 
-        const result = await shell.executeLine(`sp.${processorName}.drop()`);
+        const result = await shell.executeLine(`sp.${processorName}.drop()`, {
+          timeout: 45_000,
+        });
         expect(result).to.include(`{ ok: 1 }`);
       } catch (err: any) {
         console.error(
@@ -122,7 +125,9 @@ describe('e2e Streams', function () {
     });
 
     it('can list stream processors', async function () {
-      const listResult = await shell.executeLine(`sp.listStreamProcessors()`);
+      const listResult = await shell.executeLine(`sp.listStreamProcessors()`, {
+        timeout: 45_000,
+      });
       // make sure the processor created in the beforeEach is present
       expect(listResult).to.include(`name: '${processorName}'`);
     });
@@ -133,24 +138,27 @@ describe('e2e Streams', function () {
       expect(initialDocsCount).to.eq(0);
 
       const startResult = await shell.executeLine(
-        `sp.${processorName}.start()`
+        `sp.${processorName}.start()`,
+        { timeout: 45_000 }
       );
       expect(startResult).to.include('{ ok: 1 }');
 
-      // sleep for a bit to let the processor do stuff
-      await sleep(500);
+      let updatedDocCount = 0;
+      await eventually(async () => {
+        updatedDocCount = await collection.countDocuments();
+        expect(updatedDocCount).to.be.greaterThan(0);
+      });
 
-      const stopResult = await shell.executeLine(`sp.${processorName}.stop()`);
+      const stopResult = await shell.executeLine(`sp.${processorName}.stop()`, {
+        timeout: 45_000,
+      });
       expect(stopResult).to.include('{ ok: 1 }');
 
-      const updatedDocCount = await collection.countDocuments();
-      expect(updatedDocCount).to.be.greaterThan(0);
-
-      // sleep again to make sure the processor isn't doing any more inserts
-      await sleep(500);
-
-      const countAfterStopping = await collection.countDocuments();
-      expect(countAfterStopping).to.eq(updatedDocCount);
+      const statsResult = await shell.executeLine(
+        `sp.${processorName}.stats()`,
+        { timeout: 45_000 }
+      );
+      expect(statsResult).to.include(`state: 'STOPPED'`);
     });
 
     it(`can modify an existing stream processor's pipeline`, async function () {
@@ -159,14 +167,17 @@ describe('e2e Streams', function () {
       const newField = 'newField';
 
       const startResult = await shell.executeLine(
-        `sp.${processorName}.start()`
+        `sp.${processorName}.start()`,
+        { timeout: 45_000 }
       );
       expect(startResult).to.include('{ ok: 1 }');
 
       // sleep for a bit to let the processor do stuff
       await sleep(500);
 
-      const stopResult = await shell.executeLine(`sp.${processorName}.stop()`);
+      const stopResult = await shell.executeLine(`sp.${processorName}.stop()`, {
+        timeout: 45_000,
+      });
       expect(stopResult).to.include('{ ok: 1 }');
 
       const initialDocsWithNewField = await collection.countDocuments({
@@ -201,27 +212,29 @@ describe('e2e Streams', function () {
       const updatedAggPipeline = [sourceStage, addFieldStage, mergeStage];
 
       const modifyResult = await shell.executeLine(
-        `sp.${processorName}.modify(${JSON.stringify(updatedAggPipeline)})`
+        `sp.${processorName}.modify(${JSON.stringify(updatedAggPipeline)})`,
+        { timeout: 45_000 }
       );
       expect(modifyResult).to.include('{ ok: 1 }');
 
       const secondStartResult = await shell.executeLine(
-        `sp.${processorName}.start()`
+        `sp.${processorName}.start()`,
+        { timeout: 45_000 }
       );
       expect(secondStartResult).to.include('{ ok: 1 }');
 
-      // sleep again to let the processor work again with the updated pipeline
-      await sleep(500);
-
-      const updatedDocsWithNewField = await collection.countDocuments({
-        [newField]: { $exists: true },
+      await eventually(async () => {
+        const updatedDocsWithNewField = await collection.countDocuments({
+          [newField]: { $exists: true },
+        });
+        expect(updatedDocsWithNewField).to.be.greaterThan(0);
       });
-      expect(updatedDocsWithNewField).to.be.greaterThan(0);
     });
 
     it('can view stats for a stream processor', async function () {
       const statsResult = await shell.executeLine(
-        `sp.${processorName}.stats()`
+        `sp.${processorName}.stats()`,
+        { timeout: 45_000 }
       );
       expect(statsResult).to.include(`name: '${processorName}'`);
       expect(statsResult).to.include(`state: 'CREATED'`);
@@ -247,10 +260,14 @@ describe('e2e Streams', function () {
         ],
         removeSigintListeners: true,
       });
-      await shell.waitForPromptOrExit({ timeout: 60_000 });
+      await shell.waitForPromptOrExit({ timeout: 45_000 });
     });
 
     it('should output streamed documents to the shell', async function () {
+      if (process.platform === 'win32') {
+        return this.skip(); // No SIGINT on Windows.
+      }
+
       // this processor is pre-defined on the cloud-dev test project
       // it reads from sample solar stream, appends a field with the processor name to each doc, and
       // inserts the docs into an Atlas collection
@@ -259,9 +276,16 @@ describe('e2e Streams', function () {
       shell.writeInputLine(`sp.${immortalProcessorName}.sample()`);
       // data from the sample solar stream isn't deterministic, so just assert that
       // the processorName field appears in the shell output after sampling
-      await eventually(() => {
-        shell.assertContainsOutput(`processorName: '${immortalProcessorName}'`);
-      });
+      await eventually(
+        () => {
+          shell.assertContainsOutput(
+            `processorName: '${immortalProcessorName}'`
+          );
+        },
+        { timeout: 45_000 }
+      );
+
+      shell.kill('SIGINT');
     });
   });
 
@@ -282,12 +306,16 @@ describe('e2e Streams', function () {
         ],
         removeSigintListeners: true,
       });
-      await shell.waitForPromptOrExit({ timeout: 60_000 });
+      await shell.waitForPromptOrExit({ timeout: 45_000 });
 
       interactiveId = new bson.ObjectId().toHexString();
     });
 
     it('should output streamed documents to the shell', async function () {
+      if (process.platform === 'win32') {
+        return this.skip(); // No SIGINT on Windows.
+      }
+
       // the pipeline for our interactive processor reads from sample solar stream, adds a
       // unique test id to each document, and inserts it into an Atlas collection
       const sourceStage = {
@@ -321,8 +349,10 @@ describe('e2e Streams', function () {
         () => {
           shell.assertContainsOutput(`interactiveId: '${interactiveId}'`);
         },
-        { timeout: 60_000 }
+        { timeout: 45_000 }
       );
+
+      shell.kill('SIGINT');
     });
   });
 });
