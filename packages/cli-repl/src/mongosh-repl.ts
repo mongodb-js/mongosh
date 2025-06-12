@@ -1,4 +1,5 @@
-import completer from '@mongosh/autocomplete';
+import type { CompletionResults } from '@mongosh/autocomplete';
+import { completer, initNewAutocompleter } from '@mongosh/autocomplete';
 import { MongoshInternalError, MongoshWarning } from '@mongosh/errors';
 import { changeHistory } from '@mongosh/history';
 import type {
@@ -430,10 +431,17 @@ class MongoshNodeRepl implements EvaluationListener {
     this.outputFinishString += installPasteSupport(repl);
 
     const origReplCompleter = promisify(repl.completer.bind(repl)); // repl.completer is callback-style
-    const mongoshCompleter = completer.bind(
-      null,
-      instanceState.getAutocompleteParameters()
-    );
+
+    let newMongoshCompleter: (line: string) => Promise<CompletionResults>;
+    let oldMongoshCompleter: (line: string) => Promise<CompletionResults>;
+
+    if (process.env.USE_NEW_AUTOCOMPLETE) {
+      // we will lazily instantiate the new autocompleter on first use
+    } else {
+      const autocompleteParams = instanceState.getAutocompleteParameters();
+      oldMongoshCompleter = completer.bind(null, autocompleteParams);
+    }
+
     const innerCompleter = async (
       text: string
     ): Promise<[string[], string]> => {
@@ -442,10 +450,27 @@ class MongoshNodeRepl implements EvaluationListener {
         [replResults, replOrig],
         [mongoshResults, , mongoshResultsExclusive],
       ] = await Promise.all([
-        (async () => (await origReplCompleter(text)) || [[]])(),
-        (async () => await mongoshCompleter(text))(),
+        (async () => {
+          const nodeResults = (await origReplCompleter(text)) || [[]];
+          return nodeResults;
+        })(),
+        (async () => {
+          if (process.env.USE_NEW_AUTOCOMPLETE) {
+            if (!newMongoshCompleter) {
+              newMongoshCompleter = await initNewAutocompleter(instanceState);
+            }
+
+            return newMongoshCompleter(text);
+          } else {
+            return oldMongoshCompleter(text);
+          }
+        })(),
       ]);
-      this.bus.emit('mongosh:autocompletion-complete'); // For testing.
+      this.bus.emit(
+        'mongosh:autocompletion-complete',
+        replResults,
+        mongoshResults
+      ); // For testing.
 
       // Sometimes the mongosh completion knows that what it is doing is right,
       // and that autocompletion based on inspecting the actual objects that

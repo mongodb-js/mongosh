@@ -6,8 +6,8 @@ import { stubInterface } from 'ts-sinon';
 import type { EventEmitter } from 'events';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
 import { signatures, toShellResult } from './index';
-import Database from './database';
-import Collection from './collection';
+import { Database } from './database';
+import { Collection } from './collection';
 import Mongo from './mongo';
 import type {
   AggregationCursor as ServiceProviderAggCursor,
@@ -111,6 +111,7 @@ describe('Database', function () {
         isDirectShellCommand: false,
         acceptsRawInput: false,
         shellCommandCompleter: undefined,
+        newShellCommandCompleter: undefined,
       });
     });
   });

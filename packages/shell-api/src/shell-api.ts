@@ -1,6 +1,7 @@
 import type {
   ShellResult,
   ShellCommandAutocompleteParameters,
+  NewShellCommandAutocompleteParameters,
 } from './decorators';
 import {
   shellApiClassDefault,
@@ -14,7 +15,7 @@ import {
 } from './decorators';
 import { asPrintable } from './enums';
 import Mongo from './mongo';
-import type Database from './database';
+import type { DatabaseWithSchema } from './database';
 import type { CommandResult } from './result';
 import { CursorIterationResult } from './result';
 import type ShellInstanceState from './shell-instance-state';
@@ -135,16 +136,33 @@ async function useCompleter(
   return await params.getDatabaseCompletions(args[1] ?? '');
 }
 
-/**
- * Complete a `show` subcommand.
- */
-// eslint-disable-next-line @typescript-eslint/require-await
-async function showCompleter(
-  params: ShellCommandAutocompleteParameters,
+// eslint-disable-next-line no-control-regex
+const CONTROL_CHAR_REGEXP = /[\x00-\x1F\x7F-\x9F]/g;
+
+async function newUseCompleter(
+  context: NewShellCommandAutocompleteParameters,
   args: string[]
 ): Promise<string[] | undefined> {
   if (args.length > 2) return undefined;
-  if (args[1] === 'd') {
+
+  const dbAndConnection = context.currentDatabaseAndConnection();
+  if (!dbAndConnection) {
+    return [];
+  }
+  const { connectionId } = dbAndConnection;
+
+  const dbNames = await context.databasesForConnection(connectionId);
+
+  const prefix = (args[1] ?? '').toLowerCase();
+
+  return dbNames.filter(
+    (name) =>
+      name.toLowerCase().startsWith(prefix) && !CONTROL_CHAR_REGEXP.test(name)
+  );
+}
+
+function completeShowCommand(prefix: string): string[] {
+  if (prefix === 'd') {
     // Special-case: The user might want `show dbs` or `show databases`, but they won't care about which they get.
     return ['databases'];
   }
@@ -162,7 +180,28 @@ async function showCompleter(
     'automationNotices',
     'nonGenuineMongoDBCheck',
   ];
-  return candidates.filter((str) => str.startsWith(args[1] ?? ''));
+  return candidates.filter((str) => str.startsWith(prefix));
+}
+
+/**
+ * Complete a `show` subcommand.
+ */
+// eslint-disable-next-line @typescript-eslint/require-await
+async function showCompleter(
+  params: ShellCommandAutocompleteParameters,
+  args: string[]
+): Promise<string[] | undefined> {
+  if (args.length > 2) return undefined;
+  return completeShowCommand(args[1] ?? '');
+}
+
+// eslint-disable-next-line @typescript-eslint/require-await
+async function newShowCompleter(
+  context: NewShellCommandAutocompleteParameters,
+  args: string[]
+): Promise<string[] | undefined> {
+  if (args.length > 2) return undefined;
+  return completeShowCommand(args[1] ?? '');
 }
 
 /**
@@ -206,14 +245,14 @@ export default class ShellApi extends ShellApiClass {
   }
 
   @directShellCommand
-  @shellCommandCompleter(useCompleter)
+  @shellCommandCompleter(useCompleter, newUseCompleter)
   use(db: string): any {
     return this._instanceState.currentDb._mongo.use(db);
   }
 
   @directShellCommand
   @returnsPromise
-  @shellCommandCompleter(showCompleter)
+  @shellCommandCompleter(showCompleter, newShowCompleter)
   async show(cmd: string, arg?: string): Promise<CommandResult> {
     return await this._instanceState.currentDb._mongo.show(cmd, arg);
   }
@@ -266,7 +305,11 @@ export default class ShellApi extends ShellApiClass {
   @returnsPromise
   @returnType('Database')
   @platforms(['CLI'])
-  async connect(uri: string, user?: string, pwd?: string): Promise<Database> {
+  async connect(
+    uri: string,
+    user?: string,
+    pwd?: string
+  ): Promise<DatabaseWithSchema> {
     assertArgsDefinedType(
       [uri, user, pwd],
       ['string', [undefined, 'string'], [undefined, 'string']],

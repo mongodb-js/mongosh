@@ -446,7 +446,11 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
       return;
     }
 
-    shellInputContainerRef.current.scrollIntoView();
+    shellInputContainerRef.current.scrollIntoView({
+      // Scroll to the bottom of the shell input container.
+      // Or maintain scroll if already in the input.
+      block: 'nearest',
+    });
   }, [shellInputContainerRef]);
 
   const onShellClicked = useCallback(

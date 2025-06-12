@@ -20,7 +20,7 @@ import type {
 import { asPrintable } from './enums';
 import { assertArgsDefinedType, shallowClone } from './helpers';
 import { BulkWriteResult } from './result';
-import type Collection from './collection';
+import type { CollectionWithSchema } from './collection';
 
 @shellApiClassDefault
 export class BulkFindOp extends ShellApiWithMongoClass {
@@ -131,14 +131,14 @@ export class BulkFindOp extends ShellApiWithMongoClass {
 @shellApiClassDefault
 export default class Bulk extends ShellApiWithMongoClass {
   _mongo: Mongo;
-  _collection: Collection;
+  _collection: CollectionWithSchema;
   _batchCounts: any;
   _executed: boolean;
   _serviceProviderBulkOp: OrderedBulkOperation | UnorderedBulkOperation;
   _ordered: boolean;
 
   constructor(
-    collection: Collection,
+    collection: CollectionWithSchema,
     innerBulk: OrderedBulkOperation | UnorderedBulkOperation,
     ordered = false
   ) {

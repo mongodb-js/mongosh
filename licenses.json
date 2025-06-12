@@ -1,5 +1,7 @@
 {
   "ignoredOrgs": ["@mongodb-js", "@leafygreen-ui"],
   "doNotValidatePackages": ["argparse@2.0.1"],
-  "licenseOverrides": {}
+  "licenseOverrides": {
+    "cli-table@0.3.11": "MIT"
+  }
 }

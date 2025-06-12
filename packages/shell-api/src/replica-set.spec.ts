@@ -23,7 +23,7 @@ import {
   skipIfApiStrict,
 } from '../../../testing/integration-testing-hooks';
 import { NodeDriverServiceProvider } from '../../service-provider-node-driver';
-import Database from './database';
+import { Database } from './database';
 import {
   ADMIN_DB,
   ALL_PLATFORMS,
@@ -83,6 +83,7 @@ describe('ReplicaSet', function () {
         isDirectShellCommand: false,
         acceptsRawInput: false,
         shellCommandCompleter: undefined,
+        newShellCommandCompleter: undefined,
       });
     });
   });

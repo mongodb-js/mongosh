@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/browser-repl",
-  "version": "3.6.0",
+  "version": "3.12.0",
   "description": "Browser presentation component for Mongo Shell",
   "engines": {
     "node": ">=14.15.1"
@@ -51,17 +51,18 @@
   },
   "mongosh": {
     "unitTestsOnly": true,
+    "usePuppeteer": true,
     "variants": [
       "darwin"
     ]
   },
   "dependencies": {
-    "@mongosh/browser-runtime-core": "3.6.0",
+    "@mongosh/browser-runtime-core": "^3.12.0",
     "@mongosh/errors": "2.4.0",
     "@mongosh/history": "2.4.6",
-    "@mongosh/i18n": "2.9.1",
-    "@mongosh/node-runtime-worker-thread": "3.3.1",
-    "@mongosh/service-provider-core": "3.1.0",
+    "@mongosh/i18n": "^2.13.1",
+    "@mongosh/node-runtime-worker-thread": "3.3.10",
+    "@mongosh/service-provider-core": "3.3.3",
     "numeral": "^2.0.6",
     "text-table": "^0.2.0"
   },
@@ -70,7 +71,7 @@
     "@babel/plugin-proposal-class-properties": "^7.18.6",
     "@babel/preset-react": "^7.26.3",
     "@babel/preset-typescript": "^7.27.0",
-    "mongodb": "^6.14.2",
+    "mongodb": "^6.16.0",
     "@mongodb-js/compass-components": "*",
     "@mongodb-js/compass-editor": "*",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
@@ -111,9 +112,9 @@
     "rimraf": "^3.0.2",
     "stream-browserify": "^3.0.0",
     "util": "^0.12.5",
-    "webpack": "^5.75.0",
-    "webpack-cli": "^4.3.1",
-    "webpack-dev-server": "^4.11.1"
+    "webpack": "^5.99.9",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.2"
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "*",

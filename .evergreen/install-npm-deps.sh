@@ -1,10 +1,9 @@
+#!/bin/bash
 set -e
 set -x
+export BASEDIR="$PWD/.evergreen"
 
-if [[ "${DISTRO_ID}" =~ ^(rhel|ubuntu1804) ]]; then
-  # RHEL and Ubuntu 18.04 use Python 3.6 which isn't supported by newer node-gyp versions
-  npm i node-gyp@9 --verbose --force
-fi
+. "$BASEDIR/setup-env.sh"
 
 npm ci --verbose
 echo "MONOGDB_DRIVER_VERSION_OVERRIDE:$MONOGDB_DRIVER_VERSION_OVERRIDE"

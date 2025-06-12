@@ -1,5 +1,6 @@
 import type Mongo from './mongo';
-import Collection from './collection';
+import type { CollectionWithSchema } from './collection';
+import { Collection } from './collection';
 import {
   returnsPromise,
   returnType,
@@ -11,6 +12,11 @@ import {
   ShellApiWithMongoClass,
 } from './decorators';
 import { asPrintable, ServerVersions, Topologies } from './enums';
+import type {
+  GenericDatabaseSchema,
+  GenericServerSideSchema,
+  StringKey,
+} from './helpers';
 import {
   adaptAggregateOptions,
   adaptOptions,
@@ -68,20 +74,33 @@ type AuthDoc = {
   mechanism?: string;
 };
 
+export type DatabaseWithSchema<
+  M extends GenericServerSideSchema = GenericServerSideSchema,
+  D extends GenericDatabaseSchema = GenericDatabaseSchema
+> = Database<M, D> & {
+  [k in StringKey<D>]: Collection<M, D, D[k], k>;
+};
+
 @shellApiClassDefault
-export default class Database extends ShellApiWithMongoClass {
-  _mongo: Mongo;
-  _name: string;
-  _collections: Record<string, Collection>;
+export class Database<
+  M extends GenericServerSideSchema = GenericServerSideSchema,
+  D extends GenericDatabaseSchema = GenericDatabaseSchema
+> extends ShellApiWithMongoClass {
+  _mongo: Mongo<M>;
+  _name: StringKey<M>;
+  _collections: Record<StringKey<D>, CollectionWithSchema<M, D>>;
   _session: Session | undefined;
-  _cachedCollectionNames: string[] = [];
+  _cachedCollectionNames: StringKey<D>[] = [];
   _cachedHello: Document | null = null;
 
-  constructor(mongo: Mongo, name: string, session?: Session) {
+  constructor(mongo: Mongo<M>, name: StringKey<M>, session?: Session) {
     super();
     this._mongo = mongo;
     this._name = name;
-    const collections: Record<string, Collection> = Object.create(null);
+    const collections: Record<
+      string,
+      CollectionWithSchema<M, D>
+    > = Object.create(null);
     this._collections = collections;
     this._session = session;
     const proxy = new Proxy(this, {
@@ -99,7 +118,11 @@ export default class Database extends ShellApiWithMongoClass {
         }
 
         if (!collections[prop]) {
-          collections[prop] = new Collection(mongo, proxy, prop);
+          collections[prop] = new Collection<M, D>(
+            mongo,
+            proxy,
+            prop
+          ) as CollectionWithSchema<M, D>;
         }
 
         return collections[prop];
@@ -315,11 +338,11 @@ export default class Database extends ShellApiWithMongoClass {
   }
 
   @returnType('Mongo')
-  getMongo(): Mongo {
+  getMongo(): Mongo<M> {
     return this._mongo;
   }
 
-  getName(): string {
+  getName(): StringKey<M> {
     return this._name;
   }
 
@@ -330,9 +353,9 @@ export default class Database extends ShellApiWithMongoClass {
    */
   @returnsPromise
   @apiVersions([1])
-  async getCollectionNames(): Promise<string[]> {
+  async getCollectionNames(): Promise<StringKey<D>[]> {
     this._emitDatabaseApiCall('getCollectionNames');
-    return this._getCollectionNames();
+    return (await this._getCollectionNames()) as StringKey<D>[];
   }
 
   /**
@@ -473,17 +496,19 @@ export default class Database extends ShellApiWithMongoClass {
   }
 
   @returnType('Database')
-  getSiblingDB(db: string): Database {
+  getSiblingDB<K extends StringKey<M>>(db: K): DatabaseWithSchema<M, M[K]> {
     assertArgsDefinedType([db], ['string'], 'Database.getSiblingDB');
     this._emitDatabaseApiCall('getSiblingDB', { db });
     if (this._session) {
-      return this._session.getDatabase(db);
+      return this._session.getDatabase(db) as DatabaseWithSchema<M, M[K]>;
     }
     return this._mongo._getDb(db);
   }
 
   @returnType('Collection')
-  getCollection(coll: string): Collection {
+  getCollection<K extends StringKey<D>>(
+    coll: K
+  ): CollectionWithSchema<M, D, D[K], K> {
     assertArgsDefinedType([coll], ['string'], 'Database.getColl');
     this._emitDatabaseApiCall('getCollection', { coll });
     if (!isValidCollectionName(coll)) {
@@ -493,13 +518,18 @@ export default class Database extends ShellApiWithMongoClass {
       );
     }
 
-    const collections: Record<string, Collection> = this._collections;
+    const collections: Record<string, CollectionWithSchema<M, D>> = this
+      ._collections;
 
     if (!collections[coll]) {
-      collections[coll] = new Collection(this._mongo, this, coll);
+      collections[coll] = new Collection<M, D>(
+        this._mongo,
+        this,
+        coll
+      ) as CollectionWithSchema<M, D>;
     }
 
-    return collections[coll];
+    return collections[coll] as CollectionWithSchema<M, D, D[K], K>;
   }
 
   @returnsPromise

@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/logging",
-  "version": "3.6.0",
+  "version": "3.8.0",
   "description": "MongoDB Shell Logging Utilities Package",
   "homepage": "https://github.com/mongodb-js/mongosh",
   "license": "Apache-2.0",
@@ -17,20 +17,24 @@
     "node": ">=14.15.1"
   },
   "dependencies": {
+    "@mongodb-js/device-id": "^0.2.1",
     "@mongodb-js/devtools-connect": "^3.4.1",
     "@mongosh/errors": "2.4.0",
     "@mongosh/history": "2.4.6",
-    "@mongosh/types": "3.6.0",
+    "@mongosh/types": "3.7.0",
     "mongodb-log-writer": "^2.3.1",
-    "mongodb-redact": "^1.1.5"
+    "mongodb-redact": "^1.1.5",
+    "native-machine-id": "^0.1.1"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
+    "@segment/analytics-node": "^1.3.0",
     "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
-    "prettier": "^2.8.8"
+    "prettier": "^2.8.8",
+    "sinon": "^19.0.4"
   },
   "scripts": {
     "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 -r ts-node/register --reporter \"../../configs/mocha-config-mongosh/reporter.ts\" \"./src/**/*.spec.ts\"",

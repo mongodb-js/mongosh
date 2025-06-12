@@ -6,10 +6,10 @@ import type { EventEmitter } from 'events';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
 import type { ExplainableCursor } from './index';
 import { signatures, toShellResult } from './index';
-import Database from './database';
+import { Database } from './database';
 import type Cursor from './cursor';
 import Mongo from './mongo';
-import Collection from './collection';
+import { Collection } from './collection';
 import Explainable from './explainable';
 import type { ServiceProvider, Document } from '@mongosh/service-provider-core';
 import { bson } from '@mongosh/service-provider-core';
@@ -44,6 +44,7 @@ describe('Explainable', function () {
         isDirectShellCommand: false,
         acceptsRawInput: false,
         shellCommandCompleter: undefined,
+        newShellCommandCompleter: undefined,
       });
     });
   });

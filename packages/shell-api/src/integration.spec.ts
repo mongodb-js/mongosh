@@ -3,8 +3,8 @@ import { NodeDriverServiceProvider } from '../../service-provider-node-driver'; 
 import ShellInstanceState from './shell-instance-state';
 import type Cursor from './cursor';
 import Explainable from './explainable';
-import type Database from './database';
-import type Collection from './collection';
+import type { DatabaseWithSchema } from './database';
+import type { CollectionWithSchema } from './collection';
 import {
   skipIfServerVersion,
   skipIfApiStrict,
@@ -69,7 +69,9 @@ describe('Shell API (integration)', function () {
     expect(collectionNames).to.not.include(collectionName);
   };
 
-  const loadQueryCache = async (collection: Collection): Promise<any> => {
+  const loadQueryCache = async (
+    collection: CollectionWithSchema
+  ): Promise<any> => {
     const res = await collection.insertMany([
       { _id: 1, item: 'abc', price: 12, quantity: 2, type: 'apparel' },
       { _id: 2, item: 'jkl', price: 20, quantity: 1, type: 'electronics' },
@@ -103,7 +105,9 @@ describe('Shell API (integration)', function () {
     ).toArray();
   };
 
-  const loadMRExample = async (collection: Collection): Promise<any> => {
+  const loadMRExample = async (
+    collection: CollectionWithSchema
+  ): Promise<any> => {
     const res = await collection.insertMany([
       {
         _id: 1,
@@ -225,8 +229,8 @@ describe('Shell API (integration)', function () {
   let shellApi: ShellApi;
   let mongo: Mongo;
   let dbName: string;
-  let database: Database;
-  let collection: Collection;
+  let database: DatabaseWithSchema;
+  let collection: CollectionWithSchema;
   let collectionName: string;
 
   beforeEach(async function () {
@@ -2765,6 +2769,47 @@ describe('Shell API (integration)', function () {
           await database.version()
         );
         expect(instanceState.cachedConnectionInfo()).to.equal(fetchedInfo);
+      });
+    });
+
+    describe('getAutocompletionContext', function () {
+      beforeEach(async function () {
+        // Make sure the collection is present so it is included in autocompletion.
+        await collection.insertOne({});
+        // Make sure 'database' is the current db in the eyes of the instance state object.
+        instanceState.setDbFunc(database);
+      });
+
+      it('returns information for autocomplete', async function () {
+        const context = instanceState.getAutocompletionContext();
+        const dbAndConnection = context.currentDatabaseAndConnection();
+        if (!dbAndConnection) {
+          throw new Error('No current database and connection found');
+        }
+        const { connectionId, databaseName } = dbAndConnection;
+        const databaseNames = await context.databasesForConnection(
+          connectionId
+        );
+        expect(databaseNames).to.include(database.getName());
+        const collectionNames = await context.collectionsForDatabase(
+          connectionId,
+          databaseName
+        );
+        expect(collectionNames).to.include(collection.getName());
+        const schema = await context.schemaInformationForCollection(
+          connectionId,
+          database.getName(),
+          collection.getName()
+        );
+        expect(schema).to.deep.equal({
+          bsonType: 'object',
+          properties: {
+            _id: {
+              bsonType: 'objectId',
+            },
+          },
+          required: ['_id'],
+        });
       });
     });
 

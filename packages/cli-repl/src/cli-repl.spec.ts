@@ -2442,15 +2442,52 @@ describe('CliRepl', function () {
     hasCollectionNames: boolean;
     hasDatabaseNames: boolean;
   }): void {
+    let wantVersion = true;
+    let wantQueryOperators = true;
+
+    if (process.env.USE_NEW_AUTOCOMPLETE && !testServer) {
+      // mongodb-ts-autocomplete does not support noDb mode. It wouldn't be able
+      // to list collections anyway, and since the collections don't exist it
+      // wouldn't autocomplete methods on those collections.
+      wantVersion = false;
+      wantQueryOperators = false;
+      wantWatch = false;
+      wantShardDistribution = false;
+      hasCollectionNames = false;
+      hasDatabaseNames = false;
+    }
+
+    if (process.env.USE_NEW_AUTOCOMPLETE && testServer) {
+      if ((testServer as any)?._opts.args?.includes('--auth')) {
+        // mongodb-ts-autocomplete does not take into account the server version
+        // or capabilities, so it always completes db.watch
+        wantWatch = true;
+        // db.collection.getShardDistribution won't be autocompleted because we
+        // can't list the collections due to to auth being required
+        wantShardDistribution = false;
+        // we can't get the document schema because auth is required
+        wantQueryOperators = false;
+      } else {
+        // mongodb-ts-autocomplete does not take into account the server version
+        // or capabilities, so it always completes db.watch and
+        // db.collection.getShardDistribution assuming collection exists and can
+        // be listed
+        wantWatch = true;
+        wantShardDistribution = true;
+
+        // TODO: we need MQL support in mongodb-ts-autocomplete in order for it
+        // to autocomplete collection field names
+        wantQueryOperators = false;
+      }
+    }
+
     describe('autocompletion', function () {
       let cliRepl: CliRepl;
-      const tab = async () => {
+
+      const tabCompletion = async () => {
         await tick();
         input.write('\u0009');
-      };
-      const tabtab = async () => {
-        await tab();
-        await tab();
+        await waitCompletion(cliRepl.bus);
       };
 
       beforeEach(async function () {
@@ -2463,11 +2500,18 @@ describe('CliRepl', function () {
           testServer ? await testServer.connectionString() : '',
           {} as any
         );
+
+        if (!(testServer as any)?._opts.args?.includes('--auth')) {
+          // make sure there are some collections we can autocomplete on below
+          input.write('db.coll.insertOne({})\n');
+          input.write('db.movies.insertOne({})\n');
+          await waitEval(cliRepl.bus);
+        }
       });
 
       afterEach(async function () {
-        expect(output).not.to.include('Tab completion error');
-        expect(output).not.to.include(
+        expect(output, output).not.to.include('Tab completion error');
+        expect(output, output).not.to.include(
           'listCollections requires authentication'
         );
         await cliRepl.mongoshRepl.close();
@@ -2479,10 +2523,11 @@ describe('CliRepl', function () {
         if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
           return this.skip();
         }
+
         output = '';
         input.write('db.wat');
-        await tabtab();
-        await waitCompletion(cliRepl.bus);
+        await tabCompletion();
+        await tabCompletion();
         if (wantWatch) {
           expect(output).to.include('db.watch');
         } else {
@@ -2490,15 +2535,21 @@ describe('CliRepl', function () {
         }
       });
 
-      it('completes the version method', async function () {
+      it(`${
+        wantVersion ? 'completes' : 'does not complete'
+      } the version method`, async function () {
         if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
           return this.skip();
         }
         output = '';
         input.write('db.vers');
-        await tabtab();
-        await waitCompletion(cliRepl.bus);
-        expect(output).to.include('db.version');
+        await tabCompletion();
+        await tabCompletion();
+        if (wantVersion) {
+          expect(output).to.include('db.version');
+        } else {
+          expect(output).to.not.include('db.version');
+        }
       });
 
       it('does not complete legacy JS get/set definitions', async function () {
@@ -2507,8 +2558,8 @@ describe('CliRepl', function () {
         }
         output = '';
         input.write('JSON.');
-        await tabtab();
-        await waitCompletion(cliRepl.bus);
+        await tabCompletion();
+        await tabCompletion();
         expect(output).to.include('JSON.__proto__');
         expect(output).not.to.include('JSON.__defineGetter__');
         expect(output).not.to.include('JSON.__defineSetter__');
@@ -2524,8 +2575,8 @@ describe('CliRepl', function () {
         }
         output = '';
         input.write('db.coll.getShardDis');
-        await tabtab();
-        await waitCompletion(cliRepl.bus);
+        await tabCompletion();
+        await tabCompletion();
         if (wantShardDistribution) {
           expect(output).to.include('db.coll.getShardDistribution');
         } else {
@@ -2543,8 +2594,8 @@ describe('CliRepl', function () {
 
         output = '';
         input.write('db.testcoll');
-        await tabtab();
-        await waitCompletion(cliRepl.bus);
+        await tabCompletion();
+        await tabCompletion();
         expect(output).to.include(collname);
 
         input.write(`db.${collname}.drop()\n`);
@@ -2553,8 +2604,8 @@ describe('CliRepl', function () {
 
       it('completes JS value properties properly (incomplete, double tab)', async function () {
         input.write('JSON.');
-        await tabtab();
-        await waitCompletion(cliRepl.bus);
+        await tabCompletion();
+        await tabCompletion();
         expect(output).to.include('JSON.parse');
         expect(output).to.include('JSON.stringify');
         expect(output).not.to.include('rawValue');
@@ -2562,8 +2613,7 @@ describe('CliRepl', function () {
 
       it('completes JS value properties properly (complete, single tab)', async function () {
         input.write('JSON.pa');
-        await tab();
-        await waitCompletion(cliRepl.bus);
+        await tabCompletion();
         expect(output).to.include('JSON.parse');
         expect(output).not.to.include('JSON.stringify');
         expect(output).not.to.include('rawValue');
@@ -2575,8 +2625,7 @@ describe('CliRepl', function () {
 
         output = '';
         input.write('show d');
-        await tab();
-        await waitCompletion(cliRepl.bus);
+        await tabCompletion();
         expect(output).to.include('show databases');
         expect(output).not.to.include('dSomeVariableStartingWithD');
       });
@@ -2587,16 +2636,21 @@ describe('CliRepl', function () {
         await waitEval(cliRepl.bus);
 
         input.write('use adm');
-        await tab();
-        await waitCompletion(cliRepl.bus);
+        await tabCompletion();
         expect(output).to.include('use admin');
       });
 
-      it('completes query operators', async function () {
+      it(`${
+        wantQueryOperators ? 'completes' : 'does not complete'
+      } query operators`, async function () {
         input.write('db.movies.find({year: {$g');
-        await tabtab();
-        await waitCompletion(cliRepl.bus);
-        expect(output).to.include('db.movies.find({year: {$gte');
+        await tabCompletion();
+        await tabCompletion();
+        if (wantQueryOperators) {
+          expect(output).to.include('db.movies.find({year: {$gte');
+        } else {
+          expect(output).to.not.include('db.movies.find({year: {$gte');
+        }
       });
 
       it('completes properties of shell API result types', async function () {
@@ -2614,8 +2668,8 @@ describe('CliRepl', function () {
         expect(output).to.include('DeleteResult');
 
         input.write('res.a');
-        await tabtab();
-        await waitCompletion(cliRepl.bus);
+        await tabCompletion();
+        await tabCompletion();
         expect(output).to.include('res.acknowledged');
       });
 
@@ -2631,8 +2685,8 @@ describe('CliRepl', function () {
 
         output = '';
         input.write('db.actestc');
-        await tabtab();
-        await waitCompletion(cliRepl.bus);
+        await tabCompletion();
+        await tabCompletion();
         expect(output).to.include('db.actestcoll1');
         expect(output).to.not.include('db.actestcoll2');
       });

@@ -17,8 +17,8 @@ import { NodeDriverServiceProvider } from '../../service-provider-node-driver';
 import ShellInstanceState from './shell-instance-state';
 import Mongo from './mongo';
 import { ensureMaster, ensureResult } from '../test/helpers';
-import type Database from './database';
-import type Collection from './collection';
+import type { DatabaseWithSchema } from './database';
+import type { CollectionWithSchema } from './collection';
 import { MongoshUnimplementedError } from '@mongosh/errors';
 import { EventEmitter } from 'events';
 import { dummyOptions } from './helpers.spec';
@@ -52,6 +52,7 @@ describe('ChangeStreamCursor', function () {
         isDirectShellCommand: false,
         acceptsRawInput: false,
         shellCommandCompleter: undefined,
+        newShellCommandCompleter: undefined,
       });
     });
   });
@@ -124,8 +125,8 @@ describe('ChangeStreamCursor', function () {
     let serviceProvider: NodeDriverServiceProvider;
     let instanceState: ShellInstanceState;
     let mongo: Mongo;
-    let db: Database;
-    let coll: Collection;
+    let db: DatabaseWithSchema;
+    let coll: CollectionWithSchema;
     let cursor: ChangeStreamCursor;
 
     before(async function () {

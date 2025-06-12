@@ -16,8 +16,8 @@ import {
   MongoshUnimplementedError,
 } from '@mongosh/errors';
 import crypto from 'crypto';
-import type Database from './database';
-import type Collection from './collection';
+import type { Database } from './database';
+import type { Collection } from './collection';
 import type { CursorIterationResult } from './result';
 import { ShellApiErrors } from './error-codes';
 import type {
@@ -1100,7 +1100,7 @@ export function markAsExplainOutput<T extends NotAPromise>(value: T): T {
   return value;
 }
 
-// https://docs.mongodb.com/v5.0/reference/limits/#naming-restrictions
+// https://mongodb.com/docs/v5.0/reference/limits/#naming-restrictions
 // For db names, $ can be valid in some contexts (e.g. $external),
 // so we let the server reject it if necessary.
 export function isValidDatabaseName(name: string): boolean {
@@ -1307,6 +1307,16 @@ export function buildConfigChunksCollectionMatch(
     : { ns: configCollectionsInfo._id }; // old format
 }
 
+export interface GenericCollectionSchema {
+  schema: Document;
+}
+export interface GenericDatabaseSchema {
+  [key: string]: GenericCollectionSchema;
+}
+export interface GenericServerSideSchema {
+  [key: string]: GenericDatabaseSchema;
+}
+export type StringKey<T> = keyof T & string;
 export const aggregateBackgroundOptionNotSupportedHelp =
   'the background option is not supported by the aggregate method and will be ignored, ' +
   'use runCommand to use { background: true } with Atlas Data Federation';

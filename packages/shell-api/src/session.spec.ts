@@ -25,7 +25,7 @@ import {
   skipIfApiStrict,
 } from '../../../testing/integration-testing-hooks';
 import { ensureMaster, ensureSessionExists } from '../test/helpers';
-import Database from './database';
+import { Database } from './database';
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import { EventEmitter } from 'events';
 import { dummyOptions } from './helpers.spec';
@@ -55,6 +55,7 @@ describe('Session', function () {
         isDirectShellCommand: false,
         acceptsRawInput: false,
         shellCommandCompleter: undefined,
+        newShellCommandCompleter: undefined,
       });
     });
   });

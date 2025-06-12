@@ -123,6 +123,9 @@ export class MongoshPublisher {
       config.packageInformation as PackageInformationProvider,
       config.downloadCenterAwsKey || '',
       config.downloadCenterAwsSecret || '',
+      config.downloadCenterAwsKeyNew || '',
+      config.downloadCenterAwsSecretNew || '',
+      config.downloadCenterAwsSessionTokenNew || '',
       config.injectedJsonFeedFile || '',
       !!config.isDryRun,
       config.ctaConfig

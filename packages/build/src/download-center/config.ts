@@ -9,6 +9,7 @@ import type {
 } from '@mongodb-js/dl-center/dist/download-center-config';
 import {
   ARTIFACTS_BUCKET,
+  ARTIFACTS_BUCKET_NEW,
   JSON_FEED_ARTIFACT_KEY,
   ARTIFACTS_URL_PUBLIC_BASE,
   CONFIGURATION_KEY,
@@ -55,6 +56,9 @@ export async function createAndPublishDownloadCenterConfig(
   packageInformation: PackageInformationProvider,
   awsAccessKeyId: string,
   awsSecretAccessKey: string,
+  awsAccessKeyIdNew: string,
+  awsSecretAccessKeyNew: string,
+  awsSessionTokenNew: string,
   injectedJsonFeedFile: string,
   isDryRun: boolean,
   ctaConfig: CTAConfig,
@@ -100,6 +104,13 @@ export async function createAndPublishDownloadCenterConfig(
     secretAccessKey: awsSecretAccessKey,
   });
 
+  const dlcenterArtifactsNew = new DownloadCenter({
+    bucket: ARTIFACTS_BUCKET_NEW,
+    accessKeyId: awsAccessKeyIdNew,
+    secretAccessKey: awsSecretAccessKeyNew,
+    sessionToken: awsSessionTokenNew,
+  });
+
   const existingJsonFeed = await getCurrentJsonFeed(dlcenterArtifacts);
   const injectedJsonFeed: JsonFeed | undefined = injectedJsonFeedFile
     ? JSON.parse(await fs.readFile(injectedJsonFeedFile, 'utf8'))
@@ -135,12 +146,23 @@ export async function createAndPublishDownloadCenterConfig(
       JSON.stringify(newJsonFeed, null, 2)
     ),
   ]);
+
+  await dlcenterArtifactsNew.uploadAsset(
+    JSON_FEED_ARTIFACT_KEY,
+    JSON.stringify(newJsonFeed, null, 2),
+    {
+      acl: 'private',
+    }
+  );
 }
 
 export async function updateJsonFeedCTA(
   config: CTAConfig,
   awsAccessKeyId: string,
   awsSecretAccessKey: string,
+  awsAccessKeyIdNew: string,
+  awsSecretAccessKeyNew: string,
+  awsSessionTokenNew: string,
   isDryRun: boolean,
   DownloadCenter: typeof DownloadCenterCls = DownloadCenterCls
 ) {
@@ -148,6 +170,13 @@ export async function updateJsonFeedCTA(
     bucket: ARTIFACTS_BUCKET,
     accessKeyId: awsAccessKeyId,
     secretAccessKey: awsSecretAccessKey,
+  });
+
+  const dlcenterArtifactsNew = new DownloadCenter({
+    bucket: ARTIFACTS_BUCKET_NEW,
+    accessKeyId: awsAccessKeyIdNew,
+    secretAccessKey: awsSecretAccessKeyNew,
+    sessionToken: awsSessionTokenNew,
   });
 
   const jsonFeed = await getCurrentJsonFeed(dlcenterArtifacts);
@@ -165,6 +194,13 @@ export async function updateJsonFeedCTA(
   }
 
   await dlcenterArtifacts.uploadAsset(JSON_FEED_ARTIFACT_KEY, patchedJsonFeed);
+  await dlcenterArtifactsNew.uploadAsset(
+    JSON_FEED_ARTIFACT_KEY,
+    patchedJsonFeed,
+    {
+      acl: 'private',
+    }
+  );
 }
 
 function populateJsonFeedCTAs(jsonFeed: JsonFeed, ctas: CTAConfig) {
