@@ -273,11 +273,11 @@ describe('e2e Streams', function () {
       // inserts the docs into an Atlas collection
       const immortalProcessorName = 'immortalProcessor';
 
-      shell.writeInputLine(`sp.${immortalProcessorName}.sample()`);
-      // data from the sample solar stream isn't deterministic, so just assert that
-      // the processorName field appears in the shell output after sampling
       await eventually(
         () => {
+          shell.writeInputLine(`sp.${immortalProcessorName}.sample()`);
+          // data from the sample solar stream isn't deterministic, so just assert that
+          // the processorName field appears in the shell output after sampling
           shell.assertContainsOutput(
             `processorName: '${immortalProcessorName}'`
           );
@@ -342,11 +342,11 @@ describe('e2e Streams', function () {
 
       const aggPipeline = [sourceStage, addFieldStage, mergeStage];
 
-      shell.writeInputLine(`sp.process(${JSON.stringify(aggPipeline)})`);
-      // data from the sample solar stream isn't deterministic, so just assert that
-      // the interactiveId field appears in the shell output after sampling
       await eventually(
         () => {
+          shell.writeInputLine(`sp.process(${JSON.stringify(aggPipeline)})`);
+          // data from the sample solar stream isn't deterministic, so just assert that
+          // the interactiveId field appears in the shell output after sampling
           shell.assertContainsOutput(`interactiveId: '${interactiveId}'`);
         },
         { timeout: 45_000 }
