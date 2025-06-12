@@ -17,7 +17,7 @@ jobs:
         node: [20.x, 22.x, 23.x]
       fail-fast: false
     runs-on: ${{ matrix.runner }}-latest
-    timeout-minutes: 15
+    timeout-minutes: 20 # Installing dependencies on windows can take a while
     env:
       npm_config_loglevel: verbose
       npm_config_foreground_scripts: "true"
