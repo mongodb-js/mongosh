@@ -873,6 +873,12 @@ const translations: Catalog = {
                 'Prints the data distribution statistics for a sharded collection.',
               example: 'db.coll.getShardDistribution()',
             },
+            getShardLocation: {
+              link: 'https://mongodb.com/docs/manual/reference/method/db.collection.getShardLocation',
+              description:
+                'Returns a document containing the shards where this collection is located as well as whether the collection itself is sharded.',
+              example: 'db.coll.getShardLocation()',
+            },
             analyzeShardKey: {
               link: 'https://mongodb.com/docs/manual/reference/method/db.collection.analyzeShardKey',
               description:

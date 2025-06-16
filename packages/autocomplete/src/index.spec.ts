@@ -371,6 +371,8 @@ describe('completer.completer', function () {
               'checkMetadataConsistency',
               'analyzeShardKey',
               'configureQueryAnalyzer',
+              // 8.0+
+              'getShardLocation',
             ].includes(c)
         )
         .map((c) => `${i}${c}`);
