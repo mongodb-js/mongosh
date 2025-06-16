@@ -1597,6 +1597,16 @@ describe('Shell API (integration)', function () {
         ]);
       });
 
+      it('returns a cursor whose .finish() method returns the explain result', async function () {
+        const cursor = (await explainable.find()).skip(1).limit(1);
+        const result = await cursor.finish();
+        expect(result).to.include.all.keys([
+          'ok',
+          'queryPlanner',
+          'serverInfo',
+        ]);
+      });
+
       describe('after server 4.4', function () {
         skipIfServerVersion(testServer, '<= 4.4');
         it('the explainable cursor reflects collation', async function () {
