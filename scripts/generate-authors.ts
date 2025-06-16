@@ -7,15 +7,16 @@
  * names / emails.
  */
 
-import { execSync } from 'child_process';
+import { execFileSync, execSync } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 
 const packageRootPath = path.resolve(__dirname, '..');
 
 function getAuthorsGitLog(packagePath: string): string[] {
-  return execSync(
-    `git log --reverse --format='%aN <%aE>' --use-mailmap -- ${packagePath}`,
+  return execFileSync(
+    'git',
+    ['log', '--reverse', '--format=%aN <%aE>', '--use-mailmap', '--', packagePath],
     { cwd: packageRootPath }
   ).toString().trim().split('\n');
 }
