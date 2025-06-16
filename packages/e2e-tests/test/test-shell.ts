@@ -292,13 +292,10 @@ export class TestShell {
     this.writeInput(`${chars}\n`);
   }
 
-  async executeLine(
-    line: string,
-    opts: { timeout?: number; promptPattern?: RegExp } = {}
-  ): Promise<string> {
+  async executeLine(line: string): Promise<string> {
     const previousOutputLength = this._output.length;
     this.writeInputLine(line);
-    await this.waitForPrompt(previousOutputLength, opts);
+    await this.waitForPrompt(previousOutputLength);
     return this._output.slice(previousOutputLength);
   }
 
