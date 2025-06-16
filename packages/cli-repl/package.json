@@ -98,7 +98,7 @@
     "mongodb": "^6.16.0",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
-    "@mongodb-js/sbom-tools": "^0.7.2",
+    "@mongodb-js/sbom-tools": "^0.8.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@types/ansi-escape-sequences": "^4.0.0",
     "@types/js-yaml": "^4.0.5",
