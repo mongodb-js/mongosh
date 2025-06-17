@@ -48,7 +48,7 @@
   },
   "dependencies": {
     "@mongodb-js/devtools-connect": "^3.4.1",
-    "@mongodb-js/oidc-plugin": "^1.1.7",
+    "@mongodb-js/oidc-plugin": "^1.1.8",
     "@mongosh/errors": "2.4.0",
     "@mongosh/service-provider-core": "3.3.3",
     "@mongosh/types": "3.8.0",

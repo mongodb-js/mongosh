@@ -29,7 +29,7 @@
   "dependencies": {
     "@mongosh/cli-repl": "2.5.2",
     "@mongosh/service-provider-core": "3.3.3",
-    "@mongodb-js/oidc-plugin": "^1.1.7",
+    "@mongodb-js/oidc-plugin": "^1.1.8",
     "strip-ansi": "^6.0.0"
   },
   "devDependencies": {
