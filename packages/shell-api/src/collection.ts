@@ -96,6 +96,7 @@ import { HIDDEN_COMMANDS } from '@mongosh/history';
 import PlanCache from './plan-cache';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ShellApiErrors } from './error-codes';
+import type * as mql from '@mongodb-js/mql-typescript/schema';
 
 export type CollectionWithSchema<
   M extends GenericServerSideSchema = GenericServerSideSchema,
@@ -476,7 +477,7 @@ export class Collection<
   @apiVersions([1])
   @returnsPromise
   async find(
-    query?: Document,
+    query?: mql.Query<C['schema']>,
     projection?: Document,
     options: FindOptions = {}
   ): Promise<Cursor> {
