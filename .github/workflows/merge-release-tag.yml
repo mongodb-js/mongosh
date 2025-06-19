@@ -2,13 +2,6 @@ name: Merge Release Tag
 
 on:
   create:
-    tags:
-      - 'mongosh@[0-9]+.[0-9]+.[0-9]+'
-      - 'mongosh@[0-9]+.[0-9]+.[0-9]-rc.[0-9]+'
-  push:
-    tags:
-      - 'mongosh@[0-9]+.[0-9]+.[0-9]+'
-      - 'mongosh@[0-9]+.[0-9]+.[0-9]-rc.[0-9]+'
   workflow_dispatch:
 
 permissions:
@@ -16,6 +9,7 @@ permissions:
 
 jobs:
   merge-release-tag:
+    if: ${{ github.ref =~ '^refs/tags/mongosh@[0-9]+\.[0-9]+\.[0-9]+(-rc\.[0-9]+)?$' }}
     runs-on: ubuntu-latest
 
     steps:
