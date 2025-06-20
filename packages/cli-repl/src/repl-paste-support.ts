@@ -65,3 +65,36 @@ export function installPasteSupport(repl: REPLServer): string {
   });
   return onEnd;
 }
+
+// Not related to paste support, but rather for integrating with the MongoshNodeRepl's
+// line-by-line input handling.
+export function addReplEventForEvalReady(
+  repl: REPLServer,
+  before: () => boolean,
+  after: () => void
+): void {
+  const wrapMethodWithLineByLineInputNextLine = (
+    repl: REPLServer,
+    key: keyof REPLServer
+  ) => {
+    const originalMethod = repl[key].bind(repl);
+    if (!originalMethod) return;
+    (repl as any)[key] = (...args: any[]) => {
+      if (!before()) {
+        return;
+      }
+      const result = originalMethod(...args);
+      after();
+      return result;
+    };
+  };
+  // https://github.com/nodejs/node/blob/88f4cef8b96b2bb9d4a92f6848ce4d63a82879a8/lib/internal/readline/interface.js#L954
+  // added in https://github.com/nodejs/node/commit/96be7836d794509dd455e66d91c2975419feed64
+  // handles newlines inside multi-line input and replaces `.displayPrompt()` which was
+  // previously used to print the prompt for multi-line input.
+  const addNewLineOnTTYKey = [...prototypeChain(repl)]
+    .flatMap((proto) => Object.getOwnPropertySymbols(proto))
+    .find((s) => String(s).includes('(_addNewLineOnTTY)')) as keyof REPLServer;
+  wrapMethodWithLineByLineInputNextLine(repl, 'displayPrompt');
+  wrapMethodWithLineByLineInputNextLine(repl, addNewLineOnTTYKey);
+}

@@ -47,7 +47,10 @@ import type { FormatOptions } from './format-output';
 import { markTime } from './startup-timing';
 import type { Context } from 'vm';
 import { Script, createContext, runInContext } from 'vm';
-import { installPasteSupport } from './repl-paste-support';
+import {
+  addReplEventForEvalReady,
+  installPasteSupport,
+} from './repl-paste-support';
 import util from 'util';
 
 declare const __non_webpack_require__: any;
@@ -260,7 +263,7 @@ class MongoshNodeRepl implements EvaluationListener {
       repl = asyncRepl.start({
         // 'repl' is not supported in startup snapshots yet.
         // eslint-disable-next-line @typescript-eslint/no-var-requires
-        start: require('pretty-repl').start,
+        //start: require('pretty-repl').start,
         input: this.lineByLineInput,
         output: this.output,
         prompt: '',
@@ -521,15 +524,11 @@ class MongoshNodeRepl implements EvaluationListener {
     // This is used below for multiline history manipulation.
     let originalHistory: string[] | null = null;
 
-    const originalDisplayPrompt = repl.displayPrompt.bind(repl);
-
-    repl.displayPrompt = (...args: any[]) => {
-      if (!this.started) {
-        return;
-      }
-      originalDisplayPrompt(...args);
-      this.lineByLineInput.nextLine();
-    };
+    addReplEventForEvalReady(
+      repl,
+      () => !!this.started,
+      () => this.lineByLineInput.nextLine()
+    );
 
     if (repl.commands.editor) {
       const originalEditorAction = repl.commands.editor.action.bind(repl);
