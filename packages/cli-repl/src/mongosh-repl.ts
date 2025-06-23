@@ -47,10 +47,7 @@ import type { FormatOptions } from './format-output';
 import { markTime } from './startup-timing';
 import type { Context } from 'vm';
 import { Script, createContext, runInContext } from 'vm';
-import {
-  addReplEventForEvalReady,
-  installPasteSupport,
-} from './repl-paste-support';
+import { installPasteSupport } from './repl-paste-support';
 import util from 'util';
 
 declare const __non_webpack_require__: any;
@@ -524,7 +521,7 @@ class MongoshNodeRepl implements EvaluationListener {
     // This is used below for multiline history manipulation.
     let originalHistory: string[] | null = null;
 
-    addReplEventForEvalReady(
+    asyncRepl.addReplEventForEvalReady(
       repl,
       () => !!this.started,
       () => this.lineByLineInput.nextLine()

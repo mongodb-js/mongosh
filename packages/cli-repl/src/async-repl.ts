@@ -5,7 +5,7 @@ import type { ReadLineOptions } from 'readline';
 import type { ReplOptions, REPLServer } from 'repl';
 import type { start as originalStart } from 'repl';
 import { promisify } from 'util';
-import type { KeypressKey } from './repl-paste-support';
+import { prototypeChain, type KeypressKey } from './repl-paste-support';
 
 // Utility, inverse of Readonly<T>
 type Mutable<T> = {
@@ -406,4 +406,40 @@ function wrapPauseInput<Args extends any[], Ret>(
       }
     }
   };
+}
+
+// Not related to paste support, but rather for integrating with the MongoshNodeRepl's
+// line-by-line input handling. Calling this methods adds hooks to `repl` that are called
+// when the REPL is ready to evaluate further input. Eventually, like the other code
+// in this file, we should upstream this into Node.js core and/or evaluate the need for
+// it entirely.
+export function addReplEventForEvalReady(
+  repl: REPLServer,
+  before: () => boolean,
+  after: () => void
+): void {
+  const wrapMethodWithLineByLineInputNextLine = (
+    repl: REPLServer,
+    key: keyof REPLServer
+  ) => {
+    if (!repl[key]) return;
+    const originalMethod = repl[key].bind(repl);
+    (repl as any)[key] = (...args: any[]) => {
+      if (!before()) {
+        return;
+      }
+      const result = originalMethod(...args);
+      after();
+      return result;
+    };
+  };
+  // https://github.com/nodejs/node/blob/88f4cef8b96b2bb9d4a92f6848ce4d63a82879a8/lib/internal/readline/interface.js#L954
+  // added in https://github.com/nodejs/node/commit/96be7836d794509dd455e66d91c2975419feed64
+  // handles newlines inside multi-line input and replaces `.displayPrompt()` which was
+  // previously used to print the prompt for multi-line input.
+  const addNewLineOnTTYKey = [...prototypeChain(repl)]
+    .flatMap((proto) => Object.getOwnPropertySymbols(proto))
+    .find((s) => String(s).includes('(_addNewLineOnTTY)')) as keyof REPLServer;
+  wrapMethodWithLineByLineInputNextLine(repl, 'displayPrompt');
+  wrapMethodWithLineByLineInputNextLine(repl, addNewLineOnTTYKey);
 }
