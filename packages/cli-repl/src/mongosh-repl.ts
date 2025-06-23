@@ -260,7 +260,7 @@ class MongoshNodeRepl implements EvaluationListener {
       repl = asyncRepl.start({
         // 'repl' is not supported in startup snapshots yet.
         // eslint-disable-next-line @typescript-eslint/no-var-requires
-        //start: require('pretty-repl').start,
+        start: require('pretty-repl').start,
         input: this.lineByLineInput,
         output: this.output,
         prompt: '',
