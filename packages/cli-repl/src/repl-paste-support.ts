@@ -77,8 +77,8 @@ export function addReplEventForEvalReady(
     repl: REPLServer,
     key: keyof REPLServer
   ) => {
+    if (!repl[key]) return;
     const originalMethod = repl[key].bind(repl);
-    if (!originalMethod) return;
     (repl as any)[key] = (...args: any[]) => {
       if (!before()) {
         return;
