@@ -521,15 +521,11 @@ class MongoshNodeRepl implements EvaluationListener {
     // This is used below for multiline history manipulation.
     let originalHistory: string[] | null = null;
 
-    const originalDisplayPrompt = repl.displayPrompt.bind(repl);
-
-    repl.displayPrompt = (...args: any[]) => {
-      if (!this.started) {
-        return;
-      }
-      originalDisplayPrompt(...args);
-      this.lineByLineInput.nextLine();
-    };
+    asyncRepl.addReplEventForEvalReady(
+      repl,
+      () => !!this.started,
+      () => this.lineByLineInput.nextLine()
+    );
 
     if (repl.commands.editor) {
       const originalEditorAction = repl.commands.editor.action.bind(repl);

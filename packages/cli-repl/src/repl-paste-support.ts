@@ -11,7 +11,7 @@ export type KeypressKey = {
   code?: string;
 };
 
-function* prototypeChain(obj: unknown): Iterable<unknown> {
+export function* prototypeChain(obj: unknown): Iterable<unknown> {
   if (!obj) return;
   yield obj;
   yield* prototypeChain(Object.getPrototypeOf(obj));
