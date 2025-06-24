@@ -17,12 +17,15 @@ import {
   MongoshRuntimeError,
   MongoshUnimplementedError,
 } from '@mongosh/errors';
+import type { GenericServerSideSchema } from './helpers';
 import { iterate } from './helpers';
 import type Mongo from './mongo';
 
 @shellApiClassDefault
-export default class ChangeStreamCursor extends ShellApiWithMongoClass {
-  _mongo: Mongo;
+export default class ChangeStreamCursor<
+  M extends GenericServerSideSchema = GenericServerSideSchema
+> extends ShellApiWithMongoClass<M> {
+  _mongo: Mongo<M>;
   _cursor: ServiceProviderChangeStream<Document>;
   _currentIterationResult: CursorIterationResult | null = null;
   _on: string;
@@ -30,7 +33,7 @@ export default class ChangeStreamCursor extends ShellApiWithMongoClass {
   constructor(
     cursor: ServiceProviderChangeStream<Document>,
     on: string,
-    mongo: Mongo
+    mongo: Mongo<M>
   ) {
     super();
     this._cursor = cursor;
@@ -119,7 +122,7 @@ export default class ChangeStreamCursor extends ShellApiWithMongoClass {
     return this._cursor.resumeToken;
   }
 
-  map(): ChangeStreamCursor {
+  map(): ChangeStreamCursor<M> {
     throw new MongoshUnimplementedError(
       'Cannot call map on a change stream cursor'
     );
@@ -141,7 +144,7 @@ export default class ChangeStreamCursor extends ShellApiWithMongoClass {
   }
 
   @returnType('ChangeStreamCursor')
-  pretty(): ChangeStreamCursor {
+  pretty(): ChangeStreamCursor<M> {
     return this;
   }
 }

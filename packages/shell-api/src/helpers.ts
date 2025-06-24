@@ -16,8 +16,7 @@ import {
   MongoshUnimplementedError,
 } from '@mongosh/errors';
 import crypto from 'crypto';
-import type { Database } from './database';
-import type { Collection } from './collection';
+import type { DatabaseWithSchema } from './database';
 import type { CursorIterationResult } from './result';
 import { ShellApiErrors } from './error-codes';
 import type {
@@ -223,8 +222,10 @@ export function processDigestPassword(
  * @param configDB
  * @param verbose
  */
-export async function getPrintableShardStatus(
-  configDB: Database,
+export async function getPrintableShardStatus<
+  M extends GenericServerSideSchema = GenericServerSideSchema
+>(
+  configDB: DatabaseWithSchema<M, M['config']>,
   verbose: boolean
 ): Promise<ShardingStatusResult> {
   const result = {} as ShardingStatusResult;
@@ -298,7 +299,7 @@ export async function getPrintableShardStatus(
 
     if (verbose) {
       result[`${mongosAdjective} mongoses`] = await (
-        await mongosColl.find(recentMongosQuery)
+        await mongosColl.find(recentMongosQuery as any)
       )
         .sort({ ping: -1 })
         .toArray();
@@ -372,7 +373,7 @@ export async function getPrintableShardStatus(
       // Output the list of active migrations
       type Lock = { _id: string; when: Date };
       const activeLocks: Lock[] = (await (
-        await configDB.getCollection('locks').find({ state: { $eq: 2 } })
+        await configDB.getCollection('locks').find({ state: { $eq: 2 } } as any)
       ).toArray()) as Lock[];
       if (activeLocks?.length > 0) {
         balancerRes['Collections with active migrations'] = activeLocks.map(
@@ -401,7 +402,7 @@ export async function getPrintableShardStatus(
         const balErrs = await (
           await configDB
             .getCollection('actionlog')
-            .find({ what: 'balancer.round' })
+            .find({ what: 'balancer.round' } as any)
         )
           .sort({ time: -1 })
           .limit(5)
@@ -538,7 +539,7 @@ export async function getPrintableShardStatus(
       await (
         await configDB.getCollection('collections').find({
           ...onlyShardedCollectionsInConfigFilter,
-        })
+        } as any)
       )
         .sort({ _id: 1 })
         .toArray())(),
@@ -621,7 +622,7 @@ export async function getPrintableShardStatus(
             });
 
             for await (const chunk of (
-              await chunksColl.find(chunksCollMatch)
+              await chunksColl.find(chunksCollMatch as any)
             ).sort({ min: 1 })) {
               if (chunksRes.length < 20 || verbose) {
                 const c = {
@@ -662,7 +663,7 @@ export async function getPrintableShardStatus(
             for await (const tag of (
               await configDB.getCollection('tags').find({
                 ns: coll._id,
-              })
+              } as any)
             ).sort({ min: 1 })) {
               if (tagsRes.length < 20 || verbose) {
                 tagsRes.push({
@@ -757,16 +758,6 @@ export type ShardedDataDistribution = {
   }[];
 }[];
 
-export async function getConfigDB(db: Database): Promise<Database> {
-  const helloResult = await db._maybeCachedHello();
-  if (helloResult.msg !== 'isdbgrid') {
-    await db._instanceState.printWarning(
-      'MongoshWarning: [SHAPI-10003] You are not connected to a mongos. This command may not work as expected.'
-    );
-  }
-  return db.getSiblingDB('config');
-}
-
 type AnyBsonNumber =
   | number
   | typeof bson.Long.prototype
@@ -860,7 +851,7 @@ export function addHiddenDataProperty<T = any>(
 
 export async function iterate(
   results: CursorIterationResult,
-  cursor: AbstractCursor<any> | ChangeStreamCursor,
+  cursor: AbstractCursor<any, any> | ChangeStreamCursor,
   batchSize: number
 ): Promise<CursorIterationResult> {
   if (cursor.isClosed()) {
@@ -982,27 +973,6 @@ export function processMapReduceOptions(
   } else {
     return optionsOrOutString;
   }
-}
-
-export async function setHideIndex(
-  coll: Collection,
-  index: string | Document,
-  hidden: boolean
-): Promise<Document> {
-  const cmd =
-    typeof index === 'string'
-      ? {
-          name: index,
-          hidden,
-        }
-      : {
-          keyPattern: index,
-          hidden,
-        };
-  return await coll._database._runCommand({
-    collMod: coll._name,
-    index: cmd,
-  });
 }
 
 export function assertCLI(platform: ReplPlatform, features: string): void {
@@ -1313,9 +1283,33 @@ export interface GenericCollectionSchema {
 export interface GenericDatabaseSchema {
   [key: string]: GenericCollectionSchema;
 }
-export interface GenericServerSideSchema {
+export type GenericServerSideSchema = {
   [key: string]: GenericDatabaseSchema;
-}
+} & {
+  admin: {};
+  config: {
+    collections: GenericCollectionSchema;
+    shards: GenericCollectionSchema;
+    chunks: GenericCollectionSchema;
+    mongos: GenericCollectionSchema;
+    version: GenericCollectionSchema;
+    settings: GenericCollectionSchema;
+    changelog: GenericCollectionSchema;
+    locks: GenericCollectionSchema;
+    databases: GenericCollectionSchema;
+    tags: GenericCollectionSchema;
+  };
+  local: {
+    'system.version': GenericCollectionSchema;
+    'system.profile': GenericCollectionSchema;
+    'system.replset': GenericCollectionSchema;
+    'oplog.rs': GenericCollectionSchema;
+  };
+  /*
+  _fakeDbForMongoshCSKTH: {
+  }
+  */
+};
 export type StringKey<T> = keyof T & string;
 export const aggregateBackgroundOptionNotSupportedHelp =
   'the background option is not supported by the aggregate method and will be ignored, ' +

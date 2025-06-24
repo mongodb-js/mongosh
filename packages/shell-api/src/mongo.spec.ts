@@ -327,7 +327,7 @@ describe('Mongo', function () {
         it('calls database.count and find when count > 0', async function () {
           const expectedResult = [{ a: 'a' }, { b: 'b' }];
           const syscoll = stubInterface<Collection>();
-          const cursor = stubInterface<Cursor>();
+          const cursor = stubInterface<Cursor<M>>();
           cursor.sort.returns(cursor);
           cursor.limit.returns(cursor);
           cursor.toArray.resolves(expectedResult);

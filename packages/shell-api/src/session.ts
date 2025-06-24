@@ -24,12 +24,12 @@ import { assertArgsDefinedType, isValidDatabaseName } from './helpers';
 @classPlatforms(['CLI'])
 export default class Session<
   M extends GenericServerSideSchema = GenericServerSideSchema
-> extends ShellApiWithMongoClass {
+> extends ShellApiWithMongoClass<M> {
   public id: ServerSessionId | undefined;
   public _session: ClientSession;
   public _options: ClientSessionOptions;
   public _mongo: Mongo<M>;
-  private _databases: Record<string, DatabaseWithSchema<M>>;
+  private _databases: Record<StringKey<M>, DatabaseWithSchema<M>>;
 
   constructor(
     mongo: Mongo<M>,
@@ -40,7 +40,7 @@ export default class Session<
     this._session = session;
     this._options = options;
     this._mongo = mongo;
-    this._databases = {};
+    this._databases = Object.create(null);
     this.id = session.id;
   }
 
@@ -66,7 +66,7 @@ export default class Session<
         this._mongo,
         name,
         this
-      ) as DatabaseWithSchema<M, M[K]>;
+      ) as unknown as DatabaseWithSchema<M, M[K]>;
     }
     return this._databases[name] as DatabaseWithSchema<M, M[K]>;
   }

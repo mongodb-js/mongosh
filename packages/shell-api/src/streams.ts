@@ -8,20 +8,18 @@ import {
 } from './decorators';
 import StreamProcessor from './stream-processor';
 import { ADMIN_DB, asPrintable, shellApiType } from './enums';
-import type { Database, DatabaseWithSchema } from './database';
+import type { DatabaseWithSchema } from './database';
 import type Mongo from './mongo';
-import type { GenericDatabaseSchema, GenericServerSideSchema } from './helpers';
+import type { GenericServerSideSchema } from './helpers';
 
 @shellApiClassDefault
 export class Streams<
-  M extends GenericServerSideSchema = GenericServerSideSchema,
-  D extends GenericDatabaseSchema = GenericDatabaseSchema
-> extends ShellApiWithMongoClass {
+  M extends GenericServerSideSchema = GenericServerSideSchema
+> extends ShellApiWithMongoClass<M> {
   public static newInstance<
-    M extends GenericServerSideSchema = GenericServerSideSchema,
-    D extends GenericDatabaseSchema = GenericDatabaseSchema
-  >(database: DatabaseWithSchema<M, D>) {
-    return new Proxy(new Streams<M, D>(database), {
+    M extends GenericServerSideSchema = GenericServerSideSchema
+  >(database: DatabaseWithSchema<M, any>) {
+    return new Proxy(new Streams<M>(database), {
       get(target, prop) {
         const v = (target as any)[prop];
         if (v !== undefined) {
@@ -34,11 +32,11 @@ export class Streams<
     });
   }
 
-  private _database: DatabaseWithSchema<M, D>;
+  private _database: DatabaseWithSchema<M, any>;
 
-  constructor(database: DatabaseWithSchema<M, D> | Database<M, D>) {
+  constructor(database: DatabaseWithSchema<M, any>) {
     super();
-    this._database = database as DatabaseWithSchema<M, D>;
+    this._database = database;
   }
 
   get _mongo(): Mongo<M> {
@@ -49,8 +47,8 @@ export class Streams<
     return 'Atlas Stream Processing';
   }
 
-  getProcessor(name: string): StreamProcessor {
-    return new StreamProcessor(this, name);
+  getProcessor(name: string): StreamProcessor<M> {
+    return new StreamProcessor<M>(this, name);
   }
 
   @returnsPromise
@@ -137,7 +135,7 @@ export class Streams<
       return result;
     }
     const rawProcessors = result.streamProcessors;
-    const sps = rawProcessors.map((sp: StreamProcessor) =>
+    const sps = rawProcessors.map((sp: StreamProcessor<M>) =>
       this.getProcessor(sp.name)
     );
 

@@ -3,14 +3,21 @@ import Cursor from './cursor';
 import type Mongo from './mongo';
 import { asPrintable } from './enums';
 import type { ExplainVerbosityLike } from '@mongosh/service-provider-core';
+import type { GenericServerSideSchema } from './helpers';
 
 @shellApiClassDefault
-export default class ExplainableCursor extends Cursor {
-  _baseCursor: Cursor;
+export default class ExplainableCursor<
+  M extends GenericServerSideSchema = GenericServerSideSchema
+> extends Cursor<M> {
+  _baseCursor: Cursor<M>;
   _verbosity: ExplainVerbosityLike;
   _explained: any;
 
-  constructor(mongo: Mongo, cursor: Cursor, verbosity: ExplainVerbosityLike) {
+  constructor(
+    mongo: Mongo<M>,
+    cursor: Cursor<M>,
+    verbosity: ExplainVerbosityLike
+  ) {
     super(mongo, cursor._cursor);
     this._baseCursor = cursor;
     this._verbosity = verbosity;

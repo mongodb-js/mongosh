@@ -262,7 +262,7 @@ describe('ShellApi', function () {
         );
       });
       it('calls _it on current Cursor', async function () {
-        instanceState.currentCursor = stubInterface<Cursor>();
+        instanceState.currentCursor = stubInterface<Cursor<M>>();
         await instanceState.shellApi.it();
         expect(instanceState.currentCursor._it).to.have.been.called;
       });
@@ -593,7 +593,7 @@ describe('ShellApi', function () {
         );
       });
       it('calls _it on current Cursor', async function () {
-        instanceState.currentCursor = stubInterface<Cursor>();
+        instanceState.currentCursor = stubInterface<Cursor<M>>();
         await instanceState.context.it();
         expect(instanceState.currentCursor._it).to.have.been.called;
       });

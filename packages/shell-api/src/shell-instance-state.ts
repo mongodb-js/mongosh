@@ -148,12 +148,12 @@ const CONTROL_CHAR_REGEXP = /[\x00-\x1F\x7F-\x9F]/g;
  */
 export class ShellInstanceState {
   public currentCursor:
-    | Cursor
-    | AggregationCursor
-    | ChangeStreamCursor
-    | RunCommandCursor
+    | Cursor<any>
+    | AggregationCursor<any>
+    | ChangeStreamCursor<any>
+    | RunCommandCursor<any>
     | null;
-  public currentDb: DatabaseWithSchema;
+  public currentDb: DatabaseWithSchema<any, any>;
   public messageBus: MongoshBus;
   public initialServiceProvider: ServiceProvider; // the initial service provider
   private connectionInfoCache: {
@@ -167,7 +167,8 @@ export class ShellInstanceState {
     info: Promise<ConnectionInfo> | ConnectionInfo | undefined;
   };
   public context: any;
-  public mongos: Mongo[];
+  // TODO: shouldn't these somehow be generic? Same with any of the ones used below.
+  public mongos: Mongo<any>[];
   public shellApi: ShellApi;
   public shellLog: ShellLog;
   public shellBson: ShellBson;
@@ -211,7 +212,7 @@ export class ShellInstanceState {
       info: undefined,
     };
     if (!cliOptions.nodb) {
-      const mongo = new Mongo(
+      const mongo = new Mongo<any>(
         this,
         undefined,
         undefined,
@@ -223,7 +224,7 @@ export class ShellInstanceState {
         initialServiceProvider.initialDb || DEFAULT_DB
       );
     } else {
-      this.currentDb = new NoDatabase() as DatabaseWithSchema;
+      this.currentDb = new NoDatabase<any>() as DatabaseWithSchema<any, any>;
     }
     this.currentCursor = null;
     this.context = {};
@@ -288,9 +289,9 @@ export class ShellInstanceState {
 
   public setDbFunc(newDb: any): DatabaseWithSchema {
     this.currentDb = newDb;
-    this.context.rs = new ReplicaSet(this.currentDb);
-    this.context.sh = new Shard(this.currentDb);
-    this.context.sp = Streams.newInstance(this.currentDb);
+    this.context.rs = new ReplicaSet<any, any>(this.currentDb);
+    this.context.sh = new Shard<any, any>(this.currentDb);
+    this.context.sp = Streams.newInstance<any>(this.currentDb);
     this.fetchConnectionInfo().catch((err) =>
       this.messageBus.emit('mongosh:error', err, 'shell-api')
     );
@@ -351,9 +352,9 @@ export class ShellInstanceState {
     }
     contextObject.console.clear = contextObject.cls;
 
-    contextObject.rs = new ReplicaSet(this.currentDb);
-    contextObject.sh = new Shard(this.currentDb);
-    contextObject.sp = Streams.newInstance(this.currentDb);
+    contextObject.rs = new ReplicaSet<any, any>(this.currentDb);
+    contextObject.sh = new Shard<any, any>(this.currentDb);
+    contextObject.sp = Streams.newInstance<any>(this.currentDb);
 
     const setFunc = (newDb: any): DatabaseWithSchema => {
       if (getShellApiType(newDb) !== 'Database') {

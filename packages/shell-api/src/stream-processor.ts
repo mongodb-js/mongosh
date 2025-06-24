@@ -10,14 +10,17 @@ import {
 } from './decorators';
 
 import type { Streams } from './streams';
+import type { GenericServerSideSchema } from './helpers';
 
 @shellApiClassDefault
-export class StreamProcessor extends ShellApiWithMongoClass {
-  constructor(public _streams: Streams, public name: string) {
+export class StreamProcessor<
+  M extends GenericServerSideSchema = GenericServerSideSchema
+> extends ShellApiWithMongoClass<M> {
+  constructor(public _streams: Streams<M>, public name: string) {
     super();
   }
 
-  get _mongo(): Mongo {
+  get _mongo(): Mongo<M> {
     return this._streams._mongo;
   }
 

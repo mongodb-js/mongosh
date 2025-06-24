@@ -26,7 +26,6 @@ import {
   processDigestPassword,
   tsToSeconds,
   isValidCollectionName,
-  getConfigDB,
   shouldRunAggregationImmediately,
   adjustRunCommand,
   getBadge,
@@ -85,15 +84,15 @@ export type DatabaseWithSchema<
 export class Database<
   M extends GenericServerSideSchema = GenericServerSideSchema,
   D extends GenericDatabaseSchema = GenericDatabaseSchema
-> extends ShellApiWithMongoClass {
+> extends ShellApiWithMongoClass<M> {
   _mongo: Mongo<M>;
   _name: StringKey<M>;
   _collections: Record<StringKey<D>, CollectionWithSchema<M, D>>;
-  _session: Session | undefined;
+  _session: Session<M> | undefined;
   _cachedCollectionNames: StringKey<D>[] = [];
   _cachedHello: Document | null = null;
 
-  constructor(mongo: Mongo<M>, name: StringKey<M>, session?: Session) {
+  constructor(mongo: Mongo<M>, name: StringKey<M>, session?: Session<M>) {
     super();
     this._mongo = mongo;
     this._name = name;
@@ -120,7 +119,7 @@ export class Database<
         if (!collections[prop]) {
           collections[prop] = new Collection<M, D>(
             mongo,
-            proxy,
+            proxy as DatabaseWithSchema<M, D>,
             prop
           ) as CollectionWithSchema<M, D>;
         }
@@ -223,7 +222,7 @@ export class Database<
   public async _runCursorCommand(
     cmd: Document,
     options: CommandOperationOptions = {}
-  ): Promise<RunCommandCursor> {
+  ): Promise<RunCommandCursor<M>> {
     const providerCursor = this._mongo._serviceProvider.runCursorCommand(
       this._name,
       adjustRunCommand(cmd, this._instanceState.shellBson),
@@ -242,7 +241,7 @@ export class Database<
   public async _runAdminCursorCommand(
     cmd: Document,
     options: CommandOperationOptions = {}
-  ): Promise<RunCommandCursor> {
+  ): Promise<RunCommandCursor<M>> {
     return this.getSiblingDB('admin')._runCursorCommand(cmd, options);
   }
 
@@ -449,12 +448,14 @@ export class Database<
   async aggregate(
     pipeline: Document[],
     options?: AggregateOptions
-  ): Promise<AggregationCursor>;
-  async aggregate(...stages: Document[]): Promise<AggregationCursor>;
+  ): Promise<AggregationCursor<M>>;
+  async aggregate(...stages: Document[]): Promise<AggregationCursor<M>>;
   @returnsPromise
   @returnType('AggregationCursor')
   @apiVersions([1])
-  async aggregate(...args: unknown[]): Promise<AggregationCursor | Document> {
+  async aggregate(
+    ...args: unknown[]
+  ): Promise<AggregationCursor<M> | Document> {
     let options: AggregateOptions;
     let pipeline: Document[];
     if (args.length === 0 || Array.isArray(args[0])) {
@@ -518,13 +519,13 @@ export class Database<
       );
     }
 
-    const collections: Record<string, CollectionWithSchema<M, D>> = this
+    const collections: Record<StringKey<D>, CollectionWithSchema<M, D>> = this
       ._collections;
 
     if (!collections[coll]) {
       collections[coll] = new Collection<M, D>(
         this._mongo,
-        this,
+        this as DatabaseWithSchema<M, D>,
         coll
       ) as CollectionWithSchema<M, D>;
     }
@@ -840,7 +841,7 @@ export class Database<
   async createEncryptedCollection(
     name: string,
     options: CreateEncryptedCollectionOptions
-  ): Promise<{ collection: Collection; encryptedFields: Document }> {
+  ): Promise<{ collection: Collection<M>; encryptedFields: Document }> {
     this._emitDatabaseApiCall('createEncryptedCollection', {
       name: name,
       options: options,
@@ -1529,13 +1530,23 @@ export class Database<
     return result.err || null;
   }
 
+  async _getConfigDB(): Promise<DatabaseWithSchema<M, M[keyof M]>> {
+    const helloResult = await this._maybeCachedHello();
+    if (helloResult.msg !== 'isdbgrid') {
+      await this._instanceState.printWarning(
+        'MongoshWarning: [SHAPI-10003] You are not connected to a mongos. This command may not work as expected.'
+      );
+    }
+    return this.getSiblingDB('config' as any);
+  }
+
   @returnsPromise
   @topologies([Topologies.Sharded])
   @apiVersions([1])
   async printShardingStatus(verbose = false): Promise<CommandResult> {
     this._emitDatabaseApiCall('printShardingStatus', { verbose });
     const result = await getPrintableShardStatus(
-      await getConfigDB(this),
+      await this._getConfigDB(),
       verbose
     );
     return new CommandResult('StatsResult', result);
@@ -1741,13 +1752,13 @@ export class Database<
   async watch(
     pipeline: Document[] | ChangeStreamOptions = [],
     options: ChangeStreamOptions = {}
-  ): Promise<ChangeStreamCursor> {
+  ): Promise<ChangeStreamCursor<M>> {
     if (!Array.isArray(pipeline)) {
       options = pipeline;
       pipeline = [];
     }
     this._emitDatabaseApiCall('watch', { pipeline, options });
-    const cursor = new ChangeStreamCursor(
+    const cursor = new ChangeStreamCursor<M>(
       this._mongo._serviceProvider.watch(
         pipeline,
         {
@@ -1777,7 +1788,7 @@ export class Database<
   async sql(
     sqlString: string,
     options?: AggregateOptions
-  ): Promise<AggregationCursor> {
+  ): Promise<AggregationCursor<M>> {
     this._emitDatabaseApiCall('sql', { sqlString: sqlString, options });
     await this._instanceState.shellApi.print(
       'Note: this is an experimental feature that may be subject to change in future releases.'
@@ -1819,7 +1830,7 @@ export class Database<
   @returnsPromise
   async checkMetadataConsistency(
     options: CheckMetadataConsistencyOptions = {}
-  ): Promise<RunCommandCursor> {
+  ): Promise<RunCommandCursor<M>> {
     this._emitDatabaseApiCall('checkMetadataConsistency', { options });
 
     return this._runCursorCommand({

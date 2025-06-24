@@ -1,4 +1,4 @@
-import type { Database, DatabaseWithSchema } from './database';
+import type { DatabaseWithSchema } from './database';
 import {
   shellApiClassDefault,
   returnsPromise,
@@ -18,11 +18,7 @@ import type {
   GenericDatabaseSchema,
   GenericServerSideSchema,
 } from './helpers';
-import {
-  assertArgsDefinedType,
-  getConfigDB,
-  getPrintableShardStatus,
-} from './helpers';
+import { assertArgsDefinedType, getPrintableShardStatus } from './helpers';
 import { ServerVersions, asPrintable } from './enums';
 import type { UpdateResult } from './result';
 import { CommandResult } from './result';
@@ -36,12 +32,12 @@ import semver from 'semver';
 export default class Shard<
   M extends GenericServerSideSchema = GenericServerSideSchema,
   D extends GenericDatabaseSchema = GenericDatabaseSchema
-> extends ShellApiWithMongoClass {
+> extends ShellApiWithMongoClass<M> {
   _database: DatabaseWithSchema<M, D>;
 
-  constructor(database: DatabaseWithSchema<M, D> | Database<M, D>) {
+  constructor(database: DatabaseWithSchema<M, D>) {
     super();
-    this._database = database as DatabaseWithSchema<M, D>;
+    this._database = database;
   }
 
   get _mongo(): Mongo<M> {
@@ -209,14 +205,24 @@ export default class Shard<
     }
   }
 
+  async _getConfigDB(): Promise<DatabaseWithSchema<M, M[keyof M]>> {
+    const helloResult = await this._database._maybeCachedHello();
+    if (helloResult.msg !== 'isdbgrid') {
+      await this._instanceState.printWarning(
+        'MongoshWarning: [SHAPI-10003] You are not connected to a mongos. This command may not work as expected.'
+      );
+    }
+    return this._database.getSiblingDB('config' as any);
+  }
+
   @returnsPromise
   @apiVersions([1])
   async status(
     verbose = false,
-    configDB?: DatabaseWithSchema<M, D>
+    configDB?: DatabaseWithSchema<M, M[keyof M]>
   ): Promise<CommandResult<ShardingStatusResult>> {
     const result = await getPrintableShardStatus(
-      configDB ?? (await getConfigDB(this._database)),
+      configDB ?? (await this._getConfigDB()),
       verbose
     );
     return new CommandResult('StatsResult', result);
@@ -226,7 +232,7 @@ export default class Shard<
   @apiVersions([])
   async addShard(url: string): Promise<Document> {
     assertArgsDefinedType([url], ['string'], 'Shard.addShard');
-    await getConfigDB(this._database);
+    await this._getConfigDB();
     this._emitShardApiCall('addShard', { url });
     return this._database._runAdminCommand({
       addShard: url,
@@ -243,7 +249,7 @@ export default class Shard<
       'Shard.addShardToZone'
     );
     this._emitShardApiCall('addShardToZone', { shard, zone });
-    await getConfigDB(this._database); // will error if not connected to mongos
+    await this._getConfigDB(); // will error if not connected to mongos
     return this._database._runAdminCommand({
       addShardToZone: shard,
       zone: zone,
@@ -285,7 +291,7 @@ export default class Shard<
     );
     this._emitShardApiCall('updateZoneKeyRange', { namespace, min, max, zone });
 
-    await getConfigDB(this._database); // will error if not connected to mongos
+    await this._getConfigDB(); // will error if not connected to mongos
     return await this._database._runAdminCommand({
       updateZoneKeyRange: namespace,
       min,
@@ -372,7 +378,7 @@ export default class Shard<
     );
     this._emitShardApiCall('removeShardFromZone', { shard, zone });
 
-    await getConfigDB(this._database); // will error if not connected to mongos
+    await this._getConfigDB(); // will error if not connected to mongos
     return await this._database._runAdminCommand({
       removeShardFromZone: shard,
       zone: zone,
@@ -413,7 +419,7 @@ export default class Shard<
       );
     }
     this._emitShardApiCall('enableAutoSplit', {});
-    const config = await getConfigDB(this._database);
+    const config = await this._getConfigDB();
     return (await config
       .getCollection('settings')
       .updateOne(
@@ -437,7 +443,7 @@ export default class Shard<
       );
     }
     this._emitShardApiCall('disableAutoSplit', {});
-    const config = await getConfigDB(this._database);
+    const config = await this._getConfigDB();
     return (await config
       .getCollection('settings')
       .updateOne(
@@ -504,7 +510,7 @@ export default class Shard<
     );
 
     this._emitShardApiCall('moveRange', { ns, toShard, min, max });
-    await getConfigDB(this._database); // will error if not connected to mongos
+    await this._getConfigDB(); // will error if not connected to mongos
 
     return this._database._runAdminCommand({
       moveRange: ns,
@@ -530,7 +536,7 @@ export default class Shard<
   async enableBalancing(ns: string): Promise<UpdateResult> {
     assertArgsDefinedType([ns], ['string'], 'Shard.enableBalancing');
     this._emitShardApiCall('enableBalancing', { ns });
-    const config = await getConfigDB(this._database);
+    const config = await this._getConfigDB();
     return (await config
       .getCollection('collections')
       .updateOne(
@@ -545,7 +551,7 @@ export default class Shard<
   async disableBalancing(ns: string): Promise<UpdateResult> {
     assertArgsDefinedType([ns], ['string'], 'Shard.disableBalancing');
     this._emitShardApiCall('disableBalancing', { ns });
-    const config = await getConfigDB(this._database);
+    const config = await this._getConfigDB();
     return (await config
       .getCollection('collections')
       .updateOne(
@@ -559,7 +565,7 @@ export default class Shard<
   @apiVersions([])
   async getBalancerState(): Promise<boolean> {
     this._emitShardApiCall('getBalancerState', {});
-    const config = await getConfigDB(this._database);
+    const config = await this._getConfigDB();
     const doc = await config
       .getCollection('settings')
       .findOne({ _id: 'balancer' });
@@ -573,7 +579,7 @@ export default class Shard<
   @apiVersions([])
   async isBalancerRunning(): Promise<Document> {
     this._emitShardApiCall('isBalancerRunning', {});
-    await getConfigDB(this._database);
+    await this._getConfigDB();
     return this._database._runAdminReadCommand({
       balancerStatus: 1,
     });
@@ -616,7 +622,9 @@ export default class Shard<
   @apiVersions([])
   @serverVersions(['6.0.3', ServerVersions.latest])
   @returnType('AggregationCursor')
-  async getShardedDataDistribution(options = {}): Promise<AggregationCursor> {
+  async getShardedDataDistribution(
+    options = {}
+  ): Promise<AggregationCursor<M>> {
     this._emitShardApiCall('getShardedDataDistribution', {});
 
     const cursor = await this._database
@@ -642,7 +650,7 @@ export default class Shard<
   @serverVersions(['7.0.0', ServerVersions.latest])
   async startAutoMerger(): Promise<UpdateResult> {
     this._emitShardApiCall('startAutoMerger', {});
-    const config = await getConfigDB(this._database);
+    const config = await this._getConfigDB();
     return (await config
       .getCollection('settings')
       .updateOne(
@@ -657,7 +665,7 @@ export default class Shard<
   @serverVersions(['7.0.0', ServerVersions.latest])
   async stopAutoMerger(): Promise<UpdateResult> {
     this._emitShardApiCall('stopAutoMerger', {});
-    const config = await getConfigDB(this._database);
+    const config = await this._getConfigDB();
     return (await config
       .getCollection('settings')
       .updateOne(
@@ -672,7 +680,7 @@ export default class Shard<
   @serverVersions(['7.0.0', ServerVersions.latest])
   async isAutoMergerEnabled(): Promise<boolean> {
     this._emitShardApiCall('isAutoMergerEnabled', {});
-    const config = await getConfigDB(this._database);
+    const config = await this._getConfigDB();
     const doc = await config
       .getCollection('settings')
       .findOne({ _id: 'automerge' });
@@ -689,7 +697,7 @@ export default class Shard<
     assertArgsDefinedType([ns], ['string'], 'Shard.disableAutoMerger');
 
     this._emitShardApiCall('disableAutoMerger', { ns });
-    const config = await getConfigDB(this._database);
+    const config = await this._getConfigDB();
     return (await config
       .getCollection('collections')
       .updateOne(
@@ -706,7 +714,7 @@ export default class Shard<
     assertArgsDefinedType([ns], ['string'], 'Shard.enableAutoMerger');
 
     this._emitShardApiCall('enableAutoMerger', { ns });
-    const config = await getConfigDB(this._database);
+    const config = await this._getConfigDB();
     return (await config
       .getCollection('collections')
       .updateOne(
@@ -720,7 +728,7 @@ export default class Shard<
   @serverVersions(['7.0.0', ServerVersions.latest])
   async checkMetadataConsistency(
     options: CheckMetadataConsistencyOptions = {}
-  ): Promise<RunCommandCursor> {
+  ): Promise<RunCommandCursor<M>> {
     this._emitShardApiCall('checkMetadataConsistency', { options });
 
     return this._database._runAdminCursorCommand({
@@ -824,7 +832,7 @@ export default class Shard<
   @returnsPromise
   async listShards(): Promise<ShardInfo[]> {
     this._emitShardApiCall('listShards', {});
-    await getConfigDB(this._database);
+    await this._getConfigDB();
 
     return (await this._database.adminCommand({ listShards: 1 })).shards ?? [];
   }
@@ -834,7 +842,7 @@ export default class Shard<
   @returnsPromise
   async isConfigShardEnabled(): Promise<Document> {
     this._emitShardApiCall('isConfigShardEnabled', {});
-    await getConfigDB(this._database);
+    await this._getConfigDB();
 
     const shards = (await this._database.adminCommand({ listShards: 1 }))
       .shards as Document[] | undefined;

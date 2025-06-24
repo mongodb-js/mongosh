@@ -10,6 +10,7 @@ import type {
   ServiceProviderFindCursor,
   ServiceProviderAggregationCursor,
 } from '@mongosh/service-provider-core';
+import type { GenericServerSideSchema } from './helpers';
 import { validateExplainableVerbosity, markAsExplainOutput } from './helpers';
 import { AbstractCursor } from './abstract-cursor';
 
@@ -17,8 +18,9 @@ import { AbstractCursor } from './abstract-cursor';
 export abstract class AggregateOrFindCursor<
   CursorType extends
     | ServiceProviderAggregationCursor
-    | ServiceProviderFindCursor
-> extends AbstractCursor<CursorType> {
+    | ServiceProviderFindCursor,
+  M extends GenericServerSideSchema = GenericServerSideSchema
+> extends AbstractCursor<CursorType, M> {
   @returnType('this')
   projection(spec: Document): this {
     this._cursor.project(spec);

@@ -87,8 +87,8 @@ export default class Mongo<
   public _instanceState: ShellInstanceState;
   public _connectionInfo: ConnectionInfo;
   private _explicitEncryptionOnly = false;
-  private _keyVault: KeyVault | undefined; // need to keep it around so that the ShellApi ClientEncryption class can access it
-  private _clientEncryption: ClientEncryption | undefined;
+  private _keyVault: KeyVault<M> | undefined; // need to keep it around so that the ShellApi ClientEncryption class can access it
+  private _clientEncryption: ClientEncryption<M> | undefined;
   private _readPreferenceWasExplicitlyRequested = false;
   private _cachedDatabaseNames: StringKey<M>[] = [];
 
@@ -472,7 +472,9 @@ export default class Mongo<
           count: await sysprof.countDocuments({}),
         } as Document;
         if (profiles.count !== 0) {
-          profiles.result = await (await sysprof.find({ millis: { $gt: 0 } }))
+          profiles.result = await (
+            await sysprof.find({ millis: { $gt: 0 } } as any)
+          )
             .sort({ $natural: -1 })
             .limit(5)
             .toArray();
@@ -745,7 +747,7 @@ export default class Mongo<
   }
 
   @topologies([Topologies.ReplSet])
-  startSession(options: Document = {}): Session {
+  startSession(options: Document = {}): Session<M> {
     const allTransactionOptions = [
       'readConcern',
       'writeConcern',
@@ -790,7 +792,7 @@ export default class Mongo<
       }
     }
 
-    return new Session(
+    return new Session<M>(
       this,
       driverOptions,
       this._serviceProvider.startSession(driverOptions)
@@ -847,13 +849,13 @@ export default class Mongo<
   async watch(
     pipeline: Document[] | ChangeStreamOptions = [],
     options: ChangeStreamOptions = {}
-  ): Promise<ChangeStreamCursor> {
+  ): Promise<ChangeStreamCursor<M>> {
     if (!Array.isArray(pipeline)) {
       options = pipeline;
       pipeline = [];
     }
     this._emitMongoApiCall('watch', { pipeline, options });
-    const cursor = new ChangeStreamCursor(
+    const cursor = new ChangeStreamCursor<M>(
       this._serviceProvider.watch(pipeline, options),
       redactURICredentials(this._uri),
       this
@@ -872,7 +874,7 @@ export default class Mongo<
   @platforms(['CLI'])
   @serverVersions(['4.2.0', ServerVersions.latest])
   @returnType('ClientEncryption')
-  getClientEncryption(): ClientEncryption {
+  getClientEncryption(): ClientEncryption<M> {
     if (!this._fleOptions) {
       throw new MongoshInvalidInputError(
         'Cannot call getClientEncryption() without field-level encryption options',
@@ -880,7 +882,7 @@ export default class Mongo<
       );
     }
     if (!this._clientEncryption) {
-      this._clientEncryption = new ClientEncryption(this);
+      this._clientEncryption = new ClientEncryption<M>(this);
     }
     return this._clientEncryption;
   }
@@ -889,9 +891,9 @@ export default class Mongo<
   @serverVersions(['4.2.0', ServerVersions.latest])
   @returnType('KeyVault')
   @returnsPromise
-  async getKeyVault(): Promise<KeyVault> {
+  async getKeyVault(): Promise<KeyVault<M>> {
     if (!this._keyVault) {
-      this._keyVault = new KeyVault(this.getClientEncryption());
+      this._keyVault = new KeyVault<M>(this.getClientEncryption());
       await this._keyVault._init();
     }
     return this._keyVault;

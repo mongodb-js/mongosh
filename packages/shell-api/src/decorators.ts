@@ -13,6 +13,7 @@ import {
   shellApiType,
 } from './enums';
 import Help from './help';
+import type { GenericServerSideSchema } from './helpers';
 import { addHiddenDataProperty } from './helpers';
 
 const addSourceToResultsSymbol = Symbol.for('@@mongosh.addSourceToResults');
@@ -104,8 +105,10 @@ export abstract class ShellApiClass {
  * Helper for shell API classes which have access to a {@link Mongo}
  * object instance.
  */
-export abstract class ShellApiWithMongoClass extends ShellApiClass {
-  abstract get _mongo(): Mongo;
+export abstract class ShellApiWithMongoClass<
+  M extends GenericServerSideSchema = GenericServerSideSchema
+> extends ShellApiClass {
+  abstract get _mongo(): Mongo<M>;
 
   get _instanceState(): ShellInstanceState {
     // _mongo can be undefined in tests

@@ -36,7 +36,6 @@ import {
   processFindAndModifyOptions,
   processRemoveOptions,
   processMapReduceOptions,
-  setHideIndex,
   maybeMarkAsExplainOutput,
   markAsExplainOutput,
   assertArgsDefinedType,
@@ -73,7 +72,7 @@ import type {
   AggregateOptions,
   SearchIndexDescription,
 } from '@mongosh/service-provider-core';
-import type { RunCommandCursor, Database, DatabaseWithSchema } from './index';
+import type { RunCommandCursor, DatabaseWithSchema } from './index';
 import {
   AggregationCursor,
   BulkWriteResult,
@@ -119,19 +118,15 @@ export class Collection<
   D extends GenericDatabaseSchema = M[keyof M],
   C extends GenericCollectionSchema = D[keyof D],
   N extends StringKey<D> = StringKey<D>
-> extends ShellApiWithMongoClass {
+> extends ShellApiWithMongoClass<M> {
   _mongo: Mongo<M>;
   _database: DatabaseWithSchema<M, D>;
   _name: N;
   _cachedSampleDocs: Document[] = [];
-  constructor(
-    mongo: Mongo<M>,
-    database: DatabaseWithSchema<M, D> | Database<M, D>,
-    name: N
-  ) {
+  constructor(mongo: Mongo<M>, database: DatabaseWithSchema<M, D>, name: N) {
     super();
     this._mongo = mongo;
-    this._database = database as DatabaseWithSchema<M, D>;
+    this._database = database;
     this._name = name;
     const proxy = new Proxy(this, {
       get: (target, prop): any => {
@@ -195,12 +190,14 @@ export class Collection<
   async aggregate(
     pipeline: Document[],
     options?: AggregateOptions
-  ): Promise<AggregationCursor>;
-  async aggregate(...stages: Document[]): Promise<AggregationCursor>;
+  ): Promise<AggregationCursor<M>>;
+  async aggregate(...stages: Document[]): Promise<AggregationCursor<M>>;
   @returnsPromise
   @returnType('AggregationCursor')
   @apiVersions([1])
-  async aggregate(...args: unknown[]): Promise<AggregationCursor | Document> {
+  async aggregate(
+    ...args: unknown[]
+  ): Promise<AggregationCursor<M> | Document> {
     let options: AggregateOptions;
     let pipeline: Document[];
     if (args.length === 0 || Array.isArray(args[0])) {
@@ -234,7 +231,7 @@ export class Collection<
       await cursor.hasNext();
     }
 
-    this._mongo._instanceState.currentCursor = cursor;
+    this._mongo._instanceState.currentCursor = cursor as Cursor;
     return cursor;
   }
 
@@ -480,13 +477,13 @@ export class Collection<
     query?: mql.Query<C['schema']>,
     projection?: Document,
     options: FindOptions = {}
-  ): Promise<Cursor> {
+  ): Promise<Cursor<M>> {
     if (projection) {
       options.projection = projection;
     }
 
     this._emitCollectionApiCall('find', { query, options });
-    const cursor = new Cursor(
+    const cursor = new Cursor<M>(
       this._mongo,
       this._mongo._serviceProvider.find(
         this._database._name,
@@ -570,7 +567,7 @@ export class Collection<
     }
 
     this._emitCollectionApiCall('findOne', { query, options });
-    return new Cursor(
+    return new Cursor<M>(
       this._mongo,
       this._mongo._serviceProvider.find(
         this._database._name,
@@ -1635,10 +1632,16 @@ export class Collection<
 
   @returnType('Explainable')
   @apiVersions([1])
-  explain(verbosity: ExplainVerbosityLike = 'queryPlanner'): Explainable {
+  explain(
+    verbosity: ExplainVerbosityLike = 'queryPlanner'
+  ): Explainable<M, D, C, N> {
     verbosity = validateExplainableVerbosity(verbosity);
     this._emitCollectionApiCall('explain', { verbosity });
-    return new Explainable(this._mongo, this, verbosity);
+    return new Explainable<M, D, C, N>(
+      this._mongo,
+      this as CollectionWithSchema<M, D, C, N>,
+      verbosity
+    );
   }
 
   /**
@@ -1796,7 +1799,7 @@ export class Collection<
     }
 
     const ns = `${this._database._name}.${this._name}`;
-    const config = this._mongo.getDB('config' as StringKey<M>);
+    const config = this._mongo.getDB('config');
     if (collStats[0].shard) {
       result.shards = shardStats;
     }
@@ -2001,7 +2004,7 @@ export class Collection<
   @returnsPromise
   @returnType('Bulk')
   @apiVersions([1])
-  async initializeOrderedBulkOp(): Promise<Bulk> {
+  async initializeOrderedBulkOp(): Promise<Bulk<M, D, C, N>> {
     this._emitCollectionApiCall('initializeOrderedBulkOp');
     const innerBulk = await this._mongo._serviceProvider.initializeBulkOp(
       this._database._name,
@@ -2009,13 +2012,17 @@ export class Collection<
       true,
       await this._database._baseOptions()
     );
-    return new Bulk(this, innerBulk, true);
+    return new Bulk<M, D, C, N>(
+      this as CollectionWithSchema<M, D, C, N>,
+      innerBulk,
+      true
+    );
   }
 
   @returnsPromise
   @returnType('Bulk')
   @apiVersions([1])
-  async initializeUnorderedBulkOp(): Promise<Bulk> {
+  async initializeUnorderedBulkOp(): Promise<Bulk<M, D, C, N>> {
     this._emitCollectionApiCall('initializeUnorderedBulkOp');
     const innerBulk = await this._mongo._serviceProvider.initializeBulkOp(
       this._database._name,
@@ -2023,14 +2030,17 @@ export class Collection<
       false,
       await this._database._baseOptions()
     );
-    return new Bulk(this, innerBulk);
+    return new Bulk<M, D, C, N>(
+      this as CollectionWithSchema<M, D, C, N>,
+      innerBulk
+    );
   }
 
   @returnType('PlanCache')
   @apiVersions([])
-  getPlanCache(): PlanCache {
+  getPlanCache(): PlanCache<M, D, C, N> {
     this._emitCollectionApiCall('getPlanCache');
-    return new PlanCache(this);
+    return new PlanCache<M, D, C, N>(this as CollectionWithSchema<M, D, C, N>);
   }
 
   @returnsPromise
@@ -2105,7 +2115,7 @@ export class Collection<
    * @returns collection info based on given collStats.
    */
   async _getShardedCollectionInfo(
-    config: DatabaseWithSchema<M, D>,
+    config: DatabaseWithSchema<M, M[keyof M]>,
     collStats: Document[]
   ): Promise<Document> {
     const ns = `${this._database._name}.${this._name}`;
@@ -2164,10 +2174,7 @@ export class Collection<
     this._emitCollectionApiCall('getShardDistribution', {});
 
     const result = {} as Document;
-    // TODO: can we get around casting here?
-    const config = this._mongo.getDB(
-      'config' as StringKey<M>
-    ) as DatabaseWithSchema<M, D>;
+    const config = this._mongo.getDB('config' as any);
 
     const collStats = await (
       await this.aggregate({ $collStats: { storageStats: {} } })
@@ -2335,13 +2342,13 @@ export class Collection<
   async watch(
     pipeline: Document[] | ChangeStreamOptions = [],
     options: ChangeStreamOptions = {}
-  ): Promise<ChangeStreamCursor> {
+  ): Promise<ChangeStreamCursor<M>> {
     if (!Array.isArray(pipeline)) {
       options = pipeline;
       pipeline = [];
     }
     this._emitCollectionApiCall('watch', { pipeline, options });
-    const cursor = new ChangeStreamCursor(
+    const cursor = new ChangeStreamCursor<M>(
       this._mongo._serviceProvider.watch(
         pipeline,
         {
@@ -2382,12 +2389,32 @@ export class Collection<
     return cursor;
   }
 
+  async _setHideIndex(
+    index: string | Document,
+    hidden: boolean
+  ): Promise<Document> {
+    const cmd =
+      typeof index === 'string'
+        ? {
+            name: index,
+            hidden,
+          }
+        : {
+            keyPattern: index,
+            hidden,
+          };
+    return await this._database._runCommand({
+      collMod: this._name,
+      index: cmd,
+    });
+  }
+
   @serverVersions(['4.4.0', ServerVersions.latest])
   @returnsPromise
   @apiVersions([1])
   async hideIndex(index: string | Document): Promise<Document> {
     this._emitCollectionApiCall('hideIndex');
-    return setHideIndex(this, index, true);
+    return this._setHideIndex(index, true);
   }
 
   @serverVersions(['4.4.0', ServerVersions.latest])
@@ -2395,7 +2422,7 @@ export class Collection<
   @apiVersions([1])
   async unhideIndex(index: string | Document): Promise<Document> {
     this._emitCollectionApiCall('unhideIndex');
-    return setHideIndex(this, index, false);
+    return this._setHideIndex(index, false);
   }
 
   @serverVersions(['7.0.0', ServerVersions.latest])
@@ -2432,7 +2459,7 @@ export class Collection<
   @returnsPromise
   async checkMetadataConsistency(
     options: CheckMetadataConsistencyOptions = {}
-  ): Promise<RunCommandCursor> {
+  ): Promise<RunCommandCursor<M>> {
     this._emitCollectionApiCall('checkMetadataConsistency', { options });
 
     return await this._database._runCursorCommand({

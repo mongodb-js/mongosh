@@ -11,17 +11,28 @@ import type { CollectionWithSchema } from './collection';
 import { asPrintable, ServerVersions } from './enums';
 import { MongoshDeprecatedError } from '@mongosh/errors';
 import type Mongo from './mongo';
+import type {
+  GenericServerSideSchema,
+  GenericDatabaseSchema,
+  GenericCollectionSchema,
+  StringKey,
+} from './helpers';
 
 @shellApiClassDefault
-export default class PlanCache extends ShellApiWithMongoClass {
-  _collection: CollectionWithSchema;
+export default class PlanCache<
+  M extends GenericServerSideSchema = GenericServerSideSchema,
+  D extends GenericDatabaseSchema = M[keyof M],
+  C extends GenericCollectionSchema = D[keyof D],
+  N extends StringKey<D> = StringKey<D>
+> extends ShellApiWithMongoClass<M> {
+  _collection: CollectionWithSchema<M, D, C, N>;
 
-  constructor(collection: CollectionWithSchema) {
+  constructor(collection: CollectionWithSchema<M, D, C, N>) {
     super();
     this._collection = collection;
   }
 
-  get _mongo(): Mongo {
+  get _mongo(): Mongo<M> {
     return this._collection._mongo;
   }
 

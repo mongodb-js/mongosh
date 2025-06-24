@@ -15,6 +15,10 @@ import type {
   FindAndModifyShellOptions,
   FindAndModifyMethodShellOptions,
   MapReduceShellOptions,
+  GenericServerSideSchema,
+  GenericCollectionSchema,
+  GenericDatabaseSchema,
+  StringKey,
 } from './helpers';
 import {
   validateExplainableVerbosity,
@@ -35,13 +39,18 @@ import type {
 } from '@mongosh/service-provider-core';
 
 @shellApiClassDefault
-export default class Explainable extends ShellApiWithMongoClass {
-  _mongo: Mongo;
-  _collection: CollectionWithSchema;
+export default class Explainable<
+  M extends GenericServerSideSchema = GenericServerSideSchema,
+  D extends GenericDatabaseSchema = M[keyof M],
+  C extends GenericCollectionSchema = D[keyof D],
+  N extends StringKey<D> = StringKey<D>
+> extends ShellApiWithMongoClass<M> {
+  _mongo: Mongo<M>;
+  _collection: CollectionWithSchema<M, D, C, N>;
   _verbosity: ExplainVerbosityLike;
   constructor(
-    mongo: Mongo,
-    collection: CollectionWithSchema,
+    mongo: Mongo<M>,
+    collection: CollectionWithSchema<M, D, C, N>,
     verbosity: ExplainVerbosityLike
   ) {
     super();
@@ -77,7 +86,7 @@ export default class Explainable extends ShellApiWithMongoClass {
     });
   }
 
-  getCollection(): CollectionWithSchema {
+  getCollection(): CollectionWithSchema<M, D, C, N> {
     this._emitExplainableApiCall('getCollection');
     return this._collection;
   }
@@ -103,8 +112,12 @@ export default class Explainable extends ShellApiWithMongoClass {
   ): Promise<ExplainableCursor> {
     this._emitExplainableApiCall('find', { query, projection });
 
-    const cursor = await this._collection.find(query, projection, options);
-    return new ExplainableCursor(this._mongo, cursor, this._verbosity);
+    const cursor = await this._collection.find(
+      query as any,
+      projection,
+      options
+    );
+    return new ExplainableCursor<M>(this._mongo, cursor, this._verbosity);
   }
 
   async aggregate(pipeline: Document[], options: Document): Promise<Document>;

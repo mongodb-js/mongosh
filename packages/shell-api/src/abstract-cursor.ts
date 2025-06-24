@@ -14,6 +14,7 @@ import type {
 } from '@mongosh/service-provider-core';
 import { asPrintable } from './enums';
 import { CursorIterationResult } from './result';
+import type { GenericServerSideSchema } from './helpers';
 import { iterate } from './helpers';
 
 @shellApiClassNoHelp
@@ -21,15 +22,16 @@ export abstract class AbstractCursor<
   CursorType extends
     | ServiceProviderAggregationCursor
     | ServiceProviderFindCursor
-    | ServiceProviderRunCommandCursor
-> extends ShellApiWithMongoClass {
-  _mongo: Mongo;
+    | ServiceProviderRunCommandCursor,
+  M extends GenericServerSideSchema = GenericServerSideSchema
+> extends ShellApiWithMongoClass<M> {
+  _mongo: Mongo<M>;
   _cursor: CursorType;
   _transform: ((doc: any) => any) | null;
 
   _currentIterationResult: CursorIterationResult | null = null;
 
-  constructor(mongo: Mongo, cursor: CursorType) {
+  constructor(mongo: Mongo<M>, cursor: CursorType) {
     super();
     this._mongo = mongo;
     this._cursor = cursor;

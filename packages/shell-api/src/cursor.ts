@@ -25,12 +25,15 @@ import type {
 } from '@mongosh/service-provider-core';
 import type Mongo from './mongo';
 import { AggregateOrFindCursor } from './aggregate-or-find-cursor';
+import { type GenericServerSideSchema } from './helpers';
 
 @shellApiClassDefault
-export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCursor> {
+export default class Cursor<
+  M extends GenericServerSideSchema = GenericServerSideSchema
+> extends AggregateOrFindCursor<ServiceProviderFindCursor, M> {
   _tailable = false;
 
-  constructor(mongo: Mongo, cursor: ServiceProviderFindCursor) {
+  constructor(mongo: Mongo<M>, cursor: ServiceProviderFindCursor) {
     super(mongo, cursor);
   }
 

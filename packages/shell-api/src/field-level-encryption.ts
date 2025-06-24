@@ -19,9 +19,10 @@ import type {
   GCPEncryptionKeyOptions,
 } from '@mongosh/service-provider-core';
 import type { Document, BinaryType } from '@mongosh/service-provider-core';
-import type { CollectionWithSchema } from './collection';
+import type { Collection } from './collection';
 import Cursor from './cursor';
 import type { DeleteResult } from './result';
+import type { GenericServerSideSchema, StringKey } from './helpers';
 import { assertArgsDefinedType, assertKeysDefined } from './helpers';
 import { asPrintable } from './enums';
 import { redactURICredentials } from '@mongosh/history';
@@ -33,8 +34,10 @@ import {
 } from '@mongosh/errors';
 import type { CreateEncryptedCollectionOptions } from '@mongosh/service-provider-core';
 
-export interface ClientSideFieldLevelEncryptionOptions {
-  keyVaultClient?: Mongo;
+export interface ClientSideFieldLevelEncryptionOptions<
+  M extends GenericServerSideSchema = GenericServerSideSchema
+> {
+  keyVaultClient?: Mongo<M>;
   keyVaultNamespace: string;
   kmsProviders: KMSProviders;
   schemaMap?: Document;
@@ -89,11 +92,13 @@ const isMasterKey = (
 
 @shellApiClassDefault
 @classPlatforms(['CLI'])
-export class ClientEncryption extends ShellApiWithMongoClass {
-  public _mongo: Mongo;
+export class ClientEncryption<
+  M extends GenericServerSideSchema = GenericServerSideSchema
+> extends ShellApiWithMongoClass<M> {
+  public _mongo: Mongo<M>;
   public _libmongocrypt: MongoCryptClientEncryption;
 
-  constructor(mongo: Mongo) {
+  constructor(mongo: Mongo<M>) {
     super();
     this._mongo = mongo;
 
@@ -173,7 +178,7 @@ export class ClientEncryption extends ShellApiWithMongoClass {
     dbName: string,
     collName: string,
     options: CreateEncryptedCollectionOptions
-  ): Promise<{ collection: CollectionWithSchema; encryptedFields: Document }> {
+  ): Promise<{ collection: Collection<M>; encryptedFields: Document }> {
     assertArgsDefinedType(
       [dbName],
       ['string'],
@@ -206,7 +211,9 @@ export class ClientEncryption extends ShellApiWithMongoClass {
       );
 
     return {
-      collection: this._mongo.getDB(dbName).getCollection(collName),
+      collection: this._mongo
+        .getDB(dbName as StringKey<M>)
+        .getCollection(collName as StringKey<M[StringKey<M>]>) as any,
       encryptedFields,
     };
   }
@@ -214,11 +221,14 @@ export class ClientEncryption extends ShellApiWithMongoClass {
 
 @shellApiClassDefault
 @classPlatforms(['CLI'])
-export class KeyVault extends ShellApiWithMongoClass {
-  public _mongo: Mongo;
-  public _clientEncryption: ClientEncryption;
-  private _keyColl: CollectionWithSchema;
-  constructor(clientEncryption: ClientEncryption) {
+export class KeyVault<
+  M extends GenericServerSideSchema = GenericServerSideSchema
+> extends ShellApiWithMongoClass<M> {
+  public _mongo: Mongo<M>;
+  public _clientEncryption: ClientEncryption<M>;
+  // TODO: M, D, C, N
+  private _keyColl: Collection<M>;
+  constructor(clientEncryption: ClientEncryption<M>) {
     super();
     this._mongo = clientEncryption._mongo;
     this._clientEncryption = clientEncryption;
@@ -237,7 +247,9 @@ export class KeyVault extends ShellApiWithMongoClass {
       );
     }
     const { db, coll } = parsedNamespace;
-    this._keyColl = this._mongo.getDB(db).getCollection(coll);
+    this._keyColl = this._mongo
+      .getDB(db as StringKey<M>)
+      .getCollection(coll as StringKey<M[StringKey<M>]>) as any;
   }
 
   async _init(): Promise<void> {
@@ -377,7 +389,7 @@ export class KeyVault extends ShellApiWithMongoClass {
   @returnsPromise
   async getKey(keyId: BinaryType): Promise<Document | null> {
     assertArgsDefinedType([keyId], [true], 'KeyVault.getKey');
-    const cursor = await this._keyColl.find({ _id: keyId });
+    const cursor = await this._keyColl.find({ _id: keyId } as any);
     return await cursor.limit(1).next();
   }
 
@@ -385,7 +397,7 @@ export class KeyVault extends ShellApiWithMongoClass {
   @returnsPromise
   async getKeyByAltName(keyAltName: string): Promise<Document | null> {
     assertArgsDefinedType([keyAltName], ['string'], 'KeyVault.getKeyByAltName');
-    const cursor = await this._keyColl.find({ keyAltNames: keyAltName });
+    const cursor = await this._keyColl.find({ keyAltNames: keyAltName } as any);
     return await cursor.limit(1).next();
   }
 
@@ -393,8 +405,8 @@ export class KeyVault extends ShellApiWithMongoClass {
   @returnType('Cursor')
   @apiVersions([1])
   @returnsPromise
-  async getKeys(): Promise<Cursor> {
-    return new Cursor(
+  async getKeys(): Promise<Cursor<M>> {
+    return new Cursor<M>(
       this._mongo,
       this._clientEncryption._libmongocrypt.getKeys()
     );
