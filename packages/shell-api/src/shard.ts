@@ -205,21 +205,21 @@ export default class Shard<
     }
   }
 
-  async _getConfigDB(): Promise<DatabaseWithSchema<M, M[keyof M]>> {
+  async _getConfigDB(): Promise<DatabaseWithSchema<M, M['config']>> {
     const helloResult = await this._database._maybeCachedHello();
     if (helloResult.msg !== 'isdbgrid') {
       await this._instanceState.printWarning(
         'MongoshWarning: [SHAPI-10003] You are not connected to a mongos. This command may not work as expected.'
       );
     }
-    return this._database.getSiblingDB('config' as any);
+    return this._database.getSiblingDB('config');
   }
 
   @returnsPromise
   @apiVersions([1])
   async status(
     verbose = false,
-    configDB?: DatabaseWithSchema<M, M[keyof M]>
+    configDB?: DatabaseWithSchema<M, M['config']>
   ): Promise<CommandResult<ShardingStatusResult>> {
     const result = await getPrintableShardStatus(
       configDB ?? (await this._getConfigDB()),

@@ -231,7 +231,7 @@ export class Collection<
       await cursor.hasNext();
     }
 
-    this._mongo._instanceState.currentCursor = cursor as Cursor;
+    this._mongo._instanceState.currentCursor = cursor;
     return cursor;
   }
 

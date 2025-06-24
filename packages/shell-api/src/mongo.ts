@@ -81,8 +81,9 @@ export default class Mongo<
   M extends GenericServerSideSchema = GenericServerSideSchema
 > extends ShellApiClass {
   private __serviceProvider: ServiceProvider | null = null;
-  public readonly _databases: Record<StringKey<M>, DatabaseWithSchema<M>> =
-    Object.create(null);
+  public readonly _databases: {
+    [k in StringKey<M>]: DatabaseWithSchema<M, M[k]>;
+  } = Object.create(null);
   private _connectionId: number;
   public _instanceState: ShellInstanceState;
   public _connectionInfo: ConnectionInfo;

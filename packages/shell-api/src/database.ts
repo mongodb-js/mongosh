@@ -87,7 +87,7 @@ export class Database<
 > extends ShellApiWithMongoClass<M> {
   _mongo: Mongo<M>;
   _name: StringKey<M>;
-  _collections: Record<StringKey<D>, CollectionWithSchema<M, D>>;
+  _collections: { [k in StringKey<D>]: CollectionWithSchema<M, D, D[k], k> };
   _session: Session<M> | undefined;
   _cachedCollectionNames: StringKey<D>[] = [];
   _cachedHello: Document | null = null;
@@ -96,10 +96,7 @@ export class Database<
     super();
     this._mongo = mongo;
     this._name = name;
-    const collections: Record<
-      string,
-      CollectionWithSchema<M, D>
-    > = Object.create(null);
+    const collections: typeof this._collections = Object.create(null);
     this._collections = collections;
     this._session = session;
     const proxy = new Proxy(this, {
@@ -117,7 +114,7 @@ export class Database<
         }
 
         if (!collections[prop]) {
-          collections[prop] = new Collection<M, D>(
+          collections[prop as StringKey<D>] = new Collection<M, D>(
             mongo,
             proxy as DatabaseWithSchema<M, D>,
             prop
@@ -501,7 +498,7 @@ export class Database<
     assertArgsDefinedType([db], ['string'], 'Database.getSiblingDB');
     this._emitDatabaseApiCall('getSiblingDB', { db });
     if (this._session) {
-      return this._session.getDatabase(db) as DatabaseWithSchema<M, M[K]>;
+      return this._session.getDatabase(db);
     }
     return this._mongo._getDb(db);
   }
@@ -519,18 +516,17 @@ export class Database<
       );
     }
 
-    const collections: Record<StringKey<D>, CollectionWithSchema<M, D>> = this
-      ._collections;
+    const collections = this._collections;
 
     if (!collections[coll]) {
-      collections[coll] = new Collection<M, D>(
+      collections[coll] = new Collection<M, D, D[K], K>(
         this._mongo,
         this as DatabaseWithSchema<M, D>,
         coll
-      ) as CollectionWithSchema<M, D>;
+      ) as CollectionWithSchema<M, D, D[K], K>;
     }
 
-    return collections[coll] as CollectionWithSchema<M, D, D[K], K>;
+    return collections[coll];
   }
 
   @returnsPromise
@@ -836,6 +832,7 @@ export class Database<
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   @returnsPromise
   @apiVersions([1])
   async createEncryptedCollection(
@@ -1530,14 +1527,14 @@ export class Database<
     return result.err || null;
   }
 
-  async _getConfigDB(): Promise<DatabaseWithSchema<M, M[keyof M]>> {
+  async _getConfigDB(): Promise<DatabaseWithSchema<M, M['config']>> {
     const helloResult = await this._maybeCachedHello();
     if (helloResult.msg !== 'isdbgrid') {
       await this._instanceState.printWarning(
         'MongoshWarning: [SHAPI-10003] You are not connected to a mongos. This command may not work as expected.'
       );
     }
-    return this.getSiblingDB('config' as any);
+    return this.getSiblingDB('config');
   }
 
   @returnsPromise
