@@ -96,7 +96,7 @@ import { HIDDEN_COMMANDS } from '@mongosh/history';
 import PlanCache from './plan-cache';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ShellApiErrors } from './error-codes';
-import type { MQLQuery, MQLPipeline } from './mql-types';
+import type { MQLDocument, MQLQuery, MQLPipeline } from './mql-types';
 
 export type CollectionWithSchema<
   M extends GenericServerSideSchema = GenericServerSideSchema,
@@ -758,7 +758,7 @@ export class Collection<
   @serverVersions([ServerVersions.earliest, '3.6.0'])
   @apiVersions([1])
   async insert(
-    docs: Document | Document[],
+    docs: MQLDocument | MQLDocument[],
     options: BulkWriteOptions = {}
   ): Promise<InsertManyResult> {
     await this._instanceState.printDeprecationWarning(
@@ -802,7 +802,7 @@ export class Collection<
   @serverVersions(['3.2.0', ServerVersions.latest])
   @apiVersions([1])
   async insertMany(
-    docs: Document[],
+    docs: MQLDocument[],
     options: BulkWriteOptions = {}
   ): Promise<InsertManyResult> {
     assertArgsDefinedType([docs], [true], 'Collection.insertMany');
@@ -838,7 +838,7 @@ export class Collection<
   @serverVersions(['3.2.0', ServerVersions.latest])
   @apiVersions([1])
   async insertOne(
-    doc: Document,
+    doc: MQLDocument,
     options: InsertOneOptions = {}
   ): Promise<InsertOneResult> {
     assertArgsDefinedType([doc], [true], 'Collection.insertOne');
