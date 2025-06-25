@@ -11,6 +11,7 @@ import { ADMIN_DB, asPrintable, shellApiType } from './enums';
 import type { Database, DatabaseWithSchema } from './database';
 import type Mongo from './mongo';
 import type { GenericDatabaseSchema, GenericServerSideSchema } from './helpers';
+import type { MQLPipeline } from './mql-types';
 
 @shellApiClassDefault
 export class Streams<
@@ -54,7 +55,7 @@ export class Streams<
   }
 
   @returnsPromise
-  async process(pipeline: Document[], options?: Document) {
+  async process(pipeline: MQLPipeline, options?: Document) {
     if (!Array.isArray(pipeline) || !pipeline.length) {
       throw new MongoshInvalidInputError(
         'Invalid pipeline',
@@ -98,7 +99,7 @@ export class Streams<
   @returnsPromise
   async createStreamProcessor(
     name: string,
-    pipeline: Document[],
+    pipeline: MQLPipeline,
     options?: Document
   ) {
     if (typeof name !== 'string' || name.trim() === '') {

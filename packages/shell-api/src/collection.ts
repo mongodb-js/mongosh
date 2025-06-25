@@ -96,6 +96,7 @@ import { HIDDEN_COMMANDS } from '@mongosh/history';
 import PlanCache from './plan-cache';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ShellApiErrors } from './error-codes';
+import type { MQLQuery, MQLPipeline } from './mql-types';
 
 export type CollectionWithSchema<
   M extends GenericServerSideSchema = GenericServerSideSchema,
@@ -188,20 +189,20 @@ export class Collection<
    * @returns {Promise} The promise of aggregation results.
    */
   async aggregate(
-    pipeline: Document[],
+    pipeline: MQLPipeline,
     options: AggregateOptions & { explain: ExplainVerbosityLike }
   ): Promise<Document>;
   async aggregate(
-    pipeline: Document[],
+    pipeline: MQLPipeline,
     options?: AggregateOptions
   ): Promise<AggregationCursor>;
-  async aggregate(...stages: Document[]): Promise<AggregationCursor>;
+  async aggregate(...stages: MQLPipeline): Promise<AggregationCursor>;
   @returnsPromise
   @returnType('AggregationCursor')
   @apiVersions([1])
   async aggregate(...args: unknown[]): Promise<AggregationCursor | Document> {
     let options: AggregateOptions;
-    let pipeline: Document[];
+    let pipeline: MQLPipeline;
     if (args.length === 0 || Array.isArray(args[0])) {
       options = args[1] || {};
       pipeline = (args[0] as Document[]) || [];
@@ -320,7 +321,7 @@ export class Collection<
   @serverVersions(['4.0.3', ServerVersions.latest])
   @apiVersions([1])
   async countDocuments(
-    query?: Document,
+    query?: MQLQuery,
     options: CountDocumentsOptions = {}
   ): Promise<number> {
     this._emitCollectionApiCall('countDocuments', { query, options });
@@ -413,17 +414,17 @@ export class Collection<
    * @returns {Array} The promise of the result.
    */
   async distinct(field: string): Promise<Document>;
-  async distinct(field: string, query: Document): Promise<Document>;
+  async distinct(field: string, query: MQLQuery): Promise<Document>;
   async distinct(
     field: string,
-    query: Document,
+    query: MQLQuery,
     options: DistinctOptions
   ): Promise<Document>;
   @returnsPromise
   @apiVersions([])
   async distinct(
     field: string,
-    query?: Document,
+    query?: MQLQuery,
     options: DistinctOptions = {}
   ): Promise<Document> {
     this._emitCollectionApiCall('distinct', { field, query, options });
@@ -476,7 +477,7 @@ export class Collection<
   @apiVersions([1])
   @returnsPromise
   async find(
-    query?: Document,
+    query?: MQLQuery,
     projection?: Document,
     options: FindOptions = {}
   ): Promise<Cursor> {
@@ -560,7 +561,7 @@ export class Collection<
   @returnType('Document')
   @apiVersions([1])
   async findOne(
-    query: Document = {},
+    query: MQLQuery = {},
     projection?: Document,
     options: FindOptions = {}
   ): Promise<C['schema'] | null> {
@@ -893,7 +894,7 @@ export class Collection<
   @serverVersions([ServerVersions.earliest, '3.2.0'])
   @apiVersions([1])
   async remove(
-    query: Document,
+    query: MQLQuery,
     options: boolean | RemoveShellOptions = {}
   ): Promise<DeleteResult | Document> {
     await this._instanceState.printDeprecationWarning(
@@ -2332,7 +2333,7 @@ export class Collection<
   @apiVersions([1])
   @returnsPromise
   async watch(
-    pipeline: Document[] | ChangeStreamOptions = [],
+    pipeline: MQLPipeline | ChangeStreamOptions = [],
     options: ChangeStreamOptions = {}
   ): Promise<ChangeStreamCursor> {
     if (!Array.isArray(pipeline)) {

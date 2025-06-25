@@ -21,6 +21,7 @@ import { asPrintable } from './enums';
 import { assertArgsDefinedType, shallowClone } from './helpers';
 import { BulkWriteResult } from './result';
 import type { CollectionWithSchema } from './collection';
+import type { MQLQuery } from './mql-types';
 
 @shellApiClassDefault
 export class BulkFindOp extends ShellApiWithMongoClass {
@@ -202,7 +203,7 @@ export default class Bulk extends ShellApiWithMongoClass {
 
   @returnType('BulkFindOp')
   @apiVersions([1])
-  find(query: Document): BulkFindOp {
+  find(query: MQLQuery): BulkFindOp {
     assertArgsDefinedType([query], [true], 'Bulk.find');
     return new BulkFindOp(this._serviceProviderBulkOp.find(query), this);
   }
