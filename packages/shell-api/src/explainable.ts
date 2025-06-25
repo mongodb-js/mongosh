@@ -33,7 +33,7 @@ import type {
   FindOneAndUpdateOptions,
   FindOptions,
 } from '@mongosh/service-provider-core';
-import type { MQLPipeline, MQLQuery } from './mql-types';
+import type { MQLDocument, MQLPipeline, MQLQuery } from './mql-types';
 
 @shellApiClassDefault
 export default class Explainable extends ShellApiWithMongoClass {
@@ -183,7 +183,7 @@ export default class Explainable extends ShellApiWithMongoClass {
   @returnsPromise
   @apiVersions([1])
   async findOneAndDelete(
-    filter: Document,
+    filter: MQLQuery,
     options: FindOneAndDeleteOptions = {}
   ): Promise<Document | null> {
     this._emitExplainableApiCall('findOneAndDelete', { filter, options });
@@ -196,8 +196,8 @@ export default class Explainable extends ShellApiWithMongoClass {
   @returnsPromise
   @apiVersions([1])
   async findOneAndReplace(
-    filter: Document,
-    replacement: Document,
+    filter: MQLQuery,
+    replacement: MQLDocument,
     options: FindAndModifyShellOptions<FindOneAndReplaceOptions> = {}
   ): Promise<Document> {
     this._emitExplainableApiCall('findOneAndReplace', { filter, options });
@@ -210,8 +210,8 @@ export default class Explainable extends ShellApiWithMongoClass {
   @returnsPromise
   @apiVersions([1])
   async findOneAndUpdate(
-    filter: Document,
-    update: Document,
+    filter: MQLQuery,
+    update: MQLDocument,
     options: FindAndModifyShellOptions<FindOneAndUpdateOptions> = {}
   ): Promise<Document> {
     this._emitExplainableApiCall('findOneAndUpdate', { filter, options });
