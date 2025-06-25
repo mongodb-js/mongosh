@@ -117,6 +117,7 @@ export type CollectionWithSchema<
 export class Collection<
   M extends GenericServerSideSchema = GenericServerSideSchema,
   D extends GenericDatabaseSchema = M[keyof M],
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   C extends GenericCollectionSchema = D[keyof D],
   N extends StringKey<D> = StringKey<D>
 > extends ShellApiWithMongoClass {
