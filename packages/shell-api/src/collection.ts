@@ -564,7 +564,7 @@ export class Collection<
     query: MQLQuery = {},
     projection?: Document,
     options: FindOptions = {}
-  ): Promise<C['schema'] | null> {
+  ): Promise<MQLDocument | null> {
     if (projection) {
       options.projection = projection;
     }
