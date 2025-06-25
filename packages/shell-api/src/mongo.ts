@@ -67,6 +67,7 @@ import type { LogEntry } from './log-entry';
 import { parseAnyLogEntry } from './log-entry';
 import type { CollectionWithSchema } from './collection';
 import type { ShellBson } from './shell-bson';
+import type { MQLPipeline } from './mql-types';
 
 /* Utility, inverse of Readonly<T> */
 type Mutable<T> = {
@@ -845,7 +846,7 @@ export default class Mongo<
   @apiVersions([1])
   @returnsPromise
   async watch(
-    pipeline: Document[] | ChangeStreamOptions = [],
+    pipeline: MQLPipeline | ChangeStreamOptions = [],
     options: ChangeStreamOptions = {}
   ): Promise<ChangeStreamCursor> {
     if (!Array.isArray(pipeline)) {

@@ -32,6 +32,7 @@ import type { AbstractCursor } from './abstract-cursor';
 import type ChangeStreamCursor from './change-stream-cursor';
 import type { ShellBson } from './shell-bson';
 import { inspect } from 'util';
+import type { MQLPipeline, MQLQuery } from './mql-types';
 
 /**
  * Helper method to adapt aggregation pipeline options.
@@ -882,7 +883,7 @@ export async function iterate(
 
 // This is only used by collection.findAndModify() itself.
 export type FindAndModifyMethodShellOptions = {
-  query: Document;
+  query: MQLQuery;
   sort?: (
     | FindOneAndDeleteOptions
     | FindOneAndReplaceOptions
@@ -1111,7 +1112,9 @@ export function isValidCollectionName(name: string): boolean {
   return !!name && !/[$\0]/.test(name);
 }
 
-export function shouldRunAggregationImmediately(pipeline: Document[]): boolean {
+export function shouldRunAggregationImmediately(
+  pipeline: MQLPipeline
+): boolean {
   return pipeline.some((stage) =>
     Object.keys(stage).some(
       (stageName) => stageName === '$merge' || stageName === '$out'
