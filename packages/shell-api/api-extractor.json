@@ -8,6 +8,7 @@
     "enabled": false
   },
   "bundledPackages": [
+    "@mongodb-js/mongodb-ts-autocomplete",
     "@mongodb-js/devtools-connect",
     "@mongodb-js/devtools-proxy-support",
     "@mongodb-js/oidc-plugin",
