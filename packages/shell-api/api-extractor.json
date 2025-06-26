@@ -15,7 +15,9 @@
     "@mongosh/arg-parser",
     "@mongosh/service-provider-core",
     "@mongosh/types",
-    "mongodb"
+    "mongodb",
+    "mongodb-schema",
+    "@types/json-schema"
   ],
   "dtsRollup": {
     "enabled": true,
