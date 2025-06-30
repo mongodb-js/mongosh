@@ -498,6 +498,8 @@ describe('CliRepl', function () {
           process.env.MONGOSH_SKIP_NODE_VERSION_CHECK;
         delete process.env.MONGOSH_SKIP_NODE_VERSION_CHECK;
         delete (process as any).version;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore version is readonly
         process.version = 'v8.0.0';
 
         try {
@@ -512,6 +514,8 @@ describe('CliRepl', function () {
           expect(e.name).to.equal('MongoshWarning');
           expect((e as any).code).to.equal(CliReplErrors.NodeVersionMismatch);
         } finally {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore version is readonly
           process.version = `v${process.versions.node}`;
           process.env.MONGOSH_SKIP_NODE_VERSION_CHECK =
             origVersionCheckEnvVar || '';
@@ -2861,6 +2865,8 @@ describe('CliRepl', function () {
 
     it('does not print any deprecation warning when CLI is ran with --quiet flag', async function () {
       // Setting all the possible situation for a deprecation warning
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore version is readonly
       process.version = '18.20.0';
       process.versions.openssl = '1.1.11';
       cliRepl.getGlibcVersion = () => '1.27';

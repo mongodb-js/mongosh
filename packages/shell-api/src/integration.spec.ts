@@ -3076,7 +3076,10 @@ describe('Shell API (integration)', function () {
 
   describe('method tracking', function () {
     it('emits an event when a deprecated method is called', async function () {
-      const deprecatedCall = once(instanceState.messageBus, 'mongosh:api-call');
+      const deprecatedCall = once(
+        instanceState.messageBus as any,
+        'mongosh:api-call'
+      );
       try {
         mongo.setSlaveOk();
         expect.fail('Expected error');
