@@ -923,7 +923,7 @@ class MongoshNodeRepl implements EvaluationListener {
     // this is an async interrupt - the evaluation is still running in the background
     // we wait until it finally completes (which should happen immediately)
     await Promise.race([
-      once(this.bus, 'mongosh:eval-interrupted'),
+      once(this.bus as any, 'mongosh:eval-interrupted'),
       new Promise(setImmediate),
     ]);
 
