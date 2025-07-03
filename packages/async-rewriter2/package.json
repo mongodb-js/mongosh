@@ -17,7 +17,7 @@
     "compile": "node bin/make-runtime-support.js --firstpass && tsc -p tsconfig.json && node bin/make-runtime-support.js --secondpass && tsc -p tsconfig.json",
     "prepublish": "npm run compile",
     "prettier": "prettier",
-    "reformat": "npm run prettier -- --write . && npm run eslint --fix"
+    "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
   },
   "bin": {
     "async-rewrite": "bin/async-rewrite.js"

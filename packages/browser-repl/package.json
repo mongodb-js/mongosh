@@ -35,7 +35,7 @@
     "depcheck": "depcheck",
     "compile": "tsc -p tsconfig.json",
     "prettier": "prettier",
-    "reformat": "npm run prettier -- --write . && npm run eslint --fix",
+    "reformat": "npm run prettier -- --write . && npm run eslint -- --fix",
     "sync-to-compass": "node scripts/sync-to-compass.js"
   },
   "config": {

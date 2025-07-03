@@ -38,7 +38,7 @@
     "test-apistrict-ci": "cross-env MONGOSH_TEST_FORCE_API_STRICT=1 npm run test-ci",
     "prepublish": "npm run compile",
     "prettier": "prettier",
-    "reformat": "npm run prettier -- --write . && npm run eslint --fix"
+    "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
   },
   "license": "Apache-2.0",
   "publishConfig": {

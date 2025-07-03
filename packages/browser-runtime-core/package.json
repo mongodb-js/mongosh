@@ -27,7 +27,7 @@
     "prepublish": "npm run compile",
     "compile": "tsc -p tsconfig.json",
     "prettier": "prettier",
-    "reformat": "npm run prettier -- --write . && npm run eslint --fix"
+    "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
   },
   "author": "",
   "license": "Apache-2.0",
