@@ -31,7 +31,7 @@
     "compile": "tsc -p tsconfig.json",
     "prepublish": "npm run webpack-build && npm run create-purls-file",
     "prettier": "prettier",
-    "reformat": "npm run prettier -- --write . && npm run eslint --fix",
+    "reformat": "npm run prettier -- --write . && npm run eslint -- --fix",
     "create-purls-file": "npm run write-node-js-dep && node ../../scripts/create-purls.js .sbom/dependencies.json .sbom/node-js-dep.json > dist/purls.txt",
     "write-node-js-dep": "mkdir -p .sbom && node ../../scripts/write-nodejs-dep > .sbom/node-js-dep.json"
   },

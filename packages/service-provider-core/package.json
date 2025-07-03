@@ -23,7 +23,7 @@
     "check": "npm run lint && npm run depcheck",
     "depcheck": "depcheck",
     "prettier": "prettier",
-    "reformat": "npm run prettier -- --write . && npm run eslint --fix"
+    "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
   },
   "license": "Apache-2.0",
   "publishConfig": {
