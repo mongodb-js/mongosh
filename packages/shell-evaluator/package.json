@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/shell-evaluator",
-  "version": "3.16.2",
+  "version": "3.16.4",
   "description": "MongoDB Top Level API Package",
   "main": "./lib/index.js",
   "scripts": {
@@ -47,6 +47,6 @@
   "dependencies": {
     "@mongosh/async-rewriter2": "2.4.8",
     "@mongosh/history": "2.4.6",
-    "@mongosh/shell-api": "^3.16.2"
+    "@mongosh/shell-api": "^3.16.4"
   }
 }
