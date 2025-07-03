@@ -29,7 +29,7 @@
     "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
     "prettier": "prettier",
-    "reformat": "npm run prettier -- --write . && npm run eslint --fix"
+    "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
   },
   "bugs": {
     "url": "https://github.com/mongodb-js/mongosh/issues"

@@ -38,7 +38,7 @@
     "test-apistrict-ci": "cross-env MONGOSH_TEST_FORCE_API_STRICT=1 npm run test-ci",
     "prepublish": "npm run compile",
     "prettier": "prettier",
-    "reformat": "npm run prettier -- --write . && npm run eslint --fix"
+    "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
   },
   "license": "Apache-2.0",
   "publishConfig": {
@@ -64,7 +64,7 @@
   "devDependencies": {
     "@microsoft/api-extractor": "^7.39.3",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
-    "@mongodb-js/mongodb-ts-autocomplete": "^0.4.1",
+    "@mongodb-js/mongodb-ts-autocomplete": "^0.4.4",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@mongosh/types": "3.8.2",

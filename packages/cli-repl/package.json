@@ -36,7 +36,7 @@
     "webpack-build-dev": "npm run compile && webpack --mode development && cat dist/add-module-mapping.js >> dist/mongosh.js",
     "start-snapshot": "rm -f snapshot.blob && node --snapshot-blob snapshot.blob --build-snapshot dist/mongosh.js && node --snapshot-blob snapshot.blob dist/mongosh.js",
     "prettier": "prettier",
-    "reformat": "npm run prettier -- --write . && npm run eslint --fix"
+    "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
   },
   "license": "Apache-2.0",
   "publishConfig": {
