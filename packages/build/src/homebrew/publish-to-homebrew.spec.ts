@@ -89,7 +89,7 @@ describe('HomebrewPublisher', function () {
         'mongosh 1.0.0',
         sinon.match.string,
         'mongodb-js:new-branch',
-        'master'
+        'main'
       )
       .resolves({ prNumber: 42, url: 'url' });
 
@@ -167,7 +167,7 @@ describe('HomebrewPublisher', function () {
         'mongosh 1.0.0',
         sinon.match.string,
         'mongodb-js:new-branch',
-        'master'
+        'main'
       )
       .resolves({ prNumber: 42, url: 'url' });
 
