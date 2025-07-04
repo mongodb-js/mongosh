@@ -194,8 +194,8 @@ const translations: Catalog = {
                 "'show profile': Prints system.profile information\n" +
                 "'show users': Print a list of all users for current database\n" +
                 "'show roles': Print a list of all roles for current database\n" +
-                "'show log <type>': log for current connection, if type is not set uses 'global'\n" +
-                "'show logs': Print all logs",
+                "'show log <name>': Display log for current connection, if name is not set uses 'global'\n" +
+                "'show logs': Print all logger names.",
             },
             connect: {
               description:
