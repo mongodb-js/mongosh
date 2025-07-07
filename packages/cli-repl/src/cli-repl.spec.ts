@@ -2651,9 +2651,9 @@ describe('CliRepl', function () {
         await tabCompletion();
         await tabCompletion();
         if (wantQueryOperators) {
-          expect(output, output).to.include('db.movies.find({year: {$gte');
+          expect(output).to.include('db.movies.find({year: {$gte');
         } else {
-          expect(output, output).to.not.include('db.movies.find({year: {$gte');
+          expect(output).to.not.include('db.movies.find({year: {$gte');
         }
       });
 
