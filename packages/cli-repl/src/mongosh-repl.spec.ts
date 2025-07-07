@@ -1358,7 +1358,6 @@ describe('MongoshNodeRepl', function () {
               {}
             )
             .resolves({ ok: 1, log: logLines });
-          // Make sure the connection info indicates a local Atlas server
 
           await mongoshRepl.initialize(serviceProvider);
           expect(output).to.not.contain(
