@@ -71,6 +71,7 @@ const OPTIONS = {
     'retryWrites',
     'shell',
     'smokeTests',
+    'skipStartupWarnings',
     'ssl',
     'sslAllowInvalidCertificates',
     'sslAllowInvalidHostnames',
