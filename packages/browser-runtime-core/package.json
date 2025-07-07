@@ -41,7 +41,7 @@
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "@mongodb-js/mongodb-ts-autocomplete": "^0.4.4",
+    "@mongodb-js/mongodb-ts-autocomplete": "^0.4.7",
     "@mongosh/types": "3.8.2",
     "bson": "^6.10.3",
     "depcheck": "^1.4.7",
