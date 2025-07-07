@@ -44,7 +44,7 @@ variable. For detailed instructions for each of our supported platforms, please 
         --eval [arg]                           Evaluate javascript
         --json[=canonical|relaxed]             Print result of --eval as Extended JSON, including errors
         --retryWrites[=true|false]             Automatically retry write operations upon transient network errors (Default: true)
-        --skipStartupWarnings                  Hides the startup warnings
+        --skipStartupWarnings                  Do not display server startup warnings
 
   Authentication Options:
 
