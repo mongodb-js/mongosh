@@ -290,6 +290,12 @@ export async function completer(
   return [[], line];
 }
 
+// from https://github.com/mongodb-js/devtools-shared/commit/e4a5b00a83b19a76bdf380799a421511230168db
+function satisfiesVersion(v1: string, v2: string): boolean {
+  const isGTECheck = /^\d+?\.\d+?\.\d+?$/.test(v2);
+  return semver.satisfies(v1, isGTECheck ? `>=${v2}` : v2);
+}
+
 function isAcceptable(
   params: AutocompleteParameters,
   entry: {
@@ -310,7 +316,10 @@ function isAcceptable(
       !entry[versionKey] ||
       // TODO: when https://jira.mongodb.org/browse/SPM-2327 is done we can rely on server_version being present
       !connectionInfo?.server_version ||
-      semver.gte(connectionInfo.server_version, entry[versionKey] as string);
+      satisfiesVersion(
+        connectionInfo.server_version,
+        entry[versionKey] as string
+      );
   }
   const isAcceptableEnvironment =
     !entry.env ||
