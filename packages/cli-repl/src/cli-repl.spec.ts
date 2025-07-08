@@ -2491,9 +2491,6 @@ describe('CliRepl', function () {
         await waitCompletion(cliRepl.bus);
       };
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      let databasesLoadedPromise: Promise<void>;
-      let collectionsLoadedPromise: Promise<void>;
       let docsLoadedPromise: Promise<void>;
 
       beforeEach(async function () {
@@ -2514,16 +2511,6 @@ describe('CliRepl', function () {
           await waitEval(cliRepl.bus);
         }
 
-        databasesLoadedPromise = new Promise<void>((resolve) => {
-          cliRepl.bus.once('mongosh:load-databases-complete', () => {
-            resolve();
-          });
-        });
-        collectionsLoadedPromise = new Promise<void>((resolve) => {
-          cliRepl.bus.once('mongosh:load-collections-complete', () => {
-            resolve();
-          });
-        });
         docsLoadedPromise = new Promise<void>((resolve) => {
           cliRepl.bus.once('mongosh:load-sample-docs-complete', () => {
             resolve();
@@ -2598,7 +2585,6 @@ describe('CliRepl', function () {
         output = '';
         input.write('db.coll.getShardDis');
         await tabCompletion();
-        await collectionsLoadedPromise;
         await tabCompletion();
         if (wantShardDistribution) {
           expect(output).to.include('db.coll.getShardDistribution');
@@ -2618,7 +2604,6 @@ describe('CliRepl', function () {
         output = '';
         input.write('db.testcoll');
         await tabCompletion();
-        await collectionsLoadedPromise;
         await tabCompletion();
         expect(output).to.include(collname);
 
@@ -2717,7 +2702,6 @@ describe('CliRepl', function () {
         output = '';
         input.write('db.actestc');
         await tabCompletion();
-        await collectionsLoadedPromise;
         await tabCompletion();
         expect(output).to.include('db.actestcoll1');
         expect(output).to.not.include('db.actestcoll2');
