@@ -916,6 +916,7 @@ describe('ShellApi', function () {
             ['maxTimeMS', null],
             ['enableTelemetry', false],
             ['editor', null],
+            ['disableSchemaSampling', false],
           ] as any);
 
           expect(shellResult.printable).to.deep.equal(expectedResult);

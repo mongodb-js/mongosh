@@ -309,6 +309,7 @@ describe('CliRepl', function () {
           'maxTimeMS',
           'enableTelemetry',
           'editor',
+          'disableSchemaSampling',
           'snippetIndexSourceURLs',
           'snippetRegistryURL',
           'snippetAutoload',
