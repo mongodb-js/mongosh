@@ -55,6 +55,8 @@ describe('MongoshNodeRepl', function () {
   let config: Record<string, any>;
   const tmpdir = useTmpdir();
 
+  let docsLoadedPromise: Promise<void>;
+
   beforeEach(function () {
     input = new PassThrough();
     outputStream = new PassThrough();
@@ -116,6 +118,12 @@ describe('MongoshNodeRepl', function () {
       ioProvider: ioProvider,
     };
     mongoshRepl = new MongoshNodeRepl(mongoshReplOptions);
+
+    docsLoadedPromise = new Promise<void>((resolve) => {
+      mongoshRepl.bus.once('mongosh:load-sample-docs-complete', () => {
+        resolve();
+      });
+    });
   });
 
   let originalEnvVars: Record<string, string | undefined>;
@@ -488,7 +496,9 @@ describe('MongoshNodeRepl', function () {
             return this.skip();
           }
           input.write('db.coll.find({fo');
-          await tabtab();
+          await tab();
+          await docsLoadedPromise;
+          await tab();
           await waitCompletion(bus);
           await tick();
           expect(output, output).to.include('db.coll.find({foo');
@@ -502,7 +512,8 @@ describe('MongoshNodeRepl', function () {
           await mongoshRepl.setConfig('disableSchemaSampling', true);
           try {
             input.write('db.coll.find({fo');
-            await tabtab();
+            await tab();
+            await tab();
             await waitCompletion(bus);
             await tick();
             expect(output, output).to.not.include('db.coll.find({foo');

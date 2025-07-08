@@ -362,9 +362,12 @@ export default class Mongo<
   async _getDatabaseNamesForCompletion(): Promise<string[]> {
     return await Promise.race([
       (async () => {
-        return (
+        const result = (
           await this._listDatabases({ readPreference: 'primaryPreferred' })
         ).databases.map((db) => db.name);
+
+        this._instanceState.messageBus.emit('mongosh:load-databases-complete');
+        return result;
       })(),
       (async () => {
         // See the comment in _getCollectionNamesForCompletion/database.ts

@@ -2479,10 +2479,6 @@ describe('CliRepl', function () {
         // be listed
         wantWatch = true;
         wantShardDistribution = true;
-
-        // TODO: we need MQL support in mongodb-ts-autocomplete in order for it
-        // to autocomplete collection field names
-        wantQueryOperators = false;
       }
     }
 
@@ -2494,6 +2490,11 @@ describe('CliRepl', function () {
         input.write('\u0009');
         await waitCompletion(cliRepl.bus);
       };
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      let databasesLoadedPromise: Promise<void>;
+      let collectionsLoadedPromise: Promise<void>;
+      let docsLoadedPromise: Promise<void>;
 
       beforeEach(async function () {
         if (testServer === null) {
@@ -2509,9 +2510,25 @@ describe('CliRepl', function () {
         if (!(testServer as any)?._opts.args?.includes('--auth')) {
           // make sure there are some collections we can autocomplete on below
           input.write('db.coll.insertOne({})\n');
-          input.write('db.movies.insertOne({})\n');
+          input.write('db.movies.insertOne({ year: 1 })\n');
           await waitEval(cliRepl.bus);
         }
+
+        databasesLoadedPromise = new Promise<void>((resolve) => {
+          cliRepl.bus.once('mongosh:load-databases-complete', () => {
+            resolve();
+          });
+        });
+        collectionsLoadedPromise = new Promise<void>((resolve) => {
+          cliRepl.bus.once('mongosh:load-collections-complete', () => {
+            resolve();
+          });
+        });
+        docsLoadedPromise = new Promise<void>((resolve) => {
+          cliRepl.bus.once('mongosh:load-sample-docs-complete', () => {
+            resolve();
+          });
+        });
       });
 
       afterEach(async function () {
@@ -2581,6 +2598,7 @@ describe('CliRepl', function () {
         output = '';
         input.write('db.coll.getShardDis');
         await tabCompletion();
+        await collectionsLoadedPromise;
         await tabCompletion();
         if (wantShardDistribution) {
           expect(output).to.include('db.coll.getShardDistribution');
@@ -2600,6 +2618,7 @@ describe('CliRepl', function () {
         output = '';
         input.write('db.testcoll');
         await tabCompletion();
+        await collectionsLoadedPromise;
         await tabCompletion();
         expect(output).to.include(collname);
 
@@ -2648,8 +2667,15 @@ describe('CliRepl', function () {
       it(`${
         wantQueryOperators ? 'completes' : 'does not complete'
       } query operators`, async function () {
+        // for new autocomplete make sure it loads the schema for the movies collection
+        input.write('db.movies.find({\n');
+        await waitEval(cliRepl.bus);
+
         input.write('db.movies.find({year: {$g');
         await tabCompletion();
+        if (process.env.USE_NEW_AUTOCOMPLETE && wantQueryOperators) {
+          await docsLoadedPromise;
+        }
         await tabCompletion();
         if (wantQueryOperators) {
           expect(output).to.include('db.movies.find({year: {$gte');
@@ -2691,6 +2717,7 @@ describe('CliRepl', function () {
         output = '';
         input.write('db.actestc');
         await tabCompletion();
+        await collectionsLoadedPromise;
         await tabCompletion();
         expect(output).to.include('db.actestcoll1');
         expect(output).to.not.include('db.actestcoll2');
