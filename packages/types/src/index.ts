@@ -520,6 +520,7 @@ export class CliUserConfig extends SnippetShellUserConfig {
   logMaxFileCount = 100;
   logCompressionEnabled = false;
   logRetentionGB: number | undefined = undefined;
+  disableSchemaSampling = false;
 }
 
 export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
@@ -557,6 +558,7 @@ export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
       case 'forceDisableTelemetry':
       case 'showStackTraces':
       case 'logCompressionEnabled':
+      case 'disableSchemaSampling':
         if (typeof value !== 'boolean') {
           return `${key} must be a boolean`;
         }

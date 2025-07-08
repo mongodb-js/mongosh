@@ -411,7 +411,9 @@ function filterShellAPI(
 
 type AutocompleteShellInstanceState = {
   getAutocompleteParameters: () => AutocompleteParameters;
-  getAutocompletionContext: () => AutocompletionContext;
+  getAutocompletionContext: (options: {
+    disableSchemaSampling?: boolean;
+  }) => AutocompletionContext;
 };
 
 function transformAutocompleteResults(
@@ -429,7 +431,12 @@ export async function initNewAutocompleter(
   instanceState: Pick<
     AutocompleteShellInstanceState,
     'getAutocompletionContext'
-  >
+  >,
+  {
+    disableSchemaSampling = false,
+  }: {
+    disableSchemaSampling?: boolean;
+  }
 ): Promise<(text: string) => Promise<CompletionResults>> {
   // only import the autocompleter code the first time we need it to
   // hide the time it takes from the initial startup time
@@ -437,7 +444,9 @@ export async function initNewAutocompleter(
     '@mongodb-js/mongodb-ts-autocomplete'
   );
 
-  const autocompletionContext = instanceState.getAutocompletionContext();
+  const autocompletionContext = instanceState.getAutocompletionContext({
+    disableSchemaSampling,
+  });
   const mongoDBCompleter = new MongoDBAutocompleter({
     context: autocompletionContext,
   });

@@ -415,7 +415,11 @@ export class ShellInstanceState {
     throw new Error(`mongo with connection id ${connectionId} not found`);
   }
 
-  public getAutocompletionContext(): AutocompletionContext {
+  public getAutocompletionContext({
+    disableSchemaSampling = false,
+  }: {
+    disableSchemaSampling?: boolean;
+  }): AutocompletionContext {
     return {
       currentDatabaseAndConnection: ():
         | {
@@ -483,17 +487,19 @@ export class ShellInstanceState {
       ): Promise<JSONSchema> => {
         const mongo = this.getMongoByConnectionId(connectionId);
         let docs: Document[] = [];
-        try {
-          docs = await mongo
-            ._getDb(databaseName)
-            .getCollection(collectionName)
-            ._getSampleDocsForCompletion();
-        } catch (err: any) {
-          if (
-            err?.code !== ShellApiErrors.NotConnected &&
-            err?.codeName !== 'Unauthorized'
-          ) {
-            throw err;
+        if (!disableSchemaSampling) {
+          try {
+            docs = await mongo
+              ._getDb(databaseName)
+              .getCollection(collectionName)
+              ._getSampleDocsForCompletion();
+          } catch (err: any) {
+            if (
+              err?.code !== ShellApiErrors.NotConnected &&
+              err?.codeName !== 'Unauthorized'
+            ) {
+              throw err;
+            }
           }
         }
 

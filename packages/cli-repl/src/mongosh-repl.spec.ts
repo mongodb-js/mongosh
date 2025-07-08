@@ -379,6 +379,7 @@ describe('MongoshNodeRepl', function () {
       });
       const initialized = await mongoshRepl.initialize(serviceProvider);
       await mongoshRepl.startRepl(initialized);
+      await mongoshRepl.setConfig('disableSchemaSampling', false);
     });
 
     it('provides an editor action', async function () {
@@ -481,13 +482,33 @@ describe('MongoshNodeRepl', function () {
           await tick();
           expect(output, output).to.include('db.coll.updateOne');
         });
-        // this will eventually be supported in the new autocomplete
-        it.skip('autocompletes collection schema fields', async function () {
-          input.write('db.coll.find({');
+        it('autocompletes collection schema fields', async function () {
+          if (!process.env.USE_NEW_AUTOCOMPLETE) {
+            // auto-completing collection field names only supported by new autocomplete
+            this.skip();
+          }
+          input.write('db.coll.find({fo');
           await tabtab();
           await waitCompletion(bus);
           await tick();
           expect(output, output).to.include('db.coll.find({foo');
+        });
+
+        it('does not autocomplete collection schema fields if disableSchemaSampling=true', async function () {
+          if (!process.env.USE_NEW_AUTOCOMPLETE) {
+            // auto-completing collection field names only supported by new autocomplete
+            this.skip();
+          }
+          await mongoshRepl.setConfig('disableSchemaSampling', true);
+          try {
+            input.write('db.coll.find({fo');
+            await tabtab();
+            await waitCompletion(bus);
+            await tick();
+            expect(output, output).to.not.include('db.coll.find({foo');
+          } finally {
+            await mongoshRepl.setConfig('disableSchemaSampling', false);
+          }
         });
         it('autocompletes shell-api methods (once)', async function () {
           input.write('vers');
