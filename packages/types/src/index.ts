@@ -335,10 +335,7 @@ export interface MongoshBusEventsMap extends ConnectEventMap {
    * Signals the completion of the autocomplete suggestion providers.
    * _ONLY AVAILABLE FOR TESTING._
    */
-  'mongosh:autocompletion-complete': (
-    replResults: string[],
-    mongoshResults: string[]
-  ) => void;
+  'mongosh:autocompletion-complete': () => void;
   /**
    * Signals the completion of the autocomplete helper.
    * _ONLY AVAILABLE FOR TESTING._

@@ -2507,6 +2507,7 @@ describe('CliRepl', function () {
         if (!(testServer as any)?._opts.args?.includes('--auth')) {
           // make sure there are some collections we can autocomplete on below
           input.write('db.coll.insertOne({})\n');
+          await waitEval(cliRepl.bus);
           input.write('db.movies.insertOne({ year: 1 })\n');
           await waitEval(cliRepl.bus);
         }
@@ -2654,12 +2655,17 @@ describe('CliRepl', function () {
       } query operators`, async function () {
         input.write('db.movies.find({year: {$g');
         await tabCompletion();
+
         if (wantQueryOperators) {
           if (process.env.USE_NEW_AUTOCOMPLETE) {
+            // wait for the documents to finish loading to be sure that the next
+            // tabCompletion() call will work
             await docsLoadedPromise;
           }
         }
+
         await tabCompletion();
+
         if (wantQueryOperators) {
           expect(output).to.include('db.movies.find({year: {$gte');
         } else {
