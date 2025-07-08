@@ -458,9 +458,8 @@ class MongoshNodeRepl implements EvaluationListener {
           if (process.env.USE_NEW_AUTOCOMPLETE) {
             if (!newMongoshCompleter) {
               newMongoshCompleter = await initNewAutocompleter(instanceState, {
-                disableSchemaSampling: await this.getConfig(
-                  'disableSchemaSampling'
-                ),
+                disableSchemaSampling: async () =>
+                  (await this.getConfig('disableSchemaSampling')) ?? false,
               });
             }
 

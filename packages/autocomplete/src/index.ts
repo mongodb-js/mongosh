@@ -412,7 +412,7 @@ function filterShellAPI(
 type AutocompleteShellInstanceState = {
   getAutocompleteParameters: () => AutocompleteParameters;
   getAutocompletionContext: (options: {
-    disableSchemaSampling?: boolean;
+    disableSchemaSampling?: () => Promise<boolean>;
   }) => AutocompletionContext;
 };
 
@@ -433,9 +433,9 @@ export async function initNewAutocompleter(
     'getAutocompletionContext'
   >,
   {
-    disableSchemaSampling = false,
+    disableSchemaSampling,
   }: {
-    disableSchemaSampling?: boolean;
+    disableSchemaSampling?: () => Promise<boolean>;
   }
 ): Promise<(text: string) => Promise<CompletionResults>> {
   // only import the autocompleter code the first time we need it to

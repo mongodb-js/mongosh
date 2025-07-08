@@ -416,9 +416,9 @@ export class ShellInstanceState {
   }
 
   public getAutocompletionContext({
-    disableSchemaSampling = false,
+    disableSchemaSampling,
   }: {
-    disableSchemaSampling?: boolean;
+    disableSchemaSampling?: () => Promise<boolean>;
   }): AutocompletionContext {
     return {
       currentDatabaseAndConnection: ():
@@ -487,7 +487,7 @@ export class ShellInstanceState {
       ): Promise<JSONSchema> => {
         const mongo = this.getMongoByConnectionId(connectionId);
         let docs: Document[] = [];
-        if (!disableSchemaSampling) {
+        if (!(disableSchemaSampling ? await disableSchemaSampling() : false)) {
           try {
             docs = await mongo
               ._getDb(databaseName)
