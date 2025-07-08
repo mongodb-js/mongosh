@@ -2666,6 +2666,8 @@ describe('CliRepl', function () {
 
         await tabCompletion();
 
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
         if (wantQueryOperators) {
           expect(output).to.include('db.movies.find({year: {$gte');
         } else {
