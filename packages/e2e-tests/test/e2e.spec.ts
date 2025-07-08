@@ -1170,22 +1170,39 @@ describe('e2e', function () {
         env: {
           ...process.env,
           NODE_PATH: path.resolve(__dirname, 'fixtures', 'node-path'),
+          NODE_OPTIONS: '--expose-gc',
         },
       });
       await shell.waitForPrompt();
       shell.assertNoErrors();
     });
 
-    it('require() searches the current working directory according to Node.js rules', async function () {
-      let result;
+    it('require() and import() search the current working directory according to Node.js rules', async function () {
+      let result: string;
       result = await shell.executeLine('require("a")');
       expect(result).to.match(/Error: Cannot find module 'a'/);
       result = await shell.executeLine('require("./a")');
       expect(result).to.match(/^A$/m);
       result = await shell.executeLine('require("b")');
       expect(result).to.match(/^B$/m);
+      result = await shell.executeLine('require("b-esm").value');
+      expect(result).to.match(/^B-ESM$/m);
       result = await shell.executeLine('require("c")');
       expect(result).to.match(/^C$/m);
+      result = await shell.executeLine('import("b").then(m => m.default)');
+      expect(result).to.match(/^B$/m);
+      result = await shell.executeLine('import("b-esm").then(m => m.value)');
+      expect(result).to.match(/^B-ESM$/m);
+    });
+
+    it('import() works when interleaved with GC', async function () {
+      await shell.executeLine('importESM = () => import("b-esm")');
+      expect(await shell.executeLine('globalThis.gc(); "ran gc"')).to.include(
+        'ran gc'
+      );
+      const result = await shell.executeLine('importESM().then(m => m.value)');
+      expect(result).to.match(/^B-ESM$/m);
+      shell.assertNoErrors();
     });
 
     it('Can use Node.js APIs without any extra effort', async function () {
@@ -1194,6 +1211,7 @@ describe('e2e', function () {
         `fs.readFileSync(${JSON.stringify(__filename)}, 'utf8')`
       );
       expect(result).to.include('Too lazy to write a fixture');
+      shell.assertNoErrors();
     });
   });
 
