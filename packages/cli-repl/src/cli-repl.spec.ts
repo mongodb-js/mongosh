@@ -2652,14 +2652,12 @@ describe('CliRepl', function () {
       it(`${
         wantQueryOperators ? 'completes' : 'does not complete'
       } query operators`, async function () {
-        // for new autocomplete make sure it loads the schema for the movies collection
-        input.write('db.movies.find({\n');
-        await waitEval(cliRepl.bus);
-
         input.write('db.movies.find({year: {$g');
         await tabCompletion();
-        if (process.env.USE_NEW_AUTOCOMPLETE && wantQueryOperators) {
-          await docsLoadedPromise;
+        if (wantQueryOperators) {
+          if (process.env.USE_NEW_AUTOCOMPLETE) {
+            await docsLoadedPromise;
+          }
         }
         await tabCompletion();
         if (wantQueryOperators) {
