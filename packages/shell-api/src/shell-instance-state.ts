@@ -572,11 +572,13 @@ export class ShellInstanceState {
         try {
           const collectionNames =
             await this.currentDb._getCollectionNamesForCompletion();
-          return collectionNames.filter(
+          const result = collectionNames.filter(
             (name) =>
               name.toLowerCase().startsWith(collName.toLowerCase()) &&
               !CONTROL_CHAR_REGEXP.test(name)
           );
+          this.messageBus.emit('mongosh:load-collections-complete');
+          return result;
         } catch (err: any) {
           if (
             err?.code === ShellApiErrors.NotConnected ||
@@ -591,11 +593,13 @@ export class ShellInstanceState {
         try {
           const dbNames =
             await this.currentDb._mongo._getDatabaseNamesForCompletion();
-          return dbNames.filter(
+          const result = dbNames.filter(
             (name) =>
               name.toLowerCase().startsWith(dbName.toLowerCase()) &&
               !CONTROL_CHAR_REGEXP.test(name)
           );
+          this.messageBus.emit('mongosh:load-databases-complete');
+          return result;
         } catch (err: any) {
           if (
             err?.code === ShellApiErrors.NotConnected ||
