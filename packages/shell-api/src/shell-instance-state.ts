@@ -415,11 +415,7 @@ export class ShellInstanceState {
     throw new Error(`mongo with connection id ${connectionId} not found`);
   }
 
-  public getAutocompletionContext({
-    disableSchemaSampling,
-  }: {
-    disableSchemaSampling?: () => Promise<boolean>;
-  }): AutocompletionContext {
+  public getAutocompletionContext(): AutocompletionContext {
     return {
       currentDatabaseAndConnection: ():
         | {
@@ -487,7 +483,11 @@ export class ShellInstanceState {
       ): Promise<JSONSchema> => {
         const mongo = this.getMongoByConnectionId(connectionId);
         let docs: Document[] = [];
-        if (!(disableSchemaSampling ? await disableSchemaSampling() : false)) {
+        if (
+          (await this.evaluationListener.getConfig?.(
+            'disableSchemaSampling'
+          )) !== true
+        ) {
           try {
             docs = await mongo
               ._getDb(databaseName)

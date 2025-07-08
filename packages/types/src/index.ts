@@ -428,6 +428,7 @@ export class ShellUserConfig {
   enableTelemetry = false;
   editor: string | null = null;
   logLocation: string | undefined;
+  disableSchemaSampling = false;
 }
 
 export class ShellUserConfigValidator {
@@ -447,6 +448,7 @@ export class ShellUserConfigValidator {
           return `${key} must be null or a positive integer`;
         }
         return null;
+      case 'disableSchemaSampling':
       case 'enableTelemetry':
         if (typeof value !== 'boolean') {
           return `${key} must be a boolean`;
@@ -520,7 +522,6 @@ export class CliUserConfig extends SnippetShellUserConfig {
   logMaxFileCount = 100;
   logCompressionEnabled = false;
   logRetentionGB: number | undefined = undefined;
-  disableSchemaSampling = false;
 }
 
 export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
@@ -558,7 +559,6 @@ export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
       case 'forceDisableTelemetry':
       case 'showStackTraces':
       case 'logCompressionEnabled':
-      case 'disableSchemaSampling':
         if (typeof value !== 'boolean') {
           return `${key} must be a boolean`;
         }

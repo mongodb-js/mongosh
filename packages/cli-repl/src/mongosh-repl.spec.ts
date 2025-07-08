@@ -485,7 +485,7 @@ describe('MongoshNodeRepl', function () {
         it('autocompletes collection schema fields', async function () {
           if (!process.env.USE_NEW_AUTOCOMPLETE) {
             // auto-completing collection field names only supported by new autocomplete
-            this.skip();
+            return this.skip();
           }
           input.write('db.coll.find({fo');
           await tabtab();
@@ -497,7 +497,7 @@ describe('MongoshNodeRepl', function () {
         it('does not autocomplete collection schema fields if disableSchemaSampling=true', async function () {
           if (!process.env.USE_NEW_AUTOCOMPLETE) {
             // auto-completing collection field names only supported by new autocomplete
-            this.skip();
+            return this.skip();
           }
           await mongoshRepl.setConfig('disableSchemaSampling', true);
           try {
