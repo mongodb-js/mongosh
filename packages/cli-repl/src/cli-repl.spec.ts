@@ -2489,6 +2489,7 @@ describe('CliRepl', function () {
         await tick();
         input.write('\u0009');
         await waitCompletion(cliRepl.bus);
+        await tick();
       };
 
       let docsLoadedPromise: Promise<void>;
