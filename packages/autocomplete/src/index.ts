@@ -293,7 +293,9 @@ export async function completer(
 // from https://github.com/mongodb-js/devtools-shared/commit/e4a5b00a83b19a76bdf380799a421511230168db
 function satisfiesVersion(v1: string, v2: string): boolean {
   const isGTECheck = /^\d+?\.\d+?\.\d+?$/.test(v2);
-  return semver.satisfies(v1, isGTECheck ? `>=${v2}` : v2);
+  return semver.satisfies(v1, isGTECheck ? `>=${v2}` : v2, {
+    includePrerelease: true,
+  });
 }
 
 function isAcceptable(
@@ -329,6 +331,7 @@ function isAcceptable(
       : connectionInfo.is_atlas || connectionInfo.is_local_atlas
       ? entry.env.includes(ATLAS)
       : entry.env.includes(ON_PREM));
+
   return isAcceptableVersion && isAcceptableEnvironment;
 }
 
