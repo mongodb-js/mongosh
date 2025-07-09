@@ -332,11 +332,6 @@ function isAcceptable(
       ? entry.env.includes(ATLAS)
       : entry.env.includes(ON_PREM));
 
-  console.log({
-    isAcceptableVersion,
-    isAcceptableEnvironment,
-    serverVersion: connectionInfo?.server_version,
-  });
   return isAcceptableVersion && isAcceptableEnvironment;
 }
 
