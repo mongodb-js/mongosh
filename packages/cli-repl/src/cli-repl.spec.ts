@@ -2529,6 +2529,29 @@ describe('CliRepl', function () {
       });
 
       it(`${
+        wantQueryOperators ? 'completes' : 'does not complete'
+      } query operators`, async function () {
+        input.write('db.movies.find({year: {$g');
+        await tabCompletion();
+
+        if (wantQueryOperators) {
+          if (process.env.USE_NEW_AUTOCOMPLETE) {
+            // wait for the documents to finish loading to be sure that the next
+            // tabCompletion() call will work
+            await docsLoadedPromise;
+          }
+        }
+
+        await tabCompletion();
+
+        if (wantQueryOperators) {
+          expect(output).to.include('db.movies.find({year: {$gte');
+        } else {
+          expect(output).to.not.include('db.movies.find({year: {$gte');
+        }
+      });
+
+      it(`${
         wantWatch ? 'completes' : 'does not complete'
       } the watch method`, async function () {
         if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
@@ -2649,31 +2672,6 @@ describe('CliRepl', function () {
         input.write('use adm');
         await tabCompletion();
         expect(output).to.include('use admin');
-      });
-
-      it(`${
-        wantQueryOperators ? 'completes' : 'does not complete'
-      } query operators`, async function () {
-        input.write('db.movies.find({year: {$g');
-        await tabCompletion();
-
-        if (wantQueryOperators) {
-          if (process.env.USE_NEW_AUTOCOMPLETE) {
-            // wait for the documents to finish loading to be sure that the next
-            // tabCompletion() call will work
-            await docsLoadedPromise;
-          }
-        }
-
-        await tabCompletion();
-
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        if (wantQueryOperators) {
-          expect(output).to.include('db.movies.find({year: {$gte');
-        } else {
-          expect(output).to.not.include('db.movies.find({year: {$gte');
-        }
       });
 
       it('completes properties of shell API result types', async function () {
