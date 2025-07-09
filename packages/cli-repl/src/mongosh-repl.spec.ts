@@ -1377,6 +1377,25 @@ describe('MongoshNodeRepl', function () {
             'The server generated these startup warnings when booting'
           );
         });
+
+        it('startup warnings are absent when skipStartupWarnings flag is present', async function () {
+          mongoshRepl.shellCliOptions.skipStartupWarnings = true;
+          // Make sure the startupWarnings resolves with errors
+          sp.runCommandWithCheck
+            .withArgs(
+              ADMIN_DB,
+              {
+                getLog: 'startupWarnings',
+              },
+              {}
+            )
+            .resolves({ ok: 1, log: logLines });
+
+          await mongoshRepl.initialize(serviceProvider);
+          expect(output).to.not.contain(
+            'The server generated these startup warnings when booting'
+          );
+        });
       });
     }
   });

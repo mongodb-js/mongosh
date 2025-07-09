@@ -57,6 +57,7 @@ declare const __non_webpack_require__: any;
  */
 export type MongoshCliOptions = ShellCliOptions & {
   quiet?: boolean;
+  skipStartupWarnings?: boolean;
   /**
    * Whether to instantiate a Node.js REPL instance, including support
    * for async error tracking, or not.
@@ -375,10 +376,12 @@ class MongoshNodeRepl implements EvaluationListener {
       const { shellApi } = instanceState;
       // Assuming `instanceState.fetchConnectionInfo()` was already called above
       const connectionInfo = instanceState.cachedConnectionInfo();
-      // Skipping startup warnings (see https://jira.mongodb.org/browse/MONGOSH-1776)
-      const bannerCommands = connectionInfo?.extraInfo?.is_local_atlas
-        ? ['automationNotices', 'nonGenuineMongoDBCheck']
-        : ['startupWarnings', 'automationNotices', 'nonGenuineMongoDBCheck'];
+      // Skipping startup warnings (see https://jira.mongodb.org/browse/MONGOSH-1776 and https://jira.mongodb.org/browse/MONGOSH-2371)
+      const bannerCommands =
+        connectionInfo?.extraInfo?.is_local_atlas ||
+        this.shellCliOptions.skipStartupWarnings
+          ? ['automationNotices', 'nonGenuineMongoDBCheck']
+          : ['startupWarnings', 'automationNotices', 'nonGenuineMongoDBCheck'];
       const banners = await Promise.all(
         bannerCommands.map(
           async (command) => await shellApi._untrackedShow(command)
