@@ -497,6 +497,11 @@ describe('completer.completer', function () {
   });
 
   context('when context is aggregation query', function () {
+    it('returns all suggestions', async function () {
+      const i = 'db.shipwrecks.aggregate([{';
+      expect((await completer(standalone440, i))[0]).to.be.an('array');
+    });
+
     it('has several matches', async function () {
       const i = 'db.shipwrecks.aggregate([ { $so';
       expect(await completer(standalone440, i)).to.deep.equal([

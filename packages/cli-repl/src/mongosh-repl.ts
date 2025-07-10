@@ -57,6 +57,7 @@ declare const __non_webpack_require__: any;
  */
 export type MongoshCliOptions = ShellCliOptions & {
   quiet?: boolean;
+  skipStartupWarnings?: boolean;
   /**
    * Whether to instantiate a Node.js REPL instance, including support
    * for async error tracking, or not.
@@ -375,10 +376,12 @@ class MongoshNodeRepl implements EvaluationListener {
       const { shellApi } = instanceState;
       // Assuming `instanceState.fetchConnectionInfo()` was already called above
       const connectionInfo = instanceState.cachedConnectionInfo();
-      // Skipping startup warnings (see https://jira.mongodb.org/browse/MONGOSH-1776)
-      const bannerCommands = connectionInfo?.extraInfo?.is_local_atlas
-        ? ['automationNotices', 'nonGenuineMongoDBCheck']
-        : ['startupWarnings', 'automationNotices', 'nonGenuineMongoDBCheck'];
+      // Skipping startup warnings (see https://jira.mongodb.org/browse/MONGOSH-1776 and https://jira.mongodb.org/browse/MONGOSH-2371)
+      const bannerCommands =
+        connectionInfo?.extraInfo?.is_local_atlas ||
+        this.shellCliOptions.skipStartupWarnings
+          ? ['automationNotices', 'nonGenuineMongoDBCheck']
+          : ['startupWarnings', 'automationNotices', 'nonGenuineMongoDBCheck'];
       const banners = await Promise.all(
         bannerCommands.map(
           async (command) => await shellApi._untrackedShow(command)
@@ -466,11 +469,6 @@ class MongoshNodeRepl implements EvaluationListener {
           }
         })(),
       ]);
-      this.bus.emit(
-        'mongosh:autocompletion-complete',
-        replResults,
-        mongoshResults
-      ); // For testing.
 
       // Sometimes the mongosh completion knows that what it is doing is right,
       // and that autocompletion based on inspecting the actual objects that
@@ -510,6 +508,8 @@ class MongoshNodeRepl implements EvaluationListener {
           results = results.filter(
             (result) => !CONTROL_CHAR_REGEXP.test(result)
           );
+          // emit here so that on nextTick the results should be output
+          this.bus.emit('mongosh:autocompletion-complete'); // For testing.
           return [results, completeOn];
         } finally {
           this.insideAutoCompleteOrGetPrompt = false;

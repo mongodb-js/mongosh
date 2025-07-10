@@ -71,10 +71,7 @@ async function waitEval(bus: MongoshBus) {
 }
 
 async function waitCompletion(bus: MongoshBus) {
-  await Promise.race([
-    waitBus(bus, 'mongosh:autocompletion-complete'),
-    new Promise((resolve) => setTimeout(resolve, 5000)?.unref?.()),
-  ]);
+  await waitBus(bus, 'mongosh:autocompletion-complete');
   await tick();
 }
 

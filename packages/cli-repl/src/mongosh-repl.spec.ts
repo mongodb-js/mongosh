@@ -55,6 +55,8 @@ describe('MongoshNodeRepl', function () {
   let config: Record<string, any>;
   const tmpdir = useTmpdir();
 
+  let docsLoadedPromise: Promise<void>;
+
   beforeEach(function () {
     input = new PassThrough();
     outputStream = new PassThrough();
@@ -116,6 +118,12 @@ describe('MongoshNodeRepl', function () {
       ioProvider: ioProvider,
     };
     mongoshRepl = new MongoshNodeRepl(mongoshReplOptions);
+
+    docsLoadedPromise = new Promise<void>((resolve) => {
+      mongoshRepl.bus.once('mongosh:load-sample-docs-complete', () => {
+        resolve();
+      });
+    });
   });
 
   let originalEnvVars: Record<string, string | undefined>;
@@ -379,6 +387,7 @@ describe('MongoshNodeRepl', function () {
       });
       const initialized = await mongoshRepl.initialize(serviceProvider);
       await mongoshRepl.startRepl(initialized);
+      await mongoshRepl.setConfig('disableSchemaSampling', false);
     });
 
     it('provides an editor action', async function () {
@@ -481,13 +490,36 @@ describe('MongoshNodeRepl', function () {
           await tick();
           expect(output, output).to.include('db.coll.updateOne');
         });
-        // this will eventually be supported in the new autocomplete
-        it.skip('autocompletes collection schema fields', async function () {
-          input.write('db.coll.find({');
-          await tabtab();
+        it('autocompletes collection schema fields', async function () {
+          if (!process.env.USE_NEW_AUTOCOMPLETE) {
+            // auto-completing collection field names only supported by new autocomplete
+            return this.skip();
+          }
+          input.write('db.coll.find({fo');
+          await tab();
+          await docsLoadedPromise;
+          await tab();
           await waitCompletion(bus);
           await tick();
           expect(output, output).to.include('db.coll.find({foo');
+        });
+
+        it('does not autocomplete collection schema fields if disableSchemaSampling=true', async function () {
+          if (!process.env.USE_NEW_AUTOCOMPLETE) {
+            // auto-completing collection field names only supported by new autocomplete
+            return this.skip();
+          }
+          await mongoshRepl.setConfig('disableSchemaSampling', true);
+          try {
+            input.write('db.coll.find({fo');
+            await tab();
+            await tab();
+            await waitCompletion(bus);
+            await tick();
+            expect(output, output).to.not.include('db.coll.find({foo');
+          } finally {
+            await mongoshRepl.setConfig('disableSchemaSampling', false);
+          }
         });
         it('autocompletes shell-api methods (once)', async function () {
           input.write('vers');
@@ -1340,6 +1372,25 @@ describe('MongoshNodeRepl', function () {
             },
             buildInfo: {},
           });
+          await mongoshRepl.initialize(serviceProvider);
+          expect(output).to.not.contain(
+            'The server generated these startup warnings when booting'
+          );
+        });
+
+        it('startup warnings are absent when skipStartupWarnings flag is present', async function () {
+          mongoshRepl.shellCliOptions.skipStartupWarnings = true;
+          // Make sure the startupWarnings resolves with errors
+          sp.runCommandWithCheck
+            .withArgs(
+              ADMIN_DB,
+              {
+                getLog: 'startupWarnings',
+              },
+              {}
+            )
+            .resolves({ ok: 1, log: logLines });
+
           await mongoshRepl.initialize(serviceProvider);
           expect(output).to.not.contain(
             'The server generated these startup warnings when booting'

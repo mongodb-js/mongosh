@@ -38,6 +38,7 @@ export interface CliOptions {
   quiet?: boolean;
   retryWrites?: boolean;
   shell?: boolean;
+  skipStartupWarnings?: boolean;
   tls?: boolean;
   tlsAllowInvalidCertificates?: boolean;
   tlsAllowInvalidHostnames?: boolean;

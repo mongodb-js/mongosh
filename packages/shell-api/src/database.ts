@@ -295,9 +295,13 @@ export class Database<
   async _getCollectionNamesForCompletion(): Promise<string[]> {
     return await Promise.race([
       (async () => {
-        return await this._getCollectionNames({
+        const result = await this._getCollectionNames({
           readPreference: 'primaryPreferred',
         });
+        this._mongo._instanceState.messageBus.emit(
+          'mongosh:load-collections-complete'
+        );
+        return result;
       })(),
       (async () => {
         // 200ms should be a good compromise between giving the server a chance
