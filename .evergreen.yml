@@ -11478,6 +11478,18 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_ppc64le
+  - name: e2e_tests_rhel9_power_small
+    display_name: "RHEL 9 PPC (E2E tests)"
+    run_on: rhel9-power-small
+    tags: []
+    expansions:
+      executable_os_id: "linux-ppc64le"
+      disable_openssl_shared_config_for_bundled_openssl: false
+      node_js_version: "20.19.3"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests_linux_ppc64le
   - name: e2e_tests_rhel7_zseries_large_m60x
     display_name: "RHEL 7 s390x 60x (E2E tests)"
     run_on: rhel7-zseries-large
@@ -11493,6 +11505,18 @@ buildvariants:
   - name: e2e_tests_rhel8_zseries_small
     display_name: "RHEL 8 s390x (E2E tests)"
     run_on: rhel8-zseries-small
+    tags: []
+    expansions:
+      executable_os_id: "linux-s390x"
+      disable_openssl_shared_config_for_bundled_openssl: false
+      node_js_version: "20.19.3"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests_linux_s390x
+  - name: e2e_tests_rhel9_zseries_small
+    display_name: "RHEL 9 s390x (E2E tests)"
+    run_on: rhel9-zseries-small
     tags: []
     expansions:
       executable_os_id: "linux-s390x"
@@ -11862,12 +11886,21 @@ buildvariants:
     run_on: rhel8-zseries-small
     tasks:
       - name: pkg_test_rpmextract_rpm_s390x
+  - name: pkg_smoke_tests_rhel9_s390x
+    display_name: "package smoke tests (RHEL 9 s390x)"
+    run_on: rhel9-zseries-small
+    tasks:
+      - name: pkg_test_rpmextract_rpm_s390x
   - name: pkg_smoke_tests_rhel8_ppc64le
     display_name: "package smoke tests (RHEL 8 ppc64le)"
     run_on: rhel8-power-small
     tasks:
       - name: pkg_test_rpmextract_rpm_ppc64le
-
+  - name: pkg_smoke_tests_rhel9_ppc64le
+    display_name: "package smoke tests (RHEL 9 ppc64le)"
+    run_on: rhel9-power-small
+    tasks:
+      - name: pkg_test_rpmextract_rpm_ppc64le
   - name: draft_publish_release
     display_name: "Draft/Publish Release"
     run_on: ubuntu2004-small

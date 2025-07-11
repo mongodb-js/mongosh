@@ -300,6 +300,12 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     mVersion: 'stable',
   },
   {
+    displayName: 'RHEL 9 PPC',
+    runOn: 'rhel9-power-small',
+    executableOsId: 'linux-ppc64le',
+    mVersion: 'stable',
+  },
+  {
     displayName: 'RHEL 7 s390x',
     runOn: 'rhel7-zseries-large',
     executableOsId: 'linux-s390x',
@@ -308,6 +314,12 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
   {
     displayName: 'RHEL 8 s390x',
     runOn: 'rhel8-zseries-small',
+    executableOsId: 'linux-s390x',
+    mVersion: 'stable',
+  },
+  {
+    displayName: 'RHEL 9 s390x',
+    runOn: 'rhel9-zseries-small',
     executableOsId: 'linux-s390x',
     mVersion: 'stable',
   },

@@ -1718,12 +1718,21 @@ buildvariants:
     run_on: rhel8-zseries-small
     tasks:
       - name: pkg_test_rpmextract_rpm_s390x
+  - name: pkg_smoke_tests_rhel9_s390x
+    display_name: "package smoke tests (RHEL 9 s390x)"
+    run_on: rhel9-zseries-small
+    tasks:
+      - name: pkg_test_rpmextract_rpm_s390x
   - name: pkg_smoke_tests_rhel8_ppc64le
     display_name: "package smoke tests (RHEL 8 ppc64le)"
     run_on: rhel8-power-small
     tasks:
       - name: pkg_test_rpmextract_rpm_ppc64le
-
+  - name: pkg_smoke_tests_rhel9_ppc64le
+    display_name: "package smoke tests (RHEL 9 ppc64le)"
+    run_on: rhel9-power-small
+    tasks:
+      - name: pkg_test_rpmextract_rpm_ppc64le
   - name: draft_publish_release
     display_name: "Draft/Publish Release"
     run_on: ubuntu2004-small
