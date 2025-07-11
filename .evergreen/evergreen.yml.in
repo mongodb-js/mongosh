@@ -487,7 +487,6 @@ functions:
           NODE_JS_VERSION: ${node_js_version}
           AWS_AUTH_IAM_ACCESS_KEY_ID: ${devtools_ci_aws_key}
           AWS_AUTH_IAM_SECRET_ACCESS_KEY: ${devtools_ci_aws_secret}
-          DISABLE_OPENSSL_SHARED_CONFIG_FOR_BUNDLED_OPENSSL: ${disable_openssl_shared_config_for_bundled_openssl}
           TASK_NAME: ${task_name}
 
   ###
@@ -1044,8 +1043,6 @@ functions:
         script: |
           set -e
           set -x
-          # fix rh-allow-sha1-signatures error, see run-e2e-tests.sh
-          export OPENSSL_CONF=""
           npx -y mongodb-runner exec -t standalone --version=7.0.x-enterprise -- \
             sh -c 'MONGOSH_SMOKE_TEST_SERVER="$MONGODB_URI" ./dist/mongosh --perfTests > perf_results.json'
         env:
@@ -1241,7 +1238,6 @@ tasks:
           node_js_version: ${node_js_version}
           mongosh_server_test_version: ${mongosh_server_test_version}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
-          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   <% } %>
   - name: perf_tests_linux_x64
     tags: ["perf-test"]
@@ -1550,7 +1546,6 @@ buildvariants:
     tags: <% out([...(variant.tags ?? [])]) %>
     expansions:
       executable_os_id: "<% out(variant.executableOsId) %>"
-      disable_openssl_shared_config_for_bundled_openssl: <% out(variant.disableOpenSslSharedConfig || false) %>
       node_js_version: "<% out(NODE_JS_VERSION_20) %>"
       mongosh_server_test_version: "<% out(variant.mVersion) %>-enterprise"
       mongosh_test_e2e_force_fips: "<% out(variant.fips ? '1' : '') %>"
@@ -1718,12 +1713,21 @@ buildvariants:
     run_on: rhel8-zseries-small
     tasks:
       - name: pkg_test_rpmextract_rpm_s390x
+  - name: pkg_smoke_tests_rhel9_s390x
+    display_name: "package smoke tests (RHEL 9 s390x)"
+    run_on: rhel9-zseries-small
+    tasks:
+      - name: pkg_test_rpmextract_rpm_s390x
   - name: pkg_smoke_tests_rhel8_ppc64le
     display_name: "package smoke tests (RHEL 8 ppc64le)"
     run_on: rhel8-power-small
     tasks:
       - name: pkg_test_rpmextract_rpm_ppc64le
-
+  - name: pkg_smoke_tests_rhel9_ppc64le
+    display_name: "package smoke tests (RHEL 9 ppc64le)"
+    run_on: rhel9-power-small
+    tasks:
+      - name: pkg_test_rpmextract_rpm_ppc64le
   - name: draft_publish_release
     display_name: "Draft/Publish Release"
     run_on: ubuntu2004-small
