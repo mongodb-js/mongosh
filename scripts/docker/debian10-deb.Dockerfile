@@ -3,6 +3,12 @@ FROM debian:10
 ARG artifact_url=""
 ADD ${artifact_url} /tmp
 ADD node_modules /usr/share/mongodb-crypt-library-version/node_modules
+
+# Update sources.list to use archived repositories for Debian 10 (buster)
+RUN sed -i 's|http://deb.debian.org/debian|http://archive.debian.org/debian|g' /etc/apt/sources.list
+RUN sed -i 's|http://security.debian.org/debian-security|http://archive.debian.org/debian-security|g' /etc/apt/sources.list
+RUN sed -i '/buster-updates/d' /etc/apt/sources.list
+
 RUN apt-get update
 RUN apt-get install -y man-db
 RUN apt-get install -y /tmp/*mongosh*.deb
