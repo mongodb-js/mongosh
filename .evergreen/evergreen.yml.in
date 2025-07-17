@@ -229,6 +229,10 @@ functions:
           MONGOSH_RUN_ONLY_IN_PACKAGE: ${mongosh_run_only_in_package}
           AWS_AUTH_IAM_ACCESS_KEY_ID: ${devtools_ci_aws_key}
           AWS_AUTH_IAM_SECRET_ACCESS_KEY: ${devtools_ci_aws_secret}
+          STREAMS_E2E_SPI_CONNECTION_STRING: ${streams_e2e_spi_connection_string}
+          STREAMS_E2E_DB_USER: ${streams_e2e_db_user}
+          STREAMS_E2E_DB_PASSWORD: ${streams_e2e_db_password}
+          STREAMS_E2E_CLUSTER_CONNECTION_STRING: ${streams_e2e_cluster_connection_string}
           TASK_NAME: ${task_name}
     - command: s3.put
       params:
@@ -487,6 +491,10 @@ functions:
           NODE_JS_VERSION: ${node_js_version}
           AWS_AUTH_IAM_ACCESS_KEY_ID: ${devtools_ci_aws_key}
           AWS_AUTH_IAM_SECRET_ACCESS_KEY: ${devtools_ci_aws_secret}
+          STREAMS_E2E_SPI_CONNECTION_STRING: ${streams_e2e_spi_connection_string}
+          STREAMS_E2E_DB_USER: ${streams_e2e_db_user}
+          STREAMS_E2E_DB_PASSWORD: ${streams_e2e_db_password}
+          STREAMS_E2E_CLUSTER_CONNECTION_STRING: ${streams_e2e_cluster_connection_string}
           TASK_NAME: ${task_name}
 
   ###
