@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/service-provider-core",
-  "version": "3.3.3",
+  "version": "3.3.5",
   "description": "MongoDB Shell Core Service Provider Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "@aws-sdk/credential-providers": "^3.525.0",
-    "@mongosh/errors": "2.4.0",
+    "@mongosh/errors": "2.4.2",
     "bson": "^6.10.3",
     "mongodb": "^6.16.0",
     "mongodb-build-info": "^1.7.2",
