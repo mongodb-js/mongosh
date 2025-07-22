@@ -111,6 +111,17 @@ export class PackagePublisher {
       if (!mongoshVersion) {
         throw new Error('mongosh package not found');
       }
+
+      if (!this.config.isDryRun) {
+        // Push the tag separately for mongosh to trigger the merge-release-tag.yml workflow
+        // Since GitHub Actions only runs create tag workflows when no more than 3 tags are created.
+        // https://docs.github.com/en/actions/reference/events-that-trigger-workflows#create
+        this.spawnSync(
+          'git',
+          ['push', 'origin', `refs/tags/mongosh@${mongoshVersion}`],
+          commandOptions
+        );
+      }
     }
 
     if (!this.config.isDryRun) {
