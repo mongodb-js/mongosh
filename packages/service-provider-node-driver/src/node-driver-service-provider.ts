@@ -140,7 +140,17 @@ export type DropDatabaseResult = {
 /**
  * Default driver options we always use.
  */
-const DEFAULT_DRIVER_OPTIONS: MongoClientOptions = Object.freeze({});
+const DEFAULT_DRIVER_OPTIONS: MongoClientOptions = Object.freeze({
+  // In COMPASS-9455 / https://github.com/mongodb-js/devtools-shared/pull/557,
+  // we turned on the driver-internal `__skipPingOnConnect` option on by default
+  // for devtools-connect usage, turning off an extra `ping` rountrip when auth
+  // options have been provided. In mongosh, we do require this ping check,
+  // because we only print a warning rather than throwing an exception
+  // if a follow-up ping fails (e.g. in load-balanced mode). So setting this
+  // flag to `false` here restores mongosh's existing behavior, and we can
+  // revisit this in the next major version of mongosh.
+  __skipPingOnConnect: false,
+} as MongoClientOptions);
 
 /**
  * Default driver method options we always use.
