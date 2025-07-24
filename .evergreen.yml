@@ -4434,7 +4434,7 @@ functions:
 
           echo "Response Body: $response_body"
           echo "HTTP Status: $http_status"
-
+          
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
 #
