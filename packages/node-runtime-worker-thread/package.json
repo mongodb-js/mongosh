@@ -45,7 +45,7 @@
     "@mongosh/service-provider-core": "3.3.5",
     "@mongosh/service-provider-node-driver": "^3.12.0",
     "@mongosh/types": "3.10.0",
-    "bson": "^6.10.3",
+    "bson": "^6.10.4",
     "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
     "mocha": "^10.2.0",
