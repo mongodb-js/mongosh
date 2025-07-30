@@ -29,13 +29,13 @@
   "dependencies": {
     "@mongosh/cli-repl": "2.5.6",
     "@mongosh/service-provider-core": "3.3.5",
-    "@mongodb-js/oidc-plugin": "^1.1.8",
+    "@mongodb-js/oidc-plugin": "^2.0.1",
     "strip-ansi": "^6.0.0"
   },
   "devDependencies": {
     "mongodb-log-writer": "^2.3.1",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
-    "@mongodb-js/oidc-mock-provider": "^0.10.2",
+    "@mongodb-js/oidc-mock-provider": "^0.11.3",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@types/chai-as-promised": "^7.1.3",

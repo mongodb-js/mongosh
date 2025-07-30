@@ -502,7 +502,7 @@ describe('OIDC auth e2e', function () {
     await shell.waitForSuccessfulExit();
 
     shell.assertContainsOutput('BEGIN OIDC TOKEN DUMP');
-    shell.assertContainsOutput('"tokenType": "Bearer"');
+    shell.assertContainsOutput('"tokenType": "bearer"');
     shell.assertContainsOutput('"alg": "RS256"');
     shell.assertContainsOutput('"sub": "testuser"');
     shell.assertNotContainsOutput('"signature":');
@@ -522,7 +522,7 @@ describe('OIDC auth e2e', function () {
     await shell.waitForSuccessfulExit();
 
     shell.assertContainsOutput('BEGIN OIDC TOKEN DUMP');
-    shell.assertContainsOutput('"tokenType": "Bearer"');
+    shell.assertContainsOutput('"tokenType": "bearer"');
     shell.assertContainsOutput('"alg": "RS256"');
     shell.assertContainsOutput('"sub": "testuser"');
     shell.assertContainsOutput('"signature":');
