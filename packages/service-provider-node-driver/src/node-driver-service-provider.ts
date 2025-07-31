@@ -79,7 +79,6 @@ import {
 import type { DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
 import { MongoshCommandFailed, MongoshInternalError } from '@mongosh/errors';
 import type { MongoshBus } from '@mongosh/types';
-import { forceCloseMongoClient } from './mongodb-patches';
 import {
   ConnectionString,
   CommaAndColonSeparatedRecord,
@@ -656,20 +655,15 @@ export class NodeDriverServiceProvider
 
   /**
    * Close the connection.
-   *
-   * @param {boolean} force - Whether to force close the connection.
    */
-  async close(force: boolean): Promise<void> {
+  async close(): Promise<void> {
     this.dbcache.set(this.mongoClient, new Map());
-    if (force) {
-      await forceCloseMongoClient(this.mongoClient);
-    } else {
-      await this.mongoClient.close();
-    }
+
+    await this.mongoClient.close();
   }
 
   async suspend(): Promise<() => Promise<void>> {
-    await this.close(true);
+    await this.close();
     return async () => {
       await this.resetConnectionOptions({});
     };
