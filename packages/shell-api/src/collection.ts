@@ -930,7 +930,7 @@ export class Collection<
    * @param {Object} filter - The filter.
    * @param {Object} replacement - The replacement document for matches.
    * @param {Object} options - The replace options.
-   *    <upsert, writeConcern, collation, hint>
+   *    <upsert, writeConcern, collation, hint, sort>
    *
    * @returns {UpdateResult} The promise of the result.
    */
@@ -1058,7 +1058,7 @@ export class Collection<
    * @param {Object} filter - The filter.
    * @param {(Object|Array)} update - The updates.
    * @param {Object} options - The update options.
-   *  <upsert, writeConcern, collation, arrayFilters, hint>
+   *  <upsert, writeConcern, collation, arrayFilters, hint, sort>
    *
    * @returns {UpdateResult} The promise of the result.
    */
@@ -1068,7 +1068,7 @@ export class Collection<
   async updateOne(
     filter: Document,
     update: Document,
-    options: UpdateOptions = {}
+    options: UpdateOptions & { sort?: Document } = {}
   ): Promise<UpdateResult | Document> {
     assertArgsDefinedType([filter], [true], 'Collection.updateOne');
     this._emitCollectionApiCall('updateOne', { filter, options });
