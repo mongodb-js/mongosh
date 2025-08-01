@@ -276,9 +276,9 @@ export class ShellInstanceState {
     );
   }
 
-  async close(force: boolean): Promise<void> {
+  async close(): Promise<void> {
     for (const mongo of [...this.mongos]) {
-      await mongo.close(force);
+      await mongo.close();
     }
   }
 

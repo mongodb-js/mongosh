@@ -981,7 +981,7 @@ describe('Mongo', function () {
     });
 
     afterEach(async function () {
-      await instanceState.close(true);
+      await instanceState.close();
     });
 
     describe('versioned API', function () {

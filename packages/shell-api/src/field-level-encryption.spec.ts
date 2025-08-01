@@ -813,7 +813,7 @@ describe('Field Level Encryption', function () {
 
     afterEach(async function () {
       await serviceProvider.dropDatabase(dbname, {});
-      await instanceState.close(true);
+      await instanceState.close();
       sinon.restore();
     });
 
@@ -962,7 +962,6 @@ srDVjIT3LsvTqw==`,
               return;
             }
             expect.fail('missed exception');
-            break;
           default:
             throw new Error(`unreachable ${kmsName}`);
         }

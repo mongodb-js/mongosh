@@ -586,7 +586,7 @@ export default class Mongo<
     }
   }
 
-  async close(force?: boolean): Promise<void> {
+  async close(): Promise<void> {
     const index = this._instanceState.mongos.indexOf(this);
     if (index === -1) {
       process.emitWarning(
@@ -598,7 +598,7 @@ export default class Mongo<
       this._instanceState.mongos.splice(index, 1);
     }
 
-    await this._serviceProvider.close(!!force);
+    await this._serviceProvider.close();
   }
 
   async _suspend(): Promise<() => Promise<void>> {

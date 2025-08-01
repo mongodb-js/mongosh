@@ -218,7 +218,7 @@ describe('Session', function () {
       }
 
       if (serviceProvider) {
-        await serviceProvider.close(true);
+        await serviceProvider.close();
       }
     });
 

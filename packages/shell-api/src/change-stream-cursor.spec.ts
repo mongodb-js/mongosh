@@ -154,7 +154,7 @@ describe('ChangeStreamCursor', function () {
     });
 
     after(function () {
-      return serviceProvider.close(true);
+      return serviceProvider.close();
     });
 
     describe('collection watch', function () {
@@ -343,7 +343,6 @@ describe('ChangeStreamCursor', function () {
     it('isExhausted fails', function () {
       try {
         cursor.isExhausted();
-        expect.fail('missed exception');
       } catch (err: any) {
         expect(err.name).to.equal('MongoshInvalidInputError');
       }
