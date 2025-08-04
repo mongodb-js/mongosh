@@ -1151,7 +1151,7 @@ class MongoshNodeRepl implements EvaluationListener {
         rs.repl.close();
         await once(rs.repl, 'exit');
       }
-      await rs.instanceState.close(true);
+      await rs.instanceState.close();
       await new Promise((resolve) =>
         this.output.write(this.outputFinishString, resolve)
       );

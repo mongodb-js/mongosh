@@ -96,6 +96,18 @@ const config = {
 
 module.exports = merge(baseWebpackConfig, config);
 
+function moduleExportNeedsIdentityPreserved(pkg, key) {
+  // This provides special-casing for the `allowInsecureRequests`
+  // exports of the openid-client package. While the specific object
+  // identity of exported functions is generally not important, and
+  // wrappers can freely be applied, in this specific case the
+  // openid-client package *does* check whether the `execute` array
+  // passed to `.discover()` contains the `allowInsecureRequests`
+  // function, and aligns behavior based on that (in addition to just
+  // calling the function, as one would expect).
+  return pkg === 'openid-client' && key === 'allowInsecureRequests';
+}
+
 // Helper to create a module that lazily loads the actual target package
 // when it is being encountered. This is useful for snapshotting, where some
 // packages either cannot be snapshotted or perform initialization during
@@ -150,7 +162,10 @@ function makeLazyForwardModule(pkg) {
     .join(', ')} } = Reflect;\n`;
   let i = 0;
   for (const key of Object.keys(moduleContents)) {
-    if (typeof moduleContents[key] === 'function') {
+    if (
+      typeof moduleContents[key] === 'function' &&
+      !moduleExportNeedsIdentityPreserved(pkg, key)
+    ) {
       source += `module.exports[${S(key)}] = new Proxy(function() {}, {
         ${proxyProps
           .map(

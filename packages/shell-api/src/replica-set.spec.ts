@@ -877,7 +877,7 @@ describe('ReplicaSet', function () {
     });
 
     after(function () {
-      return serviceProvider.close(true);
+      return serviceProvider.close();
     });
 
     describe('replica set info', function () {
@@ -1116,7 +1116,7 @@ describe('ReplicaSet', function () {
     });
 
     afterEach(async function () {
-      return await serviceProvider.close(true);
+      return await serviceProvider.close();
     });
 
     it('fails with rs.reconfig but works with rs.reconfigForPSASet', async function () {

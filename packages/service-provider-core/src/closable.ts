@@ -1,10 +1,8 @@
 export default interface Closable {
   /**
    * Close the connection.
-   *
-   * @param {boolean} force - Whether to force close.
    */
-  close(force: boolean): Promise<void>;
+  close(): Promise<void>;
 
   /**
    * Suspends the connection, i.e. temporarily force-closes it

@@ -79,7 +79,6 @@ import {
 import type { DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
 import { MongoshCommandFailed, MongoshInternalError } from '@mongosh/errors';
 import type { MongoshBus } from '@mongosh/types';
-import { forceCloseMongoClient } from './mongodb-patches';
 import {
   ConnectionString,
   CommaAndColonSeparatedRecord,
@@ -140,7 +139,17 @@ export type DropDatabaseResult = {
 /**
  * Default driver options we always use.
  */
-const DEFAULT_DRIVER_OPTIONS: MongoClientOptions = Object.freeze({});
+const DEFAULT_DRIVER_OPTIONS: MongoClientOptions = Object.freeze({
+  // In COMPASS-9455 / https://github.com/mongodb-js/devtools-shared/pull/557,
+  // we turned on the driver-internal `__skipPingOnConnect` option on by default
+  // for devtools-connect usage, turning off an extra `ping` rountrip when auth
+  // options have been provided. In mongosh, we do require this ping check,
+  // because we only print a warning rather than throwing an exception
+  // if a follow-up ping fails (e.g. in load-balanced mode). So setting this
+  // flag to `false` here restores mongosh's existing behavior, and we can
+  // revisit this in the next major version of mongosh.
+  __skipPingOnConnect: false,
+} as MongoClientOptions);
 
 /**
  * Default driver method options we always use.
@@ -646,20 +655,15 @@ export class NodeDriverServiceProvider
 
   /**
    * Close the connection.
-   *
-   * @param {boolean} force - Whether to force close the connection.
    */
-  async close(force: boolean): Promise<void> {
+  async close(): Promise<void> {
     this.dbcache.set(this.mongoClient, new Map());
-    if (force) {
-      await forceCloseMongoClient(this.mongoClient);
-    } else {
-      await this.mongoClient.close();
-    }
+
+    await this.mongoClient.close();
   }
 
   async suspend(): Promise<() => Promise<void>> {
-    await this.close(true);
+    await this.close();
     return async () => {
       await this.resetConnectionOptions({});
     };
