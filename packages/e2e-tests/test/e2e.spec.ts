@@ -1195,6 +1195,7 @@ describe('e2e', function () {
       expect(result).to.match(/^B-ESM$/m);
     });
 
+    // Regression test for https://github.com/nodejs/node/issues/38695
     it('import() works when interleaved with GC', async function () {
       await shell.executeLine('importESM = () => import("b-esm")');
       expect(await shell.executeLine('globalThis.gc(); "ran gc"')).to.include(
