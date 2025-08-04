@@ -962,6 +962,7 @@ srDVjIT3LsvTqw==`,
               return;
             }
             expect.fail('missed exception');
+            break;
           default:
             throw new Error(`unreachable ${kmsName}`);
         }
