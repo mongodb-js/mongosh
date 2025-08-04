@@ -309,6 +309,7 @@ describe('CliRepl', function () {
           'maxTimeMS',
           'enableTelemetry',
           'editor',
+          'disableSchemaSampling',
           'snippetIndexSourceURLs',
           'snippetRegistryURL',
           'snippetAutoload',
@@ -498,6 +499,8 @@ describe('CliRepl', function () {
           process.env.MONGOSH_SKIP_NODE_VERSION_CHECK;
         delete process.env.MONGOSH_SKIP_NODE_VERSION_CHECK;
         delete (process as any).version;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore version is readonly
         process.version = 'v8.0.0';
 
         try {
@@ -512,6 +515,8 @@ describe('CliRepl', function () {
           expect(e.name).to.equal('MongoshWarning');
           expect((e as any).code).to.equal(CliReplErrors.NodeVersionMismatch);
         } finally {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore version is readonly
           process.version = `v${process.versions.node}`;
           process.env.MONGOSH_SKIP_NODE_VERSION_CHECK =
             origVersionCheckEnvVar || '';
@@ -2474,10 +2479,6 @@ describe('CliRepl', function () {
         // be listed
         wantWatch = true;
         wantShardDistribution = true;
-
-        // TODO: we need MQL support in mongodb-ts-autocomplete in order for it
-        // to autocomplete collection field names
-        wantQueryOperators = false;
       }
     }
 
@@ -2488,7 +2489,10 @@ describe('CliRepl', function () {
         await tick();
         input.write('\u0009');
         await waitCompletion(cliRepl.bus);
+        await tick();
       };
+
+      let docsLoadedPromise: Promise<void>;
 
       beforeEach(async function () {
         if (testServer === null) {
@@ -2504,9 +2508,16 @@ describe('CliRepl', function () {
         if (!(testServer as any)?._opts.args?.includes('--auth')) {
           // make sure there are some collections we can autocomplete on below
           input.write('db.coll.insertOne({})\n');
-          input.write('db.movies.insertOne({})\n');
+          await waitEval(cliRepl.bus);
+          input.write('db.movies.insertOne({ year: 1 })\n');
           await waitEval(cliRepl.bus);
         }
+
+        docsLoadedPromise = new Promise<void>((resolve) => {
+          cliRepl.bus.once('mongosh:load-sample-docs-complete', () => {
+            resolve();
+          });
+        });
       });
 
       afterEach(async function () {
@@ -2515,6 +2526,29 @@ describe('CliRepl', function () {
           'listCollections requires authentication'
         );
         await cliRepl.mongoshRepl.close();
+      });
+
+      it(`${
+        wantQueryOperators ? 'completes' : 'does not complete'
+      } query operators`, async function () {
+        input.write('db.movies.find({year: {$g');
+        await tabCompletion();
+
+        if (wantQueryOperators) {
+          if (process.env.USE_NEW_AUTOCOMPLETE) {
+            // wait for the documents to finish loading to be sure that the next
+            // tabCompletion() call will work
+            await docsLoadedPromise;
+          }
+        }
+
+        await tabCompletion();
+
+        if (wantQueryOperators) {
+          expect(output).to.include('db.movies.find({year: {$gte');
+        } else {
+          expect(output).to.not.include('db.movies.find({year: {$gte');
+        }
       });
 
       it(`${
@@ -2638,19 +2672,6 @@ describe('CliRepl', function () {
         input.write('use adm');
         await tabCompletion();
         expect(output).to.include('use admin');
-      });
-
-      it(`${
-        wantQueryOperators ? 'completes' : 'does not complete'
-      } query operators`, async function () {
-        input.write('db.movies.find({year: {$g');
-        await tabCompletion();
-        await tabCompletion();
-        if (wantQueryOperators) {
-          expect(output).to.include('db.movies.find({year: {$gte');
-        } else {
-          expect(output).to.not.include('db.movies.find({year: {$gte');
-        }
       });
 
       it('completes properties of shell API result types', async function () {
@@ -2861,6 +2882,8 @@ describe('CliRepl', function () {
 
     it('does not print any deprecation warning when CLI is ran with --quiet flag', async function () {
       // Setting all the possible situation for a deprecation warning
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore version is readonly
       process.version = '18.20.0';
       process.versions.openssl = '1.1.11';
       cliRepl.getGlibcVersion = () => '1.27';

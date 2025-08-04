@@ -61,6 +61,7 @@ import type {
   ExplainVerbosityLike,
   AggregateOptions,
 } from '@mongosh/service-provider-core';
+import type { MQLPipeline } from './mql-types';
 
 export type CollectionNamesWithTypes = {
   name: string;
@@ -294,9 +295,13 @@ export class Database<
   async _getCollectionNamesForCompletion(): Promise<string[]> {
     return await Promise.race([
       (async () => {
-        return await this._getCollectionNames({
+        const result = await this._getCollectionNames({
           readPreference: 'primaryPreferred',
         });
+        this._mongo._instanceState.messageBus.emit(
+          'mongosh:load-collections-complete'
+        );
+        return result;
       })(),
       (async () => {
         // 200ms should be a good compromise between giving the server a chance
@@ -443,26 +448,26 @@ export class Database<
    * @returns {Promise} The promise of aggregation results.
    */
   async aggregate(
-    pipeline: Document[],
+    pipeline: MQLPipeline,
     options: AggregateOptions & { explain: ExplainVerbosityLike }
   ): Promise<Document>;
   async aggregate(
-    pipeline: Document[],
+    pipeline: MQLPipeline,
     options?: AggregateOptions
   ): Promise<AggregationCursor>;
-  async aggregate(...stages: Document[]): Promise<AggregationCursor>;
+  async aggregate(...stages: MQLPipeline): Promise<AggregationCursor>;
   @returnsPromise
   @returnType('AggregationCursor')
   @apiVersions([1])
   async aggregate(...args: unknown[]): Promise<AggregationCursor | Document> {
     let options: AggregateOptions;
-    let pipeline: Document[];
+    let pipeline: MQLPipeline;
     if (args.length === 0 || Array.isArray(args[0])) {
       options = args[1] || {};
-      pipeline = (args[0] as Document[]) || [];
+      pipeline = (args[0] as MQLPipeline) || [];
     } else {
       options = {};
-      pipeline = (args as Document[]) || [];
+      pipeline = (args as MQLPipeline) || [];
     }
 
     if ('background' in options) {
@@ -855,7 +860,7 @@ export class Database<
   async createView(
     name: string,
     source: string,
-    pipeline: Document[],
+    pipeline: MQLPipeline,
     options: CreateCollectionOptions = {}
   ): Promise<{ ok: number }> {
     assertArgsDefinedType(
@@ -1085,7 +1090,7 @@ export class Database<
         ? { $all: opts, $ownOps: false }
         : { $all: !!opts.$all, $ownOps: !!opts.$ownOps };
 
-    const pipeline: Document[] = [
+    const pipeline: MQLPipeline = [
       {
         $currentOp: {
           allUsers: !legacyCurrentOpOptions.$ownOps,
@@ -1739,7 +1744,7 @@ export class Database<
   @apiVersions([1])
   @returnsPromise
   async watch(
-    pipeline: Document[] | ChangeStreamOptions = [],
+    pipeline: MQLPipeline | ChangeStreamOptions = [],
     options: ChangeStreamOptions = {}
   ): Promise<ChangeStreamCursor> {
     if (!Array.isArray(pipeline)) {

@@ -28,7 +28,6 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     displayName: 'RHEL 9.0 x64',
     runOn: 'rhel90-small',
     tags: ['nightly-driver'],
-    disableOpenSslSharedConfig: true,
     executableOsId: 'linux-x64',
     mVersion: '7.0.x',
   },
@@ -36,7 +35,6 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     displayName: 'RHEL 9.3 x64',
     runOn: 'rhel93-small',
     tags: ['nightly-driver'],
-    disableOpenSslSharedConfig: true,
     executableOsId: 'linux-x64',
     mVersion: 'stable',
   },
@@ -181,7 +179,6 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     displayName: 'Amazon Linux 2023 x64',
     runOn: 'amazon2023.0-small',
     tags: ['nightly-driver'],
-    disableOpenSslSharedConfig: true,
     executableOsId: 'linux-x64',
     mVersion: 'stable',
   },
@@ -253,7 +250,6 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
   {
     displayName: 'Amazon Linux 2023 arm64',
     runOn: 'amazon2023.0-arm64-small',
-    disableOpenSslSharedConfig: true,
     executableOsId: 'linux-arm64',
     mVersion: 'stable',
   },
@@ -266,14 +262,12 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
   {
     displayName: 'RHEL 9.0 arm64',
     runOn: 'rhel90-arm64-small',
-    disableOpenSslSharedConfig: true,
     executableOsId: 'linux-arm64',
     mVersion: '7.0.x',
   },
   {
     displayName: 'RHEL 9.0 arm64',
     runOn: 'rhel90-arm64-small',
-    disableOpenSslSharedConfig: true,
     sharedOpenSsl: 'openssl3',
     executableOsId: 'linux-arm64-openssl3',
     mVersion: '7.0.x',
@@ -281,14 +275,12 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
   {
     displayName: 'RHEL 9.3 arm64',
     runOn: 'rhel93-arm64-small',
-    disableOpenSslSharedConfig: true,
     executableOsId: 'linux-arm64',
     mVersion: 'stable',
   },
   {
     displayName: 'RHEL 9.3 arm64',
     runOn: 'rhel93-arm64-small',
-    disableOpenSslSharedConfig: true,
     sharedOpenSsl: 'openssl3',
     executableOsId: 'linux-arm64-openssl3',
     mVersion: 'stable',
@@ -296,6 +288,12 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
   {
     displayName: 'RHEL 8 PPC',
     runOn: 'rhel8-power-small',
+    executableOsId: 'linux-ppc64le',
+    mVersion: 'stable',
+  },
+  {
+    displayName: 'RHEL 9 PPC',
+    runOn: 'rhel9-power-small',
     executableOsId: 'linux-ppc64le',
     mVersion: 'stable',
   },
@@ -308,6 +306,12 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
   {
     displayName: 'RHEL 8 s390x',
     runOn: 'rhel8-zseries-small',
+    executableOsId: 'linux-s390x',
+    mVersion: 'stable',
+  },
+  {
+    displayName: 'RHEL 9 s390x',
+    runOn: 'rhel9-zseries-small',
     executableOsId: 'linux-s390x',
     mVersion: 'stable',
   },

@@ -199,7 +199,7 @@ describe('getPrintableShardStatus', function () {
   afterEach(async function () {
     sinon.restore();
     await configDatabase.dropDatabase();
-    await serviceProvider.close(true);
+    await serviceProvider.close();
   });
 
   it('returns an object with sharding information', async function () {

@@ -31,6 +31,7 @@ import type Mongo from './mongo';
 import type AggregationCursor from './aggregation-cursor';
 import type RunCommandCursor from './run-command-cursor';
 import semver from 'semver';
+import type { MQLQuery } from './mql-types';
 
 @shellApiClassDefault
 export default class Shard<
@@ -449,7 +450,7 @@ export default class Shard<
 
   @returnsPromise
   @apiVersions([])
-  async splitAt(ns: string, query: Document): Promise<Document> {
+  async splitAt(ns: string, query: MQLQuery): Promise<Document> {
     assertArgsDefinedType([ns, query], ['string', 'object'], 'Shard.splitAt');
     this._emitShardApiCall('splitAt', { ns, query });
     return this._database._runAdminCommand({
@@ -460,7 +461,7 @@ export default class Shard<
 
   @returnsPromise
   @apiVersions([])
-  async splitFind(ns: string, query: Document): Promise<Document> {
+  async splitFind(ns: string, query: MQLQuery): Promise<Document> {
     assertArgsDefinedType([ns, query], ['string', 'object'], 'Shard.splitFind');
     this._emitShardApiCall('splitFind', { ns, query });
     return this._database._runAdminCommand({
@@ -473,7 +474,7 @@ export default class Shard<
   @apiVersions([])
   async moveChunk(
     ns: string,
-    query: Document,
+    query: MQLQuery,
     destination: string
   ): Promise<Document> {
     assertArgsDefinedType(

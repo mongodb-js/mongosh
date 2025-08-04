@@ -8,13 +8,16 @@
     "enabled": false
   },
   "bundledPackages": [
+    "@mongodb-js/mongodb-ts-autocomplete",
     "@mongodb-js/devtools-connect",
     "@mongodb-js/devtools-proxy-support",
     "@mongodb-js/oidc-plugin",
     "@mongosh/arg-parser",
     "@mongosh/service-provider-core",
     "@mongosh/types",
-    "mongodb"
+    "mongodb",
+    "mongodb-schema",
+    "@types/json-schema"
   ],
   "dtsRollup": {
     "enabled": true,

@@ -67,6 +67,7 @@ import type { LogEntry } from './log-entry';
 import { parseAnyLogEntry } from './log-entry';
 import type { CollectionWithSchema } from './collection';
 import type { ShellBson } from './shell-bson';
+import type { MQLPipeline } from './mql-types';
 
 /* Utility, inverse of Readonly<T> */
 type Mutable<T> = {
@@ -361,9 +362,12 @@ export default class Mongo<
   async _getDatabaseNamesForCompletion(): Promise<string[]> {
     return await Promise.race([
       (async () => {
-        return (
+        const result = (
           await this._listDatabases({ readPreference: 'primaryPreferred' })
         ).databases.map((db) => db.name);
+
+        this._instanceState.messageBus.emit('mongosh:load-databases-complete');
+        return result;
       })(),
       (async () => {
         // See the comment in _getCollectionNamesForCompletion/database.ts
@@ -582,7 +586,7 @@ export default class Mongo<
     }
   }
 
-  async close(force?: boolean): Promise<void> {
+  async close(): Promise<void> {
     const index = this._instanceState.mongos.indexOf(this);
     if (index === -1) {
       process.emitWarning(
@@ -594,7 +598,7 @@ export default class Mongo<
       this._instanceState.mongos.splice(index, 1);
     }
 
-    await this._serviceProvider.close(!!force);
+    await this._serviceProvider.close();
   }
 
   async _suspend(): Promise<() => Promise<void>> {
@@ -845,7 +849,7 @@ export default class Mongo<
   @apiVersions([1])
   @returnsPromise
   async watch(
-    pipeline: Document[] | ChangeStreamOptions = [],
+    pipeline: MQLPipeline | ChangeStreamOptions = [],
     options: ChangeStreamOptions = {}
   ): Promise<ChangeStreamCursor> {
     if (!Array.isArray(pipeline)) {

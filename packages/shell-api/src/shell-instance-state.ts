@@ -276,9 +276,9 @@ export class ShellInstanceState {
     );
   }
 
-  async close(force: boolean): Promise<void> {
+  async close(): Promise<void> {
     for (const mongo of [...this.mongos]) {
-      await mongo.close(force);
+      await mongo.close();
     }
   }
 
@@ -483,17 +483,23 @@ export class ShellInstanceState {
       ): Promise<JSONSchema> => {
         const mongo = this.getMongoByConnectionId(connectionId);
         let docs: Document[] = [];
-        try {
-          docs = await mongo
-            ._getDb(databaseName)
-            .getCollection(collectionName)
-            ._getSampleDocsForCompletion();
-        } catch (err: any) {
-          if (
-            err?.code !== ShellApiErrors.NotConnected &&
-            err?.codeName !== 'Unauthorized'
-          ) {
-            throw err;
+        if (
+          (await this.evaluationListener.getConfig?.(
+            'disableSchemaSampling'
+          )) !== true
+        ) {
+          try {
+            docs = await mongo
+              ._getDb(databaseName)
+              .getCollection(collectionName)
+              ._getSampleDocsForCompletion();
+          } catch (err: any) {
+            if (
+              err?.code !== ShellApiErrors.NotConnected &&
+              err?.codeName !== 'Unauthorized'
+            ) {
+              throw err;
+            }
           }
         }
 
@@ -566,11 +572,13 @@ export class ShellInstanceState {
         try {
           const collectionNames =
             await this.currentDb._getCollectionNamesForCompletion();
-          return collectionNames.filter(
+          const result = collectionNames.filter(
             (name) =>
               name.toLowerCase().startsWith(collName.toLowerCase()) &&
               !CONTROL_CHAR_REGEXP.test(name)
           );
+          this.messageBus.emit('mongosh:load-collections-complete');
+          return result;
         } catch (err: any) {
           if (
             err?.code === ShellApiErrors.NotConnected ||
@@ -585,11 +593,13 @@ export class ShellInstanceState {
         try {
           const dbNames =
             await this.currentDb._mongo._getDatabaseNamesForCompletion();
-          return dbNames.filter(
+          const result = dbNames.filter(
             (name) =>
               name.toLowerCase().startsWith(dbName.toLowerCase()) &&
               !CONTROL_CHAR_REGEXP.test(name)
           );
+          this.messageBus.emit('mongosh:load-databases-complete');
+          return result;
         } catch (err: any) {
           if (
             err?.code === ShellApiErrors.NotConnected ||

@@ -1,4 +1,4 @@
-import { shellApiClassDefault } from './decorators';
+import { returnsPromise, shellApiClassDefault } from './decorators';
 import Cursor from './cursor';
 import type Mongo from './mongo';
 import { asPrintable } from './enums';
@@ -21,6 +21,11 @@ export default class ExplainableCursor extends Cursor {
    * Internal method to determine what is printed for this class.
    */
   async [asPrintable](): Promise<any> {
+    return await this.finish();
+  }
+
+  @returnsPromise
+  async finish(): Promise<any> {
     // Cache the result so that we don't explain over and over again for the
     // same object.
     this._explained ??= await this._baseCursor.explain(this._verbosity);

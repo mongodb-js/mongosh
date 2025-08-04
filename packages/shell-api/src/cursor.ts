@@ -62,7 +62,7 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCur
 
   @returnType('Cursor')
   @serverVersions([ServerVersions.earliest, '3.2.0'])
-  addOption(optionFlagNumber: number): Cursor {
+  addOption(optionFlagNumber: number): this {
     if (optionFlagNumber === 4) {
       throw new MongoshUnimplementedError(
         'the slaveOk option is not supported.',
@@ -86,27 +86,27 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCur
 
   @returnType('Cursor')
   @serverVersions(['4.4.0', ServerVersions.latest])
-  allowDiskUse(allow?: boolean): Cursor {
+  allowDiskUse(allow?: boolean): this {
     this._cursor.allowDiskUse(allow);
     return this;
   }
 
   @returnType('Cursor')
-  allowPartialResults(): Cursor {
+  allowPartialResults(): this {
     this._addFlag('partial');
     return this;
   }
 
   @returnType('Cursor')
   @serverVersions(['3.4.0', ServerVersions.latest])
-  collation(spec: CollationOptions): Cursor {
+  collation(spec: CollationOptions): this {
     this._cursor.collation(spec);
     return this;
   }
 
   @returnType('Cursor')
   @serverVersions(['3.2.0', ServerVersions.latest])
-  comment(cmt: string): Cursor {
+  comment(cmt: string): this {
     this._cursor.comment(cmt);
     return this;
   }
@@ -130,32 +130,32 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCur
   }
 
   @returnType('Cursor')
-  hint(index: string): Cursor {
+  hint(index: string): this {
     this._cursor.hint(index);
     return this;
   }
 
   @returnType('Cursor')
-  limit(value: number): Cursor {
+  limit(value: number): this {
     this._cursor.limit(value);
     return this;
   }
 
   @returnType('Cursor')
-  max(indexBounds: Document): Cursor {
+  max(indexBounds: Document): this {
     this._cursor.max(indexBounds);
     return this;
   }
 
   @returnType('Cursor')
   @serverVersions(['3.2.0', ServerVersions.latest])
-  maxAwaitTimeMS(value: number): Cursor {
+  maxAwaitTimeMS(value: number): this {
     this._cursor.maxAwaitTimeMS(value);
     return this;
   }
 
   @returnType('Cursor')
-  min(indexBounds: Document): Cursor {
+  min(indexBounds: Document): this {
     this._cursor.min(indexBounds);
     return this;
   }
@@ -172,13 +172,13 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCur
   }
 
   @returnType('Cursor')
-  noCursorTimeout(): Cursor {
+  noCursorTimeout(): this {
     this._addFlag('noCursorTimeout');
     return this;
   }
 
   @returnType('Cursor')
-  oplogReplay(): Cursor {
+  oplogReplay(): this {
     this._addFlag('oplogReplay');
     return this;
   }
@@ -188,7 +188,7 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCur
     mode: ReadPreferenceLike,
     tagSet?: TagSet[],
     hedgeOptions?: HedgeOptions
-  ): Cursor {
+  ): this {
     let pref: ReadPreferenceLike;
 
     // Only conditionally use readPreferenceFromOptions, for java-shell compatibility.
@@ -207,7 +207,7 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCur
 
   @returnType('Cursor')
   @serverVersions(['3.2.0', ServerVersions.latest])
-  returnKey(enabled: boolean): Cursor {
+  returnKey(enabled: boolean): this {
     this._cursor.returnKey(enabled);
     return this;
   }
@@ -220,7 +220,7 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCur
   @returnType('Cursor')
   @serverVersions(['3.2.0', ServerVersions.latest])
   @apiVersions([])
-  tailable(opts = { awaitData: false }): Cursor {
+  tailable(opts = { awaitData: false }): this {
     this._tailable = true;
     this._addFlag('tailable');
     if (opts.awaitData) {
@@ -239,13 +239,13 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCur
 
   @returnType('Cursor')
   @serverVersions(['3.2.0', ServerVersions.latest])
-  showRecordId(): Cursor {
+  showRecordId(): this {
     this._cursor.showRecordId(true);
     return this;
   }
 
   @returnType('Cursor')
-  readConcern(level: ReadConcernLevel): Cursor {
+  readConcern(level: ReadConcernLevel): this {
     this._cursor = this._cursor.withReadConcern({ level });
     return this;
   }

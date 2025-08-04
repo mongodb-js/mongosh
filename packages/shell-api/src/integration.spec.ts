@@ -222,7 +222,7 @@ describe('Shell API (integration)', function () {
   });
 
   after(function () {
-    return serviceProvider.close(true);
+    return serviceProvider.close();
   });
 
   let instanceState: ShellInstanceState;
@@ -1591,6 +1591,16 @@ describe('Shell API (integration)', function () {
         const cursor = (await explainable.find()).skip(1).limit(1);
         const result = await toShellResult(cursor);
         expect(result.printable).to.include.all.keys([
+          'ok',
+          'queryPlanner',
+          'serverInfo',
+        ]);
+      });
+
+      it('returns a cursor whose .finish() method returns the explain result', async function () {
+        const cursor = (await explainable.find()).skip(1).limit(1);
+        const result = await cursor.finish();
+        expect(result).to.include.all.keys([
           'ok',
           'queryPlanner',
           'serverInfo',
@@ -3066,7 +3076,10 @@ describe('Shell API (integration)', function () {
 
   describe('method tracking', function () {
     it('emits an event when a deprecated method is called', async function () {
-      const deprecatedCall = once(instanceState.messageBus, 'mongosh:api-call');
+      const deprecatedCall = once(
+        instanceState.messageBus as any,
+        'mongosh:api-call'
+      );
       try {
         mongo.setSlaveOk();
         expect.fail('Expected error');

@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/service-provider-node-driver",
-  "version": "3.10.0",
+  "version": "3.12.0",
   "description": "MongoDB Shell Server Service Provider Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -23,7 +23,7 @@
     "check": "npm run lint && npm run depcheck",
     "depcheck": "depcheck",
     "prettier": "prettier",
-    "reformat": "npm run prettier -- --write . && npm run eslint --fix"
+    "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
   },
   "license": "Apache-2.0",
   "publishConfig": {
@@ -47,13 +47,13 @@
     }
   },
   "dependencies": {
-    "@mongodb-js/devtools-connect": "^3.4.1",
-    "@mongodb-js/oidc-plugin": "^1.1.7",
-    "@mongosh/errors": "2.4.0",
-    "@mongosh/service-provider-core": "3.3.3",
-    "@mongosh/types": "3.8.0",
+    "@mongodb-js/devtools-connect": "^3.9.2",
+    "@mongodb-js/oidc-plugin": "^2.0.1",
+    "@mongosh/errors": "2.4.2",
+    "@mongosh/service-provider-core": "3.3.5",
+    "@mongosh/types": "3.10.0",
     "aws4": "^1.12.0",
-    "mongodb": "^6.16.0",
+    "mongodb": "^6.18.0",
     "mongodb-connection-string-url": "^3.0.1",
     "socks": "^2.8.3",
     "mongodb-client-encryption": "^6.3.0",
