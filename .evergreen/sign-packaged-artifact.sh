@@ -27,7 +27,7 @@ if [ "$(uname)" == Darwin ]; then
   echo "notarizing $FILE ..."
 
   # notarize the client
-  ./darwin_amd64/macnotary \
+  ./darwin_arm64/macnotary \
     -f "$FILE" \
     -m $notarymode -u https://dev.macos-notary.build.10gen.cc/api \
     -b com.mongodb.mongosh \
