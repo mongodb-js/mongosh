@@ -222,7 +222,7 @@ describe('Shell API (integration)', function () {
   });
 
   after(function () {
-    return serviceProvider.close(true);
+    return serviceProvider.close();
   });
 
   let instanceState: ShellInstanceState;

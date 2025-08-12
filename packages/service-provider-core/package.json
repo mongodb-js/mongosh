@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/service-provider-core",
-  "version": "3.3.3",
+  "version": "3.3.5",
   "description": "MongoDB Shell Core Service Provider Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -33,26 +33,14 @@
     "node": ">=14.15.1"
   },
   "mongosh": {
-    "unitTestsOnly": true,
-    "ciRequiredOptionalDependencies": {
-      "mongodb-client-encryption": [
-        "darwin",
-        "linux",
-        "win32"
-      ]
-    }
+    "unitTestsOnly": true
   },
   "dependencies": {
-    "@aws-sdk/credential-providers": "^3.525.0",
-    "@mongosh/errors": "2.4.0",
-    "bson": "^6.10.3",
-    "mongodb": "^6.16.0",
+    "@mongosh/errors": "2.4.2",
+    "bson": "^6.10.4",
+    "mongodb": "^6.18.0",
     "mongodb-build-info": "^1.7.2",
-    "mongodb-connection-string-url": "^3.0.1",
-    "mongodb-client-encryption": "^6.3.0"
-  },
-  "optionalDependencies": {
-    "mongodb-client-encryption": "^6.3.0"
+    "mongodb-connection-string-url": "^3.0.1"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",

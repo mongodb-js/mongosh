@@ -2346,7 +2346,7 @@ describe('Shard', function () {
     });
 
     after(function () {
-      return serviceProvider.close(true);
+      return serviceProvider.close();
     });
 
     describe('collection.status()', function () {
@@ -2450,7 +2450,7 @@ describe('Shard', function () {
         });
 
         after(async function () {
-          await apiStrictServiceProvider?.close?.(true);
+          await apiStrictServiceProvider?.close?.();
         });
 
         it('returns the status when used with apiStrict', async function () {
@@ -3471,7 +3471,7 @@ describe('Shard', function () {
     });
 
     after(function () {
-      return serviceProvider.close(true);
+      return serviceProvider.close();
     });
 
     it('shows a full chunk list when there are 20 or less chunks', async function () {

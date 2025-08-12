@@ -2590,7 +2590,11 @@ export class Collection<
   async _getSampleDocsForCompletion(): Promise<Document[]> {
     return await Promise.race([
       (async () => {
-        return await this._getSampleDocs();
+        const result = await this._getSampleDocs();
+        this._mongo._instanceState.messageBus.emit(
+          'mongosh:load-sample-docs-complete'
+        );
+        return result;
       })(),
       (async () => {
         // 200ms should be a good compromise between giving the server a chance

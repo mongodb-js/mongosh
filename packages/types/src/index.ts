@@ -335,10 +335,22 @@ export interface MongoshBusEventsMap extends ConnectEventMap {
    * Signals the completion of the autocomplete suggestion providers.
    * _ONLY AVAILABLE FOR TESTING._
    */
-  'mongosh:autocompletion-complete': (
-    replResults: string[],
-    mongoshResults: string[]
-  ) => void;
+  'mongosh:autocompletion-complete': () => void;
+  /**
+   * Signals the completion of the autocomplete helper.
+   * _ONLY AVAILABLE FOR TESTING._
+   */
+  'mongosh:load-databases-complete': () => void;
+  /**
+   * Signals the completion of the autocomplete helper.
+   * _ONLY AVAILABLE FOR TESTING._
+   */
+  'mongosh:load-collections-complete': () => void;
+  /**
+   * Signals the completion of the autocomplete helper.
+   * _ONLY AVAILABLE FOR TESTING._
+   */
+  'mongosh:load-sample-docs-complete': () => void;
   /**
    * Signals the completion of the asynchronous interrupt handler in MongoshRepl. Not fired for interrupts of _synchronous_ code.
    * _ONLY AVAILABLE FOR TESTING._
@@ -428,6 +440,7 @@ export class ShellUserConfig {
   enableTelemetry = false;
   editor: string | null = null;
   logLocation: string | undefined;
+  disableSchemaSampling = false;
 }
 
 export class ShellUserConfigValidator {
@@ -447,6 +460,7 @@ export class ShellUserConfigValidator {
           return `${key} must be null or a positive integer`;
         }
         return null;
+      case 'disableSchemaSampling':
       case 'enableTelemetry':
         if (typeof value !== 'boolean') {
           return `${key} must be a boolean`;

@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/i18n",
-  "version": "2.15.0",
+  "version": "2.15.2",
   "description": "MongoDB Shell i18n Project",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -36,7 +36,7 @@
     "unitTestsOnly": true
   },
   "dependencies": {
-    "@mongosh/errors": "2.4.0"
+    "@mongosh/errors": "2.4.2"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",

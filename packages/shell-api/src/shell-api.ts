@@ -271,7 +271,7 @@ export default class ShellApi extends ShellApiClass {
       this._instanceState.initialServiceProvider.platform,
       'the exit/quit commands'
     );
-    await this._instanceState.close(true);
+    await this._instanceState.close();
     // This should never actually return.
     await this._instanceState.evaluationListener.onExit?.(exitCode);
     throw new MongoshInternalError('.onExit listener returned');

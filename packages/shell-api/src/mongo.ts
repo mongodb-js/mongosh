@@ -362,9 +362,12 @@ export default class Mongo<
   async _getDatabaseNamesForCompletion(): Promise<string[]> {
     return await Promise.race([
       (async () => {
-        return (
+        const result = (
           await this._listDatabases({ readPreference: 'primaryPreferred' })
         ).databases.map((db) => db.name);
+
+        this._instanceState.messageBus.emit('mongosh:load-databases-complete');
+        return result;
       })(),
       (async () => {
         // See the comment in _getCollectionNamesForCompletion/database.ts
@@ -583,7 +586,7 @@ export default class Mongo<
     }
   }
 
-  async close(force?: boolean): Promise<void> {
+  async close(): Promise<void> {
     const index = this._instanceState.mongos.indexOf(this);
     if (index === -1) {
       process.emitWarning(
@@ -595,7 +598,7 @@ export default class Mongo<
       this._instanceState.mongos.splice(index, 1);
     }
 
-    await this._serviceProvider.close(!!force);
+    await this._serviceProvider.close();
   }
 
   async _suspend(): Promise<() => Promise<void>> {
