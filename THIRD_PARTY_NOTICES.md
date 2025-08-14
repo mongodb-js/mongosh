@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Mon Aug 04 2025.
+This document was automatically generated on Thu Aug 14 2025.
 
 ## List of dependencies
 
@@ -337,12 +337,12 @@ Package|Version|License
 **[node-fetch](#22edb8ba3fe3457e8c1a02e497e6a8cb54e89775224f0c7680ea43772b5c1638)**|3.3.2|MIT
 **[nopt](#433638d5f5df3b4edbb157fe427ad250f2bf614555b16f59834681eaf9c9560d)**|7.2.1|ISC
 **[numeral](#d274a180ad09fc1ae9325f01bf5dc1296caf553888d952fab7ebf524dfdc56a1)**|2.0.6|MIT
-**[oauth4webapi](#c1543405e03ec3b243c4ad6987c746db61cfd881592ed6070ddd3e17b7878856)**|3.6.0|MIT
+**[oauth4webapi](#20c210c3de969a4d06291b8bf773ce03262544409a28dac2ba63df67a1534827)**|3.6.2|MIT
 **[object-inspect](#ecbef7226b7af9b6efde6c61e71aaefa8a0bf57a726689d055c866298db9886e)**|1.13.4|MIT
 **[on-finished](#d3c391e10faad1d82190a06f5be315d94a9194cff75aa389940432ef15cf45de)**|2.4.1|MIT
 **[once](#d0d1303998dfae04e4f898f477380aac35568f4d6679f4ea913c2441cf9ebb0b)**|1.4.0|ISC
 **[open](#d014b2891443a3afc1d36e54769389831aa4a59ac459b9b9873f650b1c919307)**|10.2.0|MIT
-**[openid-client](#c872797bd36f8e53bb75298134568c31c56cac936aadf5b4909ce5c554791187)**|6.6.2|MIT
+**[openid-client](#00df66b19cf3a8fdcd5bae5a38751e39685ed1f6986557e9d30b90917b9c768c)**|6.6.3|MIT
 **[os-dns-native](#ed8fb030877b8f0494551fd7f55288d885b2ddcece35dd7134434ad5c4c704de)**|1.2.1|MIT
 **[pac-proxy-agent](#0c860d23706396c87370b49399bd004f0a3552427d65a829b16274a966c51304)**|7.0.2|MIT
 **[pac-resolver](#7935fe0839f6e2b7c51abcc08705a6096eff5670dc2bdc3819fd096b8d114d8b)**|7.0.1|MIT
@@ -26086,8 +26086,8 @@ License files:
       
 
 
-<a id="c1543405e03ec3b243c4ad6987c746db61cfd881592ed6070ddd3e17b7878856"></a>
-### [oauth4webapi](https://www.npmjs.com/package/oauth4webapi) (version 3.6.0)
+<a id="20c210c3de969a4d06291b8bf773ce03262544409a28dac2ba63df67a1534827"></a>
+### [oauth4webapi](https://www.npmjs.com/package/oauth4webapi) (version 3.6.2)
 License tags: MIT
 
 License files:
@@ -26225,8 +26225,8 @@ License files:
       
 
 
-<a id="c872797bd36f8e53bb75298134568c31c56cac936aadf5b4909ce5c554791187"></a>
-### [openid-client](https://www.npmjs.com/package/openid-client) (version 6.6.2)
+<a id="00df66b19cf3a8fdcd5bae5a38751e39685ed1f6986557e9d30b90917b9c768c"></a>
+### [openid-client](https://www.npmjs.com/package/openid-client) (version 6.6.3)
 License tags: MIT
 
 License files:
