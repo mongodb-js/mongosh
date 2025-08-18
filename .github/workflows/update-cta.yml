@@ -13,7 +13,7 @@ on:
         required: false
         default: false
       environment:
-        description: The environment to run the script in - must have the DOWNLOAD_CENTER_AWS_KEY and DOWNLOAD_CENTER_AWS_SECRET secrets configured
+        description: The environment to run the script in
         type: environment
         required: true
         default: CTA-Production
@@ -31,8 +31,6 @@ jobs:
       npm_config_loglevel: verbose
       npm_config_foreground_scripts: "true"
       PUPPETEER_SKIP_DOWNLOAD: "true"
-      DOWNLOAD_CENTER_AWS_KEY: ${{ secrets.DOWNLOAD_CENTER_AWS_KEY }}
-      DOWNLOAD_CENTER_AWS_SECRET: ${{ secrets.DOWNLOAD_CENTER_AWS_SECRET }}
     steps:
       - uses: actions/checkout@v4
       - name: configure aws credentials
@@ -54,8 +52,8 @@ jobs:
 
       - name: Update greeting CTA
         env:
-          DOWNLOAD_CENTER_AWS_KEY_NEW: "${{ env.AWS_ACCESS_KEY_ID }}"
-          DOWNLOAD_CENTER_AWS_SECRET_NEW: "${{ env.AWS_SECRET_KEY }}"
-          DOWNLOAD_CENTER_AWS_SESSION_TOKEN_NEW: "${{ env.AWS_SESSION_TOKEN }}"
+          DOWNLOAD_CENTER_AWS_KEY: "${{ env.AWS_ACCESS_KEY_ID }}"
+          DOWNLOAD_CENTER_AWS_SECRET: "${{ env.AWS_SECRET_KEY }}"
+          DOWNLOAD_CENTER_AWS_SESSION_TOKEN: "${{ env.AWS_SESSION_TOKEN }}"
         run: |
           npm run update-cta ${{ github.event.inputs.dry-run && '-- --dry-run' || '' }}

@@ -2,10 +2,7 @@ import { Octokit } from '@octokit/rest';
 import { runCompile } from './compile';
 import type { Config } from './config';
 import { getReleaseVersionFromTag, redactConfig } from './config';
-import {
-  uploadArtifactToDownloadCenter,
-  uploadArtifactToDownloadCenterNew,
-} from './download-center';
+import { uploadArtifactToDownloadCenter } from './download-center';
 import {
   downloadArtifactFromEvergreen,
   uploadArtifactToEvergreen,
@@ -98,7 +95,6 @@ export async function release(
       githubRepo,
       new PackageBumper(),
       uploadArtifactToDownloadCenter,
-      uploadArtifactToDownloadCenterNew,
       downloadArtifactFromEvergreen
     );
   } else if (command === 'download-and-list-artifacts') {
