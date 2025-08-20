@@ -11369,6 +11369,17 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_arm64_openssl3
+  - name: e2e_tests_ubuntu2404_arm64_small_openssl3_m820
+    display_name: "Ubuntu 24.04 arm64 820 openssl3 (E2E tests)"
+    run_on: ubuntu2404-arm64-small
+    tags: []
+    expansions:
+      executable_os_id: "linux-arm64-openssl3"
+      node_js_version: "20.19.4"
+      mongosh_server_test_version: "8.2.0-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests_linux_arm64_openssl3
   - name: e2e_tests_amazon2_arm64_large_m70x
     display_name: "Amazon Linux 2 arm64 70x (E2E tests)"
     run_on: amazon2-arm64-large
@@ -11388,6 +11399,17 @@ buildvariants:
       executable_os_id: "linux-arm64"
       node_js_version: "20.19.4"
       mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests_linux_arm64
+  - name: e2e_tests_amazon2023.0_arm64_small_m820
+    display_name: "Amazon Linux 2023 arm64 820 (E2E tests)"
+    run_on: amazon2023.0-arm64-small
+    tags: []
+    expansions:
+      executable_os_id: "linux-arm64"
+      node_js_version: "20.19.4"
+      mongosh_server_test_version: "8.2.0-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_arm64
@@ -11468,6 +11490,17 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_ppc64le
+  - name: e2e_tests_rhel9_power_small_m820
+    display_name: "RHEL 9 PPC 820 (E2E tests)"
+    run_on: rhel9-power-small
+    tags: []
+    expansions:
+      executable_os_id: "linux-ppc64le"
+      node_js_version: "20.19.4"
+      mongosh_server_test_version: "8.2.0-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests_linux_ppc64le
   - name: e2e_tests_rhel7_zseries_large_m60x
     display_name: "RHEL 7 s390x 60x (E2E tests)"
     run_on: rhel7-zseries-large
@@ -11501,6 +11534,17 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_s390x
+  - name: e2e_tests_rhel9_zseries_small_m820
+    display_name: "RHEL 9 s390x 820 (E2E tests)"
+    run_on: rhel9-zseries-small
+    tags: []
+    expansions:
+      executable_os_id: "linux-s390x"
+      node_js_version: "20.19.4"
+      mongosh_server_test_version: "8.2.0-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests_linux_s390x
   - name: e2e_tests_macos_14
     display_name: "MacOS 14 x64 (E2E tests)"
     run_on: macos-14
@@ -11520,6 +11564,17 @@ buildvariants:
       executable_os_id: "darwin-arm64"
       node_js_version: "20.19.4"
       mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests_darwin_arm64
+  - name: e2e_tests_macos_14_arm64_m820
+    display_name: "MacOS 14 arm64 820 (E2E tests)"
+    run_on: macos-14-arm64
+    tags: []
+    expansions:
+      executable_os_id: "darwin-arm64"
+      node_js_version: "20.19.4"
+      mongosh_server_test_version: "8.2.0-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_darwin_arm64
@@ -11557,6 +11612,19 @@ buildvariants:
       executable_os_id: "win32"
       node_js_version: "20.19.4"
       mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests_win32
+      - name: package_artifact_win32_x64
+      - name: package_artifact_win32msi_x64
+  - name: e2e_tests_windows_vsCurrent_small_m820
+    display_name: "Windows VS 2022 820 (E2E tests)"
+    run_on: windows-vsCurrent-small
+    tags: []
+    expansions:
+      executable_os_id: "win32"
+      node_js_version: "20.19.4"
+      mongosh_server_test_version: "8.2.0-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_win32
