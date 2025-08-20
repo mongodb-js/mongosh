@@ -37,6 +37,8 @@ exports.MONGODB_VERSIONS = [
   { shortName: '70xe', versionSpec: '7.0.x-enterprise' },
   { shortName: '80xc', versionSpec: '8.0.x' },
   { shortName: '80xe', versionSpec: '8.0.x-enterprise' },
+  { shortName: '82xc', versionSpec: '8.2.x' },
+  { shortName: '82xe', versionSpec: '8.2.x-enterprise' },
   { shortName: 'latest', versionSpec: 'latest-alpha-enterprise' },
 ];
 

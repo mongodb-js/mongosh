@@ -36,10 +36,10 @@ export async function downloadCryptLibrary(
   // (for the platforms that they exist for, i.e. for ppc64le/s390x only pick stable releases).
   let versionSpec = 'stable'; // TODO(MONGOSH-2192): Switch back to 'continuous' and deal with affected platform support.
   if (/ppc64|s390x/.test(opts.arch || process.arch)) {
-    versionSpec = 'stable';
+    versionSpec = '8.2.0';
   }
   if ((opts.platform || process.platform) === 'darwin') {
-    versionSpec = '8.0.5'; // TBD(MONGOSH-2192,SERVER-101020): Figure out at what point we use a later version.
+    versionSpec = '8.2.0'; // TBD(MONGOSH-2192,SERVER-101020): Figure out at what point we use a later version.
   }
   const { downloadedBinDir: libdir, version } =
     await downloadMongoDbWithVersionInfo(cryptTmpTargetDir, versionSpec, opts);
