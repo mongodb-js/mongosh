@@ -4317,9 +4317,9 @@ functions:
         working_dir: src
         shell: bash
         env:
-          DOWNLOAD_CENTER_AWS_KEY_NEW: ${AWS_ACCESS_KEY_ID}
-          DOWNLOAD_CENTER_AWS_SECRET_NEW: ${AWS_SECRET_ACCESS_KEY}
-          DOWNLOAD_CENTER_AWS_SESSION_TOKEN_NEW: ${AWS_SESSION_TOKEN}
+          DOWNLOAD_CENTER_AWS_KEY_ARTIFACTS: ${AWS_ACCESS_KEY_ID}
+          DOWNLOAD_CENTER_AWS_SECRET_ARTIFACTS: ${AWS_SECRET_ACCESS_KEY}
+          DOWNLOAD_CENTER_AWS_SESSION_TOKEN_ARTIFACTS: ${AWS_SESSION_TOKEN}
         script: |
           set -e
           {
@@ -4391,9 +4391,9 @@ functions:
         env:
           devtoolsbot_npm_token: ${devtoolsbot_npm_token}
           node_js_version: ${node_js_version}
-          DOWNLOAD_CENTER_AWS_KEY_NEW: ${AWS_ACCESS_KEY_ID}
-          DOWNLOAD_CENTER_AWS_SECRET_NEW: ${AWS_SECRET_ACCESS_KEY}
-          DOWNLOAD_CENTER_AWS_SESSION_TOKEN_NEW: ${AWS_SESSION_TOKEN}
+          DOWNLOAD_CENTER_AWS_KEY_ARTIFACTS: ${AWS_ACCESS_KEY_ID}
+          DOWNLOAD_CENTER_AWS_SECRET_ARTIFACTS: ${AWS_SECRET_ACCESS_KEY}
+          DOWNLOAD_CENTER_AWS_SESSION_TOKEN_ARTIFACTS: ${AWS_SESSION_TOKEN}
         script: |
           set -e
           .evergreen/run-evergreen-release.sh publish
