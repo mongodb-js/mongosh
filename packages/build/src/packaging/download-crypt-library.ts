@@ -39,7 +39,7 @@ export async function downloadCryptLibrary(
     versionSpec = '8.2.0';
   }
   if ((opts.platform || process.platform) === 'darwin') {
-    versionSpec = '8.2.0'; // TBD(MONGOSH-2192,SERVER-101020): Figure out at what point we use a later version.
+    versionSpec = '8.0.5'; // TBD(MONGOSH-2192,SERVER-101020): Figure out at what point we use a later version.
   }
   const { downloadedBinDir: libdir, version } =
     await downloadMongoDbWithVersionInfo(cryptTmpTargetDir, versionSpec, opts);
