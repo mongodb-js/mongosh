@@ -491,6 +491,8 @@ describe('Shell API (integration)', function () {
     });
 
     describe('updateOne and replaceOne with sort option', function () {
+      skipIfServerVersion(testServer, '< 8.0');
+
       beforeEach(async function () {
         await serviceProvider.insertMany(dbName, collectionName, [
           { _id: 1, category: 'A', score: 20, order: 1 },
