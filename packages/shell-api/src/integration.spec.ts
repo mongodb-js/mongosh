@@ -490,6 +490,61 @@ describe('Shell API (integration)', function () {
       });
     });
 
+    describe('updateOne and replaceOne with sort option', function () {
+      skipIfServerVersion(testServer, '< 8.0');
+
+      beforeEach(async function () {
+        await serviceProvider.insertMany(dbName, collectionName, [
+          { _id: 1, category: 'A', score: 20, order: 1 },
+          { _id: 2, category: 'A', score: 10, order: 2 },
+          { _id: 3, category: 'A', score: 15, order: 3 },
+          { _id: 4, category: 'B', score: 25, order: 1 },
+        ]);
+      });
+
+      it('updates the first document based on sort order', async function () {
+        const result = await collection.updateOne(
+          { category: 'A' },
+          { $set: { updated: true } },
+          { sort: { score: 1 } }
+        );
+
+        expect(result.matchedCount).to.equal(1);
+        expect(result.modifiedCount).to.equal(1);
+
+        // Should have updated the document with the lowest score (_id: 2, score: 10)
+        const categoryDocs = await serviceProvider
+          .find(dbName, collectionName, { category: 'A' })
+          .toArray();
+        const updatedDocs = categoryDocs.filter((doc) => doc.updated);
+        expect(updatedDocs).to.have.lengthOf(1);
+        expect(updatedDocs[0]._id).to.equal(2);
+        expect(updatedDocs[0].score).to.equal(10);
+      });
+
+      it('replaces the first document based on sort order', async function () {
+        const result = await collection.replaceOne(
+          { category: 'A' },
+          { replaced: true, category: 'A' },
+          { sort: { score: 1 } }
+        );
+
+        expect(result.matchedCount).to.equal(1);
+        expect(result.modifiedCount).to.equal(1);
+
+        // Should have replaced the document with the lowest score (_id: 2, score: 10)
+        const categoryDocs = await serviceProvider
+          .find(dbName, collectionName, { category: 'A' })
+          .toArray();
+        const updatedDocs = categoryDocs.filter((doc) => doc.replaced);
+        expect(updatedDocs).to.have.lengthOf(1);
+        expect(updatedDocs[0]._id).to.equal(2);
+        expect(updatedDocs[0].replaced).to.be.true;
+        expect(updatedDocs[0].score).to.undefined;
+        expect(updatedDocs[0].order).to.undefined;
+      });
+    });
+
     describe('convertToCapped', function () {
       skipIfApiStrict();
       let result: Document;
