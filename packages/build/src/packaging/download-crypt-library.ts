@@ -34,7 +34,7 @@ export async function downloadCryptLibrary(
   );
   // Download mongodb for latest server version, including rapid releases
   // (for the platforms that they exist for, i.e. for ppc64le/s390x only pick stable releases).
-  let versionSpec = '8.2.0'; // TODO(MONGOSH-2192): Switch back to 'continuous' and deal with affected platform support.
+  let versionSpec = 'stable'; // TODO(MONGOSH-2192): Switch back to 'continuous' and deal with affected platform support.
   if (/ppc64|s390x/.test(opts.arch || process.arch)) {
     versionSpec = 'stable';
   }
