@@ -492,6 +492,7 @@ describe('Shell API (integration)', function () {
 
     describe('updateOne and replaceOne with sort option', function () {
       skipIfServerVersion(testServer, '< 8.0');
+      skipIfApiStrict();
 
       beforeEach(async function () {
         await serviceProvider.insertMany(dbName, collectionName, [
