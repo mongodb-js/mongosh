@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/e2e-tests",
-  "version": "3.11.6",
+  "version": "3.13.0",
   "private": true,
   "description": "MongoDB Shell E2E Tests Package",
   "homepage": "https://github.com/mongodb-js/mongosh",
@@ -27,8 +27,8 @@
     "node": ">=16.15.0"
   },
   "dependencies": {
-    "@mongosh/cli-repl": "2.5.6",
-    "@mongosh/service-provider-core": "3.3.5",
+    "@mongosh/cli-repl": "2.5.7",
+    "@mongosh/service-provider-core": "3.3.7",
     "@mongodb-js/oidc-plugin": "^2.0.3",
     "strip-ansi": "^6.0.0"
   },
