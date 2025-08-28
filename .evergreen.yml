@@ -4810,6 +4810,9 @@ functions:
       params:
         file: tmp/expansions.yaml
         redacted: true
+    - command: ec2.assume_role
+      params:
+        role_arn: "arn:aws:iam::119629040606:role/s3-access.cdn-origin-compass"
     - command: shell.exec
       # silent: true
       params:
@@ -4818,6 +4821,9 @@ functions:
         env:
           devtoolsbot_npm_token: ${devtoolsbot_npm_token}
           node_js_version: ${node_js_version}
+          DOWNLOAD_CENTER_AWS_KEY_ARTIFACTS: ${AWS_ACCESS_KEY_ID}
+          DOWNLOAD_CENTER_AWS_SECRET_ARTIFACTS: ${AWS_SECRET_ACCESS_KEY}
+          DOWNLOAD_CENTER_AWS_SESSION_TOKEN_ARTIFACTS: ${AWS_SESSION_TOKEN}
         script: |
           set -e
           .evergreen/run-evergreen-release.sh publish -- --dry-run
