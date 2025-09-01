@@ -1167,7 +1167,7 @@ export class NodeDriverServiceProvider
   /**
    * Get currently known topology information.
    */
-  getTopology(): TopologyDescription | undefined {
+  getTopologyDescription(): TopologyDescription | undefined {
     return this._lastSeenTopology;
   }
 

@@ -10,6 +10,8 @@ export * from './all-fle-types';
 
 export { MapReduceOptions, FinalizeFunction } from './map-reduce-options';
 
+export { TopologyDescription, ServerDescription } from './readable';
+
 export {
   CreateEncryptedCollectionOptions,
   CheckMetadataConsistencyOptions,
