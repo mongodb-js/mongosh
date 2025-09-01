@@ -1,4 +1,8 @@
-import type { ServiceProvider } from '@mongosh/service-provider-core';
+import type {
+  ServerDescription,
+  ServiceProvider,
+  TopologyDescription,
+} from '@mongosh/service-provider-core';
 import { bson } from '@mongosh/service-provider-core';
 import { expect } from 'chai';
 import { EventEmitter } from 'events';
@@ -82,12 +86,14 @@ describe('ShellInstanceState', function () {
   });
 
   describe('default prompt', function () {
-    const setupServiceProviderWithTopology = (topology: any) => {
+    const setupServiceProviderWithTopology = (
+      topology: TopologyDescription
+    ) => {
       serviceProvider.getConnectionInfo.resolves({
         extraInfo: { uri: 'mongodb://localhost/' },
         buildInfo: {},
       });
-      serviceProvider.getTopology.returns(topology);
+      serviceProvider.getTopologyDescription.returns(topology);
     };
 
     it('returns the default if nodb', async function () {
@@ -227,71 +233,59 @@ describe('ShellInstanceState', function () {
     });
 
     describe('direct connection = Single Topology', function () {
-      // TODO: replace with proper ServerType.xxx - NODE-2973
-      [
+      for (const { t, p } of [
         { t: 'Mongos', p: 'mongos' },
         { t: 'RSArbiter', p: 'arbiter' },
         { t: 'RSOther', p: 'other' },
         { t: 'RSPrimary', p: 'primary' },
-      ].forEach(({ t, p }) => {
+      ] as const) {
         it(`takes the info from the single server [Server Type: ${t}]`, async function () {
-          const servers = new Map();
+          const servers = new Map<string, ServerDescription>();
           servers.set('localhost:30001', {
-            address: 'localhost:30001',
             type: t,
-            me: 'localhost:30001',
-            hosts: ['localhost:30001'],
             setName: 'configset',
           });
-          const topology = {
-            description: {
-              // TODO: replace with TopologyType.Single - NODE-2973
-              type: 'Single',
-              setName: null, // This was observed behavior - the set was not updated even the single server had the set
-              servers: servers,
-            },
+          const topology: TopologyDescription = {
+            type: 'Single',
+            setName: null, // This was observed behavior - the set was not updated even the single server had the set
+            servers: servers,
           };
           setupServiceProviderWithTopology(topology);
 
           const prompt = await instanceState.getDefaultPrompt();
           expect(prompt).to.equal(`configset [direct: ${p}] test> `);
         });
-      });
+      }
 
-      // TODO: replace with proper ServerType.xxx - NODE-2973
-      ['RSGhost', 'Standalone', 'Unknown', 'PossiblePrimary'].forEach((t) => {
+      for (const t of [
+        'RSGhost',
+        'Standalone',
+        'Unknown',
+        'PossiblePrimary',
+      ] as const) {
         it(`defaults for server type [Server Type: ${t}]`, async function () {
-          const servers = new Map();
+          const servers = new Map<string, ServerDescription>();
           servers.set('localhost:30001', {
-            address: 'localhost:30001',
             type: t,
-            me: 'localhost:30001',
-            hosts: ['localhost:30001'],
           });
-          const topology = {
-            description: {
-              // TODO: replace with TopologyType.Single - NODE-2973
-              type: 'Single',
-              setName: null,
-              servers: servers,
-            },
+          const topology: TopologyDescription = {
+            type: 'Single',
+            setName: null,
+            servers: servers,
           };
           setupServiceProviderWithTopology(topology);
 
           const prompt = await instanceState.getDefaultPrompt();
           expect(prompt).to.equal('test> ');
         });
-      });
+      }
     });
 
     describe('topology ReplicaSet...', function () {
       it('shows the setName and lacking primary hint for ReplicaSetNoPrimary', async function () {
-        const topology = {
-          description: {
-            // TODO: replace with TopologyType.ReplicaSetNoPrimary - NODE-2973
-            type: 'ReplicaSetNoPrimary',
-            setName: 'leSet',
-          },
+        const topology: TopologyDescription = {
+          type: 'ReplicaSetNoPrimary',
+          setName: 'leSet',
         };
         setupServiceProviderWithTopology(topology);
 
@@ -300,12 +294,9 @@ describe('ShellInstanceState', function () {
       });
 
       it('shows the setName and primary hint for ReplicaSetWithPrimary', async function () {
-        const topology = {
-          description: {
-            // TODO: replace with TopologyType.ReplicaSetWithPrimary - NODE-2973
-            type: 'ReplicaSetWithPrimary',
-            setName: 'leSet',
-          },
+        const topology: TopologyDescription = {
+          type: 'ReplicaSetWithPrimary',
+          setName: 'leSet',
         };
         setupServiceProviderWithTopology(topology);
 
@@ -316,11 +307,8 @@ describe('ShellInstanceState', function () {
 
     describe('topology Sharded', function () {
       it('shows mongos without setName', async function () {
-        const topology = {
-          description: {
-            // TODO: replace with TopologyType.Sharded - NODE-2973
-            type: 'Sharded',
-          },
+        const topology: TopologyDescription = {
+          type: 'Sharded',
         };
         setupServiceProviderWithTopology(topology);
 
@@ -328,12 +316,9 @@ describe('ShellInstanceState', function () {
         expect(prompt).to.equal('[mongos] test> ');
       });
       it('shows mongos and a setName', async function () {
-        const topology = {
-          description: {
-            // TODO: replace with TopologyType.Sharded - NODE-2973
-            type: 'Sharded',
-            setName: 'leSet',
-          },
+        const topology: TopologyDescription = {
+          type: 'Sharded',
+          setName: 'leSet',
         };
         setupServiceProviderWithTopology(topology);
 
@@ -344,10 +329,8 @@ describe('ShellInstanceState', function () {
 
     describe('topology Sharded but it’s Atlas', function () {
       it('shows atlas proxy identifier', async function () {
-        serviceProvider.getTopology.returns({
-          description: {
-            type: 'Sharded',
-          },
+        serviceProvider.getTopologyDescription.returns({
+          type: 'Sharded',
         });
         serviceProvider.getConnectionInfo.resolves({
           extraInfo: {
@@ -366,11 +349,8 @@ describe('ShellInstanceState', function () {
 
     describe('topology LoadBalanced', function () {
       it('shows just the database', async function () {
-        const topology = {
-          description: {
-            // TODO: replace with TopologyType.LoadBalanced - NODE-2973
-            type: 'LoadBalanced',
-          },
+        const topology: TopologyDescription = {
+          type: 'LoadBalanced',
         };
         setupServiceProviderWithTopology(topology);
 
@@ -380,11 +360,8 @@ describe('ShellInstanceState', function () {
       });
 
       it('includes Atlas when we are there', async function () {
-        serviceProvider.getTopology.returns({
-          description: {
-            // TODO: replace with TopologyType.LoadBalanced - NODE-2973
-            type: 'LoadBalanced',
-          },
+        serviceProvider.getTopologyDescription.returns({
+          type: 'LoadBalanced',
         });
         serviceProvider.getConnectionInfo.resolves({
           extraInfo: {
@@ -403,21 +380,14 @@ describe('ShellInstanceState', function () {
 
     describe('topology Unknown', function () {
       it('just shows the default prompt', async function () {
-        const servers = new Map();
+        const servers = new Map<string, ServerDescription>();
         servers.set('localhost:30001', {
-          address: 'localhost:30001',
-          // TODO: replace with ServerType.Unknown - NODE-2973
           type: 'Unknown',
-          me: 'localhost:30001',
-          hosts: ['localhost:30001'],
         });
-        const topology = {
-          description: {
-            // TODO: replace with TopologyType.Unknown - NODE-2973
-            type: 'Unknown',
-            setName: 'unknown',
-            servers: servers,
-          },
+        const topology: TopologyDescription = {
+          type: 'Unknown',
+          setName: 'unknown',
+          servers: servers,
         };
         setupServiceProviderWithTopology(topology);
 

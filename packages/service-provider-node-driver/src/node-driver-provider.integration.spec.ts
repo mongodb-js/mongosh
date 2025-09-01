@@ -807,12 +807,6 @@ describe('NodeDriverServiceProvider [integration]', function () {
     });
   });
 
-  describe('#driverMetadata', function () {
-    it('returns information about the driver instance', function () {
-      expect(serviceProvider.driverMetadata?.driver.name).to.equal('nodejs');
-    });
-  });
-
   describe('#getURI', function () {
     it('returns the current URI', function () {
       expect(serviceProvider.getURI()).to.equal(connectionString);
