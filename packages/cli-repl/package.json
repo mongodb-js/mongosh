@@ -62,7 +62,7 @@
     }
   },
   "dependencies": {
-    "@mongodb-js/devtools-proxy-support": "^0.5.2",
+    "@mongodb-js/devtools-proxy-support": "^0.5.3",
     "@mongosh/arg-parser": "^3.16.0",
     "@mongosh/autocomplete": "^3.20.0",
     "@mongosh/editor": "^3.20.0",

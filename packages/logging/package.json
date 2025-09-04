@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@mongodb-js/device-id": "^0.2.1",
-    "@mongodb-js/devtools-connect": "^3.9.3",
+    "@mongodb-js/devtools-connect": "^3.9.4",
     "@mongosh/errors": "2.4.4",
     "@mongosh/history": "2.4.8",
     "@mongosh/types": "^3.12.0",
