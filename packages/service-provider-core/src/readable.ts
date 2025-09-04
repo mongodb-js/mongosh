@@ -11,6 +11,8 @@ import type {
   DbOptions,
   ReadPreferenceFromOptions,
   ReadPreferenceLike,
+  TopologyType,
+  ServerType,
 } from './all-transport-types';
 import type { ChangeStreamOptions } from './all-transport-types';
 import type {
@@ -18,6 +20,17 @@ import type {
   ServiceProviderChangeStream,
   ServiceProviderFindCursor,
 } from './cursors';
+
+// These are trimmed-down versions of the MongoDB driver types
+export interface ServerDescription {
+  type?: ServerType;
+  setName?: string | null;
+}
+export interface TopologyDescription {
+  type?: TopologyType;
+  setName?: string | null;
+  servers?: Map<string, ServerDescription>;
+}
 
 /**
  * Interface for read operations in the CRUD specification.
@@ -160,7 +173,7 @@ export default interface Readable {
   /**
    * Get currently known topology information.
    */
-  getTopology(): any;
+  getTopologyDescription(): TopologyDescription | undefined;
 
   /**
    * Returns an array that holds a list of documents that identify and

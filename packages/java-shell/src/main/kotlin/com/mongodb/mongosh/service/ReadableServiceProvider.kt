@@ -13,7 +13,7 @@ internal interface ReadableServiceProvider {
     fun distinct(database: String, collection: String, fieldName: String, filter: Value?, options: Value?): Value
     fun estimatedDocumentCount(database: String, collection: String, options: Value?): Value
     fun find(database: String, collection: String, filter: Value?, options: Value?): Cursor
-    fun getTopology(): Value
+    fun getTopologyDescription(): Value
     fun getIndexes(database: String, collection: String, options: Value?): Value
     fun listCollections(database: String, filter: Value?, options: Value?): Value
 }

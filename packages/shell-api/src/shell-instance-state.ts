@@ -514,11 +514,10 @@ export class ShellInstanceState {
     return {
       topology: () => {
         let topology: Topologies;
-        const topologyDescription = this.currentServiceProvider.getTopology()
-          ?.description as TopologyDescription | undefined;
+        const topologyDescription =
+          this.currentServiceProvider.getTopologyDescription();
         if (!topologyDescription) return undefined;
-        // TODO: once a driver with NODE-3011 is available set type to TopologyType | undefined
-        const topologyType: string | undefined = topologyDescription?.type;
+        const topologyType = topologyDescription?.type;
         switch (topologyType) {
           case 'ReplicaSetNoPrimary':
           case 'ReplicaSetWithPrimary':
@@ -535,7 +534,7 @@ export class ShellInstanceState {
             // We're connected to a single server, but that doesn't necessarily
             // mean that that server isn't part of a replset or sharding setup
             // if we're using directConnection=true (which we do by default).
-            if (topologyDescription?.servers.size === 1) {
+            if (topologyDescription?.servers?.size === 1) {
               const [server] = topologyDescription?.servers.values();
               switch (server.type) {
                 case 'Mongos':
@@ -705,23 +704,22 @@ export class ShellInstanceState {
 
   private async getTopologySpecificPrompt(): Promise<string> {
     const connectionInfo = await this.fetchConnectionInfo();
-    // TODO: once a driver with NODE-3011 is available set type to TopologyDescription
-    const description = this.currentServiceProvider.getTopology()?.description;
+    const description = this.currentServiceProvider.getTopologyDescription();
     if (!description) {
       return '';
     }
 
     let replicaSet = description.setName;
     let serverTypePrompt = '';
-    // TODO: replace with proper TopologyType constants - NODE-2973
     switch (description.type) {
-      case 'Single':
+      case 'Single': {
         const singleDetails = this.getTopologySinglePrompt(description);
         replicaSet = singleDetails?.replicaSet ?? replicaSet;
         serverTypePrompt = singleDetails?.serverType
           ? `[direct: ${singleDetails.serverType}]`
           : '';
         break;
+      }
       case 'ReplicaSetNoPrimary':
         serverTypePrompt = '[secondary]';
         break;
@@ -750,7 +748,6 @@ export class ShellInstanceState {
     }
     const [server] = description.servers.values();
 
-    // TODO: replace with proper ServerType constants - NODE-2973
     let serverType: string;
     switch (server.type) {
       case 'Mongos':
@@ -774,7 +771,7 @@ export class ShellInstanceState {
     }
 
     return {
-      replicaSet: server.setName,
+      replicaSet: server.setName ?? description.setName ?? null,
       serverType,
     };
   }

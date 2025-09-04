@@ -443,7 +443,7 @@ internal class JavaServiceProvider(private var client: MongoClient?,
     }
 
     @HostAccess.Export
-    override fun getTopology(): Value = promise<Any?> {
+    override fun getTopologyDescription(): Value = promise<Any?> {
         Left(NotImplementedError())
     }
 

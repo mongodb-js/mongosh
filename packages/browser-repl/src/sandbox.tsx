@@ -106,12 +106,10 @@ class DemoServiceProvider {
     };
   }
 
-  getTopology(): object {
+  getTopologyDescription(): object {
     return {
-      description: {
-        type: 'ReplicaSetWithPrimary',
-        setName: 'replset',
-      },
+      type: 'ReplicaSetWithPrimary',
+      setName: 'replset',
     };
   }
 

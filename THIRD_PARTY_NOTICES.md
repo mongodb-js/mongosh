@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Thu Aug 21 2025.
+This document was automatically generated on Thu Sep 04 2025.
 
 ## List of dependencies
 
@@ -66,21 +66,21 @@ Package|Version|License
 **[@jridgewell/trace-mapping](#73923b51cccefe7db1ead00c09a18978443a238d51a858a7a0c86868a9a4ea3f)**|0.3.25|MIT
 **[@lukeed/csprng](#3676fe5c642281431ce385febe753d3f7230e20120a0909b5020aee00271509d)**|1.1.0|MIT
 **[@lukeed/uuid](#82700fba068def47ea9842f28d700a387f59da805f74a6ed10a5eb7eece4cdab)**|2.0.1|MIT
-**[@mongosh/arg-parser](#17ddb82a14d43e7a5aa9a0ea238b3bfcf40761ae7862081e07c40367822603c3)**|3.14.0|Apache-2.0
+**[@mongosh/arg-parser](#d01e2e5697412b88844550feb6bf5cdfd8262c79c68efa5cc83cf572bc91dba5)**|3.16.0|Apache-2.0
 **[@mongosh/async-rewriter2](#41a694c5485140d7782ccea1ba88fa3b1edee055fcdb43ce5fe1543090d6c788)**|2.4.10|Apache-2.0
-**[@mongosh/autocomplete](#c1f291190a5e53e674eebf1b7cf8dd344fd2b5f6ca5a659c3997cd90cbc3c017)**|3.18.0|Apache-2.0
-**[@mongosh/editor](#4ad029d9ad6f2a1570fc758a0054a1230f77daebf4e58ceadc564125f6bad8e2)**|3.18.0|Apache-2.0
-**[@mongosh/errors](#66fe4cb10b88a47254e37cdb1dc176e6877914edb4fa3e9274b194fc98d7d0ba)**|2.4.2|Apache-2.0
+**[@mongosh/autocomplete](#1d8f29345de349f26d993dd4b185eeefca89a4a239b41d240c57d7a91b8e1f25)**|3.20.0|Apache-2.0
+**[@mongosh/editor](#d4bc1b0d326804c733221d5cadf483e321264fdecdce5d01f776f216e6e6800c)**|3.20.0|Apache-2.0
+**[@mongosh/errors](#c18f1e502b6eec32b07dd941232319ef7bf58fff1cbbe84661a33340de4604e5)**|2.4.4|Apache-2.0
 **[@mongosh/history](#e4a934b7e4f36902fba4cd2dbc8c84692e2cff224f25c47a6c6501e397140059)**|2.4.8|Apache-2.0
-**[@mongosh/i18n](#63b28567455c6432f4f934fc923ff8d1a5536ee7f5dc9909b0af5d766cdee3a4)**|2.15.2|Apache-2.0
+**[@mongosh/i18n](#76985058b50eca5cffe5374beaf33fe5cd67b0fe0a054d0597e0950ec030d34d)**|2.15.4|Apache-2.0
 **[@mongosh/js-multiline-to-singleline](#7b0503981598b426c49faa0c2c25080a3a2ec9321fab6454b857b61c9fdd1a80)**|2.4.10|Apache-2.0
-**[@mongosh/logging](#14f703078fda48e620a2d68d1a403e71a44bd0611e30a82655e79494db192927)**|3.11.0|Apache-2.0
-**[@mongosh/service-provider-core](#de586a52487e92ca71826d545e562e7e50c74b32392cf23e1a8c1648ff87db70)**|3.3.5|Apache-2.0
-**[@mongosh/service-provider-node-driver](#f151bc53592af4cd7d075a2b72b99d62791f8a39dbae6d7cd18368115577106e)**|3.12.0|Apache-2.0
-**[@mongosh/shell-api](#376c10d0749185a23bcb7bbb73f280771247890ab3a522bf3fcb54754ae7d10e)**|3.18.0|Apache-2.0
-**[@mongosh/shell-evaluator](#e5e036596e513f98186c0a3f332290100c25ca726a45f13246208e06bc70bc4c)**|3.18.0|Apache-2.0
-**[@mongosh/snippet-manager](#9f9a13e546fc8ccf1487efdf2331aade0d08e016f7157ce1d4808e69bdfd7e6e)**|3.18.0|Apache-2.0
-**[@mongosh/types](#9f900e27acef75c9850134e309dd42227186d531d2301ffb2822ebcbd576fdaf)**|3.10.0|Apache-2.0
+**[@mongosh/logging](#f9caff01d18603b4aeab45555657ffd4b6c4d4e18610000cdc756e5dc32f31d7)**|3.13.0|Apache-2.0
+**[@mongosh/service-provider-core](#f598495eb0bcd8883c32cbb3e686ab3ff79413886bc77953dc89fe4b34a9a762)**|3.3.7|Apache-2.0
+**[@mongosh/service-provider-node-driver](#8bc7d2fb19c96af189fca4e805e75720902c68821d00fccf5170190c1cc24101)**|3.14.0|Apache-2.0
+**[@mongosh/shell-api](#a5e7158f9233b0660f56599e76ad8a79c0f6a1e9d1be08134347cb985ae2ceeb)**|3.20.0|Apache-2.0
+**[@mongosh/shell-evaluator](#507e02d5633e84f0804b1862beedb2a7957c98d0ba67fc2c602e54a260603b44)**|3.20.0|Apache-2.0
+**[@mongosh/snippet-manager](#a46f6631fa3c90741f94ecfb41db09b13c88906ac0af65e7293cbfb4be30b3a5)**|3.20.0|Apache-2.0
+**[@mongosh/types](#2327f506bb2398219e4bf22c270e726fea1e4859f049e23d9c3397713c07eba3)**|3.12.0|Apache-2.0
 **[@one-ini/wasm](#6aca526b8422bf437f742c50072eb83ba3514db8deb4030046affbd54c8944bc)**|0.1.1|MIT
 **[@segment/analytics-core](#4df204335137c1be0e2456e45c1b988a6eda1959ef34664939db7d4ebe0e72d6)**|1.4.1|MIT
 **[@segment/analytics-generic-utils](#f064ef211464a877de186ba80a2b881afe7d01d63b2dce26ed1617bea73cc8e8)**|1.1.1|MIT
@@ -285,7 +285,7 @@ Package|Version|License
 **[lodash.merge](#996e40d63a94f1b8693d7c81e0cdfb874c6432d6bbd675976fc1b6b13652c8db)**|4.6.2|MIT
 **[lodash](#adaac4144887ebc2c1b682380ff385210f681fc58b4bc1ef3986148cf8dcd28a)**|4.17.21|MIT
 **[lowlight](#6efc5090c0eda3b461d933d6b79bddcdf8165a10aea9f39ac76620ce5fb05bf5)**|1.17.0|MIT
-**[lru-cache](#d0192735bd71c643cc16fbd4349d2043d2a045462dc4437006f0074165adf27e)**|11.1.0|ISC
+**[lru-cache](#c76765906647e0e9f9fb7cb96c250c4f38fe25c636e78200798e85255bcb868b)**|11.2.1|ISC
 **[lru-cache](#fe7f0a2f2cf4c92f13c3a2a63f14f80f20f6919979306dc054e4f947c1234651)**|5.1.1|ISC
 **[math-intrinsics](#f585fed67bcee1ccc26f6fd0010ab256b0e752435b26949a15143b03495a11d9)**|1.1.0|MIT
 **[media-typer](#fa74be298a38f8f9351484e9124aba4a4086182a4cba24449f195219a2843784)**|0.3.0|MIT
@@ -308,14 +308,14 @@ Package|Version|License
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
 **[mkdirp](#f34eebd27506e3aa07ba3b64064715e0c4f310dad1207ad88fff362353cd4cce)**|1.0.4|MIT
 **[mongodb-build-info](#f0a98c22ae0766702726f79e058ac6dc4e4bead8557b67b816f40bd13fb54170)**|1.7.2|Apache-2.0
-**[mongodb-client-encryption](#4bfa384a74d9b7da2ef68a7c6792e662d64dd2dc08303f7400c63fda55922482)**|6.3.0|Apache-2.0
+**[mongodb-client-encryption](#b69198b27f91ae57d05c6db2f6c1e6afdf2e56f8b5a66a2142292cd7efde2e53)**|6.5.0|Apache-2.0
 **[mongodb-connection-string-url](#2e1146256a89ebd24e3398881e03807fe363d58444e6b7952ea50bd6108707bc)**|3.0.1|Apache-2.0
 **[mongodb-crypt-library-version](#003bd2892d6f6fdac0613ba8f9a2fbb054ddd1c26901e1d2fc7e83861b21cf4d)**|1.0.5|Apache-2.0
 **[mongodb-log-writer](#2773a73e5385ed96d47f2a1d6236804c4b9bfeccf4b2359d30b989810409b0f1)**|2.4.1|Apache-2.0
 **[mongodb-ns](#68260f4d06e4d16a28d4139e391264d220e891ac6f0fb844b925a0cc37792aff)**|2.4.2|MIT
 **[mongodb-redact](#6fe8cef9beca5f3e1e3e999f47975ae99dcf4488419b28fc6d5eafc436081623)**|1.1.5|Apache-2.0
 **[mongodb-schema](#dc7b6e03e707abdf4c8e28a57ca2df873ec3a9fc74b1822a899a0f7eb0cc4bd5)**|12.6.2|Apache-2.0
-**[mongodb](#3145a15c2928eed9669f2e1bb6298bfbf2f03c22b2b70a1579b089223058930a)**|6.18.0|Apache-2.0
+**[mongodb](#6ccc8437faa6b7dd23d9b92f07f505450a6274463303eb7bb08af9943163ff9a)**|6.19.0|Apache-2.0
 **[ms](#484b814b85d5028e34246147c8fc901d33570202bd7cdc3703c0ed1078eba0aa)**|2.0.0|MIT
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
 **[ms](#2083576c5af8054927640b4788059806d07e250a26066c9ccb2d928394fb9226)**|2.1.3|MIT
@@ -6047,8 +6047,8 @@ License files:
       
 
 
-<a id="17ddb82a14d43e7a5aa9a0ea238b3bfcf40761ae7862081e07c40367822603c3"></a>
-### [@mongosh/arg-parser](https://www.npmjs.com/package/@mongosh/arg-parser) (version 3.14.0)
+<a id="d01e2e5697412b88844550feb6bf5cdfd8262c79c68efa5cc83cf572bc91dba5"></a>
+### [@mongosh/arg-parser](https://www.npmjs.com/package/@mongosh/arg-parser) (version 3.16.0)
 License tags: Apache-2.0
 
 License files:
@@ -6468,13 +6468,13 @@ License files:
          limitations under the License.
 
 
-<a id="c1f291190a5e53e674eebf1b7cf8dd344fd2b5f6ca5a659c3997cd90cbc3c017"></a>
-### [@mongosh/autocomplete](https://www.npmjs.com/package/@mongosh/autocomplete) (version 3.18.0)
+<a id="1d8f29345de349f26d993dd4b185eeefca89a4a239b41d240c57d7a91b8e1f25"></a>
+### [@mongosh/autocomplete](https://www.npmjs.com/package/@mongosh/autocomplete) (version 3.20.0)
 License tags: Apache-2.0
 
 
-<a id="4ad029d9ad6f2a1570fc758a0054a1230f77daebf4e58ceadc564125f6bad8e2"></a>
-### [@mongosh/editor](https://www.npmjs.com/package/@mongosh/editor) (version 3.18.0)
+<a id="d4bc1b0d326804c733221d5cadf483e321264fdecdce5d01f776f216e6e6800c"></a>
+### [@mongosh/editor](https://www.npmjs.com/package/@mongosh/editor) (version 3.20.0)
 License tags: Apache-2.0
 
 License files:
@@ -6683,8 +6683,8 @@ License files:
          limitations under the License.
 
 
-<a id="66fe4cb10b88a47254e37cdb1dc176e6877914edb4fa3e9274b194fc98d7d0ba"></a>
-### [@mongosh/errors](https://www.npmjs.com/package/@mongosh/errors) (version 2.4.2)
+<a id="c18f1e502b6eec32b07dd941232319ef7bf58fff1cbbe84661a33340de4604e5"></a>
+### [@mongosh/errors](https://www.npmjs.com/package/@mongosh/errors) (version 2.4.4)
 License tags: Apache-2.0
 
 License files:
@@ -7105,8 +7105,8 @@ License files:
          limitations under the License.
 
 
-<a id="63b28567455c6432f4f934fc923ff8d1a5536ee7f5dc9909b0af5d766cdee3a4"></a>
-### [@mongosh/i18n](https://www.npmjs.com/package/@mongosh/i18n) (version 2.15.2)
+<a id="76985058b50eca5cffe5374beaf33fe5cd67b0fe0a054d0597e0950ec030d34d"></a>
+### [@mongosh/i18n](https://www.npmjs.com/package/@mongosh/i18n) (version 2.15.4)
 License tags: Apache-2.0
 
 License files:
@@ -7525,8 +7525,8 @@ License files:
          limitations under the License.
 
 
-<a id="14f703078fda48e620a2d68d1a403e71a44bd0611e30a82655e79494db192927"></a>
-### [@mongosh/logging](https://www.npmjs.com/package/@mongosh/logging) (version 3.11.0)
+<a id="f9caff01d18603b4aeab45555657ffd4b6c4d4e18610000cdc756e5dc32f31d7"></a>
+### [@mongosh/logging](https://www.npmjs.com/package/@mongosh/logging) (version 3.13.0)
 License tags: Apache-2.0
 
 License files:
@@ -7737,8 +7737,8 @@ License files:
       
 
 
-<a id="de586a52487e92ca71826d545e562e7e50c74b32392cf23e1a8c1648ff87db70"></a>
-### [@mongosh/service-provider-core](https://www.npmjs.com/package/@mongosh/service-provider-core) (version 3.3.5)
+<a id="f598495eb0bcd8883c32cbb3e686ab3ff79413886bc77953dc89fe4b34a9a762"></a>
+### [@mongosh/service-provider-core](https://www.npmjs.com/package/@mongosh/service-provider-core) (version 3.3.7)
 License tags: Apache-2.0
 
 License files:
@@ -7947,8 +7947,8 @@ License files:
          limitations under the License.
 
 
-<a id="f151bc53592af4cd7d075a2b72b99d62791f8a39dbae6d7cd18368115577106e"></a>
-### [@mongosh/service-provider-node-driver](https://www.npmjs.com/package/@mongosh/service-provider-node-driver) (version 3.12.0)
+<a id="8bc7d2fb19c96af189fca4e805e75720902c68821d00fccf5170190c1cc24101"></a>
+### [@mongosh/service-provider-node-driver](https://www.npmjs.com/package/@mongosh/service-provider-node-driver) (version 3.14.0)
 License tags: Apache-2.0
 
 License files:
@@ -8157,8 +8157,8 @@ License files:
          limitations under the License.
 
 
-<a id="376c10d0749185a23bcb7bbb73f280771247890ab3a522bf3fcb54754ae7d10e"></a>
-### [@mongosh/shell-api](https://www.npmjs.com/package/@mongosh/shell-api) (version 3.18.0)
+<a id="a5e7158f9233b0660f56599e76ad8a79c0f6a1e9d1be08134347cb985ae2ceeb"></a>
+### [@mongosh/shell-api](https://www.npmjs.com/package/@mongosh/shell-api) (version 3.20.0)
 License tags: Apache-2.0
 
 License files:
@@ -8367,8 +8367,8 @@ License files:
          limitations under the License.
 
 
-<a id="e5e036596e513f98186c0a3f332290100c25ca726a45f13246208e06bc70bc4c"></a>
-### [@mongosh/shell-evaluator](https://www.npmjs.com/package/@mongosh/shell-evaluator) (version 3.18.0)
+<a id="507e02d5633e84f0804b1862beedb2a7957c98d0ba67fc2c602e54a260603b44"></a>
+### [@mongosh/shell-evaluator](https://www.npmjs.com/package/@mongosh/shell-evaluator) (version 3.20.0)
 License tags: Apache-2.0
 
 License files:
@@ -8578,8 +8578,8 @@ License files:
          limitations under the License.
 
 
-<a id="9f9a13e546fc8ccf1487efdf2331aade0d08e016f7157ce1d4808e69bdfd7e6e"></a>
-### [@mongosh/snippet-manager](https://www.npmjs.com/package/@mongosh/snippet-manager) (version 3.18.0)
+<a id="a46f6631fa3c90741f94ecfb41db09b13c88906ac0af65e7293cbfb4be30b3a5"></a>
+### [@mongosh/snippet-manager](https://www.npmjs.com/package/@mongosh/snippet-manager) (version 3.20.0)
 License tags: Apache-2.0
 
 License files:
@@ -8788,8 +8788,8 @@ License files:
          limitations under the License.
 
 
-<a id="9f900e27acef75c9850134e309dd42227186d531d2301ffb2822ebcbd576fdaf"></a>
-### [@mongosh/types](https://www.npmjs.com/package/@mongosh/types) (version 3.10.0)
+<a id="2327f506bb2398219e4bf22c270e726fea1e4859f049e23d9c3397713c07eba3"></a>
+### [@mongosh/types](https://www.npmjs.com/package/@mongosh/types) (version 3.12.0)
 License tags: Apache-2.0
 
 
@@ -22995,8 +22995,8 @@ License files:
       
 
 
-<a id="d0192735bd71c643cc16fbd4349d2043d2a045462dc4437006f0074165adf27e"></a>
-### [lru-cache](https://www.npmjs.com/package/lru-cache) (version 11.1.0)
+<a id="c76765906647e0e9f9fb7cb96c250c4f38fe25c636e78200798e85255bcb868b"></a>
+### [lru-cache](https://www.npmjs.com/package/lru-cache) (version 11.2.1)
 License tags: ISC
 
 License files:
@@ -23853,8 +23853,8 @@ License files:
       
 
 
-<a id="4bfa384a74d9b7da2ef68a7c6792e662d64dd2dc08303f7400c63fda55922482"></a>
-### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 6.3.0)
+<a id="b69198b27f91ae57d05c6db2f6c1e6afdf2e56f8b5a66a2142292cd7efde2e53"></a>
+### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 6.5.0)
 License tags: Apache-2.0
 
 License files:
@@ -25131,8 +25131,8 @@ License files:
       
 
 
-<a id="3145a15c2928eed9669f2e1bb6298bfbf2f03c22b2b70a1579b089223058930a"></a>
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 6.18.0)
+<a id="6ccc8437faa6b7dd23d9b92f07f505450a6274463303eb7bb08af9943163ff9a"></a>
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 6.19.0)
 License tags: Apache-2.0
 
 License files:

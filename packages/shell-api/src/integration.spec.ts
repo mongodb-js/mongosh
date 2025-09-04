@@ -492,6 +492,7 @@ describe('Shell API (integration)', function () {
 
     describe('updateOne and replaceOne with sort option', function () {
       skipIfServerVersion(testServer, '< 8.0');
+      skipIfApiStrict();
 
       beforeEach(async function () {
         await serviceProvider.insertMany(dbName, collectionName, [
@@ -2567,11 +2568,11 @@ describe('Shell API (integration)', function () {
       it('reconnects', async function () {
         const oldMC = serviceProvider.mongoClient;
         expect(
-          (serviceProvider.mongoClient as any).s.options.readPreference.mode
+          serviceProvider.mongoClient.options.readPreference.mode
         ).to.deep.equal('primary');
         await mongo.setReadPref('secondaryPreferred');
         expect(
-          (serviceProvider.mongoClient as any).s.options.readPreference.mode
+          serviceProvider.mongoClient.options.readPreference.mode
         ).to.equal('secondaryPreferred');
         expect(serviceProvider.mongoClient).to.not.equal(oldMC);
       });
