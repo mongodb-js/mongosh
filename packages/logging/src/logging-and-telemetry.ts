@@ -913,6 +913,9 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
     hookLogger(
       this.bus,
       {
+        debug: (...args: Parameters<typeof this.log.debug>) => {
+          return this.log.debug(...args);
+        },
         info: (...args: Parameters<typeof this.log.info>) => {
           return this.log.info(...args);
         },
