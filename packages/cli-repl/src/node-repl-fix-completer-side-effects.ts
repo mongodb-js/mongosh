@@ -1,5 +1,4 @@
 import type { CompleterResult } from 'readline';
-import { start as replStart } from 'repl';
 import { PassThrough } from 'stream';
 import { promisify } from 'util';
 
@@ -7,6 +6,10 @@ import { promisify } from 'util';
 // occurs in this version of Node.js or not.
 let replHasNodeBug59774: boolean | undefined;
 async function detectReplNodeBug59774(): Promise<boolean> {
+  // 'repl' is not supported in startup snapshots yet.
+  const { start: replStart } =
+    // eslint-disable-next-line @typescript-eslint/consistent-type-imports, @typescript-eslint/no-var-requires
+    require('repl') as typeof import('repl');
   const repl = replStart({
     input: new PassThrough(),
     output: new PassThrough(),
