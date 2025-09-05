@@ -586,6 +586,21 @@ describe('MongoshNodeRepl', function () {
           await tick();
           expect(output, output).to.equal('\t\tfoo');
         });
+        it('does not call functions while completing', async function () {
+          output = '';
+          mongoshRepl.runtimeState().context.ranFunction = false;
+          input.write(
+            'function causeSideEffect() { globalThis.ranFunction = true; }\n'
+          );
+          await waitEval(bus);
+          input.write('causeSideEffect().');
+          await tabtab();
+          await waitCompletion(bus);
+          await tick();
+          expect(mongoshRepl.runtimeState().context.ranFunction).to.equal(
+            false
+          );
+        });
       }
     );
 

@@ -49,6 +49,7 @@ import type { Context } from 'vm';
 import { Script, createContext, runInContext } from 'vm';
 import { installPasteSupport } from './repl-paste-support';
 import util from 'util';
+import { fixNodeReplCompleterSideEffectHandling } from './node-repl-fix-completer-side-effects';
 
 declare const __non_webpack_require__: any;
 
@@ -433,7 +434,9 @@ class MongoshNodeRepl implements EvaluationListener {
 
     this.outputFinishString += installPasteSupport(repl);
 
-    const origReplCompleter = promisify(repl.completer.bind(repl)); // repl.completer is callback-style
+    const origReplCompleter = await fixNodeReplCompleterSideEffectHandling(
+      promisify(repl.completer.bind(repl))
+    ); // repl.completer is callback-style
 
     let newMongoshCompleter: (line: string) => Promise<CompletionResults>;
     let oldMongoshCompleter: (line: string) => Promise<CompletionResults>;
