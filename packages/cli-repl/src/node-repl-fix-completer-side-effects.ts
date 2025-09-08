@@ -19,6 +19,8 @@ async function detectReplNodeBug59774(): Promise<boolean> {
   let ranFunction = false;
   repl.context.causeSideEffect = () => (ranFunction = true);
   try {
+    // Try to autocomplete a random property access on the result of calling
+    // causeSideEffect(). If the function is actually called, then the bug is present.
     await promisify(repl.completer)('causeSideEffect().x');
   } finally {
     repl.close();
