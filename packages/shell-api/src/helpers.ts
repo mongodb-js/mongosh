@@ -28,7 +28,7 @@ import type {
 import type { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
 import type { AutoEncryptionOptions, Long, ObjectId, Timestamp } from 'mongodb';
 import { shellApiType } from './enums';
-import type { AbstractCursor } from './abstract-cursor';
+import type { AbstractFiniteCursor } from './abstract-cursor';
 import type ChangeStreamCursor from './change-stream-cursor';
 import type { ShellBson } from './shell-bson';
 import { inspect } from 'util';
@@ -861,7 +861,7 @@ export function addHiddenDataProperty<T = any>(
 
 export async function iterate(
   results: CursorIterationResult,
-  cursor: AbstractCursor<any> | ChangeStreamCursor,
+  cursor: AbstractFiniteCursor<any> | ChangeStreamCursor,
   batchSize: number
 ): Promise<CursorIterationResult> {
   if (cursor.isClosed()) {

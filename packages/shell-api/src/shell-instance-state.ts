@@ -5,6 +5,7 @@ import type {
   ConnectionInfo,
   ServerApi,
   ServiceProvider,
+  ServiceProviderBaseCursor,
   TopologyDescription,
 } from '@mongosh/service-provider-core';
 import { DEFAULT_DB } from '@mongosh/service-provider-core';
@@ -17,17 +18,10 @@ import type {
 } from '@mongosh/types';
 import { EventEmitter } from 'events';
 import redactInfo from 'mongodb-redact';
-import type ChangeStreamCursor from './change-stream-cursor';
 import { toIgnore } from './decorators';
 import { Topologies } from './enums';
 import { ShellApiErrors } from './error-codes';
-import type {
-  AggregationCursor,
-  Cursor,
-  RunCommandCursor,
-  ShellResult,
-  DatabaseWithSchema,
-} from './index';
+import type { ShellResult, DatabaseWithSchema } from './index';
 import { getShellApiType, Mongo, ReplicaSet, Shard, ShellApi } from './index';
 import { InterruptFlag } from './interruptor';
 import { TransformMongoErrorPlugin } from './mongo-errors';
@@ -40,6 +34,7 @@ import { ShellLog } from './shell-log';
 import type { AutocompletionContext } from '@mongodb-js/mongodb-ts-autocomplete';
 import type { JSONSchema } from 'mongodb-schema';
 import { analyzeDocuments } from 'mongodb-schema';
+import type { BaseCursor } from './abstract-cursor';
 
 /**
  * The subset of CLI options that is relevant for the shell API's behavior itself.
@@ -147,12 +142,7 @@ const CONTROL_CHAR_REGEXP = /[\x00-\x1F\x7F-\x9F]/g;
  * instances).
  */
 export class ShellInstanceState {
-  public currentCursor:
-    | Cursor
-    | AggregationCursor
-    | ChangeStreamCursor
-    | RunCommandCursor
-    | null;
+  public currentCursor: BaseCursor<ServiceProviderBaseCursor> | null;
   public currentDb: DatabaseWithSchema;
   public messageBus: MongoshBus;
   public initialServiceProvider: ServiceProvider; // the initial service provider

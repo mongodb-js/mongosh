@@ -328,7 +328,7 @@ export default class ShellApi extends ShellApiClass {
 
   @directShellCommand
   @returnsPromise
-  async it(): Promise<any> {
+  async it(): Promise<CursorIterationResult> {
     if (!this._instanceState.currentCursor) {
       return new CursorIterationResult();
     }

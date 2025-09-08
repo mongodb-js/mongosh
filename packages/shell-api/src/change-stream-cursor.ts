@@ -1,10 +1,4 @@
-import {
-  shellApiClassDefault,
-  returnsPromise,
-  returnType,
-  deprecated,
-  ShellApiWithMongoClass,
-} from './decorators';
+import { shellApiClassDefault, returnsPromise, deprecated } from './decorators';
 import type {
   ServiceProviderChangeStream,
   Document,
@@ -19,26 +13,19 @@ import {
 } from '@mongosh/errors';
 import { iterate } from './helpers';
 import type Mongo from './mongo';
+import { BaseCursor } from './abstract-cursor';
 
 @shellApiClassDefault
-export default class ChangeStreamCursor extends ShellApiWithMongoClass {
-  _mongo: Mongo;
-  _cursor: ServiceProviderChangeStream<Document>;
+export default class ChangeStreamCursor extends BaseCursor<ServiceProviderChangeStream> {
   _currentIterationResult: CursorIterationResult | null = null;
   _on: string;
 
-  constructor(
-    cursor: ServiceProviderChangeStream<Document>,
-    on: string,
-    mongo: Mongo
-  ) {
-    super();
-    this._cursor = cursor;
+  constructor(cursor: ServiceProviderChangeStream, on: string, mongo: Mongo) {
+    super(mongo, cursor);
     this._on = on;
-    this._mongo = mongo;
   }
 
-  async _it(): Promise<CursorIterationResult> {
+  override async _it(): Promise<CursorIterationResult> {
     if (this._cursor.closed) {
       throw new MongoshRuntimeError('ChangeStreamCursor is closed');
     }
@@ -49,99 +36,72 @@ export default class ChangeStreamCursor extends ShellApiWithMongoClass {
   /**
    * Internal method to determine what is printed for this class.
    */
-  [asPrintable](): string {
-    return `ChangeStreamCursor on ${this._on}`;
-  }
-
-  @returnsPromise
-  async close(): Promise<void> {
-    await this._cursor.close();
+  override [asPrintable](): Promise<string> {
+    return Promise.resolve(`ChangeStreamCursor on ${this._on}`);
   }
 
   @returnsPromise
   @deprecated
-  async hasNext(): Promise<boolean> {
-    await this._instanceState.printWarning(
-      'If there are no documents in the batch, hasNext will block. Use tryNext if you want to check if there ' +
-        'are any documents without waiting.'
-    );
-    return this._cursor.hasNext();
+  override async hasNext(): Promise<boolean> {
+    if (!this._blockingWarningDisabled) {
+      await this._instanceState.printWarning(
+        'If there are no documents in the batch, hasNext will block. Use tryNext if you want to check if there ' +
+          'are any documents without waiting, or cursor.disableBlockWarnings() if you want to disable this warning.'
+      );
+    }
+    return super.hasNext();
   }
 
   @returnsPromise
-  async tryNext(): Promise<Document | null> {
+  override async tryNext(): Promise<Document | null> {
     if (this._cursor.closed) {
       throw new MongoshRuntimeError('Cannot call tryNext on closed cursor');
     }
-    return this._cursor.tryNext();
+    return super.tryNext();
   }
 
-  get [Symbol.for('@@mongosh.syntheticAsyncIterable')]() {
-    return true;
-  }
-
-  async *[Symbol.asyncIterator]() {
-    let doc;
-    while ((doc = await this.tryNext()) !== null) {
-      yield doc;
-    }
-  }
-
-  isClosed(): boolean {
-    return this._cursor.closed;
-  }
-
-  isExhausted(): never {
+  override isExhausted(): never {
     throw new MongoshInvalidInputError(
       'isExhausted is not implemented for ChangeStreams because after closing a cursor, the remaining documents in the batch are no longer accessible. If you want to see if the cursor is closed use isClosed. If you want to see if there are documents left in the batch, use tryNext.'
     );
   }
 
   @returnsPromise
-  async itcount(): Promise<number> {
-    let count = 0;
-    while (await this.tryNext()) {
-      count++;
+  override async next(): Promise<Document> {
+    if (!this._blockingWarningDisabled) {
+      await this._instanceState.printWarning(
+        'If there are no documents in the batch, next will block. Use tryNext if you want to check if there are ' +
+          'any documents without waiting, or cursor.disableBlockWarnings() if you want to disable this warning.'
+      );
     }
-    return count;
-  }
-
-  @returnsPromise
-  async next(): Promise<Document> {
-    await this._instanceState.printWarning(
-      'If there are no documents in the batch, next will block. Use tryNext if you want to check if there are ' +
-        'any documents without waiting.'
-    );
-    return this._cursor.next();
+    return (await super.next()) as Document;
   }
 
   getResumeToken(): ResumeToken {
     return this._cursor.resumeToken;
   }
 
-  map(): ChangeStreamCursor {
-    throw new MongoshUnimplementedError(
-      'Cannot call map on a change stream cursor'
-    );
-  }
-  forEach(): Promise<void> {
-    throw new MongoshUnimplementedError(
-      'Cannot call forEach on a change stream cursor'
-    );
-  }
-  toArray(): Promise<Document[]> {
+  override toArray(): never {
     throw new MongoshUnimplementedError(
       'Cannot call toArray on a change stream cursor'
     );
   }
-  objsLeftInBatch(): void {
+
+  override batchSize(): never {
+    throw new MongoshUnimplementedError(
+      'Cannot call batchSize on a change stream cursor'
+    );
+  }
+
+  override objsLeftInBatch(): never {
     throw new MongoshUnimplementedError(
       'Cannot call objsLeftInBatch on a change stream cursor'
     );
   }
 
-  @returnType('ChangeStreamCursor')
-  pretty(): ChangeStreamCursor {
-    return this;
+  override maxTimeMS(): never {
+    throw new MongoshUnimplementedError(
+      'Cannot call objsLeftInBatch on a change stream cursor'
+    );
   }
 }
