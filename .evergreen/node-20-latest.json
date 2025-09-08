@@ -1,8 +1,8 @@
 {
-  "version": "20.19.4",
+  "version": "20.19.5",
   "major": 20,
   "minor": 19,
-  "patch": 4,
+  "patch": 5,
   "tag": "",
   "codename": "iron",
   "versionName": "v20",
@@ -10,7 +10,7 @@
   "lts": "2023-10-24T00:00:00.000Z",
   "maintenance": "2024-10-22T00:00:00.000Z",
   "end": "2026-04-30T00:00:00.000Z",
-  "releaseDate": "2025-07-15T00:00:00.000Z",
+  "releaseDate": "2025-09-03T00:00:00.000Z",
   "isLts": true,
   "files": [
     "aix-ppc64",
@@ -39,7 +39,7 @@
     "npm": "10.8.2",
     "v8": "11.3.244.8",
     "uv": "1.46.0",
-    "zlib": "1.3.0.1-motley",
-    "openssl": "3.0.15+quic"
+    "zlib": "1.3.1",
+    "openssl": "3.0.16"
   }
 }
