@@ -101,7 +101,7 @@ export default class ChangeStreamCursor extends BaseCursor<ServiceProviderChange
 
   override maxTimeMS(): never {
     throw new MongoshUnimplementedError(
-      'Cannot call objsLeftInBatch on a change stream cursor'
+      'Cannot call maxTimeMS on a change stream cursor'
     );
   }
 }
