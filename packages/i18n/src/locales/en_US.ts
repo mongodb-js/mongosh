@@ -388,6 +388,13 @@ const translations: Catalog = {
               example:
                 'db.collection.aggregate(pipeline, options).skip(offsetNumber)',
             },
+            disableBlockWarnings: {
+              link: '',
+              description:
+                'Disables warnings for blocking operations on the cursor.',
+              example:
+                'db.collection.aggregate(pipeline, options).disableBlockWarnings()',
+            },
           },
         },
       },
@@ -965,6 +972,17 @@ const translations: Catalog = {
               description:
                 'This method is deprecated because because after closing a cursor, the remaining documents in the batch are no longer accessible. If you want to see if the cursor is closed use cursor.isClosed. If you want to see if there are documents left in the batch, use cursor.tryNext. This is a breaking change',
             },
+            disableBlockWarnings: {
+              link: '',
+              description:
+                'Disables warnings for blocking operations on the cursor.',
+            },
+            batchSize: {
+              description: 'Not available on change streams',
+            },
+            maxTimeMS: {
+              description: 'Not available on change streams',
+            },
           },
         },
       },
@@ -1259,6 +1277,13 @@ const translations: Catalog = {
                 'The toArray() method returns an array that contains all the documents from a cursor. The method iterates completely the cursor, loading all the documents into RAM and exhausting the cursor.',
               example:
                 'db.collection.find(query, projection, options).toArray()',
+            },
+            disableBlockWarnings: {
+              link: '',
+              description:
+                'Disables warnings for blocking operations on the cursor.',
+              example:
+                'db.collection.find(query, projection, options).disableBlockWarnings()',
             },
           },
         },
@@ -1838,6 +1863,11 @@ const translations: Catalog = {
             tryNext: {
               description:
                 "If a document is in the cursor's batch it will be returned, otherwise null will be returned",
+            },
+            disableBlockWarnings: {
+              link: '',
+              description:
+                'Disables warnings for blocking operations on the cursor.',
             },
           },
         },
