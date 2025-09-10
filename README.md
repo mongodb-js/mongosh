@@ -22,6 +22,12 @@ Once downloaded, you will have to extract the binary and add it to your PATH
 variable. For detailed instructions for each of our supported platforms, please visit
 [installation documentation](https://www.mongodb.com/docs/mongodb-shell/install#mdb-shell-install).
 
+You can also run `download_latest.sh` to download a `mongosh` binary. You can use
+this script without cloning the repository thus:
+```
+curl -sSL https://raw.githubusercontent.com/mongodb-js/mongosh/refs/heads/main/download_latest.sh | sh
+```
+
 ## CLI Usage
 
 <!-- AUTOMATICALLY_INSERT_CLI_USAGE -->
