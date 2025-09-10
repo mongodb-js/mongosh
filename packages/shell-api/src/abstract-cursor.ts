@@ -11,52 +11,25 @@ import type {
   ServiceProviderFindCursor,
   ServiceProviderAggregationCursor,
   ServiceProviderRunCommandCursor,
+  ServiceProviderBaseCursor,
 } from '@mongosh/service-provider-core';
 import { asPrintable } from './enums';
 import { CursorIterationResult } from './result';
 import { iterate } from './helpers';
 
 @shellApiClassNoHelp
-export abstract class AbstractCursor<
-  CursorType extends
-    | ServiceProviderAggregationCursor
-    | ServiceProviderFindCursor
-    | ServiceProviderRunCommandCursor
+export abstract class BaseCursor<
+  CursorType extends ServiceProviderBaseCursor
 > extends ShellApiWithMongoClass {
   _mongo: Mongo;
   _cursor: CursorType;
-  _transform: ((doc: any) => any) | null;
-
-  _currentIterationResult: CursorIterationResult | null = null;
+  _transform: ((doc: any) => any) | null = null;
+  _blockingWarningDisabled = false;
 
   constructor(mongo: Mongo, cursor: CursorType) {
     super();
     this._mongo = mongo;
     this._cursor = cursor;
-    this._transform = null;
-  }
-
-  /**
-   * Internal method to determine what is printed for this class.
-   */
-  async [asPrintable](): Promise<CursorIterationResult> {
-    return (
-      await toShellResult(this._currentIterationResult ?? (await this._it()))
-    ).printable;
-  }
-
-  async _it(): Promise<CursorIterationResult> {
-    const results = (this._currentIterationResult =
-      new CursorIterationResult());
-    await iterate(results, this, await this._mongo._displayBatchSize());
-    results.cursorHasMore = !this.isExhausted();
-    return results;
-  }
-
-  @returnType('this')
-  batchSize(size: number): this {
-    this._cursor.batchSize(size);
-    return this;
   }
 
   @returnsPromise
@@ -136,8 +109,81 @@ export abstract class AbstractCursor<
     return count;
   }
 
+  @returnType('this')
+  pretty(): this {
+    return this;
+  }
+
+  @returnType('this')
+  map(f: (doc: Document) => Document): this {
+    if (this._transform === null) {
+      this._transform = f;
+    } else {
+      const g = this._transform;
+      this._transform = (doc: any) => f(g(doc));
+    }
+    return this;
+  }
+
   @returnsPromise
-  async toArray(): Promise<Document[]> {
+  async next(): Promise<Document | null> {
+    let result = await this._cursor.next();
+    if (result !== null && this._transform !== null) {
+      result = await this._transform(result);
+    }
+    return result;
+  }
+
+  disableBlockWarnings(): this {
+    this._blockingWarningDisabled = true;
+    return this;
+  }
+
+  abstract batchSize(size: number): this;
+  abstract toArray(): Promise<Document[]>;
+  abstract maxTimeMS(value: number): this;
+  abstract objsLeftInBatch(): number;
+  abstract _it(): Promise<CursorIterationResult>;
+}
+
+@shellApiClassNoHelp
+export abstract class AbstractFiniteCursor<
+  CursorType extends
+    | ServiceProviderAggregationCursor
+    | ServiceProviderFindCursor
+    | ServiceProviderRunCommandCursor
+> extends BaseCursor<CursorType> {
+  _currentIterationResult: CursorIterationResult | null = null;
+
+  constructor(mongo: Mongo, cursor: CursorType) {
+    super(mongo, cursor);
+  }
+
+  /**
+   * Internal method to determine what is printed for this class.
+   */
+  async [asPrintable](): Promise<CursorIterationResult | string> {
+    return (
+      await toShellResult(this._currentIterationResult ?? (await this._it()))
+    ).printable;
+  }
+
+  override async _it(): Promise<CursorIterationResult> {
+    const results = (this._currentIterationResult =
+      new CursorIterationResult());
+    await iterate(results, this, await this._mongo._displayBatchSize());
+    results.cursorHasMore = !this.isExhausted();
+    return results;
+  }
+
+  @returnType('this')
+  override batchSize(size: number): this {
+    this._cursor.batchSize(size);
+    return this;
+  }
+
+  @returnsPromise
+  override async toArray(): Promise<Document[]> {
     // toArray is always defined for driver cursors, but not necessarily
     // in tests
     if (
@@ -155,34 +201,9 @@ export abstract class AbstractCursor<
   }
 
   @returnType('this')
-  pretty(): this {
-    return this;
-  }
-
-  @returnType('this')
-  map(f: (doc: Document) => Document): this {
-    if (this._transform === null) {
-      this._transform = f;
-    } else {
-      const g = this._transform;
-      this._transform = (doc: any) => f(g(doc));
-    }
-    return this;
-  }
-
-  @returnType('this')
   maxTimeMS(value: number): this {
     this._cursor.maxTimeMS(value);
     return this;
-  }
-
-  @returnsPromise
-  async next(): Promise<Document | null> {
-    let result = await this._cursor.next();
-    if (result !== null && this._transform !== null) {
-      result = await this._transform(result);
-    }
-    return result;
   }
 
   objsLeftInBatch(): number {

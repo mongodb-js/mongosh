@@ -9,7 +9,7 @@ import type {
   ResumeToken,
 } from './all-transport-types';
 
-interface ServiceProviderBaseCursor<TSchema = Document> {
+export interface ServiceProviderBaseCursor<TSchema = Document> {
   close(): Promise<void>;
   hasNext(): Promise<boolean>;
   next(): Promise<TSchema | null>;

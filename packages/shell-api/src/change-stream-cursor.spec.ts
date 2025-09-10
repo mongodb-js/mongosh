@@ -231,6 +231,28 @@ describe('ChangeStreamCursor', function () {
         );
         expect(result).to.equal(1);
       });
+      it('map() works', async function () {
+        cursor.map((doc) => ({ wrapped: doc }));
+        await coll.insertOne({ myDoc: 1 });
+        const result = await ensureResult(
+          100,
+          async () => await cursor.tryNext(),
+          (doc) => !!doc?.wrapped,
+          'tryNext to return a document'
+        );
+        expect(result.wrapped.fullDocument.myDoc).to.equal(1);
+      });
+      it('forEach() works', async function () {
+        await coll.insertOne({ myDoc: 1 });
+        let foundDoc = false;
+        await cursor.forEach((doc): boolean | void => {
+          if (doc?.fullDocument?.myDoc === 1) {
+            foundDoc = true;
+            return false;
+          }
+        });
+        expect(foundDoc).to.equal(true);
+      });
     });
     describe('database watch', function () {
       beforeEach(async function () {
@@ -330,12 +352,7 @@ describe('ChangeStreamCursor', function () {
       );
     });
 
-    for (const name of [
-      'map',
-      'forEach',
-      'toArray',
-      'objsLeftInBatch',
-    ] as const) {
+    for (const name of ['toArray', 'objsLeftInBatch', 'maxTimeMS'] as const) {
       it(`${name} fails`, function () {
         expect(() => cursor[name]()).to.throw(MongoshUnimplementedError);
       });

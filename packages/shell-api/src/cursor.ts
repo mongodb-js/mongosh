@@ -120,10 +120,11 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCur
 
   @returnsPromise
   async hasNext(): Promise<boolean> {
-    if (this._tailable) {
+    if (this._tailable && !this._blockingWarningDisabled) {
       await this._instanceState.printWarning(
         'If this is a tailable cursor with awaitData, and there are no documents in the batch, this method ' +
-          'will will block. Use tryNext if you want to check if there are any documents without waiting.'
+          'will will block. Use tryNext if you want to check if there are any documents without waiting, or ' +
+          'cursor.disableBlockWarnings() if you want to disable this warning.'
       );
     }
     return super.hasNext();
@@ -162,10 +163,11 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCur
 
   @returnsPromise
   async next(): Promise<Document | null> {
-    if (this._tailable) {
+    if (this._tailable && !this._blockingWarningDisabled) {
       await this._instanceState.printWarning(
         'If this is a tailable cursor with awaitData, and there are no documents in the batch, this' +
-          ' method will will block. Use tryNext if you want to check if there are any documents without waiting.'
+          ' method will will block. Use tryNext if you want to check if there are any documents without waiting,' +
+          ' or cursor.disableBlockWarnings() if you want to disable this warning.'
       );
     }
     return super.next();

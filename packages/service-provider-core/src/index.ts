@@ -23,6 +23,7 @@ export { bson } from './bson-export';
 export {
   ServiceProviderAbstractCursor,
   ServiceProviderAggregationCursor,
+  ServiceProviderBaseCursor,
   ServiceProviderFindCursor,
   ServiceProviderRunCommandCursor,
   ServiceProviderChangeStream,
