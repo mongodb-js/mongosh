@@ -13,6 +13,9 @@ if [ "$OS" == "Windows_NT" ]; then
 
   curl -sSfLO https://raw.githubusercontent.com/mongodb-js/compass/42e6142ae08be6fec944b80ff6289e6bcd11badf/.evergreen/node-gyp-bug-workaround.sh && bash node-gyp-bug-workaround.sh
 else
+  echo "Setting up Rust"
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh /dev/stdin -y
+
   if [ `uname` = Darwin ]; then
     export NVM_DIR="$BASEDIR/.nvm"
     mkdir -p "${NVM_DIR}"
