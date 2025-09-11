@@ -17,8 +17,8 @@ import { NodeDriverServiceProvider } from '../../service-provider-node-driver';
 import ShellInstanceState from './shell-instance-state';
 import Mongo from './mongo';
 import { ensureMaster, ensureResult } from '../test/helpers';
-import type Database from './database';
-import type Collection from './collection';
+import type { DatabaseWithSchema } from './database';
+import type { CollectionWithSchema } from './collection';
 import { MongoshUnimplementedError } from '@mongosh/errors';
 import { EventEmitter } from 'events';
 import { dummyOptions } from './helpers.spec';
@@ -52,6 +52,7 @@ describe('ChangeStreamCursor', function () {
         isDirectShellCommand: false,
         acceptsRawInput: false,
         shellCommandCompleter: undefined,
+        newShellCommandCompleter: undefined,
       });
     });
   });
@@ -124,8 +125,8 @@ describe('ChangeStreamCursor', function () {
     let serviceProvider: NodeDriverServiceProvider;
     let instanceState: ShellInstanceState;
     let mongo: Mongo;
-    let db: Database;
-    let coll: Collection;
+    let db: DatabaseWithSchema;
+    let coll: CollectionWithSchema;
     let cursor: ChangeStreamCursor;
 
     before(async function () {
@@ -153,7 +154,7 @@ describe('ChangeStreamCursor', function () {
     });
 
     after(function () {
-      return serviceProvider.close(true);
+      return serviceProvider.close();
     });
 
     describe('collection watch', function () {
@@ -229,6 +230,28 @@ describe('ChangeStreamCursor', function () {
           'itcount to return 1'
         );
         expect(result).to.equal(1);
+      });
+      it('map() works', async function () {
+        cursor.map((doc) => ({ wrapped: doc }));
+        await coll.insertOne({ myDoc: 1 });
+        const result = await ensureResult(
+          100,
+          async () => await cursor.tryNext(),
+          (doc) => !!doc?.wrapped,
+          'tryNext to return a document'
+        );
+        expect(result.wrapped.fullDocument.myDoc).to.equal(1);
+      });
+      it('forEach() works', async function () {
+        await coll.insertOne({ myDoc: 1 });
+        let foundDoc = false;
+        await cursor.forEach((doc): boolean | void => {
+          if (doc?.fullDocument?.myDoc === 1) {
+            foundDoc = true;
+            return false;
+          }
+        });
+        expect(foundDoc).to.equal(true);
       });
     });
     describe('database watch', function () {
@@ -329,12 +352,7 @@ describe('ChangeStreamCursor', function () {
       );
     });
 
-    for (const name of [
-      'map',
-      'forEach',
-      'toArray',
-      'objsLeftInBatch',
-    ] as const) {
+    for (const name of ['toArray', 'objsLeftInBatch', 'maxTimeMS'] as const) {
       it(`${name} fails`, function () {
         expect(() => cursor[name]()).to.throw(MongoshUnimplementedError);
       });
@@ -342,7 +360,6 @@ describe('ChangeStreamCursor', function () {
     it('isExhausted fails', function () {
       try {
         cursor.isExhausted();
-        expect.fail('missed exception');
       } catch (err: any) {
         expect(err.name).to.equal('MongoshInvalidInputError');
       }

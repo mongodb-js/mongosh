@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/browser-runtime-core",
-  "version": "3.10.3",
+  "version": "3.22.0",
   "description": "Mongosh browser runtime core",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -27,7 +27,7 @@
     "prepublish": "npm run compile",
     "compile": "tsc -p tsconfig.json",
     "prettier": "prettier",
-    "reformat": "npm run prettier -- --write . && npm run eslint --fix"
+    "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
   },
   "author": "",
   "license": "Apache-2.0",
@@ -41,17 +41,18 @@
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "@mongosh/types": "3.6.2",
-    "bson": "^6.10.3",
+    "@mongodb-js/mongodb-ts-autocomplete": "^0.4.7",
+    "@mongosh/types": "^3.14.0",
+    "bson": "^6.10.4",
     "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
     "prettier": "^2.8.8",
     "rimraf": "^3.0.2"
   },
   "dependencies": {
-    "@mongosh/autocomplete": "^3.10.3",
-    "@mongosh/service-provider-core": "3.3.3",
-    "@mongosh/shell-api": "^3.10.3",
-    "@mongosh/shell-evaluator": "^3.10.3"
+    "@mongosh/autocomplete": "^3.22.0",
+    "@mongosh/service-provider-core": "3.5.0",
+    "@mongosh/shell-api": "^3.22.0",
+    "@mongosh/shell-evaluator": "^3.22.0"
   }
 }

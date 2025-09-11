@@ -88,6 +88,7 @@ export async function runSmokeTests({
     tags,
     input,
     output,
+    env,
     testArgs,
     includeStderr,
     exitCode,
@@ -117,6 +118,19 @@ export async function runSmokeTests({
       output: /Hello World!/,
       includeStderr: false,
       testArgs: ['--nodb', '--eval', 'print("He" + "llo" + " Wor" + "ld!")'],
+      exitCode: 0,
+      perfTestIterations: 0,
+    },
+    {
+      // Regression test for MONGOSH-2233, included here because multiline support is a bit
+      // more fragile when it comes to newer Node.js releases and these are the only tests
+      // that run as part of the homebrew setup.
+      name: 'print_multiline_terminal',
+      input: ['{', 'print("He" + "llo" +', '" Wor" + "ld!")', '}'],
+      env: { MONGOSH_FORCE_TERMINAL: 'true' },
+      output: /Hello World!/,
+      includeStderr: false,
+      testArgs: ['--nodb'],
       exitCode: 0,
       perfTestIterations: 0,
     },
@@ -313,7 +327,11 @@ export async function runSmokeTests({
           os.tmpdir(),
           `mongosh_smoke_test_${name}_${Date.now()}.js`
         );
-        await fs.writeFile(tmpfile, input, { mode: 0o600, flag: 'wx' });
+        await fs.writeFile(
+          tmpfile,
+          Array.isArray(input) ? input.join('\n') : input,
+          { mode: 0o600, flag: 'wx' }
+        );
         cleanup.unshift(async () => await fs.unlink(tmpfile));
         testArgs[index] = arg.replace('$INPUT_AS_FILE', tmpfile);
         actualInput = '';
@@ -326,6 +344,7 @@ export async function runSmokeTests({
       args: [...args, ...testArgs],
       input: actualInput,
       output,
+      env,
       includeStderr,
       exitCode,
       printSuccessResults: !wantPerformanceTesting,
@@ -377,6 +396,7 @@ async function runSmokeTest({
   name,
   executable,
   args,
+  env,
   input,
   output,
   exitCode,
@@ -386,7 +406,8 @@ async function runSmokeTest({
   name: string;
   executable: string;
   args: string[];
-  input: string;
+  env?: Record<string, string | undefined>;
+  input: string | string[];
   output: RegExp;
   exitCode?: number;
   includeStderr?: boolean;
@@ -398,6 +419,7 @@ async function runSmokeTest({
   const { spawn } = require('child_process') as typeof import('child_process');
   const proc = spawn(executable, [...args], {
     stdio: 'pipe',
+    env: { ...process.env, ...env },
   });
   let stdout = '';
   let stderr = '';
@@ -407,7 +429,14 @@ async function runSmokeTest({
   proc.stderr?.setEncoding('utf8').on('data', (chunk) => {
     stderr += chunk;
   });
-  proc.stdin!.end(input);
+  if (Array.isArray(input)) {
+    for (const chunk of input) {
+      proc.stdin!.write(chunk + '\n');
+    }
+    proc.stdin!.end();
+  } else {
+    proc.stdin!.end(input);
+  }
   const [[actualExitCode]] = await Promise.all([
     once(proc, 'exit'),
     once(proc.stdout!, 'end'),

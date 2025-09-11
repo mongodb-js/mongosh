@@ -39,11 +39,11 @@ export interface Config {
   branch?: string;
   evgAwsKey?: string;
   evgAwsSecret?: string;
-  downloadCenterAwsKey?: string;
-  downloadCenterAwsSecret?: string;
-  downloadCenterAwsKeyNew?: string;
-  downloadCenterAwsSecretNew?: string;
-  downloadCenterAwsSessionTokenNew?: string;
+  downloadCenterAwsKeyConfig?: string;
+  downloadCenterAwsSecretConfig?: string;
+  downloadCenterAwsKeyArtifacts?: string;
+  downloadCenterAwsSecretArtifacts?: string;
+  downloadCenterAwsSessionTokenArtifacts?: string;
   injectedJsonFeedFile?: string;
   githubToken?: string;
   segmentKey?: string;

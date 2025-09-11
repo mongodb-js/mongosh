@@ -121,11 +121,11 @@ export class MongoshPublisher {
     await this.createAndPublishDownloadCenterConfig(
       config.outputDir,
       config.packageInformation as PackageInformationProvider,
-      config.downloadCenterAwsKey || '',
-      config.downloadCenterAwsSecret || '',
-      config.downloadCenterAwsKeyNew || '',
-      config.downloadCenterAwsSecretNew || '',
-      config.downloadCenterAwsSessionTokenNew || '',
+      config.downloadCenterAwsKeyConfig || '',
+      config.downloadCenterAwsSecretConfig || '',
+      config.downloadCenterAwsKeyArtifacts || '',
+      config.downloadCenterAwsSecretArtifacts || '',
+      config.downloadCenterAwsSessionTokenArtifacts || '',
       config.injectedJsonFeedFile || '',
       !!config.isDryRun,
       config.ctaConfig

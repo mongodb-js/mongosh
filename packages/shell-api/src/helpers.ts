@@ -16,8 +16,8 @@ import {
   MongoshUnimplementedError,
 } from '@mongosh/errors';
 import crypto from 'crypto';
-import type Database from './database';
-import type Collection from './collection';
+import type { Database } from './database';
+import type { Collection } from './collection';
 import type { CursorIterationResult } from './result';
 import { ShellApiErrors } from './error-codes';
 import type {
@@ -28,10 +28,11 @@ import type {
 import type { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
 import type { AutoEncryptionOptions, Long, ObjectId, Timestamp } from 'mongodb';
 import { shellApiType } from './enums';
-import type { AbstractCursor } from './abstract-cursor';
+import type { AbstractFiniteCursor } from './abstract-cursor';
 import type ChangeStreamCursor from './change-stream-cursor';
 import type { ShellBson } from './shell-bson';
 import { inspect } from 'util';
+import type { MQLPipeline, MQLQuery } from './mql-types';
 
 /**
  * Helper method to adapt aggregation pipeline options.
@@ -860,7 +861,7 @@ export function addHiddenDataProperty<T = any>(
 
 export async function iterate(
   results: CursorIterationResult,
-  cursor: AbstractCursor<any> | ChangeStreamCursor,
+  cursor: AbstractFiniteCursor<any> | ChangeStreamCursor,
   batchSize: number
 ): Promise<CursorIterationResult> {
   if (cursor.isClosed()) {
@@ -882,7 +883,7 @@ export async function iterate(
 
 // This is only used by collection.findAndModify() itself.
 export type FindAndModifyMethodShellOptions = {
-  query: Document;
+  query: MQLQuery;
   sort?: (
     | FindOneAndDeleteOptions
     | FindOneAndReplaceOptions
@@ -1100,7 +1101,7 @@ export function markAsExplainOutput<T extends NotAPromise>(value: T): T {
   return value;
 }
 
-// https://docs.mongodb.com/v5.0/reference/limits/#naming-restrictions
+// https://mongodb.com/docs/v5.0/reference/limits/#naming-restrictions
 // For db names, $ can be valid in some contexts (e.g. $external),
 // so we let the server reject it if necessary.
 export function isValidDatabaseName(name: string): boolean {
@@ -1111,7 +1112,9 @@ export function isValidCollectionName(name: string): boolean {
   return !!name && !/[$\0]/.test(name);
 }
 
-export function shouldRunAggregationImmediately(pipeline: Document[]): boolean {
+export function shouldRunAggregationImmediately(
+  pipeline: MQLPipeline
+): boolean {
   return pipeline.some((stage) =>
     Object.keys(stage).some(
       (stageName) => stageName === '$merge' || stageName === '$out'
@@ -1307,6 +1310,16 @@ export function buildConfigChunksCollectionMatch(
     : { ns: configCollectionsInfo._id }; // old format
 }
 
+export interface GenericCollectionSchema {
+  schema: Document;
+}
+export interface GenericDatabaseSchema {
+  [key: string]: GenericCollectionSchema;
+}
+export interface GenericServerSideSchema {
+  [key: string]: GenericDatabaseSchema;
+}
+export type StringKey<T> = keyof T & string;
 export const aggregateBackgroundOptionNotSupportedHelp =
   'the background option is not supported by the aggregate method and will be ignored, ' +
   'use runCommand to use { background: true } with Atlas Data Federation';

@@ -20,7 +20,8 @@ import type {
 import { asPrintable } from './enums';
 import { assertArgsDefinedType, shallowClone } from './helpers';
 import { BulkWriteResult } from './result';
-import type Collection from './collection';
+import type { CollectionWithSchema } from './collection';
+import type { MQLDocument, MQLQuery } from './mql-types';
 
 @shellApiClassDefault
 export class BulkFindOp extends ShellApiWithMongoClass {
@@ -131,14 +132,14 @@ export class BulkFindOp extends ShellApiWithMongoClass {
 @shellApiClassDefault
 export default class Bulk extends ShellApiWithMongoClass {
   _mongo: Mongo;
-  _collection: Collection;
+  _collection: CollectionWithSchema;
   _batchCounts: any;
   _executed: boolean;
   _serviceProviderBulkOp: OrderedBulkOperation | UnorderedBulkOperation;
   _ordered: boolean;
 
   constructor(
-    collection: Collection,
+    collection: CollectionWithSchema,
     innerBulk: OrderedBulkOperation | UnorderedBulkOperation,
     ordered = false
   ) {
@@ -202,14 +203,14 @@ export default class Bulk extends ShellApiWithMongoClass {
 
   @returnType('BulkFindOp')
   @apiVersions([1])
-  find(query: Document): BulkFindOp {
+  find(query: MQLQuery): BulkFindOp {
     assertArgsDefinedType([query], [true], 'Bulk.find');
     return new BulkFindOp(this._serviceProviderBulkOp.find(query), this);
   }
 
   @returnType('Bulk')
   @apiVersions([1])
-  insert(document: Document): Bulk {
+  insert(document: MQLDocument): Bulk {
     this._batchCounts.nInsertOps++;
     assertArgsDefinedType([document], [true], 'Bulk.insert');
     this._serviceProviderBulkOp.insert(document);

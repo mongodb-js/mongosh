@@ -510,7 +510,7 @@ test 558.79 GiB
           format({
             value: {
               help: 'Shell API',
-              docs: 'https://docs.mongodb.com',
+              docs: 'https://mongodb.com/docs',
               attr: [
                 {
                   name: 'show dbs',
@@ -530,7 +530,7 @@ test 558.79 GiB
           format({
             value: {
               help: 'Shell API',
-              docs: 'https://docs.mongodb.com',
+              docs: 'https://mongodb.com/docs',
               attr: [
                 {
                   description: 'list available databases',
@@ -561,7 +561,7 @@ test 558.79 GiB
           })
         );
 
-        expect(output).to.not.contain('https://docs.mongodb.com');
+        expect(output).to.not.contain('https://mongodb.com/docs');
         expect(output).to.contain('list available databases');
       });
 

@@ -8,13 +8,21 @@ import {
 } from './decorators';
 import StreamProcessor from './stream-processor';
 import { ADMIN_DB, asPrintable, shellApiType } from './enums';
-import type Database from './database';
+import type { Database, DatabaseWithSchema } from './database';
 import type Mongo from './mongo';
+import type { GenericDatabaseSchema, GenericServerSideSchema } from './helpers';
+import type { MQLPipeline } from './mql-types';
 
 @shellApiClassDefault
-export class Streams extends ShellApiWithMongoClass {
-  public static newInstance(database: Database) {
-    return new Proxy(new Streams(database), {
+export class Streams<
+  M extends GenericServerSideSchema = GenericServerSideSchema,
+  D extends GenericDatabaseSchema = GenericDatabaseSchema
+> extends ShellApiWithMongoClass {
+  public static newInstance<
+    M extends GenericServerSideSchema = GenericServerSideSchema,
+    D extends GenericDatabaseSchema = GenericDatabaseSchema
+  >(database: DatabaseWithSchema<M, D>) {
+    return new Proxy(new Streams<M, D>(database), {
       get(target, prop) {
         const v = (target as any)[prop];
         if (v !== undefined) {
@@ -27,14 +35,14 @@ export class Streams extends ShellApiWithMongoClass {
     });
   }
 
-  private _database: Database;
+  private _database: DatabaseWithSchema<M, D>;
 
-  constructor(database: Database) {
+  constructor(database: DatabaseWithSchema<M, D> | Database<M, D>) {
     super();
-    this._database = database;
+    this._database = database as DatabaseWithSchema<M, D>;
   }
 
-  get _mongo(): Mongo {
+  get _mongo(): Mongo<M> {
     return this._database._mongo;
   }
 
@@ -42,12 +50,12 @@ export class Streams extends ShellApiWithMongoClass {
     return 'Atlas Stream Processing';
   }
 
-  getProcessor(name: string) {
+  getProcessor(name: string): StreamProcessor {
     return new StreamProcessor(this, name);
   }
 
   @returnsPromise
-  async process(pipeline: Document[], options?: Document) {
+  async process(pipeline: MQLPipeline, options?: Document) {
     if (!Array.isArray(pipeline) || !pipeline.length) {
       throw new MongoshInvalidInputError(
         'Invalid pipeline',
@@ -91,7 +99,7 @@ export class Streams extends ShellApiWithMongoClass {
   @returnsPromise
   async createStreamProcessor(
     name: string,
-    pipeline: Document[],
+    pipeline: MQLPipeline,
     options?: Document
   ) {
     if (typeof name !== 'string' || name.trim() === '') {

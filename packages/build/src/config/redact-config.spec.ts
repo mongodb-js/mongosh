@@ -6,8 +6,11 @@ describe('config redact-config', function () {
   const redactedKeys: Array<keyof Config> = [
     'evgAwsKey',
     'evgAwsSecret',
-    'downloadCenterAwsKey',
-    'downloadCenterAwsSecret',
+    'downloadCenterAwsKeyConfig',
+    'downloadCenterAwsSecretConfig',
+    'downloadCenterAwsKeyArtifacts',
+    'downloadCenterAwsSecretArtifacts',
+    'downloadCenterAwsSessionTokenArtifacts',
     'githubToken',
   ];
 

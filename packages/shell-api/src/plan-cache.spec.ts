@@ -4,7 +4,7 @@ import { ALL_PLATFORMS, ALL_TOPOLOGIES, ServerVersions } from './enums';
 import { signatures, toShellResult } from './index';
 import type { StubbedInstance } from 'ts-sinon';
 import { stubInterface } from 'ts-sinon';
-import type Collection from './collection';
+import type { CollectionWithSchema } from './collection';
 import type AggregationCursor from './aggregation-cursor';
 
 describe('PlanCache', function () {
@@ -32,6 +32,7 @@ describe('PlanCache', function () {
         isDirectShellCommand: false,
         acceptsRawInput: false,
         shellCommandCompleter: undefined,
+        newShellCommandCompleter: undefined,
       });
     });
   });
@@ -50,11 +51,11 @@ describe('PlanCache', function () {
   });
   describe('commands', function () {
     let planCache: PlanCache;
-    let collection: StubbedInstance<Collection>;
+    let collection: StubbedInstance<CollectionWithSchema>;
     let aggCursor: StubbedInstance<AggregationCursor>;
 
     beforeEach(function () {
-      collection = stubInterface<Collection>();
+      collection = stubInterface<CollectionWithSchema>();
       planCache = new PlanCache(collection);
     });
     describe('clear', function () {

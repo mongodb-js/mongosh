@@ -3,8 +3,8 @@ import { NodeDriverServiceProvider } from '../../service-provider-node-driver'; 
 import ShellInstanceState from './shell-instance-state';
 import type Cursor from './cursor';
 import Explainable from './explainable';
-import type Database from './database';
-import type Collection from './collection';
+import type { DatabaseWithSchema } from './database';
+import type { CollectionWithSchema } from './collection';
 import {
   skipIfServerVersion,
   skipIfApiStrict,
@@ -69,7 +69,9 @@ describe('Shell API (integration)', function () {
     expect(collectionNames).to.not.include(collectionName);
   };
 
-  const loadQueryCache = async (collection: Collection): Promise<any> => {
+  const loadQueryCache = async (
+    collection: CollectionWithSchema
+  ): Promise<any> => {
     const res = await collection.insertMany([
       { _id: 1, item: 'abc', price: 12, quantity: 2, type: 'apparel' },
       { _id: 2, item: 'jkl', price: 20, quantity: 1, type: 'electronics' },
@@ -103,7 +105,9 @@ describe('Shell API (integration)', function () {
     ).toArray();
   };
 
-  const loadMRExample = async (collection: Collection): Promise<any> => {
+  const loadMRExample = async (
+    collection: CollectionWithSchema
+  ): Promise<any> => {
     const res = await collection.insertMany([
       {
         _id: 1,
@@ -218,15 +222,15 @@ describe('Shell API (integration)', function () {
   });
 
   after(function () {
-    return serviceProvider.close(true);
+    return serviceProvider.close();
   });
 
   let instanceState: ShellInstanceState;
   let shellApi: ShellApi;
   let mongo: Mongo;
   let dbName: string;
-  let database: Database;
-  let collection: Collection;
+  let database: DatabaseWithSchema;
+  let collection: CollectionWithSchema;
   let collectionName: string;
 
   beforeEach(async function () {
@@ -483,6 +487,62 @@ describe('Shell API (integration)', function () {
             upsertedCount: 1,
           });
         });
+      });
+    });
+
+    describe('updateOne and replaceOne with sort option', function () {
+      skipIfServerVersion(testServer, '< 8.0');
+      skipIfApiStrict();
+
+      beforeEach(async function () {
+        await serviceProvider.insertMany(dbName, collectionName, [
+          { _id: 1, category: 'A', score: 20, order: 1 },
+          { _id: 2, category: 'A', score: 10, order: 2 },
+          { _id: 3, category: 'A', score: 15, order: 3 },
+          { _id: 4, category: 'B', score: 25, order: 1 },
+        ]);
+      });
+
+      it('updates the first document based on sort order', async function () {
+        const result = await collection.updateOne(
+          { category: 'A' },
+          { $set: { updated: true } },
+          { sort: { score: 1 } }
+        );
+
+        expect(result.matchedCount).to.equal(1);
+        expect(result.modifiedCount).to.equal(1);
+
+        // Should have updated the document with the lowest score (_id: 2, score: 10)
+        const categoryDocs = await serviceProvider
+          .find(dbName, collectionName, { category: 'A' })
+          .toArray();
+        const updatedDocs = categoryDocs.filter((doc) => doc.updated);
+        expect(updatedDocs).to.have.lengthOf(1);
+        expect(updatedDocs[0]._id).to.equal(2);
+        expect(updatedDocs[0].score).to.equal(10);
+      });
+
+      it('replaces the first document based on sort order', async function () {
+        const result = await collection.replaceOne(
+          { category: 'A' },
+          { replaced: true, category: 'A' },
+          { sort: { score: 1 } }
+        );
+
+        expect(result.matchedCount).to.equal(1);
+        expect(result.modifiedCount).to.equal(1);
+
+        // Should have replaced the document with the lowest score (_id: 2, score: 10)
+        const categoryDocs = await serviceProvider
+          .find(dbName, collectionName, { category: 'A' })
+          .toArray();
+        const updatedDocs = categoryDocs.filter((doc) => doc.replaced);
+        expect(updatedDocs).to.have.lengthOf(1);
+        expect(updatedDocs[0]._id).to.equal(2);
+        expect(updatedDocs[0].replaced).to.be.true;
+        expect(updatedDocs[0].score).to.undefined;
+        expect(updatedDocs[0].order).to.undefined;
       });
     });
 
@@ -1593,6 +1653,16 @@ describe('Shell API (integration)', function () {
         ]);
       });
 
+      it('returns a cursor whose .finish() method returns the explain result', async function () {
+        const cursor = (await explainable.find()).skip(1).limit(1);
+        const result = await cursor.finish();
+        expect(result).to.include.all.keys([
+          'ok',
+          'queryPlanner',
+          'serverInfo',
+        ]);
+      });
+
       describe('after server 4.4', function () {
         skipIfServerVersion(testServer, '<= 4.4');
         it('the explainable cursor reflects collation', async function () {
@@ -2498,11 +2568,11 @@ describe('Shell API (integration)', function () {
       it('reconnects', async function () {
         const oldMC = serviceProvider.mongoClient;
         expect(
-          (serviceProvider.mongoClient as any).s.options.readPreference.mode
+          serviceProvider.mongoClient.options.readPreference.mode
         ).to.deep.equal('primary');
         await mongo.setReadPref('secondaryPreferred');
         expect(
-          (serviceProvider.mongoClient as any).s.options.readPreference.mode
+          serviceProvider.mongoClient.options.readPreference.mode
         ).to.equal('secondaryPreferred');
         expect(serviceProvider.mongoClient).to.not.equal(oldMC);
       });
@@ -2768,6 +2838,47 @@ describe('Shell API (integration)', function () {
       });
     });
 
+    describe('getAutocompletionContext', function () {
+      beforeEach(async function () {
+        // Make sure the collection is present so it is included in autocompletion.
+        await collection.insertOne({});
+        // Make sure 'database' is the current db in the eyes of the instance state object.
+        instanceState.setDbFunc(database);
+      });
+
+      it('returns information for autocomplete', async function () {
+        const context = instanceState.getAutocompletionContext();
+        const dbAndConnection = context.currentDatabaseAndConnection();
+        if (!dbAndConnection) {
+          throw new Error('No current database and connection found');
+        }
+        const { connectionId, databaseName } = dbAndConnection;
+        const databaseNames = await context.databasesForConnection(
+          connectionId
+        );
+        expect(databaseNames).to.include(database.getName());
+        const collectionNames = await context.collectionsForDatabase(
+          connectionId,
+          databaseName
+        );
+        expect(collectionNames).to.include(collection.getName());
+        const schema = await context.schemaInformationForCollection(
+          connectionId,
+          database.getName(),
+          collection.getName()
+        );
+        expect(schema).to.deep.equal({
+          bsonType: 'object',
+          properties: {
+            _id: {
+              bsonType: 'objectId',
+            },
+          },
+          required: ['_id'],
+        });
+      });
+    });
+
     describe('getAutocompleteParameters', function () {
       let connectionString: string;
       beforeEach(async function () {
@@ -3021,7 +3132,10 @@ describe('Shell API (integration)', function () {
 
   describe('method tracking', function () {
     it('emits an event when a deprecated method is called', async function () {
-      const deprecatedCall = once(instanceState.messageBus, 'mongosh:api-call');
+      const deprecatedCall = once(
+        instanceState.messageBus as any,
+        'mongosh:api-call'
+      );
       try {
         mongo.setSlaveOk();
         expect.fail('Expected error');

@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/history",
-  "version": "2.4.6",
+  "version": "2.4.8",
   "description": "MongoDB Shell History Package",
   "main": "./lib/index.js",
   "repository": {
@@ -22,7 +22,7 @@
     "compile": "tsc -p tsconfig.json",
     "prepublish": "npm run compile",
     "prettier": "prettier",
-    "reformat": "npm run prettier -- --write . && npm run eslint --fix"
+    "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
   },
   "license": "Apache-2.0",
   "publishConfig": {

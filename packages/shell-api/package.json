@@ -1,9 +1,19 @@
 {
   "name": "@mongosh/shell-api",
-  "version": "3.10.3",
+  "version": "3.22.0",
   "description": "MongoDB Shell API Classes Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "default": "./lib/index.js",
+      "types": "./lib/index.d.ts"
+    },
+    "./api": {
+      "default": "./lib/api-export.js",
+      "types": "./lib/api-export.d.ts"
+    }
+  },
   "config": {
     "unsafe-perm": true
   },
@@ -12,7 +22,8 @@
     "url": "git://github.com/mongodb-js/mongosh.git"
   },
   "scripts": {
-    "compile": "tsc -p tsconfig.json",
+    "compile": "tsc -p tsconfig.json && npm run api-generate",
+    "api-generate": "api-extractor run && ts-node bin/api-postprocess.ts",
     "pretest": "npm run compile",
     "eslint": "eslint",
     "lint": "npm run eslint . && npm run prettier -- --check .",
@@ -27,7 +38,7 @@
     "test-apistrict-ci": "cross-env MONGOSH_TEST_FORCE_API_STRICT=1 npm run test-ci",
     "prepublish": "npm run compile",
     "prettier": "prettier",
-    "reformat": "npm run prettier -- --write . && npm run eslint --fix"
+    "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
   },
   "license": "Apache-2.0",
   "publishConfig": {
@@ -40,22 +51,27 @@
     "build"
   ],
   "dependencies": {
-    "@mongosh/arg-parser": "^3.10.2",
-    "@mongosh/errors": "2.4.0",
-    "@mongosh/history": "2.4.6",
-    "@mongosh/i18n": "^2.13.0",
-    "@mongosh/service-provider-core": "3.3.3",
-    "mongodb-redact": "^1.1.5"
+    "@babel/core": "^7.26.10",
+    "@babel/types": "^7.26.10",
+    "@mongosh/arg-parser": "^3.18.0",
+    "@mongosh/errors": "2.4.4",
+    "@mongosh/history": "2.4.8",
+    "@mongosh/i18n": "^2.15.4",
+    "@mongosh/service-provider-core": "3.5.0",
+    "mongodb-redact": "^1.1.5",
+    "mongodb-schema": "^12.6.2"
   },
   "devDependencies": {
+    "@microsoft/api-extractor": "^7.39.3",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
+    "@mongodb-js/mongodb-ts-autocomplete": "^0.4.7",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "@mongosh/types": "3.6.2",
-    "bson": "^6.10.3",
+    "@mongosh/types": "^3.14.0",
+    "bson": "^6.10.4",
     "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
-    "mongodb": "^6.16.0",
+    "mongodb": "^6.19.0",
     "prettier": "^2.8.8",
     "semver": "^7.5.3"
   }

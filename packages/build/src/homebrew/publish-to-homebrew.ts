@@ -76,12 +76,10 @@ export class HomebrewPublisher {
     const pr = await homebrewCore.createPullRequest(
       `mongosh ${packageVersion}`,
       description,
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       `${homebrewCoreFork.repo.owner}:${forkBranch}`,
-      'master'
+      'main'
     );
     console.info(
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       `Created PR #${pr.prNumber} in ${homebrewCore.repo.owner}/${homebrewCore.repo.repo}: ${pr.url}`
     );
   }

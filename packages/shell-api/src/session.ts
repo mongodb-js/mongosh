@@ -14,21 +14,25 @@ import type {
 } from '@mongosh/service-provider-core';
 import { asPrintable } from './enums';
 import type Mongo from './mongo';
-import Database from './database';
+import type { DatabaseWithSchema } from './database';
+import { Database } from './database';
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
+import type { GenericServerSideSchema, StringKey } from './helpers';
 import { assertArgsDefinedType, isValidDatabaseName } from './helpers';
 
 @shellApiClassDefault
 @classPlatforms(['CLI'])
-export default class Session extends ShellApiWithMongoClass {
+export default class Session<
+  M extends GenericServerSideSchema = GenericServerSideSchema
+> extends ShellApiWithMongoClass {
   public id: ServerSessionId | undefined;
   public _session: ClientSession;
   public _options: ClientSessionOptions;
-  public _mongo: Mongo;
-  private _databases: Record<string, Database>;
+  public _mongo: Mongo<M>;
+  private _databases: Record<string, DatabaseWithSchema<M>>;
 
   constructor(
-    mongo: Mongo,
+    mongo: Mongo<M>,
     options: ClientSessionOptions,
     session: ClientSession
   ) {
@@ -47,7 +51,7 @@ export default class Session extends ShellApiWithMongoClass {
     return this._session.id;
   }
 
-  getDatabase(name: string): Database {
+  getDatabase<K extends StringKey<M>>(name: K): DatabaseWithSchema<M, M[K]> {
     assertArgsDefinedType([name], ['string'], 'Session.getDatabase');
 
     if (!isValidDatabaseName(name)) {
@@ -58,9 +62,13 @@ export default class Session extends ShellApiWithMongoClass {
     }
 
     if (!(name in this._databases)) {
-      this._databases[name] = new Database(this._mongo, name, this);
+      this._databases[name] = new Database<M>(
+        this._mongo,
+        name,
+        this
+      ) as DatabaseWithSchema<M, M[K]>;
     }
-    return this._databases[name];
+    return this._databases[name] as DatabaseWithSchema<M, M[K]>;
   }
 
   advanceOperationTime(ts: TimestampType): void {

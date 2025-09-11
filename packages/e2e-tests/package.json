@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/e2e-tests",
-  "version": "3.9.2",
+  "version": "3.15.0",
   "private": true,
   "description": "MongoDB Shell E2E Tests Package",
   "homepage": "https://github.com/mongodb-js/mongosh",
@@ -20,34 +20,34 @@
     "check": "npm run lint && npm run depcheck",
     "depcheck": "depcheck",
     "prettier": "prettier",
-    "reformat": "npm run prettier -- --write . && npm run eslint --fix"
+    "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
   },
   "license": "Apache-2.0",
   "engines": {
     "node": ">=16.15.0"
   },
   "dependencies": {
-    "@mongosh/cli-repl": "2.5.1",
-    "@mongosh/service-provider-core": "3.3.3",
-    "@mongodb-js/oidc-plugin": "^1.1.7",
+    "@mongosh/cli-repl": "2.5.8",
+    "@mongosh/service-provider-core": "3.5.0",
+    "@mongodb-js/oidc-plugin": "^2.0.3",
     "strip-ansi": "^6.0.0"
   },
   "devDependencies": {
     "mongodb-log-writer": "^2.3.1",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
-    "@mongodb-js/oidc-mock-provider": "^0.10.2",
+    "@mongodb-js/oidc-mock-provider": "^0.11.3",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@types/chai-as-promised": "^7.1.3",
-    "@types/node": "^14.14.6",
+    "@types/node": "^22.15.30",
     "@types/rimraf": "^3.0.0",
-    "bson": "^6.10.3",
+    "bson": "^6.10.4",
     "chai-as-promised": "^7.1.1",
     "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
-    "mongodb": "^6.16.0",
+    "mongodb": "^6.19.0",
     "node-fetch": "^3.3.2",
     "prettier": "^2.8.8",
     "rimraf": "^3.0.2"

@@ -18,16 +18,16 @@ ls -lh dist/
 if [ "$(uname)" == Darwin ]; then
   # https://wiki.corp.mongodb.com/display/BUILD/How+to+use+MacOS+notary+service
   # download macnotary client
-  curl -LO https://macos-notary-1628249594.s3.amazonaws.com/releases/client/latest/darwin_amd64.zip
-  unzip darwin_amd64.zip
-  chmod +x ./darwin_amd64/macnotary
-  ./darwin_amd64/macnotary -v
+  curl -LO https://macos-notary-1628249594.s3.amazonaws.com/releases/client/latest/darwin_arm64.zip
+  unzip darwin_arm64.zip
+  chmod +x ./darwin_arm64/macnotary
+  ./darwin_arm64/macnotary -v
 
   FILE=$(echo ./dist/*.zip)
   echo "notarizing $FILE ..."
 
   # notarize the client
-  ./darwin_amd64/macnotary \
+  ./darwin_arm64/macnotary \
     -f "$FILE" \
     -m $notarymode -u https://dev.macos-notary.build.10gen.cc/api \
     -b com.mongodb.mongosh \

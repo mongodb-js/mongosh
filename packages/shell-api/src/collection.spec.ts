@@ -11,9 +11,9 @@ import {
   shellApiType,
   ADMIN_DB,
 } from './enums';
-import Database from './database';
+import { Database } from './database';
 import Mongo from './mongo';
-import Collection from './collection';
+import { Collection } from './collection';
 import ChangeStreamCursor from './change-stream-cursor';
 import Explainable from './explainable';
 import type {
@@ -33,6 +33,7 @@ import {
   MongoshInvalidInputError,
   MongoshRuntimeError,
 } from '@mongosh/errors';
+import type { StringKey } from './helpers';
 
 const sinonChai = require('sinon-chai'); // weird with import
 
@@ -62,6 +63,7 @@ describe('Collection', function () {
         isDirectShellCommand: false,
         acceptsRawInput: false,
         shellCommandCompleter: undefined,
+        newShellCommandCompleter: undefined,
       });
     });
   });
@@ -127,12 +129,23 @@ describe('Collection', function () {
     });
   });
   describe('commands', function () {
-    let mongo: Mongo;
+    type ServerSchema = {
+      db1: {
+        coll1: {
+          schema: {};
+        };
+      };
+    };
+    let mongo: Mongo<ServerSchema>;
     let serviceProvider: StubbedInstance<ServiceProvider>;
-    let database: Database;
+    let database: Database<ServerSchema, ServerSchema['db1']>;
     let bus: StubbedInstance<EventEmitter>;
     let instanceState: ShellInstanceState;
-    let collection: Collection;
+    let collection: Collection<
+      ServerSchema,
+      ServerSchema['db1'],
+      ServerSchema['db1']['coll1']
+    >;
 
     beforeEach(function () {
       bus = stubInterface<EventEmitter>();
@@ -149,8 +162,15 @@ describe('Collection', function () {
         undefined,
         serviceProvider
       );
-      database = new Database(mongo, 'db1');
-      collection = new Collection(mongo, database, 'coll1');
+      database = new Database<ServerSchema, ServerSchema['db1']>(
+        mongo,
+        'db1' as StringKey<ServerSchema>
+      );
+      collection = new Collection<
+        ServerSchema,
+        ServerSchema['db1'],
+        ServerSchema['db1']['coll1']
+      >(mongo, database, 'coll1');
     });
     describe('aggregate', function () {
       let serviceProviderCursor: StubbedInstance<ServiceProviderAggregationCursor>;
@@ -2343,6 +2363,75 @@ describe('Collection', function () {
       });
     });
 
+    describe('getShardLocation', function () {
+      let collections: Document[];
+      let serviceProviderCursor: StubbedInstance<ServiceProviderAggregationCursor>;
+
+      beforeEach(function () {
+        collections = [];
+        serviceProviderCursor =
+          stubInterface<ServiceProviderAggregationCursor>();
+        serviceProvider.aggregateDb.returns(serviceProviderCursor);
+
+        serviceProviderCursor.toArray.resolves(collections);
+      });
+
+      it('calls $listClusterCatalog', async function () {
+        collections = [
+          {
+            ns: collection.getFullName(),
+            shards: ['foo', 'bar'],
+            sharded: true,
+          },
+        ];
+        serviceProviderCursor.toArray.resolves(collections);
+
+        const shardLocation = await collection.getShardLocation();
+        expect(shardLocation).to.deep.equal({
+          shards: ['foo', 'bar'],
+          sharded: true,
+        });
+
+        expect(serviceProvider.aggregateDb).to.have.been.calledOnce;
+        const args = serviceProvider.aggregateDb.getCall(0).args;
+        expect(args[0]).to.equal(database.getName());
+        expect(args[1]).to.deep.equal([
+          {
+            $listClusterCatalog: {
+              shards: true,
+            },
+          },
+          {
+            $match: {
+              ns: collection.getFullName(),
+            },
+          },
+          {
+            $project: {
+              _id: 0,
+              shards: 1,
+              sharded: 1,
+            },
+          },
+        ]);
+      });
+
+      it('throws for non-existent collection', async function () {
+        try {
+          await collection.getShardLocation();
+          expect.fail('Expected getShardLocation to throw');
+        } catch (err) {
+          if (err instanceof MongoshRuntimeError) {
+            expect(err.message).to.include(
+              `Error finding location information for ${collection.getFullName()}`
+            );
+          } else {
+            expect.fail('Expected error to be a MongoshRuntimeError');
+          }
+        }
+      });
+    });
+
     describe('analyzeShardKey', function () {
       it('calls serviceProvider.runCommand on the admin database', async function () {
         await collection.analyzeShardKey({ myKey: 1 });
@@ -2802,13 +2891,24 @@ describe('Collection', function () {
   });
 
   describe('fle2', function () {
-    let mongo1: Mongo;
-    let mongo2: Mongo;
+    type ServerSchema = {
+      db1: {
+        collfle2: {
+          schema: {};
+        };
+      };
+    };
+    let mongo1: Mongo<ServerSchema>;
+    let mongo2: Mongo<ServerSchema>;
     let serviceProvider: StubbedInstance<ServiceProvider>;
-    let database: Database;
+    let database: Database<ServerSchema, ServerSchema['db1']>;
     let bus: StubbedInstance<EventEmitter>;
     let instanceState: ShellInstanceState;
-    let collection: Collection;
+    let collection: Collection<
+      ServerSchema,
+      ServerSchema['db1'],
+      ServerSchema['db1']['collfle2']
+    >;
     let keyId: any[];
     beforeEach(function () {
       bus = stubInterface<EventEmitter>();
@@ -2821,7 +2921,8 @@ describe('Collection', function () {
       keyId = [
         { $binary: { base64: 'oh3caogGQ4Sf34ugKnZ7Xw==', subType: '04' } },
       ];
-      mongo1 = new Mongo(
+
+      mongo1 = new Mongo<ServerSchema>(
         instanceState,
         undefined,
         {
@@ -2836,8 +2937,15 @@ describe('Collection', function () {
         undefined,
         serviceProvider
       );
-      database = new Database(mongo1, 'db1');
-      collection = new Collection(mongo1, database, 'collfle2');
+      database = new Database<ServerSchema, ServerSchema['db1']>(
+        mongo1,
+        'db1' as StringKey<ServerSchema>
+      );
+      collection = new Collection(
+        mongo1,
+        database,
+        'collfle2' as StringKey<ServerSchema['db1']>
+      );
       mongo2 = new Mongo(
         instanceState,
         undefined,
@@ -2960,6 +3068,11 @@ describe('Collection', function () {
       watch: { i: 1 },
       getSearchIndexes: { i: 3 },
       checkMetadataConsistency: { m: 'runCursorCommand', i: 2 },
+      getShardLocation: {
+        i: 2,
+        m: 'aggregateDb',
+        e: true,
+      },
     };
     const ignore: (keyof (typeof Collection)['prototype'])[] = [
       'getShardDistribution',

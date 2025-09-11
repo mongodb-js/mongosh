@@ -19,7 +19,7 @@ import type {
   GCPEncryptionKeyOptions,
 } from '@mongosh/service-provider-core';
 import type { Document, BinaryType } from '@mongosh/service-provider-core';
-import type Collection from './collection';
+import type { CollectionWithSchema } from './collection';
 import Cursor from './cursor';
 import type { DeleteResult } from './result';
 import { assertArgsDefinedType, assertKeysDefined } from './helpers';
@@ -173,7 +173,7 @@ export class ClientEncryption extends ShellApiWithMongoClass {
     dbName: string,
     collName: string,
     options: CreateEncryptedCollectionOptions
-  ): Promise<{ collection: Collection; encryptedFields: Document }> {
+  ): Promise<{ collection: CollectionWithSchema; encryptedFields: Document }> {
     assertArgsDefinedType(
       [dbName],
       ['string'],
@@ -217,7 +217,7 @@ export class ClientEncryption extends ShellApiWithMongoClass {
 export class KeyVault extends ShellApiWithMongoClass {
   public _mongo: Mongo;
   public _clientEncryption: ClientEncryption;
-  private _keyColl: Collection;
+  private _keyColl: CollectionWithSchema;
   constructor(clientEncryption: ClientEncryption) {
     super();
     this._mongo = clientEncryption._mongo;
@@ -326,7 +326,7 @@ export class KeyVault extends ShellApiWithMongoClass {
     if (typeof masterKeyOrAltNamesOrDataKeyOptions === 'string') {
       if (kms === 'local' && masterKeyOrAltNamesOrDataKeyOptions === '') {
         // allowed in the old shell - even enforced prior to 4.2.3
-        // https://docs.mongodb.com/manual/reference/method/KeyVault.createKey/
+        // https://mongodb.com/docs/manual/reference/method/KeyVault.createKey/
         masterKey = undefined;
       } else {
         throw new MongoshInvalidInputError(

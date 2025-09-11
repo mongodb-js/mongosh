@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import type { EventEmitter } from 'events';
 import type { StubbedInstance } from 'ts-sinon';
 import { stubInterface } from 'ts-sinon';
-import Database from './database';
+import { Database } from './database';
 import Mongo from './mongo';
 import { InterruptFlag, MongoshInterruptedError } from './interruptor';
 import ShellInstanceState from './shell-instance-state';

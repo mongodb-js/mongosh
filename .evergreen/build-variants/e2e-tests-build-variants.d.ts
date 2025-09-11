@@ -6,7 +6,6 @@ export type E2ETestsBuildVariant = {
   executableOsId: string;
   mVersion: string;
   tags?: string[];
-  disableOpenSslSharedConfig?: boolean;
   fips?: boolean;
   additionalTasks?: string[];
 };

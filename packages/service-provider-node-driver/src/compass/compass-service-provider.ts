@@ -1,6 +1,6 @@
 import type { DevtoolsConnectOptions } from '../node-driver-service-provider';
 import { NodeDriverServiceProvider } from '../node-driver-service-provider';
-import type { MongoClient } from 'mongodb';
+import type { MongoClient, TopologyDescription } from 'mongodb';
 import type { ReplPlatform } from '@mongosh/service-provider-core';
 import type ConnectionString from 'mongodb-connection-string-url';
 import type { EventEmitter } from 'events';
@@ -22,9 +22,10 @@ export class CompassServiceProvider extends NodeDriverServiceProvider {
     mongoClient: MongoClient,
     bus: EventEmitter,
     driverOptions: DevtoolsConnectOptions,
-    uri?: ConnectionString
+    uri?: ConnectionString,
+    lastSeenTopology?: TopologyDescription
   ) {
-    super(mongoClient, bus, driverOptions, uri);
+    super(mongoClient, bus, driverOptions, uri, lastSeenTopology);
     this.platform = 'Compass';
   }
 }

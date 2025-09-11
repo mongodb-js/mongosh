@@ -2,10 +2,7 @@ import chai, { expect } from 'chai';
 import sinon from 'sinon';
 import type { Config } from './config';
 import { ALL_PACKAGE_VARIANTS } from './config';
-import type {
-  uploadArtifactToDownloadCenter as uploadArtifactToDownloadCenterFn,
-  uploadArtifactToDownloadCenterNew as uploadArtifactToDownloadCenterFnNew,
-} from './download-center';
+import type { uploadArtifactToDownloadCenter as uploadArtifactToDownloadCenterFn } from './download-center';
 import type { downloadArtifactFromEvergreen as downloadArtifactFromEvergreenFn } from './evergreen';
 import type { generateChangelog as generateChangelogFn } from './git';
 import { GithubRepo } from '@mongodb-js/devtools-github-repo';
@@ -29,14 +26,12 @@ describe('draft', function () {
   let config: Config;
   let githubRepo: GithubRepo;
   let uploadArtifactToDownloadCenter: typeof uploadArtifactToDownloadCenterFn;
-  let uploadArtifactToDownloadCenterNew: typeof uploadArtifactToDownloadCenterFnNew;
   let downloadArtifactFromEvergreen: typeof downloadArtifactFromEvergreenFn;
 
   beforeEach(function () {
     config = { ...dummyConfig };
 
     uploadArtifactToDownloadCenter = sinon.spy();
-    uploadArtifactToDownloadCenterNew = sinon.spy();
     downloadArtifactFromEvergreen = sinon.spy(() =>
       Promise.resolve('filename')
     );
@@ -71,7 +66,6 @@ describe('draft', function () {
           githubRepo,
           packageBumper,
           uploadArtifactToDownloadCenter,
-          uploadArtifactToDownloadCenterNew,
           downloadArtifactFromEvergreen,
           ensureGithubReleaseExistsAndUpdateChangelog
         );
@@ -117,7 +111,6 @@ describe('draft', function () {
         githubRepo,
         packageBumper,
         uploadArtifactToDownloadCenter,
-        uploadArtifactToDownloadCenterNew,
         downloadArtifactFromEvergreen,
         ensureGithubReleaseExistsAndUpdateChangelog
       );
@@ -142,7 +135,6 @@ describe('draft', function () {
           githubRepo,
           packageBumper,
           uploadArtifactToDownloadCenter,
-          uploadArtifactToDownloadCenterNew,
           downloadArtifactFromEvergreen,
           ensureGithubReleaseExistsAndUpdateChangelog
         );

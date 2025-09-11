@@ -10,9 +10,10 @@ import {
 } from './decorators';
 
 import type { Streams } from './streams';
+import type { MQLPipeline } from './mql-types';
 
 @shellApiClassDefault
-export default class StreamProcessor extends ShellApiWithMongoClass {
+export class StreamProcessor extends ShellApiWithMongoClass {
   constructor(public _streams: Streams, public name: string) {
     super();
   }
@@ -71,11 +72,11 @@ export default class StreamProcessor extends ShellApiWithMongoClass {
    *    sp.name.modify(newPipeline, {resumeFromCheckpoint: false})
    */
   async modify(options: Document): Promise<Document>;
-  async modify(pipeline: Document[], options?: Document): Promise<Document>;
+  async modify(pipeline: MQLPipeline, options?: Document): Promise<Document>;
 
   @returnsPromise
   async modify(
-    pipelineOrOptions: Document[] | Document,
+    pipelineOrOptions: MQLPipeline | Document,
     options?: Document
   ): Promise<Document> {
     if (Array.isArray(pipelineOrOptions)) {
@@ -152,3 +153,4 @@ export default class StreamProcessor extends ShellApiWithMongoClass {
     return;
   }
 }
+export default StreamProcessor;

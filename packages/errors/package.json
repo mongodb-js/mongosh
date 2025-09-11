@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/errors",
-  "version": "2.4.0",
+  "version": "2.4.4",
   "description": "MongoDB Shell Errors Package",
   "homepage": "https://github.com/mongodb-js/mongosh",
   "license": "Apache-2.0",
@@ -29,7 +29,7 @@
     "prepublish": "npm run compile",
     "generate-error-overview": "ts-node scripts/extract-errors.ts .. generated/error-overview.md generated/error-overview.rst && npm run reformat",
     "prettier": "prettier",
-    "reformat": "npm run prettier -- --write . && npm run eslint --fix"
+    "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
   },
   "mongosh": {
     "unitTestsOnly": true

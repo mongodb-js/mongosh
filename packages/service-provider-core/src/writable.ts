@@ -319,7 +319,7 @@ export default interface Writable {
     collection: string,
     filter: Document,
     update: Document,
-    options?: UpdateOptions,
+    options?: UpdateOptions & { sort?: Document },
     dbOptions?: DbOptions
   ): Promise<UpdateResult>;
 

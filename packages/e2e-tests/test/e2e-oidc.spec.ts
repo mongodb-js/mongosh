@@ -10,7 +10,7 @@ import type { TestShell } from './test-shell';
 import path from 'path';
 import { expect } from 'chai';
 import { createServer as createHTTPSServer } from 'https';
-import { getCertPath, useTmpdir } from './repl-helpers';
+import { getCertPath, readReplLogFile, useTmpdir } from './repl-helpers';
 import {
   baseOidcServerConfig,
   commonOidcServerArgs,
@@ -502,7 +502,7 @@ describe('OIDC auth e2e', function () {
     await shell.waitForSuccessfulExit();
 
     shell.assertContainsOutput('BEGIN OIDC TOKEN DUMP');
-    shell.assertContainsOutput('"tokenType": "Bearer"');
+    shell.assertContainsOutput('"tokenType": "bearer"');
     shell.assertContainsOutput('"alg": "RS256"');
     shell.assertContainsOutput('"sub": "testuser"');
     shell.assertNotContainsOutput('"signature":');
@@ -522,12 +522,40 @@ describe('OIDC auth e2e', function () {
     await shell.waitForSuccessfulExit();
 
     shell.assertContainsOutput('BEGIN OIDC TOKEN DUMP');
-    shell.assertContainsOutput('"tokenType": "Bearer"');
+    shell.assertContainsOutput('"tokenType": "bearer"');
     shell.assertContainsOutput('"alg": "RS256"');
     shell.assertContainsOutput('"sub": "testuser"');
     shell.assertContainsOutput('"signature":');
     shell.assertContainsOutput('"lastServerIdPInfo":');
     shell.assertContainsOutput(/"refreshToken": "(?!debugid:)/);
+  });
+
+  it('logs OIDC HTTP calls', async function () {
+    shell = this.startTestShell({
+      args: [
+        await testServer.connectionString(),
+        '--authenticationMechanism=MONGODB-OIDC',
+        '--oidcRedirectUri=http://localhost:0/',
+        `--browser=${fetchBrowserFixture}`,
+        '--eval=log.getPath()',
+        '--quiet',
+        '--json',
+      ],
+      env: {
+        ...process.env,
+        HOME: tmpdir.path,
+        LOCALAPPDATA: tmpdir.path,
+        APPDATA: tmpdir.path,
+      },
+    });
+    await shell.waitForSuccessfulExit();
+    const logs = await readReplLogFile(JSON.parse(shell.output));
+    const inbound = logs.find((e) => e.id === 1_002_000_024);
+    const outbound = logs.find((e) => e.id === 1_002_000_023);
+    expect(inbound?.attr.url).to.be.a('string');
+    expect(inbound?.s).to.equal('D1');
+    expect(outbound?.attr.url).to.be.a('string');
+    expect(outbound?.s).to.equal('D1');
   });
 
   it('can successfully authenticate using workload OIDC', async function () {

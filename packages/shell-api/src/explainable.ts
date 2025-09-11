@@ -1,4 +1,4 @@
-import type Collection from './collection';
+import type { CollectionWithSchema } from './collection';
 import type Mongo from './mongo';
 import ExplainableCursor from './explainable-cursor';
 import {
@@ -33,15 +33,16 @@ import type {
   FindOneAndUpdateOptions,
   FindOptions,
 } from '@mongosh/service-provider-core';
+import type { MQLDocument, MQLPipeline, MQLQuery } from './mql-types';
 
 @shellApiClassDefault
 export default class Explainable extends ShellApiWithMongoClass {
   _mongo: Mongo;
-  _collection: Collection;
+  _collection: CollectionWithSchema;
   _verbosity: ExplainVerbosityLike;
   constructor(
     mongo: Mongo,
-    collection: Collection,
+    collection: CollectionWithSchema,
     verbosity: ExplainVerbosityLike
   ) {
     super();
@@ -77,7 +78,7 @@ export default class Explainable extends ShellApiWithMongoClass {
     });
   }
 
-  getCollection(): Collection {
+  getCollection(): CollectionWithSchema {
     this._emitExplainableApiCall('getCollection');
     return this._collection;
   }
@@ -97,7 +98,7 @@ export default class Explainable extends ShellApiWithMongoClass {
   @apiVersions([1])
   @returnsPromise
   async find(
-    query?: Document,
+    query?: MQLQuery,
     projection?: Document,
     options: FindOptions = {}
   ): Promise<ExplainableCursor> {
@@ -107,14 +108,14 @@ export default class Explainable extends ShellApiWithMongoClass {
     return new ExplainableCursor(this._mongo, cursor, this._verbosity);
   }
 
-  async aggregate(pipeline: Document[], options: Document): Promise<Document>;
-  async aggregate(...stages: Document[]): Promise<Document>;
+  async aggregate(pipeline: MQLPipeline, options: Document): Promise<Document>;
+  async aggregate(...stages: MQLPipeline): Promise<Document>;
   @returnsPromise
   @apiVersions([1])
   async aggregate(...args: any[]): Promise<Document> {
     this._emitExplainableApiCall('aggregate', { args });
     let options: Document;
-    let pipeline: Document[];
+    let pipeline: MQLPipeline;
     if (Array.isArray(args[0])) {
       pipeline = args[0];
       options = args[1] ?? {};
@@ -147,17 +148,17 @@ export default class Explainable extends ShellApiWithMongoClass {
   }
 
   async distinct(field: string): Promise<Document>;
-  async distinct(field: string, query: Document): Promise<Document>;
+  async distinct(field: string, query: MQLQuery): Promise<Document>;
   async distinct(
     field: string,
-    query: Document,
+    query: MQLQuery,
     options: DistinctOptions
   ): Promise<Document>;
   @returnsPromise
   @apiVersions([1])
   async distinct(
     field: string,
-    query?: Document,
+    query?: MQLQuery,
     options: DistinctOptions = {}
   ): Promise<Document> {
     this._emitExplainableApiCall('distinct', { field, query, options });
@@ -182,7 +183,7 @@ export default class Explainable extends ShellApiWithMongoClass {
   @returnsPromise
   @apiVersions([1])
   async findOneAndDelete(
-    filter: Document,
+    filter: MQLQuery,
     options: FindOneAndDeleteOptions = {}
   ): Promise<Document | null> {
     this._emitExplainableApiCall('findOneAndDelete', { filter, options });
@@ -195,8 +196,8 @@ export default class Explainable extends ShellApiWithMongoClass {
   @returnsPromise
   @apiVersions([1])
   async findOneAndReplace(
-    filter: Document,
-    replacement: Document,
+    filter: MQLQuery,
+    replacement: MQLDocument,
     options: FindAndModifyShellOptions<FindOneAndReplaceOptions> = {}
   ): Promise<Document> {
     this._emitExplainableApiCall('findOneAndReplace', { filter, options });
@@ -209,8 +210,8 @@ export default class Explainable extends ShellApiWithMongoClass {
   @returnsPromise
   @apiVersions([1])
   async findOneAndUpdate(
-    filter: Document,
-    update: Document,
+    filter: MQLQuery,
+    update: MQLDocument,
     options: FindAndModifyShellOptions<FindOneAndUpdateOptions> = {}
   ): Promise<Document> {
     this._emitExplainableApiCall('findOneAndUpdate', { filter, options });
@@ -223,7 +224,7 @@ export default class Explainable extends ShellApiWithMongoClass {
   @returnsPromise
   @apiVersions([1])
   async remove(
-    query: Document,
+    query: MQLQuery,
     options: boolean | RemoveShellOptions = {}
   ): Promise<Document> {
     this._emitExplainableApiCall('remove', { query, options });

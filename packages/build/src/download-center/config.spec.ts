@@ -242,7 +242,8 @@ describe('DownloadCenter config', function () {
   });
 
   describe('createAndPublishDownloadCenterConfig', function () {
-    let dlCenter: sinon.SinonStub;
+    let dlCenterConfig: sinon.SinonStub;
+    let dlCenterArtifacts: sinon.SinonStub;
     let uploadConfig: sinon.SinonStub;
     let downloadConfig: sinon.SinonStub;
     let uploadAsset: sinon.SinonStub;
@@ -254,9 +255,17 @@ describe('DownloadCenter config', function () {
       downloadConfig = sinon.stub();
       uploadAsset = sinon.stub();
       downloadAsset = sinon.stub();
-      dlCenter = sinon.stub();
+      dlCenterConfig = sinon.stub();
+      dlCenterArtifacts = sinon.stub();
 
-      dlCenter.returns({
+      dlCenterConfig.returns({
+        downloadConfig,
+        uploadConfig,
+        uploadAsset,
+        downloadAsset,
+      });
+
+      dlCenterArtifacts.returns({
         downloadConfig,
         uploadConfig,
         uploadAsset,
@@ -280,21 +289,17 @@ describe('DownloadCenter config', function () {
           '',
           false,
           DUMMY_CTA_CONFIG,
-          dlCenter as any,
+          dlCenterConfig as any,
+          dlCenterArtifacts as any,
           baseUrl
         );
 
-        expect(dlCenter).to.have.been.calledWith({
+        expect(dlCenterConfig).to.have.been.calledWith({
           bucket: 'info-mongodb-com',
           accessKeyId: DUMMY_ACCESS_KEY,
           secretAccessKey: DUMMY_SECRET_KEY,
         });
-        expect(dlCenter).to.have.been.calledWith({
-          bucket: 'downloads.10gen.com',
-          accessKeyId: DUMMY_ACCESS_KEY,
-          secretAccessKey: DUMMY_SECRET_KEY,
-        });
-        expect(dlCenter).to.have.been.calledWith({
+        expect(dlCenterArtifacts).to.have.been.calledWith({
           bucket: 'cdn-origin-compass',
           accessKeyId: DUMMY_ACCESS_KEY,
           secretAccessKey: DUMMY_SECRET_KEY,
@@ -331,7 +336,7 @@ describe('DownloadCenter config', function () {
           tutorial_link: 'test',
         });
 
-        expect(uploadAsset).to.be.calledTwice;
+        expect(uploadAsset).to.be.calledOnce;
         const [assetKey] = uploadAsset.lastCall.args;
         expect(assetKey).to.equal('compass/mongosh.json');
       });
@@ -348,21 +353,17 @@ describe('DownloadCenter config', function () {
           '',
           false,
           DUMMY_CTA_CONFIG,
-          dlCenter as any,
+          dlCenterConfig as any,
+          dlCenterArtifacts as any,
           baseUrl
         );
 
-        expect(dlCenter).to.have.been.calledWith({
+        expect(dlCenterConfig).to.have.been.calledWith({
           bucket: 'info-mongodb-com',
           accessKeyId: DUMMY_ACCESS_KEY,
           secretAccessKey: DUMMY_SECRET_KEY,
         });
-        expect(dlCenter).to.have.been.calledWith({
-          bucket: 'downloads.10gen.com',
-          accessKeyId: DUMMY_ACCESS_KEY,
-          secretAccessKey: DUMMY_SECRET_KEY,
-        });
-        expect(dlCenter).to.have.been.calledWith({
+        expect(dlCenterArtifacts).to.have.been.calledWith({
           bucket: 'cdn-origin-compass',
           accessKeyId: DUMMY_ACCESS_KEY,
           secretAccessKey: DUMMY_SECRET_KEY,
@@ -396,7 +397,7 @@ describe('DownloadCenter config', function () {
           tutorial_link: 'test',
         });
 
-        expect(uploadAsset).to.be.calledTwice;
+        expect(uploadAsset).to.be.calledOnce;
         const [assetKey, uploadedAsset] = uploadAsset.lastCall.args;
         expect(assetKey).to.equal('compass/mongosh.json');
         const jsonFeedData = JSON.parse(uploadedAsset);
@@ -463,21 +464,17 @@ describe('DownloadCenter config', function () {
           ),
           false,
           DUMMY_CTA_CONFIG,
-          dlCenter as any,
+          dlCenterConfig as any,
+          dlCenterArtifacts as any,
           baseUrl
         );
 
-        expect(dlCenter).to.have.been.calledWith({
+        expect(dlCenterConfig).to.have.been.calledWith({
           bucket: 'info-mongodb-com',
           accessKeyId: DUMMY_ACCESS_KEY,
           secretAccessKey: DUMMY_SECRET_KEY,
         });
-        expect(dlCenter).to.have.been.calledWith({
-          bucket: 'downloads.10gen.com',
-          accessKeyId: DUMMY_ACCESS_KEY,
-          secretAccessKey: DUMMY_SECRET_KEY,
-        });
-        expect(dlCenter).to.have.been.calledWith({
+        expect(dlCenterArtifacts).to.have.been.calledWith({
           bucket: 'cdn-origin-compass',
           accessKeyId: DUMMY_ACCESS_KEY,
           secretAccessKey: DUMMY_SECRET_KEY,
@@ -514,7 +511,7 @@ describe('DownloadCenter config', function () {
           tutorial_link: 'test',
         });
 
-        expect(uploadAsset).to.be.calledTwice;
+        expect(uploadAsset).to.be.calledOnce;
         const [assetKey, uploadedAsset] = uploadAsset.lastCall.args;
         expect(assetKey).to.equal('compass/mongosh.json');
         const jsonFeedData = JSON.parse(uploadedAsset);
@@ -621,8 +618,6 @@ describe('DownloadCenter config', function () {
           config,
           DUMMY_ACCESS_KEY,
           DUMMY_SECRET_KEY,
-          DUMMY_ACCESS_KEY,
-          DUMMY_SECRET_KEY,
           DUMMY_SESSION_TOKEN,
           dryRun,
           dlCenter as any
@@ -661,8 +656,6 @@ describe('DownloadCenter config', function () {
         config,
         DUMMY_ACCESS_KEY,
         DUMMY_SECRET_KEY,
-        DUMMY_ACCESS_KEY,
-        DUMMY_SECRET_KEY,
         DUMMY_SESSION_TOKEN,
         false,
         dlCenter as any
@@ -689,8 +682,6 @@ describe('DownloadCenter config', function () {
         ctas,
         DUMMY_ACCESS_KEY,
         DUMMY_SECRET_KEY,
-        DUMMY_ACCESS_KEY,
-        DUMMY_SECRET_KEY,
         DUMMY_SESSION_TOKEN,
         false,
         dlCenter as any
@@ -712,8 +703,6 @@ describe('DownloadCenter config', function () {
 
       await updateJsonFeedCTA(
         config,
-        DUMMY_ACCESS_KEY,
-        DUMMY_SECRET_KEY,
         DUMMY_ACCESS_KEY,
         DUMMY_SECRET_KEY,
         DUMMY_SESSION_TOKEN,
@@ -739,8 +728,6 @@ describe('DownloadCenter config', function () {
         config,
         DUMMY_ACCESS_KEY,
         DUMMY_SECRET_KEY,
-        DUMMY_ACCESS_KEY,
-        DUMMY_SECRET_KEY,
         DUMMY_SESSION_TOKEN,
         false,
         dlCenter as any
@@ -762,8 +749,6 @@ describe('DownloadCenter config', function () {
 
       await updateJsonFeedCTA(
         config,
-        DUMMY_ACCESS_KEY,
-        DUMMY_SECRET_KEY,
         DUMMY_ACCESS_KEY,
         DUMMY_SECRET_KEY,
         DUMMY_SESSION_TOKEN,
@@ -796,8 +781,6 @@ describe('DownloadCenter config', function () {
         config,
         DUMMY_ACCESS_KEY,
         DUMMY_SECRET_KEY,
-        DUMMY_ACCESS_KEY,
-        DUMMY_SECRET_KEY,
         DUMMY_SESSION_TOKEN,
         false,
         dlCenter as any
@@ -826,8 +809,6 @@ describe('DownloadCenter config', function () {
 
       await updateJsonFeedCTA(
         config,
-        DUMMY_ACCESS_KEY,
-        DUMMY_SECRET_KEY,
         DUMMY_ACCESS_KEY,
         DUMMY_SECRET_KEY,
         DUMMY_SESSION_TOKEN,

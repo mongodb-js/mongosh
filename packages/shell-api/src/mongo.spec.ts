@@ -17,10 +17,10 @@ import type {
   WriteConcern,
 } from '@mongosh/service-provider-core';
 import { bson } from '@mongosh/service-provider-core';
-import type Database from './database';
+import type { DatabaseWithSchema } from './database';
 import { EventEmitter } from 'events';
 import ShellInstanceState from './shell-instance-state';
-import Collection from './collection';
+import { Collection } from './collection';
 import type Cursor from './cursor';
 import ChangeStreamCursor from './change-stream-cursor';
 import NoDatabase from './no-db';
@@ -69,6 +69,7 @@ describe('Mongo', function () {
         isDirectShellCommand: false,
         acceptsRawInput: false,
         shellCommandCompleter: undefined,
+        newShellCommandCompleter: undefined,
       });
     });
   });
@@ -99,7 +100,7 @@ describe('Mongo', function () {
     const driverSession = { driverSession: 1 };
     let mongo: Mongo;
     let serviceProvider: StubbedInstance<ServiceProvider>;
-    let database: StubbedInstance<Database>;
+    let database: StubbedInstance<DatabaseWithSchema>;
     let bus: StubbedInstance<EventEmitter>;
     let instanceState: ShellInstanceState;
 
@@ -118,7 +119,7 @@ describe('Mongo', function () {
         undefined,
         serviceProvider
       );
-      database = stubInterface<Database>();
+      database = stubInterface<DatabaseWithSchema>();
       instanceState.currentDb = database;
     });
     describe('show', function () {
@@ -940,14 +941,16 @@ describe('Mongo', function () {
         expect(coll._database._name).to.equal('db1');
       });
 
-      it('throws if name is not a valid connection string', function () {
+      it('throws if name is not a valid collection string', function () {
         expect(() => {
+          // @ts-expect-error db is not valid, but that's the point of the test
           mongo.getCollection('db');
         }).to.throw('Collection must be of the format <db>.<collection>');
       });
 
       it('throws if name is empty', function () {
         expect(() => {
+          // @ts-expect-error db is not valid, but that's the point of the test
           mongo.getCollection('');
         }).to.throw('Collection must be of the format <db>.<collection>');
       });
@@ -978,7 +981,7 @@ describe('Mongo', function () {
     });
 
     afterEach(async function () {
-      await instanceState.close(true);
+      await instanceState.close();
     });
 
     describe('versioned API', function () {

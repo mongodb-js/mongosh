@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/i18n",
-  "version": "2.13.0",
+  "version": "2.15.4",
   "description": "MongoDB Shell i18n Project",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -23,7 +23,7 @@
     "check": "npm run lint && npm run depcheck",
     "depcheck": "depcheck",
     "prettier": "prettier",
-    "reformat": "npm run prettier -- --write . && npm run eslint --fix"
+    "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
   },
   "license": "Apache-2.0",
   "publishConfig": {
@@ -36,7 +36,7 @@
     "unitTestsOnly": true
   },
   "dependencies": {
-    "@mongosh/errors": "2.4.0"
+    "@mongosh/errors": "2.4.4"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",

@@ -112,14 +112,14 @@ async function ensureMatchingPermissions(
   // the mongosh binary to begin with) and they are not writable by other
   // users.
   if (
-    (stat.uid !== execPathStat.uid && stat.uid !== process.getuid()) ||
-    (stat.gid !== execPathStat.gid && stat.gid !== process.getgid()) ||
+    (stat.uid !== execPathStat.uid && stat.uid !== process.getuid?.()) ||
+    (stat.gid !== execPathStat.gid && stat.gid !== process.getgid?.()) ||
     stat.mode & 0o002 /* world-writable */
   ) {
     return {
       libraryStat: { uid: stat.uid, gid: stat.gid, mode: stat.mode },
       mongoshStat: { uid: execPathStat.uid, gid: stat.gid },
-      currentUser: { uid: process.getuid(), gid: process.getgid() },
+      currentUser: { uid: process.getuid?.(), gid: process.getgid?.() },
     };
   }
   return null;

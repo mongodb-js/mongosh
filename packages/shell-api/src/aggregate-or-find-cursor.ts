@@ -11,14 +11,14 @@ import type {
   ServiceProviderAggregationCursor,
 } from '@mongosh/service-provider-core';
 import { validateExplainableVerbosity, markAsExplainOutput } from './helpers';
-import { AbstractCursor } from './abstract-cursor';
+import { AbstractFiniteCursor } from './abstract-cursor';
 
 @shellApiClassNoHelp
 export abstract class AggregateOrFindCursor<
   CursorType extends
     | ServiceProviderAggregationCursor
     | ServiceProviderFindCursor
-> extends AbstractCursor<CursorType> {
+> extends AbstractFiniteCursor<CursorType> {
   @returnType('this')
   projection(spec: Document): this {
     this._cursor.project(spec);
