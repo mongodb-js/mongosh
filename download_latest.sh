@@ -2,6 +2,8 @@
 
 set -o errexit
 
+MONGOSH_RELEASES_URL=https://downloads.mongodb.com/compass/mongosh.json
+
 for tool in jq curl; do
     which "$tool" >/dev/null || {
         echo >&2 "This script requires '$tool'."
@@ -25,24 +27,33 @@ case "$os" in
         exit 1
 esac
 
+# normalize $arch:
 case "$arch" in
-    amd64|x86_64)
-        arch=x64
+    amd64|x64)
+        arch=x86_64
         ;;
     aarch64)
         arch=arm64
+        ;;
+    *)
+        # Use uname’s reported architecture in the jq query.
 esac
 
-urls=$(curl -fsSL https://api.github.com/repos/mongodb-js/mongosh/releases/latest | jq -r '.assets[] | .browser_download_url' | grep -v -e \.sig -e shared -e openssl)
-url=$(printf "%s" "$urls" | grep "\-${os}-${arch}" ||:)
+jq_query=$(cat <<EOF
+.versions[0].downloads[] |
+select(
+    .distro == "$os" and
+    .arch == "$arch" and
+    (has("sharedOpenssl") | not)
+) |
+.archive.url
+EOF
+)
+
+url=$(curl -fsSL $MONGOSH_RELEASES_URL | jq -r "$jq_query")
 
 if [ -z "$url" ]; then
-    cat <<EOL
-No download found for $os on $arch; download manually.
-
-URLs considered:
-$urls
-EOL
+    echo >&2 "No download found for $os on $arch; download manually."
     exit 1
 fi
 
