@@ -62,7 +62,7 @@ case "$ext" in
         file=$(mktemp)
 
         echo "Downloading $url to $file …"
-        trap 'rm -f $file' EXIT
+        trap 'rm -f "$file"' EXIT
 
         curl -fsSL "$url" > "$file"
         echo "Downloaded $ext file; extracting mongosh …"
