@@ -67,14 +67,15 @@ case "$ext" in
         curl -fsSL "$url" > "$file"
         echo "Downloaded $ext file; extracting mongosh …"
 
-        unzip -j "$file" '*/mongosh'
+        unzip -vj "$file" '*/bin/mongosh*'
         ;;
     tgz)
         echo "Downloading & extracting from $url …"
 
         curl -fsSL "$url" | tar -xzf - \
             --transform "s/.*\///" \
-            --wildcards "**/mongosh"
+            --wildcards "**/bin/mongosh*" \
+        | sed -E 's/^.*[/]//'
 
         ;;
     *)
@@ -82,4 +83,4 @@ case "$ext" in
         exit 1
 esac
 
-echo "Success! 'mongosh' is now saved in this directory."
+echo "Success! 'mongosh' and its crypto library are now saved in this directory."
