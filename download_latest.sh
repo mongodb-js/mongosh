@@ -4,6 +4,12 @@ set -o errexit
 
 MONGOSH_RELEASES_URL=https://downloads.mongodb.com/compass/mongosh.json
 
+show_download_link() {
+    echo >&2 "Download mongosh manually from:"
+    echo >&2
+    printf >&2 "\t%s\n", 'https://www.mongodb.com/try/download/shell'
+}
+
 for tool in jq curl; do
     which "$tool" >/dev/null || {
         echo >&2 "This script requires '$tool'."
@@ -23,7 +29,9 @@ case "$os" in
         ext=zip
         ;;
     *)
-        echo >&2 "This script does not support this OS ($os). Download mongosh manually."
+        echo >&2 "❌ This script does not support this OS ($os)."
+        show_download_link
+
         exit 1
 esac
 
@@ -53,7 +61,8 @@ EOF
 url=$(curl -fsSL $MONGOSH_RELEASES_URL | jq -r "$jq_query")
 
 if [ -z "$url" ]; then
-    echo >&2 "No download found for $os on $arch; download manually."
+    echo >&2 "❓ No download found for $os on $arch."
+    show_download_link
     exit 1
 fi
 
@@ -80,7 +89,8 @@ case "$ext" in
         ;;
     *)
         echo >&2 "Bad file extension: $ext"
+        show_download_link
         exit 1
 esac
 
-echo "Success! 'mongosh' and its crypto library are now saved in this directory."
+echo "✅ Success! 'mongosh' and its crypto library are now saved in this directory."
