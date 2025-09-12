@@ -990,11 +990,11 @@ describe('FLE tests', function () {
         });
 
         after(async function () {
-          await shell.executeLine(`${testCollection}.drop()`);
+          await shell.executeLine(`ecoll.${testCollection}.drop()`);
         });
 
         afterEach(async function () {
-          await shell.executeLine(`${testCollection}.deleteMany({})`);
+          await shell.executeLine(`ecoll.${testCollection}.deleteMany({})`);
         });
 
         it('allows queryable encryption with prefix searches', async function () {
@@ -1009,12 +1009,22 @@ describe('FLE tests', function () {
         ecoll.insertOne({ data: ce.encrypt(keyId, 'admin_explicit_test.pdf', explicitOpts) });
       }`);
           const prefixResults = await shell.executeLine(
-            'coll.find({$expr: { $and: [{$encStrContains: {substring: "admin_", input: "$data"}}] }}, { __safeContent__: 0 }).toArray()'
+            'coll.find({$expr: { $and: [{$encStrStartsWith: {prefix: "admin_", input: "$data"}}] }}, { __safeContent__: 0 }).toArray()'
           );
-          expect(prefixResults).to.have.length(2);
+          expect(prefixResults).to.have.length(3);
           expect(prefixResults).to.include('admin_user_123.txt');
           expect(prefixResults).to.include('admin_super_456.pdf');
           expect(prefixResults).to.include('admin_explicit_test.pdf');
+
+          const explicitPrefixResult = await shell.executeLine(`
+            ecoll.findOne({$expr: { $and: [{$encStrStartsWith: {prefix:
+              ce.encrypt(keyId, 'admin_', { ...explicitOpts, queryType: 'prefixPreview' }), input: '$data'}}] }},
+            { __safeContent__: 0 })
+          `);
+          expect(explicitPrefixResult).to.have.length(3);
+          expect(explicitPrefixResult).to.include('admin_user_123.txt');
+          expect(explicitPrefixResult).to.include('admin_super_456.pdf');
+          expect(explicitPrefixResult).to.include('admin_explicit_test.pdf');
         });
 
         it('allows queryable encryption with suffix searches', async function () {
@@ -1030,12 +1040,22 @@ describe('FLE tests', function () {
           }`);
 
           const suffixResults = await shell.executeLine(
-            'coll.find({$expr: { $and: [{$encStrContains: {substring: ".pdf", input: "$data"}}] }}, { __safeContent__: 0 }).toArray()'
+            'coll.find({$expr: { $and: [{$encStrEndsWith: { suffix: ".pdf", input: "$data"}}] }}, { __safeContent__: 0 }).toArray()'
           );
           expect(suffixResults).to.have.length(3);
           expect(suffixResults).to.include('admin_super_456.pdf');
           expect(suffixResults).to.include('user_regular_789.pdf');
           expect(suffixResults).to.include('admin_explicit_test.pdf');
+
+          const explicitSuffixResult = await shell.executeLine(`
+            ecoll.find({$expr: { $and: [{$encStrEndsWith: {suffix:
+              ce.encrypt(keyId, '.pdf', { ...explicitOpts, queryType: 'suffixPreview' }), input: '$data'}}] }},
+            { __safeContent__: 0 })
+          `);
+          expect(explicitSuffixResult).to.have.length(3);
+          expect(explicitSuffixResult).to.include('admin_super_456.pdf');
+          expect(explicitSuffixResult).to.include('user_regular_789.pdf');
+          expect(explicitSuffixResult).to.include('admin_explicit_test.pdf');
         });
 
         it('allows queryable encryption with substring searches', async function () {
@@ -1050,13 +1070,6 @@ describe('FLE tests', function () {
             // Add explicit encryption data
             ecoll.insertOne({ data: ce.encrypt(keyId, 'explicit_user', explicitOpts) });
           }`);
-          // Test substring search returning multiple documents
-          const substringResults = await shell.executeLine(
-            'coll.find({$expr: { $and: [{$encStrContains: {substring: "user", input: "$data"}}] }}, { __safeContent__: 0 }).toArray()'
-          );
-          expect(substringResults).to.have.length(2);
-          expect(substringResults).to.include('user_regular_789.pdf');
-          expect(substringResults).to.include('admin_user_123.txt');
 
           const testingSubstringResult = await shell.executeLine(
             'coll.find({$expr: { $and: [{$encStrContains: {substring: "user", input: "$data"}}] }}, { __safeContent__: 0 }).toArray()'
@@ -1068,7 +1081,7 @@ describe('FLE tests', function () {
 
           // Test explicit encryption substring search
           const explicitSubstringResult = await shell.executeLine(`
-        ecoll.findOne({$expr: { $and: [{$encStrContains: {substring:
+        ecoll.find({$expr: { $and: [{$encStrContains: {substring:
           ce.encrypt(keyId, 'user', { ...explicitOpts, queryType: 'substringPreview' }), input: '$data'}}] }},
         { __safeContent__: 0 })
       `);
