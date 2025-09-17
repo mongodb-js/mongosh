@@ -1,0 +1,16 @@
+ignores:
+ - '@mongodb-js/eslint-config-mongosh'
+ - '@mongodb-js/tsconfig-mongosh'
+ - '@mongodb-js/prettier-config-devtools'
+ - '@typescript-eslint/parser'
+ - '@typescript-eslint/eslint-plugin'
+ - chai
+ - sinon
+ - sinon-chai
+ - ts-sinon
+ - eslint-plugin-mocha
+ - eslint-config-mongodb-js
+# needed as a peer dependency of @mongodb-js/devtools-connect
+ - mongodb
+ignore-patterns:
+ - .eslintrc.js

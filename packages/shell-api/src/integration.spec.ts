@@ -20,7 +20,6 @@ import type { ApiEvent } from '@mongosh/types';
 import { ShellUserConfig } from '@mongosh/types';
 import { EventEmitter, once } from 'events';
 import { dummyOptions } from './helpers.spec';
-import type { ShellBson } from './shell-bson';
 import type Bulk from './bulk';
 
 // Compile JS code as an expression. We use this to generate some JS functions
@@ -2651,9 +2650,9 @@ describe('Shell API (integration)', function () {
       skipIfServerVersion(testServer, '< 4.4');
 
       it('converts a shard key to its hashed representation', async function () {
-        const result: ShellBson['Long'] = (await mongo.convertShardKeyToHashed({
+        const result = await mongo.convertShardKeyToHashed({
           foo: 'bar',
-        })) as any;
+        });
         expect(result.constructor.name).to.equal('Long');
         expect(result.toString()).to.equal('4975617422686807705');
       });

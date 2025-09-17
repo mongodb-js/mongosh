@@ -12,7 +12,7 @@ import Mongo from './mongo';
 import { Collection } from './collection';
 import Explainable from './explainable';
 import type { ServiceProvider, Document } from '@mongosh/service-provider-core';
-import { bson } from '@mongosh/service-provider-core';
+import * as bson from 'bson';
 import ShellInstanceState from './shell-instance-state';
 
 describe('Explainable', function () {

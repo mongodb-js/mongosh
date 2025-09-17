@@ -1,6 +1,6 @@
 // A fake sharding cluster config database, fresh from real-world data.
 
-import type { ShellBson } from '../src/shell-bson';
+import type { ShellBson } from '@mongosh/shell-bson';
 
 export const makeFakeConfigDatabase = ({
   UUID,

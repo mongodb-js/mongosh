@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import type { Db } from 'mongodb';
 import { MongoClient } from 'mongodb';
-import { bson } from '@mongosh/service-provider-core';
+import * as bson from 'bson';
 import type { TestShell } from './test-shell';
 import { startSharedTestServer } from '../../../testing/integration-testing-hooks';
 

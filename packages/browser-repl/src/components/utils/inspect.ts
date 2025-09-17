@@ -1,6 +1,7 @@
 import type { CustomInspectFunction } from 'util';
 import { inspect as utilInspect } from 'util';
-import { bsonStringifiers } from '@mongosh/service-provider-core';
+import * as bson from 'bson';
+import { makeBsonStringifiers } from '@mongosh/shell-bson';
 
 // At the time of writing, the Compass dist package contains what appear to be
 // 155 different copies of the 'bson' module. It is impractical to attach
@@ -65,6 +66,7 @@ function attachInspectMethods(obj: any): void {
     attachInspectMethods(value);
   }
 
+  const bsonStringifiers = makeBsonStringifiers(bson);
   // Add obj[util.inspect.custom] if it does not exist and we can provide it.
   const bsontype = obj._bsontype as keyof typeof bsonStringifiers;
   if (

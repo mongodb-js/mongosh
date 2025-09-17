@@ -1,12 +1,4 @@
-import {
-  ALL_PLATFORMS,
-  ALL_SERVER_VERSIONS,
-  ALL_TOPOLOGIES,
-  ServerVersions,
-} from './enums';
-import Help from './help';
-import type { BinaryType, Document } from '@mongosh/service-provider-core';
-import { bson as BSON } from '@mongosh/service-provider-core';
+import type { BSON, Long, Binary, ObjectId } from './bson-export';
 import {
   CommonErrors,
   MongoshInternalError,
@@ -20,72 +12,98 @@ import {
 } from './helpers';
 import { randomBytes } from 'crypto';
 
-function constructHelp(className: string): Help {
-  const classHelpKeyPrefix = `shell-api.classes.${className}.help`;
-  const classHelp = {
-    help: `${classHelpKeyPrefix}.description`,
-    example: `${classHelpKeyPrefix}.example`,
-    docs: `${classHelpKeyPrefix}.link`,
-    attr: [],
-  };
-  return new Help(classHelp);
-}
-
 type LongWithoutAccidentallyExposedMethods = Omit<
-  typeof BSON.Long,
+  typeof Long,
   'fromExtendedJSON'
 >;
-interface ShellBsonBase {
-  DBRef: (
-    namespace: string,
-    oid: any,
-    db?: string,
-    fields?: Document
-  ) => typeof BSON.DBRef.prototype;
+type BinaryType = Binary;
+export interface ShellBsonBase<BSONLib extends BSON = BSON> {
+  DBRef: BSONLib['DBRef'] &
+    ((
+      namespace: string,
+      oid: any,
+      db?: string,
+      fields?: Document
+    ) => BSONLib['DBRef']['prototype']);
   bsonsize: (object: any) => number;
-  MaxKey: () => typeof BSON.MaxKey.prototype;
-  MinKey: () => typeof BSON.MinKey.prototype;
-  ObjectId: (
-    id?: string | number | typeof BSON.ObjectId.prototype | Buffer
-  ) => typeof BSON.ObjectId.prototype;
-  Timestamp: (
-    t?: number | typeof BSON.Long.prototype | { t: number; i: number },
-    i?: number
-  ) => typeof BSON.Timestamp.prototype;
-  Code: (c?: string | Function, s?: any) => typeof BSON.Code.prototype;
-  NumberDecimal: (s?: string) => typeof BSON.Decimal128.prototype;
-  NumberInt: (v?: string) => typeof BSON.Int32.prototype;
-  NumberLong: (s?: string | number) => typeof BSON.Long.prototype;
+  MaxKey: (() => BSONLib['MaxKey']['prototype']) & {
+    toBSON: () => BSONLib['MaxKey']['prototype'];
+  };
+  MinKey: (() => BSONLib['MinKey']['prototype']) & {
+    toBSON: () => BSONLib['MinKey']['prototype'];
+  };
+  ObjectId: BSONLib['ObjectId'] &
+    ((
+      id?: string | number | ObjectId | Buffer
+    ) => BSONLib['ObjectId']['prototype']);
+  Timestamp: BSONLib['Timestamp'] &
+    ((
+      t?: number | Long | { t: number; i: number },
+      i?: number
+    ) => BSONLib['Timestamp']['prototype']);
+  Code: BSONLib['Code'] &
+    ((c?: string | Function, s?: any) => BSONLib['Code']['prototype']);
+  NumberDecimal: (s?: string) => BSONLib['Decimal128']['prototype'];
+  NumberInt: (v?: string) => BSONLib['Int32']['prototype'];
+  NumberLong: (s?: string | number) => Long;
   ISODate: (input?: string) => Date;
-  BinData: (subtype: number, b64string: string) => BinaryType;
-  HexData: (subtype: number, hexstr: string) => BinaryType;
-  UUID: (hexstr?: string) => BinaryType;
-  MD5: (hexstr: string) => BinaryType;
-  Decimal128: typeof BSON.Decimal128;
-  BSONSymbol: typeof BSON.BSONSymbol;
-  Int32: typeof BSON.Int32;
+  BinData: (
+    subtype: number,
+    b64string: string
+  ) => BSONLib['Binary']['prototype'];
+  HexData: (subtype: number, hexstr: string) => BSONLib['Binary']['prototype'];
+  UUID: (hexstr?: string) => BSONLib['Binary']['prototype'];
+  MD5: (hexstr: string) => BSONLib['Binary']['prototype'];
+  Decimal128: BSONLib['Decimal128'];
+  BSONSymbol: BSONLib['BSONSymbol'];
+  Int32: BSONLib['Int32'];
   Long: LongWithoutAccidentallyExposedMethods;
-  Binary: typeof BSON.Binary;
-  Double: typeof BSON.Double;
-  EJSON: typeof BSON.EJSON;
-  BSONRegExp: typeof BSON.BSONRegExp;
+  Binary: BSONLib['Binary'];
+  Double: BSONLib['Double'];
+  EJSON: BSONLib['EJSON'];
+  BSONRegExp: BSONLib['BSONRegExp'];
 }
 
-type WithHelp<T> = {
-  [prop in keyof T]: T[prop] & { help?: () => Help };
+type WithHelp<T, Help> = {
+  [prop in keyof T]: T[prop] & { help?: () => Help } & {
+    prototype?: { help?: Help & (() => Help); _bsontype?: unknown };
+  };
 };
 
-export type ShellBson = WithHelp<ShellBsonBase>;
+export type ShellBson<BSONLib extends BSON = BSON, Help = unknown> = WithHelp<
+  ShellBsonBase<WithHelp<BSONLib, Help>>,
+  Help
+>;
+
+export interface ShellBsonOptions<BSONLib extends BSON = BSON, Help = unknown> {
+  bsonLibrary: BSONLib;
+  printWarning: (msg: string) => void;
+  assignMetadata?: (
+    target: any,
+    props: {
+      minVersion?: string;
+      maxVersion?: string;
+      deprecated?: boolean;
+      help?: Help;
+    }
+  ) => void;
+  constructHelp?: (className: string) => Help;
+}
 
 /**
  * This method modifies the BSON class passed in as argument. This is required so that
  * we can have help, serverVersions, and other metadata on the bson classes constructed by the user.
  */
-export default function constructShellBson(
-  bson: typeof BSON,
-  printWarning: (msg: string) => void
-): ShellBson {
-  const bsonNames = [
+export function constructShellBson<
+  BSONLib extends BSON = BSON,
+  Help = unknown
+>({
+  bsonLibrary: bson,
+  printWarning,
+  assignMetadata,
+  constructHelp,
+}: ShellBsonOptions<BSONLib, Help>): ShellBson<BSONLib, Help> {
+  const bsonNames: (keyof ShellBsonBase & keyof BSON)[] = [
     'Binary',
     'Code',
     'DBRef',
@@ -99,37 +117,28 @@ export default function constructShellBson(
     'Timestamp',
     'BSONSymbol',
     'BSONRegExp',
-  ] as const; // Statically set this so we can error if any are missing
+  ]; // Statically set this so we can error if any are missing
 
-  // If the service provider doesn't provide a BSON version, use service-provider-core's BSON package (js-bson 4.x)
-  if (bson === undefined) {
-    bson = BSON;
-  }
-  const helps: any = {};
-  bsonNames.forEach((className) => {
+  const helps: Partial<Record<keyof ShellBsonBase, Help>> = {};
+  for (const className of bsonNames) {
     if (!(className in bson)) {
       throw new MongoshInternalError(
         `${className} does not exist in provided BSON package.`
       );
     }
-    const proto = bson[className].prototype as any;
-    proto.serverVersions = ALL_SERVER_VERSIONS;
-    proto.platforms = ALL_PLATFORMS;
-    proto.topologies = ALL_TOPOLOGIES;
-
-    const help = constructHelp(className);
+    const help = constructHelp?.(className);
     helps[className] = help;
-    proto.help = (): Help => help;
-    Object.setPrototypeOf(proto.help, help);
-  });
-  // Symbol is deprecated
-  (bson.BSONSymbol as any).prototype.serverVersions = [
-    ServerVersions.earliest,
-    '1.6.0',
-  ];
-  (bson.BSONSymbol as any).prototype.deprecated = true;
+    if (!('prototype' in bson[className])) continue;
+    assignMetadata?.(bson[className].prototype, {
+      help: help,
+      // Symbol is deprecated
+      ...(className === 'BSONSymbol'
+        ? { deprecated: true, maxVersion: '1.6.0' }
+        : {}),
+    });
+  }
 
-  const bsonPkg: ShellBson = {
+  const bsonPkg: ShellBson<BSONLib, Help> = {
     DBRef: assignAll(function DBRef(
       namespace: string,
       oid: any,
@@ -429,7 +438,8 @@ export default function constructShellBson(
   };
 
   for (const className of Object.keys(bsonPkg) as (keyof ShellBson)[]) {
-    const help = helps[className] || constructHelp(className);
+    const help = helps[className] ?? constructHelp?.(className);
+    if (!help) continue;
     bsonPkg[className].help = (): Help => help;
     Object.setPrototypeOf(bsonPkg[className].help, help);
   }

@@ -4,7 +4,7 @@ import Mongo from './mongo';
 import type { StubbedInstance } from 'ts-sinon';
 import { stubInterface } from 'ts-sinon';
 import type { ServiceProvider } from '@mongosh/service-provider-core';
-import { bson } from '@mongosh/service-provider-core';
+import * as bson from 'bson';
 import { Database } from './database';
 import type { EventEmitter } from 'events';
 import ShellInstanceState from './shell-instance-state';

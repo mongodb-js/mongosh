@@ -54,7 +54,7 @@
     "@mongosh/types": "^3.14.0",
     "aws4": "^1.12.0",
     "mongodb": "^6.19.0",
-    "mongodb-connection-string-url": "^3.0.1",
+    "mongodb-connection-string-url": "^3.0.2",
     "socks": "^2.8.3",
     "mongodb-client-encryption": "^6.5.0",
     "kerberos": "2.1.0"

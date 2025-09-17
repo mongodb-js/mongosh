@@ -2,8 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
 import { EventEmitter } from 'events';
-import { bson } from '@mongosh/service-provider-core';
-const { EJSON } = bson;
+import { EJSON } from 'bson';
 
 /**
  * A set of paths that are used by the shell, typically located

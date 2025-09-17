@@ -13,7 +13,7 @@ import type {
   AutoEncryptionOptions,
   Collection,
 } from './all-transport-types';
-import type { bson as BSON, ConnectionExtraInfo } from './index';
+import type { ConnectionExtraInfo } from './index';
 import type { ReplPlatform } from './platform';
 import type {
   AWSEncryptionKeyOptions,
@@ -24,6 +24,7 @@ import type {
   ClientEncryption,
   ClientEncryptionOptions,
 } from './all-fle-types';
+import type { BSON } from '@mongosh/shell-bson';
 
 export interface CreateEncryptedCollectionOptions {
   provider: ClientEncryptionDataKeyProvider;
@@ -63,7 +64,7 @@ export default interface Admin {
   /**
    * The BSON package
    */
-  bsonLibrary: typeof BSON;
+  bsonLibrary: BSON;
 
   /**
    * list databases.
