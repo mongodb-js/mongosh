@@ -45,7 +45,7 @@ export interface ShellBsonBase<BSONLib extends BSON = BSON> {
     ((c?: string | Function, s?: any) => BSONLib['Code']['prototype']);
   NumberDecimal: (s?: string) => BSONLib['Decimal128']['prototype'];
   NumberInt: (v?: string) => BSONLib['Int32']['prototype'];
-  NumberLong: (s?: string | number) => Long;
+  NumberLong: (s?: string | number) => BSONLib['Long']['prototype'];
   ISODate: (input?: string) => Date;
   BinData: (
     subtype: number,
