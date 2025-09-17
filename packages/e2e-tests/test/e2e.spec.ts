@@ -20,7 +20,7 @@ import {
   setTemporaryHomeDirectory,
   useTmpdir,
 } from './repl-helpers';
-import { bson } from '@mongosh/service-provider-core';
+import * as bson from 'bson';
 import type { Server as HTTPServer } from 'http';
 import { createServer as createHTTPServer } from 'http';
 import { once } from 'events';

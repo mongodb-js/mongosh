@@ -2,8 +2,7 @@ import * as path from 'path';
 import { once } from 'events';
 import { promises as fs } from 'fs';
 import type { Readable } from 'stream';
-
-import { bson } from '@mongosh/service-provider-core';
+import { ObjectId } from 'bson';
 import { makeMultilineJSIntoSingleLine } from '@mongosh/js-multiline-to-singleline';
 import type { ShellInstanceState, TypeSignature } from '@mongosh/shell-api';
 import { signatures } from '@mongosh/shell-api';
@@ -126,7 +125,7 @@ export class Editor {
   }): Promise<string> {
     const tmpDoc = path.join(
       this._tmpDir,
-      `edit-${new bson.ObjectId().toHexString()}.${ext}`
+      `edit-${new ObjectId().toHexString()}.${ext}`
     );
 
     // Create a temp file to store a content that is being edited.

@@ -1,4 +1,4 @@
-import { bson } from '@mongosh/service-provider-core';
+import * as bson from 'bson';
 import type { Db, Collection, Document } from '@mongosh/service-provider-core';
 import { MongoClient } from 'mongodb';
 import { expect } from 'chai';

@@ -1,10 +1,10 @@
 import { MongoshInternalError } from '@mongosh/errors';
 import type Admin from './admin';
 import type Closable from './closable';
-import { makePrintableBson } from './printable-bson';
 import type Readable from './readable';
 import type Writable from './writable';
-import type { bson as BSON } from './index';
+import { makePrintableBson } from '@mongosh/shell-bson';
+import type { BSON } from '@mongosh/shell-bson';
 
 /**
  * Interface for all service providers.
@@ -16,8 +16,8 @@ export default interface ServiceProvider
     Admin {}
 
 export class ServiceProviderCore {
-  public bsonLibrary: typeof BSON;
-  constructor(bsonLibrary?: typeof BSON) {
+  public bsonLibrary: BSON;
+  constructor(bsonLibrary?: BSON) {
     if (bsonLibrary === undefined) {
       throw new MongoshInternalError('BSON Library is undefined.');
     }

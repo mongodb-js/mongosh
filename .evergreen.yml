@@ -507,6 +507,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin-n20-shell_bson.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n20-shell_bson.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin-n20-shell_bson.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-darwin-n20-shell_evaluator.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n20-shell_evaluator.tgz
         bucket: mciuploads
@@ -1441,6 +1455,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-linux-n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux-n20-shell_bson.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n20-shell_bson.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux-n20-shell_bson.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -2911,6 +2939,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-win32-n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32-n20-shell_bson.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-n20-shell_bson.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32-n20-shell_bson.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -4976,6 +5018,8 @@ tasks:
         variant: darwin-n20
       - name: test_shell_api
         variant: darwin-n20
+      - name: test_shell_bson
+        variant: darwin-n20
       - name: test_shell_evaluator
         variant: darwin-n20
       - name: test_snippet_manager
@@ -5110,6 +5154,8 @@ tasks:
         variant: linux-n20
       - name: test_shell_api
         variant: linux-n20
+      - name: test_shell_bson
+        variant: linux-n20
       - name: test_shell_evaluator
         variant: linux-n20
       - name: test_snippet_manager
@@ -5319,6 +5365,8 @@ tasks:
       - name: test_service_provider_node_driver
         variant: win32-n20
       - name: test_shell_api
+        variant: win32-n20
+      - name: test_shell_bson
         variant: win32-n20
       - name: test_shell_evaluator
         variant: win32-n20
@@ -5905,6 +5953,25 @@ tasks:
           mongosh_skip_node_version_check: ${mongosh_skip_node_version_check}
           mongosh_test_id: "shell_api"
           mongosh_run_only_in_package: "shell-api"
+          task_name: ${task_name}
+          puppeteer_skip_download: "true"
+  - name: test_shell_bson
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_compile
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: ${node_js_version}
+      - func: test
+        vars:
+          mongosh_server_test_version: ${mongosh_server_test_version}
+          node_js_version: ${node_js_version}
+          mongosh_skip_node_version_check: ${mongosh_skip_node_version_check}
+          mongosh_test_id: "shell_bson"
+          mongosh_run_only_in_package: "shell-bson"
           task_name: ${task_name}
           puppeteer_skip_download: "true"
   - name: test_shell_evaluator
@@ -10329,6 +10396,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -10361,6 +10429,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -10393,6 +10462,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -10425,6 +10495,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -10457,6 +10528,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -10489,6 +10561,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -10521,6 +10594,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -10553,6 +10627,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -10585,6 +10660,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -10617,6 +10693,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -10649,6 +10726,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -10681,6 +10759,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -10713,6 +10792,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -10745,6 +10825,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -10777,6 +10858,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -10809,6 +10891,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -10841,6 +10924,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -10873,6 +10957,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -10905,6 +10990,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -10937,6 +11023,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -10969,6 +11056,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -11001,6 +11089,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -11033,6 +11122,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -11065,6 +11155,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -11097,6 +11188,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -11128,6 +11220,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -11159,6 +11252,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -11190,6 +11284,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -11221,6 +11316,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -11252,6 +11348,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -11283,6 +11380,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -11314,6 +11412,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -11345,6 +11444,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -11376,6 +11476,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -11407,6 +11508,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -11438,6 +11540,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -11469,6 +11572,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -11500,6 +11604,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -11531,6 +11636,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -11562,6 +11668,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
@@ -11593,6 +11700,7 @@ buildvariants:
       - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
+      - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types

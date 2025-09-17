@@ -6,7 +6,7 @@ import {
 import { redactURICredentials } from '@mongosh/history';
 import i18n from '@mongosh/i18n';
 import type { AutoEncryptionOptions } from '@mongosh/service-provider-core';
-import { bson } from '@mongosh/service-provider-core';
+import { EJSON, ObjectId } from 'bson';
 import { NodeDriverServiceProvider } from '@mongosh/service-provider-node-driver';
 import type { CliOptions, DevtoolsConnectOptions } from '@mongosh/arg-parser';
 import { SnippetManager } from '@mongosh/snippet-manager';
@@ -155,7 +155,7 @@ export class CliRepl implements MongoshIOProvider {
     this.analyticsOptions = options.analyticsOptions;
     this.onExit = options.onExit;
 
-    const id = new bson.ObjectId().toHexString();
+    const id = new ObjectId().toHexString();
     this.config = {
       userId: id,
       telemetryAnonymousId: id,
@@ -833,7 +833,7 @@ export class CliRepl implements MongoshIOProvider {
     try {
       let config: CliUserConfig;
       if (fileContents.trim().startsWith('{')) {
-        config = bson.EJSON.parse(fileContents);
+        config = EJSON.parse(fileContents);
       } else {
         config = (yaml.load(fileContents) as any)?.mongosh ?? {};
       }

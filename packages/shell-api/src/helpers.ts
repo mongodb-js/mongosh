@@ -20,17 +20,13 @@ import type { Database } from './database';
 import type { Collection } from './collection';
 import type { CursorIterationResult } from './result';
 import { ShellApiErrors } from './error-codes';
-import type {
-  BinaryType,
-  ReplPlatform,
-  bson,
-} from '@mongosh/service-provider-core';
+import type { BinaryType, ReplPlatform } from '@mongosh/service-provider-core';
 import type { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
 import type { AutoEncryptionOptions, Long, ObjectId, Timestamp } from 'mongodb';
 import { shellApiType } from './enums';
 import type { AbstractFiniteCursor } from './abstract-cursor';
 import type ChangeStreamCursor from './change-stream-cursor';
-import type { ShellBson } from './shell-bson';
+import type { BSON, ShellBson } from '@mongosh/shell-bson';
 import { inspect } from 'util';
 import type { MQLPipeline, MQLQuery } from './mql-types';
 
@@ -770,9 +766,9 @@ export async function getConfigDB(db: Database): Promise<Database> {
 
 type AnyBsonNumber =
   | number
-  | typeof bson.Long.prototype
-  | typeof bson.Int32.prototype
-  | typeof bson.Double.prototype;
+  | BSON['Long']['prototype']
+  | BSON['Int32']['prototype']
+  | BSON['Double']['prototype'];
 export function coerceToJSNumber(n: AnyBsonNumber): number {
   if (typeof n === 'number') {
     return n;
@@ -837,7 +833,7 @@ export function scaleIndividualShardStatistics(
 }
 
 export function tsToSeconds(
-  x: typeof bson.Timestamp.prototype | number | { valueOf(): number }
+  x: BSON['Timestamp']['prototype'] | number | { valueOf(): number }
 ): number {
   if (typeof x === 'object' && x && 'getHighBits' in x && 'getLowBits' in x) {
     return x.getHighBits(); // extract 't' from { t, i }
@@ -1224,75 +1220,6 @@ export function getBadge(collections: Document[], index: number): string {
 export function shallowClone<T>(input: T): T {
   if (!input || typeof input !== 'object') return input;
   return Array.isArray(input) ? ([...input] as unknown as T) : { ...input };
-}
-
-// Create a copy of a class so that it's constructible without `new`, i.e.
-// class A {}; B = functionCtor(A);
-// A() // throws
-// B() // does not throw, returns instance of A
-export function functionCtorWithoutProps<
-  T extends Function & { new (...args: any): any }
->(ClassCtor: T): { new (...args: ConstructorParameters<T>): T } {
-  function fnCtor(...args: any[]) {
-    if (new.target) {
-      return Reflect.construct(ClassCtor, args, new.target);
-    }
-    return new ClassCtor(...args);
-  }
-  Object.setPrototypeOf(fnCtor, Object.getPrototypeOf(ClassCtor));
-  const nameDescriptor = Object.getOwnPropertyDescriptor(ClassCtor, 'name');
-  if (nameDescriptor) {
-    Object.defineProperty(fnCtor, 'name', nameDescriptor);
-  }
-  return fnCtor as any;
-}
-
-export function assignAll<T extends {}, U extends {}>(t: T, u: U): T & U;
-export function assignAll<T extends {}, U extends {}, V extends {}>(
-  t: T,
-  u: U,
-  v: V
-): T & U & V;
-export function assignAll<
-  T extends {},
-  U extends {},
-  V extends {},
-  W extends {}
->(t: T, u: U, v: V, w: W): T & U & V & W;
-export function assignAll(target: {}, ...sources: {}[]): any {
-  const newDescriptorList = [];
-  for (const source of sources) {
-    newDescriptorList.push(
-      ...Object.entries(Object.getOwnPropertyDescriptors(source))
-    );
-  }
-  const newDescriptorMap = Object.fromEntries(newDescriptorList);
-  for (const key of Object.getOwnPropertyNames(newDescriptorMap)) {
-    if (Object.getOwnPropertyDescriptor(target, key)?.configurable === false) {
-      // e.g. .prototype can be written to but not re-defined
-      (target as any)[key] = newDescriptorMap[key].value;
-      delete newDescriptorMap[key];
-    }
-  }
-  Object.defineProperties(target, newDescriptorMap);
-
-  return target;
-}
-
-// pick() but account for descriptor properties and ensure that the set of passed
-// keys matches the public properties of O exactly
-export function pickWithExactKeyMatch<
-  K extends string,
-  O extends Record<K, unknown>
->(o: Record<string, never> extends Omit<O, K> ? O : never, keys: K[]): O {
-  return Object.create(
-    Object.getPrototypeOf(o),
-    Object.fromEntries(
-      Object.entries(Object.getOwnPropertyDescriptors(o)).filter(([k]) =>
-        (keys as string[]).includes(k)
-      )
-    )
-  );
 }
 
 // Take a document from config.collections and return a corresponding match filter

@@ -63,6 +63,8 @@
     "@mongosh/i18n": "^2.15.4",
     "@mongosh/node-runtime-worker-thread": "3.3.24",
     "@mongosh/service-provider-core": "3.5.0",
+    "@mongosh/shell-bson": "1.0.0",
+    "bson": "^6.10.4",
     "numeral": "^2.0.6",
     "text-table": "^0.2.0"
   },

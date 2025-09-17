@@ -54,6 +54,7 @@
     "@babel/core": "^7.26.10",
     "@babel/types": "^7.26.10",
     "@mongosh/arg-parser": "^3.18.0",
+    "@mongosh/shell-bson": "1.0.0",
     "@mongosh/errors": "2.4.4",
     "@mongosh/history": "2.4.8",
     "@mongosh/i18n": "^2.15.4",

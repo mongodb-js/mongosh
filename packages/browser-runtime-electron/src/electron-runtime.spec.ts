@@ -6,7 +6,7 @@ chai.use(sinonChai);
 const { expect } = chai;
 
 import { NodeDriverServiceProvider } from '@mongosh/service-provider-node-driver';
-import { bson } from '@mongosh/service-provider-core';
+import * as bson from 'bson';
 import { ElectronRuntime } from './electron-runtime';
 import { EventEmitter } from 'events';
 import type { RuntimeEvaluationListener } from '@mongosh/browser-runtime-core';

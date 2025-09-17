@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { bson } from './index';
+import * as bson from 'bson';
 import { inspect } from 'util';
 import { makePrintableBson } from './printable-bson';
 

@@ -8,7 +8,7 @@ import type {
   FindCursor as ServiceProviderCursor,
   ServiceProvider,
 } from '@mongosh/service-provider-core';
-import { bson } from '@mongosh/service-provider-core';
+import * as bson from 'bson';
 import chai, { expect } from 'chai';
 import { EventEmitter } from 'events';
 import semver from 'semver';
