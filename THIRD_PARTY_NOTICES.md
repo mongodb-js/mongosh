@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Tue Sep 16 2025.
+This document was automatically generated on Wed Sep 17 2025.
 
 ## List of dependencies
 
@@ -78,6 +78,7 @@ Package|Version|License
 **[@mongosh/service-provider-core](#73a1367980d1c68f10e82a0d5d2bdd7fa40b8947d3b4e701cbe5194c0982390f)**|3.5.0|Apache-2.0
 **[@mongosh/service-provider-node-driver](#2fa00dc914ac1b54b0a540bef0668e2fbfb8393888b6f33c66313c2986decb4a)**|3.16.0|Apache-2.0
 **[@mongosh/shell-api](#a2c3a002af0642eae5b4a8490a0557a88065c7e41c6a8a185f9673bc6b9afef4)**|3.22.0|Apache-2.0
+**[@mongosh/shell-bson](#fb4910022004b8f0cc64cddfcf385d1d0f134d4d82b4454aef2847c5deb091f5)**|1.0.0|Apache-2.0
 **[@mongosh/shell-evaluator](#7a66f2a97388d2dc45a4bc1188c428d75e954153cd079fb5f90cae5b26c7c607)**|3.22.0|Apache-2.0
 **[@mongosh/snippet-manager](#de2b87b5d82e3d6cd10084b7b9d92b1bc6cccfcee38c5cc76d3a96daa1b7a01b)**|3.22.0|Apache-2.0
 **[@mongosh/types](#a028db27d7534e14dcc7cb809f428e6214874fbd8d1f9e0587480088f27084d5)**|3.14.0|Apache-2.0
@@ -309,7 +310,7 @@ Package|Version|License
 **[mkdirp](#f34eebd27506e3aa07ba3b64064715e0c4f310dad1207ad88fff362353cd4cce)**|1.0.4|MIT
 **[mongodb-build-info](#f0a98c22ae0766702726f79e058ac6dc4e4bead8557b67b816f40bd13fb54170)**|1.7.2|Apache-2.0
 **[mongodb-client-encryption](#b69198b27f91ae57d05c6db2f6c1e6afdf2e56f8b5a66a2142292cd7efde2e53)**|6.5.0|Apache-2.0
-**[mongodb-connection-string-url](#2e1146256a89ebd24e3398881e03807fe363d58444e6b7952ea50bd6108707bc)**|3.0.1|Apache-2.0
+**[mongodb-connection-string-url](#1fd70d8a07ac5222eca41b7f648d7e56e854e4947d54123daeca8614d050a545)**|3.0.2|Apache-2.0
 **[mongodb-crypt-library-version](#003bd2892d6f6fdac0613ba8f9a2fbb054ddd1c26901e1d2fc7e83861b21cf4d)**|1.0.5|Apache-2.0
 **[mongodb-log-writer](#2773a73e5385ed96d47f2a1d6236804c4b9bfeccf4b2359d30b989810409b0f1)**|2.4.1|Apache-2.0
 **[mongodb-ns](#68260f4d06e4d16a28d4139e391264d220e891ac6f0fb844b925a0cc37792aff)**|2.4.2|MIT
@@ -8365,6 +8366,11 @@ License files:
          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
          See the License for the specific language governing permissions and
          limitations under the License.
+
+
+<a id="fb4910022004b8f0cc64cddfcf385d1d0f134d4d82b4454aef2847c5deb091f5"></a>
+### [@mongosh/shell-bson](https://www.npmjs.com/package/@mongosh/shell-bson) (version 1.0.0)
+License tags: Apache-2.0
 
 
 <a id="7a66f2a97388d2dc45a4bc1188c428d75e954153cd079fb5f90cae5b26c7c607"></a>
@@ -24064,8 +24070,8 @@ License files:
       
 
 
-<a id="2e1146256a89ebd24e3398881e03807fe363d58444e6b7952ea50bd6108707bc"></a>
-### [mongodb-connection-string-url](https://www.npmjs.com/package/mongodb-connection-string-url) (version 3.0.1)
+<a id="1fd70d8a07ac5222eca41b7f648d7e56e854e4947d54123daeca8614d050a545"></a>
+### [mongodb-connection-string-url](https://www.npmjs.com/package/mongodb-connection-string-url) (version 3.0.2)
 License tags: Apache-2.0
 
 License files:
