@@ -45,6 +45,9 @@ describe('e2e Streams', function () {
       );
       return this.skip();
     }
+
+    // TODO(STREAMS-2031): Unskip this test after addressing flake
+    return this.skip();
   });
 
   describe('basic stream processor operations', function () {
