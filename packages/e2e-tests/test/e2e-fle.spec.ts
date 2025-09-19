@@ -914,6 +914,162 @@ describe('FLE tests', function () {
     });
   });
 
+  context('8.2+', function () {
+    skipIfServerVersion(testServer, '< 8.2');
+
+    context(
+      'Queryable Encryption Prefix/Suffix/Substring Support',
+      function () {
+        // Substring prefix support is enterprise-only 8.2+
+        skipIfCommunityServer(testServer);
+
+        let shell: TestShell;
+        let uri: string;
+
+        const testCollection = 'qeSubstringTest';
+
+        before(async function () {
+          shell = this.startTestShell({
+            args: ['--nodb', `--cryptSharedLibPath=${cryptLibrary}`],
+          });
+          uri = JSON.stringify(await testServer.connectionString());
+          await shell.waitForPrompt();
+
+          // Shared setup for all substring search tests - create collection once
+          await shell.executeLine(`{
+        opts = {
+          keyVaultNamespace: '${dbname}.__keyVault',
+          kmsProviders: { local: { key: 'A'.repeat(128) } },
+          bypassQueryAnalysis: false
+        };
+
+        autoMongo = Mongo(${uri}, { ...opts });
+        autoMongo.getDB('${dbname}').test.drop();
+
+        keyId = autoMongo.getKeyVault().createKey('local');
+
+        substringOptions = {
+          strMinQueryLength: 2,
+          strMaxQueryLength: 10,
+          strMaxLength: 60,
+        };
+        
+        autoMongo.getClientEncryption().createEncryptedCollection('${dbname}', '${testCollection}', {
+          provider: 'local',
+          createCollectionOptions: {
+            encryptedFields: {
+              fields: [{
+                keyId,
+                path: 'data',
+                bsonType: 'string',
+                queries: [{
+                  queryType: 'substringPreview',
+                  ...substringOptions,
+                  caseSensitive: false,
+                  diacriticSensitive: false,
+                  contention: 4
+                }]
+              }]
+            }
+          }
+        });
+
+        coll = autoMongo.getDB('${dbname}').${testCollection};
+        
+        // Setup explicit encryption client
+        explicitMongo = Mongo(${uri}, { ...opts, bypassQueryAnalysis: true });
+        ce = explicitMongo.getClientEncryption();
+        ecoll = explicitMongo.getDB('${dbname}').${testCollection};
+        
+        explicitOpts = {
+          algorithm: 'TextPreview',
+          contentionFactor: 4,
+          textOptions: { caseSensitive: false, diacriticSensitive: false, substring: substringOptions }
+        };
+      }`);
+        });
+
+        after(async function () {
+          await shell.executeLine(`ecoll.${testCollection}.drop()`);
+        });
+
+        afterEach(async function () {
+          await shell.executeLine(`ecoll.${testCollection}.deleteMany({})`);
+        });
+
+        it.skip('allows queryable encryption with prefix searches', async function () {
+          // Insert test data for prefix searches
+          await shell.executeLine(`{
+        coll.insertOne({ data: 'admin_user_123.txt' });
+        coll.insertOne({ data: 'admin_super_456.pdf' });
+        coll.insertOne({ data: 'user_regular_789.pdf' });
+        coll.insertOne({ data: 'guest_access_000.txt' });
+        
+        // Add explicit encryption data
+        ecoll.insertOne({ data: ce.encrypt(keyId, 'admin_explicit_test.pdf', explicitOpts) });
+      }`);
+          const prefixResults = await shell.executeLine(
+            'coll.find({$expr: { $and: [{$encStrStartsWith: {prefix: "admin_", input: "$data"}}] }}, { __safeContent__: 0 }).toArray()'
+          );
+          expect(prefixResults).to.have.length(3);
+          expect(prefixResults).to.include('admin_user_123.txt');
+          expect(prefixResults).to.include('admin_super_456.pdf');
+          expect(prefixResults).to.include('admin_explicit_test.pdf');
+
+          const explicitPrefixResult = await shell.executeLine(`
+            ecoll.find({$expr: { $and: [{$encStrStartsWith: {prefix: "admin_", input: "$data"}}] }},
+            { __safeContent__: 0 })
+          `);
+          expect(explicitPrefixResult).to.include('admin_user_123.txt');
+          expect(explicitPrefixResult).to.include('admin_super_456.pdf');
+          expect(explicitPrefixResult).to.include('admin_explicit_test.pdf');
+        });
+
+        it.skip('allows queryable encryption with suffix searches', async function () {
+          // Insert test data for suffix searches
+          await shell.executeLine(`{
+            coll.insertOne({ data: 'admin_user_123.txt' });
+            coll.insertOne({ data: 'admin_super_456.pdf' });
+            coll.insertOne({ data: 'user_regular_789.pdf' });
+            coll.insertOne({ data: 'guest_access_000.txt' });
+            
+            // Add explicit encryption data
+            ecoll.insertOne({ data: ce.encrypt(keyId, 'admin_explicit_test.pdf', explicitOpts) });
+          }`);
+
+          const explicitSuffixResult = await shell.executeLine(`
+            ecoll.find({$expr: { $and: [{$encStrEndsWith: {suffix: ".pdf", input: "$data"}}] }}, { __safeContent__: 0 }).toArray()
+          `);
+          expect(explicitSuffixResult).to.include('admin_super_456.pdf');
+          expect(explicitSuffixResult).to.include('user_regular_789.pdf');
+          expect(explicitSuffixResult).to.include('admin_explicit_test.pdf');
+        });
+
+        it('allows queryable encryption with substring searches', async function () {
+          // Insert test data for substring searches
+          // Insert test data for prefix searches
+          await shell.executeLine(`{
+            coll.insertOne({ data: 'admin_user_123.txt' });
+            coll.insertOne({ data: 'admin_super_456.pdf' });
+            coll.insertOne({ data: 'user_regular_789.pdf' });
+            coll.insertOne({ data: 'guest_access_000.txt' });
+            
+            // Add explicit encryption data
+            ecoll.insertOne({ data: ce.encrypt(keyId, 'explicit_user', explicitOpts) });
+          }`);
+
+          const testingSubstringResult = await shell.executeLine(
+            'ecoll.find({$expr: { $and: [{$encStrContains: {substring: "user", input: "$data"}}] }}, { __safeContent__: 0 }).toArray()'
+          );
+
+          expect(testingSubstringResult).to.include('user_regular_789.pdf');
+          expect(testingSubstringResult).to.include('admin_user_123.txt');
+          expect(testingSubstringResult).to.include('explicit_user');
+        });
+      }
+    );
+  });
+
   context('pre-6.0', function () {
     skipIfServerVersion(testServer, '>= 6.0'); // FLE2 available on 6.0+
 

@@ -35,10 +35,13 @@ export async function downloadCryptLibrary(
   // Download mongodb for latest server version, including rapid releases
   // (for the platforms that they exist for, i.e. for ppc64le/s390x only pick stable releases).
   let versionSpec = '8.0.12'; // TODO(MONGOSH-2192): Switch back to 'continuous' and deal with affected platform support.
-  if (/ppc64|s390x/.test(opts.arch || process.arch)) {
+
+  // For 8.2.0-rc4, we use the equivalent crypt shared library version for testing.
+  if (process.env.MONGOSH_SERVER_TEST_VERSION === '8.2.0-rc4-enterprise') {
+    versionSpec = '8.2.0-rc4';
+  } else if (/ppc64|s390x/.test(opts.arch || process.arch)) {
     versionSpec = '8.0.12';
-  }
-  if ((opts.platform || process.platform) === 'darwin') {
+  } else if ((opts.platform || process.platform) === 'darwin') {
     versionSpec = '8.0.5'; // TBD(MONGOSH-2192,SERVER-101020): Figure out at what point we use a later version.
   }
   const { downloadedBinDir: libdir, version } =
