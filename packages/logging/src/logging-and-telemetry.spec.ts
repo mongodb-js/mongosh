@@ -7,6 +7,11 @@ import type { MongoshBus } from '@mongosh/types';
 import type { Writable } from 'stream';
 import type { MongoshLoggingAndTelemetry } from '.';
 import { setupLoggingAndTelemetry } from '.';
+import type { LoggingAndTelemetry } from './logging-and-telemetry';
+import sinon from 'sinon';
+import type { MongoshLoggingAndTelemetryArguments } from './types';
+import { getDeviceId } from '@mongodb-js/device-id';
+import { getMachineId } from 'native-machine-id';
 
 describe('MongoshLoggingAndTelemetry', function () {
   let logOutput: any[];
@@ -15,6 +20,7 @@ describe('MongoshLoggingAndTelemetry', function () {
 
   const userId = '53defe995fa47e6c13102d9d';
   const logId = '5fb3c20ee1507e894e5340f3';
+  const deviceId = 'test-device';
 
   let logger: MongoLogWriter;
 
@@ -32,19 +38,25 @@ describe('MongoshLoggingAndTelemetry', function () {
 
   let loggingAndTelemetry: MongoshLoggingAndTelemetry;
 
-  beforeEach(function () {
-    logOutput = [];
-    analyticsOutput = [];
-    bus = new EventEmitter();
-
-    loggingAndTelemetry = setupLoggingAndTelemetry({
-      bus,
+  const testLoggingArguments: Omit<MongoshLoggingAndTelemetryArguments, 'bus'> =
+    {
       analytics,
       userTraits: {
         platform: process.platform,
         arch: process.arch,
       },
       mongoshVersion: '1.0.0',
+    };
+
+  beforeEach(function () {
+    logOutput = [];
+    analyticsOutput = [];
+    bus = new EventEmitter();
+
+    loggingAndTelemetry = setupLoggingAndTelemetry({
+      ...testLoggingArguments,
+      deviceId,
+      bus,
     });
 
     logger = new MongoLogWriter(logId, `/tmp/${logId}_log`, {
@@ -76,8 +88,10 @@ describe('MongoshLoggingAndTelemetry', function () {
     expect(() => loggingAndTelemetry.attachLogger(logger)).does.not.throw();
   });
 
-  it('tracks new local connection events', function () {
+  it('tracks new local connection events', async function () {
     loggingAndTelemetry.attachLogger(logger);
+
+    await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
 
     expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.be.empty;
@@ -106,6 +120,7 @@ describe('MongoshLoggingAndTelemetry', function () {
         {
           anonymousId: userId,
           traits: {
+            device_id: deviceId,
             arch: process.arch,
             platform: process.platform,
             session_id: logId,
@@ -130,8 +145,9 @@ describe('MongoshLoggingAndTelemetry', function () {
     ]);
   });
 
-  it('tracks new atlas connection events', function () {
+  it('tracks new atlas connection events', async function () {
     loggingAndTelemetry.attachLogger(logger);
+    await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
 
     expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.be.empty;
@@ -164,6 +180,7 @@ describe('MongoshLoggingAndTelemetry', function () {
         {
           anonymousId: userId,
           traits: {
+            device_id: deviceId,
             arch: process.arch,
             platform: process.platform,
             session_id: logId,
@@ -188,8 +205,174 @@ describe('MongoshLoggingAndTelemetry', function () {
     ]);
   });
 
-  it('detaching logger leads to no logging but persists analytics', function () {
+  describe('device ID', function () {
+    let bus: EventEmitter;
+    beforeEach(function () {
+      bus = new EventEmitter();
+    });
+
+    afterEach(function () {
+      sinon.restore();
+    });
+
+    it('uses device ID "unknown" and logs error if it fails to resolve it', async function () {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      sinon
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        .stub(require('native-machine-id'), 'getMachineId')
+        .rejects(new Error('Test'));
+      const loggingAndTelemetry = setupLoggingAndTelemetry({
+        ...testLoggingArguments,
+        bus,
+        deviceId: undefined,
+      });
+      loggingAndTelemetry.attachLogger(logger);
+      await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
+
+      bus.emit('mongosh:new-user', { userId, anonymousId: userId });
+
+      expect(analyticsOutput).deep.equal([
+        [
+          'identify',
+          {
+            anonymousId: userId,
+            traits: {
+              device_id: 'unknown',
+              platform: process.platform,
+              arch: process.arch,
+              session_id: logId,
+            },
+          },
+        ],
+      ]);
+      expect(logOutput[0]).contains({
+        c: 'MONGOSH',
+        id: 1000000006,
+        ctx: 'telemetry',
+        msg: 'Error: Test',
+      });
+    });
+
+    it('automatically sets up device ID for telemetry', async function () {
+      const abortController = new AbortController();
+      const loggingAndTelemetry = setupLoggingAndTelemetry({
+        ...testLoggingArguments,
+        bus,
+        deviceId: undefined,
+      });
+
+      loggingAndTelemetry.attachLogger(logger);
+
+      bus.emit('mongosh:new-user', { userId, anonymousId: userId });
+
+      const deviceId = await getDeviceId({
+        getMachineId: () => getMachineId({ raw: true }),
+        abortSignal: abortController.signal,
+      });
+
+      await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
+
+      expect(analyticsOutput).deep.equal([
+        [
+          'identify',
+          {
+            anonymousId: userId,
+            traits: {
+              device_id: deviceId,
+              platform: process.platform,
+              arch: process.arch,
+              session_id: logId,
+            },
+          },
+        ],
+      ]);
+    });
+
+    it('resolves device ID setup when flushed', async function () {
+      const loggingAndTelemetry = setupLoggingAndTelemetry({
+        ...testLoggingArguments,
+        bus,
+        deviceId: undefined,
+      });
+      sinon
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        .stub(require('native-machine-id'), 'getMachineId')
+        .resolves(
+          new Promise((resolve) => setTimeout(resolve, 10_000).unref())
+        );
+
+      loggingAndTelemetry.attachLogger(logger);
+
+      // Start the device ID setup
+      const setupPromise = (loggingAndTelemetry as LoggingAndTelemetry)
+        .setupTelemetryPromise;
+
+      // Flush before it completes
+      loggingAndTelemetry.flush();
+
+      // Emit an event that would trigger analytics
+      bus.emit('mongosh:new-user', { userId, anonymousId: userId });
+
+      await setupPromise;
+
+      // Should still identify but with unknown device ID
+      expect(analyticsOutput).deep.equal([
+        [
+          'identify',
+          {
+            anonymousId: userId,
+            traits: {
+              device_id: 'unknown',
+              platform: process.platform,
+              arch: process.arch,
+              session_id: logId,
+            },
+          },
+        ],
+      ]);
+    });
+
+    it('only delays analytic outputs, not logging', async function () {
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      let resolveTelemetry: (value: unknown) => void = () => {};
+      const delayedTelemetry = new Promise((resolve) => {
+        resolveTelemetry = (value) => resolve(value);
+      });
+      sinon
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        .stub(require('native-machine-id'), 'getMachineId')
+        .resolves(delayedTelemetry);
+
+      const loggingAndTelemetry = setupLoggingAndTelemetry({
+        ...testLoggingArguments,
+        bus,
+        deviceId: undefined,
+      }) as LoggingAndTelemetry;
+
+      loggingAndTelemetry.attachLogger(logger);
+
+      // This event has both analytics and logging
+      bus.emit('mongosh:use', { db: '' });
+
+      expect(logOutput).to.have.lengthOf(1);
+      expect(analyticsOutput).to.have.lengthOf(0);
+
+      resolveTelemetry('1234');
+      await loggingAndTelemetry.setupTelemetryPromise;
+
+      expect(logOutput).to.have.lengthOf(1);
+      expect(analyticsOutput).to.have.lengthOf(1);
+
+      // Hash created from machine ID 1234
+      expect(loggingAndTelemetry['deviceId']).equals(
+        '8c9f929608f0ef13bfd5a290e0233f283e2cc25ffefc2ad8d9ef0650eb224a52'
+      );
+    });
+  });
+
+  it('detaching logger leads to no logging but persists analytics', async function () {
     loggingAndTelemetry.attachLogger(logger);
+    await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
 
     expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.have.lengthOf(0);
@@ -226,7 +409,7 @@ describe('MongoshLoggingAndTelemetry', function () {
     expect(logOutput).to.have.lengthOf(4);
   });
 
-  it('detaching logger mid-way leads to no logging but persists analytics', function () {
+  it('detaching logger mid-way leads to no logging but persists analytics', async function () {
     loggingAndTelemetry.attachLogger(logger);
 
     expect(logOutput).to.have.lengthOf(0);
@@ -236,6 +419,8 @@ describe('MongoshLoggingAndTelemetry', function () {
     bus.emit('mongosh:use', { db: '' });
 
     expect(logOutput).to.have.lengthOf(1);
+
+    await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
     expect(analyticsOutput).to.have.lengthOf(1);
 
     loggingAndTelemetry.detachLogger();
@@ -243,10 +428,11 @@ describe('MongoshLoggingAndTelemetry', function () {
     bus.emit('mongosh:use', { db: '' });
 
     expect(logOutput).to.have.lengthOf(1);
+
     expect(analyticsOutput).to.have.lengthOf(2);
   });
 
-  it('detaching logger is recoverable', function () {
+  it('detaching logger is recoverable', async function () {
     loggingAndTelemetry.attachLogger(logger);
 
     expect(logOutput).to.have.lengthOf(0);
@@ -256,6 +442,8 @@ describe('MongoshLoggingAndTelemetry', function () {
     bus.emit('mongosh:use', { db: '' });
 
     expect(logOutput).to.have.lengthOf(1);
+    await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
+
     expect(analyticsOutput).to.have.lengthOf(1);
 
     loggingAndTelemetry.detachLogger();
@@ -263,6 +451,7 @@ describe('MongoshLoggingAndTelemetry', function () {
     bus.emit('mongosh:use', { db: '' });
 
     expect(logOutput).to.have.lengthOf(1);
+
     expect(analyticsOutput).to.have.lengthOf(2);
 
     loggingAndTelemetry.attachLogger(logger);
@@ -270,11 +459,13 @@ describe('MongoshLoggingAndTelemetry', function () {
     bus.emit('mongosh:use', { db: '' });
 
     expect(logOutput).to.have.lengthOf(2);
+
     expect(analyticsOutput).to.have.lengthOf(3);
   });
 
-  it('tracks a sequence of events', function () {
+  it('tracks a sequence of events', async function () {
     loggingAndTelemetry.attachLogger(logger);
+    await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
 
     expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.be.empty;
@@ -575,8 +766,9 @@ describe('MongoshLoggingAndTelemetry', function () {
       [
         'identify',
         {
-          anonymousId: '53defe995fa47e6c13102d9d',
+          anonymousId: userId,
           traits: {
+            device_id: deviceId,
             platform: process.platform,
             arch: process.arch,
             session_id: logId,
@@ -586,8 +778,9 @@ describe('MongoshLoggingAndTelemetry', function () {
       [
         'identify',
         {
-          anonymousId: '53defe995fa47e6c13102d9d',
+          anonymousId: userId,
           traits: {
+            device_id: deviceId,
             platform: process.platform,
             arch: process.arch,
             session_id: logId,
@@ -597,7 +790,7 @@ describe('MongoshLoggingAndTelemetry', function () {
       [
         'track',
         {
-          anonymousId: '53defe995fa47e6c13102d9d',
+          anonymousId: userId,
           event: 'Startup Time',
           properties: {
             is_interactive: true,
@@ -735,8 +928,9 @@ describe('MongoshLoggingAndTelemetry', function () {
     ]);
   });
 
-  it('buffers deprecated API calls', function () {
+  it('buffers deprecated API calls', async function () {
     loggingAndTelemetry.attachLogger(logger);
+    await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
 
     expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.be.empty;
@@ -885,6 +1079,7 @@ describe('MongoshLoggingAndTelemetry', function () {
     ]);
 
     bus.emit('mongosh:new-user', { userId, anonymousId: userId });
+
     logOutput = [];
     analyticsOutput = [];
 
@@ -907,6 +1102,7 @@ describe('MongoshLoggingAndTelemetry', function () {
       class: 'Database',
       method: 'cloneDatabase',
     });
+
     expect(analyticsOutput).to.have.lengthOf(2);
   });
 
@@ -934,11 +1130,12 @@ describe('MongoshLoggingAndTelemetry', function () {
     expect(analyticsOutput).to.be.empty;
   });
 
-  it('tracks custom logging events', function () {
+  it('tracks custom logging events', async function () {
     expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.be.empty;
 
     loggingAndTelemetry.attachLogger(logger);
+    await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
 
     bus.emit('mongosh:connect', {
       uri: 'mongodb://localhost/',

@@ -1098,6 +1098,7 @@ describe('NodeDriverServiceProvider', function () {
       ).to.deep.equal({
         oidc: { ...cloneableOidcOptions },
         ...productInfo,
+        __skipPingOnConnect: false,
       });
     });
 

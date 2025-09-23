@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import type Mongo from './mongo';
-import Database from './database';
+import { Database } from './database';
 import { Streams } from './streams';
 import { InterruptFlag, MongoshInterruptedError } from './interruptor';
 import type { MongoshInvalidInputError } from '@mongosh/errors';
@@ -23,7 +23,8 @@ describe('Streams', function () {
         runCommand: identity,
       },
     } as unknown as Mongo;
-    streams = new Streams(new Database(mongo, 'testDb'));
+    const db = new Database(mongo, 'testDb');
+    streams = new Streams(db);
   });
 
   describe('createStreamProcessor', function () {

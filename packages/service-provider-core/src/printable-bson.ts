@@ -59,7 +59,8 @@ const binaryVectorInspect = function (
           maxArrayLength: utilInspect.defaultOptions.maxArrayLength,
         })
       )}))`;
-    case BSON.Binary.VECTOR_TYPE.PackedBit:
+    case BSON.Binary.VECTOR_TYPE.PackedBit: {
+      const paddingInfo = this.buffer[1] === 0 ? '' : `, ${this.buffer[1]}`;
       return `Binary.fromPackedBits(new Uint8Array(${removeTypedArrayPrefixFromInspectResult(
         utilInspect(this.toPackedBits(), {
           depth,
@@ -67,7 +68,8 @@ const binaryVectorInspect = function (
           // These arrays can be very large, so would prefer to use the default options instead.
           maxArrayLength: utilInspect.defaultOptions.maxArrayLength,
         })
-      )}))`;
+      )})${paddingInfo})`;
+    }
     default:
       return binaryInspect.call(this, depth, options);
   }

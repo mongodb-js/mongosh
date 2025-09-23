@@ -771,6 +771,25 @@ describe('e2e', function () {
       ).to.include('string');
     });
 
+    it('sets device ID for telemetry', async function () {
+      const deviceId = (
+        await shell.executeLine(
+          'db._mongo._instanceState.evaluationListener.ioProvider.loggingAndTelemetry.deviceId'
+        )
+      )
+        .split('\n')[0]
+        // Remove all whitespace
+        .replace(/\s+/g, '');
+
+      expect(deviceId).not.to.equal('unknown');
+      // Our hashed key is 64 hex chars
+
+      expect(deviceId).to.match(
+        /^[a-f0-9]{64}$/,
+        `deviceId did not match: |${deviceId}|`
+      );
+    });
+
     context('post-4.2', function () {
       skipIfServerVersion(testServer, '< 4.4');
       it('allows calling convertShardKeyToHashed() as a global function', async function () {
@@ -1151,22 +1170,40 @@ describe('e2e', function () {
         env: {
           ...process.env,
           NODE_PATH: path.resolve(__dirname, 'fixtures', 'node-path'),
+          NODE_OPTIONS: '--expose-gc',
         },
       });
       await shell.waitForPrompt();
       shell.assertNoErrors();
     });
 
-    it('require() searches the current working directory according to Node.js rules', async function () {
-      let result;
+    it('require() and import() search the current working directory according to Node.js rules', async function () {
+      let result: string;
       result = await shell.executeLine('require("a")');
       expect(result).to.match(/Error: Cannot find module 'a'/);
       result = await shell.executeLine('require("./a")');
       expect(result).to.match(/^A$/m);
       result = await shell.executeLine('require("b")');
       expect(result).to.match(/^B$/m);
+      result = await shell.executeLine('require("b-esm").value');
+      expect(result).to.match(/^B-ESM$/m);
       result = await shell.executeLine('require("c")');
       expect(result).to.match(/^C$/m);
+      result = await shell.executeLine('import("b").then(m => m.default)');
+      expect(result).to.match(/^B$/m);
+      result = await shell.executeLine('import("b-esm").then(m => m.value)');
+      expect(result).to.match(/^B-ESM$/m);
+    });
+
+    // Regression test for https://github.com/nodejs/node/issues/38695
+    it('import() works when interleaved with GC', async function () {
+      await shell.executeLine('importESM = () => import("b-esm")');
+      expect(await shell.executeLine('globalThis.gc(); "ran gc"')).to.include(
+        'ran gc'
+      );
+      const result = await shell.executeLine('importESM().then(m => m.value)');
+      expect(result).to.match(/^B-ESM$/m);
+      shell.assertNoErrors();
     });
 
     it('Can use Node.js APIs without any extra effort', async function () {
@@ -1175,6 +1212,7 @@ describe('e2e', function () {
         `fs.readFileSync(${JSON.stringify(__filename)}, 'utf8')`
       );
       expect(result).to.include('Too lazy to write a fixture');
+      shell.assertNoErrors();
     });
   });
 
@@ -1821,8 +1859,11 @@ describe('e2e', function () {
 
             // Add the newly created log file
             paths.push(path.join(customLogDir.path, getLogName(shell.logId)));
-            // Expect 6 files to be deleted and 5 to remain (including the new log file)
-            expect(await getFilesState(paths)).equals('00000011111');
+
+            await eventually(async () => {
+              // Expect 6 files to be deleted and 5 to remain (including the new log file)
+              expect(await getFilesState(paths)).equals('00000011111');
+            });
           });
         });
 
@@ -1874,10 +1915,13 @@ describe('e2e', function () {
             await shell.waitForPrompt();
 
             paths.push(path.join(customLogDir.path, getLogName(shell.logId)));
-            // 3 log files without mongosh_ prefix should remain
-            // 2 log file with mongosh_ prefix should be deleted
-            // 2 log files with mongosh_ prefix should remain (including the new log)
-            expect(await getFilesState(paths)).to.equal('1110011');
+
+            await eventually(async () => {
+              // 3 log files without mongosh_ prefix should remain
+              // 2 log file with mongosh_ prefix should be deleted
+              // 2 log files with mongosh_ prefix should remain (including the new log)
+              expect(await getFilesState(paths)).to.equal('1110011');
+            });
           });
 
           it('should delete files once it is above logMaxFileCount', async function () {
@@ -1913,8 +1957,10 @@ describe('e2e', function () {
               await shell.executeLine('config.get("logMaxFileCount")')
             ).contains('4');
 
-            // Expect 7 files to be deleted and 4 to remain (including the new log file)
-            expect(await getFilesState(paths)).to.equal('00000001111');
+            await eventually(async () => {
+              // Expect 7 files to be deleted and 4 to remain (including the new log file)
+              expect(await getFilesState(paths)).to.equal('00000001111');
+            });
           });
         });
 
@@ -1959,9 +2005,11 @@ describe('e2e', function () {
               await shell.executeLine('config.get("logRetentionGB")')
             ).contains(`${4 / 1024}`);
 
-            // Expect 6 files to be deleted and 4 to remain
-            // (including the new log file which should be <1 MB)
-            expect(await getFilesState(paths)).to.equal('00000001111');
+            await eventually(async () => {
+              // Expect 6 files to be deleted and 4 to remain
+              // (including the new log file which should be <1 MB)
+              expect(await getFilesState(paths)).to.equal('00000001111');
+            });
           });
         });
 
@@ -2300,8 +2348,8 @@ describe('e2e', function () {
       it('keeps working when the config file is present but not writable', async function () {
         if (
           process.platform === 'win32' ||
-          process.getuid() === 0 ||
-          process.geteuid() === 0
+          process.getuid?.() === 0 ||
+          process.geteuid?.() === 0
         ) {
           return this.skip(); // There is no meaningful chmod on Windows, and root can ignore permissions.
         }

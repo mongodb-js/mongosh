@@ -22,6 +22,10 @@ import type {
   FindAndModifyMethodShellOptions,
   RemoveShellOptions,
   MapReduceShellOptions,
+  GenericCollectionSchema,
+  GenericDatabaseSchema,
+  GenericServerSideSchema,
+  StringKey,
   SearchIndexDefinition,
 } from './helpers';
 import {
@@ -43,7 +47,6 @@ import {
   buildConfigChunksCollectionMatch,
   onlyShardedCollectionsInConfigFilter,
   aggregateBackgroundOptionNotSupportedHelp,
-  getConfigDB,
 } from './helpers';
 import type {
   AnyBulkWriteOperation,
@@ -70,7 +73,7 @@ import type {
   AggregateOptions,
   SearchIndexDescription,
 } from '@mongosh/service-provider-core';
-import type { RunCommandCursor, Database } from './index';
+import type { RunCommandCursor, Database, DatabaseWithSchema } from './index';
 import {
   AggregationCursor,
   BulkWriteResult,
@@ -93,17 +96,43 @@ import { HIDDEN_COMMANDS } from '@mongosh/history';
 import PlanCache from './plan-cache';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ShellApiErrors } from './error-codes';
+import type { MQLDocument, MQLQuery, MQLPipeline } from './mql-types';
+
+export type CollectionWithSchema<
+  M extends GenericServerSideSchema = GenericServerSideSchema,
+  D extends GenericDatabaseSchema = M[keyof M],
+  C extends GenericCollectionSchema = D[keyof D],
+  N extends StringKey<D> = StringKey<D>
+> = Collection<M, D, C, N> & {
+  [k in StringKey<D> as k extends `${N}.${infer S}` ? S : never]: Collection<
+    M,
+    D,
+    D[k],
+    k
+  >;
+};
 
 @shellApiClassDefault
 @addSourceToResults
-export default class Collection extends ShellApiWithMongoClass {
-  _mongo: Mongo;
-  _database: Database;
-  _name: string;
-  constructor(mongo: Mongo, database: Database, name: string) {
+export class Collection<
+  M extends GenericServerSideSchema = GenericServerSideSchema,
+  D extends GenericDatabaseSchema = M[keyof M],
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  C extends GenericCollectionSchema = D[keyof D],
+  N extends StringKey<D> = StringKey<D>
+> extends ShellApiWithMongoClass {
+  _mongo: Mongo<M>;
+  _database: DatabaseWithSchema<M, D>;
+  _name: N;
+  _cachedSampleDocs: Document[] = [];
+  constructor(
+    mongo: Mongo<M>,
+    database: DatabaseWithSchema<M, D> | Database<M, D>,
+    name: N
+  ) {
     super();
     this._mongo = mongo;
-    this._database = database;
+    this._database = database as DatabaseWithSchema<M, D>;
     this._name = name;
     const proxy = new Proxy(this, {
       get: (target, prop): any => {
@@ -161,20 +190,20 @@ export default class Collection extends ShellApiWithMongoClass {
    * @returns {Promise} The promise of aggregation results.
    */
   async aggregate(
-    pipeline: Document[],
+    pipeline: MQLPipeline,
     options: AggregateOptions & { explain: ExplainVerbosityLike }
   ): Promise<Document>;
   async aggregate(
-    pipeline: Document[],
+    pipeline: MQLPipeline,
     options?: AggregateOptions
   ): Promise<AggregationCursor>;
-  async aggregate(...stages: Document[]): Promise<AggregationCursor>;
+  async aggregate(...stages: MQLPipeline): Promise<AggregationCursor>;
   @returnsPromise
   @returnType('AggregationCursor')
   @apiVersions([1])
   async aggregate(...args: unknown[]): Promise<AggregationCursor | Document> {
     let options: AggregateOptions;
-    let pipeline: Document[];
+    let pipeline: MQLPipeline;
     if (args.length === 0 || Array.isArray(args[0])) {
       options = args[1] || {};
       pipeline = (args[0] as Document[]) || [];
@@ -293,7 +322,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @serverVersions(['4.0.3', ServerVersions.latest])
   @apiVersions([1])
   async countDocuments(
-    query?: Document,
+    query?: MQLQuery,
     options: CountDocumentsOptions = {}
   ): Promise<number> {
     this._emitCollectionApiCall('countDocuments', { query, options });
@@ -386,17 +415,17 @@ export default class Collection extends ShellApiWithMongoClass {
    * @returns {Array} The promise of the result.
    */
   async distinct(field: string): Promise<Document>;
-  async distinct(field: string, query: Document): Promise<Document>;
+  async distinct(field: string, query: MQLQuery): Promise<Document>;
   async distinct(
     field: string,
-    query: Document,
+    query: MQLQuery,
     options: DistinctOptions
   ): Promise<Document>;
   @returnsPromise
   @apiVersions([])
   async distinct(
     field: string,
-    query?: Document,
+    query?: MQLQuery,
     options: DistinctOptions = {}
   ): Promise<Document> {
     this._emitCollectionApiCall('distinct', { field, query, options });
@@ -449,7 +478,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @apiVersions([1])
   @returnsPromise
   async find(
-    query?: Document,
+    query?: MQLQuery,
     projection?: Document,
     options: FindOptions = {}
   ): Promise<Cursor> {
@@ -533,10 +562,10 @@ export default class Collection extends ShellApiWithMongoClass {
   @returnType('Document')
   @apiVersions([1])
   async findOne(
-    query: Document = {},
+    query: MQLQuery = {},
     projection?: Document,
     options: FindOptions = {}
-  ): Promise<Document | null> {
+  ): Promise<MQLDocument | null> {
     if (projection) {
       options.projection = projection;
     }
@@ -730,7 +759,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @serverVersions([ServerVersions.earliest, '3.6.0'])
   @apiVersions([1])
   async insert(
-    docs: Document | Document[],
+    docs: MQLDocument | MQLDocument[],
     options: BulkWriteOptions = {}
   ): Promise<InsertManyResult> {
     await this._instanceState.printDeprecationWarning(
@@ -774,7 +803,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @serverVersions(['3.2.0', ServerVersions.latest])
   @apiVersions([1])
   async insertMany(
-    docs: Document[],
+    docs: MQLDocument[],
     options: BulkWriteOptions = {}
   ): Promise<InsertManyResult> {
     assertArgsDefinedType([docs], [true], 'Collection.insertMany');
@@ -810,7 +839,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @serverVersions(['3.2.0', ServerVersions.latest])
   @apiVersions([1])
   async insertOne(
-    doc: Document,
+    doc: MQLDocument,
     options: InsertOneOptions = {}
   ): Promise<InsertOneResult> {
     assertArgsDefinedType([doc], [true], 'Collection.insertOne');
@@ -866,7 +895,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @serverVersions([ServerVersions.earliest, '3.2.0'])
   @apiVersions([1])
   async remove(
-    query: Document,
+    query: MQLQuery,
     options: boolean | RemoveShellOptions = {}
   ): Promise<DeleteResult | Document> {
     await this._instanceState.printDeprecationWarning(
@@ -901,7 +930,7 @@ export default class Collection extends ShellApiWithMongoClass {
    * @param {Object} filter - The filter.
    * @param {Object} replacement - The replacement document for matches.
    * @param {Object} options - The replace options.
-   *    <upsert, writeConcern, collation, hint>
+   *    <upsert, writeConcern, collation, hint, sort>
    *
    * @returns {UpdateResult} The promise of the result.
    */
@@ -1029,7 +1058,7 @@ export default class Collection extends ShellApiWithMongoClass {
    * @param {Object} filter - The filter.
    * @param {(Object|Array)} update - The updates.
    * @param {Object} options - The update options.
-   *  <upsert, writeConcern, collation, arrayFilters, hint>
+   *  <upsert, writeConcern, collation, arrayFilters, hint, sort>
    *
    * @returns {UpdateResult} The promise of the result.
    */
@@ -1039,7 +1068,7 @@ export default class Collection extends ShellApiWithMongoClass {
   async updateOne(
     filter: Document,
     update: Document,
-    options: UpdateOptions = {}
+    options: UpdateOptions & { sort?: Document } = {}
   ): Promise<UpdateResult | Document> {
     assertArgsDefinedType([filter], [true], 'Collection.updateOne');
     this._emitCollectionApiCall('updateOne', { filter, options });
@@ -1417,10 +1446,10 @@ export default class Collection extends ShellApiWithMongoClass {
   /**
    * Returns the collection database.
    *
-   * @return {Database}
+   * @return {DatabaseWithSchema}
    */
-  @returnType('Database')
-  getDB(): Database {
+  @returnType('DatabaseWithSchema')
+  getDB(): DatabaseWithSchema<M, D> {
     this._emitCollectionApiCall('getDB');
     return this._database;
   }
@@ -1431,7 +1460,7 @@ export default class Collection extends ShellApiWithMongoClass {
    * @return {Mongo}
    */
   @returnType('Mongo')
-  getMongo(): Mongo {
+  getMongo(): Mongo<M> {
     this._emitCollectionApiCall('getMongo');
     return this._mongo;
   }
@@ -1561,9 +1590,9 @@ export default class Collection extends ShellApiWithMongoClass {
     return `${this._database._name}.${this._name}`;
   }
 
-  getName(): string {
+  getName(): N {
     this._emitCollectionApiCall('getName');
-    return `${this._name}`;
+    return this._name;
   }
 
   @returnsPromise
@@ -1768,7 +1797,7 @@ export default class Collection extends ShellApiWithMongoClass {
     }
 
     const ns = `${this._database._name}.${this._name}`;
-    const config = this._mongo.getDB('config');
+    const config = this._mongo.getDB('config' as StringKey<M>);
     if (collStats[0].shard) {
       result.shards = shardStats;
     }
@@ -2016,7 +2045,7 @@ export default class Collection extends ShellApiWithMongoClass {
     optionsOrOutString: MapReduceShellOptions
   ): Promise<Document> {
     await this._instanceState.printDeprecationWarning(
-      'Collection.mapReduce() is deprecated. Use an aggregation instead.\nSee https://docs.mongodb.com/manual/core/map-reduce for details.'
+      'Collection.mapReduce() is deprecated. Use an aggregation instead.\nSee https://mongodb.com/docs/manual/core/map-reduce for details.'
     );
     assertArgsDefinedType(
       [map, reduce, optionsOrOutString],
@@ -2077,7 +2106,7 @@ export default class Collection extends ShellApiWithMongoClass {
    * @returns collection info based on given collStats.
    */
   async _getShardedCollectionInfo(
-    config: Database,
+    config: DatabaseWithSchema<M, D>,
     collStats: Document[]
   ): Promise<Document> {
     const ns = `${this._database._name}.${this._name}`;
@@ -2135,10 +2164,11 @@ export default class Collection extends ShellApiWithMongoClass {
   > {
     this._emitCollectionApiCall('getShardDistribution', {});
 
-    await getConfigDB(this._database); // Warns if not connected to mongos
-
-    const result = {} as GetShardDistributionResult;
-    const config = this._mongo.getDB('config');
+    const result = {} as Document;
+    // TODO: can we get around casting here?
+    const config = this._mongo.getDB(
+      'config' as StringKey<M>
+    ) as DatabaseWithSchema<M, D>;
 
     const collStats = await (
       await this.aggregate({ $collStats: { storageStats: {} } })
@@ -2248,7 +2278,55 @@ export default class Collection extends ShellApiWithMongoClass {
     }
     result.Totals = totalValue;
 
-    return new CommandResult<GetShardDistributionResult>('StatsResult', result);
+    return new CommandResult<GetShardDistributionResult>(
+      'StatsResult',
+      result as GetShardDistributionResult
+    );
+  }
+
+  @returnsPromise
+  @topologies([Topologies.Sharded])
+  @apiVersions([])
+  @serverVersions(['8.0.10', ServerVersions.latest])
+  async getShardLocation(): Promise<{
+    shards: string[];
+    sharded: boolean;
+  }> {
+    this._emitCollectionApiCall('getShardLocation', {});
+
+    const result = await (
+      await this._database.aggregate([
+        {
+          $listClusterCatalog: {
+            shards: true,
+          },
+        },
+        {
+          $match: {
+            ns: this.getFullName(),
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            shards: 1,
+            sharded: 1,
+          },
+        },
+      ])
+    ).toArray();
+
+    if (result.length > 0) {
+      return {
+        shards: result[0].shards,
+        sharded: result[0].sharded,
+      };
+    }
+
+    throw new MongoshRuntimeError(
+      `Error finding location information for ${this.getFullName()}`,
+      CommonErrors.CommandFailed
+    );
   }
 
   @serverVersions(['3.1.0', ServerVersions.latest])
@@ -2256,7 +2334,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @apiVersions([1])
   @returnsPromise
   async watch(
-    pipeline: Document[] | ChangeStreamOptions = [],
+    pipeline: MQLPipeline | ChangeStreamOptions = [],
     options: ChangeStreamOptions = {}
   ): Promise<ChangeStreamCursor> {
     if (!Array.isArray(pipeline)) {
@@ -2358,7 +2436,7 @@ export default class Collection extends ShellApiWithMongoClass {
   ): Promise<RunCommandCursor> {
     this._emitCollectionApiCall('checkMetadataConsistency', { options });
 
-    return this._database._runCursorCommand({
+    return await this._database._runCursorCommand({
       checkMetadataConsistency: this._name,
     });
   }
@@ -2496,6 +2574,39 @@ export default class Collection extends ShellApiWithMongoClass {
       indexName,
       definition
     );
+  }
+
+  async _getSampleDocs(): Promise<Document[]> {
+    this._cachedSampleDocs = await (
+      await this.aggregate([{ $sample: { size: 10 } }], {
+        allowDiskUse: true,
+        maxTimeMS: 1000,
+        readPreference: 'secondaryPreferred',
+      })
+    ).toArray();
+    return this._cachedSampleDocs;
+  }
+
+  async _getSampleDocsForCompletion(): Promise<Document[]> {
+    return await Promise.race([
+      (async () => {
+        const result = await this._getSampleDocs();
+        this._mongo._instanceState.messageBus.emit(
+          'mongosh:load-sample-docs-complete'
+        );
+        return result;
+      })(),
+      (async () => {
+        // 200ms should be a good compromise between giving the server a chance
+        // to reply and responsiveness for human perception. It's not the end
+        // of the world if we end up using the cached results; usually, they
+        // are not going to differ from fresh ones, and even if they do, a
+        // subsequent autocompletion request will almost certainly have at least
+        // the new cached results.
+        await new Promise((resolve) => setTimeout(resolve, 200)?.unref?.());
+        return this._cachedSampleDocs;
+      })(),
+    ]);
   }
 }
 

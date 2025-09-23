@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/autocomplete",
-  "version": "3.6.0",
+  "version": "3.22.0",
   "description": "MongoDB Shell Autocomplete Package",
   "homepage": "https://github.com/mongodb-js/mongosh",
   "license": "Apache-2.0",
@@ -28,7 +28,7 @@
     "compile": "tsc -p tsconfig.json",
     "prepublish": "npm run compile",
     "prettier": "prettier",
-    "reformat": "npm run prettier -- --write . && npm run eslint --fix"
+    "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
   },
   "mongosh": {
     "unitTestsOnly": true
@@ -44,7 +44,8 @@
   },
   "dependencies": {
     "@mongodb-js/mongodb-constants": "^0.10.1",
-    "@mongosh/shell-api": "3.6.0",
+    "@mongosh/shell-api": "^3.22.0",
+    "@mongodb-js/mongodb-ts-autocomplete": "^0.4.7",
     "semver": "^7.5.4"
   }
 }

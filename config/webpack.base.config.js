@@ -54,6 +54,7 @@ module.exports = {
   },
 
   output: {
+    chunkFormat: false,
     strictModuleErrorHandling: true,
     strictModuleExceptionHandling: true,
   },

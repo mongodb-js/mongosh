@@ -10,6 +10,8 @@ export * from './all-fle-types';
 
 export { MapReduceOptions, FinalizeFunction } from './map-reduce-options';
 
+export { TopologyDescription, ServerDescription } from './readable';
+
 export {
   CreateEncryptedCollectionOptions,
   CheckMetadataConsistencyOptions,
@@ -21,6 +23,7 @@ export { bson } from './bson-export';
 export {
   ServiceProviderAbstractCursor,
   ServiceProviderAggregationCursor,
+  ServiceProviderBaseCursor,
   ServiceProviderFindCursor,
   ServiceProviderRunCommandCursor,
   ServiceProviderChangeStream,

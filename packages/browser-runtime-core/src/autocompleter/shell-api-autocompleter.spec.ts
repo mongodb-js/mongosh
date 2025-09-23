@@ -1,8 +1,10 @@
 import { ShellApiAutocompleter } from './shell-api-autocompleter';
 import { expect } from 'chai';
 import { Topologies } from '@mongosh/shell-api';
+import type { AutocompleteParameters } from '@mongosh/autocomplete';
+import type { AutocompletionContext } from '@mongodb-js/mongodb-ts-autocomplete';
 
-const standalone440 = {
+const standalone440Parameters: AutocompleteParameters = {
   topology: () => Topologies.Standalone,
   apiVersionInfo: () => undefined,
   connectionInfo: () => ({
@@ -11,8 +13,23 @@ const standalone440 = {
     server_version: '4.4.0',
     is_local_atlas: false,
   }),
-  getCollectionCompletionsForCurrentDb: () => ['bananas'],
-  getDatabaseCompletions: () => ['databaseOne'],
+  getCollectionCompletionsForCurrentDb: () => Promise.resolve(['bananas']),
+  getDatabaseCompletions: () => Promise.resolve(['databaseOne']),
+};
+
+const standalone440Context: AutocompletionContext = {
+  currentDatabaseAndConnection: () => ({
+    connectionId: 'connection-1',
+    databaseName: 'databaseOne',
+  }),
+  databasesForConnection: () => Promise.resolve(['databaseOne']),
+  collectionsForDatabase: () => Promise.resolve(['bananas', 'coll1']),
+  schemaInformationForCollection: () => Promise.resolve({}),
+};
+
+const shellInstanceState = {
+  getAutocompleteParameters: () => standalone440Parameters,
+  getAutocompletionContext: () => standalone440Context,
 };
 
 describe('Autocompleter', function () {
@@ -20,7 +37,7 @@ describe('Autocompleter', function () {
     let autocompleter: ShellApiAutocompleter;
 
     beforeEach(function () {
-      autocompleter = new ShellApiAutocompleter(standalone440);
+      autocompleter = new ShellApiAutocompleter(shellInstanceState);
     });
 
     it('returns completions for text before cursor', async function () {

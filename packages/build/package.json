@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/build",
-  "version": "3.3.1",
+  "version": "3.7.4",
   "private": true,
   "description": "MongoDB Shell Build Tools",
   "main": "lib/index.js",
@@ -30,7 +30,7 @@
     "publish": "ts-node src/index.ts publish",
     "bump-auxiliary": "ts-node src/index.ts bump --auxiliary",
     "publish-auxiliary": "ts-node src/index.ts publish --auxiliary",
-    "reformat": "npm run prettier -- --write . && npm run eslint --fix",
+    "reformat": "npm run prettier -- --write . && npm run eslint -- --fix",
     "update-cta": "ts-node src/index.ts update-cta"
   },
   "license": "Apache-2.0",
@@ -65,7 +65,7 @@
   },
   "dependencies": {
     "@mongodb-js/devtools-github-repo": "^1.4.2",
-    "@mongodb-js/dl-center": "^1.1.1",
+    "@mongodb-js/dl-center": "^1.3.0",
     "@mongodb-js/mongodb-downloader": "^0.3.7",
     "@mongodb-js/monorepo-tools": "^1.1.16",
     "@mongodb-js/signing-utils": "^0.3.7",

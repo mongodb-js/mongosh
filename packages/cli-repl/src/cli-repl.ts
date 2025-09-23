@@ -1172,6 +1172,8 @@ export class CliRepl implements MongoshIOProvider {
       const analytics = this.toggleableAnalytics;
       let flushError: string | null = null;
       let flushDuration: number | null = null;
+      this.loggingAndTelemetry?.flush();
+
       if (analytics) {
         const flushStart = Date.now();
         try {
@@ -1194,6 +1196,7 @@ export class CliRepl implements MongoshIOProvider {
         }
       );
       await this.logWriter?.flush();
+
       markTime(TimingCategories.Logging, 'flushed log writer');
       this.bus.emit('mongosh:closed');
     })());
@@ -1211,6 +1214,7 @@ export class CliRepl implements MongoshIOProvider {
     // onExit never returns. If it does, that's a bug.
     const error = new MongoshInternalError('onExit() unexpectedly returned');
     this.bus.emit('mongosh:error', error, 'fatal');
+
     throw error;
   }
 

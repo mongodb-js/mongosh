@@ -60,6 +60,8 @@ describe('ShellApi', function () {
         acceptsRawInput: false,
         shellCommandCompleter:
           signatures.ShellApi.attributes?.use.shellCommandCompleter,
+        newShellCommandCompleter:
+          signatures.ShellApi.attributes?.use.newShellCommandCompleter,
       });
       expect(signatures.ShellApi.attributes?.show).to.deep.equal({
         type: 'function',
@@ -74,6 +76,8 @@ describe('ShellApi', function () {
         acceptsRawInput: false,
         shellCommandCompleter:
           signatures.ShellApi.attributes?.show.shellCommandCompleter,
+        newShellCommandCompleter:
+          signatures.ShellApi.attributes?.show.newShellCommandCompleter,
       });
       expect(signatures.ShellApi.attributes?.exit).to.deep.equal({
         type: 'function',
@@ -87,6 +91,7 @@ describe('ShellApi', function () {
         isDirectShellCommand: true,
         acceptsRawInput: false,
         shellCommandCompleter: undefined,
+        newShellCommandCompleter: undefined,
       });
       expect(signatures.ShellApi.attributes?.it).to.deep.equal({
         type: 'function',
@@ -100,6 +105,7 @@ describe('ShellApi', function () {
         isDirectShellCommand: true,
         acceptsRawInput: false,
         shellCommandCompleter: undefined,
+        newShellCommandCompleter: undefined,
       });
       expect(signatures.ShellApi.attributes?.print).to.deep.equal({
         type: 'function',
@@ -113,6 +119,7 @@ describe('ShellApi', function () {
         isDirectShellCommand: false,
         acceptsRawInput: false,
         shellCommandCompleter: undefined,
+        newShellCommandCompleter: undefined,
       });
       expect(signatures.ShellApi.attributes?.printjson).to.deep.equal({
         type: 'function',
@@ -126,6 +133,7 @@ describe('ShellApi', function () {
         isDirectShellCommand: false,
         acceptsRawInput: false,
         shellCommandCompleter: undefined,
+        newShellCommandCompleter: undefined,
       });
       expect(signatures.ShellApi.attributes?.sleep).to.deep.equal({
         type: 'function',
@@ -139,6 +147,7 @@ describe('ShellApi', function () {
         isDirectShellCommand: false,
         acceptsRawInput: false,
         shellCommandCompleter: undefined,
+        newShellCommandCompleter: undefined,
       });
       expect(signatures.ShellApi.attributes?.cls).to.deep.equal({
         type: 'function',
@@ -152,6 +161,7 @@ describe('ShellApi', function () {
         isDirectShellCommand: true,
         acceptsRawInput: false,
         shellCommandCompleter: undefined,
+        newShellCommandCompleter: undefined,
       });
       expect(signatures.ShellApi.attributes?.Mongo).to.deep.equal({
         type: 'function',
@@ -165,6 +175,7 @@ describe('ShellApi', function () {
         isDirectShellCommand: false,
         acceptsRawInput: false,
         shellCommandCompleter: undefined,
+        newShellCommandCompleter: undefined,
       });
       expect(signatures.ShellApi.attributes?.connect).to.deep.equal({
         type: 'function',
@@ -178,6 +189,7 @@ describe('ShellApi', function () {
         isDirectShellCommand: false,
         acceptsRawInput: false,
         shellCommandCompleter: undefined,
+        newShellCommandCompleter: undefined,
       });
     });
   });
@@ -904,6 +916,7 @@ describe('ShellApi', function () {
             ['maxTimeMS', null],
             ['enableTelemetry', false],
             ['editor', null],
+            ['disableSchemaSampling', false],
           ] as any);
 
           expect(shellResult.printable).to.deep.equal(expectedResult);

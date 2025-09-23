@@ -55,7 +55,7 @@ describe('NodeDriverServiceProvider [integration]', function () {
   });
 
   afterEach(async function () {
-    await serviceProvider.close(true);
+    await serviceProvider.close();
   });
 
   describe('.connect', function () {
@@ -70,7 +70,7 @@ describe('NodeDriverServiceProvider [integration]', function () {
     });
 
     afterEach(async function () {
-      await instance.close(true);
+      await instance.close();
     });
 
     it('returns a NodeDriverServiceProvider', function () {
@@ -86,7 +86,7 @@ describe('NodeDriverServiceProvider [integration]', function () {
     });
 
     afterEach(async function () {
-      await instance.close(true);
+      await instance.close();
     });
 
     it('returns a NodeDriverServiceProvider', function () {
@@ -807,12 +807,6 @@ describe('NodeDriverServiceProvider [integration]', function () {
     });
   });
 
-  describe('#driverMetadata', function () {
-    it('returns information about the driver instance', function () {
-      expect(serviceProvider.driverMetadata?.driver.name).to.equal('nodejs');
-    });
-  });
-
   describe('#getURI', function () {
     it('returns the current URI', function () {
       expect(serviceProvider.getURI()).to.equal(connectionString);
@@ -823,7 +817,7 @@ describe('NodeDriverServiceProvider [integration]', function () {
     let instance: NodeDriverServiceProvider;
 
     afterEach(async function () {
-      await instance?.close(true);
+      await instance?.close();
     });
 
     it('.connect() returns a CompassServiceProvider instance', async function () {

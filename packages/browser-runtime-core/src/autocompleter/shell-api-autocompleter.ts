@@ -1,12 +1,29 @@
-import type { AutocompleteParameters } from '@mongosh/autocomplete';
-import cliReplCompleter from '@mongosh/autocomplete';
+import type { AutocompletionContext } from '@mongodb-js/mongodb-ts-autocomplete';
+import type {
+  AutocompleteParameters,
+  CompletionResults,
+} from '@mongosh/autocomplete';
+import { completer, initNewAutocompleter } from '@mongosh/autocomplete';
 import type { Autocompleter, Completion } from './autocompleter';
 
-export class ShellApiAutocompleter implements Autocompleter {
-  private parameters: AutocompleteParameters;
+type AutocompleteShellInstanceState = {
+  getAutocompleteParameters: () => AutocompleteParameters;
+  getAutocompletionContext: () => AutocompletionContext;
+};
 
-  constructor(parameters: AutocompleteParameters) {
-    this.parameters = parameters;
+export class ShellApiAutocompleter implements Autocompleter {
+  private shellInstanceState: AutocompleteShellInstanceState;
+
+  // old autocomplete only:
+  private parameters: AutocompleteParameters | undefined;
+
+  // new autocomplete only:
+  private newMongoshCompleter:
+    | ((line: string) => Promise<CompletionResults>)
+    | undefined;
+
+  constructor(shellInstanceState: AutocompleteShellInstanceState) {
+    this.shellInstanceState = shellInstanceState;
   }
 
   async getCompletions(code: string): Promise<Completion[]> {
@@ -14,7 +31,22 @@ export class ShellApiAutocompleter implements Autocompleter {
       return [];
     }
 
-    const completions = await cliReplCompleter(this.parameters, code);
+    let completions: CompletionResults;
+
+    if (process.env.USE_NEW_AUTOCOMPLETE) {
+      if (!this.newMongoshCompleter) {
+        this.newMongoshCompleter = await initNewAutocompleter(
+          this.shellInstanceState
+        );
+      }
+
+      completions = await this.newMongoshCompleter(code);
+    } else {
+      if (!this.parameters) {
+        this.parameters = this.shellInstanceState.getAutocompleteParameters();
+      }
+      completions = await completer(this.parameters, code);
+    }
 
     if (!completions || !completions.length) {
       return [];

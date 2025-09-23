@@ -74,6 +74,7 @@ describe('CLI entry point', function () {
     let stdout = '';
     let stderr = '';
     let wroteConnectionString = false;
+    let wroteAnyKeyToExit = false;
     proc.stdout.setEncoding('utf8').on('data', (chunk) => {
       stdout += chunk;
       if (
@@ -83,8 +84,9 @@ describe('CLI entry point', function () {
         proc.stdin.write('/\n');
         wroteConnectionString = true;
       }
-      if (stdout.includes('Press any key to exit')) {
+      if (!wroteAnyKeyToExit && stdout.includes('Press any key to exit')) {
         proc.stdin.write('x');
+        wroteAnyKeyToExit = true;
       }
     });
     proc.stderr.setEncoding('utf8').on('data', (chunk) => {

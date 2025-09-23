@@ -1,4 +1,4 @@
-import type Database from './database';
+import type { Database, DatabaseWithSchema } from './database';
 import {
   shellApiClassDefault,
   returnsPromise,
@@ -12,7 +12,12 @@ import type {
   Document,
   CheckMetadataConsistencyOptions,
 } from '@mongosh/service-provider-core';
-import type { ShardInfo, ShardingStatusResult } from './helpers';
+import type {
+  ShardInfo,
+  ShardingStatusResult,
+  GenericDatabaseSchema,
+  GenericServerSideSchema,
+} from './helpers';
 import {
   assertArgsDefinedType,
   getConfigDB,
@@ -26,17 +31,21 @@ import type Mongo from './mongo';
 import type AggregationCursor from './aggregation-cursor';
 import type RunCommandCursor from './run-command-cursor';
 import semver from 'semver';
+import type { MQLQuery } from './mql-types';
 
 @shellApiClassDefault
-export default class Shard extends ShellApiWithMongoClass {
-  _database: Database;
+export default class Shard<
+  M extends GenericServerSideSchema = GenericServerSideSchema,
+  D extends GenericDatabaseSchema = GenericDatabaseSchema
+> extends ShellApiWithMongoClass {
+  _database: DatabaseWithSchema<M, D>;
 
-  constructor(database: Database) {
+  constructor(database: DatabaseWithSchema<M, D> | Database<M, D>) {
     super();
-    this._database = database;
+    this._database = database as DatabaseWithSchema<M, D>;
   }
 
-  get _mongo(): Mongo {
+  get _mongo(): Mongo<M> {
     return this._database._mongo;
   }
 
@@ -205,7 +214,7 @@ export default class Shard extends ShellApiWithMongoClass {
   @apiVersions([1])
   async status(
     verbose = false,
-    configDB?: Database
+    configDB?: DatabaseWithSchema<M, D>
   ): Promise<CommandResult<ShardingStatusResult>> {
     const result = await getPrintableShardStatus(
       configDB ?? (await getConfigDB(this._database)),
@@ -441,7 +450,7 @@ export default class Shard extends ShellApiWithMongoClass {
 
   @returnsPromise
   @apiVersions([])
-  async splitAt(ns: string, query: Document): Promise<Document> {
+  async splitAt(ns: string, query: MQLQuery): Promise<Document> {
     assertArgsDefinedType([ns, query], ['string', 'object'], 'Shard.splitAt');
     this._emitShardApiCall('splitAt', { ns, query });
     return this._database._runAdminCommand({
@@ -452,7 +461,7 @@ export default class Shard extends ShellApiWithMongoClass {
 
   @returnsPromise
   @apiVersions([])
-  async splitFind(ns: string, query: Document): Promise<Document> {
+  async splitFind(ns: string, query: MQLQuery): Promise<Document> {
     assertArgsDefinedType([ns, query], ['string', 'object'], 'Shard.splitFind');
     this._emitShardApiCall('splitFind', { ns, query });
     return this._database._runAdminCommand({
@@ -465,7 +474,7 @@ export default class Shard extends ShellApiWithMongoClass {
   @apiVersions([])
   async moveChunk(
     ns: string,
-    query: Document,
+    query: MQLQuery,
     destination: string
   ): Promise<Document> {
     assertArgsDefinedType(

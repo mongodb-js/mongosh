@@ -79,8 +79,9 @@ export async function runDraft(
         await Promise.all([
           uploadToDownloadCenter(
             downloadedArtifact,
-            config.downloadCenterAwsKey as string,
-            config.downloadCenterAwsSecret as string
+            config.downloadCenterAwsKeyArtifacts as string,
+            config.downloadCenterAwsSecretArtifacts as string,
+            config.downloadCenterAwsSessionTokenArtifacts as string
           ),
 
           githubRepo.uploadReleaseAsset(githubReleaseTag, {

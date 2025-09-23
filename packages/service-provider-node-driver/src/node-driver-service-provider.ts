@@ -1,7 +1,6 @@
 import type {
   Auth,
   AuthMechanism,
-  ClientMetadata,
   ReadPreferenceFromOptions,
   ReadPreferenceLike,
   OperationOptions,
@@ -79,7 +78,6 @@ import {
 import type { DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
 import { MongoshCommandFailed, MongoshInternalError } from '@mongosh/errors';
 import type { MongoshBus } from '@mongosh/types';
-import { forceCloseMongoClient } from './mongodb-patches';
 import {
   ConnectionString,
   CommaAndColonSeparatedRecord,
@@ -140,7 +138,17 @@ export type DropDatabaseResult = {
 /**
  * Default driver options we always use.
  */
-const DEFAULT_DRIVER_OPTIONS: MongoClientOptions = Object.freeze({});
+const DEFAULT_DRIVER_OPTIONS: MongoClientOptions = Object.freeze({
+  // In COMPASS-9455 / https://github.com/mongodb-js/devtools-shared/pull/557,
+  // we turned on the driver-internal `__skipPingOnConnect` option on by default
+  // for devtools-connect usage, turning off an extra `ping` rountrip when auth
+  // options have been provided. In mongosh, we do require this ping check,
+  // because we only print a warning rather than throwing an exception
+  // if a follow-up ping fails (e.g. in load-balanced mode). So setting this
+  // flag to `false` here restores mongosh's existing behavior, and we can
+  // revisit this in the next major version of mongosh.
+  __skipPingOnConnect: false,
+} as MongoClientOptions);
 
 /**
  * Default driver method options we always use.
@@ -233,18 +241,6 @@ export class NodeDriverServiceProvider
     let state: DevtoolsConnectionState | undefined;
     let lastSeenTopology: TopologyDescription | undefined;
 
-    class MongoshMongoClient extends MongoClientCtor {
-      constructor(url: string, options?: MongoClientOptions) {
-        super(url, options);
-        this.on(
-          'topologyDescriptionChanged',
-          (evt: TopologyDescriptionChangedEvent) => {
-            lastSeenTopology = evt.newDescription;
-          }
-        );
-      }
-    }
-
     if (cliOptions.nodb) {
       const clientOptionsCopy: MongoClientOptions &
         Partial<DevtoolsConnectOptions> = {
@@ -257,16 +253,15 @@ export class NodeDriverServiceProvider
       delete clientOptionsCopy.parentState;
       delete clientOptionsCopy.proxy;
       delete clientOptionsCopy.applyProxyToOIDC;
-      client = new MongoshMongoClient(
+      client = new MongoClientCtor(
         connectionString.toString(),
         clientOptionsCopy
       );
     } else {
-      ({ client, state } = await connectMongoClient(
+      ({ client, state, lastSeenTopology } = await this.connectMongoClient(
         connectionString.toString(),
         clientOptions,
-        bus,
-        MongoshMongoClient
+        bus
       ));
     }
     clientOptions.parentState = state;
@@ -290,13 +285,13 @@ export class NodeDriverServiceProvider
   private bus: MongoshBus;
 
   /**
-   * Stores the last seen topology at the time when .connect() finishes.
+   * Stores the last known topology for the MongoClient instance.
    */
   private _lastSeenTopology: TopologyDescription | undefined;
 
   /**
    * Instantiate a new NodeDriverServiceProvider with the Node driver's connected
-   * MongoClient instance.
+   * MongoClient instance. Do not call this directly, it is only public for testing.
    *
    * @param {MongoClient} mongoClient - The Node drivers' MongoClient instance.
    * @param {DevtoolsConnectOptions} clientOptions
@@ -317,13 +312,20 @@ export class NodeDriverServiceProvider
     this._lastSeenTopology = lastSeenTopology;
     this.platform = 'CLI';
     try {
-      this.initialDb = (mongoClient as any).s.options.dbName || DEFAULT_DB;
+      this.initialDb = mongoClient.options.dbName || DEFAULT_DB;
     } catch (err: any) {
       this.initialDb = DEFAULT_DB;
     }
     this.currentClientOptions = clientOptions;
     this.baseCmdOptions = { ...DEFAULT_BASE_OPTIONS }; // currently do not have any user-specified connection-wide command options, but I imagine we will eventually
     this.dbcache = new WeakMap();
+
+    this.mongoClient.on?.(
+      'topologyDescriptionChanged',
+      (evt: TopologyDescriptionChangedEvent) => {
+        this._lastSeenTopology = evt.newDescription;
+      }
+    );
   }
 
   static getVersionInformation(): DependencyVersionInfo {
@@ -346,7 +348,7 @@ export class NodeDriverServiceProvider
     };
   }
 
-  maybeThrowBetterMissingOptionalDependencyError(
+  static maybeThrowBetterMissingOptionalDependencyError(
     err: MongoMissingDependencyError
   ): never {
     if (err.message.includes('kerberos')) {
@@ -392,17 +394,37 @@ export class NodeDriverServiceProvider
     throw err;
   }
 
-  async connectMongoClient(
+  private static async connectMongoClient(
     connectionString: ConnectionString | string,
-    clientOptions: DevtoolsConnectOptions
-  ): Promise<{ client: MongoClient; state: DevtoolsConnectionState }> {
+    clientOptions: DevtoolsConnectOptions,
+    bus: MongoshBus
+  ): Promise<{
+    client: MongoClient;
+    state: DevtoolsConnectionState;
+    lastSeenTopology: TopologyDescription | undefined;
+  }> {
+    let lastSeenTopology: TopologyDescription | undefined;
+
+    class MongoshMongoClient extends MongoClientCtor {
+      constructor(url: string, options?: MongoClientOptions) {
+        super(url, options);
+        this.on(
+          'topologyDescriptionChanged',
+          (evt: TopologyDescriptionChangedEvent) => {
+            lastSeenTopology = evt.newDescription;
+          }
+        );
+      }
+    }
+
     try {
-      return await connectMongoClient(
+      const result = await connectMongoClient(
         connectionString.toString(),
         clientOptions,
-        this.bus,
-        MongoClientCtor
+        bus,
+        MongoshMongoClient
       );
+      return { ...result, lastSeenTopology };
     } catch (err: unknown) {
       if (
         typeof err === 'object' &&
@@ -425,17 +447,19 @@ export class NodeDriverServiceProvider
     const connectionString = new ConnectionString(uri);
     const clientOptions = this.processDriverOptions(connectionString, options);
 
-    const { client, state } = await this.connectMongoClient(
-      connectionString.toString(),
-      clientOptions
-    );
+    const { client, state, lastSeenTopology } =
+      await NodeDriverServiceProvider.connectMongoClient(
+        connectionString.toString(),
+        clientOptions,
+        this.bus
+      );
     clientOptions.parentState = state;
     return new NodeDriverServiceProvider(
       client,
       this.bus,
       clientOptions,
       connectionString,
-      this._lastSeenTopology
+      lastSeenTopology ?? this._lastSeenTopology
     );
   }
 
@@ -646,20 +670,15 @@ export class NodeDriverServiceProvider
 
   /**
    * Close the connection.
-   *
-   * @param {boolean} force - Whether to force close the connection.
    */
-  async close(force: boolean): Promise<void> {
+  async close(): Promise<void> {
     this.dbcache.set(this.mongoClient, new Map());
-    if (force) {
-      await forceCloseMongoClient(this.mongoClient);
-    } else {
-      await this.mongoClient.close();
-    }
+
+    await this.mongoClient.close();
   }
 
   async suspend(): Promise<() => Promise<void>> {
-    await this.close(true);
+    await this.close();
     return async () => {
       await this.resetConnectionOptions({});
     };
@@ -1148,8 +1167,8 @@ export class NodeDriverServiceProvider
   /**
    * Get currently known topology information.
    */
-  getTopology(): any | undefined {
-    return (this.mongoClient as any).topology;
+  getTopologyDescription(): TopologyDescription | undefined {
+    return this._lastSeenTopology;
   }
 
   /**
@@ -1361,16 +1380,19 @@ export class NodeDriverServiceProvider
       this.uri as ConnectionString,
       this.currentClientOptions
     );
-    const { client, state } = await this.connectMongoClient(
-      (this.uri as ConnectionString).toString(),
-      clientOptions
-    );
+    const { client, state, lastSeenTopology } =
+      await NodeDriverServiceProvider.connectMongoClient(
+        (this.uri as ConnectionString).toString(),
+        clientOptions,
+        this.bus
+      );
     try {
       await this.mongoClient.close();
       // eslint-disable-next-line no-empty
     } catch {}
     this.mongoClient = client;
     this.currentClientOptions.parentState = state;
+    if (lastSeenTopology) this._lastSeenTopology = lastSeenTopology;
   }
 
   startSession(options: ClientSessionOptions): ClientSession {
@@ -1385,23 +1407,15 @@ export class NodeDriverServiceProvider
     coll?: string
   ): ChangeStream<Document> {
     if (db === undefined && coll === undefined) {
-      // TODO: watch not exported, see NODE-2934
-      return (this.mongoClient as any).watch(pipeline, options);
+      return this.mongoClient.watch(pipeline, options);
     } else if (db !== undefined && coll === undefined) {
-      return (this.db(db, dbOptions) as any).watch(pipeline, options);
+      return this.db(db, dbOptions).watch(pipeline, options);
     } else if (db !== undefined && coll !== undefined) {
-      return (this.db(db, dbOptions).collection(coll) as any).watch(
-        pipeline,
-        options
-      );
+      return this.db(db, dbOptions).collection(coll).watch(pipeline, options);
     }
     throw new MongoshInternalError(
       'Cannot call watch with defined collection but undefined db'
     );
-  }
-
-  get driverMetadata(): ClientMetadata | undefined {
-    return this.getTopology()?.clientMetadata;
   }
 
   getRawClient(): MongoClient {

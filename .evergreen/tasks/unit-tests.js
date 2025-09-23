@@ -33,7 +33,8 @@ for (const packageInfo of MONGOSH_PACKAGES) {
   UNIT_TESTS.push({
     id,
     packageName: packageInfo.name,
-    unitTestsOnly: packageInfo.unitTestsOnly,
+    unitTestsOnly: packageInfo.unitTestsOnly || false,
+    usePuppeteer: packageInfo.usePuppeteer || false,
     variants,
   });
 }

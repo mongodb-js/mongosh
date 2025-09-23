@@ -5,6 +5,7 @@ import type {
   ConnectionInfo,
   ServerApi,
   ServiceProvider,
+  ServiceProviderBaseCursor,
   TopologyDescription,
 } from '@mongosh/service-provider-core';
 import { DEFAULT_DB } from '@mongosh/service-provider-core';
@@ -17,17 +18,10 @@ import type {
 } from '@mongosh/types';
 import { EventEmitter } from 'events';
 import redactInfo from 'mongodb-redact';
-import type ChangeStreamCursor from './change-stream-cursor';
 import { toIgnore } from './decorators';
 import { Topologies } from './enums';
 import { ShellApiErrors } from './error-codes';
-import type {
-  AggregationCursor,
-  Cursor,
-  RunCommandCursor,
-  Database,
-  ShellResult,
-} from './index';
+import type { ShellResult, DatabaseWithSchema } from './index';
 import { getShellApiType, Mongo, ReplicaSet, Shard, ShellApi } from './index';
 import { InterruptFlag } from './interruptor';
 import { TransformMongoErrorPlugin } from './mongo-errors';
@@ -36,6 +30,11 @@ import type { ShellBson } from './shell-bson';
 import constructShellBson from './shell-bson';
 import { Streams } from './streams';
 import { ShellLog } from './shell-log';
+
+import type { AutocompletionContext } from '@mongodb-js/mongodb-ts-autocomplete';
+import type { JSONSchema } from 'mongodb-schema';
+import { analyzeDocuments } from 'mongodb-schema';
+import type { BaseCursor } from './abstract-cursor';
 
 /**
  * The subset of CLI options that is relevant for the shell API's behavior itself.
@@ -142,14 +141,9 @@ const CONTROL_CHAR_REGEXP = /[\x00-\x1F\x7F-\x9F]/g;
  * shell API is concerned) and keeps track of all open connections (a.k.a. Mongo
  * instances).
  */
-export default class ShellInstanceState {
-  public currentCursor:
-    | Cursor
-    | AggregationCursor
-    | ChangeStreamCursor
-    | RunCommandCursor
-    | null;
-  public currentDb: Database;
+export class ShellInstanceState {
+  public currentCursor: BaseCursor<ServiceProviderBaseCursor> | null;
+  public currentDb: DatabaseWithSchema;
   public messageBus: MongoshBus;
   public initialServiceProvider: ServiceProvider; // the initial service provider
   private connectionInfoCache: {
@@ -219,7 +213,7 @@ export default class ShellInstanceState {
         initialServiceProvider.initialDb || DEFAULT_DB
       );
     } else {
-      this.currentDb = new NoDatabase() as Database;
+      this.currentDb = new NoDatabase() as DatabaseWithSchema;
     }
     this.currentCursor = null;
     this.context = {};
@@ -272,9 +266,9 @@ export default class ShellInstanceState {
     );
   }
 
-  async close(force: boolean): Promise<void> {
+  async close(): Promise<void> {
     for (const mongo of [...this.mongos]) {
-      await mongo.close(force);
+      await mongo.close();
     }
   }
 
@@ -282,7 +276,7 @@ export default class ShellInstanceState {
     this.preFetchCollectionAndDatabaseNames = value;
   }
 
-  public setDbFunc(newDb: any): Database {
+  public setDbFunc(newDb: any): DatabaseWithSchema {
     this.currentDb = newDb;
     this.context.rs = new ReplicaSet(this.currentDb);
     this.context.sh = new Shard(this.currentDb);
@@ -351,7 +345,7 @@ export default class ShellInstanceState {
     contextObject.sh = new Shard(this.currentDb);
     contextObject.sp = Streams.newInstance(this.currentDb);
 
-    const setFunc = (newDb: any): Database => {
+    const setFunc = (newDb: any): DatabaseWithSchema => {
       if (getShellApiType(newDb) !== 'Database') {
         throw new MongoshInvalidInputError(
           "Cannot reassign 'db' to non-Database type",
@@ -402,15 +396,118 @@ export default class ShellInstanceState {
     this.evaluationListener = listener;
   }
 
+  public getMongoByConnectionId(connectionId: string): Mongo {
+    for (const mongo of this.mongos) {
+      if (mongo._getConnectionId() === connectionId) {
+        return mongo;
+      }
+    }
+    throw new Error(`mongo with connection id ${connectionId} not found`);
+  }
+
+  public getAutocompletionContext(): AutocompletionContext {
+    return {
+      currentDatabaseAndConnection: ():
+        | {
+            connectionId: string;
+            databaseName: string;
+          }
+        | undefined => {
+        try {
+          return {
+            connectionId: this.currentDb.getMongo()._getConnectionId(),
+            databaseName: this.currentDb.getName(),
+          };
+        } catch (err: any) {
+          if (err.name === 'MongoshInvalidInputError') {
+            return undefined;
+          }
+          throw err;
+        }
+      },
+      databasesForConnection: async (
+        connectionId: string
+      ): Promise<string[]> => {
+        const mongo = this.getMongoByConnectionId(connectionId);
+        try {
+          const dbNames = await mongo._getDatabaseNamesForCompletion();
+          return dbNames.filter(
+            (name: string) => !CONTROL_CHAR_REGEXP.test(name)
+          );
+        } catch (err: any) {
+          if (
+            err?.code === ShellApiErrors.NotConnected ||
+            err?.codeName === 'Unauthorized'
+          ) {
+            return [];
+          }
+          throw err;
+        }
+      },
+      collectionsForDatabase: async (
+        connectionId: string,
+        databaseName: string
+      ): Promise<string[]> => {
+        const mongo = this.getMongoByConnectionId(connectionId);
+        try {
+          const collectionNames = await mongo
+            ._getDb(databaseName)
+            ._getCollectionNamesForCompletion();
+          return collectionNames.filter(
+            (name: string) => !CONTROL_CHAR_REGEXP.test(name)
+          );
+        } catch (err: any) {
+          if (
+            err?.code === ShellApiErrors.NotConnected ||
+            err?.codeName === 'Unauthorized'
+          ) {
+            return [];
+          }
+          throw err;
+        }
+      },
+      schemaInformationForCollection: async (
+        connectionId: string,
+        databaseName: string,
+        collectionName: string
+      ): Promise<JSONSchema> => {
+        const mongo = this.getMongoByConnectionId(connectionId);
+        let docs: Document[] = [];
+        if (
+          (await this.evaluationListener.getConfig?.(
+            'disableSchemaSampling'
+          )) !== true
+        ) {
+          try {
+            docs = await mongo
+              ._getDb(databaseName)
+              .getCollection(collectionName)
+              ._getSampleDocsForCompletion();
+          } catch (err: any) {
+            if (
+              err?.code !== ShellApiErrors.NotConnected &&
+              err?.codeName !== 'Unauthorized'
+            ) {
+              throw err;
+            }
+          }
+        }
+
+        const schemaAccessor = await analyzeDocuments(docs);
+        const schema = await schemaAccessor.getMongoDBJsonSchema();
+        return schema;
+      },
+    };
+  }
+
   public getAutocompleteParameters(): AutocompleteParameters {
     return {
       topology: () => {
         let topology: Topologies;
-        const topologyDescription = this.currentServiceProvider.getTopology()
-          ?.description as TopologyDescription | undefined;
+        const topologyDescription =
+          this.currentServiceProvider.getTopologyDescription();
         if (!topologyDescription) return undefined;
-        // TODO: once a driver with NODE-3011 is available set type to TopologyType | undefined
-        const topologyType: string | undefined = topologyDescription?.type;
+        const topologyType = topologyDescription?.type;
         switch (topologyType) {
           case 'ReplicaSetNoPrimary':
           case 'ReplicaSetWithPrimary':
@@ -427,7 +524,7 @@ export default class ShellInstanceState {
             // We're connected to a single server, but that doesn't necessarily
             // mean that that server isn't part of a replset or sharding setup
             // if we're using directConnection=true (which we do by default).
-            if (topologyDescription?.servers.size === 1) {
+            if (topologyDescription?.servers?.size === 1) {
               const [server] = topologyDescription?.servers.values();
               switch (server.type) {
                 case 'Mongos':
@@ -464,11 +561,13 @@ export default class ShellInstanceState {
         try {
           const collectionNames =
             await this.currentDb._getCollectionNamesForCompletion();
-          return collectionNames.filter(
+          const result = collectionNames.filter(
             (name) =>
               name.toLowerCase().startsWith(collName.toLowerCase()) &&
               !CONTROL_CHAR_REGEXP.test(name)
           );
+          this.messageBus.emit('mongosh:load-collections-complete');
+          return result;
         } catch (err: any) {
           if (
             err?.code === ShellApiErrors.NotConnected ||
@@ -483,11 +582,13 @@ export default class ShellInstanceState {
         try {
           const dbNames =
             await this.currentDb._mongo._getDatabaseNamesForCompletion();
-          return dbNames.filter(
+          const result = dbNames.filter(
             (name) =>
               name.toLowerCase().startsWith(dbName.toLowerCase()) &&
               !CONTROL_CHAR_REGEXP.test(name)
           );
+          this.messageBus.emit('mongosh:load-databases-complete');
+          return result;
         } catch (err: any) {
           if (
             err?.code === ShellApiErrors.NotConnected ||
@@ -593,23 +694,22 @@ export default class ShellInstanceState {
 
   private async getTopologySpecificPrompt(): Promise<string> {
     const connectionInfo = await this.fetchConnectionInfo();
-    // TODO: once a driver with NODE-3011 is available set type to TopologyDescription
-    const description = this.currentServiceProvider.getTopology()?.description;
+    const description = this.currentServiceProvider.getTopologyDescription();
     if (!description) {
       return '';
     }
 
     let replicaSet = description.setName;
     let serverTypePrompt = '';
-    // TODO: replace with proper TopologyType constants - NODE-2973
     switch (description.type) {
-      case 'Single':
+      case 'Single': {
         const singleDetails = this.getTopologySinglePrompt(description);
         replicaSet = singleDetails?.replicaSet ?? replicaSet;
         serverTypePrompt = singleDetails?.serverType
           ? `[direct: ${singleDetails.serverType}]`
           : '';
         break;
+      }
       case 'ReplicaSetNoPrimary':
         serverTypePrompt = '[secondary]';
         break;
@@ -638,7 +738,6 @@ export default class ShellInstanceState {
     }
     const [server] = description.servers.values();
 
-    // TODO: replace with proper ServerType constants - NODE-2973
     let serverType: string;
     switch (server.type) {
       case 'Mongos':
@@ -662,7 +761,7 @@ export default class ShellInstanceState {
     }
 
     return {
-      replicaSet: server.setName,
+      replicaSet: server.setName ?? description.setName ?? null,
       serverType,
     };
   }
@@ -728,3 +827,5 @@ export default class ShellInstanceState {
     }
   }
 }
+
+export default ShellInstanceState;

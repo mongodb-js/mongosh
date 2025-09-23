@@ -148,6 +148,10 @@ export class Barque {
         notaryKeyName: 'server-8.0',
         notaryToken: process.env.SIGNING_AUTH_TOKEN_80 ?? '',
       },
+      '8.2.0': {
+        notaryKeyName: 'server-8.2',
+        notaryToken: process.env.SIGNING_AUTH_TOKEN_82 ?? '',
+      },
     };
   }
 

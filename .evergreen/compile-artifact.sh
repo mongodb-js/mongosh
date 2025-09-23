@@ -22,7 +22,7 @@ trap "rm -rf /tmp/m" EXIT
 export TMP=/tmp/m
 export TMPDIR=/tmp/m
 
-if [ `uname` = Darwin ]; then
+if [ $(uname) = Darwin ]; then
   # match what Node.js 20 does on their own builder machines
   export CFLAGS='-mmacosx-version-min=10.15'
   export CXXFLAGS='-mmacosx-version-min=10.15'
@@ -71,10 +71,11 @@ elif [ -n "$MONGOSH_SHARED_OPENSSL" ]; then
     "--shared-openssl-libname='"$MONGOSH_OPENSSL_LIBNAME"'",
     "--shared-zlib"
   ]'
-  export LD_LIBRARY_PATH=/tmp/m/opt/lib
+  # python3's ssl module may not work with the OpenSSL we built here,
+  # so prefix the devtools toolchain one
+  export LD_LIBRARY_PATH=/opt/devtools/lib:/tmp/m/opt/lib
 fi
 
-export PUPPETEER_SKIP_DOWNLOAD="true"
 npm run evergreen-release compile
 dist/mongosh --version
 dist/mongosh --build-info

@@ -55,6 +55,7 @@ describe('Cursor', function () {
         type: 'function',
         returnsPromise: false,
         deprecated: false,
+        inherited: true,
         returnType: 'Cursor',
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
@@ -63,6 +64,7 @@ describe('Cursor', function () {
         isDirectShellCommand: false,
         acceptsRawInput: false,
         shellCommandCompleter: undefined,
+        newShellCommandCompleter: undefined,
       });
     });
   });

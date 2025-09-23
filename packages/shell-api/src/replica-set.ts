@@ -7,7 +7,7 @@ import {
 import { redactURICredentials } from '@mongosh/history';
 import type { Document } from '@mongosh/service-provider-core';
 import type Mongo from './mongo';
-import type Database from './database';
+import type { Database, DatabaseWithSchema } from './database';
 import {
   deprecated,
   returnsPromise,
@@ -18,6 +18,7 @@ import {
 import { asPrintable } from './enums';
 import { assertArgsDefinedType } from './helpers';
 import type { CommandResult } from './result';
+import type { GenericDatabaseSchema, GenericServerSideSchema } from './helpers';
 
 export type ReplSetMemberConfig = {
   _id: number;
@@ -35,15 +36,18 @@ export type ReplSetConfig = {
 };
 
 @shellApiClassDefault
-export default class ReplicaSet extends ShellApiWithMongoClass {
-  _database: Database;
+export default class ReplicaSet<
+  M extends GenericServerSideSchema = GenericServerSideSchema,
+  D extends GenericDatabaseSchema = GenericDatabaseSchema
+> extends ShellApiWithMongoClass {
+  _database: DatabaseWithSchema<M, D>;
 
-  constructor(database: Database) {
+  constructor(database: DatabaseWithSchema<M, D> | Database<M, D>) {
     super();
-    this._database = database;
+    this._database = database as DatabaseWithSchema<M, D>;
   }
 
-  get _mongo(): Mongo {
+  get _mongo(): Mongo<M> {
     return this._database._mongo;
   }
 

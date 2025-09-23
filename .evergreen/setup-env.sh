@@ -2,16 +2,9 @@ set -e
 set -x
 
 OS_ARCH="$(uname "-m")"
-if [ "$OS_ARCH" = "ppc64le" ] || [ "$OS_ARCH" = "ppc64" ]; then
-    echo "[INFO] Choosing v4 because OS_ARCH is $OS_ARCH"
-    export TOOLCHAIN_PATH='/opt/mongodbtoolchain/v4/bin'
-else
-    echo "[INFO] Choosing v3 because OS_ARCH is $OS_ARCH"
-    export TOOLCHAIN_PATH='/opt/mongodbtoolchain/v3/bin'
-fi
 
 export BASEDIR="$PWD/.evergreen"
-export PATH="/cygdrive/c/python/Python311/Scripts:/cygdrive/c/python/Python311:/cygdrive/c/Python311/Scripts:/cygdrive/c/Python311:/opt/python/3.6/bin:$BASEDIR/mingit/cmd:$BASEDIR/mingit/mingw64/libexec/git-core:$BASEDIR/git-2:$BASEDIR/npm-10/node_modules/.bin:$BASEDIR/node-v$NODE_JS_VERSION-win-x64:/opt/java/jdk16/bin:/opt/chefdk/gitbin:/cygdrive/c/cmake/bin:$TOOLCHAIN_PATH:$PATH"
+export PATH="$BASEDIR/npm-10/node_modules/.bin:$BASEDIR/node-v$NODE_JS_VERSION-win-x64:/opt/java/jdk16/bin:$PATH"
 
 export MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING="$BASEDIR/../../testing/tests-globalconfig.conf"
 
@@ -26,27 +19,26 @@ fi
 echo "TERM variable is set to '${TERM:-}'"
 
 if [ "$OS" != "Windows_NT" ]; then
-  if which realpath; then # No realpath on macOS, but also not needed there
-    export HOME="$(realpath "$HOME")" # Needed to de-confuse nvm when /home is a symlink
-  fi
-  export NVM_DIR="$BASEDIR/.nvm"
-  echo "Setting NVM environment home: $NVM_DIR"
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-  set +x # nvm is very verbose
-  echo nvm use $NODE_JS_VERSION || nvm use 20.11.1
-  nvm use $NODE_JS_VERSION || nvm use 20.11.1 # see install-node.sh
-  set -x
-  export PATH="$NVM_BIN:$PATH"
-
   if [ `uname` = Darwin ]; then
     echo "Using clang version:"
     (which clang && clang --version)
 
     echo "Using clang++ version:"
     (which clang++ && clang++ --version)
+
+    export NVM_DIR="$BASEDIR/.nvm"
+    echo "Setting NVM environment home: $NVM_DIR"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    set +x # nvm is very verbose
+    nvm use $NODE_JS_VERSION
+    set -x
+    export PATH="$NVM_BIN:$PATH"
   else
+    export PATH="/opt/devtools/bin:$PATH"
+    export GIT_EXEC_PATH="/opt/devtools/libexec/git-core"
     export CC=gcc
     export CXX=g++
+    export PYTHON="/opt/devtools/bin/python3"
 
     echo "Using gcc version:"
     (which gcc && gcc --version)
@@ -54,10 +46,19 @@ if [ "$OS" != "Windows_NT" ]; then
     echo "Using g++ version:"
     (which g++ && g++ --version)
   fi
+else
+  export PATH="/cygdrive/c/python/Python311/Scripts:/cygdrive/c/python/Python311:/cygdrive/c/Python311/Scripts:/cygdrive/c/Python311:/cygdrive/c/cmake/bin:$PATH"
+fi
 
-  if [ -x "$BASEDIR/git-2/git" ]; then
-    export GIT_EXEC_PATH="$BASEDIR/git-2"
-  fi
+NODE_JS_MAJOR_VERSION=$(echo "$NODE_JS_VERSION" | awk -F . '{print $1}')
+if echo "$NODE_JS_MAJOR_VERSION" | grep -q '^[0-9]*$'; then
+  export PATH="/opt/devtools/node$NODE_JS_MAJOR_VERSION/bin:$PATH"
+  echo "Detected Node.js version (requested v${NODE_JS_MAJOR_VERSION}.x):"
+  node -v
+  node -v | grep -q "^v$NODE_JS_MAJOR_VERSION"
+else
+  echo "Cannot identify major version from NODE_JS_VERSION: $NODE_JS_VERSION"
+  exit 1
 fi
 
 export EVERGREEN_EXPANSIONS_PATH="$BASEDIR/../../tmp/expansions.yaml"

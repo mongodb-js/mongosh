@@ -1,5 +1,6 @@
 import type { Topologies, TypeSignature } from '@mongosh/shell-api';
 import { signatures as shellSignatures } from '@mongosh/shell-api';
+import type { AutocompletionContext } from '@mongodb-js/mongodb-ts-autocomplete';
 import semver from 'semver';
 import {
   CONVERSION_OPERATORS,
@@ -13,6 +14,7 @@ import {
   ON_PREM,
   DATABASE,
 } from '@mongodb-js/mongodb-constants';
+import { directCommandCompleter } from './direct-command-completer';
 
 type TypeSignatureAttributes = { [key: string]: TypeSignature };
 
@@ -78,7 +80,7 @@ const GROUP = '$group';
  *
  * @returns {array} Matching Completions, Current User Input.
  */
-async function completer(
+export async function completer(
   params: AutocompleteParameters,
   line: string
 ): Promise<[string[], string, 'exclusive'] | [string[], string]> {
@@ -288,6 +290,14 @@ async function completer(
   return [[], line];
 }
 
+// from https://github.com/mongodb-js/devtools-shared/commit/e4a5b00a83b19a76bdf380799a421511230168db
+function satisfiesVersion(v1: string, v2: string): boolean {
+  const isGTECheck = /^\d+?\.\d+?\.\d+?$/.test(v2);
+  return semver.satisfies(v1, isGTECheck ? `>=${v2}` : v2, {
+    includePrerelease: true,
+  });
+}
+
 function isAcceptable(
   params: AutocompleteParameters,
   entry: {
@@ -308,7 +318,10 @@ function isAcceptable(
       !entry[versionKey] ||
       // TODO: when https://jira.mongodb.org/browse/SPM-2327 is done we can rely on server_version being present
       !connectionInfo?.server_version ||
-      semver.gte(connectionInfo.server_version, entry[versionKey] as string);
+      satisfiesVersion(
+        connectionInfo.server_version,
+        entry[versionKey] as string
+      );
   }
   const isAcceptableEnvironment =
     !entry.env ||
@@ -318,6 +331,7 @@ function isAcceptable(
       : connectionInfo.is_atlas || connectionInfo.is_local_atlas
       ? entry.env.includes(ATLAS)
       : entry.env.includes(ON_PREM));
+
   return isAcceptableVersion && isAcceptableEnvironment;
 }
 
@@ -398,4 +412,51 @@ function filterShellAPI(
   return hits;
 }
 
-export default completer;
+type AutocompleteShellInstanceState = {
+  getAutocompleteParameters: () => AutocompleteParameters;
+  getAutocompletionContext: () => AutocompletionContext;
+};
+
+function transformAutocompleteResults(
+  line: string,
+  results: { result: string }[]
+): [string[], string] {
+  return [results.map((result) => result.result), line];
+}
+
+export type CompletionResults =
+  | [string[], string, 'exclusive']
+  | [string[], string];
+
+export async function initNewAutocompleter(
+  instanceState: Pick<
+    AutocompleteShellInstanceState,
+    'getAutocompletionContext'
+  >
+): Promise<(text: string) => Promise<CompletionResults>> {
+  // only import the autocompleter code the first time we need it to
+  // hide the time it takes from the initial startup time
+  const { MongoDBAutocompleter } = await import(
+    '@mongodb-js/mongodb-ts-autocomplete'
+  );
+
+  const autocompletionContext = instanceState.getAutocompletionContext();
+  const mongoDBCompleter = new MongoDBAutocompleter({
+    context: autocompletionContext,
+  });
+
+  return async (text: string): Promise<CompletionResults> => {
+    const directResults = await directCommandCompleter(
+      autocompletionContext,
+      text
+    );
+
+    if (directResults.length) {
+      return [directResults, text, 'exclusive'];
+    }
+
+    const results = await mongoDBCompleter.autocomplete(text);
+    const transformed = transformAutocompleteResults(text, results);
+    return transformed;
+  };
+}

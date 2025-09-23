@@ -47,6 +47,7 @@ function try_connect_ipv4only_dualstackhostname() {
   # Use a second docker container to be able to modify /etc/hosts easily
   cat <<EOF | docker run -i --rm --network host -v /:/host "${DOCKER_BASE_IMG}" bash && FAILED=no || FAILED=yes
 export PATH=/host$(echo "$PATH" | sed 's~:~:/host~g'):\$PATH
+if [ -e /host/opt/devtools/lib ]; then cp -v /host/opt/devtools/lib/lib{crypto,ssl}* /lib/x86_64-linux-gnu ; fi # Node.js on the host may require modern OpenSSL
 apt update && apt -y install openssl # necessary on Ubuntu 20.04
 
 set -e

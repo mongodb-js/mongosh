@@ -7,16 +7,17 @@ import {
   ShellApiWithMongoClass,
 } from './decorators';
 import type { Document } from '@mongosh/service-provider-core';
-import type Collection from './collection';
+import type { CollectionWithSchema } from './collection';
 import { asPrintable, ServerVersions } from './enums';
 import { MongoshDeprecatedError } from '@mongosh/errors';
 import type Mongo from './mongo';
+import type { MQLPipeline, MQLQuery } from './mql-types';
 
 @shellApiClassDefault
 export default class PlanCache extends ShellApiWithMongoClass {
-  _collection: Collection;
+  _collection: CollectionWithSchema;
 
-  constructor(collection: Collection) {
+  constructor(collection: CollectionWithSchema) {
     super();
     this._collection = collection;
   }
@@ -41,7 +42,7 @@ export default class PlanCache extends ShellApiWithMongoClass {
   @returnsPromise
   @apiVersions([])
   async clearPlansByQuery(
-    query: Document,
+    query: MQLQuery,
     projection?: Document,
     sort?: Document
   ): Promise<Document> {
@@ -58,7 +59,7 @@ export default class PlanCache extends ShellApiWithMongoClass {
   @serverVersions(['4.4.0', ServerVersions.latest])
   @returnsPromise
   @apiVersions([])
-  async list(pipeline?: Document[]): Promise<Document[]> {
+  async list(pipeline?: MQLPipeline): Promise<Document[]> {
     const p = pipeline || [];
     const agg = await this._collection.aggregate([
       { $planCacheStats: {} },

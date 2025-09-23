@@ -185,8 +185,11 @@ describe('MongoshPublisher', function () {
       expect(createAndPublishDownloadCenterConfig).to.have.been.calledWith(
         config.outputDir,
         config.packageInformation,
-        config.downloadCenterAwsKey,
-        config.downloadCenterAwsSecret
+        config.downloadCenterAwsKeyConfig,
+        config.downloadCenterAwsSecretConfig,
+        config.downloadCenterAwsKeyArtifacts,
+        config.downloadCenterAwsSecretArtifacts,
+        config.downloadCenterAwsSessionTokenArtifacts
       );
     });
 

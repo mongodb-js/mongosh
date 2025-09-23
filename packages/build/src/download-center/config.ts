@@ -53,22 +53,26 @@ async function getCurrentJsonFeed(
 export async function createAndPublishDownloadCenterConfig(
   outputDir: string,
   packageInformation: PackageInformationProvider,
-  awsAccessKeyId: string,
-  awsSecretAccessKey: string,
+  awsAccessKeyIdConfig: string,
+  awsSecretAccessKeyConfig: string,
+  awsAccessKeyIdArtifacts: string,
+  awsSecretAccessKeyArtifacts: string,
+  awsSessionTokenArtifacts: string,
   injectedJsonFeedFile: string,
   isDryRun: boolean,
   ctaConfig: CTAConfig,
-  DownloadCenter: typeof DownloadCenterCls = DownloadCenterCls,
+  DownloadCenterConfig: typeof DownloadCenterCls = DownloadCenterCls,
+  DownloadCenterArtifacts: typeof DownloadCenterCls = DownloadCenterCls,
   publicArtifactBaseUrl: string = ARTIFACTS_URL_PUBLIC_BASE
 ): Promise<void> {
-  const dlcenter = new DownloadCenter({
+  const dlcenterConfig = new DownloadCenterConfig({
     bucket: CONFIGURATIONS_BUCKET,
-    accessKeyId: awsAccessKeyId,
-    secretAccessKey: awsSecretAccessKey,
+    accessKeyId: awsAccessKeyIdConfig,
+    secretAccessKey: awsSecretAccessKeyConfig,
   });
   let existingDownloadCenterConfig: DownloadCenterConfig | undefined;
   try {
-    existingDownloadCenterConfig = await dlcenter.downloadConfig(
+    existingDownloadCenterConfig = await dlcenterConfig.downloadConfig(
       CONFIGURATION_KEY
     );
   } catch (err: any) {
@@ -94,10 +98,11 @@ export async function createAndPublishDownloadCenterConfig(
 
   validateConfigSchema(config);
 
-  const dlcenterArtifacts = new DownloadCenter({
+  const dlcenterArtifacts = new DownloadCenterArtifacts({
     bucket: ARTIFACTS_BUCKET,
-    accessKeyId: awsAccessKeyId,
-    secretAccessKey: awsSecretAccessKey,
+    accessKeyId: awsAccessKeyIdArtifacts,
+    secretAccessKey: awsSecretAccessKeyArtifacts,
+    sessionToken: awsSessionTokenArtifacts,
   });
 
   const existingJsonFeed = await getCurrentJsonFeed(dlcenterArtifacts);
@@ -128,19 +133,22 @@ export async function createAndPublishDownloadCenterConfig(
     return;
   }
 
-  await Promise.all([
-    dlcenter.uploadConfig(CONFIGURATION_KEY, config),
-    dlcenterArtifacts.uploadAsset(
-      JSON_FEED_ARTIFACT_KEY,
-      JSON.stringify(newJsonFeed, null, 2)
-    ),
-  ]);
+  await dlcenterConfig.uploadConfig(CONFIGURATION_KEY, config);
+
+  await dlcenterArtifacts.uploadAsset(
+    JSON_FEED_ARTIFACT_KEY,
+    JSON.stringify(newJsonFeed, null, 2),
+    {
+      acl: 'private',
+    }
+  );
 }
 
 export async function updateJsonFeedCTA(
   config: CTAConfig,
   awsAccessKeyId: string,
   awsSecretAccessKey: string,
+  awsSessionToken: string,
   isDryRun: boolean,
   DownloadCenter: typeof DownloadCenterCls = DownloadCenterCls
 ) {
@@ -148,6 +156,7 @@ export async function updateJsonFeedCTA(
     bucket: ARTIFACTS_BUCKET,
     accessKeyId: awsAccessKeyId,
     secretAccessKey: awsSecretAccessKey,
+    sessionToken: awsSessionToken,
   });
 
   const jsonFeed = await getCurrentJsonFeed(dlcenterArtifacts);
@@ -164,7 +173,9 @@ export async function updateJsonFeedCTA(
     return;
   }
 
-  await dlcenterArtifacts.uploadAsset(JSON_FEED_ARTIFACT_KEY, patchedJsonFeed);
+  await dlcenterArtifacts.uploadAsset(JSON_FEED_ARTIFACT_KEY, patchedJsonFeed, {
+    acl: 'private',
+  });
 }
 
 function populateJsonFeedCTAs(jsonFeed: JsonFeed, ctas: CTAConfig) {

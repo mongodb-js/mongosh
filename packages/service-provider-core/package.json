@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/service-provider-core",
-  "version": "3.1.0",
+  "version": "3.5.0",
   "description": "MongoDB Shell Core Service Provider Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -23,7 +23,7 @@
     "check": "npm run lint && npm run depcheck",
     "depcheck": "depcheck",
     "prettier": "prettier",
-    "reformat": "npm run prettier -- --write . && npm run eslint --fix"
+    "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
   },
   "license": "Apache-2.0",
   "publishConfig": {
@@ -33,25 +33,14 @@
     "node": ">=14.15.1"
   },
   "mongosh": {
-    "unitTestsOnly": true,
-    "ciRequiredOptionalDependencies": {
-      "mongodb-client-encryption": [
-        "darwin",
-        "linux",
-        "win32"
-      ]
-    }
+    "unitTestsOnly": true
   },
   "dependencies": {
-    "@aws-sdk/credential-providers": "^3.525.0",
-    "@mongosh/errors": "2.4.0",
-    "bson": "^6.10.3",
-    "mongodb": "^6.14.2",
+    "@mongosh/errors": "2.4.4",
+    "bson": "^6.10.4",
+    "mongodb": "^6.19.0",
     "mongodb-build-info": "^1.7.2",
     "mongodb-connection-string-url": "^3.0.1"
-  },
-  "optionalDependencies": {
-    "mongodb-client-encryption": "^6.3.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
