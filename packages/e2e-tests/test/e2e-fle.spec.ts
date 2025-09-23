@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
-import type { TestShell } from './test-shell';
+import { TestShell } from './test-shell';
 import { eventually } from '../../../testing/eventually';
 import {
   startTestServer,
@@ -8,6 +8,7 @@ import {
   skipIfServerVersion,
   skipIfCommunityServer,
   downloadCurrentCryptSharedLibrary,
+  sortObjectArray,
 } from '../../../testing/integration-testing-hooks';
 import { makeFakeHTTPServer, fakeAWSHandlers } from '../../../testing/fake-kms';
 import { once } from 'events';
@@ -25,6 +26,7 @@ describe('FLE tests', function () {
   let kmsServer: ReturnType<typeof makeFakeHTTPServer>;
   let dbname: string;
   let cryptLibrary: string;
+  let cryptLibrary82: string;
 
   before(async function () {
     if (process.platform === 'linux') {
@@ -39,7 +41,11 @@ describe('FLE tests', function () {
     kmsServer = makeFakeHTTPServer(fakeAWSHandlers);
     kmsServer.listen(0);
     await once(kmsServer, 'listening');
-    cryptLibrary = await downloadCurrentCryptSharedLibrary();
+    // TODO(MONGOSH-2192): Go back to always testing with latest continuous version.
+    [cryptLibrary, cryptLibrary82] = await Promise.all([
+      downloadCurrentCryptSharedLibrary(),
+      downloadCurrentCryptSharedLibrary('8.2.0'),
+    ]);
   });
   after(function () {
     kmsServer?.close();
@@ -855,13 +861,6 @@ describe('FLE tests', function () {
     });
 
     it('allows automatic range encryption', async function () {
-      // TODO(MONGOSH-1550): On s390x, we are using the 6.0.x RHEL7 shared library,
-      // which does not support QE rangePreview/range. That's just fine for preview, but
-      // we should switch to the 7.0.x RHEL8 shared library for Range GA.
-      if (process.arch === 's390x') {
-        return this.skip();
-      }
-
       const shell = this.startTestShell({
         args: ['--nodb', `--cryptSharedLibPath=${cryptLibrary}`],
       });
@@ -917,157 +916,306 @@ describe('FLE tests', function () {
   context('8.2+', function () {
     skipIfServerVersion(testServer, '< 8.2');
 
-    context(
-      'Queryable Encryption Prefix/Suffix/Substring Support',
-      function () {
-        // Substring prefix support is enterprise-only 8.2+
-        skipIfCommunityServer(testServer);
+    context('$lookup support', function () {
+      skipIfCommunityServer(testServer);
 
-        let shell: TestShell;
-        let uri: string;
+      it('allows $lookup with a collection with automatic encryption', async function () {
+        const shell = this.startTestShell({
+          args: [
+            `--cryptSharedLibPath=${cryptLibrary82}`,
+            await testServer.connectionString(),
+          ],
+        });
+        await shell.executeLine(`{
+      const keyMongo = Mongo(
+        db.getMongo(),
+        {
+          keyVaultNamespace: '${dbname}.__keyVault',
+          kmsProviders: { local: { key: 'A'.repeat(128) } },
+        }
+      );
 
-        const testCollection = 'qeSubstringTest';
+      const keyVault = keyMongo.getKeyVault();
 
-        before(async function () {
-          shell = this.startTestShell({
-            args: ['--nodb', `--cryptSharedLibPath=${cryptLibrary}`],
-          });
-          uri = JSON.stringify(await testServer.connectionString());
-          await shell.waitForPrompt();
+      const dataKey1 = keyVault.createKey('local');
+      const dataKey2 = keyVault.createKey('local');
 
-          // Shared setup for all substring search tests - create collection once
-          await shell.executeLine(`{
+      const schemaMap = {
+        ['${dbname}.coll1']: {
+          bsonType: 'object',
+          properties: {
+            phoneNumber: {
+              encrypt: {
+                bsonType: 'string',
+                keyId: [dataKey1],
+                algorithm: 'AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic',
+              },
+            },
+            key: {
+              bsonType: 'string',
+            },
+          },
+        },
+        ['${dbname}.coll2']: {
+          bsonType: 'object',
+          properties: {
+            phoneNumber: {
+              encrypt: {
+                bsonType: 'string',
+                keyId: [dataKey2],
+                algorithm: 'AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic',
+              },
+            },
+            key: {
+              bsonType: 'string',
+            },
+          },
+        },
+      };
+
+      autoMongo = new Mongo(db.getMongo(), {
+        keyVaultNamespace: '${dbname}.__keyVault',
+        kmsProviders: { local: { key: 'A'.repeat(128) } },
+        schemaMap,
+      });
+
+      coll1 = autoMongo.getDB('${dbname}').getCollection('coll1');
+      coll1.insertMany([
+        { phoneNumber: '123-456-7890', key: 'foo' },
+        { phoneNumber: '123-456-7891', key: 'bar' },
+      ]);
+
+      coll2 = autoMongo.getDB('${dbname}').getCollection('coll2');
+      coll2.insertMany([
+        { phoneNumber: '123-456-7892', key: 'baz' },
+        { phoneNumber: '123-456-7893', key: 'foo' },
+      ]);
+      }`);
+        const result = await shell.executeLineWithJSONResult(`(
+        coll1.aggregate([
+          {
+            $lookup: {
+              from: 'coll2',
+              localField: 'key',
+              foreignField: 'key',
+              as: 'lookupMatch',
+            },
+          },
+        ])
+        .map(({ key, lookupMatch }) => ({ key, size: lookupMatch.length }))
+        .toArray())`);
+        expect(result).to.deep.equal([
+          { key: 'foo', size: 1 },
+          { key: 'bar', size: 0 },
+        ]);
+      });
+    });
+
+    for (const mode of ['automatic', 'explicit'] as const)
+      context(
+        `Queryable Encryption Prefix/Suffix/Substring Support ${mode}`,
+        function () {
+          // Substring prefix support is enterprise-only 8.2+
+          skipIfCommunityServer(testServer);
+
+          let shell: TestShell;
+
+          const testCollection = 'qeSubstringTest';
+
+          beforeEach(async function () {
+            shell = this.startTestShell({
+              args: [
+                `--cryptSharedLibPath=${cryptLibrary82}`,
+                await testServer.connectionString(),
+              ],
+            });
+            await shell.waitForPrompt();
+
+            // Shared setup for all substring search tests - create collection once
+            await shell.executeLine(`{
+        mode = ${JSON.stringify(mode)};
         opts = {
           keyVaultNamespace: '${dbname}.__keyVault',
           kmsProviders: { local: { key: 'A'.repeat(128) } },
-          bypassQueryAnalysis: false
         };
 
-        autoMongo = Mongo(${uri}, { ...opts });
-        autoMongo.getDB('${dbname}').test.drop();
+        // Setup explicit encryption client
+        explicitMongo = Mongo(db.getMongo(), { ...opts, bypassQueryAnalysis: true });
+        if (mode === 'automatic') {
+          autoMongo = Mongo(db.getMongo(), { ...opts });
+          coll = autoMongo.getDB('${dbname}').${testCollection};
+        }
 
-        keyId = autoMongo.getKeyVault().createKey('local');
+        keyId1 = explicitMongo.getKeyVault().createKey('local');
+        keyId2 = explicitMongo.getKeyVault().createKey('local');
 
         substringOptions = {
           strMinQueryLength: 2,
           strMaxQueryLength: 10,
-          strMaxLength: 60,
         };
-        
-        autoMongo.getClientEncryption().createEncryptedCollection('${dbname}', '${testCollection}', {
+        encryptedFieldOptions = {
+          ...substringOptions,
+          caseSensitive: false,
+          diacriticSensitive: false,
+          contention: 4
+        };
+
+        explicitMongo.getClientEncryption().createEncryptedCollection('${dbname}', '${testCollection}', {
           provider: 'local',
           createCollectionOptions: {
             encryptedFields: {
               fields: [{
-                keyId,
-                path: 'data',
+                keyId: keyId1,
+                path: 'substringData',
                 bsonType: 'string',
                 queries: [{
                   queryType: 'substringPreview',
-                  ...substringOptions,
-                  caseSensitive: false,
-                  diacriticSensitive: false,
-                  contention: 4
+                  strMaxLength: 60,
+                  ...encryptedFieldOptions
+                }]
+              }, {
+                keyId: keyId2,
+                path: 'prefixSuffixData',
+                bsonType: 'string',
+                queries: [{
+                  queryType: 'prefixPreview',
+                  ...encryptedFieldOptions
+                }, {
+                  queryType: 'suffixPreview',
+                  ...encryptedFieldOptions
                 }]
               }]
             }
           }
         });
 
-        coll = autoMongo.getDB('${dbname}').${testCollection};
-        
-        // Setup explicit encryption client
-        explicitMongo = Mongo(${uri}, { ...opts, bypassQueryAnalysis: true });
         ce = explicitMongo.getClientEncryption();
         ecoll = explicitMongo.getDB('${dbname}').${testCollection};
-        
-        explicitOpts = {
+
+        explicitOpts = (details) => ({
           algorithm: 'TextPreview',
           contentionFactor: 4,
-          textOptions: { caseSensitive: false, diacriticSensitive: false, substring: substringOptions }
+          textOptions: { caseSensitive: false, diacriticSensitive: false, ...details }
+        });
+        substringOpts = explicitOpts({ substring: { ...substringOptions, strMaxLength: 60 } });
+        prefixSuffixOpts = explicitOpts({ prefix: substringOptions, suffix: substringOptions });
+        methods = {
+          substring: { queryType: 'substringPreview', keyId: keyId1, options: substringOpts },
+          prefix: { queryType: 'prefixPreview', keyId: keyId2, options: prefixSuffixOpts },
+          suffix: { queryType: 'suffixPreview', keyId: keyId2, options: prefixSuffixOpts }
+        }
+        explicitEncrypt = (method, data) => {
+          return ce.encrypt(methods[method].keyId, data, {
+            ...methods[method].options,
+            queryType: methods[method].queryType
+          });
         };
       }`);
-        });
+          });
 
-        after(async function () {
-          await shell.executeLine(`ecoll.${testCollection}.drop()`);
-        });
+          afterEach(function () {
+            shell.kill();
+          });
 
-        afterEach(async function () {
-          await shell.executeLine(`ecoll.${testCollection}.deleteMany({})`);
-        });
-
-        it.skip('allows queryable encryption with prefix searches', async function () {
-          // Insert test data for prefix searches
-          await shell.executeLine(`{
-        coll.insertOne({ data: 'admin_user_123.txt' });
-        coll.insertOne({ data: 'admin_super_456.pdf' });
-        coll.insertOne({ data: 'user_regular_789.pdf' });
-        coll.insertOne({ data: 'guest_access_000.txt' });
-        
-        // Add explicit encryption data
-        ecoll.insertOne({ data: ce.encrypt(keyId, 'admin_explicit_test.pdf', explicitOpts) });
+          it('allows queryable encryption with prefix searches', async function () {
+            // Insert test data for prefix searches
+            await shell.executeLine(`{
+            for (const data of [
+            'admin_user_123.txt',
+            'admin_super_456.pdf',
+            'user_regular_789.pdf',
+            'guest_access_000.txt',
+            'just_user.txt',
+            'admin_explicit_test.pdf'
+          ]) {
+              if (mode === 'automatic') {
+                coll.insertOne({
+                  substringData: data,
+                  prefixSuffixData: data
+                });
+              } else {
+                ecoll.insertOne({
+                  substringData: ce.encrypt(keyId1, data, substringOpts),
+                  prefixSuffixData: ce.encrypt(keyId2, data, prefixSuffixOpts)
+                });
+              }
+            }
       }`);
-          const prefixResults = await shell.executeLine(
-            'coll.find({$expr: { $and: [{$encStrStartsWith: {prefix: "admin_", input: "$data"}}] }}, { __safeContent__: 0 }).toArray()'
-          );
-          expect(prefixResults).to.have.length(3);
-          expect(prefixResults).to.include('admin_user_123.txt');
-          expect(prefixResults).to.include('admin_super_456.pdf');
-          expect(prefixResults).to.include('admin_explicit_test.pdf');
+            const automaticEncrypt = (_method: string, data: string) =>
+              JSON.stringify(data);
+            const explicitEncrypt = (method: string, data: string) =>
+              `explicitEncrypt('${method}', ${JSON.stringify(data)})`;
+            const s = sortObjectArray;
 
-          const explicitPrefixResult = await shell.executeLine(`
-            ecoll.find({$expr: { $and: [{$encStrStartsWith: {prefix: "admin_", input: "$data"}}] }},
-            { __safeContent__: 0 })
-          `);
-          expect(explicitPrefixResult).to.include('admin_user_123.txt');
-          expect(explicitPrefixResult).to.include('admin_super_456.pdf');
-          expect(explicitPrefixResult).to.include('admin_explicit_test.pdf');
-        });
+            for (const [coll, maybeEncrypt] of mode === 'explicit'
+              ? ([['ecoll', explicitEncrypt]] as const)
+              : ([
+                  ['coll', automaticEncrypt],
+                  ['ecoll', explicitEncrypt],
+                ] as const)) {
+              const prefixResults = await shell.executeLineWithJSONResult(
+                `${coll}.find({$expr: { $and: [{$encStrStartsWith: {prefix: ${maybeEncrypt(
+                  'prefix',
+                  'admin_'
+                )}, input: "$prefixSuffixData"}}] }}, { data: '$prefixSuffixData', _id: 0 }).toArray()`
+              );
+              expect(s(prefixResults)).to.deep.equal(
+                s([
+                  {
+                    data: 'admin_user_123.txt',
+                  },
+                  {
+                    data: 'admin_super_456.pdf',
+                  },
+                  {
+                    data: 'admin_explicit_test.pdf',
+                  },
+                ])
+              );
 
-        it.skip('allows queryable encryption with suffix searches', async function () {
-          // Insert test data for suffix searches
-          await shell.executeLine(`{
-            coll.insertOne({ data: 'admin_user_123.txt' });
-            coll.insertOne({ data: 'admin_super_456.pdf' });
-            coll.insertOne({ data: 'user_regular_789.pdf' });
-            coll.insertOne({ data: 'guest_access_000.txt' });
-            
-            // Add explicit encryption data
-            ecoll.insertOne({ data: ce.encrypt(keyId, 'admin_explicit_test.pdf', explicitOpts) });
-          }`);
+              const suffixResults = await shell.executeLineWithJSONResult(`
+              ${coll}.find({$expr: { $and: [{$encStrEndsWith: {suffix: ${maybeEncrypt(
+                'suffix',
+                '.pdf'
+              )}, input: "$prefixSuffixData"}}] }}, { data: '$prefixSuffixData', _id: 0 }).toArray()
+            `);
+              expect(s(suffixResults)).to.deep.equal(
+                s([
+                  {
+                    data: 'admin_super_456.pdf',
+                  },
+                  {
+                    data: 'user_regular_789.pdf',
+                  },
+                  {
+                    data: 'admin_explicit_test.pdf',
+                  },
+                ])
+              );
 
-          const explicitSuffixResult = await shell.executeLine(`
-            ecoll.find({$expr: { $and: [{$encStrEndsWith: {suffix: ".pdf", input: "$data"}}] }}, { __safeContent__: 0 }).toArray()
-          `);
-          expect(explicitSuffixResult).to.include('admin_super_456.pdf');
-          expect(explicitSuffixResult).to.include('user_regular_789.pdf');
-          expect(explicitSuffixResult).to.include('admin_explicit_test.pdf');
-        });
-
-        it('allows queryable encryption with substring searches', async function () {
-          // Insert test data for substring searches
-          // Insert test data for prefix searches
-          await shell.executeLine(`{
-            coll.insertOne({ data: 'admin_user_123.txt' });
-            coll.insertOne({ data: 'admin_super_456.pdf' });
-            coll.insertOne({ data: 'user_regular_789.pdf' });
-            coll.insertOne({ data: 'guest_access_000.txt' });
-            
-            // Add explicit encryption data
-            ecoll.insertOne({ data: ce.encrypt(keyId, 'explicit_user', explicitOpts) });
-          }`);
-
-          const testingSubstringResult = await shell.executeLine(
-            'ecoll.find({$expr: { $and: [{$encStrContains: {substring: "user", input: "$data"}}] }}, { __safeContent__: 0 }).toArray()'
-          );
-
-          expect(testingSubstringResult).to.include('user_regular_789.pdf');
-          expect(testingSubstringResult).to.include('admin_user_123.txt');
-          expect(testingSubstringResult).to.include('explicit_user');
-        });
-      }
-    );
+              const substringResults = await shell.executeLineWithJSONResult(`
+              ${coll}.find({$expr: { $and: [{$encStrContains: {substring: ${maybeEncrypt(
+                'substring',
+                'user'
+              )}, input: "$substringData"}}] }}, { data: '$substringData', _id: 0 }).toArray()
+            `);
+              expect(s(substringResults)).to.deep.equal(
+                s([
+                  {
+                    data: 'user_regular_789.pdf',
+                  },
+                  {
+                    data: 'admin_user_123.txt',
+                  },
+                  {
+                    data: 'just_user.txt',
+                  },
+                ])
+              );
+            }
+          });
+        }
+      );
   });
 
   context('pre-6.0', function () {

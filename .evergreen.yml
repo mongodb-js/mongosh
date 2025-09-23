@@ -10604,7 +10604,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: darwin-arm64
-      mongosh_server_test_version: "8.2.0-rc4"
+      mongosh_server_test_version: "8.2.0"
       node_js_version: "20.19.5"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -10637,7 +10637,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: darwin-arm64
-      mongosh_server_test_version: "8.2.0-rc4-enterprise"
+      mongosh_server_test_version: "8.2.0-enterprise"
       node_js_version: "20.19.5"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -11099,7 +11099,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: darwin-arm64
-      mongosh_server_test_version: "8.2.0-rc4"
+      mongosh_server_test_version: "8.2.0"
       node_js_version: "20.19.5"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -11132,7 +11132,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: darwin-arm64
-      mongosh_server_test_version: "8.2.0-rc4-enterprise"
+      mongosh_server_test_version: "8.2.0-enterprise"
       node_js_version: "20.19.5"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -11614,7 +11614,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: win32
-      mongosh_server_test_version: "8.2.0-rc4"
+      mongosh_server_test_version: "8.2.0"
       node_js_version: "20.19.5"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -11646,7 +11646,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: win32
-      mongosh_server_test_version: "8.2.0-rc4-enterprise"
+      mongosh_server_test_version: "8.2.0-enterprise"
       node_js_version: "20.19.5"
       mongosh_skip_node_version_check: ""
     tasks:
