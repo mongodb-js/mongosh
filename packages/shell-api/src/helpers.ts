@@ -597,6 +597,9 @@ export async function getPrintableShardStatus(
               ];
             }
 
+            collRes.allowMigrations =
+              coll.permitMigrations !== false && coll.allowMigrations !== false;
+
             const chunksRes = [];
             const chunksCollMatch = buildConfigChunksCollectionMatch(coll);
             const chunks = await (
