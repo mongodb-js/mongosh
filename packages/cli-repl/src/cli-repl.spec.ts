@@ -1,5 +1,5 @@
 import { MongoshInternalError } from '@mongosh/errors';
-import { bson } from '@mongosh/service-provider-core';
+import { EJSON, ObjectId } from 'bson';
 import { once } from 'events';
 import { promises as fs } from 'fs';
 import type { Server as HTTPServer } from 'http';
@@ -34,7 +34,6 @@ import type { AddressInfo } from 'net';
 import sinon from 'sinon';
 import type { CliUserConfig } from '@mongosh/types';
 import { MongoLogWriter, MongoLogManager } from 'mongodb-log-writer';
-const { EJSON } = bson;
 
 const delay = promisify(setTimeout);
 
@@ -475,10 +474,7 @@ describe('CliRepl', function () {
           tmpdir.path,
           '60a0064774d771e863d9a1e1_log'
         );
-        const newerlogfile = path.join(
-          tmpdir.path,
-          `${new bson.ObjectId()}_log`
-        );
+        const newerlogfile = path.join(tmpdir.path, `${new ObjectId()}_log`);
         await fs.writeFile(oldlogfile, 'ignoreme');
         await fs.writeFile(newerlogfile, 'ignoreme');
         cliRepl = new CliRepl(cliReplOptions);

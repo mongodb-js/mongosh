@@ -66,7 +66,7 @@ import { ShellApiErrors } from './error-codes';
 import type { LogEntry } from './log-entry';
 import { parseAnyLogEntry } from './log-entry';
 import type { CollectionWithSchema } from './collection';
-import type { ShellBson } from './shell-bson';
+import type { BSON, ShellBson } from '@mongosh/shell-bson';
 import type { MQLPipeline } from './mql-types';
 
 /* Utility, inverse of Readonly<T> */
@@ -338,7 +338,7 @@ export default class Mongo<
   async _listDatabases(opts: ListDatabasesOptions = {}): Promise<{
     databases: {
       name: string;
-      sizeOnDisk: number | ShellBson['Long'];
+      sizeOnDisk: number | BSON['Long']['prototype'];
       empty: boolean;
     }[];
     ok: 1;
@@ -383,7 +383,7 @@ export default class Mongo<
   async getDBs(options: ListDatabasesOptions = {}): Promise<{
     databases: {
       name: string;
-      sizeOnDisk: number | ShellBson['Long'];
+      sizeOnDisk: number | BSON['Long']['prototype'];
       empty: boolean;
     }[];
     ok: 1;
@@ -902,7 +902,9 @@ export default class Mongo<
   }
 
   @returnsPromise
-  async convertShardKeyToHashed(value: any): Promise<unknown> {
+  async convertShardKeyToHashed(
+    value: any
+  ): Promise<ShellBson['Long']['prototype']> {
     const pipeline = [
       { $limit: 1 },
       { $project: { _id: { $toHashedIndexKey: { $literal: value } } } },

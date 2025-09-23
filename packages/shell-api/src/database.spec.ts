@@ -18,7 +18,7 @@ import type {
   Document,
   ClientEncryptionDataKeyProvider,
 } from '@mongosh/service-provider-core';
-import { bson } from '@mongosh/service-provider-core';
+import * as bson from 'bson';
 import ShellInstanceState from './shell-instance-state';
 import crypto from 'crypto';
 import { ADMIN_DB } from './enums';

@@ -4,7 +4,7 @@ import type {
   AggregationCursor,
   ServiceProvider,
 } from '@mongosh/service-provider-core';
-import { bson } from '@mongosh/service-provider-core';
+import * as bson from 'bson';
 import { ADMIN_DB } from '../../shell-api/lib/enums';
 import { CliUserConfig } from '@mongosh/types';
 import { EventEmitter, once } from 'events';

@@ -55,7 +55,11 @@ describe('Runtime independence', function () {
       absolutePathRequire(entryPoint).exports as typeof import('./');
 
     // Verify that `shellApi` is generally usable.
-    const sp = { platform: 'CLI', close: sinon.spy() };
+    const sp = {
+      platform: 'CLI',
+      close: sinon.spy(),
+      bsonLibrary: absolutePathRequire(require.resolve('bson')).exports,
+    };
     const evaluationListener = { onExit: sinon.spy() };
     const instanceState = new shellApi.ShellInstanceState(sp as any);
     instanceState.setEvaluationListener(evaluationListener);

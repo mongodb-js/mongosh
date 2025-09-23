@@ -19,7 +19,7 @@ import type {
   RunCommandCursor as ServiceProviderRunCommandCursor,
   Document,
 } from '@mongosh/service-provider-core';
-import { bson } from '@mongosh/service-provider-core';
+import * as bson from 'bson';
 import { EventEmitter } from 'events';
 import ShellInstanceState from './shell-instance-state';
 import { UpdateResult } from './result';

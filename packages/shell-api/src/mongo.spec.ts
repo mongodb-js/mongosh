@@ -16,7 +16,7 @@ import type {
   ServiceProvider,
   WriteConcern,
 } from '@mongosh/service-provider-core';
-import { bson } from '@mongosh/service-provider-core';
+import * as bson from 'bson';
 import type { DatabaseWithSchema } from './database';
 import { EventEmitter } from 'events';
 import ShellInstanceState from './shell-instance-state';

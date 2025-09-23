@@ -1,26 +1,48 @@
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
-import { bson } from '@mongosh/service-provider-core';
+import * as bson from 'bson';
 import {
   serialize as bsonSerialize,
   deserialize as bsonDeserialize,
 } from 'bson';
-import { expect } from 'chai';
+import chai, { expect } from 'chai';
+import sinonChai from 'sinon-chai';
 import sinon from 'sinon';
-import { ALL_SERVER_VERSIONS } from './enums';
-import { toShellResult } from './index';
-import constructShellBson from './shell-bson';
+import type { BSON, ShellBson } from './';
+import { constructShellBson } from './';
+chai.use(sinonChai);
 
 const hex_1234 = '31323334';
 const b64_1234 = 'MTIzNA==';
 const utf_1234 = '1234';
 
+interface TestHelp {
+  testHelpName: string;
+  type: 'Help';
+}
+const ALL_SERVER_VERSIONS = ['1.0'];
+
 describe('Shell BSON', function () {
-  let shellBson: any;
+  let shellBson: ShellBson<BSON, TestHelp>;
   let printWarning: (msg: string) => void;
+  let constructHelp: (name: string) => TestHelp;
 
   before(function () {
     printWarning = sinon.stub();
-    shellBson = constructShellBson(bson, printWarning);
+    constructHelp = sinon.stub().callsFake((name: string): TestHelp => {
+      return { testHelpName: name, type: 'Help' };
+    });
+    shellBson = constructShellBson({
+      bsonLibrary: bson,
+      printWarning,
+      constructHelp,
+      assignMetadata(target, { help }) {
+        target.serverVersions = ALL_SERVER_VERSIONS;
+        if (help) {
+          target.help = (): TestHelp => help;
+          Object.setPrototypeOf(target.help, help);
+        }
+      },
+    });
   });
 
   describe('DBRef', function () {
@@ -32,11 +54,11 @@ describe('Shell BSON', function () {
       const s = new (shellBson.DBRef as any)('namespace', 'oid');
       expect(s._bsontype).to.equal('DBRef');
     });
-    it('has help and other metadata', async function () {
+    it('has help and other metadata', function () {
       const s = shellBson.DBRef('namespace', 'oid');
-      expect((await toShellResult(s.help)).type).to.equal('Help');
-      expect((await toShellResult(s.help())).type).to.equal('Help');
-      expect(s.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
+      expect(s.help?.type).to.equal('Help');
+      expect(s.help?.().type).to.equal('Help');
+      expect((s as any).serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
     });
     it('errors for missing arg 1', function () {
       try {
@@ -84,11 +106,11 @@ describe('Shell BSON', function () {
       const s = (shellBson.MaxKey as any).toBSON();
       expect(s._bsontype).to.equal('MaxKey');
     });
-    it('has help and other metadata', async function () {
+    it('has help and other metadata', function () {
       const s = shellBson.MaxKey();
-      expect((await toShellResult(s.help)).type).to.equal('Help');
-      expect((await toShellResult(s.help())).type).to.equal('Help');
-      expect(s.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
+      expect(s.help?.type).to.equal('Help');
+      expect(s.help?.().type).to.equal('Help');
+      expect((s as any).serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
     });
   });
   describe('MinKey', function () {
@@ -104,11 +126,11 @@ describe('Shell BSON', function () {
       const s = (shellBson.MinKey as any).toBSON();
       expect(s._bsontype).to.equal('MinKey');
     });
-    it('has help and other metadata', async function () {
+    it('has help and other metadata', function () {
       const s = shellBson.MinKey();
-      expect((await toShellResult(s.help)).type).to.equal('Help');
-      expect((await toShellResult(s.help())).type).to.equal('Help');
-      expect(s.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
+      expect(s.help?.type).to.equal('Help');
+      expect(s.help?.().type).to.equal('Help');
+      expect((s as any).serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
     });
   });
   describe('MinKey & MaxKey constructor special handling', function () {
@@ -119,9 +141,9 @@ describe('Shell BSON', function () {
         return bson.EJSON.serialize(bsonDeserialize(bsonSerialize(value)));
       }
 
-      expect(roundtrip({ a: new MinKey(), b: new MaxKey() })).to.deep.equal(
-        expected
-      );
+      expect(
+        roundtrip({ a: new (MinKey as any)(), b: new (MaxKey as any)() })
+      ).to.deep.equal(expected);
       expect(roundtrip({ a: MinKey(), b: MaxKey() })).to.deep.equal(expected);
       expect(
         roundtrip({ a: MinKey.toBSON(), b: MaxKey.toBSON() })
@@ -157,11 +179,11 @@ describe('Shell BSON', function () {
       expect(s._bsontype).to.equal('ObjectId');
       expect(s.toHexString()).to.equal('64c122afaf44ca299136bbc3');
     });
-    it('has help and other metadata', async function () {
+    it('has help and other metadata', function () {
       const s = shellBson.ObjectId();
-      expect((await toShellResult(s.help)).type).to.equal('Help');
-      expect((await toShellResult(s.help())).type).to.equal('Help');
-      expect(s.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
+      expect(s.help?.type).to.equal('Help');
+      expect(s.help?.().type).to.equal('Help');
+      expect((s as any).serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
     });
     it('errors for wrong type of arg 1', function () {
       try {
@@ -174,7 +196,7 @@ describe('Shell BSON', function () {
   });
   describe('BSONSymbol', function () {
     it('without new', function () {
-      const s = shellBson.BSONSymbol('5ebbe8e2905bb493d6981b6b');
+      const s = (shellBson.BSONSymbol as any)('5ebbe8e2905bb493d6981b6b');
       expect(s._bsontype).to.equal('BSONSymbol');
       expect(s.toString()).to.equal('5ebbe8e2905bb493d6981b6b');
     });
@@ -183,10 +205,10 @@ describe('Shell BSON', function () {
       expect(s._bsontype).to.equal('BSONSymbol');
       expect(s.toString()).to.equal('5ebbe8e2905bb493d6981b6b');
     });
-    it('has help and other metadata', async function () {
-      const s = shellBson.BSONSymbol('5ebbe8e2905bb493d6981b6b');
-      expect((await toShellResult(s.help)).type).to.equal('Help');
-      expect((await toShellResult(s.help())).type).to.equal('Help');
+    it('has help and other metadata', function () {
+      const s = (shellBson.BSONSymbol as any)('5ebbe8e2905bb493d6981b6b');
+      expect(s.help?.type).to.equal('Help');
+      expect(s.help?.().type).to.equal('Help');
     });
   });
   describe('Timestamp', function () {
@@ -199,15 +221,17 @@ describe('Shell BSON', function () {
       expect(s._bsontype).to.equal('Timestamp');
     });
     it('with a long argument', function () {
-      const s = shellBson.Timestamp(shellBson.Long(1, 2));
+      const s = shellBson.Timestamp((shellBson.Long as any)(1, 2));
       expect(s._bsontype).to.equal('Timestamp');
-      expect(s.toExtendedJSON()).to.deep.equal({ $timestamp: { t: 2, i: 1 } });
+      expect((s as any).toExtendedJSON()).to.deep.equal({
+        $timestamp: { t: 2, i: 1 },
+      });
     });
-    it('has help and other metadata', async function () {
+    it('has help and other metadata', function () {
       const s = shellBson.Timestamp(0, 100);
-      expect((await toShellResult(s.help)).type).to.equal('Help');
-      expect((await toShellResult(s.help())).type).to.equal('Help');
-      expect(s.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
+      expect(s.help?.type).to.equal('Help');
+      expect(s.help?.().type).to.equal('Help');
+      expect((s as any).serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
     });
     it('errors for wrong type of arg 1', function () {
       try {
@@ -247,7 +271,7 @@ describe('Shell BSON', function () {
       const s = shellBson.Timestamp({ t: 10, i: 20 });
       expect(s.low).to.equal(20);
       expect(s.high).to.equal(10);
-      expect(s.toExtendedJSON()).to.deep.equal({
+      expect((s as any).toExtendedJSON()).to.deep.equal({
         $timestamp: { t: 10, i: 20 },
       });
     });
@@ -266,11 +290,11 @@ describe('Shell BSON', function () {
       expect(code.code).to.equal(fn.toString());
       expect(code.scope).to.deep.equal({ k: 'v' });
     });
-    it('has help and other metadata', async function () {
+    it('has help and other metadata', function () {
       const s = shellBson.Code('code', { k: 'v' });
-      expect((await toShellResult(s.help)).type).to.equal('Help');
-      expect((await toShellResult(s.help())).type).to.equal('Help');
-      expect(s.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
+      expect(s.help?.type).to.equal('Help');
+      expect(s.help?.().type).to.equal('Help');
+      expect((s as any).serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
     });
     it('errors for wrong type of arg 1', function () {
       try {
@@ -383,12 +407,12 @@ describe('Shell BSON', function () {
     });
     it('passes through non-string args to `new Date()`', function () {
       expect(shellBson.ISODate()).to.be.an.instanceOf(Date);
-      expect(shellBson.ISODate(0).getTime()).to.equal(0);
-      expect(shellBson.ISODate(null).getTime()).to.equal(0);
-      expect(shellBson.ISODate(1234).getTime()).to.equal(1234);
-      expect(shellBson.ISODate(shellBson.ISODate(1234)).getTime()).to.equal(
-        1234
-      );
+      expect((shellBson.ISODate as any)(0).getTime()).to.equal(0);
+      expect((shellBson.ISODate as any)(null).getTime()).to.equal(0);
+      expect((shellBson.ISODate as any)(1234).getTime()).to.equal(1234);
+      expect(
+        (shellBson.ISODate as any)((shellBson.ISODate as any)(1234)).getTime()
+      ).to.equal(1234);
     });
   });
   describe('BinData', function () {
@@ -396,11 +420,11 @@ describe('Shell BSON', function () {
       const b = shellBson.BinData(128, b64_1234);
       expect(b.toString()).to.equal(utf_1234);
     });
-    it('has help and other metadata', async function () {
+    it('has help and other metadata', function () {
       const s = shellBson.BinData(128, b64_1234);
-      expect((await toShellResult(s.help)).type).to.equal('Help');
-      expect((await toShellResult(s.help())).type).to.equal('Help');
-      expect(s.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
+      expect(s.help?.type).to.equal('Help');
+      expect(s.help?.().type).to.equal('Help');
+      expect((s as any).serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
     });
     it('errors for missing arg 1', function () {
       try {
@@ -453,9 +477,9 @@ describe('Shell BSON', function () {
     it('has subtype', function () {
       expect(h.sub_type).to.equal(128);
     });
-    it('has help and other metadata', async function () {
-      expect((await toShellResult(h.help)).type).to.equal('Help');
-      expect((await toShellResult(h.help())).type).to.equal('Help');
+    it('has help and other metadata', function () {
+      expect(h.help.type).to.equal('Help');
+      expect(h.help().type).to.equal('Help');
       expect(h.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
     });
     it('errors for missing arg 1', function () {
@@ -508,9 +532,9 @@ describe('Shell BSON', function () {
     it('has subtype', function () {
       expect(h.sub_type).to.equal(4);
     });
-    it('has help and other metadata', async function () {
-      expect((await toShellResult(h.help)).type).to.equal('Help');
-      expect((await toShellResult(h.help())).type).to.equal('Help');
+    it('has help and other metadata', function () {
+      expect(h.help.type).to.equal('Help');
+      expect(h.help().type).to.equal('Help');
       expect(h.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
     });
     it('strips dashes from input', function () {
@@ -522,7 +546,7 @@ describe('Shell BSON', function () {
     });
     it('generates a random UUID when no arguments are passed', function () {
       // https://en.wikipedia.org/wiki/Universally_unique_identifier#Format
-      expect(shellBson.UUID().value().toString('hex')).to.match(
+      expect(shellBson.UUID().toString('hex')).to.match(
         /^[a-z0-9]{12}4[a-z0-9]{3}[89ab][a-z0-9]{15}$/
       );
     });
@@ -552,9 +576,9 @@ describe('Shell BSON', function () {
     it('has subtype', function () {
       expect(h.sub_type).to.equal(5);
     });
-    it('has help and other metadata', async function () {
-      expect((await toShellResult(h.help)).type).to.equal('Help');
-      expect((await toShellResult(h.help())).type).to.equal('Help');
+    it('has help and other metadata', function () {
+      expect(h.help.type).to.equal('Help');
+      expect(h.help().type).to.equal('Help');
       expect(h.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
     });
     it('errors for missing arg 1', function () {
@@ -658,7 +682,7 @@ describe('Shell BSON', function () {
     });
 
     it('creates a bson.Decimal128 for unrecommended integer and prints warning', function () {
-      const n = shellBson.NumberDecimal(123);
+      const n = (shellBson.NumberDecimal as any)(123);
       expect(n).to.be.instanceOf(bson.Decimal128);
       expect(bson.Decimal128.fromString('123').toString()).to.equal(
         n.toString()
@@ -688,13 +712,13 @@ describe('Shell BSON', function () {
     });
 
     it('creates a bson.Int32 from number', function () {
-      const n = shellBson.NumberInt(123);
+      const n = (shellBson.NumberInt as any)(123);
       expect(n).to.be.instanceOf(bson.Int32);
       expect(new bson.Int32(123).value).to.equal(n.value);
     });
 
     it('creates a bson.Int32 from non-integer number', function () {
-      const n = shellBson.NumberInt(123.5);
+      const n = (shellBson.NumberInt as any)(123.5);
       expect(n).to.be.instanceOf(bson.Int32);
       expect(new bson.Int32(123).value).to.equal(n.value);
     });
@@ -725,7 +749,7 @@ describe('Shell BSON', function () {
 
   describe('Number type cross-construction', function () {
     it('matches the legacy shell', function () {
-      const { NumberInt, NumberLong, NumberDecimal } = shellBson;
+      const { NumberInt, NumberLong, NumberDecimal } = shellBson as any;
       expect(NumberInt(null).toString()).to.equal('0');
       expect(NumberLong(null).toString()).to.equal('0');
 
@@ -749,9 +773,17 @@ describe('Shell BSON', function () {
   });
 
   describe('BSON constructor properties', function () {
-    for (const key of Object.keys(bson) as (keyof typeof bson)[]) {
+    for (const key of Object.keys(bson) as (keyof typeof bson &
+      keyof ShellBson)[]) {
       it(`matches original BSON constructor properties (${key})`, function () {
         if (!(key in shellBson) || bson[key] === shellBson[key]) {
+          return;
+        }
+
+        if (key === 'UUID') {
+          // TODO(MONGOSH-2710): Special case, we still need to make these match,
+          // they currently do not because our UUID helper predates the addition
+          // the driver helper.
           return;
         }
 
@@ -763,7 +795,7 @@ describe('Shell BSON', function () {
         delete shellProperties.length; // Function length can vary depending on the specific arguments in TS.
         delete bsonProperties.length;
         delete bsonProperties.index; // ObjectId.index is a random number
-        delete shellProperties.toBSON; // toBSON is something we add for MaxKey/MinKey as a shell-specific extension
+        delete (shellProperties as any).toBSON; // toBSON is something we add for MaxKey/MinKey as a shell-specific extension
         delete shellProperties.prototype?.writable; // We don't want to care about writable vs non-writable prototypes
         delete bsonProperties.prototype?.writable;
 

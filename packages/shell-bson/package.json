@@ -1,0 +1,54 @@
+{
+  "name": "@mongosh/shell-bson",
+  "version": "1.0.1",
+  "description": "mongosh-style BSON handling",
+  "homepage": "https://github.com/mongodb-js/mongosh/tree/main/packages/shell-bson#readme",
+  "license": "Apache-2.0",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=14.15.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mongodb-js/mongosh.git"
+  },
+  "scripts": {
+    "check": "npm run lint && npm run depcheck",
+    "depcheck": "depcheck",
+    "compile": "tsc -p tsconfig.json",
+    "eslint": "eslint",
+    "lint": "npm run eslint . && npm run prettier -- --check .",
+    "prepublish": "npm run compile",
+    "test": "mocha --timeout 15000 -r ts-node/register --reporter \"../../configs/mocha-config-mongosh/reporter.ts\" \"./src/*.spec.ts\"",
+    "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
+    "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
+    "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
+    "prettier": "prettier",
+    "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
+  },
+  "bugs": {
+    "url": "https://github.com/mongodb-js/mongosh/issues"
+  },
+  "mongosh": {
+    "unitTestsOnly": true
+  },
+  "dependencies": {
+    "@mongosh/errors": "^2.4.4"
+  },
+  "peerDependencies": {
+    "bson": "^6.10.4"
+  },
+  "devDependencies": {
+    "@mongodb-js/eslint-config-mongosh": "^1.0.0",
+    "@mongodb-js/prettier-config-devtools": "^1.0.1",
+    "@mongodb-js/tsconfig-mongosh": "^1.0.0",
+    "bson": "^6.10.4",
+    "depcheck": "^1.4.7",
+    "eslint": "^7.25.0",
+    "prettier": "^2.8.8"
+  }
+}

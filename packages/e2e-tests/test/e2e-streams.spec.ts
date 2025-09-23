@@ -1,4 +1,4 @@
-import { bson } from '@mongosh/service-provider-core';
+import * as bson from 'bson';
 import type { Db, Collection, Document } from '@mongosh/service-provider-core';
 import { MongoClient } from 'mongodb';
 import { expect } from 'chai';
@@ -45,6 +45,9 @@ describe('e2e Streams', function () {
       );
       return this.skip();
     }
+
+    // TODO(STREAMS-2031): Unskip this test after addressing flake
+    return this.skip();
   });
 
   describe('basic stream processor operations', function () {

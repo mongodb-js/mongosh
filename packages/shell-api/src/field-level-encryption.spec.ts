@@ -7,7 +7,7 @@ import type {
   ClientEncryptionDataKeyProvider,
   KMSProviders,
 } from '@mongosh/service-provider-core';
-import { bson } from '@mongosh/service-provider-core';
+import * as bson from 'bson';
 import { expect } from 'chai';
 import { EventEmitter } from 'events';
 import { promises as fs } from 'fs';
