@@ -2610,6 +2610,7 @@ describe('Shard', function () {
         db = sh._database.getSiblingDB(dbName);
         await db.getCollection('test').insertOne({ key: 1 });
         await db.getCollection('test').createIndex({ key: 1 });
+        await sh.enableSharding(dbName);
         await sh.shardCollection(ns, { key: 1 });
       });
 
