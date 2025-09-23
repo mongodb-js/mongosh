@@ -579,14 +579,14 @@ export default class Shard<
 
   @returnsPromise
   @apiVersions([])
-  enableMigrations(ns: string): Promise<Document> {
-    return this._setAllowMigrations(ns, true);
+  async enableMigrations(ns: string): Promise<Document> {
+    return await this._setAllowMigrations(ns, true);
   }
 
   @returnsPromise
   @apiVersions([])
-  disableMigrations(ns: string): Promise<Document> {
-    return this._setAllowMigrations(ns, false);
+  async disableMigrations(ns: string): Promise<Document> {
+    return await this._setAllowMigrations(ns, false);
   }
 
   @returnsPromise
