@@ -259,7 +259,6 @@ export function startTestCluster(id: string, ...argLists: Partial<MongoClusterOp
 }
 
 function skipIfVersion(test: any, testServerVersion: string, semverCondition: string): void {
-  //console.log({testServerVersion, semverCondition});
   if (semver.satisfies(testServerVersion, semverCondition, { includePrerelease: true })) {
     test.skip();
   }

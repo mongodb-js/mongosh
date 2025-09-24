@@ -962,7 +962,7 @@ srDVjIT3LsvTqw==`,
               return;
             }
             expect.fail('missed exception');
-          // eslint-disable-next-line no-fallthrough
+            break;
           default:
             throw new Error(`unreachable ${kmsName}`);
         }

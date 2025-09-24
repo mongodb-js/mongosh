@@ -983,8 +983,8 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_darwin-m82rc_n20-cli_repl.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m82rc_n20-cli_repl.tgz
+        local_file: src/nyc-output-tests_darwin-m82xc_n20-cli_repl.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m82xc_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -992,13 +992,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_darwin-m82rc_n20-cli_repl.tgz
+          tar xvzf nyc-output-tests_darwin-m82xc_n20-cli_repl.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_darwin-m82rc_n20-e2e_tests.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m82rc_n20-e2e_tests.tgz
+        local_file: src/nyc-output-tests_darwin-m82xc_n20-e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m82xc_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -1006,13 +1006,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_darwin-m82rc_n20-e2e_tests.tgz
+          tar xvzf nyc-output-tests_darwin-m82xc_n20-e2e_tests.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_darwin-m82rc_n20-node_runtime_worker_thread.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m82rc_n20-node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-tests_darwin-m82xc_n20-node_runtime_worker_thread.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m82xc_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -1020,13 +1020,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_darwin-m82rc_n20-node_runtime_worker_thread.tgz
+          tar xvzf nyc-output-tests_darwin-m82xc_n20-node_runtime_worker_thread.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_darwin-m82rc_n20-service_provider_node_driver.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m82rc_n20-service_provider_node_driver.tgz
+        local_file: src/nyc-output-tests_darwin-m82xc_n20-service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m82xc_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -1034,13 +1034,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_darwin-m82rc_n20-service_provider_node_driver.tgz
+          tar xvzf nyc-output-tests_darwin-m82xc_n20-service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_darwin-m82rc_n20-shell_api.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m82rc_n20-shell_api.tgz
+        local_file: src/nyc-output-tests_darwin-m82xc_n20-shell_api.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m82xc_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -1048,13 +1048,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_darwin-m82rc_n20-shell_api.tgz
+          tar xvzf nyc-output-tests_darwin-m82xc_n20-shell_api.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_darwin-m82rce_n20-cli_repl.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m82rce_n20-cli_repl.tgz
+        local_file: src/nyc-output-tests_darwin-m82xe_n20-cli_repl.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m82xe_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -1062,13 +1062,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_darwin-m82rce_n20-cli_repl.tgz
+          tar xvzf nyc-output-tests_darwin-m82xe_n20-cli_repl.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_darwin-m82rce_n20-e2e_tests.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m82rce_n20-e2e_tests.tgz
+        local_file: src/nyc-output-tests_darwin-m82xe_n20-e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m82xe_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -1076,13 +1076,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_darwin-m82rce_n20-e2e_tests.tgz
+          tar xvzf nyc-output-tests_darwin-m82xe_n20-e2e_tests.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_darwin-m82rce_n20-node_runtime_worker_thread.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m82rce_n20-node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-tests_darwin-m82xe_n20-node_runtime_worker_thread.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m82xe_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -1090,13 +1090,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_darwin-m82rce_n20-node_runtime_worker_thread.tgz
+          tar xvzf nyc-output-tests_darwin-m82xe_n20-node_runtime_worker_thread.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_darwin-m82rce_n20-service_provider_node_driver.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m82rce_n20-service_provider_node_driver.tgz
+        local_file: src/nyc-output-tests_darwin-m82xe_n20-service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m82xe_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -1104,13 +1104,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_darwin-m82rce_n20-service_provider_node_driver.tgz
+          tar xvzf nyc-output-tests_darwin-m82xe_n20-service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_darwin-m82rce_n20-shell_api.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m82rce_n20-shell_api.tgz
+        local_file: src/nyc-output-tests_darwin-m82xe_n20-shell_api.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m82xe_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -1118,7 +1118,7 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_darwin-m82rce_n20-shell_api.tgz
+          tar xvzf nyc-output-tests_darwin-m82xe_n20-shell_api.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -2439,8 +2439,8 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m82rc_n20-cli_repl.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m82rc_n20-cli_repl.tgz
+        local_file: src/nyc-output-tests_linux-m82xc_n20-cli_repl.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m82xc_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -2448,13 +2448,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_linux-m82rc_n20-cli_repl.tgz
+          tar xvzf nyc-output-tests_linux-m82xc_n20-cli_repl.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m82rc_n20-e2e_tests.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m82rc_n20-e2e_tests.tgz
+        local_file: src/nyc-output-tests_linux-m82xc_n20-e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m82xc_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -2462,13 +2462,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_linux-m82rc_n20-e2e_tests.tgz
+          tar xvzf nyc-output-tests_linux-m82xc_n20-e2e_tests.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m82rc_n20-java_shell.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m82rc_n20-java_shell.tgz
+        local_file: src/nyc-output-tests_linux-m82xc_n20-java_shell.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m82xc_n20-java_shell.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -2476,13 +2476,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_linux-m82rc_n20-java_shell.tgz
+          tar xvzf nyc-output-tests_linux-m82xc_n20-java_shell.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m82rc_n20-node_runtime_worker_thread.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m82rc_n20-node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-tests_linux-m82xc_n20-node_runtime_worker_thread.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m82xc_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -2490,13 +2490,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_linux-m82rc_n20-node_runtime_worker_thread.tgz
+          tar xvzf nyc-output-tests_linux-m82xc_n20-node_runtime_worker_thread.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m82rc_n20-service_provider_node_driver.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m82rc_n20-service_provider_node_driver.tgz
+        local_file: src/nyc-output-tests_linux-m82xc_n20-service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m82xc_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -2504,13 +2504,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_linux-m82rc_n20-service_provider_node_driver.tgz
+          tar xvzf nyc-output-tests_linux-m82xc_n20-service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m82rc_n20-shell_api.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m82rc_n20-shell_api.tgz
+        local_file: src/nyc-output-tests_linux-m82xc_n20-shell_api.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m82xc_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -2518,13 +2518,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_linux-m82rc_n20-shell_api.tgz
+          tar xvzf nyc-output-tests_linux-m82xc_n20-shell_api.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m82rce_n20-cli_repl.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m82rce_n20-cli_repl.tgz
+        local_file: src/nyc-output-tests_linux-m82xe_n20-cli_repl.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m82xe_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -2532,13 +2532,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_linux-m82rce_n20-cli_repl.tgz
+          tar xvzf nyc-output-tests_linux-m82xe_n20-cli_repl.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m82rce_n20-e2e_tests.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m82rce_n20-e2e_tests.tgz
+        local_file: src/nyc-output-tests_linux-m82xe_n20-e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m82xe_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -2546,13 +2546,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_linux-m82rce_n20-e2e_tests.tgz
+          tar xvzf nyc-output-tests_linux-m82xe_n20-e2e_tests.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m82rce_n20-java_shell.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m82rce_n20-java_shell.tgz
+        local_file: src/nyc-output-tests_linux-m82xe_n20-java_shell.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m82xe_n20-java_shell.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -2560,13 +2560,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_linux-m82rce_n20-java_shell.tgz
+          tar xvzf nyc-output-tests_linux-m82xe_n20-java_shell.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m82rce_n20-node_runtime_worker_thread.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m82rce_n20-node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-tests_linux-m82xe_n20-node_runtime_worker_thread.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m82xe_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -2574,13 +2574,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_linux-m82rce_n20-node_runtime_worker_thread.tgz
+          tar xvzf nyc-output-tests_linux-m82xe_n20-node_runtime_worker_thread.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m82rce_n20-service_provider_node_driver.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m82rce_n20-service_provider_node_driver.tgz
+        local_file: src/nyc-output-tests_linux-m82xe_n20-service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m82xe_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -2588,13 +2588,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_linux-m82rce_n20-service_provider_node_driver.tgz
+          tar xvzf nyc-output-tests_linux-m82xe_n20-service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m82rce_n20-shell_api.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m82rce_n20-shell_api.tgz
+        local_file: src/nyc-output-tests_linux-m82xe_n20-shell_api.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m82xe_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -2602,7 +2602,7 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_linux-m82rce_n20-shell_api.tgz
+          tar xvzf nyc-output-tests_linux-m82xe_n20-shell_api.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -3839,8 +3839,8 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m82rc_n20-cli_repl.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m82rc_n20-cli_repl.tgz
+        local_file: src/nyc-output-tests_win32-m82xc_n20-cli_repl.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m82xc_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3848,13 +3848,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_win32-m82rc_n20-cli_repl.tgz
+          tar xvzf nyc-output-tests_win32-m82xc_n20-cli_repl.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m82rc_n20-e2e_tests.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m82rc_n20-e2e_tests.tgz
+        local_file: src/nyc-output-tests_win32-m82xc_n20-e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m82xc_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3862,13 +3862,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_win32-m82rc_n20-e2e_tests.tgz
+          tar xvzf nyc-output-tests_win32-m82xc_n20-e2e_tests.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m82rc_n20-node_runtime_worker_thread.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m82rc_n20-node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-tests_win32-m82xc_n20-node_runtime_worker_thread.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m82xc_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3876,13 +3876,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_win32-m82rc_n20-node_runtime_worker_thread.tgz
+          tar xvzf nyc-output-tests_win32-m82xc_n20-node_runtime_worker_thread.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m82rc_n20-service_provider_node_driver.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m82rc_n20-service_provider_node_driver.tgz
+        local_file: src/nyc-output-tests_win32-m82xc_n20-service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m82xc_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3890,13 +3890,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_win32-m82rc_n20-service_provider_node_driver.tgz
+          tar xvzf nyc-output-tests_win32-m82xc_n20-service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m82rc_n20-shell_api.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m82rc_n20-shell_api.tgz
+        local_file: src/nyc-output-tests_win32-m82xc_n20-shell_api.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m82xc_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3904,13 +3904,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_win32-m82rc_n20-shell_api.tgz
+          tar xvzf nyc-output-tests_win32-m82xc_n20-shell_api.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m82rce_n20-cli_repl.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m82rce_n20-cli_repl.tgz
+        local_file: src/nyc-output-tests_win32-m82xe_n20-cli_repl.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m82xe_n20-cli_repl.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3918,13 +3918,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_win32-m82rce_n20-cli_repl.tgz
+          tar xvzf nyc-output-tests_win32-m82xe_n20-cli_repl.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m82rce_n20-e2e_tests.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m82rce_n20-e2e_tests.tgz
+        local_file: src/nyc-output-tests_win32-m82xe_n20-e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m82xe_n20-e2e_tests.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3932,13 +3932,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_win32-m82rce_n20-e2e_tests.tgz
+          tar xvzf nyc-output-tests_win32-m82xe_n20-e2e_tests.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m82rce_n20-node_runtime_worker_thread.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m82rce_n20-node_runtime_worker_thread.tgz
+        local_file: src/nyc-output-tests_win32-m82xe_n20-node_runtime_worker_thread.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m82xe_n20-node_runtime_worker_thread.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3946,13 +3946,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_win32-m82rce_n20-node_runtime_worker_thread.tgz
+          tar xvzf nyc-output-tests_win32-m82xe_n20-node_runtime_worker_thread.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m82rce_n20-service_provider_node_driver.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m82rce_n20-service_provider_node_driver.tgz
+        local_file: src/nyc-output-tests_win32-m82xe_n20-service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m82xe_n20-service_provider_node_driver.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3960,13 +3960,13 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_win32-m82rce_n20-service_provider_node_driver.tgz
+          tar xvzf nyc-output-tests_win32-m82xe_n20-service_provider_node_driver.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m82rce_n20-shell_api.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m82rce_n20-shell_api.tgz
+        local_file: src/nyc-output-tests_win32-m82xe_n20-shell_api.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m82xe_n20-shell_api.tgz
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -3974,7 +3974,7 @@ functions:
         shell: bash
         script: |
           set -e
-          tar xvzf nyc-output-tests_win32-m82rce_n20-shell_api.tgz
+          tar xvzf nyc-output-tests_win32-m82xe_n20-shell_api.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -5087,25 +5087,25 @@ tasks:
       - name: test_shell_api
         variant: tests_darwin-m80xe_n20
       - name: test_cli_repl
-        variant: tests_darwin-m82rc_n20
+        variant: tests_darwin-m82xc_n20
       - name: test_e2e_tests
-        variant: tests_darwin-m82rc_n20
+        variant: tests_darwin-m82xc_n20
       - name: test_node_runtime_worker_thread
-        variant: tests_darwin-m82rc_n20
+        variant: tests_darwin-m82xc_n20
       - name: test_service_provider_node_driver
-        variant: tests_darwin-m82rc_n20
+        variant: tests_darwin-m82xc_n20
       - name: test_shell_api
-        variant: tests_darwin-m82rc_n20
+        variant: tests_darwin-m82xc_n20
       - name: test_cli_repl
-        variant: tests_darwin-m82rce_n20
+        variant: tests_darwin-m82xe_n20
       - name: test_e2e_tests
-        variant: tests_darwin-m82rce_n20
+        variant: tests_darwin-m82xe_n20
       - name: test_node_runtime_worker_thread
-        variant: tests_darwin-m82rce_n20
+        variant: tests_darwin-m82xe_n20
       - name: test_service_provider_node_driver
-        variant: tests_darwin-m82rce_n20
+        variant: tests_darwin-m82xe_n20
       - name: test_shell_api
-        variant: tests_darwin-m82rce_n20
+        variant: tests_darwin-m82xe_n20
       - name: test_cli_repl
         variant: tests_darwin-mlatest_n20
       - name: test_e2e_tests
@@ -5295,29 +5295,29 @@ tasks:
       - name: test_shell_api
         variant: tests_linux-m80xe_n20
       - name: test_cli_repl
-        variant: tests_linux-m82rc_n20
+        variant: tests_linux-m82xc_n20
       - name: test_e2e_tests
-        variant: tests_linux-m82rc_n20
+        variant: tests_linux-m82xc_n20
       - name: test_java_shell
-        variant: tests_linux-m82rc_n20
+        variant: tests_linux-m82xc_n20
       - name: test_node_runtime_worker_thread
-        variant: tests_linux-m82rc_n20
+        variant: tests_linux-m82xc_n20
       - name: test_service_provider_node_driver
-        variant: tests_linux-m82rc_n20
+        variant: tests_linux-m82xc_n20
       - name: test_shell_api
-        variant: tests_linux-m82rc_n20
+        variant: tests_linux-m82xc_n20
       - name: test_cli_repl
-        variant: tests_linux-m82rce_n20
+        variant: tests_linux-m82xe_n20
       - name: test_e2e_tests
-        variant: tests_linux-m82rce_n20
+        variant: tests_linux-m82xe_n20
       - name: test_java_shell
-        variant: tests_linux-m82rce_n20
+        variant: tests_linux-m82xe_n20
       - name: test_node_runtime_worker_thread
-        variant: tests_linux-m82rce_n20
+        variant: tests_linux-m82xe_n20
       - name: test_service_provider_node_driver
-        variant: tests_linux-m82rce_n20
+        variant: tests_linux-m82xe_n20
       - name: test_shell_api
-        variant: tests_linux-m82rce_n20
+        variant: tests_linux-m82xe_n20
       - name: test_cli_repl
         variant: tests_linux-mlatest_n20
       - name: test_e2e_tests
@@ -5495,25 +5495,25 @@ tasks:
       - name: test_shell_api
         variant: tests_win32-m80xe_n20
       - name: test_cli_repl
-        variant: tests_win32-m82rc_n20
+        variant: tests_win32-m82xc_n20
       - name: test_e2e_tests
-        variant: tests_win32-m82rc_n20
+        variant: tests_win32-m82xc_n20
       - name: test_node_runtime_worker_thread
-        variant: tests_win32-m82rc_n20
+        variant: tests_win32-m82xc_n20
       - name: test_service_provider_node_driver
-        variant: tests_win32-m82rc_n20
+        variant: tests_win32-m82xc_n20
       - name: test_shell_api
-        variant: tests_win32-m82rc_n20
+        variant: tests_win32-m82xc_n20
       - name: test_cli_repl
-        variant: tests_win32-m82rce_n20
+        variant: tests_win32-m82xe_n20
       - name: test_e2e_tests
-        variant: tests_win32-m82rce_n20
+        variant: tests_win32-m82xe_n20
       - name: test_node_runtime_worker_thread
-        variant: tests_win32-m82rce_n20
+        variant: tests_win32-m82xe_n20
       - name: test_service_provider_node_driver
-        variant: tests_win32-m82rce_n20
+        variant: tests_win32-m82xe_n20
       - name: test_shell_api
-        variant: tests_win32-m82rce_n20
+        variant: tests_win32-m82xe_n20
       - name: test_cli_repl
         variant: tests_win32-mlatest_n20
       - name: test_e2e_tests
@@ -10598,8 +10598,8 @@ buildvariants:
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
-  - name: tests_darwin-m82rc_n20
-    display_name: "MacOS 14 arm64 m82rc n20 (Unit tests)"
+  - name: tests_darwin-m82xc_n20
+    display_name: "MacOS 14 arm64 m82xc n20 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
     expansions:
@@ -10631,8 +10631,8 @@ buildvariants:
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
-  - name: tests_darwin-m82rce_n20
-    display_name: "MacOS 14 arm64 m82rce n20 (Unit tests)"
+  - name: tests_darwin-m82xe_n20
+    display_name: "MacOS 14 arm64 m82xe n20 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
     expansions:
@@ -11093,8 +11093,8 @@ buildvariants:
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
-  - name: tests_linux-m82rc_n20
-    display_name: "Ubuntu 20.04 x64 m82rc n20 (Unit tests)"
+  - name: tests_linux-m82xc_n20
+    display_name: "Ubuntu 20.04 x64 m82xc n20 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     expansions:
@@ -11126,8 +11126,8 @@ buildvariants:
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
-  - name: tests_linux-m82rce_n20
-    display_name: "Ubuntu 20.04 x64 m82rce n20 (Unit tests)"
+  - name: tests_linux-m82xe_n20
+    display_name: "Ubuntu 20.04 x64 m82xe n20 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     expansions:
@@ -11608,8 +11608,8 @@ buildvariants:
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
-  - name: tests_win32-m82rc_n20
-    display_name: "Windows m82rc n20 (Unit tests)"
+  - name: tests_win32-m82xc_n20
+    display_name: "Windows m82xc n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
@@ -11640,8 +11640,8 @@ buildvariants:
       - name: test_shell_evaluator
       - name: test_snippet_manager
       - name: test_types
-  - name: tests_win32-m82rce_n20
-    display_name: "Windows m82rce n20 (Unit tests)"
+  - name: tests_win32-m82xe_n20
+    display_name: "Windows m82xe n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
