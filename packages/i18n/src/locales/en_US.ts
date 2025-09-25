@@ -2124,6 +2124,18 @@ const translations: Catalog = {
                 'Disable balancing on a single collection in a sharded database. Does not affect balancing of other collections in a sharded cluster.',
               example: 'sh.disableBalancing(ns)',
             },
+            enableMigrations: {
+              link: 'https://mongodb.com/docs/manual/reference/method/sh.enableMigrations',
+              description:
+                'Enables migrations for a specific collection. Uses `setAllowMigrations` admin command.',
+              example: 'sh.enableMigrations(ns)',
+            },
+            disableMigrations: {
+              link: 'https://mongodb.com/docs/manual/reference/method/sh.disableMigrations',
+              description:
+                'Disables migrations for a specific collection. Uses `setAllowMigrations` admin command.',
+              example: 'sh.disableMigrations(ns)',
+            },
             getBalancerState: {
               link: 'https://mongodb.com/docs/manual/reference/method/sh.getBalancerState',
               description:

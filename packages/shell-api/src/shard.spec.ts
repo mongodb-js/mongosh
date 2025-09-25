@@ -1232,6 +1232,76 @@ describe('Shard', function () {
         expect(warnSpy.calledOnce).to.equal(true);
       });
     });
+    describe('disableMigrations', function () {
+      this.beforeEach(() => {
+        serviceProvider.runCommandWithCheck.onFirstCall().resolves({
+          ok: 1,
+          msg: 'not dbgrid',
+        });
+        serviceProvider.runCommandWithCheck.onSecondCall().resolves({ ok: 1 });
+      });
+
+      it('warns if not mongos', async function () {
+        await shard.disableMigrations('ns');
+        expect(warnSpy.calledOnce).to.equal(true);
+      });
+
+      it('calls serviceProvider.runCommandWithCheck', async function () {
+        await shard.disableMigrations('ns');
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            setAllowMigrations: 'ns',
+            allowMigrations: false,
+          }
+        );
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck
+          .onSecondCall()
+          .rejects(expectedError);
+        const caughtError = await shard.disableMigrations('ns').catch((e) => e);
+        expect(caughtError).to.equal(expectedError);
+      });
+    });
+    describe('enableMigrations', function () {
+      this.beforeEach(() => {
+        serviceProvider.runCommandWithCheck.onFirstCall().resolves({
+          ok: 1,
+          msg: 'not dbgrid',
+        });
+        serviceProvider.runCommandWithCheck.onSecondCall().resolves({ ok: 1 });
+      });
+
+      it('warns if not mongos', async function () {
+        await shard.enableMigrations('ns');
+        expect(warnSpy.calledOnce).to.equal(true);
+      });
+
+      it('calls serviceProvider.runCommandWithCheck', async function () {
+        await shard.enableMigrations('ns');
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            setAllowMigrations: 'ns',
+            allowMigrations: true,
+          }
+        );
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck
+          .onSecondCall()
+          .rejects(expectedError);
+        const caughtError = await shard.enableMigrations('ns').catch((e) => e);
+        expect(caughtError).to.equal(expectedError);
+      });
+    });
     describe('getBalancerState', function () {
       it('returns whatever serviceProvider.find returns', async function () {
         serviceProvider.runCommandWithCheck.resolves({
@@ -2528,6 +2598,71 @@ describe('Shard', function () {
             `'on shard': '${collectionInfo.chunks[0]['on shard']}', 'last modified': Timestamp({ t: 1, i: 0 }) }\n` +
             '  ],\n'
         );
+      });
+    });
+    describe('collection migrations', function () {
+      let db: Database;
+
+      const dbName = 'shard-status-test';
+      const ns = `${dbName}.test`;
+
+      beforeEach(async function () {
+        db = sh._database.getSiblingDB(dbName);
+        await db.getCollection('test').insertOne({ key: 1 });
+        await db.getCollection('test').createIndex({ key: 1 });
+        await sh.enableSharding(dbName);
+        await sh.shardCollection(ns, { key: 1 });
+      });
+
+      afterEach(async function () {
+        await db.dropDatabase();
+      });
+
+      const checkMigrationsEnabled = async (): Promise<boolean> => {
+        return (await sh.status()).value.databases.find(
+          (d) => d.database._id === dbName
+        )?.collections[ns].allowMigrations;
+      };
+
+      it('has migrations enabled by default', async function () {
+        expect(await checkMigrationsEnabled()).to.be.true;
+      });
+
+      it('can disable migrations', async function () {
+        expect((await sh.disableMigrations(ns)).ok).to.equal(1);
+        expect(await checkMigrationsEnabled()).to.be.false;
+      });
+
+      it('can enable migrations', async function () {
+        // Enabled by default, so disable first
+        expect((await sh.disableMigrations(ns)).ok).to.equal(1);
+        expect(await checkMigrationsEnabled()).to.be.false;
+
+        expect((await sh.enableMigrations(ns)).ok).to.equal(1);
+        expect(await checkMigrationsEnabled()).to.be.true;
+      });
+
+      it('disabling migrations is idempotent', async function () {
+        expect(await checkMigrationsEnabled()).to.be.true;
+
+        expect((await sh.disableMigrations(ns)).ok).to.equal(1);
+        expect(await checkMigrationsEnabled()).to.be.false;
+
+        // Run disable again to check idempotency
+        expect((await sh.disableMigrations(ns)).ok).to.equal(1);
+        expect(await checkMigrationsEnabled()).to.be.false;
+      });
+
+      it('enabling migrations is idempotent', async function () {
+        expect(await checkMigrationsEnabled()).to.be.true;
+
+        // Enabling when already enabled should not do anything
+        expect((await sh.enableMigrations(ns)).ok).to.equal(1);
+        expect(await checkMigrationsEnabled()).to.be.true;
+
+        // Run enable again to check idempotency
+        expect((await sh.enableMigrations(ns)).ok).to.equal(1);
+        expect(await checkMigrationsEnabled()).to.be.true;
       });
     });
     describe('automerge', function () {
