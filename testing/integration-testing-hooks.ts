@@ -174,11 +174,11 @@ async function getInstalledMongodVersion(): Promise<string> {
   return version;
 }
 
-export async function downloadCurrentCryptSharedLibrary(): Promise<string> {
+export async function downloadCurrentCryptSharedLibrary(versionSpec?: string): Promise<string> {
   if (process.platform === 'linux') {
-    return (await downloadCryptLibrary(`linux-${process.arch.replace('ppc64', 'ppc64le')}` as any)).cryptLibrary;
+    return (await downloadCryptLibrary(`linux-${process.arch.replace('ppc64', 'ppc64le')}` as any, versionSpec)).cryptLibrary;
   }
-  return (await downloadCryptLibrary('host')).cryptLibrary;
+  return (await downloadCryptLibrary('host', versionSpec)).cryptLibrary;
 }
 
 /**
@@ -335,5 +335,15 @@ export function skipIfEnvServerVersion(semverCondition: string): void {
         .join('.');
     }
     skipIfVersion(this, testServerVersion, semverCondition);
+  });
+}
+
+export function sortObjectArray<T extends any[]>(arr: T): T {
+  return arr.sort((a, b) => {
+    const aStr = JSON.stringify(a);
+    const bStr = JSON.stringify(b);
+    if (aStr < bStr) return -1;
+    if (aStr > bStr) return 1;
+    return 0;
   });
 }
