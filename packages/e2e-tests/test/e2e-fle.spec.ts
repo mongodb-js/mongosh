@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
-import { TestShell } from './test-shell';
+import type { TestShell } from './test-shell';
 import { eventually } from '../../../testing/eventually';
 import {
   startTestServer,
