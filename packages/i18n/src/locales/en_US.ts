@@ -2546,7 +2546,7 @@ const translations: Catalog = {
       Double: {
         help: {
           description: 'The Double BSON Class.',
-          link: 'https://mongodb.github.io/node-mongodb-native/Next/classes/BSON.Long.html',
+          link: 'https://mongodb.github.io/node-mongodb-native/Next/classes/BSON.Double.html',
           example: 'new Double(123)',
         },
         attributes: {},
