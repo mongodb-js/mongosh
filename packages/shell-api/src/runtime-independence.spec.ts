@@ -20,7 +20,7 @@ describe('Runtime independence', function () {
     // for other environments, but which we should still ideally remove in the
     // long run (and definitely not add anything here).
     // Guaranteed bonusly for anyone who removes a package from this list!
-    const allowedNodeBuiltins = ['crypto', 'util', 'events', 'path'];
+    const allowedNodeBuiltins = ['events', 'path'];
     // Our TextDecoder/TextEncoder polyfills require this, unfortunately.
     context.Buffer = Buffer;
 

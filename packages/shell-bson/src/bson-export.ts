@@ -13,6 +13,7 @@ import type {
   calculateObjectSize,
   Double,
   EJSON,
+  UUID,
   BSONRegExp,
 } from 'bson';
 export type {
@@ -29,6 +30,7 @@ export type {
   Binary,
   Double,
   EJSON,
+  UUID,
   BSONRegExp,
   calculateObjectSize,
 };
@@ -45,6 +47,7 @@ export type BSON = {
   Binary: typeof Binary;
   Double: typeof Double;
   EJSON: typeof EJSON;
+  UUID: typeof UUID;
   BSONRegExp: typeof BSONRegExp;
   BSONSymbol: typeof BSONSymbol;
   calculateObjectSize: typeof calculateObjectSize;

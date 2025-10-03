@@ -581,10 +581,11 @@ export class Database<
     if (writeConcern) {
       command.writeConcern = writeConcern;
     }
-    const digestPwd = processDigestPassword(
+    const digestPwd = await processDigestPassword(
       user.user,
       user.passwordDigestor,
-      command
+      command,
+      this._instanceState.currentServiceProvider
     );
     const orderedCmd = {
       createUser: command.createUser,
@@ -627,10 +628,11 @@ export class Database<
     if (writeConcern) {
       command.writeConcern = writeConcern;
     }
-    const digestPwd = processDigestPassword(
+    const digestPwd = await processDigestPassword(
       username,
       userDoc.passwordDigestor,
-      command
+      command,
+      this._instanceState.currentServiceProvider
     );
     const orderedCmd = {
       updateUser: command.updateUser,

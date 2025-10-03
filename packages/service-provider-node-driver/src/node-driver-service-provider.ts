@@ -109,6 +109,7 @@ const bsonlib = () => {
     Decimal128,
     BSONSymbol,
     BSONRegExp,
+    UUID,
     BSON,
   } = driver;
   return {
@@ -126,6 +127,7 @@ const bsonlib = () => {
     BSONSymbol,
     calculateObjectSize: BSON.calculateObjectSize,
     EJSON: BSON.EJSON,
+    UUID,
     BSONRegExp,
   };
 };
