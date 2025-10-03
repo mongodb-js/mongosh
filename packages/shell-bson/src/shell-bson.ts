@@ -10,7 +10,6 @@ import {
   assignAll,
   pickWithExactKeyMatch,
 } from './helpers';
-import { randomBytes } from 'crypto';
 
 type LongWithoutAccidentallyExposedMethods = Omit<
   typeof Long,
@@ -327,11 +326,10 @@ export function constructShellBson<
     UUID: assignAll(
       function UUID(hexstr?: string): BinaryType {
         if (hexstr === undefined) {
-          // Generate a version 4, variant 1 UUID, like the old shell did.
-          const uuid = randomBytes(16);
-          uuid[6] = (uuid[6] & 0x0f) | 0x40;
-          uuid[8] = (uuid[8] & 0x3f) | 0x80;
-          hexstr = uuid.toString('hex');
+          // TODO(MONGOSH-2710): Actually use UUID instances from `bson`
+          // (but then also be consistent about that when we e.g. receive
+          // them from the server).
+          hexstr = new bson.UUID().toString();
         }
         assertArgsDefinedType([hexstr], ['string'], 'UUID');
         // Strip any dashes, as they occur in the standard UUID formatting

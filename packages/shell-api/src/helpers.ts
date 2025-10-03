@@ -15,7 +15,6 @@ import {
   MongoshInvalidInputError,
   MongoshUnimplementedError,
 } from '@mongosh/errors';
-import crypto from 'crypto';
 import type { Database } from './database';
 import type { Collection } from './collection';
 import type { CursorIterationResult } from './result';
@@ -27,8 +26,12 @@ import { shellApiType } from './enums';
 import type { AbstractFiniteCursor } from './abstract-cursor';
 import type ChangeStreamCursor from './change-stream-cursor';
 import type { BSON, ShellBson } from '@mongosh/shell-bson';
-import { inspect } from 'util';
 import type { MQLPipeline, MQLQuery } from './mql-types';
+import type { InspectOptions } from 'util';
+
+let coreUtilInspect: ((obj: any, options: InspectOptions) => string) & {
+  defaultOptions: InspectOptions;
+};
 
 /**
  * Helper method to adapt aggregation pipeline options.
@@ -200,6 +203,19 @@ export function processDigestPassword(
       throw new MongoshInvalidInputError(
         `User passwords must be of type string. Was given password with type ${typeof command.pwd}`,
         CommonErrors.InvalidArgument
+      );
+    }
+    // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+    let crypto: typeof import('crypto');
+    try {
+      // Try to dynamically import crypto so that we don't break plain-JS-runtime builds.
+      // The Web Crypto API does not provide MD5, which is reasonable for a modern API
+      // but means that we cannot use it as a fallback.
+      crypto = require('crypto');
+    } catch {
+      throw new MongoshUnimplementedError(
+        'Legacy password digest algorithms like SCRAM-SHA-1 are not supported by this instance of mongosh',
+        CommonErrors.Deprecated
       );
     }
     // NOTE: this code has raised a code scanning alert about the "use of a broken or weak cryptographic algorithm":
@@ -630,24 +646,35 @@ export async function getPrintableShardStatus(
                   'on shard': chunk.shard,
                   'last modified': chunk.lastmod,
                 } as any;
-                // Displaying a full, multi-line output for each chunk is a bit verbose,
-                // even if there are only a few chunks. Where supported, we use a custom
-                // inspection function to inspect a copy of this object with an unlimited
-                // line break length (i.e. all objects on a single line).
-                Object.defineProperty(
-                  c,
-                  Symbol.for('nodejs.util.inspect.custom'),
-                  {
-                    value: function (depth: number, options: any): string {
-                      return inspect(
-                        { ...this },
-                        { ...options, breakLength: Infinity }
-                      );
-                    },
-                    writable: true,
-                    configurable: true,
-                  }
-                );
+                try {
+                  // eslint-disable-next-line @typescript-eslint/no-var-requires
+                  coreUtilInspect ??= require('util').inspect;
+                } catch {
+                  // No util.inspect available, e.g. in browser builds.
+                }
+                if (coreUtilInspect) {
+                  // Displaying a full, multi-line output for each chunk is a bit verbose,
+                  // even if there are only a few chunks. Where supported, we use a custom
+                  // inspection function to inspect a copy of this object with an unlimited
+                  // line break length (i.e. all objects on a single line).
+                  Object.defineProperty(
+                    c,
+                    Symbol.for('nodejs.util.inspect.custom'),
+                    {
+                      value: function (
+                        depth: number,
+                        options: InspectOptions
+                      ): string {
+                        return coreUtilInspect(
+                          { ...this },
+                          { ...options, breakLength: Infinity }
+                        );
+                      },
+                      writable: true,
+                      configurable: true,
+                    }
+                  );
+                }
                 if (chunk.jumbo) c.jumbo = 'yes';
                 chunksRes.push(c);
               } else if (chunksRes.length === 20 && !verbose) {

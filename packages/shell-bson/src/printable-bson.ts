@@ -1,11 +1,39 @@
 import type { BSON } from './';
-import type { InspectOptionsStylized, CustomInspectFunction } from 'util';
-import { inspect as utilInspect } from 'util';
+import type {
+  InspectOptionsStylized,
+  CustomInspectFunction,
+  InspectOptions,
+} from 'util';
 const inspectCustom = Symbol.for('nodejs.util.inspect.custom');
 type BSONClassKey = BSON[Exclude<
   keyof BSON,
   'EJSON' | 'calculateObjectSize'
 >]['prototype']['_bsontype'];
+
+let coreUtilInspect: ((obj: any, options: InspectOptions) => string) & {
+  defaultOptions: InspectOptions;
+};
+function inspectTypedArray(
+  obj: Iterable<number>,
+  options: InspectOptions
+): string {
+  try {
+    coreUtilInspect ??= require('util').inspect;
+    return coreUtilInspect(obj, {
+      ...options,
+      // These arrays can be very large, so would prefer to use the default options instead.
+      maxArrayLength: coreUtilInspect.defaultOptions.maxArrayLength,
+    });
+  } catch {
+    const arr = Array.from(obj);
+    if (arr.length > 100) {
+      return `[${arr.slice(0, 100).join(', ')}, ... ${
+        arr.length - 100
+      } more items]`;
+    }
+    return `[${arr.join(', ')}]`;
+  }
+}
 
 // Turn e.g. 'new Double(...)' into 'Double(...)' but preserve possible leading whitespace
 function removeNewFromInspectResult(str: string): string {
@@ -43,30 +71,24 @@ const makeBinaryVectorInspect = (bsonLibrary: BSON): CustomInspectFunction => {
     switch (this.buffer[0]) {
       case bsonLibrary.Binary.VECTOR_TYPE.Int8:
         return `Binary.fromInt8Array(new Int8Array(${removeTypedArrayPrefixFromInspectResult(
-          utilInspect(this.toInt8Array(), {
+          inspectTypedArray(this.toInt8Array(), {
             depth,
             ...options,
-            // These arrays can be very large, so would prefer to use the default options instead.
-            maxArrayLength: utilInspect.defaultOptions.maxArrayLength,
           })
         )}))`;
       case bsonLibrary.Binary.VECTOR_TYPE.Float32:
         return `Binary.fromFloat32Array(new Float32Array(${removeTypedArrayPrefixFromInspectResult(
-          utilInspect(this.toFloat32Array(), {
+          inspectTypedArray(this.toFloat32Array(), {
             depth,
             ...options,
-            // These arrays can be very large, so would prefer to use the default options instead.
-            maxArrayLength: utilInspect.defaultOptions.maxArrayLength,
           })
         )}))`;
       case bsonLibrary.Binary.VECTOR_TYPE.PackedBit: {
         const paddingInfo = this.buffer[1] === 0 ? '' : `, ${this.buffer[1]}`;
         return `Binary.fromPackedBits(new Uint8Array(${removeTypedArrayPrefixFromInspectResult(
-          utilInspect(this.toPackedBits(), {
+          inspectTypedArray(this.toPackedBits(), {
             depth,
             ...options,
-            // These arrays can be very large, so would prefer to use the default options instead.
-            maxArrayLength: utilInspect.defaultOptions.maxArrayLength,
           })
         )})${paddingInfo})`;
       }
