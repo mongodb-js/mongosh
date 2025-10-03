@@ -9,6 +9,7 @@ import type {
   DeleteOptions,
   MapReduceOptions,
   ExplainOptions,
+  ServiceProvider,
 } from '@mongosh/service-provider-core';
 import {
   CommonErrors,
@@ -176,6 +177,35 @@ export function adaptOptions(
   }, additions);
 }
 
+async function computeLegacyHexMD5(
+  sp: ServiceProvider,
+  str: string
+): Promise<string> {
+  const digested = await sp.computeLegacyHexMD5?.(str);
+  if (digested) return digested;
+
+  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+  let crypto: typeof import('crypto');
+  try {
+    // Try to dynamically import crypto so that we don't break plain-JS-runtime builds.
+    // The Web Crypto API does not provide MD5, which is reasonable for a modern API
+    // but means that we cannot use it as a fallback.
+    crypto = require('crypto');
+  } catch {
+    throw new MongoshUnimplementedError(
+      'Legacy password digest algorithms like SCRAM-SHA-1 are not supported by this instance of mongosh',
+      CommonErrors.Deprecated
+    );
+  }
+  // NOTE: this code has raised a code scanning alert about the "use of a broken or weak cryptographic algorithm":
+  // we inherited this code from `mongo`, and we cannot replace MD5 with a different algorithm, since MD5 is part of the SCRAM-SHA-1 protocol,
+  // and the purpose of `passwordDigestor=client` is to improve the security of SCRAM-SHA-1, allowing the creation of new users
+  // without the need to communicate their password to the server.
+  const hash = crypto.createHash('md5');
+  hash.update(str);
+  return hash.digest('hex');
+}
+
 /**
  * Optionally digest password if passwordDigestor field set to 'client'. If it's false,
  * then hash the password.
@@ -184,11 +214,12 @@ export function adaptOptions(
  * @param passwordDigestor
  * @param {Object} command
  */
-export function processDigestPassword(
+export async function processDigestPassword(
   username: string,
   passwordDigestor: 'server' | 'client',
-  command: { pwd: string }
-): { digestPassword?: boolean; pwd?: string } {
+  command: { pwd: string },
+  sp: ServiceProvider
+): Promise<{ digestPassword?: boolean; pwd?: string }> {
   if (passwordDigestor === undefined) {
     return {};
   }
@@ -205,27 +236,10 @@ export function processDigestPassword(
         CommonErrors.InvalidArgument
       );
     }
-    // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-    let crypto: typeof import('crypto');
-    try {
-      // Try to dynamically import crypto so that we don't break plain-JS-runtime builds.
-      // The Web Crypto API does not provide MD5, which is reasonable for a modern API
-      // but means that we cannot use it as a fallback.
-      crypto = require('crypto');
-    } catch {
-      throw new MongoshUnimplementedError(
-        'Legacy password digest algorithms like SCRAM-SHA-1 are not supported by this instance of mongosh',
-        CommonErrors.Deprecated
-      );
-    }
-    // NOTE: this code has raised a code scanning alert about the "use of a broken or weak cryptographic algorithm":
-    // we inherited this code from `mongo`, and we cannot replace MD5 with a different algorithm, since MD5 is part of the SCRAM-SHA-1 protocol,
-    // and the purpose of `passwordDigestor=client` is to improve the security of SCRAM-SHA-1, allowing the creation of new users
-    // without the need to communicate their password to the server.
-    const hash = crypto.createHash('md5');
-    hash.update(`${username}:mongo:${command.pwd}`);
-    const digested = hash.digest('hex');
-    return { digestPassword: false, pwd: digested };
+    return {
+      digestPassword: false,
+      pwd: await computeLegacyHexMD5(sp, `${username}:mongo:${command.pwd}`),
+    };
   }
   return { digestPassword: true };
 }

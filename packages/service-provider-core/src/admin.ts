@@ -67,6 +67,12 @@ export default interface Admin {
   bsonLibrary: BSON;
 
   /**
+   * Compute a hex MD5 hash from a string. Used for legacy auth mechanisms such as
+   * SCRAM-SHA-1.
+   */
+  computeLegacyHexMD5?(str: string): Promise<string>;
+
+  /**
    * list databases.
    *
    * @param {String} database - The database name.
