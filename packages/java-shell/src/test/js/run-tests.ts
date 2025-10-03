@@ -33,6 +33,9 @@ describe('java-shell tests', function() {
       proc = spawn('.\\gradlew.bat test --info', [], opts);
     }
     await once(proc, 'exit');
+    if (proc.exitCode !== 0) {
+      throw new Error(`java-shell tests failed (exit code ${proc.exitCode}, signal ${proc.signalCode})`);
+    }
   });
 });
 
