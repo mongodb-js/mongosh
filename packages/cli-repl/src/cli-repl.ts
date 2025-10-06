@@ -324,6 +324,18 @@ export class CliRepl implements MongoshIOProvider {
     driverUri: string,
     driverOptions: DevtoolsConnectOptions
   ): Promise<void> {
+    try {
+      return await this._start(driverUri, driverOptions);
+    } catch (err) {
+      await this.close();
+      throw err;
+    }
+  }
+
+  private async _start(
+    driverUri: string,
+    driverOptions: DevtoolsConnectOptions
+  ): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { version }: { version: string } = require('../package.json');
     await this.verifyNodeVersion();
@@ -659,7 +671,7 @@ export class CliRepl implements MongoshIOProvider {
     if (enabled) {
       await this.startLogging();
     } else {
-      this.loggingAndTelemetry?.detachLogger();
+      await this.loggingAndTelemetry?.detachLogger();
     }
   }
 
@@ -1172,7 +1184,7 @@ export class CliRepl implements MongoshIOProvider {
       const analytics = this.toggleableAnalytics;
       let flushError: string | null = null;
       let flushDuration: number | null = null;
-      this.loggingAndTelemetry?.flush();
+      await this.loggingAndTelemetry?.flush();
 
       if (analytics) {
         const flushStart = Date.now();
