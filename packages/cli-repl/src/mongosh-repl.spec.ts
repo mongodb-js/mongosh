@@ -96,7 +96,7 @@ describe('MongoshNodeRepl', function () {
     });
     sp.runCommandWithCheck.resolves({ ok: 1 });
 
-    if (process.env.USE_NEW_AUTOCOMPLETE) {
+    if (process.env.USE_NEW_AUTOCOMPLETE !== '0') {
       sp.listCollections.resolves([{ name: 'coll' }]);
       const aggCursor = stubInterface<AggregationCursor>();
       aggCursor.toArray.resolves([{ foo: 1, bar: 2 }]);
@@ -402,7 +402,7 @@ describe('MongoshNodeRepl', function () {
 
     context(
       `autocompleting during .editor [${
-        process.env.USE_NEW_AUTOCOMPLETE ? 'new' : 'old'
+        process.env.USE_NEW_AUTOCOMPLETE !== '0' ? 'new' : 'old'
       }]`,
       function () {
         it('does not stop input when autocompleting during .editor', async function () {
@@ -481,7 +481,9 @@ describe('MongoshNodeRepl', function () {
     });
 
     context(
-      `autocompletion [${process.env.USE_NEW_AUTOCOMPLETE ? 'new' : 'old'}]`,
+      `autocompletion [${
+        process.env.USE_NEW_AUTOCOMPLETE !== '0' ? 'new' : 'old'
+      }]`,
       function () {
         it('autocompletes collection methods', async function () {
           input.write('db.coll.');
@@ -491,7 +493,7 @@ describe('MongoshNodeRepl', function () {
           expect(output, output).to.include('db.coll.updateOne');
         });
         it('autocompletes collection schema fields', async function () {
-          if (!process.env.USE_NEW_AUTOCOMPLETE) {
+          if (process.env.USE_NEW_AUTOCOMPLETE === '0') {
             // auto-completing collection field names only supported by new autocomplete
             return this.skip();
           }
@@ -505,7 +507,7 @@ describe('MongoshNodeRepl', function () {
         });
 
         it('does not autocomplete collection schema fields if disableSchemaSampling=true', async function () {
-          if (!process.env.USE_NEW_AUTOCOMPLETE) {
+          if (process.env.USE_NEW_AUTOCOMPLETE === '0') {
             // auto-completing collection field names only supported by new autocomplete
             return this.skip();
           }
