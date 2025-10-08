@@ -20,7 +20,8 @@ function linkTimingInterface(): TimingInterface {
 
   // Otherwise, use a JS implementation (mostly for development)
   return {
-    markTime: (category, label) => 0, //jsTimingEntries.push([category, label, process.hrtime.bigint()]),
+    markTime: (category, label) =>
+      jsTimingEntries.push([category, label, process.hrtime.bigint()]),
     getTimingData: () => {
       const data = jsTimingEntries.sort((a, b) => Number(a[2] - b[2]));
       // Adjust times so that process initialization happens at time 0
