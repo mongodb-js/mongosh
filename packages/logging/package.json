@@ -22,7 +22,7 @@
     "@mongosh/errors": "2.4.4",
     "@mongosh/history": "2.4.9",
     "@mongosh/types": "^3.14.0",
-    "mongodb-log-writer": "^2.3.1",
+    "mongodb-log-writer": "^2.4.3",
     "mongodb-redact": "^1.1.5",
     "native-machine-id": "^0.1.1"
   },

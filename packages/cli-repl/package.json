@@ -86,7 +86,7 @@
     "is-recoverable-error": "^1.0.3",
     "js-yaml": "^4.1.0",
     "mongodb-connection-string-url": "^3.0.2",
-    "mongodb-log-writer": "^2.3.1",
+    "mongodb-log-writer": "^2.4.3",
     "numeral": "^2.0.6",
     "pretty-repl": "^4.0.1",
     "semver": "^7.5.4",
