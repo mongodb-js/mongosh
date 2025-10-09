@@ -113,6 +113,7 @@
     "react-refresh": "^0.14.0",
     "rimraf": "^3.0.2",
     "stream-browserify": "^3.0.0",
+    "strip-ansi": "^6.0.0",
     "util": "^0.12.5",
     "webpack": "^5.99.9",
     "webpack-cli": "^6.0.1",
