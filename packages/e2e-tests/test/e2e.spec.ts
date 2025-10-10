@@ -2142,12 +2142,7 @@ describe('e2e', function () {
           await shell.executeLine("log.info('This is a custom entry')");
           expect(shell.assertNoErrors());
           await eventually(async () => {
-            const log = await readLogFile<
-              MongoLogEntryFromFile & {
-                c: string;
-                ctx: string;
-              }
-            >();
+            const log = await readLogFile<MongoLogEntryFromFile>();
             const customLogEntry = log.filter((logEntry) =>
               logEntry.msg.includes('This is a custom entry')
             );
@@ -2181,6 +2176,46 @@ describe('e2e', function () {
               log.filter((logEntry) => logEntry.msg.includes('Hi there'))
             ).to.have.lengthOf(1);
           });
+        });
+
+        it('flushes log file (normal exit)', async function () {
+          const shell = this.startTestShell({
+            args: [
+              '--nodb',
+              '--eval',
+              'for(let i=0; i < 10; i++) log.info("logging", {i}); log.getPath();',
+            ],
+          });
+          expect(await shell.waitForAnyExit()).to.equal(0);
+          const log = await readReplLogFile(shell.output.trim());
+          for (let i = 0; i < 10; i++) {
+            expect(
+              log.some(
+                (entry) => entry.msg === 'logging' && entry.attr?.i === i
+              )
+            ).to.be.true;
+          }
+        });
+
+        it('flushes log file (exception thrown)', async function () {
+          const shell = this.startTestShell({
+            args: [
+              '--nodb',
+              '--eval',
+              'for(let i=0; i < 10; i++) log.info("logging", {i}); print(log.getPath()); throw new Error("uh oh")',
+            ],
+          });
+          expect(await shell.waitForAnyExit()).to.equal(1);
+          const log = await readReplLogFile(
+            shell.output.replace(/Error: uh oh/g, '').trim()
+          );
+          for (let i = 0; i < 10; i++) {
+            expect(
+              log.some(
+                (entry) => entry.msg === 'logging' && entry.attr?.i === i
+              )
+            ).to.be.true;
+          }
         });
       });
 
