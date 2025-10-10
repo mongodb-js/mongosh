@@ -39,7 +39,11 @@ import {
 import { InterruptFlag } from './interruptor';
 import { TransformMongoErrorPlugin } from './mongo-errors';
 import NoDatabase from './no-db';
-import { type ShellBson, constructShellBson } from '@mongosh/shell-bson';
+import {
+  type ShellBson,
+  constructShellBson,
+  type BSON as BSONLibrary,
+} from '@mongosh/shell-bson';
 import { Streams } from './streams';
 import { ShellLog } from './shell-log';
 
@@ -158,6 +162,7 @@ export class ShellInstanceState {
   public currentDb: DatabaseWithSchema;
   public messageBus: MongoshBus;
   public initialServiceProvider: ServiceProvider; // the initial service provider
+  private bsonLibrary: BSONLibrary;
   private connectionInfoCache: {
     // Caching/lazy-loading functionality for the ServiceProvider's getConnectionInfo()
     // return value. We store the ServiceProvider instance for which we are
@@ -195,9 +200,11 @@ export class ShellInstanceState {
   constructor(
     initialServiceProvider: ServiceProvider,
     messageBus: any = new EventEmitter(),
-    cliOptions: ShellCliOptions = {}
+    cliOptions: ShellCliOptions = {},
+    bsonLibrary: BSONLibrary = initialServiceProvider.bsonLibrary
   ) {
     this.initialServiceProvider = initialServiceProvider;
+    this.bsonLibrary = bsonLibrary;
     this.messageBus = messageBus;
     this.shellApi = new ShellApi(this);
     this.shellLog = new ShellLog(this);
@@ -230,7 +237,7 @@ export class ShellInstanceState {
 
   private constructShellBson(): ShellBson {
     return constructShellBson({
-      bsonLibrary: this.initialServiceProvider.bsonLibrary,
+      bsonLibrary: this.bsonLibrary,
       printWarning: (msg: string) => {
         void this.shellApi.print(`Warning: ${msg}`);
       },
