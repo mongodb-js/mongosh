@@ -1,4 +1,5 @@
 import * as path from 'path';
+import * as shellQuote from 'shell-quote';
 import { once } from 'events';
 import { promises as fs } from 'fs';
 import type { Readable } from 'stream';
@@ -239,7 +240,9 @@ export class Editor {
     const { spawn } =
       // eslint-disable-next-line
       require('child_process') as typeof import('child_process');
-    const proc = spawn(editor, [path.basename(tmpDoc)], {
+    // Quote the filename to prevent shell injection if tainted.
+    const quotedFilename = shellQuote.quote([path.basename(tmpDoc)]);
+    const proc = spawn(editor, [quotedFilename], {
       stdio: 'inherit',
       cwd: path.dirname(tmpDoc),
       shell: true,

@@ -16,6 +16,7 @@ import Nanobus from 'nanobus';
 import { eventually } from '../../../testing/eventually';
 chai.use(sinonChai);
 
+const fixturesRoot = path.resolve(__dirname, '..', 'test', 'fixtures');
 describe('SnippetManager', function () {
   let httpServer: http.Server;
   let httpRequests: any[];
@@ -172,10 +173,17 @@ describe('SnippetManager', function () {
           case '/bson-4.4.0.tgz':
           case '/npm-7.15.0.tgz': {
             res.writeHead(200, { 'Content-type': 'application/octet-stream' });
-            const source = createReadStream(
-              path.join(__dirname, '..', 'test', 'fixtures', '.' + req.url)
-            );
-            source.pipe(res);
+            {
+              // Normalize and ensure containment within fixturesRoot
+              const requestedPath = path.resolve(fixturesRoot, '.' + req.url);
+              if (!requestedPath.startsWith(fixturesRoot + path.sep)) {
+                res.writeHead(403, { 'Content-type': 'text/plain' });
+                res.end('Forbidden');
+                break;
+              }
+              const source = createReadStream(requestedPath);
+              source.pipe(res);
+            }
             break;
           }
           case '/notindexfile': {

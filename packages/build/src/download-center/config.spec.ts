@@ -18,6 +18,7 @@ import path from 'path';
 import fetch from 'node-fetch';
 import { createServer } from 'http';
 import { once } from 'events';
+import escape from 'escape-html';
 import { runDownloadAndListArtifacts } from '../run-download-and-list-artifacts';
 import type { AddressInfo } from 'net';
 
@@ -58,7 +59,7 @@ describe('DownloadCenter config', function () {
     await fs.mkdir(outputDir, { recursive: true });
 
     const httpServer = createServer((req, res) => {
-      res.end(req.url);
+      res.end(escape(req.url));
     });
     httpServer.listen(0);
     await once(httpServer, 'listening');

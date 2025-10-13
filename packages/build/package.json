@@ -83,6 +83,7 @@
     "semver": "^7.5.3",
     "tar": "^6.1.15",
     "tar-fs": "^2.1.0",
-    "tmp-promise": "^3.0.2"
+    "tmp-promise": "^3.0.2",
+    "escape-html": "^1.0.3"
   }
 }
