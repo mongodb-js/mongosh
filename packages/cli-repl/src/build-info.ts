@@ -1,10 +1,12 @@
 import os from 'os';
 import { NodeDriverServiceProvider } from '@mongosh/service-provider-node-driver';
+import { promises as fs } from 'fs';
 
 export interface BuildInfo {
   version: string;
   nodeVersion: string;
   distributionKind: 'unpackaged' | 'packaged' | 'compiled';
+  installationMethod: 'npx' | 'homebrew' | 'linux-system-wide' | 'other';
   runtimeArch: (typeof process)['arch'];
   runtimePlatform: (typeof process)['platform'];
   buildArch: (typeof process)['arch'];
@@ -34,7 +36,36 @@ function getSystemArch(): (typeof process)['arch'] {
     : process.arch;
 }
 
-export function baseBuildInfo(): Omit<BuildInfo, 'deps'> {
+async function getInstallationMethod(
+  info: Pick<BuildInfo, 'distributionKind' | 'buildPlatform'>
+): Promise<BuildInfo['installationMethod']> {
+  if (info.distributionKind !== 'compiled') {
+    if (
+      process.env.npm_lifecycle_event === 'npx' &&
+      process.env.npm_lifecycle_script?.includes('mongosh')
+    )
+      return 'npx';
+    if (
+      __filename.match(/\bhomebrew\b/i) &&
+      process.execPath.match(/\bhomebrew\b/)
+    )
+      return 'homebrew';
+  } else {
+    if (
+      info.buildPlatform === 'linux' &&
+      process.execPath.startsWith('/usr/bin/') &&
+      (await fs.stat(process.execPath)).uid === 0
+    ) {
+      return 'linux-system-wide'; // e.g. deb or rpm
+    }
+  }
+  return 'other';
+}
+
+export function baseBuildInfo(): Omit<
+  BuildInfo,
+  'deps' | 'installationMethod'
+> {
   const runtimeData = {
     nodeVersion: process.version,
     opensslVersion: process.versions.openssl,
@@ -86,7 +117,10 @@ export async function buildInfo({
   if (!withSegmentApiKey) {
     delete buildInfo.segmentApiKey;
   }
-  return buildInfo;
+  return {
+    installationMethod: await getInstallationMethod(buildInfo),
+    ...buildInfo,
+  };
 }
 
 let cachedGlibcVersion: string | undefined | null = null;
