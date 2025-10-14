@@ -47,7 +47,7 @@ async function getInstallationMethod(
       return 'npx';
     if (
       __filename.match(/\bhomebrew\b/i) &&
-      process.execPath.match(/\bhomebrew\b/)
+      process.execPath.match(/\bhomebrew\b/i)
     )
       return 'homebrew';
   } else {
