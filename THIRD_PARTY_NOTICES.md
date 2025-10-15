@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Sun Oct 12 2025.
+This document was automatically generated on Wed Oct 15 2025.
 
 ## List of dependencies
 
@@ -407,7 +407,7 @@ Package|Version|License
 **[strnum](#84f6b71bdd647bcb9588183f13dc0b7a0c5b0a3103b2fc7e8e95012c0d6c631d)**|1.0.5|MIT
 **[supports-color](#b97a30572cac0a03b8cf442bc01621a041d5714550984f25cb71fac2587edbd6)**|7.2.0|MIT
 **[system-ca](#f7020e15c3acda122c176b63132660540ac26981c7037d110fc2896e3551ab19)**|2.0.1|Apache-2.0
-**[tar-fs](#63e26a3ebe4926208802eb70b7e86284a8dfea5f3b51d5df182514ecdb14ab9e)**|2.1.3|MIT
+**[tar-fs](#907e1fea910142adbe6c4af5f6279670d17eff5a61dd89c7c7487b4a1257f35a)**|2.1.4|MIT
 **[tar-stream](#0dc8f500e45626ff1f83a8b3bb9d4dbae5ce9f2df7fc81b5eca6af1af2e85d27)**|2.2.0|MIT
 **[tar](#8bb3ceb646ea33186c42416eb9a4191d844ba4a9a59571a8deb01683c7b60c3a)**|6.2.1|ISC
 **[text-table](#408475075eb207dd5ae8858365d5b39a25bebe2b757601c43164cec36f315b23)**|0.2.0|MIT
@@ -28554,8 +28554,8 @@ License files:
       
 
 
-<a id="63e26a3ebe4926208802eb70b7e86284a8dfea5f3b51d5df182514ecdb14ab9e"></a>
-### [tar-fs](https://www.npmjs.com/package/tar-fs) (version 2.1.3)
+<a id="907e1fea910142adbe6c4af5f6279670d17eff5a61dd89c7c7487b4a1257f35a"></a>
+### [tar-fs](https://www.npmjs.com/package/tar-fs) (version 2.1.4)
 License tags: MIT
 
 License files:
