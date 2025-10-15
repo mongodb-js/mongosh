@@ -1,6 +1,7 @@
 import path from 'path';
 import { promises as fs, constants as fsConstants } from 'fs';
 import type { MongoshBus } from '@mongosh/types';
+import type { AutoEncryptionOptions } from 'mongodb';
 
 type SharedObjectSuffix = 'so' | 'dylib' | 'dll';
 export const SHARED_LIBRARY_SUFFIX: SharedObjectSuffix =
@@ -9,9 +10,12 @@ export const SHARED_LIBRARY_SUFFIX: SharedObjectSuffix =
     : process.platform === 'darwin'
     ? 'dylib'
     : 'so';
+export type CryptSharedLibPath = NonNullable<
+  NonNullable<AutoEncryptionOptions['extraOptions']>['cryptSharedLibPath']
+>;
 
 export interface CryptLibraryPathResult {
-  cryptSharedLibPath?: `${string}mongo_crypt_v${number}.${SharedObjectSuffix}`;
+  cryptSharedLibPath?: CryptSharedLibPath;
   expectedVersion?: { version: bigint; versionStr: string };
 }
 
@@ -55,7 +59,10 @@ export async function getCryptLibraryPaths(
       ),
       // Location of the shared library in the zip and tgz packages
       path.resolve(bindir, `mongosh_crypt_v1.${SHARED_LIBRARY_SUFFIX}`),
-    ] as Array<`${string}mongo_crypt_v1.${SharedObjectSuffix}`>) {
+      // NB: The types here intentionally mismatch, as we rename the
+      // library file to avoid conflicts with system installations of
+      // the crypt_shared library.
+    ] as CryptSharedLibPath[]) {
       try {
         const permissionsMismatch = await ensureMatchingPermissions(
           libraryCandidate,
