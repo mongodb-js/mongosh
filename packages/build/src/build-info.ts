@@ -1,6 +1,6 @@
 import type { Config } from './config';
 import { promises as fs } from 'fs';
-import os from 'os';
+import type { BuildInfo } from '../../cli-repl/src/build-info';
 
 /**
  * Write data into a build config that is included in the executable but
@@ -18,12 +18,22 @@ export async function writeBuildInfo(
     throw new Error('Segment key is required');
   }
 
-  const info = {
+  const info: Omit<
+    BuildInfo,
+    | 'deps'
+    | 'installationMethod'
+    | 'runtimeArch'
+    | 'runtimePlatform'
+    | 'nodeVersion'
+    | 'opensslVersion'
+    | 'sharedOpenssl'
+    | 'runtimeGlibcVersion'
+  > = {
     segmentApiKey: config.segmentKey,
     version: config.version,
     distributionKind,
-    buildArch: os.arch(),
-    buildPlatform: os.platform(),
+    buildArch: process.arch,
+    buildPlatform: process.platform,
     buildTarget: config.executableOsId ?? 'unknown',
     buildTime: new Date().toISOString(),
     gitVersion: config.revision ?? null,
