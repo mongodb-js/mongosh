@@ -68,6 +68,7 @@ describe('e2e', function () {
 
       const data = JSON.parse(shell.output);
       expect(Object.keys(data)).to.deep.equal([
+        'installationMethod',
         'version',
         'distributionKind',
         'buildArch',
