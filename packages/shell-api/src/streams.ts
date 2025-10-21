@@ -162,6 +162,20 @@ export class Streams<
     });
   }
 
+  @returnsPromise
+  async listWorkspaceDefaults() {
+    const result = await this._runStreamCommand({
+      listWorkspaceDefaults: 1,
+    });
+    if (result.ok !== 1) {
+      return result;
+    }
+    return {
+      tier: result.tier,
+      maxTierSize: result.maxTierSize,
+    };
+  }
+
   async _runStreamCommand(cmd: Document, options: Document = {}) {
     return this._mongo._serviceProvider.runCommand(ADMIN_DB, cmd, options); // run cmd
   }

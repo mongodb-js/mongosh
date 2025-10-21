@@ -312,4 +312,26 @@ describe('Streams', function () {
       ).to.be.true;
     });
   });
+
+  describe('listWorkspaceDefaults', function () {
+    it('returns error when command fails', async function () {
+      const error = { ok: 0 };
+      sinon.stub(mongo._serviceProvider, 'runCommand').resolves(error);
+
+      const result = await streams.listWorkspaceDefaults();
+      expect(result).to.eql(error);
+    });
+
+    it('returns tier and maxTierSize on success', async function () {
+      const runCmdStub = sinon
+        .stub(mongo._serviceProvider, 'runCommand')
+        .resolves({ ok: 1, tier: 'M10', maxTierSize: 1024 });
+
+      const result = await streams.listWorkspaceDefaults();
+      expect(result).to.eql({ tier: 'M10', maxTierSize: 1024 });
+
+      const cmd = { listWorkspaceDefaults: 1 };
+      expect(runCmdStub.calledOnceWithExactly('admin', cmd, {})).to.be.true;
+    });
+  });
 });
