@@ -8,6 +8,7 @@ import which from "which";
 import { ConnectionString } from "mongodb-connection-string-url";
 import { MongoCluster, MongoClusterOptions } from "mongodb-runner";
 import { downloadCryptLibrary } from "../packages/build/src/packaging/download-crypt-library";
+import { dir } from "console";
 
 const execFile = promisify(child_process.execFile);
 
@@ -171,6 +172,7 @@ export class MongoRunnerSetup extends MongodSetup {
       topology: "standalone",
       tmpDir: path.join(tmpDir, "mongodb-runner", "dbs", dirPath),
       logDir: path.join(tmpDir, "mongodb-runner", "logs", dirPath),
+      binDir: path.join(tmpDir, "mongodb-runner"),
       version: version,
       ...this._opts,
     });
