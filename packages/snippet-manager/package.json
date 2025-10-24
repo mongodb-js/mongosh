@@ -39,7 +39,7 @@
     "@mongosh/errors": "2.4.4",
     "@mongosh/shell-api": "^3.24.0",
     "@mongosh/types": "^3.14.0",
-    "bson": "^6.10.4",
+    "bson": "^7.0.0-alpha.2",
     "cross-spawn": "^7.0.5",
     "escape-string-regexp": "^4.0.0",
     "zod": "^3.24.1",

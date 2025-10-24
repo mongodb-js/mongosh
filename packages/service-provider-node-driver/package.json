@@ -53,15 +53,15 @@
     "@mongosh/service-provider-core": "3.6.1",
     "@mongosh/types": "^3.14.0",
     "aws4": "^1.12.0",
-    "mongodb": "^6.19.0",
-    "mongodb-connection-string-url": "^3.0.2",
+    "mongodb": "6.20.0-dev.20251024.sha.51c1b9d2",
+    "mongodb-connection-string-url": "^4.0.0-alpha",
     "socks": "^2.8.3",
-    "mongodb-client-encryption": "^6.5.0",
-    "kerberos": "2.1.0"
+    "mongodb-client-encryption": "^7.0.0-alpha",
+    "kerberos": "^7.0.0-alpha"
   },
   "optionalDependencies": {
-    "kerberos": "2.1.0",
-    "mongodb-client-encryption": "^6.5.0"
+    "kerberos": "^7.0.0-alpha",
+    "mongodb-client-encryption": "^7.0.0-alpha"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",

@@ -81,11 +81,11 @@
     "ansi-escape-sequences": "^5.1.2",
     "askcharacter": "^2.0.4",
     "askpassword": "^2.0.2",
-    "bson": "^6.10.4",
+    "bson": "^7.0.0-alpha.2",
     "escape-string-regexp": "^4.0.0",
     "is-recoverable-error": "^1.0.3",
     "js-yaml": "^4.1.0",
-    "mongodb-connection-string-url": "^3.0.2",
+    "mongodb-connection-string-url": "^4.0.0-alpha",
     "mongodb-log-writer": "^2.4.3",
     "numeral": "^2.0.6",
     "pretty-repl": "^4.0.1",
@@ -96,7 +96,7 @@
     "glibc-version": "^1.0.0"
   },
   "devDependencies": {
-    "mongodb": "^6.19.0",
+    "mongodb": "6.20.0-dev.20251024.sha.51c1b9d2",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/sbom-tools": "^0.8.1",

@@ -64,7 +64,7 @@
     "@mongosh/node-runtime-worker-thread": "3.3.26",
     "@mongosh/service-provider-core": "3.6.1",
     "@mongosh/shell-bson": "1.0.2",
-    "bson": "^6.10.4",
+    "bson": "^7.0.0-alpha.2",
     "numeral": "^2.0.6",
     "text-table": "^0.2.0"
   },
@@ -73,7 +73,7 @@
     "@babel/plugin-proposal-class-properties": "^7.18.6",
     "@babel/preset-react": "^7.26.3",
     "@babel/preset-typescript": "^7.27.0",
-    "mongodb": "^6.19.0",
+    "mongodb": "6.20.0-dev.20251024.sha.51c1b9d2",
     "@mongodb-js/compass-components": "*",
     "@mongodb-js/compass-editor": "*",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
