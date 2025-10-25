@@ -173,8 +173,11 @@
   "overrides": {
     "cookie": "^0.7.2",
     "mongodb-connection-string-url": "^4.0.0-alpha",
-    "kerberos": "^7.0.0-alpha",
+    "kerberos": "^3.0.0-alpha",
     "mongodb-client-encryption": "^7.0.0-alpha",
     "mongodb": "6.20.0-dev.20251024.sha.51c1b9d2"
+  },
+  "dependencies": {
+    "kerberos": "^3.0.0-alpha"
   }
 }

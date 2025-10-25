@@ -57,10 +57,10 @@
     "mongodb-connection-string-url": "^4.0.0-alpha",
     "socks": "^2.8.3",
     "mongodb-client-encryption": "^7.0.0-alpha",
-    "kerberos": "^7.0.0-alpha"
+    "kerberos": "^3.0.0-alpha"
   },
   "optionalDependencies": {
-    "kerberos": "^7.0.0-alpha",
+    "kerberos": "^3.0.0-alpha",
     "mongodb-client-encryption": "^7.0.0-alpha"
   },
   "devDependencies": {
