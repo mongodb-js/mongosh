@@ -175,9 +175,11 @@
     "mongodb-connection-string-url": "^4.0.0-alpha",
     "kerberos": "^3.0.0-alpha",
     "mongodb-client-encryption": "^7.0.0-alpha",
+    "bson": "^7.0.0-alpha.2",
     "mongodb": "6.20.0-dev.20251024.sha.51c1b9d2"
   },
   "dependencies": {
+    "bson": "^7.0.0-alpha.2",
     "kerberos": "^3.0.0-alpha"
   }
 }
