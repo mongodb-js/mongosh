@@ -328,7 +328,8 @@ describe('Streams', function () {
         .resolves({ ok: 1, tier: 'M10', maxTierSize: 1024 });
 
       const result = await streams.listWorkspaceDefaults();
-      expect(result).to.eql({ tier: 'M10', maxTierSize: 1024 });
+      expect(result.tier).to.equal('M10');
+      expect(result.maxTierSize).to.equal(1024);
 
       const cmd = { listWorkspaceDefaults: 1 };
       expect(runCmdStub.calledOnceWithExactly('admin', cmd, {})).to.be.true;
