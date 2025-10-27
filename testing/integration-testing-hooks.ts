@@ -172,7 +172,7 @@ export class MongoRunnerSetup extends MongodSetup {
       topology: "standalone",
       tmpDir: path.join(tmpDir, "mongodb-runner", "dbs", dirPath),
       logDir: path.join(tmpDir, "mongodb-runner", "logs", dirPath),
-      binDir: path.join(tmpDir, "mongodb-runner"),
+      downloadDir: path.join(tmpDir, "mongodb-runner"),
       version: version,
       ...this._opts,
     });
