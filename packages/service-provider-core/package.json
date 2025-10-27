@@ -38,10 +38,10 @@
   "dependencies": {
     "@mongosh/errors": "2.4.4",
     "@mongosh/shell-bson": "1.0.2",
-    "bson": "^6.10.4",
-    "mongodb": "^6.19.0",
+    "bson": "^7.0.0-alpha.2",
+    "mongodb": "6.20.0-dev.20251024.sha.51c1b9d2",
     "mongodb-build-info": "^1.7.2",
-    "mongodb-connection-string-url": "^3.0.2"
+    "mongodb-connection-string-url": "^4.0.0-alpha"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
