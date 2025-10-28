@@ -1,20 +1,20 @@
 /* eslint-disable mocha/no-exports */
-import child_process from "child_process";
-import { promises as fs } from "fs";
-import { MongoClient, type MongoClientOptions } from "mongodb";
-import path from "path";
-import semver from "semver";
-import { promisify } from "util";
-import which from "which";
-import { ConnectionString } from "mongodb-connection-string-url";
-import { MongoCluster, type MongoClusterOptions } from "mongodb-runner";
-import { downloadCryptLibrary } from "@mongosh/build";
+import child_process from 'child_process';
+import { promises as fs } from 'fs';
+import { MongoClient, type MongoClientOptions } from 'mongodb';
+import path from 'path';
+import semver from 'semver';
+import { promisify } from 'util';
+import which from 'which';
+import { ConnectionString } from 'mongodb-connection-string-url';
+import { MongoCluster, type MongoClusterOptions } from 'mongodb-runner';
+import { downloadCryptLibrary } from '@mongosh/build';
 
 const execFile = promisify(child_process.execFile);
 
 // Return the path to the temporary directory and ensure that it exists.
 async function getTmpdir(): Promise<string> {
-  const tmpdir = path.resolve(__dirname, "..", "tmp");
+  const tmpdir = path.resolve(__dirname, '..', 'tmp');
   await fs.mkdir(tmpdir, { recursive: true });
   return tmpdir;
 }
@@ -26,7 +26,7 @@ export class MongodSetup {
   _setConnectionString: (connectionString: string) => void;
   _serverVersion: string | null = null;
   _isCommunityServer: boolean | null = null;
-  _bindir = "";
+  _bindir = '';
 
   constructor(connectionString?: string) {
     this._setConnectionString = () => {
@@ -42,11 +42,11 @@ export class MongodSetup {
   }
 
   async start(): Promise<void> {
-    await Promise.reject(new Error("Server not managed"));
+    await Promise.reject(new Error('Server not managed'));
   }
 
   async stop(): Promise<void> {
-    await Promise.reject(new Error("Server not managed"));
+    await Promise.reject(new Error('Server not managed'));
   }
 
   async connectionString(
@@ -73,7 +73,7 @@ export class MongodSetup {
   }
 
   async port(): Promise<string> {
-    return (await this.hostport()).split(":").reverse()[0];
+    return (await this.hostport()).split(':').reverse()[0];
   }
 
   async hostport(): Promise<string> {
@@ -86,7 +86,7 @@ export class MongodSetup {
     }
 
     const { version } = await this.withClient(async (client) => {
-      return await client.db("db1").admin().serverStatus();
+      return await client.db('db1').admin().serverStatus();
     });
     this._serverVersion = version;
     return version;
@@ -98,9 +98,9 @@ export class MongodSetup {
     }
 
     const { modules } = await this.withClient(async (client) => {
-      return await client.db("db1").admin().command({ buildInfo: 1 });
+      return await client.db('db1').admin().command({ buildInfo: 1 });
     });
-    const isCommunityServer = !modules.includes("enterprise");
+    const isCommunityServer = !modules.includes('enterprise');
     this._isCommunityServer = isCommunityServer;
     return isCommunityServer;
   }
@@ -133,8 +133,8 @@ export class MongoRunnerSetup extends MongodSetup {
   ) {
     const prefix = [id, version, topology]
       .filter(Boolean)
-      .join("-")
-      .replace(/[^a-zA-Z0-9_.-]/g, "");
+      .join('-')
+      .replace(/[^a-zA-Z0-9_.-]/g, '');
 
     this._usedDirPrefix[prefix] ??= 0;
 
@@ -165,10 +165,10 @@ export class MongoRunnerSetup extends MongodSetup {
     );
 
     this._cluster = await MongoCluster.start({
-      topology: "standalone",
-      tmpDir: path.join(tmpDir, "mongodb-runner", "dbs", dirPath),
-      logDir: path.join(tmpDir, "mongodb-runner", "logs", dirPath),
-      downloadDir: path.join(tmpDir, "mongodb-runner"),
+      topology: 'standalone',
+      tmpDir: path.join(tmpDir, 'mongodb-runner', 'dbs', dirPath),
+      logDir: path.join(tmpDir, 'mongodb-runner', 'logs', dirPath),
+      downloadDir: path.join(tmpDir, 'mongodb-runner'),
       version: version,
       ...this._opts,
     });
@@ -183,22 +183,22 @@ export class MongoRunnerSetup extends MongodSetup {
 }
 
 async function getInstalledMongodVersion(): Promise<string> {
-  await Promise.all([which("mongod"), which("mongos")]);
-  const { stdout } = await execFile("mongod", ["--version"]);
+  await Promise.all([which('mongod'), which('mongos')]);
+  const { stdout } = await execFile('mongod', ['--version']);
   const { version } = stdout.match(/^db version (?<version>.+)$/m)!
     .groups as any;
   return version;
 }
 
 export async function downloadCurrentCryptSharedLibrary(): Promise<string> {
-  if (process.platform === "linux") {
+  if (process.platform === 'linux') {
     return (
       await downloadCryptLibrary(
-        `linux-${process.arch.replace("ppc64", "ppc64le")}` as any
+        `linux-${process.arch.replace('ppc64', 'ppc64le')}` as any
       )
     ).cryptLibrary;
   }
-  return (await downloadCryptLibrary("host")).cryptLibrary;
+  return (await downloadCryptLibrary('host')).cryptLibrary;
 }
 
 /**
@@ -243,7 +243,7 @@ export function startSharedTestServer(): MongodSetup {
     return new MongodSetup(process.env.MONGOSH_TEST_SERVER_URL);
   }
 
-  const server = sharedSetup ?? (sharedSetup = new MongoRunnerSetup("shared"));
+  const server = sharedSetup ?? (sharedSetup = new MongoRunnerSetup('shared'));
 
   before(async function () {
     this.timeout(120_000); // Include potential mongod download time.
@@ -363,14 +363,14 @@ export function skipIfEnvServerVersion(semverCondition: string): void {
         testServerVersion = await getInstalledMongodVersion();
       } catch (e: any) {
         // no explicitly specified version but also no local mongod installation
-        testServerVersion = "9999.9999.9999";
+        testServerVersion = '9999.9999.9999';
       }
     } else {
       testServerVersion = testServerVersion
-        .split("-")[0]
-        .split(".")
-        .map((num) => (/[0-9]+/.test(num) ? num : "0"))
-        .join(".");
+        .split('-')[0]
+        .split('.')
+        .map((num) => (/[0-9]+/.test(num) ? num : '0'))
+        .join('.');
     }
     skipIfVersion(this, testServerVersion, semverCondition);
   });

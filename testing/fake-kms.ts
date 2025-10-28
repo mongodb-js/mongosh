@@ -1,8 +1,8 @@
-import DuplexPair from "duplexpair";
-import http from "http";
+import DuplexPair from 'duplexpair';
+import http from 'http';
 
 // Exact values specified by RFC6749 ;)
-const oauthToken = { access_token: "2YotnFZFEjr1zCsicMWpAA", expires_in: 3600 };
+const oauthToken = { access_token: '2YotnFZFEjr1zCsicMWpAA', expires_in: 3600 };
 
 type RequestData = { url: string; body: string };
 type HandlerFunction = (data: RequestData) => any;
@@ -17,7 +17,7 @@ export function makeFakeHTTPConnection(
 ): Duplex & { requests: http.IncomingMessage[] } {
   const { socket1, socket2 } = new DuplexPair();
   const server = makeFakeHTTPServer(handlerList);
-  server.emit("connection", socket2);
+  server.emit('connection', socket2);
   return Object.assign(socket1, { requests: server.requests });
 }
 
@@ -28,31 +28,31 @@ export function makeFakeHTTPServer(handlerList: HandlerList): FakeHTTPServer {
   const server = http.createServer((req, res) => {
     (server as FakeHTTPServer).requests.push(req);
     let foundHandler: HandlerFunction | undefined;
-    const host = req.headers["host"];
+    const host = req.headers['host'];
     for (const potentialHandler of handlerList) {
-      if (potentialHandler.host.test(host ?? "")) {
+      if (potentialHandler.host.test(host ?? '')) {
         foundHandler = potentialHandler.handler;
         break;
       }
     }
     if (!foundHandler) {
       res.writeHead(404, {
-        "Content-Type": "text/plain",
+        'Content-Type': 'text/plain',
       });
       res.end(`Host ${host} not found`);
       return;
     }
     const handler = foundHandler; // Makes TS happy
 
-    let body = "";
-    req.setEncoding("utf8").on("data", (chunk) => {
+    let body = '';
+    req.setEncoding('utf8').on('data', (chunk) => {
       body += chunk;
     });
-    req.on("end", () => {
+    req.on('end', () => {
       res.writeHead(200, {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       });
-      res.end(JSON.stringify(handler({ url: req.url ?? "", body })));
+      res.end(JSON.stringify(handler({ url: req.url ?? '', body })));
     });
   });
   return Object.assign(server, { requests: [] });
@@ -72,34 +72,34 @@ function awsHandler({ body }: RequestData): any {
     // the decryption response, which also provides the KeyId and Plaintext
     // based on the CiphertextBlob alone.
     const CiphertextBlob = Buffer.from(
-      request.KeyId + "\0" + request.Plaintext
-    ).toString("base64");
+      request.KeyId + '\0' + request.Plaintext
+    ).toString('base64');
     return {
       CiphertextBlob,
-      EncryptionAlgorithm: "SYMMETRIC_DEFAULT",
+      EncryptionAlgorithm: 'SYMMETRIC_DEFAULT',
       KeyId: request.KeyId,
     };
   } else {
-    let [KeyId, Plaintext] = Buffer.from(request.CiphertextBlob, "base64")
+    let [KeyId, Plaintext] = Buffer.from(request.CiphertextBlob, 'base64')
       .toString()
-      .split("\0");
+      .split('\0');
     // Do not return invalid base64 https://jira.mongodb.org/browse/MONGOCRYPT-525
-    if (Buffer.from(KeyId, "base64").toString("base64") !== KeyId) {
-      KeyId = "invalid0";
+    if (Buffer.from(KeyId, 'base64').toString('base64') !== KeyId) {
+      KeyId = 'invalid0';
     }
-    if (Buffer.from(Plaintext, "base64").toString("base64") !== Plaintext) {
-      Plaintext = "invalid1";
+    if (Buffer.from(Plaintext, 'base64').toString('base64') !== Plaintext) {
+      Plaintext = 'invalid1';
     }
     return {
       Plaintext,
-      EncryptionAlgorithm: "SYMMETRIC_DEFAULT",
+      EncryptionAlgorithm: 'SYMMETRIC_DEFAULT',
       KeyId,
     };
   }
 }
 
 function azureHandler({ body, url }: RequestData): any {
-  if (url.endsWith("/token")) {
+  if (url.endsWith('/token')) {
     return oauthToken;
   } else if (url.match(/\/(un)?wrapkey/)) {
     // Just act as if this was encrypted.
@@ -108,12 +108,12 @@ function azureHandler({ body, url }: RequestData): any {
 }
 
 function gcpHandler({ body, url }: RequestData): any {
-  if (url.endsWith("/token")) {
+  if (url.endsWith('/token')) {
     return oauthToken;
-  } else if (url.endsWith(":encrypt")) {
+  } else if (url.endsWith(':encrypt')) {
     // Here we also just perform noop encryption.
     return { ciphertext: JSON.parse(body).plaintext };
-  } else if (url.endsWith(":decrypt")) {
+  } else if (url.endsWith(':decrypt')) {
     return { plaintext: JSON.parse(body).ciphertext };
   }
 }

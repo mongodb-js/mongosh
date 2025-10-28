@@ -1,5 +1,9 @@
 {
   "extends": "@mongodb-js/tsconfig-mongosh/tsconfig.common.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "outDir": "./dist"
+  },
   "include": ["**/*"],
   "exclude": ["certificates"]
 }
