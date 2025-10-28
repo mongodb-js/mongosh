@@ -8,7 +8,6 @@ import which from "which";
 import { ConnectionString } from "mongodb-connection-string-url";
 import { MongoCluster, MongoClusterOptions } from "mongodb-runner";
 import { downloadCryptLibrary } from "../packages/build/src/packaging/download-crypt-library";
-import { dir } from "console";
 
 const execFile = promisify(child_process.execFile);
 
@@ -55,7 +54,7 @@ export class MongodSetup {
 
   async connectionString(
     searchParams: Partial<Record<keyof MongoClientOptions, string>> = {},
-    uriOptions: Partial<ConnectionString> = {}
+    uriOptions: Partial<typeof ConnectionString> = {}
   ): Promise<string> {
     if (
       Object.keys(searchParams).length + Object.keys(uriOptions).length ===
