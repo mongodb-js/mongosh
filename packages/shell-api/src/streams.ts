@@ -15,7 +15,7 @@ import type { MQLPipeline } from './mql-types';
 
 type WorkspaceDefaults = {
   tier: string;
-  maxTierSize: number;
+  maxTierSize: string;
 };
 
 @shellApiClassDefault

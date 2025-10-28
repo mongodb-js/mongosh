@@ -320,7 +320,7 @@ describe('Streams', function () {
         .resolves({ ok: 1, tier: 'SP2', maxTierSize: 'SP30' });
 
       const result = await streams.listWorkspaceDefaults();
-      expect(result).to.deep.include({ tier: 'SP2', maxTierSize: 'SP30' });
+      expect(result).to.eql({ tier: 'SP2', maxTierSize: 'SP30' });
 
       const cmd = { listWorkspaceDefaults: 1 };
       expect(runCmdStub.calledOnceWithExactly('admin', cmd, {})).to.be.true;
