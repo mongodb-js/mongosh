@@ -5,7 +5,6 @@ import {
   returnsPromise,
   shellApiClassDefault,
   ShellApiWithMongoClass,
-  ShellApiValueClass,
 } from './decorators';
 import StreamProcessor from './stream-processor';
 import { ADMIN_DB, asPrintable, shellApiType } from './enums';
@@ -14,17 +13,10 @@ import type Mongo from './mongo';
 import type { GenericDatabaseSchema, GenericServerSideSchema } from './helpers';
 import type { MQLPipeline } from './mql-types';
 
-@shellApiClassDefault
-export class WorkspaceDefaults extends ShellApiValueClass {
+type WorkspaceDefaults = {
   tier: string;
   maxTierSize: number;
-
-  constructor(tier: string, maxTierSize: number) {
-    super();
-    this.tier = tier;
-    this.maxTierSize = maxTierSize;
-  }
-}
+};
 
 @shellApiClassDefault
 export class Streams<
@@ -176,14 +168,14 @@ export class Streams<
   }
 
   @returnsPromise
-  async listWorkspaceDefaults(): Promise<WorkspaceDefaults | Document> {
+  async listWorkspaceDefaults(): Promise<WorkspaceDefaults> {
     const result = await this._runStreamCommand({
       listWorkspaceDefaults: 1,
     });
-    if (result.ok !== 1) {
-      return result;
-    }
-    return new WorkspaceDefaults(result.tier, result.maxTierSize);
+    return {
+      tier: result.tier,
+      maxTierSize: result.maxTierSize,
+    };
   }
 
   async _runStreamCommand(cmd: Document, options: Document = {}) {

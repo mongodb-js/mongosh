@@ -314,22 +314,13 @@ describe('Streams', function () {
   });
 
   describe('listWorkspaceDefaults', function () {
-    it('returns error when command fails', async function () {
-      const error = { ok: 0 };
-      sinon.stub(mongo._serviceProvider, 'runCommand').resolves(error);
-
-      const result = await streams.listWorkspaceDefaults();
-      expect(result).to.eql(error);
-    });
-
-    it('returns tier and maxTierSize on success', async function () {
+    it('returns tier and maxTierSize', async function () {
       const runCmdStub = sinon
         .stub(mongo._serviceProvider, 'runCommand')
-        .resolves({ ok: 1, tier: 'M10', maxTierSize: 1024 });
+        .resolves({ ok: 1, tier: 'SP2', maxTierSize: 'SP30' });
 
       const result = await streams.listWorkspaceDefaults();
-      expect(result.tier).to.equal('M10');
-      expect(result.maxTierSize).to.equal(1024);
+      expect(result).to.deep.include({ tier: 'SP2', maxTierSize: 'SP30' });
 
       const cmd = { listWorkspaceDefaults: 1 };
       expect(runCmdStub.calledOnceWithExactly('admin', cmd, {})).to.be.true;
