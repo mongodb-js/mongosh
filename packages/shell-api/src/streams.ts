@@ -14,7 +14,7 @@ import type { GenericDatabaseSchema, GenericServerSideSchema } from './helpers';
 import type { MQLPipeline } from './mql-types';
 
 type WorkspaceDefaults = {
-  tier: string;
+  defaultTierSize: string;
   maxTierSize: string;
 };
 
@@ -173,7 +173,7 @@ export class Streams<
       listWorkspaceDefaults: 1,
     });
     return {
-      tier: result.tier,
+      defaultTierSize: result.defaultTierSize,
       maxTierSize: result.maxTierSize,
     };
   }

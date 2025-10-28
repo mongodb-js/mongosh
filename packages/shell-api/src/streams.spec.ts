@@ -317,10 +317,10 @@ describe('Streams', function () {
     it('returns tier and maxTierSize', async function () {
       const runCmdStub = sinon
         .stub(mongo._serviceProvider, 'runCommand')
-        .resolves({ ok: 1, tier: 'SP2', maxTierSize: 'SP30' });
+        .resolves({ ok: 1, defaultTierSize: 'SP2', maxTierSize: 'SP30' });
 
       const result = await streams.listWorkspaceDefaults();
-      expect(result).to.eql({ tier: 'SP2', maxTierSize: 'SP30' });
+      expect(result).to.eql({ defaultTierSize: 'SP2', maxTierSize: 'SP30' });
 
       const cmd = { listWorkspaceDefaults: 1 };
       expect(runCmdStub.calledOnceWithExactly('admin', cmd, {})).to.be.true;
