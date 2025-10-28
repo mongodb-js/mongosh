@@ -320,7 +320,11 @@ describe('Streams', function () {
         .resolves({ ok: 1, defaultTierSize: 'SP2', maxTierSize: 'SP30' });
 
       const result = await streams.listWorkspaceDefaults();
-      expect(result).to.eql({ defaultTierSize: 'SP2', maxTierSize: 'SP30' });
+      expect(result).to.eql({
+        ok: 1,
+        defaultTierSize: 'SP2',
+        maxTierSize: 'SP30',
+      });
 
       const cmd = { listWorkspaceDefaults: 1 };
       expect(runCmdStub.calledOnceWithExactly('admin', cmd, {})).to.be.true;
