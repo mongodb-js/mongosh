@@ -1,0 +1,4 @@
+{
+  "extends": "@mongodb-js/tsconfig-mongosh/tsconfig.common.json",
+  "include": ["**/*", "../packages/e2e-tests/test/integration-testing-hooks.ts"]
+}

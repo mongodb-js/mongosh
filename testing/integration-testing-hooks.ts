@@ -1,22 +1,16 @@
+/* eslint-disable mocha/no-exports */
 import child_process from "child_process";
 import { promises as fs } from "fs";
-import { MongoClient, MongoClientOptions } from "mongodb";
+import { MongoClient, type MongoClientOptions } from "mongodb";
 import path from "path";
 import semver from "semver";
 import { promisify } from "util";
 import which from "which";
 import { ConnectionString } from "mongodb-connection-string-url";
-import { MongoCluster, MongoClusterOptions } from "mongodb-runner";
-import { downloadCryptLibrary } from "../packages/build/src/packaging/download-crypt-library";
+import { MongoCluster, type MongoClusterOptions } from "mongodb-runner";
+import { downloadCryptLibrary } from "@mongosh/build";
 
 const execFile = promisify(child_process.execFile);
-
-const isCI = !!process.env.IS_CI;
-function ciLog(...args: any[]) {
-  if (isCI) {
-    console.error(...args);
-  }
-}
 
 // Return the path to the temporary directory and ensure that it exists.
 async function getTmpdir(): Promise<string> {
@@ -26,6 +20,7 @@ async function getTmpdir(): Promise<string> {
 }
 
 // Represents one running test server instance.
+// eslint-disable-next-line mocha/no-exports
 export class MongodSetup {
   _connectionString: Promise<string>;
   _setConnectionString: (connectionString: string) => void;
@@ -34,7 +29,9 @@ export class MongodSetup {
   _bindir = "";
 
   constructor(connectionString?: string) {
-    this._setConnectionString = (connectionString: string) => {}; // Make TypeScript happy.
+    this._setConnectionString = () => {
+      // no-op to make TypeScript happy.
+    };
     this._connectionString = new Promise((resolve) => {
       this._setConnectionString = resolve;
     });
@@ -45,11 +42,11 @@ export class MongodSetup {
   }
 
   async start(): Promise<void> {
-    throw new Error("Server not managed");
+    await Promise.reject(new Error("Server not managed"));
   }
 
   async stop(): Promise<void> {
-    throw new Error("Server not managed");
+    await Promise.reject(new Error("Server not managed"));
   }
 
   async connectionString(
@@ -115,7 +112,7 @@ export class MongodSetup {
       return await fn(client);
     } finally {
       if (client) {
-        client.close();
+        await client.close();
       }
     }
   }
@@ -193,18 +190,15 @@ async function getInstalledMongodVersion(): Promise<string> {
   return version;
 }
 
-export async function downloadCurrentCryptSharedLibrary(
-  versionSpec?: string
-): Promise<string> {
+export async function downloadCurrentCryptSharedLibrary(): Promise<string> {
   if (process.platform === "linux") {
     return (
       await downloadCryptLibrary(
-        `linux-${process.arch.replace("ppc64", "ppc64le")}` as any,
-        versionSpec
+        `linux-${process.arch.replace("ppc64", "ppc64le")}` as any
       )
     ).cryptLibrary;
   }
-  return (await downloadCryptLibrary("host", versionSpec)).cryptLibrary;
+  return (await downloadCryptLibrary("host")).cryptLibrary;
 }
 
 /**
