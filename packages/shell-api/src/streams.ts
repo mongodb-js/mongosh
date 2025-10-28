@@ -169,13 +169,9 @@ export class Streams<
 
   @returnsPromise
   async listWorkspaceDefaults(): Promise<WorkspaceDefaults> {
-    const result = await this._runStreamCommand({
+    return (await this._runStreamCommand({
       listWorkspaceDefaults: 1,
-    });
-    return {
-      defaultTierSize: result.defaultTierSize,
-      maxTierSize: result.maxTierSize,
-    };
+    })) as WorkspaceDefaults;
   }
 
   async _runStreamCommand(cmd: Document, options: Document = {}) {
