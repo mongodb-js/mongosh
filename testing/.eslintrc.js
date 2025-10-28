@@ -5,6 +5,6 @@ module.exports = {
   extends: ["@mongodb-js/eslint-config-mongosh"],
   parserOptions: {
     tsconfigRootDir: fixCygwinPath(__dirname),
-    project: ["./tsconfig-lint.json"],
+    project: ["./tsconfig.json"],
   },
 };

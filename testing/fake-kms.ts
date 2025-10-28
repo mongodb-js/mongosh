@@ -66,7 +66,6 @@ export const fakeAWSHandlers: HandlerList = [
 
 function awsHandler({ body }: RequestData): any {
   const request = JSON.parse(body);
-  let response;
   if (request.KeyId && request.Plaintext) {
     // Famously "unbreakable" base64 encryption ;) We use this to forward
     // both KeyId and Plaintext so that they are available for generating
