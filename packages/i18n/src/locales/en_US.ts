@@ -2894,6 +2894,10 @@ const translations: Catalog = {
               description:
                 'Show a list of all the named connections for this instance from the Connection Registry.',
             },
+            listWorkspaceDefaults: {
+              description:
+                'Show the default tier and maxTierSize for the stream processor workspace.',
+            },
           },
         },
       },
