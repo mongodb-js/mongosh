@@ -3,7 +3,8 @@
   "compilerOptions": {
     "outDir": "./lib",
     "allowJs": true,
-    "removeComments": false
+    "removeComments": false,
+    "resolveJsonModule": true
   },
   "include": ["src/**/*"],
   "exclude": ["./src/**/*.spec.*"]
