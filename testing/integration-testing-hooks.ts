@@ -6,8 +6,8 @@ import path from 'path';
 import semver from 'semver';
 import { promisify } from 'util';
 import which from 'which';
-import { ConnectionString } from 'mongodb-connection-string-url';
 import { MongoCluster, type MongoClusterOptions } from 'mongodb-runner';
+import { ConnectionString } from 'mongodb-connection-string-url';
 import { downloadCryptLibrary } from '@mongosh/build';
 
 const execFile = promisify(child_process.execFile);
@@ -51,7 +51,7 @@ export class MongodSetup {
 
   async connectionString(
     searchParams: Partial<Record<keyof MongoClientOptions, string>> = {},
-    uriOptions: Partial<typeof ConnectionString> = {}
+    uriOptions: Partial<ConnectionString> = {}
   ): Promise<string> {
     if (
       Object.keys(searchParams).length + Object.keys(uriOptions).length ===
@@ -190,15 +190,18 @@ async function getInstalledMongodVersion(): Promise<string> {
   return version;
 }
 
-export async function downloadCurrentCryptSharedLibrary(): Promise<string> {
+export async function downloadCurrentCryptSharedLibrary(
+  versionSpec?: string
+): Promise<string> {
   if (process.platform === 'linux') {
     return (
       await downloadCryptLibrary(
-        `linux-${process.arch.replace('ppc64', 'ppc64le')}` as any
+        `linux-${process.arch.replace('ppc64', 'ppc64le')}` as any,
+        versionSpec
       )
     ).cryptLibrary;
   }
-  return (await downloadCryptLibrary('host')).cryptLibrary;
+  return (await downloadCryptLibrary('host', versionSpec)).cryptLibrary;
 }
 
 /**
