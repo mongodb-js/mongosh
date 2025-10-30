@@ -302,7 +302,7 @@ Package|Version|License
 **[mime](#9b48af8a381b3c30ce0ed825fdb250ac917cf825ec677471e72657f421bece3a)**|1.6.0|MIT
 **[mimic-response](#3a8c7e8eed886630dd878b11cbb7ef72840b3bab1f8d4251956ca4f9fa40925f)**|3.1.0|MIT
 **[minimatch](#a24e851afb332c98f897b23a4f024ff71e6c55d357e5fd10a6de1fc90e00f46b)**|9.0.1|ISC
-**[minimist](#837db6b00930af97755b724568aecf8b139361dc2148c7db77673ba6ae44a44d)**|1.2.6|MIT
+**[minimist](#8162d302efd0533ce00fc8a52dd6703dbb4205435af84e72b7694c608a729de4)**|1.2.8|MIT
 **[minipass](#6659995a0bae79f2075c7aec70b4628402b31d1cf67e614593cfa7d93da24b51)**|3.3.6|ISC
 **[minipass](#21ff204c865e5c5c51a710c1fe90bbbd312925407f0405f1636cd2f284e7883c)**|5.0.0|ISC
 **[minizlib](#cce17959eefb79a78461796cc716519d9f9ba1b56fa35ae9bb2f589c61514cd2)**|2.1.2|MIT
@@ -23472,8 +23472,8 @@ License files:
       
 
 
-<a id="837db6b00930af97755b724568aecf8b139361dc2148c7db77673ba6ae44a44d"></a>
-### [minimist](https://www.npmjs.com/package/minimist) (version 1.2.6)
+<a id="8162d302efd0533ce00fc8a52dd6703dbb4205435af84e72b7694c608a729de4"></a>
+### [minimist](https://www.npmjs.com/package/minimist) (version 1.2.8)
 License tags: MIT
 
 License files:
