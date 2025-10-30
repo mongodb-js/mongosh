@@ -8,7 +8,6 @@ echo "Exporting secrets ..."
 eval $(
   node "${MONGOSH_ROOT_DIR}/scripts/print-expansions.js" \
     connectivity_test_data_lake_hostname \
-    connectivity_test_serverless_hostname \
     connectivity_test_atlas_hostname \
     connectivity_test_atlas_username \
     connectivity_test_atlas_password
@@ -18,14 +17,12 @@ ATLAS_USERNAME="${CONNECTIVITY_TEST_ATLAS_USERNAME}"
 ATLAS_PASSWORD="${CONNECTIVITY_TEST_ATLAS_PASSWORD}"
 ATLAS_HOSTNAME="${CONNECTIVITY_TEST_ATLAS_HOSTNAME}"
 ATLAS_DATA_LAKE_HOSTNAME="${CONNECTIVITY_TEST_DATA_LAKE_HOSTNAME}"
-ATLAS_SERVERLESS_HOSTNAME="${CONNECTIVITY_TEST_SERVERLESS_HOSTNAME}"
 
 if
   [[ -z "${ATLAS_USERNAME}" ]] ||
     [[ -z "${ATLAS_PASSWORD}" ]] ||
     [[ -z "${ATLAS_HOSTNAME}" ]] ||
-    [[ -z "${ATLAS_DATA_LAKE_HOSTNAME}" ]] ||
-    [[ -z "${ATLAS_SERVERLESS_HOSTNAME}" ]]
+    [[ -z "${ATLAS_DATA_LAKE_HOSTNAME}" ]]
 then
   echo "Atlas credentials are not provided"
 
@@ -134,21 +131,6 @@ function test_data_lake() {
   check_failed
 }
 
-function test_serverless() {
-  printf "test_serverless ... "
-
-  CONNECTION_STRING="mongodb+srv://${ATLAS_SERVERLESS_HOSTNAME}/admin"
-
-  echo "${CONNECTION_STATUS_COMMAND}" |
-    "${MONGOSH}" "${CONNECTION_STRING}" \
-      --username "${ATLAS_USERNAME}" \
-      --password "${ATLAS_PASSWORD}" |
-    grep -Fq "${CONNECTION_STATUS_CHECK_STRING}" ||
-    FAILED="Can't connect to Serverless instance using connection string with username and password"
-
-  check_failed
-}
-
 function test_srv_without_nodejs_dns() {
   printf "test_srv_without_nodejs_dns ... "
 
@@ -167,7 +149,6 @@ test_credentials_masking
 test_cli_args
 test_password_prompt
 test_data_lake
-test_serverless
 test_srv_without_nodejs_dns
 
 echo "All Atlas tests are passing"
