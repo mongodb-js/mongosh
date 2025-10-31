@@ -1,7 +1,9 @@
 // ^ segment data is in snake_case: forgive me javascript, for i have sinned.
 
-import getBuildInfo from 'mongodb-build-info';
+import * as getBuildInfo from 'mongodb-build-info';
 import type { ConnectionString } from 'mongodb-connection-string-url';
+
+import type { Document } from './all-transport-types';
 
 export type ConnectionExtraInfo = {
   is_atlas?: boolean;
@@ -59,7 +61,7 @@ function getHostInformation(host?: string): HostInformation {
   };
 }
 
-export default function getConnectExtraInfo({
+export default async function getConnectExtraInfo({
   connectionString,
   buildInfo,
   atlasVersion,
@@ -67,41 +69,42 @@ export default function getConnectExtraInfo({
   isLocalAtlas,
 }: {
   connectionString?: ConnectionString;
-  buildInfo: any;
-  atlasVersion: any;
+  buildInfo: Promise<Document | null>;
+  atlasVersion: Promise<string | undefined>;
   resolvedHostname?: string;
-  isLocalAtlas: boolean;
-}): ConnectionExtraInfo {
+  isLocalAtlas: Promise<boolean>;
+}): Promise<ConnectionExtraInfo> {
   const auth_type =
     connectionString?.searchParams.get('authMechanism') ?? undefined;
   const uri = connectionString?.toString() ?? '';
 
-  buildInfo ??= {}; // We're currently not getting buildInfo with --apiStrict.
   const { isGenuine: is_genuine, serverName: non_genuine_server_name } =
     getBuildInfo.getGenuineMongoDB(uri);
   // Atlas Data Lake has been renamed to Atlas Data Federation
   const { isDataLake: is_data_federation, dlVersion } =
-    getBuildInfo.getDataLake(buildInfo);
+    getBuildInfo.getDataLake(await buildInfo);
 
-  const { serverOs, serverArch } = getBuildInfo.getBuildEnv(buildInfo);
-  const isAtlas = !!atlasVersion?.atlasVersion || getBuildInfo.isAtlas(uri);
+  const { serverOs, serverArch } = getBuildInfo.getBuildEnv(await buildInfo);
+  const isAtlas = !!(await atlasVersion) || getBuildInfo.isAtlas(uri);
 
   return {
     ...getHostInformation(resolvedHostname || uri),
     is_atlas: isAtlas,
-    server_version: buildInfo.version,
+    server_version: await buildInfo.then((info) =>
+      typeof info?.version === 'string' ? info.version : undefined
+    ),
     node_version: process.version,
     server_os: serverOs || undefined,
     uri,
     server_arch: serverArch || undefined,
-    is_enterprise: getBuildInfo.isEnterprise(buildInfo),
+    is_enterprise: getBuildInfo.isEnterprise(await buildInfo),
     auth_type,
     is_data_federation,
     is_stream: getBuildInfo.isAtlasStream(uri),
     dl_version: dlVersion || undefined,
-    atlas_version: atlasVersion?.atlasVersion ?? null,
+    atlas_version: await atlasVersion,
     is_genuine,
     non_genuine_server_name,
-    is_local_atlas: isLocalAtlas,
+    is_local_atlas: await isLocalAtlas,
   };
 }

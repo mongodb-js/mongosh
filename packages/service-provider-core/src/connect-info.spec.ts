@@ -1,4 +1,8 @@
-import { expect } from 'chai';
+import chai, { expect } from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+
+chai.use(chaiAsPromised);
+
 import getConnectExtraInfo from './connect-info';
 import { ConnectionString } from 'mongodb-connection-string-url';
 
@@ -42,10 +46,7 @@ describe('getConnectInfo', function () {
     ok: 1,
   };
 
-  const ATLAS_VERSION = {
-    atlasVersion: '20210330.0.0.1617063608',
-    gitVersion: '8f7e5bdde713391e8123a463895bb7fb660a5ffd',
-  };
+  const ATLAS_VERSION = '20210330.0.0.1617063608';
 
   const ATLAS_URI =
     'mongodb+srv://admin:catscatscats@cat-data-sets.cats.mongodb.net/admin';
@@ -53,7 +54,7 @@ describe('getConnectInfo', function () {
   const ATLAS_URI_WITH_AUTH =
     'mongodb+srv://admin:catscatscats@cat-data-sets.cats.mongodb.net/admin?authMechanism=PLAIN&authSource=%24external';
 
-  it('reports on an enterprise version >=3.2 of mongodb with credentials', function () {
+  it('reports on an enterprise version >=3.2 of mongodb with credentials', async function () {
     const output = {
       is_atlas: true,
       is_atlas_url: true,
@@ -64,7 +65,7 @@ describe('getConnectInfo', function () {
       auth_type: 'PLAIN',
       is_data_federation: false,
       is_stream: false,
-      dl_version: null,
+      dl_version: undefined,
       atlas_version: '20210330.0.0.1617063608',
       is_genuine: true,
       non_genuine_server_name: 'mongodb',
@@ -74,18 +75,18 @@ describe('getConnectInfo', function () {
       uri: ATLAS_URI_WITH_AUTH,
       is_local_atlas: false,
     };
-    expect(
+    await expect(
       getConnectExtraInfo({
         connectionString: new ConnectionString(ATLAS_URI_WITH_AUTH),
-        buildInfo: BUILD_INFO,
-        atlasVersion: ATLAS_VERSION,
+        buildInfo: Promise.resolve(BUILD_INFO),
+        atlasVersion: Promise.resolve(ATLAS_VERSION),
         resolvedHostname: 'test-data-sets-00-02-a011bb.mongodb.net',
-        isLocalAtlas: false,
+        isLocalAtlas: Promise.resolve(false),
       })
-    ).to.deep.equal(output);
+    ).to.eventually.deep.equal(output);
   });
 
-  it('reports on an enterprise version >=3.2 of mongodb with no credentials', function () {
+  it('reports on an enterprise version >=3.2 of mongodb with no credentials', async function () {
     const output = {
       is_atlas: true,
       is_atlas_url: true,
@@ -96,7 +97,7 @@ describe('getConnectInfo', function () {
       auth_type: undefined,
       is_data_federation: false,
       is_stream: false,
-      dl_version: null,
+      dl_version: undefined,
       atlas_version: '20210330.0.0.1617063608',
       is_genuine: true,
       non_genuine_server_name: 'mongodb',
@@ -106,18 +107,18 @@ describe('getConnectInfo', function () {
       uri: ATLAS_URI,
       is_local_atlas: false,
     };
-    expect(
+    await expect(
       getConnectExtraInfo({
         connectionString: new ConnectionString(ATLAS_URI),
-        buildInfo: BUILD_INFO,
-        atlasVersion: ATLAS_VERSION,
+        buildInfo: Promise.resolve(BUILD_INFO),
+        atlasVersion: Promise.resolve(ATLAS_VERSION),
         resolvedHostname: 'test-data-sets-00-02-a011bb.mongodb.net',
-        isLocalAtlas: false,
+        isLocalAtlas: Promise.resolve(false),
       })
-    ).to.deep.equal(output);
+    ).to.eventually.deep.equal(output);
   });
 
-  it('reports correct information when a stream uri is passed', function () {
+  it('reports correct information when a stream uri is passed', async function () {
     const streamUri =
       'mongodb://atlas-stream-67b8e1cd6d60357be377be7b-1dekw.virginia-usa.a.query.mongodb-dev.net/';
     const output = {
@@ -130,8 +131,8 @@ describe('getConnectInfo', function () {
       auth_type: undefined,
       is_data_federation: false,
       is_stream: true,
-      dl_version: null,
-      atlas_version: null,
+      dl_version: undefined,
+      atlas_version: undefined,
       is_genuine: true,
       is_local_atlas: false,
       non_genuine_server_name: 'mongodb',
@@ -140,19 +141,19 @@ describe('getConnectInfo', function () {
       server_os: 'osx',
       uri: streamUri,
     };
-    expect(
+    await expect(
       getConnectExtraInfo({
         connectionString: new ConnectionString(streamUri),
-        buildInfo: BUILD_INFO,
-        atlasVersion: null,
+        buildInfo: Promise.resolve(BUILD_INFO),
+        atlasVersion: Promise.resolve(undefined),
         resolvedHostname:
           'atlas-stream-67b8e1cd6d60357be377be7b-1dekw.virginia-usa.a.query.mongodb-dev.net',
-        isLocalAtlas: false,
+        isLocalAtlas: Promise.resolve(false),
       })
-    ).to.deep.equal(output);
+    ).to.eventually.deep.equal(output);
   });
 
-  it('reports correct information when an empty uri is passed', function () {
+  it('reports correct information when an empty uri is passed', async function () {
     const output = {
       is_atlas: false,
       is_atlas_url: false,
@@ -163,8 +164,8 @@ describe('getConnectInfo', function () {
       auth_type: undefined,
       is_data_federation: false,
       is_stream: false,
-      dl_version: null,
-      atlas_version: null,
+      dl_version: undefined,
+      atlas_version: undefined,
       is_genuine: true,
       non_genuine_server_name: 'mongodb',
       server_arch: 'x86_64',
@@ -173,17 +174,17 @@ describe('getConnectInfo', function () {
       uri: '',
       is_local_atlas: true,
     };
-    expect(
+    await expect(
       getConnectExtraInfo({
-        buildInfo: BUILD_INFO,
-        atlasVersion: null,
+        buildInfo: Promise.resolve(BUILD_INFO),
+        atlasVersion: Promise.resolve(undefined),
         resolvedHostname: 'localhost',
-        isLocalAtlas: true,
+        isLocalAtlas: Promise.resolve(true),
       })
-    ).to.deep.equal(output);
+    ).to.eventually.deep.equal(output);
   });
 
-  it('does not fail when buildInfo is unavailable', function () {
+  it('does not fail when buildInfo is unavailable', async function () {
     const output = {
       is_atlas: false,
       is_atlas_url: false,
@@ -194,22 +195,22 @@ describe('getConnectInfo', function () {
       auth_type: undefined,
       is_data_federation: false,
       is_stream: false,
-      dl_version: null,
-      atlas_version: null,
+      dl_version: undefined,
+      atlas_version: undefined,
       is_genuine: true,
       non_genuine_server_name: 'mongodb',
-      server_arch: null,
       node_version: process.version,
-      server_os: null,
+      server_arch: undefined,
+      server_os: undefined,
       uri: '',
       is_local_atlas: false,
     };
-    expect(
+    await expect(
       getConnectExtraInfo({
-        buildInfo: null,
-        atlasVersion: null,
-        isLocalAtlas: false,
+        buildInfo: Promise.resolve(null),
+        atlasVersion: Promise.resolve(undefined),
+        isLocalAtlas: Promise.resolve(false),
       })
-    ).to.deep.equal(output);
+    ).to.eventually.deep.equal(output);
   });
 });
