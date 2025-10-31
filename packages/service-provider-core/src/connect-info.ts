@@ -80,11 +80,10 @@ export default function getConnectExtraInfo({
   const { isGenuine: is_genuine, serverName: non_genuine_server_name } =
     getBuildInfo.getGenuineMongoDB(uri);
   // Atlas Data Lake has been renamed to Atlas Data Federation
-  const { isDataLake: is_data_federation, dlVersion: dl_version } =
+  const { isDataLake: is_data_federation, dlVersion } =
     getBuildInfo.getDataLake(buildInfo);
 
-  const { serverOs: server_os, serverArch: server_arch } =
-    getBuildInfo.getBuildEnv(buildInfo);
+  const { serverOs, serverArch } = getBuildInfo.getBuildEnv(buildInfo);
   const isAtlas = !!atlasVersion?.atlasVersion || getBuildInfo.isAtlas(uri);
 
   return {
@@ -92,14 +91,14 @@ export default function getConnectExtraInfo({
     is_atlas: isAtlas,
     server_version: buildInfo.version,
     node_version: process.version,
-    server_os,
+    server_os: serverOs || undefined,
     uri,
-    server_arch,
+    server_arch: serverArch || undefined,
     is_enterprise: getBuildInfo.isEnterprise(buildInfo),
     auth_type,
     is_data_federation,
     is_stream: getBuildInfo.isAtlasStream(uri),
-    dl_version,
+    dl_version: dlVersion || undefined,
     atlas_version: atlasVersion?.atlasVersion ?? null,
     is_genuine,
     non_genuine_server_name,
