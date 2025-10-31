@@ -67,32 +67,38 @@ export default async function getConnectExtraInfo({
   atlasVersion,
   resolvedHostname,
   isLocalAtlas,
+  adminCommand,
 }: {
   connectionString?: ConnectionString;
   buildInfo: Promise<Document | null>;
-  atlasVersion: Promise<string | undefined>;
+  atlasVersion: string | undefined;
   resolvedHostname?: string;
-  isLocalAtlas: Promise<boolean>;
+  isLocalAtlas: boolean;
+  adminCommand: (document: Document) => Promise<Document>;
 }): Promise<ConnectionExtraInfo> {
   const auth_type =
     connectionString?.searchParams.get('authMechanism') ?? undefined;
   const uri = connectionString?.toString() ?? '';
 
-  const { isGenuine: is_genuine, serverName: non_genuine_server_name } =
-    getBuildInfo.getGenuineMongoDB(uri);
+  const serverName = await getBuildInfo.identifyServerName({
+    connectionString: uri,
+    buildInfo: buildInfo.then((info) => info ?? {}),
+    adminCommand,
+  });
   // Atlas Data Lake has been renamed to Atlas Data Federation
   const { isDataLake: is_data_federation, dlVersion } =
     getBuildInfo.getDataLake(await buildInfo);
 
   const { serverOs, serverArch } = getBuildInfo.getBuildEnv(await buildInfo);
-  const isAtlas = !!(await atlasVersion) || getBuildInfo.isAtlas(uri);
+  const isAtlas = !!atlasVersion || getBuildInfo.isAtlas(uri);
+  const serverVersion = await buildInfo.then((info) =>
+    typeof info?.version === 'string' ? info.version : undefined
+  );
 
   return {
     ...getHostInformation(resolvedHostname || uri),
     is_atlas: isAtlas,
-    server_version: await buildInfo.then((info) =>
-      typeof info?.version === 'string' ? info.version : undefined
-    ),
+    server_version: serverVersion,
     node_version: process.version,
     server_os: serverOs || undefined,
     uri,
@@ -102,9 +108,10 @@ export default async function getConnectExtraInfo({
     is_data_federation,
     is_stream: getBuildInfo.isAtlasStream(uri),
     dl_version: dlVersion || undefined,
-    atlas_version: await atlasVersion,
-    is_genuine,
-    non_genuine_server_name,
-    is_local_atlas: await isLocalAtlas,
+    atlas_version: atlasVersion,
+    // When the server name is 'unknown', we cannot be certain that it's non-genuine
+    is_genuine: serverName === 'mongodb' || serverName === 'unknown',
+    non_genuine_server_name: serverName,
+    is_local_atlas: isLocalAtlas,
   };
 }

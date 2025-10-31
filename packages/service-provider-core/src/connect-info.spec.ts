@@ -6,6 +6,9 @@ chai.use(chaiAsPromised);
 import getConnectExtraInfo from './connect-info';
 import { ConnectionString } from 'mongodb-connection-string-url';
 
+const mockedAdminCommand = () =>
+  Promise.reject(new Error('adminCommand was mocked'));
+
 describe('getConnectInfo', function () {
   const BUILD_INFO = {
     version: '3.2.0-rc2',
@@ -79,9 +82,10 @@ describe('getConnectInfo', function () {
       getConnectExtraInfo({
         connectionString: new ConnectionString(ATLAS_URI_WITH_AUTH),
         buildInfo: Promise.resolve(BUILD_INFO),
-        atlasVersion: Promise.resolve(ATLAS_VERSION),
+        atlasVersion: ATLAS_VERSION,
         resolvedHostname: 'test-data-sets-00-02-a011bb.mongodb.net',
-        isLocalAtlas: Promise.resolve(false),
+        isLocalAtlas: false,
+        adminCommand: mockedAdminCommand,
       })
     ).to.eventually.deep.equal(output);
   });
@@ -111,9 +115,10 @@ describe('getConnectInfo', function () {
       getConnectExtraInfo({
         connectionString: new ConnectionString(ATLAS_URI),
         buildInfo: Promise.resolve(BUILD_INFO),
-        atlasVersion: Promise.resolve(ATLAS_VERSION),
+        atlasVersion: ATLAS_VERSION,
         resolvedHostname: 'test-data-sets-00-02-a011bb.mongodb.net',
-        isLocalAtlas: Promise.resolve(false),
+        isLocalAtlas: false,
+        adminCommand: mockedAdminCommand,
       })
     ).to.eventually.deep.equal(output);
   });
@@ -145,10 +150,11 @@ describe('getConnectInfo', function () {
       getConnectExtraInfo({
         connectionString: new ConnectionString(streamUri),
         buildInfo: Promise.resolve(BUILD_INFO),
-        atlasVersion: Promise.resolve(undefined),
+        atlasVersion: undefined,
         resolvedHostname:
           'atlas-stream-67b8e1cd6d60357be377be7b-1dekw.virginia-usa.a.query.mongodb-dev.net',
-        isLocalAtlas: Promise.resolve(false),
+        isLocalAtlas: false,
+        adminCommand: mockedAdminCommand,
       })
     ).to.eventually.deep.equal(output);
   });
@@ -177,9 +183,10 @@ describe('getConnectInfo', function () {
     await expect(
       getConnectExtraInfo({
         buildInfo: Promise.resolve(BUILD_INFO),
-        atlasVersion: Promise.resolve(undefined),
+        atlasVersion: undefined,
         resolvedHostname: 'localhost',
-        isLocalAtlas: Promise.resolve(true),
+        isLocalAtlas: true,
+        adminCommand: mockedAdminCommand,
       })
     ).to.eventually.deep.equal(output);
   });
@@ -208,8 +215,9 @@ describe('getConnectInfo', function () {
     await expect(
       getConnectExtraInfo({
         buildInfo: Promise.resolve(null),
-        atlasVersion: Promise.resolve(undefined),
-        isLocalAtlas: Promise.resolve(false),
+        atlasVersion: undefined,
+        isLocalAtlas: false,
+        adminCommand: mockedAdminCommand,
       })
     ).to.eventually.deep.equal(output);
   });

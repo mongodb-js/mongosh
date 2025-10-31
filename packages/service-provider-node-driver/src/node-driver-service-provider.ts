@@ -472,42 +472,53 @@ export class NodeDriverServiceProvider
   }
 
   async getConnectionInfo(): Promise<ConnectionInfo> {
-    const [buildInfo = null, atlasVersion = null, fcv = null, atlascliInfo] =
-      await Promise.all([
-        this.runCommandWithCheck(
-          'admin',
-          { buildInfo: 1 },
-          this.baseCmdOptions
-        ).catch(() => {}),
-        this.runCommandWithCheck(
-          'admin',
-          { atlasVersion: 1 },
-          this.baseCmdOptions
-        ).catch(() => {}),
-        this.runCommandWithCheck(
-          'admin',
-          { getParameter: 1, featureCompatibilityVersion: 1 },
-          this.baseCmdOptions
-        ).catch(() => {}),
-        this.countDocuments('admin', 'atlascli', {
-          managedClusterType: 'atlasCliLocalDevCluster',
-        }).catch(() => 0),
-      ]);
+    const buildInfoPromise = this.runCommandWithCheck(
+      'admin',
+      { buildInfo: 1 },
+      this.baseCmdOptions
+    ).catch(() => null);
 
     const resolvedHostname = this._getHostnameForConnection(
       this._lastSeenTopology
     );
 
-    const extraConnectionInfo = getConnectExtraInfo({
+    const [isLocalAtlas, atlasVersion, fcv] = await Promise.all([
+      this.countDocuments('admin', 'atlascli', {
+        managedClusterType: 'atlasCliLocalDevCluster',
+      }).then(
+        (result) => !!result,
+        () => false
+      ),
+      this.runCommandWithCheck(
+        'admin',
+        { atlasVersion: 1 },
+        this.baseCmdOptions
+      ).then(
+        (response) =>
+          typeof response.atlasVersion === 'string'
+            ? response.atlasVersion
+            : undefined,
+        () => undefined
+      ),
+      this.runCommandWithCheck(
+        'admin',
+        { getParameter: 1, featureCompatibilityVersion: 1 },
+        this.baseCmdOptions
+      ).catch(() => null),
+    ]);
+
+    const extraConnectionInfo = await getConnectExtraInfo({
       connectionString: this.uri,
-      buildInfo,
+      buildInfo: buildInfoPromise,
       atlasVersion,
       resolvedHostname,
-      isLocalAtlas: !!atlascliInfo,
+      isLocalAtlas,
+      adminCommand: (request: Document) =>
+        this.runCommandWithCheck('admin', request, this.baseCmdOptions),
     });
 
     return {
-      buildInfo,
+      buildInfo: await buildInfoPromise,
       resolvedHostname,
       extraInfo: {
         ...extraConnectionInfo,
