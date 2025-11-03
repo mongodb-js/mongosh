@@ -4105,15 +4105,14 @@ functions:
         working_dir: src
         shell: bash
         env:
-          # Node version used by VSCode 1.105.1
-          # TODO: Look into automatically getting this for the latest version.
-          NODE_JS_VERSION: "22.19.0"
           DOCKERHUB_USERNAME: ${dockerhub_username}
           DOCKERHUB_PASSWORD: ${dockerhub_password}
         script: |
           set -e
           {
-          echo "Using Node.js version: ${NODE_JS_VERSION}"
+          # Fetch Node.js version from VS Code's .nvmrc to ensure we test with the same version
+          NODE_JS_VERSION=$(curl -fsSL https://raw.githubusercontent.com/microsoft/vscode/refs/heads/main/.nvmrc | tr -d '[:space:]')
+          echo "Using Node.js version from VS Code .nvmrc: ${NODE_JS_VERSION}"
           (cd scripts/docker && docker build --build-arg NODE_JS_VERSION="${NODE_JS_VERSION}" -t ubuntu24.04-xvfb -f ubuntu24.04-xvfb.Dockerfile .)
           docker run \
             --rm -v $PWD:/tmp/build ubuntu24.04-xvfb \
