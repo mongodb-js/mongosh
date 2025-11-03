@@ -1612,6 +1612,8 @@ buildvariants:
     tags: ["nightly-driver"]
     tasks:
       - name: test_vscode
+        vars:
+          NODE_JS_VERSION: "<% out(NODE_JS_VERSION_20) %>"
       - name: test_connectivity
       - name: test_apistrict
   - name: linux_coverage
