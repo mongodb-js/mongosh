@@ -1,6 +1,9 @@
 FROM ubuntu:24.04
 
 ARG NODE_JS_VERSION
+
+RUN if [ -z "$NODE_JS_VERSION" ]; then echo "Error: NODE_JS_VERSION is not defined"; exit 1; fi
+
 ENV NODE_JS_VERSION=${NODE_JS_VERSION}
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
