@@ -12457,10 +12457,10 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 (Other Tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    expansions:
+      node_js_version: "20.19.5"
     tasks:
       - name: test_vscode
-        vars:
-          NODE_JS_VERSION: "20.19.5"
       - name: test_connectivity
       - name: test_apistrict
   - name: linux_coverage

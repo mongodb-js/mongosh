@@ -1610,10 +1610,10 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 (Other Tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    expansions:
+      node_js_version: "<% out(NODE_JS_VERSION_20) %>"
     tasks:
       - name: test_vscode
-        vars:
-          NODE_JS_VERSION: "<% out(NODE_JS_VERSION_20) %>"
       - name: test_connectivity
       - name: test_apistrict
   - name: linux_coverage
