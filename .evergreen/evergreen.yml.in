@@ -324,7 +324,9 @@ functions:
         working_dir: src
         shell: bash
         env:
-          NODE_JS_VERSION: ${node_js_version}
+          # Node version used by VSCode 1.105.1
+          # TODO: Look into automatically getting this for the latest version.
+          NODE_JS_VERSION: "22.19.0"
           DOCKERHUB_USERNAME: ${dockerhub_username}
           DOCKERHUB_PASSWORD: ${dockerhub_password}
         script: |
@@ -1189,7 +1191,6 @@ tasks:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
       - func: test_vscode
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           task_name: ${task_name}
   - name: test_connectivity
     tags: ["extra-integration-test", "assigned_to_jira_team_mongosh_mongosh"]
