@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Sun Nov 02 2025.
+This document was automatically generated on Mon Nov 03 2025.
 
 ## List of dependencies
 
@@ -187,6 +187,7 @@ Package|Version|License
 **[debug](#233219ced46fb5b84e28859835e97775eb9d0181f4cb85d6aa5cecb61e595947)**|2.6.9|MIT
 **[debug](#f9b654e80c05af90dc288869333e452db67fbba75969b385acd60df9895a7944)**|4.3.4|MIT
 **[debug](#87134f2a8e436e7c20b0e03b847e7cf8953a5eb4efcb182b20a2a439f7aba9f8)**|4.4.1|MIT
+**[debug](#6390bf853aed627edd1fc017f5dc4771098786a93330a9fdd12060b62475b446)**|4.4.3|MIT
 **[decompress-response](#64c777c1b9075eb1d4fc1a0e1ea86130393649a9a01a8e42c16eb14c59b5b8da)**|6.0.0|MIT
 **[deep-extend](#654bd7d00073c2195bca924a07d93393b2aaf5cacbb6f52a383877f6f33dbfbf)**|0.6.0|MIT
 **[default-browser-id](#fefbee72ba0c7dfe4b4dd02628fac920cbb9a69e60d4b608af6fd92a2d8081bd)**|5.0.0|MIT
@@ -308,7 +309,7 @@ Package|Version|License
 **[minizlib](#cce17959eefb79a78461796cc716519d9f9ba1b56fa35ae9bb2f589c61514cd2)**|2.1.2|MIT
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
 **[mkdirp](#f34eebd27506e3aa07ba3b64064715e0c4f310dad1207ad88fff362353cd4cce)**|1.0.4|MIT
-**[mongodb-build-info](#f0a98c22ae0766702726f79e058ac6dc4e4bead8557b67b816f40bd13fb54170)**|1.7.2|Apache-2.0
+**[mongodb-build-info](#8f9a3c1ccf49d9332d5669c9fffde8b0d393163d32ac5b94ca1450ea9c137194)**|1.8.1|Apache-2.0
 **[mongodb-client-encryption](#b69198b27f91ae57d05c6db2f6c1e6afdf2e56f8b5a66a2142292cd7efde2e53)**|6.5.0|Apache-2.0
 **[mongodb-connection-string-url](#1fd70d8a07ac5222eca41b7f648d7e56e854e4947d54123daeca8614d050a545)**|3.0.2|Apache-2.0
 **[mongodb-crypt-library-version](#003bd2892d6f6fdac0613ba8f9a2fbb054ddd1c26901e1d2fc7e83861b21cf4d)**|1.0.5|Apache-2.0
@@ -19324,6 +19325,36 @@ License files:
       
 
 
+<a id="6390bf853aed627edd1fc017f5dc4771098786a93330a9fdd12060b62475b446"></a>
+### [debug](https://www.npmjs.com/package/debug) (version 4.4.3)
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      (The MIT License)
+      
+      Copyright (c) 2014-2017 TJ Holowaychuk <tj@vision-media.ca>
+      Copyright (c) 2018-2021 Josh Junon
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+      and associated documentation files (the 'Software'), to deal in the Software without restriction,
+      including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+      and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
+      subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all copies or substantial
+      portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+      LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+      IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+      WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+      SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      
+      
+
+
 <a id="64c777c1b9075eb1d4fc1a0e1ea86130393649a9a01a8e42c16eb14c59b5b8da"></a>
 ### [decompress-response](https://www.npmjs.com/package/decompress-response) (version 6.0.0)
 License tags: MIT
@@ -23648,8 +23679,8 @@ License files:
       
 
 
-<a id="f0a98c22ae0766702726f79e058ac6dc4e4bead8557b67b816f40bd13fb54170"></a>
-### [mongodb-build-info](https://www.npmjs.com/package/mongodb-build-info) (version 1.7.2)
+<a id="8f9a3c1ccf49d9332d5669c9fffde8b0d393163d32ac5b94ca1450ea9c137194"></a>
+### [mongodb-build-info](https://www.npmjs.com/package/mongodb-build-info) (version 1.8.1)
 License tags: Apache-2.0
 
 License files:
