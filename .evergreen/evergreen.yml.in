@@ -331,9 +331,9 @@ functions:
           {
           source .evergreen/setup-env.sh
           # Fetch Node.js version from VS Code's .nvmrc, default to 22.20.0 if unavailable
-          export NODE_JS_VERSION=$(curl -fsSL https://raw.githubusercontent.com/microsoft/vscode/refs/heads/main/.nvmrc | tr -d '[:space:]' || echo "22.20.0")
-          echo "Using Node.js version for VS Code extension tests: ${NODE_JS_VERSION}"
-          (cd scripts/docker && docker build --build-arg NODE_JS_VERSION="${NODE_JS_VERSION}" -t ubuntu24.04-xvfb -f ubuntu24.04-xvfb.Dockerfile .)
+          export NODE_VERSION=$(curl -fsSL https://raw.githubusercontent.com/microsoft/vscode/refs/heads/main/.nvmrc | tr -d '[:space:]' || echo "22.20.0")
+          echo "Using Node.js version for VS Code extension tests: $NODE_VERSION"
+          (cd scripts/docker && docker build --build-arg NODE_JS_VERSION="$NODE_VERSION" -t ubuntu24.04-xvfb -f ubuntu24.04-xvfb.Dockerfile .)
           docker run \
             --rm -v $PWD:/tmp/build ubuntu24.04-xvfb \
             -c 'cd /tmp/build && ./testing/test-vscode.sh'
