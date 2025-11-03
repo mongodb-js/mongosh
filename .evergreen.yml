@@ -4112,9 +4112,9 @@ functions:
           set -e
           {
           source .evergreen/setup-env.sh
-          (cd scripts/docker && docker build -t ubuntu22.04-xvfb -f ubuntu22.04-xvfb.Dockerfile .)
+          (cd scripts/docker && docker build --build-arg NODE_JS_VERSION=${NODE_JS_VERSION} -t ubuntu24.04-xvfb -f ubuntu24.04-xvfb.Dockerfile .)
           docker run \
-            --rm -v $PWD:/tmp/build ubuntu22.04-xvfb \
+            --rm -v $PWD:/tmp/build ubuntu24.04-xvfb \
             -c 'cd /tmp/build && ./testing/test-vscode.sh'
           }
   test_connectivity:
