@@ -1007,7 +1007,7 @@ describe('NodeDriverServiceProvider', function () {
       expect(info.extraInfo?.is_local_atlas).to.equal(false);
       expect(info.extraInfo?.is_localhost).to.equal(true);
       expect(info.extraInfo?.fcv).to.equal(undefined);
-      expect(dbStub.command).to.have.callCount(3);
+      expect(dbStub.command).to.have.callCount(4);
       expect(
         dbStub.collection,
         'calls countDocument on collection to check local atlas cli support'

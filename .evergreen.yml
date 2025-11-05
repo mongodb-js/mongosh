@@ -4105,16 +4105,18 @@ functions:
         working_dir: src
         shell: bash
         env:
-          NODE_JS_VERSION: ${node_js_version}
           DOCKERHUB_USERNAME: ${dockerhub_username}
           DOCKERHUB_PASSWORD: ${dockerhub_password}
         script: |
           set -e
           {
           source .evergreen/setup-env.sh
-          (cd scripts/docker && docker build -t ubuntu22.04-xvfb -f ubuntu22.04-xvfb.Dockerfile .)
+          # Fetch Node.js version from VS Code's .nvmrc, default to 22.20.0 if unavailable
+          export NODE_VERSION=$(curl -fsSL https://raw.githubusercontent.com/microsoft/vscode/refs/heads/main/.nvmrc | tr -d '[:space:]' || echo "22.20.0")
+          echo "Using Node.js version for VS Code extension tests: $NODE_VERSION"
+          (cd scripts/docker && docker build --build-arg NODE_JS_VERSION="$NODE_VERSION" -t ubuntu24.04-xvfb -f ubuntu24.04-xvfb.Dockerfile .)
           docker run \
-            --rm -v $PWD:/tmp/build ubuntu22.04-xvfb \
+            --rm -v $PWD:/tmp/build ubuntu24.04-xvfb \
             -c 'cd /tmp/build && ./testing/test-vscode.sh'
           }
   test_connectivity:
@@ -6046,7 +6048,6 @@ tasks:
           node_js_version: "20.19.5"
       - func: test_vscode
         vars:
-          node_js_version: "20.19.5"
           task_name: ${task_name}
   - name: test_connectivity
     tags: ["extra-integration-test", "assigned_to_jira_team_mongosh_mongosh"]
@@ -12458,6 +12459,8 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 (Other Tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    expansions:
+      node_js_version: "20.19.5"
     tasks:
       - name: test_vscode
       - name: test_connectivity

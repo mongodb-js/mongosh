@@ -192,8 +192,18 @@ const MAPPINGS: {
   awsSecretAccessKey: (i, v) => setAWSKMS(i, 'secretAccessKey', v),
   awsSessionToken: (i, v) => setAWSKMS(i, 'sessionToken', v),
   awsIamSessionToken: (i, v) => setAuthMechProp(i, 'AWS_SESSION_TOKEN', v),
-  csfleLibraryPath: (i, v) => setAutoEncryptExtra(i, 'cryptSharedLibPath', v),
-  cryptSharedLibPath: (i, v) => setAutoEncryptExtra(i, 'cryptSharedLibPath', v),
+  csfleLibraryPath: (i, v) =>
+    setAutoEncryptExtra(
+      i,
+      'cryptSharedLibPath',
+      v as AutoEncryptionExtraOptions['cryptSharedLibPath']
+    ),
+  cryptSharedLibPath: (i, v) =>
+    setAutoEncryptExtra(
+      i,
+      'cryptSharedLibPath',
+      v as AutoEncryptionExtraOptions['cryptSharedLibPath']
+    ),
   gssapiServiceName: (i, v) => setAuthMechProp(i, 'SERVICE_NAME', v),
   sspiRealmOverride: (i, v) => setAuthMechProp(i, 'SERVICE_REALM', v),
   sspiHostnameCanonicalization: (i, v) =>

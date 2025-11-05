@@ -6,6 +6,7 @@ import { css, palette } from '@mongodb-js/compass-components';
 import { SimpleTypeOutput } from './simple-type-output';
 import { Expandable } from '../utils/expandable';
 import type { MongoServerError } from 'mongodb';
+import stripAnsi from 'strip-ansi';
 
 interface ErrorOutputProps {
   value: any;
@@ -31,6 +32,8 @@ export class ErrorOutput extends Component<ErrorOutputProps> {
   renderCollapsed(toggle: () => void): JSX.Element {
     const { name, message, codeName } = this.props.value as MongoServerError;
     const formattedName = name + (codeName ? `[${codeName}]` : '');
+    const strippedMessage =
+      name === 'SyntaxError' ? stripAnsi(message) : message;
     return (
       <div>
         <pre>
@@ -43,14 +46,16 @@ export class ErrorOutput extends Component<ErrorOutputProps> {
           >
             {formattedName || 'Error'}:
           </a>{' '}
-          <span className={messageCss}>{message}</span>
+          <span className={messageCss}>{strippedMessage}</span>
         </pre>
       </div>
     );
   }
 
   formatStack(): string {
-    return this.props.value.stack.split('\n').slice(1).join('\n');
+    const err = this.props.value;
+    const stack = err.name === 'SyntaxError' ? stripAnsi(err.stack) : err.stack;
+    return stack.split('\n').slice(1).join('\n');
   }
 
   formatErrorBugReportInfo(): JSX.Element | undefined {

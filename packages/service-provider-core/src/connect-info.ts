@@ -1,6 +1,6 @@
 // ^ segment data is in snake_case: forgive me javascript, for i have sinned.
 
-import getBuildInfo from 'mongodb-build-info';
+import * as getBuildInfo from 'mongodb-build-info';
 import type { ConnectionString } from 'mongodb-connection-string-url';
 
 export type ConnectionExtraInfo = {
@@ -65,26 +65,25 @@ export default function getConnectExtraInfo({
   atlasVersion,
   resolvedHostname,
   isLocalAtlas,
+  serverName = 'unknown',
 }: {
   connectionString?: ConnectionString;
   buildInfo: any;
   atlasVersion: any;
   resolvedHostname?: string;
   isLocalAtlas: boolean;
+  serverName?: string;
 }): ConnectionExtraInfo {
   const auth_type =
     connectionString?.searchParams.get('authMechanism') ?? undefined;
   const uri = connectionString?.toString() ?? '';
 
   buildInfo ??= {}; // We're currently not getting buildInfo with --apiStrict.
-  const { isGenuine: is_genuine, serverName: non_genuine_server_name } =
-    getBuildInfo.getGenuineMongoDB(uri);
   // Atlas Data Lake has been renamed to Atlas Data Federation
-  const { isDataLake: is_data_federation, dlVersion: dl_version } =
+  const { isDataLake: is_data_federation, dlVersion } =
     getBuildInfo.getDataLake(buildInfo);
 
-  const { serverOs: server_os, serverArch: server_arch } =
-    getBuildInfo.getBuildEnv(buildInfo);
+  const { serverOs, serverArch } = getBuildInfo.getBuildEnv(buildInfo);
   const isAtlas = !!atlasVersion?.atlasVersion || getBuildInfo.isAtlas(uri);
 
   return {
@@ -92,17 +91,17 @@ export default function getConnectExtraInfo({
     is_atlas: isAtlas,
     server_version: buildInfo.version,
     node_version: process.version,
-    server_os,
+    server_os: serverOs || undefined,
     uri,
-    server_arch,
+    server_arch: serverArch || undefined,
     is_enterprise: getBuildInfo.isEnterprise(buildInfo),
     auth_type,
     is_data_federation,
     is_stream: getBuildInfo.isAtlasStream(uri),
-    dl_version,
+    dl_version: dlVersion || undefined,
     atlas_version: atlasVersion?.atlasVersion ?? null,
-    is_genuine,
-    non_genuine_server_name,
+    is_genuine: serverName === 'mongodb' || serverName === 'unknown',
+    non_genuine_server_name: serverName,
     is_local_atlas: isLocalAtlas,
   };
 }

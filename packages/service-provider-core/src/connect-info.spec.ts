@@ -64,7 +64,7 @@ describe('getConnectInfo', function () {
       auth_type: 'PLAIN',
       is_data_federation: false,
       is_stream: false,
-      dl_version: null,
+      dl_version: undefined,
       atlas_version: '20210330.0.0.1617063608',
       is_genuine: true,
       non_genuine_server_name: 'mongodb',
@@ -81,6 +81,7 @@ describe('getConnectInfo', function () {
         atlasVersion: ATLAS_VERSION,
         resolvedHostname: 'test-data-sets-00-02-a011bb.mongodb.net',
         isLocalAtlas: false,
+        serverName: 'mongodb',
       })
     ).to.deep.equal(output);
   });
@@ -96,7 +97,7 @@ describe('getConnectInfo', function () {
       auth_type: undefined,
       is_data_federation: false,
       is_stream: false,
-      dl_version: null,
+      dl_version: undefined,
       atlas_version: '20210330.0.0.1617063608',
       is_genuine: true,
       non_genuine_server_name: 'mongodb',
@@ -113,6 +114,7 @@ describe('getConnectInfo', function () {
         atlasVersion: ATLAS_VERSION,
         resolvedHostname: 'test-data-sets-00-02-a011bb.mongodb.net',
         isLocalAtlas: false,
+        serverName: 'mongodb',
       })
     ).to.deep.equal(output);
   });
@@ -130,7 +132,7 @@ describe('getConnectInfo', function () {
       auth_type: undefined,
       is_data_federation: false,
       is_stream: true,
-      dl_version: null,
+      dl_version: undefined,
       atlas_version: null,
       is_genuine: true,
       is_local_atlas: false,
@@ -148,6 +150,7 @@ describe('getConnectInfo', function () {
         resolvedHostname:
           'atlas-stream-67b8e1cd6d60357be377be7b-1dekw.virginia-usa.a.query.mongodb-dev.net',
         isLocalAtlas: false,
+        serverName: 'mongodb',
       })
     ).to.deep.equal(output);
   });
@@ -163,7 +166,7 @@ describe('getConnectInfo', function () {
       auth_type: undefined,
       is_data_federation: false,
       is_stream: false,
-      dl_version: null,
+      dl_version: undefined,
       atlas_version: null,
       is_genuine: true,
       non_genuine_server_name: 'mongodb',
@@ -179,6 +182,7 @@ describe('getConnectInfo', function () {
         atlasVersion: null,
         resolvedHostname: 'localhost',
         isLocalAtlas: true,
+        serverName: 'mongodb',
       })
     ).to.deep.equal(output);
   });
@@ -194,13 +198,13 @@ describe('getConnectInfo', function () {
       auth_type: undefined,
       is_data_federation: false,
       is_stream: false,
-      dl_version: null,
+      dl_version: undefined,
       atlas_version: null,
       is_genuine: true,
       non_genuine_server_name: 'mongodb',
-      server_arch: null,
       node_version: process.version,
-      server_os: null,
+      server_os: undefined,
+      server_arch: undefined,
       uri: '',
       is_local_atlas: false,
     };
@@ -209,6 +213,7 @@ describe('getConnectInfo', function () {
         buildInfo: null,
         atlasVersion: null,
         isLocalAtlas: false,
+        serverName: 'mongodb',
       })
     ).to.deep.equal(output);
   });

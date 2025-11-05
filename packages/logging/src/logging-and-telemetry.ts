@@ -126,13 +126,15 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
     this.isSetup = true;
   }
 
-  public flush(): void {
+  public async flush(): Promise<void> {
     // Run any other pending events with the set or dummy log for telemetry purposes.
     this.runAndClearPendingBusEvents();
 
     // Abort setup, which will cause the device ID to be set to 'unknown'
     // and run any remaining telemetry events
     this.telemetrySetupAbort.abort();
+
+    await this.log.flush();
   }
 
   private async setupTelemetry(): Promise<void> {
@@ -177,10 +179,10 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
     this.bus.emit('mongosh:log-initialized');
   }
 
-  public detachLogger() {
+  public async detachLogger(): Promise<void> {
     this.log = LoggingAndTelemetry.dummyLogger;
 
-    this.flush();
+    await this.flush();
   }
 
   private runAndClearPendingBusEvents() {

@@ -1,4 +1,4 @@
-const fallback = require('./fallback.json');
+import fallback from './fallback.json';
 
 /**
  * The S3 bucket for download center configurations.
