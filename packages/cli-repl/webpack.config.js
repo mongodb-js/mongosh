@@ -87,6 +87,9 @@ const config = {
       'commonjs2 ../build/Release/mongocrypt.node',
     '../build/Debug/mongocrypt.node':
       'commonjs2 ../build/Debug/mongocrypt.node',
+    '../build/Release/kerberos.node':
+      'commonjs2 ../build/Release/kerberos.node',
+    '../build/Debug/kerberos.node': 'commonjs2 ../build/Debug/kerberos.node',
   },
 
   externalsPresets: {
