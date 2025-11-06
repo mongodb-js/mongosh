@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/logging",
-  "version": "3.15.1",
+  "version": "3.15.3",
   "description": "MongoDB Shell Logging Utilities Package",
   "homepage": "https://github.com/mongodb-js/mongosh",
   "license": "Apache-2.0",

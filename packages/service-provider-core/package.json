@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/service-provider-core",
-  "version": "3.6.1",
+  "version": "3.6.2",
   "description": "MongoDB Shell Core Service Provider Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -37,11 +37,11 @@
   },
   "dependencies": {
     "@mongosh/errors": "2.4.4",
-    "@mongosh/shell-bson": "1.0.2",
-    "bson": "^7.0.0-alpha.2",
-    "mongodb": "6.20.0-dev.20251024.sha.51c1b9d2",
-    "mongodb-build-info": "^1.7.2",
-    "mongodb-connection-string-url": "^4.0.0-alpha"
+    "@mongosh/shell-bson": "1.0.3",
+    "bson": "^7.0.0",
+    "mongodb": "^7.0.0",
+    "mongodb-build-info": "^1.8.1",
+    "mongodb-connection-string-url": "^3.0.2"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",

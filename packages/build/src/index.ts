@@ -9,6 +9,7 @@ import type { Config, PackageVariant } from './config';
 import { updateJsonFeedCTA } from './download-center';
 import Ajv from 'ajv';
 
+export { downloadCryptLibrary } from './packaging/download-crypt-library';
 export { getArtifactUrl, downloadMongoDb };
 
 const validCommands: (ReleaseCommand | 'trigger-release' | 'update-cta')[] = [
