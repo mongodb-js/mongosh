@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/shell-bson",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "mongosh-style BSON handling",
   "homepage": "https://github.com/mongodb-js/mongosh/tree/main/packages/shell-bson#readme",
   "license": "Apache-2.0",
@@ -40,7 +40,7 @@
     "@mongosh/errors": "^2.4.4"
   },
   "peerDependencies": {
-    "bson": "^6.10.4"
+    "bson": "^6.10.4 || ^7.0.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",

@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/connectivity-tests",
-  "version": "2.5.2",
+  "version": "2.5.3",
   "private": true,
   "license": "Apache-2.0",
   "scripts": {
