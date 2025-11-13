@@ -56,5 +56,26 @@
   "dependencies": {
     "interruptor": "^1.0.1",
     "system-ca": "^2.0.1"
+  },
+  "optionalDependencies": {
+    "glibc-version": "^1.0.0",
+    "macos-export-certificate-and-key": "^1.2.4",
+    "win-export-certificate-and-key": "^2.1.0"
+  },
+  "mongosh": {
+    "ciRequiredOptionalDependencies": {
+      "macos-export-certificate-and-key": [
+        "darwin"
+      ],
+      "win-export-certificate-and-key": [
+        "win32"
+      ],
+      "get-console-process-list": [
+        "win32"
+      ],
+      "glibc-version": [
+        "linux"
+      ]
+    }
   }
 }
