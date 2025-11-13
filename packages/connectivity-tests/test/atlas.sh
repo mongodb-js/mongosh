@@ -136,7 +136,7 @@ function test_srv_without_nodejs_dns() {
 
   CONNECTION_STRING="mongodb+srv://${ATLAS_USERNAME}:${ATLAS_PASSWORD}@${ATLAS_HOSTNAME}/admin"
 
-  echo "${CONNECTION_STATUS_COMMAND}" | NODE_OPTIONS="-r ${MONGOSH_ROOT_DIR}/testing/disable-dns-srv.js" "${MONGOSH}" "${CONNECTION_STRING}" |
+  echo "${CONNECTION_STATUS_COMMAND}" | NODE_OPTIONS="-r ${MONGOSH_ROOT_DIR}/packages/connectivity-tests/scripts/disable-dns-srv.js" "${MONGOSH}" "${CONNECTION_STRING}" |
     grep -Fq "${CONNECTION_STATUS_CHECK_STRING}" ||
     FAILED="Can't connect to Atlas using connection string without Node.js SRV/TXT DNS support"
 

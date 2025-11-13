@@ -29,11 +29,11 @@ import { ClientEncryption, KeyVault } from './field-level-encryption';
 import Mongo from './mongo';
 import ShellInstanceState from './shell-instance-state';
 import { NodeDriverServiceProvider } from '../../service-provider-node-driver';
-import { startSharedTestServer } from '../../../testing/integration-testing-hooks';
 import {
+  startSharedTestServer,
   makeFakeHTTPConnection,
   fakeAWSHandlers,
-} from '../../../testing/fake-kms';
+} from '@mongosh/testing';
 import { Collection } from './collection';
 import { dummyOptions } from './helpers.spec';
 import type { IncomingMessage } from 'http';
@@ -962,7 +962,6 @@ srDVjIT3LsvTqw==`,
               return;
             }
             expect.fail('missed exception');
-            break;
           default:
             throw new Error(`unreachable ${kmsName}`);
         }

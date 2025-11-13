@@ -64,6 +64,7 @@
   },
   "devDependencies": {
     "@microsoft/api-extractor": "^7.39.3",
+    "@mongosh/testing": "0.0.0-dev.0",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/mongodb-ts-autocomplete": "^0.4.7",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
