@@ -6,6 +6,7 @@ import { Database } from './database';
 import { Streams } from './streams';
 import { InterruptFlag, MongoshInterruptedError } from './interruptor';
 import type { MongoshInvalidInputError } from '@mongosh/errors';
+import { asPrintable } from './enums';
 
 describe('Streams', function () {
   let mongo: Mongo;
@@ -60,7 +61,7 @@ describe('Streams', function () {
 
       const pipeline = [{ $match: { foo: 'bar' } }];
       const result = await streams.createStreamProcessor('spm', pipeline);
-      expect(result).to.eql(streams.getProcessor('spm'));
+      expect(result).to.eql(streams.getProcessor({ name: 'spm', pipeline }));
 
       const cmd = { createStreamProcessor: 'spm', pipeline };
       expect(runCmdStub.calledOnceWithExactly('admin', cmd, {})).to.be.true;
@@ -172,7 +173,7 @@ describe('Streams', function () {
       .resolves({ ok: 1 });
     const pipeline = [{ $match: { foo: 'bar' } }];
     const processor = await streams.createStreamProcessor(name, pipeline);
-    expect(processor).to.eql(streams.getProcessor(name));
+    expect(processor).to.eql(streams.getProcessor({ name, pipeline }));
     const cmd = { createStreamProcessor: name, pipeline };
     expect(runCmdStub.calledOnceWithExactly('admin', cmd, {})).to.be.true;
     return { runCmdStub, processor };
@@ -310,6 +311,104 @@ describe('Streams', function () {
           {}
         )
       ).to.be.true;
+    });
+  });
+
+  describe('listStreamProcessors', function () {
+    it('passes filter parameter correctly', async function () {
+      const runCmdStub = sinon
+        .stub(mongo._serviceProvider, 'runCommand')
+        .resolves({ ok: 1, streamProcessors: [] });
+
+      const complexFilter = {
+        name: { $regex: '^test' },
+        state: { $in: ['STARTED', 'STOPPED'] },
+        'options.dlq.connectionName': 'atlas-sql',
+      };
+
+      await streams.listStreamProcessors(complexFilter);
+
+      const cmd = { listStreamProcessors: 1, filter: complexFilter };
+      expect(runCmdStub.calledOnceWithExactly('admin', cmd, {})).to.be.true;
+    });
+
+    it('returns error when command fails', async function () {
+      const error = { ok: 0, errmsg: 'Command failed' };
+      sinon.stub(mongo._serviceProvider, 'runCommand').resolves(error);
+
+      const filter = { name: 'test' };
+      const result = await streams.listStreamProcessors(filter);
+      expect(result).to.eql(error);
+    });
+
+    it('returns empty array when no processors exist', async function () {
+      const runCmdStub = sinon
+        .stub(mongo._serviceProvider, 'runCommand')
+        .resolves({ ok: 1, streamProcessors: [] });
+
+      const filter = {};
+      const result = await streams.listStreamProcessors(filter);
+
+      expect(Array.isArray(result)).to.be.true;
+      expect(result.length).to.equal(0);
+
+      const cmd = { listStreamProcessors: 1, filter };
+      expect(runCmdStub.calledOnceWithExactly('admin', cmd, {})).to.be.true;
+    });
+
+    it('ensures complete stream processor objects are defined in response', async function () {
+      const completeProcessor = {
+        id: '6916541aa9733d72cff41f27',
+        name: 'complete-processor',
+        pipeline: [
+          { $match: { status: 'active' } },
+          { $project: { _id: 1, name: 1, timestamp: 1 } },
+        ],
+        state: 'STARTED',
+        tier: 'SP2',
+        errorMsg: '',
+        lastModified: new Date('2023-01-01T00:00:00Z'),
+        lastStateChange: new Date('2023-01-01T00:00:00Z'),
+      };
+
+      sinon
+        .stub(mongo._serviceProvider, 'runCommand')
+        .resolves({ ok: 1, streamProcessors: [completeProcessor] });
+
+      const result = await streams.listStreamProcessors({});
+
+      // Verify the raw processor data is preserved in asPrintable
+      const rawProcessors = result[asPrintable]();
+      expect(rawProcessors).to.have.length(1);
+
+      // deep comparison to ensure all fields are present an equal
+      expect(rawProcessors[0]).to.eql(completeProcessor);
+    });
+
+    it('ensures you can drill down into individual processor attributes', async function () {
+      const completeProcessor = {
+        id: '6916541aa9733d72cff41f27',
+        name: 'complete-processor',
+        pipeline: [
+          { $match: { status: 'active' } },
+          { $project: { _id: 1, name: 1, timestamp: 1 } },
+        ],
+        state: 'STARTED',
+        tier: 'SP2',
+        errorMsg: '',
+        lastModified: new Date('2023-01-01T00:00:00Z'),
+        lastStateChange: new Date('2023-01-01T00:00:00Z'),
+      };
+
+      sinon
+        .stub(mongo._serviceProvider, 'runCommand')
+        .resolves({ ok: 1, streamProcessors: [completeProcessor] });
+
+      const result = await streams.listStreamProcessors({});
+
+      // verify users an access properties on individual processors
+      expect(result[0].name).to.equal(completeProcessor.name);
+      expect(result[0].pipeline).to.eql(completeProcessor.pipeline);
     });
   });
 
