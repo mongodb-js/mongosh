@@ -56,7 +56,7 @@ declare const __non_webpack_require__: any;
 /**
  * All CLI flags that are useful for {@link MongoshNodeRepl}.
  */
-export type MongoshCliOptions = ShellCliOptions & {
+type MongoshCliOptions = ShellCliOptions & {
   quiet?: boolean;
   skipStartupWarnings?: boolean;
   /**
@@ -85,7 +85,7 @@ export type MongoshIOProvider = Omit<
   getLogPath(): string | undefined;
 };
 
-export type JSContext = 'repl' | 'plain-vm';
+type JSContext = 'repl' | 'plain-vm';
 
 /**
  * Options required for MongoshNodeRepl instance to communicate with
@@ -110,7 +110,7 @@ export type MongoshNodeReplOptions = {
  * Opaque token used to make sure that start() can only be called after
  * having called initialize().
  */
-export type InitializationToken = { __initialized: 'yes' };
+type InitializationToken = { __initialized: 'yes' };
 
 /**
  * Grouped properties of MongoshNodeRepl that are only available

@@ -37,7 +37,7 @@
     "unitTestsOnly": true
   },
   "dependencies": {
-    "@mongosh/errors": "^2.4.4"
+    "@mongosh/errors": "2.4.4"
   },
   "peerDependencies": {
     "bson": "^6.10.4 || ^7.0.0"

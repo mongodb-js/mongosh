@@ -100,7 +100,6 @@ async function readReplLogFile(
 // eslint-disable-next-line mocha/no-exports
 export {
   expect,
-  sinon,
   useTmpdir,
   tick,
   waitBus,

@@ -15,7 +15,7 @@ export class MongoshInterruptedError extends MongoshBaseError {
   }
 }
 
-export interface InterruptWatcher {
+interface InterruptWatcher {
   destroy: () => void;
   promise: Promise<never>;
 }

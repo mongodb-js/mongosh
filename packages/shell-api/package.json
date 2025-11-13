@@ -52,7 +52,7 @@
   ],
   "dependencies": {
     "@babel/core": "^7.26.10",
-    "@babel/types": "^7.26.10",
+    "@babel/types": "^7.27.0",
     "@mongosh/arg-parser": "^3.22.0",
     "@mongosh/shell-bson": "1.0.4",
     "@mongosh/errors": "2.4.4",
@@ -64,6 +64,7 @@
   },
   "devDependencies": {
     "@microsoft/api-extractor": "^7.39.3",
+    "@mongosh/testing": "0.0.0-dev.0",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/mongodb-ts-autocomplete": "^0.4.7",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
@@ -74,6 +75,6 @@
     "eslint": "^7.25.0",
     "mongodb": "^6.19.0",
     "prettier": "^2.8.8",
-    "semver": "^7.5.3"
+    "semver": "^7.5.4"
   }
 }

@@ -1,4 +1,4 @@
 {
-  "packages": ["configs/*", "packages/*", "scripts/docker"],
+  "packages": ["configs/*", "packages/*", "scripts/docker", "testing"],
   "version": "independent"
 }

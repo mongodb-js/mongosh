@@ -5,7 +5,7 @@ import rimraf from 'rimraf';
 import chai from 'chai';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
-import type { MongodSetup } from '../../../testing/integration-testing-hooks';
+import type { MongodSetup } from '@mongosh/testing';
 import type { MongoLogEntry } from 'mongodb-log-writer';
 
 chai.use(sinonChai);

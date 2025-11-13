@@ -32,7 +32,7 @@ export type FormatOptions = {
 export const CONTROL_CHAR_REGEXP = /[\x00-\x1F\x7F-\x9F]/;
 // Same, but doesn't match \t and \n, which can be used normally
 // for controlling visual output
-export const CONTROL_CHAR_REGEXP_ALLOW_SIMPLE =
+const CONTROL_CHAR_REGEXP_ALLOW_SIMPLE =
   // eslint-disable-next-line no-control-regex
   /[\x00-\x08\x0B-\x1F\x7F-\x9F]/;
 

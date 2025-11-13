@@ -2,7 +2,7 @@ import util from 'util';
 import { expect } from 'chai';
 import type { Database, Mongo, ReplicaSet } from '../src';
 
-export const delay = util.promisify(setTimeout);
+const delay = util.promisify(setTimeout);
 
 export const ensureMaster = async (
   cls: Database | ReplicaSet,

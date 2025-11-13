@@ -17,7 +17,7 @@ export type OriginalEvalFunction = (
   context: any,
   filename: string
 ) => Promise<any>;
-export type AsyncEvalFunction = (
+type AsyncEvalFunction = (
   originalEval: OriginalEvalFunction,
   input: string,
   context: any,
@@ -32,7 +32,7 @@ export type AsyncREPLOptions = ReadLineOptions &
     onAsyncSigint?: () => Promise<boolean> | boolean;
   };
 
-export type EvalStartEvent = {
+type EvalStartEvent = {
   input: string;
 };
 export type EvalFinishEvent = EvalStartEvent &

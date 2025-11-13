@@ -2615,7 +2615,7 @@ export class Collection<
   }
 }
 
-export type GetShardDistributionResult = {
+type GetShardDistributionResult = {
   Totals: {
     data: string;
     docs: number;

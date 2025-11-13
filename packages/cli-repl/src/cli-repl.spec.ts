@@ -8,13 +8,13 @@ import path from 'path';
 import type { Duplex } from 'stream';
 import { PassThrough } from 'stream';
 import { promisify } from 'util';
-import { eventually } from '../../../testing/eventually';
-import type { MongodSetup } from '../../../testing/integration-testing-hooks';
 import {
+  eventually,
+  type MongodSetup,
   skipIfServerVersion,
   startSharedTestServer,
   startTestServer,
-} from '../../../testing/integration-testing-hooks';
+} from '@mongosh/testing';
 import {
   expect,
   fakeTTYProps,

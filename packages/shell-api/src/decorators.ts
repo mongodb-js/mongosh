@@ -29,7 +29,7 @@ export interface Namespace {
 /**
  * Information about the origin of a result returned by a shell API call.
  */
-export interface ShellResultSourceInformation {
+interface ShellResultSourceInformation {
   namespace: Namespace;
 }
 
@@ -363,12 +363,12 @@ export type NewShellCommandAutocompleteParameters = Pick<
  * Provide a suggested list of completions for the last item in a shell command,
  * e.g. `show pro` to `show profile` by returning ['profile'].
  */
-export type ShellCommandCompleter = (
+type ShellCommandCompleter = (
   params: ShellCommandAutocompleteParameters,
   args: string[]
 ) => Promise<string[] | undefined>;
 
-export type NewShellCommandCompleter = (
+type NewShellCommandCompleter = (
   context: NewShellCommandAutocompleteParameters,
   args: string[]
 ) => Promise<string[] | undefined>;

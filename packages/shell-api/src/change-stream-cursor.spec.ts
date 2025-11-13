@@ -12,7 +12,7 @@ import {
   ALL_API_VERSIONS,
 } from './enums';
 import type { ChangeStream, Document } from '@mongosh/service-provider-core';
-import { startTestCluster } from '../../../testing/integration-testing-hooks';
+import { startTestCluster } from '@mongosh/testing';
 import { NodeDriverServiceProvider } from '../../service-provider-node-driver';
 import ShellInstanceState from './shell-instance-state';
 import Mongo from './mongo';
