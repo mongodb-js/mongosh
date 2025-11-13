@@ -67,7 +67,7 @@ const config: KnipConfig = {
     },
 
     "packages/e2e-tests": {
-      entry: ["test/**/*.ts", "test/fixtures/**/*"],
+      entry: ["test/**/*", "test/fixtures/**/*"],
     },
 
     "packages/service-provider-node-driver": {
@@ -139,20 +139,6 @@ const config: KnipConfig = {
 
     "packages/snippet-manager": {
       entry: ["test/fixtures/**/*"],
-    },
-
-    testing: {
-      entry: [
-        "eventually.ts",
-        "fake-kms.ts",
-        "integration-testing-hooks.ts",
-        "disable-dns-srv.js",
-      ],
-      ignoreDependencies: [
-        // Used in testing infrastructure
-        "mongodb-connection-string-url",
-        "@mongosh/build",
-      ],
     },
   },
 

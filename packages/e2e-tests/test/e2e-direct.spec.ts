@@ -2,8 +2,8 @@ import {
   startTestCluster,
   skipIfServerVersion,
   skipIfApiStrict,
-} from '../../../testing/integration-testing-hooks';
-import { eventually } from '../../../testing/eventually';
+  eventually,
+} from '@mongosh/testing';
 import { expect } from 'chai';
 import type { TestShell } from './test-shell';
 
