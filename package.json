@@ -16,6 +16,9 @@
     "depalign": "depalign",
     "predepcheck": "npm run depalign",
     "depcheck": "npm run depcheck --workspaces --if-present",
+    "knip": "knip",
+    "knip:summary": "knip --reporter summary",
+    "knip:production": "knip --production --strict",
     "lint": "npm run lint --workspaces --if-present",
     "test": "rimraf .nyc_output && npm run test-coverage --workspaces --if-present && npm run report-coverage",
     "test-ci": "rimraf .nyc_output && npm run test-ci-coverage --workspaces --if-present && npm run post-process-nyc",
@@ -134,7 +137,8 @@
     "webpack-bundle-analyzer": "^4.7.0",
     "webpack-cli": "^6.0.1",
     "which": "^2.0.2",
-    "yaml": "^1.10.0"
+    "yaml": "^1.10.0",
+    "knip": "^5.69.1"
   },
   "optionalDependencies": {
     "lerna": "^8.1.8"
