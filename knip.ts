@@ -91,7 +91,7 @@ const config: KnipConfig = {
     },
 
     "packages/browser-repl": {
-      project: ["src/**/*.{ts,tsx}"],
+      project: ["src/**/*.{ts,tsx}", "config/*.js"],
       ignoreDependencies: [
         // Babel plugins used by webpack config
         "@babel/plugin-proposal-class-properties",
