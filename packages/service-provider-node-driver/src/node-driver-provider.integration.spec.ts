@@ -15,10 +15,7 @@ import type {
   InsertOneResult,
   UpdateResult,
 } from 'mongodb';
-import {
-  skipIfServerVersion,
-  startSharedTestServer,
-} from '../../../testing/integration-testing-hooks';
+import { skipIfServerVersion, startSharedTestServer } from '@mongosh/testing';
 import type {
   DbOptions,
   MongoClientOptions,

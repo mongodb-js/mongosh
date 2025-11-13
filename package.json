@@ -153,6 +153,7 @@
     "packages/i18n",
     "packages/logging",
     "packages/shell-bson",
+    "packages/testing",
     "packages/arg-parser",
     "packages/service-provider-core",
     "packages/service-provider-node-driver",
