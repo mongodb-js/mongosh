@@ -13,26 +13,16 @@ const config: KnipConfig = {
     "**/tmp/**",
     "**/.sbom/**",
     "**/test/data/**",
-    // Docker and scripts that are executed directly
-    "scripts/docker/**",
-    // Async rewriter3 has its own build system (Rust/WASM)
-    "packages/async-rewriter3/**",
     // Configuration files (from depcheck ignore-patterns)
     ".evergreen/**",
     "config/**",
     "configs/**",
     "**/.eslintrc.js",
+    "testing/tsconfig.json",
   ],
 
-  // Global ignore dependencies (used across multiple packages or in special contexts)
-  ignoreDependencies: [
-    // Common dev tooling that appears in .depcheckrc files (peer dependencies)
-    "@mongodb-js/tsconfig-mongosh",
-    "@mongodb-js/prettier-config-devtools",
-  ],
-
-  // Ignore binaries that are used in scripts
-  ignoreBinaries: ["lerna", "mongodb-sbom-tools", "prettier"],
+  // Received from @mongodb-js/sbom-tools
+  ignoreBinaries: ["mongodb-sbom-tools"],
 
   // Workspace-specific configurations
   workspaces: {

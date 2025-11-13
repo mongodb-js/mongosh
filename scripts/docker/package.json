@@ -21,8 +21,5 @@
   },
   "engines": {
     "node": ">=12.4.0"
-  },
-  "dependencies": {
-    "mongodb-crypt-library-version": "^1.0.5"
   }
 }
