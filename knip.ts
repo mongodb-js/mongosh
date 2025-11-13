@@ -122,6 +122,7 @@ const config: KnipConfig = {
     },
 
     "packages/connectivity-tests": {
+      entry: ["scripts/disable-dns-srv.js"],
       // This package only contains bash test scripts
       ignoreDependencies: [
         // Used by test scripts
