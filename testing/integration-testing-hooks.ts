@@ -228,7 +228,15 @@ export class MongoRunnerSetup extends MongodSetup {
     7012500, // "Failed to refresh query analysis configurations", normal sharding behavior
     4906901, // "Arbiters are not supported in quarterly binary versions"
     6100702, // "Failed to get last stable recovery timestamp due to lock acquire timeout. Note this is expected if shutdown is in progress."
+    20525, // "Failed to gather storage statistics for slow operation"
+    22120, // "Access control is not enabled for the database"
+    22140, // "This server is bound to localhost"
+    22178, // "transparent_hugepage/enabled is 'always'"
+    5123300, // "vm.max_map_count is too low"
+    551190, // "Server certificate has no compatible Subject Alternative Name",
+    20526, // "Failed to gather storage statistics for slow operation"
     (l: LogEntry) => l.component === 'STORAGE', // Outside of mongosh's control
+    (l: LogEntry) => l.context === 'BackgroundSync', // Outside of mongosh's control
     (l: LogEntry) => {
       // "Aggregate command executor error", we get this a lot for things like
       // $collStats which internally tries to open collections that may or may not exist

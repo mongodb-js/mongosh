@@ -426,6 +426,15 @@ describe('e2e proxy support', function () {
           ...commonOidcServerArgs,
         ],
       });
+      // The server will (rightfully) complain about the mock IdP's TLS certificate
+      // not being trusted - we can ignore that for the purposes of this test.
+      oidcTestServer.allowWarning(
+        (entry) =>
+          entry.id === 7938401 &&
+          entry.attr?.error?.includes(
+            'SSL peer certificate or SSH remote key was not OK'
+          )
+      );
       await oidcTestServer.start();
     });
 

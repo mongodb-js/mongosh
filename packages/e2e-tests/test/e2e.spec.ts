@@ -2722,7 +2722,7 @@ describe('e2e', function () {
           -1
         );
 
-        void helperShell.executeLine(
+        const currentCommand = helperShell.executeLine(
           `db.coll.find({$where: function() { sleep(${OPERATION_TIME}) }}).projection({re: BSONRegExp('${stringifiedRegExpString}')})`
         );
         helperShell.assertNoErrors();
@@ -2735,6 +2735,7 @@ describe('e2e', function () {
         currentOpShell.assertNoErrors();
 
         expect(currentOpCall).to.include(stringifiedRegExpString);
+        await currentCommand;
       });
     });
   });
