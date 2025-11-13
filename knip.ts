@@ -18,7 +18,6 @@ const config: KnipConfig = {
     "config/**",
     "configs/**",
     "**/.eslintrc.js",
-    "testing/tsconfig.json",
   ],
 
   // Received from @mongodb-js/sbom-tools
@@ -43,8 +42,7 @@ const config: KnipConfig = {
 
     // Special cases for packages with different entry points
     "packages/cli-repl": {
-      entry: ["dist/add-module-mapping.js"],
-      project: ["src/**/*.ts", "bin/**/*.js"],
+      project: ["src/**/*.ts", "bin/**/*.js", "test/**/*.ts"],
       ignoreDependencies: [
         // Eagerly loaded startup snapshot dependencies
         "@mongodb-js/saslprep",
@@ -140,6 +138,11 @@ const config: KnipConfig = {
 
     "packages/snippet-manager": {
       entry: ["test/fixtures/**/*"],
+    },
+
+    testing: {
+      entry: ["src/**/*.ts"],
+      project: ["src/**/*.ts"],
     },
   },
 
