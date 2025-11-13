@@ -172,6 +172,7 @@ functions:
           DISTRO_ID: ${distro_id}
           MONOGDB_DRIVER_VERSION_OVERRIDE: ${mongodb_driver_version_override}
           PUPPETEER_SKIP_DOWNLOAD: ${puppeteer_skip_download|true}
+          MONGOSH_INSTALL_WORKSPACE: ${mongosh_install_workspace|}
         script: |
           set -e
           set -x
@@ -1166,6 +1167,7 @@ tasks:
       - func: install
         vars:
           node_js_version: ${node_js_version}
+          mongosh_install_workspace: "@mongosh/<% out(packageName) %>"
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}

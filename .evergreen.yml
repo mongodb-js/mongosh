@@ -163,6 +163,7 @@ functions:
           DISTRO_ID: ${distro_id}
           MONOGDB_DRIVER_VERSION_OVERRIDE: ${mongodb_driver_version_override}
           PUPPETEER_SKIP_DOWNLOAD: ${puppeteer_skip_download|true}
+          MONGOSH_INSTALL_WORKSPACE: ${mongosh_install_workspace|}
         script: |
           set -e
           set -x
@@ -5549,6 +5550,7 @@ tasks:
       - func: install
         vars:
           node_js_version: ${node_js_version}
+          mongosh_install_workspace: "@mongosh/arg-parser"
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -5568,6 +5570,7 @@ tasks:
       - func: install
         vars:
           node_js_version: ${node_js_version}
+          mongosh_install_workspace: "@mongosh/async-rewriter2"
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -5587,6 +5590,7 @@ tasks:
       - func: install
         vars:
           node_js_version: ${node_js_version}
+          mongosh_install_workspace: "@mongosh/autocomplete"
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -5606,6 +5610,7 @@ tasks:
       - func: install
         vars:
           node_js_version: ${node_js_version}
+          mongosh_install_workspace: "@mongosh/browser-repl"
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -5625,6 +5630,7 @@ tasks:
       - func: install
         vars:
           node_js_version: ${node_js_version}
+          mongosh_install_workspace: "@mongosh/browser-runtime-core"
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -5644,6 +5650,7 @@ tasks:
       - func: install
         vars:
           node_js_version: ${node_js_version}
+          mongosh_install_workspace: "@mongosh/browser-runtime-electron"
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -5663,6 +5670,7 @@ tasks:
       - func: install
         vars:
           node_js_version: ${node_js_version}
+          mongosh_install_workspace: "@mongosh/build"
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -5682,6 +5690,7 @@ tasks:
       - func: install
         vars:
           node_js_version: ${node_js_version}
+          mongosh_install_workspace: "@mongosh/cli-repl"
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -5701,6 +5710,7 @@ tasks:
       - func: install
         vars:
           node_js_version: ${node_js_version}
+          mongosh_install_workspace: "@mongosh/connectivity-tests"
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -5720,6 +5730,7 @@ tasks:
       - func: install
         vars:
           node_js_version: ${node_js_version}
+          mongosh_install_workspace: "@mongosh/e2e-tests"
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -5739,6 +5750,7 @@ tasks:
       - func: install
         vars:
           node_js_version: ${node_js_version}
+          mongosh_install_workspace: "@mongosh/editor"
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -5758,6 +5770,7 @@ tasks:
       - func: install
         vars:
           node_js_version: ${node_js_version}
+          mongosh_install_workspace: "@mongosh/errors"
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -5777,6 +5790,7 @@ tasks:
       - func: install
         vars:
           node_js_version: ${node_js_version}
+          mongosh_install_workspace: "@mongosh/history"
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -5796,6 +5810,7 @@ tasks:
       - func: install
         vars:
           node_js_version: ${node_js_version}
+          mongosh_install_workspace: "@mongosh/i18n"
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -5815,6 +5830,7 @@ tasks:
       - func: install
         vars:
           node_js_version: ${node_js_version}
+          mongosh_install_workspace: "@mongosh/java-shell"
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -5834,6 +5850,7 @@ tasks:
       - func: install
         vars:
           node_js_version: ${node_js_version}
+          mongosh_install_workspace: "@mongosh/js-multiline-to-singleline"
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -5853,6 +5870,7 @@ tasks:
       - func: install
         vars:
           node_js_version: ${node_js_version}
+          mongosh_install_workspace: "@mongosh/logging"
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -5872,6 +5890,7 @@ tasks:
       - func: install
         vars:
           node_js_version: ${node_js_version}
+          mongosh_install_workspace: "@mongosh/mongosh"
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -5891,6 +5910,7 @@ tasks:
       - func: install
         vars:
           node_js_version: ${node_js_version}
+          mongosh_install_workspace: "@mongosh/node-runtime-worker-thread"
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -5910,6 +5930,7 @@ tasks:
       - func: install
         vars:
           node_js_version: ${node_js_version}
+          mongosh_install_workspace: "@mongosh/service-provider-core"
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -5929,6 +5950,7 @@ tasks:
       - func: install
         vars:
           node_js_version: ${node_js_version}
+          mongosh_install_workspace: "@mongosh/service-provider-node-driver"
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -5948,6 +5970,7 @@ tasks:
       - func: install
         vars:
           node_js_version: ${node_js_version}
+          mongosh_install_workspace: "@mongosh/shell-api"
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -5967,6 +5990,7 @@ tasks:
       - func: install
         vars:
           node_js_version: ${node_js_version}
+          mongosh_install_workspace: "@mongosh/shell-bson"
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -5986,6 +6010,7 @@ tasks:
       - func: install
         vars:
           node_js_version: ${node_js_version}
+          mongosh_install_workspace: "@mongosh/shell-evaluator"
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -6005,6 +6030,7 @@ tasks:
       - func: install
         vars:
           node_js_version: ${node_js_version}
+          mongosh_install_workspace: "@mongosh/snippet-manager"
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -6024,6 +6050,7 @@ tasks:
       - func: install
         vars:
           node_js_version: ${node_js_version}
+          mongosh_install_workspace: "@mongosh/types"
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
