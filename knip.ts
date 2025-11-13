@@ -91,12 +91,9 @@ const config: KnipConfig = {
     },
 
     "packages/browser-repl": {
-      project: ["src/**/*.{ts,tsx}", "config/*.js"],
+      entry: ["config/*.js"],
+      project: ["src/**/*.{ts,tsx}"],
       ignoreDependencies: [
-        // Babel plugins used by webpack config
-        "@babel/plugin-proposal-class-properties",
-        "@babel/preset-react",
-        "@babel/preset-typescript",
         // Testing dependencies
         "@types/sinon-chai",
         "@wojtekmaj/enzyme-adapter-react-17",
@@ -118,6 +115,9 @@ const config: KnipConfig = {
         // Used in webpack and build scripts
         "bson",
         "tr46",
+        "assert",
+        "buffer",
+        "util",
       ],
     },
 

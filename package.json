@@ -130,7 +130,6 @@
   "workspaces": [
     "configs/eslint-config-mongosh",
     "configs/tsconfig-mongosh",
-    "testing",
     "scripts/docker",
     "packages/async-rewriter2",
     "packages/build",

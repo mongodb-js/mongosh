@@ -18,7 +18,3 @@ import {
   makeFakeHTTPServer,
 } from '@mongosh/testing';
 ```
-
-## Note
-
-This package is marked as private and will not be published to npm.
