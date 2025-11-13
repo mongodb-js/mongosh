@@ -128,12 +128,12 @@
     "lerna": "^8.1.8"
   },
   "workspaces": [
-    "testing",
     "configs/eslint-config-mongosh",
     "configs/tsconfig-mongosh",
     "scripts/docker",
     "packages/async-rewriter2",
     "packages/build",
+    "testing",
     "packages/errors",
     "packages/history",
     "packages/java-shell",
