@@ -27,7 +27,7 @@ export interface ServiceProviderAbstractCursor<TSchema = Document>
   toArray(): Promise<TSchema[]>;
 }
 
-export interface ServiceProviderAggregationOrFindCursor<TSchema = Document>
+interface ServiceProviderAggregationOrFindCursor<TSchema = Document>
   extends ServiceProviderAbstractCursor<TSchema> {
   project($project: Document): void;
   skip($skip: number): void;

@@ -12,8 +12,6 @@ const config: KnipConfig = {
     // Generated files
     "**/tmp/**",
     "**/.sbom/**",
-    // Test fixtures and data
-    "**/test/fixtures/**",
     "**/test/data/**",
     // Docker and scripts that are executed directly
     "scripts/docker/**",
@@ -79,8 +77,7 @@ const config: KnipConfig = {
     },
 
     "packages/e2e-tests": {
-      entry: ["test/**/*.ts"],
-      project: ["test/**/*.ts"],
+      entry: ["test/**/*.ts", "test/fixtures/**/*"],
     },
 
     "packages/service-provider-node-driver": {
@@ -143,10 +140,15 @@ const config: KnipConfig = {
     },
 
     "packages/async-rewriter2": {
+      entry: ["test/fixtures/**/*"],
       ignoreFiles: [
         // Used by make-runtime-support.js
         "src/runtime-support.nocov.js",
       ],
+    },
+
+    "packages/snippet-manager": {
+      entry: ["test/fixtures/**/*"],
     },
 
     testing: {

@@ -25,12 +25,12 @@ export class CommandResult<T = unknown> extends ShellApiValueClass {
   }
 }
 
-export type ClientInsertResult = {
+type ClientInsertResult = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   insertedId: any;
 };
 
-export type ClientUpdateResult = {
+type ClientUpdateResult = {
   matchedCount: number;
   modifiedCount: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -38,7 +38,7 @@ export type ClientUpdateResult = {
   didUpsert: boolean;
 };
 
-export type ClientDeleteResult = {
+type ClientDeleteResult = {
   deletedCount: number;
 };
 

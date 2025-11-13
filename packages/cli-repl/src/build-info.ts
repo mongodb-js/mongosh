@@ -2,7 +2,7 @@ import os from 'os';
 import { NodeDriverServiceProvider } from '@mongosh/service-provider-node-driver';
 import { promises as fs } from 'fs';
 
-export interface BuildInfo {
+interface BuildInfo {
   version: string;
   nodeVersion: string;
   distributionKind: 'unpackaged' | 'packaged' | 'compiled';

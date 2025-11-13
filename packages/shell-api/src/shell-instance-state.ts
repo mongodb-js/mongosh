@@ -64,7 +64,7 @@ export interface ShellCliOptions {
  * This encapsulates connection- and shell-state-dependent information
  * from the autocompleter implementation.
  */
-export interface AutocompleteParameters {
+interface AutocompleteParameters {
   topology: () => Topologies | undefined;
   apiVersionInfo: () => Required<ServerApi> | undefined;
   connectionInfo: () => ConnectionExtraInfo | undefined;
@@ -157,7 +157,7 @@ const CONTROL_CHAR_REGEXP = /[\x00-\x1F\x7F-\x9F]/g;
  * shell API is concerned) and keeps track of all open connections (a.k.a. Mongo
  * instances).
  */
-export class ShellInstanceState {
+class ShellInstanceState {
   public currentCursor: BaseCursor<ServiceProviderBaseCursor> | null;
   public currentDb: DatabaseWithSchema;
   public messageBus: MongoshBus;

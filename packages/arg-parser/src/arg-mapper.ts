@@ -325,5 +325,3 @@ function validateConnectionInfoAfterArgMapping(
   // Just make sure the result ultimately parses with strict validation.
   new ConnectionString(info.connectionString, { looseValidation: false });
 }
-
-export default mapCliToDriver;

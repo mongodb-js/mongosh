@@ -201,7 +201,7 @@ export function parseCliArgs(args: string[]): CliOptions & {
   return parsed;
 }
 
-export function verifyCliArguments(args: any /* CliOptions */): string[] {
+function verifyCliArguments(args: any /* CliOptions */): string[] {
   for (const unsupported of UNSUPPORTED_ARGS) {
     if (unsupported in args) {
       throw new MongoshUnimplementedError(

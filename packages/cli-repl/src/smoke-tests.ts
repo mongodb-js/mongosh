@@ -8,7 +8,7 @@ import escapeRegexp from 'escape-string-regexp';
 import path from 'path';
 import os from 'os';
 
-export interface SelfTestOptions {
+interface SelfTestOptions {
   smokeTestServer: string | undefined;
   args: string[]; // includes executable + args immediately after executable
   wantPerformanceTesting: boolean;

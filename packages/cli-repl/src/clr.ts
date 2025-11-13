@@ -44,10 +44,7 @@ export default function colorize(
 }
 
 /** Colorize a text with a given style, if stdout is a color-supporting TTY. */
-export function colorizeForStdout(
-  text: string,
-  style: StyleDefinition
-): string {
+function colorizeForStdout(text: string, style: StyleDefinition): string {
   return colorize(text, style, {
     colors: process.stdout.isTTY && process.stdout.getColorDepth() > 1,
   });

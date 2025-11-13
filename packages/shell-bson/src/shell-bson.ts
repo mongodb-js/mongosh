@@ -16,7 +16,7 @@ type LongWithoutAccidentallyExposedMethods = Omit<
   'fromExtendedJSON'
 >;
 type BinaryType = Binary;
-export interface ShellBsonBase<BSONLib extends BSON = BSON> {
+interface ShellBsonBase<BSONLib extends BSON = BSON> {
   DBRef: BSONLib['DBRef'] &
     ((
       namespace: string,
@@ -74,7 +74,7 @@ export type ShellBson<BSONLib extends BSON = BSON, Help = unknown> = WithHelp<
   Help
 >;
 
-export interface ShellBsonOptions<BSONLib extends BSON = BSON, Help = unknown> {
+interface ShellBsonOptions<BSONLib extends BSON = BSON, Help = unknown> {
   bsonLibrary: BSONLib;
   printWarning: (msg: string) => void;
   assignMetadata?: (

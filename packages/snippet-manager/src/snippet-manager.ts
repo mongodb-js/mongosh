@@ -27,7 +27,7 @@ const pipeline = promisify(stream.pipeline);
 const brotliCompress = promisify(zlib.brotliCompress);
 const brotliDecompress = promisify(zlib.brotliDecompress);
 
-export interface SnippetOptions {
+interface SnippetOptions {
   installdir: string;
   instanceState: ShellInstanceState;
   skipInitialIndexLoad?: boolean;
@@ -69,11 +69,10 @@ const indexFileSchema = z.object({
   index: z.array(indexDescriptionSchema),
 });
 
-export type ErrorMatcher = z.infer<typeof errorMatcherSchema>;
-export type SnippetIndexFile = z.infer<typeof indexFileSchema> & {
+type SnippetIndexFile = z.infer<typeof indexFileSchema> & {
   sourceURL: string;
 };
-export type SnippetDescription = z.infer<typeof indexDescriptionSchema>;
+type SnippetDescription = z.infer<typeof indexDescriptionSchema>;
 
 async function unpackBSON<T = any>(data: Buffer): Promise<T> {
   return bson.deserialize(await brotliDecompress(data)) as T;

@@ -10,7 +10,7 @@ export const SHARED_LIBRARY_SUFFIX: SharedObjectSuffix =
     : process.platform === 'darwin'
     ? 'dylib'
     : 'so';
-export type CryptSharedLibPath = NonNullable<
+type CryptSharedLibPath = NonNullable<
   NonNullable<AutoEncryptionOptions['extraOptions']>['cryptSharedLibPath']
 >;
 

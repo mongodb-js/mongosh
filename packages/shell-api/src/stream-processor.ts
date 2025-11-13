@@ -13,7 +13,7 @@ import type { Streams } from './streams';
 import type { MQLPipeline } from './mql-types';
 
 @shellApiClassDefault
-export class StreamProcessor extends ShellApiWithMongoClass {
+class StreamProcessor extends ShellApiWithMongoClass {
   constructor(public _streams: Streams, public name: string) {
     super();
   }

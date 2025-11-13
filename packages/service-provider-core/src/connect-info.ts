@@ -21,7 +21,7 @@ export type ConnectionExtraInfo = {
   is_local_atlas?: boolean;
 } & HostInformation;
 
-export type HostInformation = {
+type HostInformation = {
   is_localhost?: boolean;
   is_atlas_url?: boolean;
   is_do_url?: boolean; // Is digital ocean url.

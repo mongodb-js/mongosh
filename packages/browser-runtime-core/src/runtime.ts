@@ -1,7 +1,7 @@
 import type { Completion } from './autocompleter/autocompleter';
 import type { ShellResult, EvaluationListener } from '@mongosh/shell-evaluator';
 
-export type ContextValue = any;
+type ContextValue = any;
 
 export type RuntimeEvaluationResult = Pick<
   ShellResult,
