@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
+    "@mongosh/testing": "0.0.0-dev.0",
     "assert": "^1.5.0",
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.0",

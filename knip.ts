@@ -108,6 +108,7 @@ const config: KnipConfig = {
     },
 
     "packages/java-shell": {
+      entry: ["src/test/js/run-tests.ts"],
       project: ["src/main/js/**/*"],
       ignoreDependencies: [
         // Used in webpack and build scripts
