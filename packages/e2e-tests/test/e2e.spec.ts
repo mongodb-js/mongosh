@@ -3,13 +3,13 @@ import { expect } from 'chai';
 import type { Db } from 'mongodb';
 import { MongoClient, ObjectId } from 'mongodb';
 
-import { eventually } from '../../../testing/eventually';
-import { TestShell } from './test-shell';
-import { ensureTestShellAfterHook } from './test-shell-context';
 import {
+  eventually,
   skipIfServerVersion,
   startSharedTestServer,
-} from '../../../testing/integration-testing-hooks';
+} from '@mongosh/testing';
+import { TestShell } from './test-shell';
+import { ensureTestShellAfterHook } from './test-shell-context';
 import { promises as fs, createReadStream } from 'fs';
 import { promisify } from 'util';
 import path from 'path';

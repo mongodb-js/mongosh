@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { startTestServer } from '../../../testing/integration-testing-hooks';
+import { startTestServer } from '@mongosh/testing';
 import {
   useTmpdir,
   setTemporaryHomeDirectory,

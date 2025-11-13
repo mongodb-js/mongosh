@@ -113,7 +113,8 @@
     "eslint": "^7.25.0",
     "mongodb-crypt-library-dummy": "^1.0.2",
     "prettier": "^2.8.8",
-    "webpack-merge": "^5.8.0"
+    "webpack-merge": "^5.8.0",
+    "@mongosh/testing": "0.0.0-dev.0"
   },
   "optionalDependencies": {
     "get-console-process-list": "^1.0.5",

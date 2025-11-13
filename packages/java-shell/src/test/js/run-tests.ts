@@ -1,7 +1,7 @@
 import { spawn } from 'child_process';
 import path from 'path';
 import { once } from 'events';
-import { startSharedTestServer } from '../../../../../testing/integration-testing-hooks';
+import { startSharedTestServer } from '@mongosh/testing';
 
 describe('java-shell tests', function() {
   this.timeout(1_000_000);

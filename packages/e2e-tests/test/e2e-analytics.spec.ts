@@ -1,6 +1,5 @@
 import { expect } from 'chai';
-import { startTestCluster } from '../../../testing/integration-testing-hooks';
-import { eventually } from '../../../testing/eventually';
+import { startTestCluster, eventually } from '@mongosh/testing';
 
 describe('e2e Analytics Node', function () {
   const replSetName = 'replicaSet';

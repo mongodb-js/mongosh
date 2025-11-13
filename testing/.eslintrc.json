@@ -1,0 +1,9 @@
+{
+  "extends": "@mongodb-js/eslint-config-mongosh",
+  "parserOptions": {
+    "project": ["./tsconfig-lint.json"]
+  },
+  "rules": {
+    "mocha/no-exports": "off"
+  }
+}
