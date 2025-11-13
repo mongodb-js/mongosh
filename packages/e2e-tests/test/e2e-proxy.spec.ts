@@ -428,6 +428,7 @@ describe('e2e proxy support', function () {
       });
       await oidcTestServer.start();
     });
+
     after(async function () {
       this.timeout(120_000);
       await Promise.all([
@@ -435,6 +436,10 @@ describe('e2e proxy support', function () {
         oidcMockProvider?.close(),
         oidcMockProviderHttps?.close(),
       ]);
+    });
+
+    afterEach(function () {
+      oidcTestServer?.noServerWarningsCheckpoint();
     });
 
     beforeEach(function () {

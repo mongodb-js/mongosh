@@ -1,12 +1,13 @@
 /* eslint-disable mocha/no-exports */
 import child_process from 'child_process';
 import { promises as fs } from 'fs';
-import { MongoClient, type MongoClientOptions } from 'mongodb';
+import { Log, MongoClient, type MongoClientOptions } from 'mongodb';
 import path from 'path';
 import semver from 'semver';
 import { promisify } from 'util';
 import which from 'which';
-import { MongoCluster, type MongoClusterOptions } from 'mongodb-runner';
+import type { LogEntry, MongoClusterOptions } from 'mongodb-runner';
+import { MongoCluster } from 'mongodb-runner';
 import { ConnectionString } from 'mongodb-connection-string-url';
 import { downloadCryptLibrary } from '@mongosh/build';
 
@@ -147,6 +148,8 @@ export class MongoRunnerSetup extends MongodSetup {
   _id: string;
   _opts: Partial<MongoClusterOptions>;
   _cluster: MongoCluster | undefined;
+  _warnings: LogEntry[] = [];
+  _warningFilters: ((e: LogEntry) => boolean)[] = [];
 
   constructor(id: string, opts: Partial<MongoClusterOptions> = {}) {
     super();
@@ -174,12 +177,76 @@ export class MongoRunnerSetup extends MongodSetup {
     });
 
     this._setConnectionString(this._cluster.connectionString);
+
+    // Setup logging
+    const ignoreCtx = new Set<string>();
+    this._cluster.on('mongoLog', (_server, entry) => {
+      // Ignore events coming from internal clients (e.g. replset clients)
+      if (entry.id === 51800 && entry.attr?.doc?.driver?.name === 'MongoDB Internal Client' && entry.context.startsWith('conn')) {
+        ignoreCtx.add(entry.context);
+      }
+      if (ignoreCtx.has(entry.context)) return;
+
+      if (['W', 'E', 'F'].includes(entry.severity) && !this._warningFilters.some(f => f(entry))) {
+        this._warnings.push(entry);
+      }
+    });
+    for (const filter of MongoRunnerSetup.defaultAllowedWarnings)
+      this.allowWarning(filter);
   }
 
   async stop(): Promise<void> {
     await this._cluster?.close();
     this._cluster = undefined;
   }
+
+  get warnings(): LogEntry[] {
+    return [...this._warnings];
+  }
+
+  noServerWarningsCheckpoint(): void {
+    const warnings = this.warnings;
+    this._warnings = [];
+    if (warnings.length > 0) {
+      throw new Error(`Unexpected MongoDB server log warnings found: ${JSON.stringify(warnings, null, 2)}`);
+    }
+  }
+
+  allowWarning(filter: number | ((entry: LogEntry) => boolean)): () => void {
+    if (typeof filter === 'number') {
+      const id = filter;
+      filter = entry => entry.id === id;
+    }
+    this._warningFilters.push(filter);
+    return () => {
+      this._warningFilters = this._warningFilters.filter(f => f !== filter);
+    };
+  }
+
+  static defaultAllowedWarnings = [
+    4615610, // "Failed to check socket connectivity", generic disconnect error
+    7012500, // "Failed to refresh query analysis configurations", normal sharding behavior
+    4906901, // "Arbiters are not supported in quarterly binary versions"
+    6100702, // "Failed to get last stable recovery timestamp due to lock acquire timeout. Note this is expected if shutdown is in progress."
+    (l: LogEntry) => l.component === 'STORAGE', // Outside of mongosh's control
+    (l: LogEntry) => {
+      // "Aggregate command executor error", we get this a lot for things like
+      // $collStats which internally tries to open collections that may or may not exist
+      return l.id === 23799 && l.attr?.error?.codeName === 'NamespaceNotFound';
+    },
+    (l: LogEntry) => {
+      // "getMore command executor error" can happen under normal circumstances
+      // for client errors
+      return l.id === 20478 && l.attr?.error?.codeName === 'ClientDisconnect';
+    },
+    (l: LogEntry) => {
+      // "$jsonSchema validator does not allow '_id' field" warning
+      // incorrectly issued for the implicit schema of config.settings
+      // https://github.com/mongodb/mongo/blob/0c265adbde984c981946f804279693078e0b9f8a/src/mongo/db/global_catalog/ddl/sharding_catalog_manager.cpp#L558-L559
+      // https://github.com/mongodb/mongo/blob/0c265adbde984c981946f804279693078e0b9f8a/src/mongo/s/balancer_configuration.cpp#L122-L143
+      return l.id === 3216000 && ['ReplWriterWorker', 'OplogApplier'].some(match => l.context.includes(match));
+    }
+  ];
 }
 
 async function getInstalledMongodVersion(): Promise<string> {
@@ -211,11 +278,11 @@ export async function downloadCurrentCryptSharedLibrary(
  * @export
  * @returns {MongodSetup} - Object with information about the started server.
  */
-let sharedSetup: MongodSetup | null = null;
+let sharedSetup: MongoRunnerSetup | null = null;
 export function startTestServer(
   id: string,
   args: Partial<MongoClusterOptions> = {}
-): MongodSetup {
+): MongoRunnerSetup {
   const server = new MongoRunnerSetup(id, args);
   before(async function () {
     this.timeout(120_000); // Include potential mongod download time.
@@ -241,7 +308,7 @@ export function startTestServer(
  * @export
  * @returns {MongodSetup} - Object with information about the started server.
  */
-export function startSharedTestServer(): MongodSetup {
+export function startSharedTestServer(): (MongodSetup & Partial<MongoRunnerSetup>) | MongoRunnerSetup {
   if (process.env.MONGOSH_TEST_SERVER_URL) {
     return new MongodSetup(process.env.MONGOSH_TEST_SERVER_URL);
   }
@@ -251,6 +318,10 @@ export function startSharedTestServer(): MongodSetup {
   before(async function () {
     this.timeout(120_000); // Include potential mongod download time.
     await server.start();
+  });
+
+  afterEach(function () {
+    server.noServerWarningsCheckpoint();
   });
 
   // NOTE: no after hook here, cause the shared server is only
@@ -270,12 +341,18 @@ global.after?.(async function () {
 export function startTestCluster(
   id: string,
   ...argLists: Partial<MongoClusterOptions>[]
-): MongodSetup[] {
+): MongoRunnerSetup[] {
   const servers = argLists.map((args) => new MongoRunnerSetup(id, args));
 
   before(async function () {
     this.timeout(90_000 + 30_000 * servers.length);
     await Promise.all(servers.map((server: MongodSetup) => server.start()));
+  });
+
+  afterEach(function() {
+    for (const server of servers) {
+      server.noServerWarningsCheckpoint();
+    }
   });
 
   after(async function () {

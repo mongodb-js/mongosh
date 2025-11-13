@@ -154,6 +154,12 @@ describe('OIDC auth e2e', function () {
     };
   });
 
+  afterEach(function () {
+    testServer?.noServerWarningsCheckpoint();
+    testServer2?.noServerWarningsCheckpoint();
+    testServer3?.noServerWarningsCheckpoint();
+  });
+
   after(async function () {
     this.timeout(120_000);
     await Promise.all([

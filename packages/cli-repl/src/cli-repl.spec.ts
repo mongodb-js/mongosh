@@ -2268,6 +2268,22 @@ describe('CliRepl', function () {
 
       context('for server >= 4.1', function () {
         skipIfServerVersion(testServer, '< 4.1');
+        let unsubscribeAllowWarning: undefined | (() => void);
+
+        before(function () {
+          // Allow "$where is deprecated" and "operation was interrupted" warnings
+          unsubscribeAllowWarning = testServer.allowWarning?.((entry) => {
+            return (
+              entry.id === 8996500 ||
+              (entry.id === 23798 &&
+                entry.attr?.error?.codeName === 'ClientDisconnect')
+            );
+          });
+        });
+
+        after(function () {
+          unsubscribeAllowWarning?.();
+        });
 
         it('terminates operations on the server side', async function () {
           if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
