@@ -1,7 +1,6 @@
 {
   "name": "mongosh",
   "description": "The MongoDB Shell",
-  "main": "index.js",
   "bin": {
     "mongosh": "packages/cli-repl/bin/mongosh.js"
   },
@@ -101,7 +100,6 @@
     "node": ">=12.18.4"
   },
   "devDependencies": {
-    "@babel/compat-data": "^7.26.8",
     "@mongodb-js/monorepo-tools": "^1.1.10",
     "@pkgjs/nv": "^0.2.2",
     "@types/chai": "^4.2.5",
@@ -118,6 +116,7 @@
     "find-up": "^5.0.0",
     "glob": "^10.3.12",
     "husky": "^9.0.11",
+    "knip": "^5.69.1",
     "mocha": "^10.2.0",
     "mongodb": "^6.19.0",
     "mongodb-runner": "^6.0.0",
@@ -137,8 +136,7 @@
     "webpack-bundle-analyzer": "^4.7.0",
     "webpack-cli": "^6.0.1",
     "which": "^2.0.2",
-    "yaml": "^1.10.0",
-    "knip": "^5.69.1"
+    "yaml": "^1.10.0"
   },
   "optionalDependencies": {
     "lerna": "^8.1.8"
@@ -159,6 +157,7 @@
     "packages/shell-bson",
     "packages/arg-parser",
     "packages/service-provider-core",
+    "packages/e2e-tests",
     "packages/service-provider-node-driver",
     "packages/shell-api",
     "packages/autocomplete",
@@ -168,7 +167,6 @@
     "packages/editor",
     "packages/browser-runtime-electron",
     "packages/cli-repl",
-    "packages/e2e-tests",
     "packages/mongosh",
     "packages/node-runtime-worker-thread",
     "packages/browser-repl",

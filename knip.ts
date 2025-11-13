@@ -19,84 +19,63 @@ const config: KnipConfig = {
     "scripts/docker/**",
     // Async rewriter3 has its own build system (Rust/WASM)
     "packages/async-rewriter3/**",
-    // Configuration files
+    // Configuration files (from depcheck ignore-patterns)
     ".evergreen/**",
     "config/**",
     "configs/**",
+    "**/.eslintrc.js",
   ],
 
-  // Ignore dependencies that are used in build processes or special contexts
+  // Global ignore dependencies (used across multiple packages or in special contexts)
   ignoreDependencies: [
-    // Used in build scripts and webpack configs
-    "terser-webpack-plugin",
-    "webpack-bundle-analyzer",
-    "webpack-cli",
-    "webpack-merge",
-    // Used in special build contexts
-    "mongodb-runner",
-    "mongodb-crypt-library-dummy",
-    // Used in scripts
-    "mongodb-sbom-tools",
-    "@pkgjs/nv",
-    // Used for husky git hooks
-    "husky",
-    // CLI tool
-    "depcheck",
+    // Common dev tooling that appears in .depcheckrc files (peer dependencies)
+    "@mongodb-js/tsconfig-mongosh",
+    "@mongodb-js/prettier-config-devtools",
   ],
 
   // Ignore binaries that are used in scripts
-  ignoreBinaries: ["depalign", "monorepo-where", "precommit"],
-
-  // Global entry files at root level
-  entry: ["scripts/**/*.{js,ts,mjs}", "testing/**/*.ts"],
-
-  // Project files to analyze at root level
-  project: [
-    "scripts/**/*.{js,ts,mjs}",
-    "testing/**/*.ts",
-    "configs/**/*.{js,ts}",
-  ],
+  ignoreBinaries: ["lerna", "mongodb-sbom-tools", "prettier"],
 
   // Workspace-specific configurations
   workspaces: {
+    // Root package (monorepo root, no entry file needed)
     ".": {
-      // Root workspace configuration
-      entry: ["scripts/**/*.{js,ts,mjs}", "testing/**/*.ts"],
+      entry: [],
+      project: [],
     },
 
     // Config packages
     "configs/eslint-config-mongosh": {
-      entry: ["index.js", "utils.js"],
+      entry: ["utils.js"],
     },
 
     "configs/tsconfig-mongosh": {
       entry: ["tsconfig.common.json"],
     },
 
-    // Main packages
-    "packages/*": {
-      entry: ["src/index.ts", "src/index.tsx", "lib/index.js", "bin/**/*.js"],
-      project: ["src/**/*.{ts,tsx}", "bin/**/*.js"],
-    },
-
     // Special cases for packages with different entry points
     "packages/cli-repl": {
-      entry: ["bin/mongosh.js", "src/run.ts", "dist/add-module-mapping.js"],
+      entry: ["dist/add-module-mapping.js"],
       project: ["src/**/*.ts", "bin/**/*.js"],
+      ignoreDependencies: [
+        // Eagerly loaded startup snapshot dependencies
+        "@mongodb-js/saslprep",
+        "socks",
+        "emphasize",
+        "ipv6-normalize",
+        "bindings",
+        "system-ca",
+        // Used for monkey-patching our s390x fix
+        "@tootallnate/quickjs-emscripten",
+      ],
     },
 
     "packages/shell-api": {
       entry: ["src/api.ts"],
-      project: ["src/**/*.ts"],
     },
 
-    "packages/build": {
-      entry: [
-        "src/evergreen-release.ts",
-        "src/release.ts",
-        "src/update-cta.ts",
-      ],
-      project: ["src/**/*.ts"],
+    "packages/mongosh": {
+      project: ["bin/**/*.js"],
     },
 
     "packages/e2e-tests": {
@@ -104,28 +83,70 @@ const config: KnipConfig = {
       project: ["test/**/*.ts"],
     },
 
+    "packages/service-provider-node-driver": {
+      ignoreDependencies: [
+        // Used for MONGODB-AWS auth
+        // See: https://github.com/mongodb-js/mongosh/pull/1149
+        // See: https://jira.mongodb.org/browse/NODE-5005
+        "aws4",
+      ],
+    },
+
+    "packages/node-runtime-worker-thread": {
+      ignoreDependencies: [
+        // Used in worker thread context
+        "system-ca",
+      ],
+      ignoreFiles: [
+        // Used in package.json
+        "tests/register-worker.js",
+      ],
+    },
+
     "packages/browser-repl": {
-      entry: ["src/index.tsx"],
       project: ["src/**/*.{ts,tsx}"],
+      ignoreDependencies: [
+        // Babel plugins used by webpack config
+        "@babel/plugin-proposal-class-properties",
+        "@babel/preset-react",
+        "@babel/preset-typescript",
+        // Testing dependencies
+        "@types/sinon-chai",
+        "@wojtekmaj/enzyme-adapter-react-17",
+        "enzyme",
+        // Karma test runner plugins
+        "karma-chrome-launcher",
+        "karma-mocha",
+        "karma-mocha-reporter",
+        "karma-typescript",
+        // Resolved as `<depname>/` so depcheck doesn't see it being used
+        "buffer",
+        "util",
+      ],
     },
 
     "packages/java-shell": {
-      entry: [
-        "src/main/kotlin/**/*.kt",
-        "src/test/kotlin/**/*.kt",
-        "gen-doc/**/*.js",
-        "gen-kotlin/**/*.js",
-      ],
-      project: [
-        "src/main/kotlin/**/*.kt",
-        "gen-doc/**/*.js",
-        "gen-kotlin/**/*.js",
+      project: ["src/main/js/**/*"],
+      ignoreDependencies: [
+        // Used in webpack and build scripts
+        "bson",
+        "tr46",
       ],
     },
 
     "packages/connectivity-tests": {
-      entry: ["index.js"],
-      project: ["**/*.js"],
+      // This package only contains bash test scripts
+      ignoreDependencies: [
+        // Used by test scripts
+        "mongosh",
+      ],
+    },
+
+    "packages/async-rewriter2": {
+      ignoreFiles: [
+        // Used by make-runtime-support.js
+        "src/runtime-support.nocov.js",
+      ],
     },
 
     testing: {
@@ -135,12 +156,11 @@ const config: KnipConfig = {
         "integration-testing-hooks.ts",
         "disable-dns-srv.js",
       ],
-      project: ["**/*.{ts,js}"],
-    },
-
-    "scripts/docker": {
-      entry: ["**/*.js"],
-      project: ["**/*.js"],
+      ignoreDependencies: [
+        // Used in testing infrastructure
+        "mongodb-connection-string-url",
+        "@mongosh/build",
+      ],
     },
   },
 
