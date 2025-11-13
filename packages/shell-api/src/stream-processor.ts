@@ -12,10 +12,30 @@ import {
 import type { Streams } from './streams';
 import type { MQLPipeline } from './mql-types';
 
+export type StreamProcessorData = Document & { name: string };
+
 @shellApiClassDefault
 export class StreamProcessor extends ShellApiWithMongoClass {
-  constructor(public _streams: Streams, public name: string) {
+  public name: string;
+  public id?: string;
+  public pipeline?: MQLPipeline;
+  public state?: string;
+  public tier?: string;
+  public errorMsg?: string;
+  public lastModified?: Date;
+  public lastStateChange?: Date;
+
+  constructor(public _streams: Streams, data: StreamProcessorData) {
     super();
+
+    this.name = data.name;
+    this.id = data.id;
+    this.pipeline = data.pipeline;
+    this.state = data.state;
+    this.tier = data.tier;
+    this.errorMsg = data.errorMsg;
+    this.lastModified = data.lastModified;
+    this.lastStateChange = data.lastStateChange;
   }
 
   get _mongo(): Mongo {
@@ -23,7 +43,34 @@ export class StreamProcessor extends ShellApiWithMongoClass {
   }
 
   [asPrintable]() {
-    return `Atlas Stream Processor: ${this.name}`;
+    const result: Document = {
+      name: this.name,
+    };
+
+    // Only add keys onto the document if they have values
+    if (this.id) {
+      result.id = this.id;
+    }
+    if (this.pipeline) {
+      result.pipeline = this.pipeline;
+    }
+    if (this.state) {
+      result.state = this.state;
+    }
+    if (this.tier) {
+      result.tier = this.tier;
+    }
+    if (this.errorMsg) {
+      result.errorMsg = this.errorMsg;
+    }
+    if (this.lastModified) {
+      result.lastModified = this.lastModified;
+    }
+    if (this.lastStateChange) {
+      result.lastStateChange = this.lastStateChange;
+    }
+
+    return result;
   }
 
   @returnsPromise
@@ -142,7 +189,7 @@ export class StreamProcessor extends ShellApiWithMongoClass {
         try {
           await Promise.race([
             this._instanceState.shellApi.sleep(1000), // wait 1 second
-            interruptable.promise, // unless interruppted
+            interruptable.promise, // unless interrupted
           ]);
         } finally {
           interruptable.destroy();
