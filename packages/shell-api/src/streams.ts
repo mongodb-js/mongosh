@@ -149,7 +149,7 @@ export class Streams<
           return this.getProcessor(sp as StreamProcessorData);
         }
 
-        return;
+        return undefined;
       })
       .filter((sp: Document | undefined) => !!sp);
 
