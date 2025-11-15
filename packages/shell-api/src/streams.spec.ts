@@ -406,7 +406,7 @@ describe('Streams', function () {
 
       const result = await streams.listStreamProcessors({});
 
-      // verify users an access properties on individual processors
+      // verify users can access properties on individual processors
       expect(result[0].name).to.equal(completeProcessor.name);
       expect(result[0].pipeline).to.eql(completeProcessor.pipeline);
     });

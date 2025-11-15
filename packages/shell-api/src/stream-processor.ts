@@ -60,14 +60,17 @@ export class StreamProcessor extends ShellApiWithMongoClass {
     if (this.tier) {
       result.tier = this.tier;
     }
-    if (this.errorMsg) {
-      result.errorMsg = this.errorMsg;
-    }
     if (this.lastModified) {
       result.lastModified = this.lastModified;
     }
     if (this.lastStateChange) {
       result.lastStateChange = this.lastStateChange;
+    }
+
+    // Check explicitly for undefined so that empty string can be exposed
+    // back to the user
+    if (this.errorMsg !== undefined) {
+      result.errorMsg = this.errorMsg;
     }
 
     return result;
