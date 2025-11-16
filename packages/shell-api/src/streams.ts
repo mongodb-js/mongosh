@@ -6,6 +6,7 @@ import {
   shellApiClassDefault,
   ShellApiWithMongoClass,
 } from './decorators';
+import type { StreamProcessorData } from './stream-processor';
 import StreamProcessor from './stream-processor';
 import { ADMIN_DB, asPrintable, shellApiType } from './enums';
 import type { Database, DatabaseWithSchema } from './database';
@@ -34,7 +35,7 @@ export class Streams<
           return v;
         }
         if (typeof prop === 'string' && !prop.startsWith('_')) {
-          return target.getProcessor(prop);
+          return target.getProcessor({ name: prop });
         }
       },
     });
@@ -55,8 +56,8 @@ export class Streams<
     return 'Atlas Stream Processing';
   }
 
-  getProcessor(name: string): StreamProcessor {
-    return new StreamProcessor(this, name);
+  getProcessor(data: StreamProcessorData): StreamProcessor {
+    return new StreamProcessor(this, data);
   }
 
   @returnsPromise
@@ -82,7 +83,7 @@ export class Streams<
       limit: number;
       cursorId: number;
     };
-    const sp = this.getProcessor(name);
+    const sp = this.getProcessor({ name });
 
     async function dropSp() {
       try {
@@ -129,8 +130,7 @@ export class Streams<
     if (result.ok !== 1) {
       return result;
     }
-
-    return this.getProcessor(name);
+    return this.getProcessor({ name, pipeline, ...options });
   }
 
   @returnsPromise
@@ -143,9 +143,15 @@ export class Streams<
       return result;
     }
     const rawProcessors = result.streamProcessors;
-    const sps = rawProcessors.map((sp: StreamProcessor) =>
-      this.getProcessor(sp.name)
-    );
+    const sps = rawProcessors
+      .map((sp: Document) => {
+        if (sp.name) {
+          return this.getProcessor(sp as StreamProcessorData);
+        }
+
+        return undefined;
+      })
+      .filter((sp: Document | undefined) => !!sp);
 
     return Object.defineProperties(sps, {
       [asPrintable]: { value: () => rawProcessors },
@@ -174,7 +180,7 @@ export class Streams<
     })) as WorkspaceDefaults;
   }
 
-  async _runStreamCommand(cmd: Document, options: Document = {}) {
+  _runStreamCommand(cmd: Document, options: Document = {}): Promise<Document> {
     return this._mongo._serviceProvider.runCommand(ADMIN_DB, cmd, options); // run cmd
   }
 }
