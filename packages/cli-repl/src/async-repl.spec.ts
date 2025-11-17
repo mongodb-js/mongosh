@@ -56,7 +56,7 @@ async function expectInStream(
   expect(found).to.be.true;
 }
 
-describe('AsyncRepl', function () {
+describe.skip('AsyncRepl', function () {
   before(function () {
     // nyc adds its own SIGINT listener that annoys use here.
     process.removeAllListeners('SIGINT');

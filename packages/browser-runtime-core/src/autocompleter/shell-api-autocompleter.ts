@@ -33,7 +33,7 @@ export class ShellApiAutocompleter implements Autocompleter {
 
     let completions: CompletionResults;
 
-    if (process.env.USE_NEW_AUTOCOMPLETE) {
+    if (process.env.USE_NEW_AUTOCOMPLETE !== '0') {
       if (!this.newMongoshCompleter) {
         this.newMongoshCompleter = await initNewAutocompleter(
           this.shellInstanceState
