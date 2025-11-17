@@ -141,15 +141,7 @@ const setTemporaryHomeDirectory = () => {
 };
 
 function getCertPath(filename: string): string {
-  return path.join(
-    __dirname,
-    '..',
-    '..',
-    '..',
-    'testing',
-    'certificates',
-    filename
-  );
+  return path.join(__dirname, '..', '..', 'testing', 'certificates', filename);
 }
 
 // TLS requires matching hostnames, so here we need to explicitly

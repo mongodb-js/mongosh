@@ -85,15 +85,7 @@ const exampleUUID = new bson.Binary(
 ).toUUID();
 
 function getCertPath(filename: string): string {
-  return path.join(
-    __dirname,
-    '..',
-    '..',
-    '..',
-    'testing',
-    'certificates',
-    filename
-  );
+  return path.join(__dirname, '..', '..', 'testing', 'certificates', filename);
 }
 
 describe('Field Level Encryption', function () {
