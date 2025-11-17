@@ -1,4 +1,4 @@
-import { bson } from '@mongosh/service-provider-core';
+import * as bson from 'bson';
 import chai, { expect } from 'chai';
 import type { Duplex } from 'stream';
 import { PassThrough } from 'stream';

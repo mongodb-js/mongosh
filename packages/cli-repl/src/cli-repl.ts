@@ -6,7 +6,7 @@ import {
 import { redactURICredentials } from '@mongosh/history';
 import i18n from '@mongosh/i18n';
 import type { AutoEncryptionOptions } from '@mongosh/service-provider-core';
-import { bson } from '@mongosh/service-provider-core';
+import { EJSON, ObjectId } from 'bson';
 import { NodeDriverServiceProvider } from '@mongosh/service-provider-node-driver';
 import type { CliOptions, DevtoolsConnectOptions } from '@mongosh/arg-parser';
 import { SnippetManager } from '@mongosh/snippet-manager';
@@ -155,7 +155,7 @@ export class CliRepl implements MongoshIOProvider {
     this.analyticsOptions = options.analyticsOptions;
     this.onExit = options.onExit;
 
-    const id = new bson.ObjectId().toHexString();
+    const id = new ObjectId().toHexString();
     this.config = {
       userId: id,
       telemetryAnonymousId: id,
@@ -321,6 +321,18 @@ export class CliRepl implements MongoshIOProvider {
    * @param {DevtoolsConnectOptions} driverOptions - The driver options.
    */
   async start(
+    driverUri: string,
+    driverOptions: DevtoolsConnectOptions
+  ): Promise<void> {
+    try {
+      return await this._start(driverUri, driverOptions);
+    } catch (err) {
+      await this.close();
+      throw err;
+    }
+  }
+
+  private async _start(
     driverUri: string,
     driverOptions: DevtoolsConnectOptions
   ): Promise<void> {
@@ -659,7 +671,7 @@ export class CliRepl implements MongoshIOProvider {
     if (enabled) {
       await this.startLogging();
     } else {
-      this.loggingAndTelemetry?.detachLogger();
+      await this.loggingAndTelemetry?.detachLogger();
     }
   }
 
@@ -833,7 +845,7 @@ export class CliRepl implements MongoshIOProvider {
     try {
       let config: CliUserConfig;
       if (fileContents.trim().startsWith('{')) {
-        config = bson.EJSON.parse(fileContents);
+        config = EJSON.parse(fileContents);
       } else {
         config = (yaml.load(fileContents) as any)?.mongosh ?? {};
       }
@@ -1172,7 +1184,7 @@ export class CliRepl implements MongoshIOProvider {
       const analytics = this.toggleableAnalytics;
       let flushError: string | null = null;
       let flushDuration: number | null = null;
-      this.loggingAndTelemetry?.flush();
+      await this.loggingAndTelemetry?.flush();
 
       if (analytics) {
         const flushStart = Date.now();

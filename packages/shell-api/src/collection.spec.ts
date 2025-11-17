@@ -25,7 +25,7 @@ import type {
   Document,
   AnyBulkWriteOperation,
 } from '@mongosh/service-provider-core';
-import { bson } from '@mongosh/service-provider-core';
+import * as bson from 'bson';
 import ShellInstanceState from './shell-instance-state';
 import { ShellApiErrors } from './error-codes';
 import {

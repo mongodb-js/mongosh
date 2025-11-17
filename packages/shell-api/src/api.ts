@@ -1,5 +1,5 @@
 export { CollectionWithSchema } from './collection';
-export { ShellBson } from './shell-bson';
+export { ShellBson } from '@mongosh/shell-bson';
 export { Streams } from './streams';
 export { DatabaseWithSchema } from './database';
 import Shard from './shard';

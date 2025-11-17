@@ -93,6 +93,7 @@ import {
   ClientEncryption,
 } from 'mongodb';
 import { connectMongoClient } from '@mongodb-js/devtools-connect';
+import { identifyServerName } from 'mongodb-build-info';
 
 const bsonlib = () => {
   const {
@@ -109,6 +110,7 @@ const bsonlib = () => {
     Decimal128,
     BSONSymbol,
     BSONRegExp,
+    UUID,
     BSON,
   } = driver;
   return {
@@ -126,6 +128,7 @@ const bsonlib = () => {
     BSONSymbol,
     calculateObjectSize: BSON.calculateObjectSize,
     EJSON: BSON.EJSON,
+    UUID,
     BSONRegExp,
   };
 };
@@ -470,27 +473,47 @@ export class NodeDriverServiceProvider
   }
 
   async getConnectionInfo(): Promise<ConnectionInfo> {
-    const [buildInfo = null, atlasVersion = null, fcv = null, atlascliInfo] =
-      await Promise.all([
-        this.runCommandWithCheck(
-          'admin',
-          { buildInfo: 1 },
-          this.baseCmdOptions
-        ).catch(() => {}),
-        this.runCommandWithCheck(
-          'admin',
-          { atlasVersion: 1 },
-          this.baseCmdOptions
-        ).catch(() => {}),
-        this.runCommandWithCheck(
-          'admin',
-          { getParameter: 1, featureCompatibilityVersion: 1 },
-          this.baseCmdOptions
-        ).catch(() => {}),
-        this.countDocuments('admin', 'atlascli', {
-          managedClusterType: 'atlasCliLocalDevCluster',
-        }).catch(() => 0),
-      ]);
+    const buildInfoPromise = this.runCommandWithCheck(
+      'admin',
+      { buildInfo: 1 },
+      this.baseCmdOptions
+    ).catch(() => ({}));
+
+    const [
+      buildInfo,
+      atlasVersion = null,
+      fcv = null,
+      atlascliInfo,
+      serverName,
+    ] = await Promise.all([
+      buildInfoPromise,
+      this.runCommandWithCheck(
+        'admin',
+        { atlasVersion: 1 },
+        this.baseCmdOptions
+      ).catch(() => {}),
+      this.runCommandWithCheck(
+        'admin',
+        { getParameter: 1, featureCompatibilityVersion: 1 },
+        this.baseCmdOptions
+      ).catch(() => {}),
+      this.countDocuments('admin', 'atlascli', {
+        managedClusterType: 'atlasCliLocalDevCluster',
+      }).catch(() => 0),
+      identifyServerName({
+        connectionString: this.uri?.toString() ?? '',
+        adminCommand: (command) => {
+          if (command.buildInfo) {
+            return buildInfoPromise;
+          }
+          return this.runCommandWithCheck(
+            'admin',
+            command,
+            this.baseCmdOptions
+          );
+        },
+      }),
+    ]);
 
     const resolvedHostname = this._getHostnameForConnection(
       this._lastSeenTopology
@@ -502,6 +525,7 @@ export class NodeDriverServiceProvider
       atlasVersion,
       resolvedHostname,
       isLocalAtlas: !!atlascliInfo,
+      serverName,
     });
 
     return {

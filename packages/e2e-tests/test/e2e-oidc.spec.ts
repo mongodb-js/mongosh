@@ -181,9 +181,29 @@ describe('OIDC auth e2e', function () {
     );
   }
 
-  for (const useNonce of [true, false]) {
-    describe(`with nonce=${useNonce}`, function () {
+  function* nonceTestParameters(): Generator<{
+    expectNonce: boolean;
+    provideNonce: boolean;
+  }> {
+    for (const expectNonce of [false, true]) {
+      for (const provideNonce of [false, true]) {
+        yield { expectNonce, provideNonce };
+      }
+    }
+  }
+
+  for (const { expectNonce, provideNonce } of nonceTestParameters()) {
+    describe(`with expectNonce=${expectNonce} provideNonce=${provideNonce}`, function () {
       it('can successfully authenticate using OIDC Auth Code Flow', async function () {
+        const originalGetPayload = getTokenPayload;
+        getTokenPayload = async (metadata) => {
+          const result = await originalGetPayload(metadata);
+          if (provideNonce === false) {
+            result.payload.nonce = undefined;
+          }
+          return result;
+        };
+
         const args = [
           await testServer.connectionString(),
           '--authenticationMechanism=MONGODB-OIDC',
@@ -191,17 +211,24 @@ describe('OIDC auth e2e', function () {
           `--browser=${fetchBrowserFixture}`,
         ];
 
-        if (!useNonce) {
+        if (!expectNonce) {
           args.push('--oidcNoNonce');
         }
 
         shell = this.startTestShell({
           args,
         });
-        await shell.waitForPrompt();
+        if (!expectNonce || provideNonce) {
+          await shell.waitForPrompt();
 
-        await verifyUser(shell, 'testuser', 'testServer-group');
-        shell.assertNoErrors();
+          await verifyUser(shell, 'testuser', 'testServer-group');
+          shell.assertNoErrors();
+        } else {
+          expect(await shell.waitForAnyExit()).to.equal(1);
+          shell.assertContainsOutput(
+            'Error: invalid response encountered (caused by: JWT "nonce" (nonce) claim missing)'
+          );
+        }
       });
     });
   }

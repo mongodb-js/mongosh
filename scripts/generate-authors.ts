@@ -16,7 +16,7 @@ const packageRootPath = path.resolve(__dirname, '..');
 function getAuthorsGitLog(packagePath: string): string[] {
   return execFileSync(
     'git',
-    ['log', '--reverse', '--format=%aN <%aE>', '--use-mailmap', '--', packagePath],
+    ['log', '--reverse', '--format=%aN <%aE>', '--use-mailmap', '--find-renames', '--find-copies', '--follow', '--', packagePath],
     { cwd: packageRootPath }
   ).toString().trim().split('\n');
 }

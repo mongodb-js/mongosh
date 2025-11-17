@@ -5,9 +5,9 @@ import type { MultiSet } from './helpers';
 
 export interface MongoshLoggingAndTelemetry {
   attachLogger(logger: MongoLogWriter): void;
-  detachLogger(): void;
+  detachLogger(): Promise<void>;
   /** Flush any remaining log or telemetry events. */
-  flush(): void;
+  flush(): Promise<void>;
 }
 
 export type MongoshLoggingAndTelemetryArguments = {

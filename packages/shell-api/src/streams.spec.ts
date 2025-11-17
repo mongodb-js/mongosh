@@ -312,4 +312,22 @@ describe('Streams', function () {
       ).to.be.true;
     });
   });
+
+  describe('listWorkspaceDefaults', function () {
+    it('returns tier and maxTierSize', async function () {
+      const runCmdStub = sinon
+        .stub(mongo._serviceProvider, 'runCommand')
+        .resolves({ ok: 1, defaultTierSize: 'SP2', maxTierSize: 'SP30' });
+
+      const result = await streams.listWorkspaceDefaults();
+      expect(result).to.eql({
+        ok: 1,
+        defaultTierSize: 'SP2',
+        maxTierSize: 'SP30',
+      });
+
+      const cmd = { listWorkspaceDefaults: 1 };
+      expect(runCmdStub.calledOnceWithExactly('admin', cmd, {})).to.be.true;
+    });
+  });
 });

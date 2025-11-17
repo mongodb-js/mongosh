@@ -61,7 +61,9 @@ describe('MongoshLoggingAndTelemetry', function () {
 
     logger = new MongoLogWriter(logId, `/tmp/${logId}_log`, {
       write(chunk: string, cb: () => void) {
-        logOutput.push(JSON.parse(chunk));
+        if (chunk.trim()) {
+          logOutput.push(JSON.parse(chunk));
+        }
         cb();
       },
       end(cb: () => void) {
@@ -70,8 +72,8 @@ describe('MongoshLoggingAndTelemetry', function () {
     } as Writable);
   });
 
-  afterEach(function () {
-    loggingAndTelemetry.detachLogger();
+  afterEach(async function () {
+    await loggingAndTelemetry.detachLogger();
     logger.destroy();
   });
 
@@ -82,9 +84,9 @@ describe('MongoshLoggingAndTelemetry', function () {
     );
   });
 
-  it('does not throw when attaching and detaching loggers', function () {
+  it('does not throw when attaching and detaching loggers', async function () {
     loggingAndTelemetry.attachLogger(logger);
-    loggingAndTelemetry.detachLogger();
+    await loggingAndTelemetry.detachLogger();
     expect(() => loggingAndTelemetry.attachLogger(logger)).does.not.throw();
   });
 
@@ -308,7 +310,7 @@ describe('MongoshLoggingAndTelemetry', function () {
         .setupTelemetryPromise;
 
       // Flush before it completes
-      loggingAndTelemetry.flush();
+      await loggingAndTelemetry.flush();
 
       // Emit an event that would trigger analytics
       bus.emit('mongosh:new-user', { userId, anonymousId: userId });
@@ -377,7 +379,7 @@ describe('MongoshLoggingAndTelemetry', function () {
     expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.have.lengthOf(0);
 
-    loggingAndTelemetry.detachLogger();
+    await loggingAndTelemetry.detachLogger();
 
     // This event has both analytics and logging
     bus.emit('mongosh:use', { db: '' });
@@ -386,7 +388,7 @@ describe('MongoshLoggingAndTelemetry', function () {
     expect(analyticsOutput).to.have.lengthOf(1);
   });
 
-  it('detaching logger applies to devtools-connect events', function () {
+  it('detaching logger applies to devtools-connect events', async function () {
     loggingAndTelemetry.attachLogger(logger);
 
     bus.emit('devtools-connect:connect-fail-early');
@@ -396,7 +398,7 @@ describe('MongoshLoggingAndTelemetry', function () {
     // No analytics event attached to this
     expect(analyticsOutput).to.have.lengthOf(0);
 
-    loggingAndTelemetry.detachLogger();
+    await loggingAndTelemetry.detachLogger();
     bus.emit('devtools-connect:connect-fail-early');
 
     expect(logOutput).to.have.lengthOf(2);
@@ -423,7 +425,7 @@ describe('MongoshLoggingAndTelemetry', function () {
     await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
     expect(analyticsOutput).to.have.lengthOf(1);
 
-    loggingAndTelemetry.detachLogger();
+    await loggingAndTelemetry.detachLogger();
 
     bus.emit('mongosh:use', { db: '' });
 
@@ -446,7 +448,7 @@ describe('MongoshLoggingAndTelemetry', function () {
 
     expect(analyticsOutput).to.have.lengthOf(1);
 
-    loggingAndTelemetry.detachLogger();
+    await loggingAndTelemetry.detachLogger();
 
     bus.emit('mongosh:use', { db: '' });
 

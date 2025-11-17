@@ -13,6 +13,11 @@ import type Mongo from './mongo';
 import type { GenericDatabaseSchema, GenericServerSideSchema } from './helpers';
 import type { MQLPipeline } from './mql-types';
 
+type WorkspaceDefaults = {
+  defaultTierSize: string;
+  maxTierSize: string;
+};
+
 @shellApiClassDefault
 export class Streams<
   M extends GenericServerSideSchema = GenericServerSideSchema,
@@ -160,6 +165,13 @@ export class Streams<
     return Object.defineProperties(result.connections, {
       [shellApiType]: { value: 'StreamsListResult' },
     });
+  }
+
+  @returnsPromise
+  async listWorkspaceDefaults(): Promise<WorkspaceDefaults> {
+    return (await this._runStreamCommand({
+      listWorkspaceDefaults: 1,
+    })) as WorkspaceDefaults;
   }
 
   async _runStreamCommand(cmd: Document, options: Document = {}) {

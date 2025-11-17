@@ -19,15 +19,31 @@ import type {
 import { EventEmitter } from 'events';
 import redactInfo from 'mongodb-redact';
 import { toIgnore } from './decorators';
-import { Topologies } from './enums';
+import {
+  ALL_PLATFORMS,
+  ALL_SERVER_VERSIONS,
+  ALL_TOPOLOGIES,
+  ServerVersions,
+  Topologies,
+} from './enums';
 import { ShellApiErrors } from './error-codes';
 import type { ShellResult, DatabaseWithSchema } from './index';
-import { getShellApiType, Mongo, ReplicaSet, Shard, ShellApi } from './index';
+import {
+  getShellApiType,
+  Help,
+  Mongo,
+  ReplicaSet,
+  Shard,
+  ShellApi,
+} from './index';
 import { InterruptFlag } from './interruptor';
 import { TransformMongoErrorPlugin } from './mongo-errors';
 import NoDatabase from './no-db';
-import type { ShellBson } from './shell-bson';
-import constructShellBson from './shell-bson';
+import {
+  type ShellBson,
+  constructShellBson,
+  type BSON as BSONLibrary,
+} from '@mongosh/shell-bson';
 import { Streams } from './streams';
 import { ShellLog } from './shell-log';
 
@@ -146,6 +162,7 @@ export class ShellInstanceState {
   public currentDb: DatabaseWithSchema;
   public messageBus: MongoshBus;
   public initialServiceProvider: ServiceProvider; // the initial service provider
+  private bsonLibrary: BSONLibrary;
   private connectionInfoCache: {
     // Caching/lazy-loading functionality for the ServiceProvider's getConnectionInfo()
     // return value. We store the ServiceProvider instance for which we are
@@ -183,18 +200,15 @@ export class ShellInstanceState {
   constructor(
     initialServiceProvider: ServiceProvider,
     messageBus: any = new EventEmitter(),
-    cliOptions: ShellCliOptions = {}
+    cliOptions: ShellCliOptions = {},
+    bsonLibrary: BSONLibrary = initialServiceProvider.bsonLibrary
   ) {
     this.initialServiceProvider = initialServiceProvider;
+    this.bsonLibrary = bsonLibrary;
     this.messageBus = messageBus;
     this.shellApi = new ShellApi(this);
     this.shellLog = new ShellLog(this);
-    this.shellBson = constructShellBson(
-      initialServiceProvider.bsonLibrary,
-      (msg: string) => {
-        void this.shellApi.print(`Warning: ${msg}`);
-      }
-    );
+    this.shellBson = this.constructShellBson();
     this.mongos = [];
     this.connectionInfoCache = {
       forSp: this.initialServiceProvider,
@@ -219,6 +233,45 @@ export class ShellInstanceState {
     this.context = {};
     this.cliOptions = cliOptions;
     this.evaluationListener = {};
+  }
+
+  private constructShellBson(): ShellBson {
+    return constructShellBson({
+      bsonLibrary: this.bsonLibrary,
+      printWarning: (msg: string) => {
+        void this.shellApi.print(`Warning: ${msg}`);
+      },
+      assignMetadata: (
+        target,
+        { help, maxVersion, minVersion, deprecated }
+      ) => {
+        target.serverVersions =
+          maxVersion || minVersion
+            ? [
+                minVersion ?? ServerVersions.earliest,
+                maxVersion ?? ServerVersions.latest,
+              ]
+            : ALL_SERVER_VERSIONS;
+        target.platforms = ALL_PLATFORMS;
+        target.topologies = ALL_TOPOLOGIES;
+        if (deprecated) target.deprecated = true;
+
+        if (help) {
+          target.help = (): Help => help;
+          Object.setPrototypeOf(target.help, help);
+        }
+      },
+      constructHelp: (className: string) => {
+        const classHelpKeyPrefix = `shell-api.classes.${className}.help`;
+        const classHelp = {
+          help: `${classHelpKeyPrefix}.description`,
+          example: `${classHelpKeyPrefix}.example`,
+          docs: `${classHelpKeyPrefix}.link`,
+          attr: [],
+        };
+        return new Help(classHelp);
+      },
+    });
   }
 
   async fetchConnectionInfo(): Promise<ConnectionInfo | undefined> {

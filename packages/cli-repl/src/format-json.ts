@@ -1,5 +1,5 @@
 import { types } from 'util';
-import { bson } from '@mongosh/service-provider-core';
+import { EJSON } from 'bson';
 
 export function formatForJSONOutput(
   value: any,
@@ -14,7 +14,7 @@ export function formatForJSONOutput(
     };
   }
 
-  return bson.EJSON.stringify(value, undefined, 2, {
+  return EJSON.stringify(value, undefined, 2, {
     relaxed: mode === 'relaxed',
   });
 }
