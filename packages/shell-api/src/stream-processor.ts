@@ -16,26 +16,23 @@ export type StreamProcessorData = Document & { name: string };
 
 @shellApiClassDefault
 export class StreamProcessor extends ShellApiWithMongoClass {
-  public name: string;
-  public id?: string;
-  public pipeline?: MQLPipeline;
-  public state?: string;
-  public tier?: string;
-  public errorMsg?: string;
-  public lastModified?: Date;
-  public lastStateChange?: Date;
+  private _streams: Streams;
 
-  constructor(public _streams: Streams, data: StreamProcessorData) {
+  public name: string;
+
+  constructor(_streams: Streams, data: StreamProcessorData) {
     super();
 
+    this._streams = _streams;
     this.name = data.name;
-    this.id = data.id;
-    this.pipeline = data.pipeline;
-    this.state = data.state;
-    this.tier = data.tier;
-    this.errorMsg = data.errorMsg;
-    this.lastModified = data.lastModified;
-    this.lastStateChange = data.lastStateChange;
+
+    // We may overwrite the name property but that should be
+    // fine
+    Object.keys(data).forEach((key) => {
+      Object.defineProperty(this, key, {
+        value: data[key],
+      });
+    });
   }
 
   get _mongo(): Mongo {
@@ -43,35 +40,17 @@ export class StreamProcessor extends ShellApiWithMongoClass {
   }
 
   [asPrintable]() {
-    const result: Document = {
-      name: this.name,
-    };
+    const result: Document = {};
+    const descriptors = Object.getOwnPropertyDescriptors(this);
+    Object.getOwnPropertyNames(descriptors).forEach((prop) => {
+      if (prop.startsWith('_')) {
+        return;
+      }
 
-    // Only add keys onto the document if they have values
-    if (this.id) {
-      result.id = this.id;
-    }
-    if (this.pipeline) {
-      result.pipeline = this.pipeline;
-    }
-    if (this.state) {
-      result.state = this.state;
-    }
-    if (this.tier) {
-      result.tier = this.tier;
-    }
-    if (this.lastModified) {
-      result.lastModified = this.lastModified;
-    }
-    if (this.lastStateChange) {
-      result.lastStateChange = this.lastStateChange;
-    }
-
-    // Check explicitly for undefined so that empty string can be exposed
-    // back to the user
-    if (this.errorMsg !== undefined) {
-      result.errorMsg = this.errorMsg;
-    }
+      if (descriptors[prop].value) {
+        result[prop] = descriptors[prop].value;
+      }
+    });
 
     return result;
   }
