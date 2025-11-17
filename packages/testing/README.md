@@ -1,6 +1,6 @@
 # @mongosh/testing
 
-Internal testing utilities for mongosh packages. This package is only used for testing purposes within the mongosh monorepo.
+Internal testing utilities for mongosh packages. This package is private and only used for testing purposes within the mongosh monorepo.
 
 ## Contents
 
@@ -18,7 +18,3 @@ import {
   makeFakeHTTPServer,
 } from '@mongosh/testing';
 ```
-
-## Note
-
-This package is marked as private and will not be published to npm.

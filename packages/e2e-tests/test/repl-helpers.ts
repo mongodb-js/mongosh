@@ -140,10 +140,6 @@ const setTemporaryHomeDirectory = () => {
   return { homedir, env };
 };
 
-function getCertPath(filename: string): string {
-  return path.join(__dirname, '..', '..', 'testing', 'certificates', filename);
-}
-
 // TLS requires matching hostnames, so here we need to explicitly
 // specify `localhost` + IPv4 instead of `127.0.0.1`
 async function connectionStringWithLocalhost(
@@ -166,7 +162,6 @@ export {
   readReplLogFile,
   fakeExternalEditor,
   setTemporaryHomeDirectory,
-  getCertPath,
   connectionStringWithLocalhost,
   MongoLogEntryFromFile,
 };

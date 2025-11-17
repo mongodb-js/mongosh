@@ -10,14 +10,11 @@ import {
   skipIfEnvServerVersion,
   startSharedTestServer,
   startTestServer,
+  getTestCertificatePath,
 } from '@mongosh/testing';
 import type { Server as HTTPSServer } from 'https';
 import { createServer as createHTTPSServer } from 'https';
-import {
-  connectionStringWithLocalhost,
-  getCertPath,
-  useTmpdir,
-} from './repl-helpers';
+import { connectionStringWithLocalhost, useTmpdir } from './repl-helpers';
 import { once } from 'events';
 import { connect } from 'net';
 import type { AddressInfo, Socket } from 'net';
@@ -32,8 +29,8 @@ import {
   skipOIDCTestsDueToPlatformOrServerVersion,
 } from './oidc-helpers';
 
-const CA_CERT = getCertPath('ca.crt');
-const SERVER_BUNDLE = getCertPath('server.bundle.pem');
+const CA_CERT = getTestCertificatePath('ca.crt');
+const SERVER_BUNDLE = getTestCertificatePath('server.bundle.pem');
 
 describe('e2e proxy support', function () {
   skipIfApiStrict();

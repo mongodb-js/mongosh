@@ -2,6 +2,7 @@ import {
   MongoRunnerSetup,
   skipIfApiStrict,
   skipIfEnvServerVersion,
+  getTestCertificatePath,
 } from '@mongosh/testing';
 import { promises as fs } from 'fs';
 import type { OIDCMockProviderConfig } from '@mongodb-js/oidc-mock-provider';
@@ -10,7 +11,7 @@ import type { TestShell } from './test-shell';
 import path from 'path';
 import { expect } from 'chai';
 import { createServer as createHTTPSServer } from 'https';
-import { getCertPath, readReplLogFile, useTmpdir } from './repl-helpers';
+import { readReplLogFile, useTmpdir } from './repl-helpers';
 import {
   baseOidcServerConfig,
   commonOidcServerArgs,
@@ -67,7 +68,7 @@ describe('OIDC auth e2e', function () {
       },
     };
     const httpsServerKeyCertBundle = await fs.readFile(
-      getCertPath('server.bundle.pem')
+      getTestCertificatePath('server.bundle.pem')
     );
     [oidcMockProvider, oidcMockProviderHttps] = await Promise.all([
       OIDCMockProvider.create(oidcMockProviderConfig),
@@ -411,7 +412,7 @@ describe('OIDC auth e2e', function () {
   it('can specify --tlsUseSystemCA as a no-op', async function () {
     await fs.mkdir(path.join(tmpdir.path, 'certs'), { recursive: true });
     await fs.copyFile(
-      getCertPath('ca.crt'),
+      getTestCertificatePath('ca.crt'),
       path.join(tmpdir.path, 'certs', 'somefilename.crt')
     );
 
@@ -441,7 +442,7 @@ describe('OIDC auth e2e', function () {
   it('uses system ca by default when calling the IdP https endpoint', async function () {
     await fs.mkdir(path.join(tmpdir.path, 'certs'), { recursive: true });
     await fs.copyFile(
-      getCertPath('ca.crt'),
+      getTestCertificatePath('ca.crt'),
       path.join(tmpdir.path, 'certs', 'somefilename.crt')
     );
 

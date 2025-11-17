@@ -1,27 +1,32 @@
 import { expect } from 'chai';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { startTestServer } from '@mongosh/testing';
+import { startTestServer, getTestCertificatePath } from '@mongosh/testing';
 import {
   useTmpdir,
   setTemporaryHomeDirectory,
   readReplLogFile,
-  getCertPath,
   connectionStringWithLocalhost,
 } from './repl-helpers';
 
-const CA_CERT = getCertPath('ca.crt');
-const NON_CA_CERT = getCertPath('non-ca.crt');
-const CLIENT_CERT = getCertPath('client.bundle.pem');
-const CLIENT_CERT_PFX = getCertPath('client.bundle.pfx');
-const CLIENT_CERT_ENCRYPTED = getCertPath('client.bundle.encrypted.pem');
+const CA_CERT = getTestCertificatePath('ca.crt');
+const NON_CA_CERT = getTestCertificatePath('non-ca.crt');
+const CLIENT_CERT = getTestCertificatePath('client.bundle.pem');
+const CLIENT_CERT_PFX = getTestCertificatePath('client.bundle.pfx');
+const CLIENT_CERT_ENCRYPTED = getTestCertificatePath(
+  'client.bundle.encrypted.pem'
+);
 const CLIENT_CERT_PASSWORD = 'p4ssw0rd';
-const INVALID_CLIENT_CERT = getCertPath('invalid-client.bundle.pem');
-const SERVER_KEY = getCertPath('server.bundle.pem');
-const SERVER_INVALIDHOST_KEY = getCertPath('server-invalidhost.bundle.pem');
-const CRL_INCLUDING_SERVER = getCertPath('ca-server.crl');
-const PARTIAL_TRUST_CHAIN_CA = getCertPath('partial-trust-chain/ca.pem');
-const PARTIAL_TRUST_CHAIN_KEY_AND_CERT = getCertPath(
+const INVALID_CLIENT_CERT = getTestCertificatePath('invalid-client.bundle.pem');
+const SERVER_KEY = getTestCertificatePath('server.bundle.pem');
+const SERVER_INVALIDHOST_KEY = getTestCertificatePath(
+  'server-invalidhost.bundle.pem'
+);
+const CRL_INCLUDING_SERVER = getTestCertificatePath('ca-server.crl');
+const PARTIAL_TRUST_CHAIN_CA = getTestCertificatePath(
+  'partial-trust-chain/ca.pem'
+);
+const PARTIAL_TRUST_CHAIN_KEY_AND_CERT = getTestCertificatePath(
   'partial-trust-chain/key-and-cert.pem'
 );
 
