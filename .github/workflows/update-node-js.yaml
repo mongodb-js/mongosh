@@ -20,20 +20,16 @@ jobs:
           app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
           private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           # don't checkout a detached HEAD
           ref: ${{ github.head_ref }}
           token: ${{ steps.app-token.outputs.token }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
+          check-latest: true
           node-version: 24.x
-          cache: "npm"
-
-      - name: Install npm@10
-        run: |
-          npm install -g npm@10
 
       - name: Bump packages
         run: |
