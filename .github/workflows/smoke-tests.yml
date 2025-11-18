@@ -29,12 +29,6 @@ jobs:
           check-latest: true
           node-version: ${{ matrix.node }}
 
-      - uses: microsoft/setup-msbuild@v2
-        if: ${{ contains(matrix.runner, 'windows') }}
-        name: Setup MSBuild
-        with:
-          vs-version: 17 # VS2022
-
       - name: Install dependencies
         run: npm ci
 
