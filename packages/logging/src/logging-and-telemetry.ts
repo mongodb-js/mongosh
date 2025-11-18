@@ -1,5 +1,5 @@
-import redactInfo from 'mongodb-redact';
-import { redactURICredentials } from '@mongosh/history';
+import { redact } from 'mongodb-redact';
+import { shouldRedactCommand } from '@mongosh/history';
 import type {
   MongoshBus,
   ApiEventWithArguments,
@@ -460,6 +460,11 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
     });
 
     onBus('mongosh:evaluate-input', (args: EvaluateInputEvent) => {
+      // Skip logging sensitive commands
+      if (shouldRedactCommand(args.input)) {
+        return;
+      }
+
       this.log.info(
         'MONGOSH',
         mongoLogId(1_000_000_007),
@@ -523,7 +528,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         mongoLogId(1_000_000_011),
         'shell-api',
         'Performed API call',
-        redactInfo(arg)
+        redact(arg)
       );
     });
 
@@ -848,7 +853,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
           mongoLogId(1_000_000_047),
           'editor',
           'Open external editor',
-          redactInfo(ev)
+          redact(ev)
         );
       }
     );

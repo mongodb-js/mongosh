@@ -1,2 +1,5 @@
-export { changeHistory, redactSensitiveData, HIDDEN_COMMANDS } from './history';
-export { redactConnectionString as redactURICredentials } from 'mongodb-connection-string-url';
+export { changeHistory } from './history';
+export {
+  shouldRedactCommand,
+  redactUriCredentials as redactURICredentials,
+} from './redact';
