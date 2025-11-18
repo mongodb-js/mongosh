@@ -26,13 +26,15 @@ export class StreamProcessor extends ShellApiWithMongoClass {
     this._streams = _streams;
     this.name = data.name;
 
-    // We may overwrite the name property but that should be
-    // fine
-    Object.keys(data).forEach((key) => {
+    // We may overwrite the name property but that should be fine
+    for (const [key, value] of Object.entries(data)) {
       Object.defineProperty(this, key, {
-        value: data[key],
+        value,
+        configurable: true,
+        enumerable: true,
+        writable: true,
       });
-    });
+    }
   }
 
   get _mongo(): Mongo {
@@ -42,15 +44,15 @@ export class StreamProcessor extends ShellApiWithMongoClass {
   [asPrintable]() {
     const result: Document = {};
     const descriptors = Object.getOwnPropertyDescriptors(this);
-    Object.getOwnPropertyNames(descriptors).forEach((prop) => {
-      if (prop.startsWith('_')) {
+    for (const [key, value] of Object.entries(descriptors)) {
+      if (key.startsWith('_')) {
         return;
       }
 
-      if (descriptors[prop].value) {
-        result[prop] = descriptors[prop].value;
+      if (value.value && value.enumerable) {
+        result[key] = value.value;
       }
-    });
+    }
 
     return result;
   }
