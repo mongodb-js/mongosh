@@ -3,7 +3,7 @@ import {
   MongoshRuntimeError,
   MongoshWarning,
 } from '@mongosh/errors';
-import { redactURICredentials } from '@mongosh/history';
+import { redactConnectionString, redact } from 'mongodb-redact';
 import i18n from '@mongosh/i18n';
 import type { AutoEncryptionOptions } from '@mongosh/service-provider-core';
 import { EJSON, ObjectId } from 'bson';
@@ -11,7 +11,6 @@ import { NodeDriverServiceProvider } from '@mongosh/service-provider-node-driver
 import type { CliOptions, DevtoolsConnectOptions } from '@mongosh/arg-parser';
 import { SnippetManager } from '@mongosh/snippet-manager';
 import { Editor } from '@mongosh/editor';
-import { redactSensitiveData } from '@mongosh/history';
 import type { Analytics as SegmentAnalytics } from '@segment/analytics-node';
 import askpassword from 'askpassword';
 import { EventEmitter, once } from 'events';
@@ -306,7 +305,7 @@ export class CliRepl implements MongoshIOProvider {
       'Starting log',
       {
         execPath: process.execPath,
-        envInfo: redactSensitiveData(this.getLoggedEnvironmentVariables()),
+        envInfo: redact(this.getLoggedEnvironmentVariables()),
         ...(await buildInfo()),
       }
     );
@@ -905,7 +904,7 @@ export class CliRepl implements MongoshIOProvider {
       this.output.write(
         i18n.__(CONNECTING) +
           '\t\t' +
-          this.clr(redactURICredentials(driverUri), 'mongosh:uri') +
+          this.clr(redactConnectionString(driverUri), 'mongosh:uri') +
           '\n'
       );
     }

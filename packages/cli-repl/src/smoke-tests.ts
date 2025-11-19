@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { promises as fs } from 'fs';
 import { once } from 'events';
-import { redactURICredentials } from '@mongosh/history';
+import { redactConnectionString } from 'mongodb-redact';
 import fleSmokeTestScript from './smoke-tests-fle';
 import { baseBuildInfo, buildInfo } from './build-info';
 import escapeRegexp from 'escape-string-regexp';
@@ -469,7 +469,7 @@ async function runSmokeTest({
     stderr: includeStderr ? stderr : '',
     executable,
     actualExitCode,
-    args: args.map((arg) => redactURICredentials(arg)),
+    args: args.map((arg) => redactConnectionString(arg)),
   };
   try {
     assert.match(includeStderr ? `${stdout}\n${stderr}` : stdout, output);

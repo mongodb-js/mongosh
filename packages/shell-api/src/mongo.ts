@@ -49,7 +49,7 @@ import { Database } from './database';
 import type ShellInstanceState from './shell-instance-state';
 import { ClientBulkWriteResult } from './result';
 import { CommandResult } from './result';
-import { redactURICredentials } from '@mongosh/history';
+import { redactConnectionString } from 'mongodb-redact';
 import { asPrintable, ServerVersions, Topologies } from './enums';
 import Session from './session';
 import type { GenericServerSideSchema, StringKey } from './helpers';
@@ -196,7 +196,7 @@ export default class Mongo<
    * Internal method to determine what is printed for this class.
    */
   [asPrintable](): string {
-    return redactURICredentials(this._uri);
+    return redactConnectionString(this._uri);
   }
 
   /**
@@ -859,7 +859,7 @@ export default class Mongo<
     this._emitMongoApiCall('watch', { pipeline, options });
     const cursor = new ChangeStreamCursor(
       this._serviceProvider.watch(pipeline, options),
-      redactURICredentials(this._uri),
+      redactConnectionString(this._uri),
       this
     );
     if (

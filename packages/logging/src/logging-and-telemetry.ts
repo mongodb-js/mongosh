@@ -1,5 +1,8 @@
-import { redact } from 'mongodb-redact';
-import { shouldRedactCommand } from '@mongosh/history';
+import {
+  redact,
+  redactConnectionString,
+  shouldRedactCommand,
+} from 'mongodb-redact';
 import type {
   MongoshBus,
   ApiEventWithArguments,
@@ -326,7 +329,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
 
     onBus('mongosh:connect', (args: ConnectEvent) => {
       const { uri, resolved_hostname, ...argsWithoutUriAndHostname } = args;
-      const connectionUri = uri && redactURICredentials(uri);
+      const connectionUri = uri && redactConnectionString(uri);
       const atlasHostname = {
         atlas_hostname: args.is_atlas ? resolved_hostname : null,
       };
@@ -516,6 +519,10 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
     });
 
     onBus('mongosh:api-call-with-arguments', (args: ApiEventWithArguments) => {
+      if (shouldRedactCommand(args.method)) {
+        return;
+      }
+
       // TODO: redactInfo cannot handle circular or otherwise nontrivial input
       let arg;
       try {
@@ -937,7 +944,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         },
       },
       'mongosh',
-      (uri) => redactURICredentials(uri)
+      (uri) => redactConnectionString(uri)
     );
   }
 }
