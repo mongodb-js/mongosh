@@ -1132,13 +1132,13 @@ describe('MongoshLoggingAndTelemetry', function () {
     expect(analyticsOutput).to.be.empty;
   });
 
-  it('does not log sensitive commands', async function () {
+  it('redacts logging of sensitive commands', async function () {
     loggingAndTelemetry.attachLogger(logger);
     await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
 
     expect(logOutput).to.have.lengthOf(0);
 
-    // Test that sensitive commands are not logged
+    // Test that sensitive commands are redacted
     bus.emit('mongosh:evaluate-input', {
       input: 'db.createUser({user: "admin", pwd: "password", roles: []})',
     });
@@ -1161,11 +1161,23 @@ describe('MongoshLoggingAndTelemetry', function () {
     bus.emit('mongosh:evaluate-input', { input: 'show dbs' });
 
     // Should only have logged the non-sensitive commands
-    expect(logOutput).to.have.lengthOf(2);
+    expect(logOutput).to.have.lengthOf(8);
     expect(logOutput[0].msg).to.equal('Evaluating input');
-    expect(logOutput[0].attr.input).to.equal('db.getUsers()');
+    expect(logOutput[0].attr.input).to.equal('<sensitive command used>');
     expect(logOutput[1].msg).to.equal('Evaluating input');
-    expect(logOutput[1].attr.input).to.equal('show dbs');
+    expect(logOutput[1].attr.input).to.equal('<sensitive command used>');
+    expect(logOutput[2].msg).to.equal('Evaluating input');
+    expect(logOutput[2].attr.input).to.equal('<sensitive command used>');
+    expect(logOutput[3].msg).to.equal('Evaluating input');
+    expect(logOutput[3].attr.input).to.equal('<sensitive command used>');
+    expect(logOutput[4].msg).to.equal('Evaluating input');
+    expect(logOutput[4].attr.input).to.equal('<sensitive command used>');
+    expect(logOutput[5].msg).to.equal('Evaluating input');
+    expect(logOutput[5].attr.input).to.equal('<sensitive command used>');
+    expect(logOutput[6].msg).to.equal('Evaluating input');
+    expect(logOutput[6].attr.input).to.equal('db.getUsers()');
+    expect(logOutput[7].msg).to.equal('Evaluating input');
+    expect(logOutput[7].attr.input).to.equal('show dbs');
   });
 
   it('tracks custom logging events', async function () {

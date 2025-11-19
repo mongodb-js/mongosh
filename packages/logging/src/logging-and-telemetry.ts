@@ -463,8 +463,14 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
     });
 
     onBus('mongosh:evaluate-input', (args: EvaluateInputEvent) => {
-      // Skip logging sensitive commands
       if (shouldRedactCommand(args.input)) {
+        this.log.info(
+          'MONGOSH',
+          mongoLogId(1_000_000_007),
+          'repl',
+          'Evaluating input',
+          { input: '<sensitive command used>' }
+        );
         return;
       }
 
@@ -519,10 +525,6 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
     });
 
     onBus('mongosh:api-call-with-arguments', (args: ApiEventWithArguments) => {
-      if (shouldRedactCommand(args.method)) {
-        return;
-      }
-
       // TODO: redactInfo cannot handle circular or otherwise nontrivial input
       let arg;
       try {
