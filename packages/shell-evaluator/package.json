@@ -46,6 +46,7 @@
   },
   "dependencies": {
     "@mongosh/async-rewriter2": "2.4.10",
-    "@mongosh/shell-api": "^3.26.2"
+    "@mongosh/shell-api": "^3.26.2",
+    "mongodb-redact": "^1.3.0"
   }
 }
