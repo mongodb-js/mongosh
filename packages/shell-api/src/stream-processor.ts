@@ -12,10 +12,29 @@ import {
 import type { Streams } from './streams';
 import type { MQLPipeline } from './mql-types';
 
+export type StreamProcessorData = Document & { name: string };
+
 @shellApiClassDefault
 export class StreamProcessor extends ShellApiWithMongoClass {
-  constructor(public _streams: Streams, public name: string) {
+  private _streams: Streams;
+
+  public name: string;
+
+  constructor(_streams: Streams, data: StreamProcessorData) {
     super();
+
+    this._streams = _streams;
+    this.name = data.name;
+
+    // We may overwrite the name property but that should be fine
+    for (const [key, value] of Object.entries(data)) {
+      Object.defineProperty(this, key, {
+        value,
+        configurable: true,
+        enumerable: true,
+        writable: true,
+      });
+    }
   }
 
   get _mongo(): Mongo {
@@ -23,7 +42,19 @@ export class StreamProcessor extends ShellApiWithMongoClass {
   }
 
   [asPrintable]() {
-    return `Atlas Stream Processor: ${this.name}`;
+    const result: Document = {};
+    const descriptors = Object.getOwnPropertyDescriptors(this);
+    for (const [key, value] of Object.entries(descriptors)) {
+      if (key.startsWith('_')) {
+        return;
+      }
+
+      if (value.value && value.enumerable) {
+        result[key] = value.value;
+      }
+    }
+
+    return result;
   }
 
   @returnsPromise
@@ -142,7 +173,7 @@ export class StreamProcessor extends ShellApiWithMongoClass {
         try {
           await Promise.race([
             this._instanceState.shellApi.sleep(1000), // wait 1 second
-            interruptable.promise, // unless interruppted
+            interruptable.promise, // unless interrupted
           ]);
         } finally {
           interruptable.destroy();
