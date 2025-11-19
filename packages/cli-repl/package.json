@@ -93,6 +93,7 @@
     "semver": "^7.5.4",
     "strip-ansi": "^6.0.0",
     "text-table": "^0.2.0",
+    "glibc-version": "^1.0.0",
     "yargs-parser": "^20.2.4"
   },
   "devDependencies": {
