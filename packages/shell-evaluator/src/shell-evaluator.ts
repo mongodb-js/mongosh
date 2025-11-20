@@ -12,7 +12,7 @@ type EvaluationFunction = (
   filename: string
 ) => Promise<any>;
 
-import { HIDDEN_COMMANDS, redactSensitiveData } from '@mongosh/history';
+import { shouldRedactCommand, redact } from 'mongodb-redact';
 import { TimingCategories, type TimingCategory } from '@mongosh/types';
 
 let hasAlreadyRunGlobalRuntimeSupportEval = false;
@@ -101,10 +101,9 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
     let rewrittenInput = this.asyncWriter.process(input);
     this.markTime?.(TimingCategories.AsyncRewrite, 'done async rewrite');
 
-    const hiddenCommands = RegExp(HIDDEN_COMMANDS, 'g');
-    if (!hiddenCommands.test(input) && !hiddenCommands.test(rewrittenInput)) {
+    if (!shouldRedactCommand(input) && !shouldRedactCommand(rewrittenInput)) {
       this.instanceState.messageBus.emit('mongosh:evaluate-input', {
-        input: redactSensitiveData(trimmedInput),
+        input: redact(trimmedInput),
       });
     }
 

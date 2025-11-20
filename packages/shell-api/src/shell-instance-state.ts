@@ -17,7 +17,7 @@ import type {
   ShellUserConfig,
 } from '@mongosh/types';
 import { EventEmitter } from 'events';
-import redactInfo from 'mongodb-redact';
+import { redactConnectionString } from 'mongodb-redact';
 import { toIgnore } from './decorators';
 import {
   ALL_PLATFORMS,
@@ -304,7 +304,7 @@ export class ShellInstanceState {
         api_version: apiVersionInfo?.version,
         api_strict: apiVersionInfo?.strict,
         api_deprecation_errors: apiVersionInfo?.deprecationErrors,
-        uri: redactInfo(connectionInfo?.extraInfo?.uri),
+        uri: redactConnectionString(connectionInfo?.extraInfo?.uri ?? ''),
       });
       return connectionInfo;
     }

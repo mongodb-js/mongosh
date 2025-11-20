@@ -92,11 +92,11 @@ import {
   MongoshInternalError,
 } from '@mongosh/errors';
 import Bulk from './bulk';
-import { HIDDEN_COMMANDS } from '@mongosh/history';
 import PlanCache from './plan-cache';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ShellApiErrors } from './error-codes';
 import type { MQLDocument, MQLQuery, MQLPipeline } from './mql-types';
+import { shouldRedactCommand } from 'mongodb-redact';
 
 export type CollectionWithSchema<
   M extends GenericServerSideSchema = GenericServerSideSchema,
@@ -1625,8 +1625,7 @@ export class Collection<
       }
     }
 
-    const hiddenCommands = new RegExp(HIDDEN_COMMANDS);
-    if (typeof commandName === 'string' && !hiddenCommands.test(commandName)) {
+    if (typeof commandName === 'string' && !shouldRedactCommand(commandName)) {
       this._emitCollectionApiCall('runCommand', { commandName });
     }
     const cmd =
