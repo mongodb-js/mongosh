@@ -6,12 +6,7 @@ import { once } from 'events';
 import process from 'process';
 const execFile = promisify(childProcess.execFile);
 
-const __dirname: string = path.join(
-  process.cwd(),
-  'packages',
-  'cli-repl',
-  'src'
-);
+const __dirname = path.resolve(path.join(process.cwd(), 'src'));
 
 describe('CLI entry point', function () {
   const pathToRun = [
