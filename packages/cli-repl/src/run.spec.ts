@@ -3,9 +3,15 @@ import path from 'path';
 import { promisify } from 'util';
 import { expect } from 'chai';
 import { once } from 'events';
+import process from 'process';
 const execFile = promisify(childProcess.execFile);
 
-const __dirname = import.meta.dirname;
+const __dirname: string = path.join(
+  process.cwd(),
+  'packages',
+  'cli-repl',
+  'src'
+);
 
 describe('CLI entry point', function () {
   const pathToRun = [
