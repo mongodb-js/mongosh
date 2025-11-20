@@ -743,6 +743,16 @@ describe('Shell API (integration)', function () {
 
     describe('#reIndex', function () {
       skipIfApiStrict();
+      let unsubscribeAllowWarning: undefined | (() => void);
+
+      before(function () {
+        // Allow "The reIndex command is deprecated" warnings
+        unsubscribeAllowWarning = testServer.allowWarning?.(6508600);
+      });
+
+      after(function () {
+        unsubscribeAllowWarning?.();
+      });
 
       beforeEach(async function () {
         await serviceProvider.createCollection(dbName, collectionName);
@@ -1069,6 +1079,16 @@ describe('Shell API (integration)', function () {
 
     describe('runCommand', function () {
       skipIfApiStrict();
+      let unsubscribeAllowWarning: undefined | (() => void);
+
+      before(function () {
+        // Allow "The collStats command is deprecated" warnings
+        unsubscribeAllowWarning = testServer.allowWarning?.(7024600);
+      });
+
+      after(function () {
+        unsubscribeAllowWarning?.();
+      });
 
       beforeEach(async function () {
         await serviceProvider.createCollection(dbName, collectionName);
@@ -1353,6 +1373,21 @@ describe('Shell API (integration)', function () {
         // https://jira.mongodb.org/browse/SERVER-58076
         skipIfServerVersion(testServer, '<= 6.0');
       }
+      let unsubscribeAllowWarning: undefined | (() => void);
+
+      before(function () {
+        // Allow warning for the failing updateOne() below
+        unsubscribeAllowWarning = testServer.allowWarning?.(
+          (entry) =>
+            entry.id === 7267501 &&
+            entry.attr?.error?.codeName === 'DollarPrefixedFieldName'
+        );
+      });
+
+      after(function () {
+        unsubscribeAllowWarning?.();
+      });
+
       it('can insert, modify and retrieve fields with $-prefixed .-containing names', async function () {
         await collection.insertOne({ '$x.y': 1, _id: '_id' });
         expect(await collection.findOne()).to.deep.equal({
@@ -1991,6 +2026,16 @@ describe('Shell API (integration)', function () {
 
     describe('mapReduce', function () {
       skipIfServerVersion(testServer, '< 4.4');
+      let unsubscribeAllowWarning: undefined | (() => void);
+
+      before(function () {
+        // Allow "The map reduce command is deprecated" warning
+        unsubscribeAllowWarning = testServer.allowWarning?.(5725801);
+      });
+
+      after(function () {
+        unsubscribeAllowWarning?.();
+      });
 
       let mapFn: () => void;
       let reduceFn: (a: string, b: string[]) => string;
@@ -3007,6 +3052,21 @@ describe('Shell API (integration)', function () {
 
   describe('maxTimeMS support', function () {
     skipIfServerVersion(testServer, '< 4.2');
+    let unsubscribeAllowWarning: undefined | (() => void);
+
+    before(function () {
+      // Allow "$where is deprecated" warning and timeout warnings
+      unsubscribeAllowWarning = testServer.allowWarning?.(
+        (entry) =>
+          entry.id === 8996500 ||
+          (entry.id === 23798 &&
+            entry.attr?.error?.codeName === 'MaxTimeMSExpired')
+      );
+    });
+
+    after(function () {
+      unsubscribeAllowWarning?.();
+    });
 
     beforeEach(async function () {
       await collection.insertMany([...Array(10).keys()].map((i) => ({ i })));
