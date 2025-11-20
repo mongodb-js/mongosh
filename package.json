@@ -95,7 +95,7 @@
     "access": "public"
   },
   "engines": {
-    "node": ">=12.18.4"
+    "node": ">=20.19.3"
   },
   "devDependencies": {
     "@babel/compat-data": "^7.26.8",
