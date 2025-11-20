@@ -3,7 +3,8 @@ import type {
   ServiceProviderAbstractCursor,
 } from '@mongosh/service-provider-core';
 import { ServiceProviderCore } from '@mongosh/service-provider-core';
-import type { InspectOptions, inspect as _inspect } from 'util';
+import type { InspectOptions } from 'util';
+import { inspect } from 'util';
 import type { Document } from '@mongosh/service-provider-core';
 
 export class DeepInspectServiceProviderWrapper
@@ -223,8 +224,7 @@ function forwardedMethod<
 function customDocumentInspect(
   this: Document,
   depth: number,
-  inspectOptions: InspectOptions,
-  inspect: typeof _inspect
+  inspectOptions: InspectOptions
 ) {
   const newInspectOptions = {
     ...inspectOptions,
