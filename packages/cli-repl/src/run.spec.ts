@@ -6,13 +6,13 @@ import { once } from 'events';
 import process from 'process';
 const execFile = promisify(childProcess.execFile);
 
-const __dirname = path.resolve(path.join(process.cwd(), 'src'));
+const __DIRNAME = path.resolve(path.join(process.cwd(), 'src'));
 
 describe('CLI entry point', function () {
   const pathToRun = [
     '-r',
     'ts-node/register',
-    path.resolve(__dirname, 'run.ts'),
+    path.resolve(__DIRNAME, 'run.ts'),
   ];
   async function run(
     args: string[],
@@ -42,7 +42,7 @@ describe('CLI entry point', function () {
 
   it('runs Node.js scripts if MONGOSH_RUN_NODE_SCRIPT is passed', async function () {
     const { stdout } = await run(
-      [path.resolve(__dirname, '..', 'test', 'fixtures', 'nodescript.js')],
+      [path.resolve(__DIRNAME, '..', 'test', 'fixtures', 'nodescript.js')],
       { MONGOSH_RUN_NODE_SCRIPT: '1' }
     );
     expect(stdout).to.include('works!');
