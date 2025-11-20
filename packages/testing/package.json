@@ -4,8 +4,8 @@
   "description": "MongoDB Shell Testing Utilities",
   "homepage": "https://github.com/mongodb-js/mongosh",
   "license": "Apache-2.0",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
   "private": true,
   "repository": {
     "type": "git",
@@ -15,7 +15,6 @@
     "node": ">=14.15.1"
   },
   "scripts": {
-    "compile": "tsc -p tsconfig.json",
     "eslint": "eslint",
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "prettier": "prettier",

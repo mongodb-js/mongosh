@@ -6,6 +6,6 @@
     "declaration": true,
     "declarationMap": true
   },
-  "include": ["src/**/*"],
-  "exclude": ["certificates", "lib"]
+  "include": ["src/**/*", "src/certificates/**/*"],
+  "exclude": ["lib"]
 }
