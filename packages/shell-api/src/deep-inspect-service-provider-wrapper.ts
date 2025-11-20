@@ -55,7 +55,7 @@ export class DeepInspectServiceProviderWrapper
   insertMany = bsonMethod('insertMany');
   insertOne = bsonMethod('insertOne');
   replaceOne = bsonMethod('replaceOne');
-  initializeBulkOp = bsonMethod('initializeBulkOp');
+  initializeBulkOp = forwardedMethod('initializeBulkOp'); // you cannot extend the return value here
   createSearchIndexes = forwardedMethod('createSearchIndexes');
   close = forwardedMethod('close');
   suspend = forwardedMethod('suspend');
