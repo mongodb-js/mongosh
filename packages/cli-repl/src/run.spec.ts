@@ -5,6 +5,8 @@ import { expect } from 'chai';
 import { once } from 'events';
 const execFile = promisify(childProcess.execFile);
 
+const __dirname = import.meta.dirname;
+
 describe('CLI entry point', function () {
   const pathToRun = [
     '-r',
