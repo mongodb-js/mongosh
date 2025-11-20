@@ -2,7 +2,5 @@
 parameters:
   - key: mongodb_driver_version_override
     value: nightly
-  - key: node_js_version
-    value: 24.11.1
 include:
   - filename: .evergreen.yml
