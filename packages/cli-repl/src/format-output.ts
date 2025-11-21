@@ -26,6 +26,7 @@ export type FormatOptions = {
   showStackTraces?: boolean;
   bugReportErrorMessageInfo?: string;
   allowControlCharacters?: boolean;
+  warnTruncatedOutput?: boolean;
 };
 
 // eslint-disable-next-line no-control-regex
@@ -160,7 +161,7 @@ Use db.getCollection('system.profile').find() to show raw profile entries.`,
     });
   }
 
-  return formatSimpleType(value, options);
+  return formatSimpleType(value, { ...options, warnTruncatedOutput: true });
 }
 
 function formatSimpleType(output: any, options: FormatOptions): string {
@@ -173,7 +174,19 @@ function formatSimpleType(output: any, options: FormatOptions): string {
   }
   if (typeof output === 'undefined') return '';
 
-  return inspect(output, options);
+  let result = inspect(output, options);
+  if (options.warnTruncatedOutput) {
+    if (
+      /(\d+ more item)|(\d+ more character)|(\[Object\])|(\[Array\])/.test(
+        result
+      )
+    ) {
+      result +=
+        '\nWarning: The output might be truncated.' +
+        '\nTo see more use util.inspect() with custom options or configure depth, maxArrayLength and maxStringLength config options.';
+    }
+  }
+  return result;
 }
 
 function formatCollections(
