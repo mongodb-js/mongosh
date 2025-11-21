@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Thu Nov 20 2025.
+This document was automatically generated on Fri Nov 21 2025.
 
 ## List of dependencies
 
@@ -260,7 +260,7 @@ Package|Version|License
 **[get-uri](#4ae602658ce541126b57c19a2c8c47ed82d62e55c642d49f59f14e841ddc1db6)**|6.0.3|MIT
 **[github-from-package](#8cba969ea116f44491f4fbb8b391c0ab40408fc2e5380f81bc8e8e42b55fff8b)**|0.0.0|MIT
 **[glibc-version](#7c3eb62c2d736e357df661728b0d6ce55b9b25b3ec0dec8848d5ea42f55c3392)**|1.0.0|Apache-2.0
-**[glob](#bfb95bb18e863a1c0675aab9ed67620a29ec5488a2c69667870d20e4bb3dd08c)**|10.4.5|ISC
+**[glob](#0d490ef02b92f1e0ff665b9d9340cf9da89573282b06caec75cd7fa8beb7cff1)**|10.5.0|ISC
 **[globals](#749052b146da20b19c298de835e7cacd7f6d1f0a87a8422e538ccdfeaa69b0a5)**|11.12.0|MIT
 **[globalthis](#9d3a89fc658543d8156545acfbcfbad006c28c336ffcc45743e99c43c38a4535)**|1.0.4|MIT
 **[gopd](#f757cb02c87ace6527b13d93a039184daf59e5f4511f9f558a3729aef1f1b6bb)**|1.2.0|MIT
@@ -21840,8 +21840,8 @@ License files:
       
 
 
-<a id="bfb95bb18e863a1c0675aab9ed67620a29ec5488a2c69667870d20e4bb3dd08c"></a>
-### [glob](https://www.npmjs.com/package/glob) (version 10.4.5)
+<a id="0d490ef02b92f1e0ff665b9d9340cf9da89573282b06caec75cd7fa8beb7cff1"></a>
+### [glob](https://www.npmjs.com/package/glob) (version 10.5.0)
 License tags: ISC
 
 License files:
