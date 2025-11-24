@@ -153,7 +153,7 @@ function cursorNext(
   return async function (): Promise<Document | null> {
     const result = await original();
     if (result) {
-      replaceWithCustomInspect(result);
+      addCustomInspect(result);
     }
     return result;
   };
@@ -167,7 +167,7 @@ function cursorReadBufferedDocuments(
   return function (number?: number): Document[] {
     const results = original(number);
 
-    replaceWithCustomInspect(results);
+    addCustomInspect(results);
 
     return results;
   };
@@ -179,7 +179,7 @@ function cursorToArray(
   return async function (): Promise<Document[]> {
     const results = await original();
 
-    replaceWithCustomInspect(results);
+    addCustomInspect(results);
 
     return results;
   };
@@ -199,7 +199,7 @@ function bsonMethod<
   // @ts-ignore The returntype already contains a promise
   ReturnType<Required<ServiceProvider>[K]> {
     const result = await (this._sp[key] as any)(...args);
-    replaceWithCustomInspect(result);
+    addCustomInspect(result);
     return result;
   };
 }
@@ -242,16 +242,16 @@ function customDocumentInspect(
   return result;
 }
 
-function replaceWithCustomInspect(obj: any) {
+function addCustomInspect(obj: any) {
   if (Array.isArray(obj)) {
     (obj as any)[customInspectSymbol] = customDocumentInspect;
     for (const item of obj) {
-      replaceWithCustomInspect(item);
+      addCustomInspect(item);
     }
   } else if (obj && typeof obj === 'object' && obj !== null) {
     obj[customInspectSymbol] = customDocumentInspect;
     for (const value of Object.values(obj)) {
-      replaceWithCustomInspect(value);
+      addCustomInspect(value);
     }
   }
 }
