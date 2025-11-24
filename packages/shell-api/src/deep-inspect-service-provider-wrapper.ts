@@ -242,11 +242,11 @@ function customDocumentInspect(
 
 function addCustomInspect(obj: any) {
   if (Array.isArray(obj)) {
-    (obj as any)[customInspectSymbol] = customDocumentInspect;
+    (obj as any)[customInspectSymbol] ??= customDocumentInspect;
     for (const item of obj) {
       addCustomInspect(item);
     }
-  } else if (obj && typeof obj === 'object' && obj !== null) {
+  } else if (obj && typeof obj === 'object' && obj !== null && !obj._bsontype) {
     obj[customInspectSymbol] = customDocumentInspect;
     for (const value of Object.values(obj)) {
       addCustomInspect(value);
