@@ -1,12 +1,12 @@
-import { inspect } from 'util';
-import type { InspectOptions } from 'util';
+import type { InspectOptions, inspect as _inspect } from 'util';
 
 const customInspectSymbol = Symbol.for('nodejs.util.inspect.custom');
 
 function customDocumentInspect(
   this: Document,
   depth: number,
-  inspectOptions: InspectOptions
+  inspectOptions: InspectOptions,
+  inspect: typeof _inspect
 ) {
   const newInspectOptions = {
     ...inspectOptions,
