@@ -234,6 +234,7 @@ function customDocumentInspect(
   };
 
   // reuse the standard inpect logic for an object without causing infinite
+  // recursion
   const copyToInspect: any = Array.isArray(this) ? this.slice() : { ...this };
   delete copyToInspect[customInspectSymbol];
   return inspect(copyToInspect, newInspectOptions);
