@@ -16,12 +16,6 @@ export class DeepInspectServiceProviderWrapper
   constructor(sp: ServiceProvider) {
     super(sp.bsonLibrary);
     this._sp = sp;
-
-    for (const prop of Object.keys(this)) {
-      if (typeof (this as any)[prop] === 'function' && !(prop in sp)) {
-        (this as any)[prop] = undefined;
-      }
-    }
   }
 
   aggregate = cursorMethod('aggregate');
