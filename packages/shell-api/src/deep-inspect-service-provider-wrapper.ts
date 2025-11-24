@@ -1,11 +1,11 @@
-import type {
-  ServiceProvider,
-  ServiceProviderAbstractCursor,
-} from '@mongosh/service-provider-core';
+import type { ServiceProvider } from '@mongosh/service-provider-core';
 import { ServiceProviderCore } from '@mongosh/service-provider-core';
-import type { InspectOptions } from 'util';
-import { inspect } from 'util';
-import type { Document } from '@mongosh/service-provider-core';
+import { DeepInspectAggregationCursorWrapper } from './deep-inspect-aggregation-cursor-wrapper';
+import { DeepInspectFindCursorWrapper } from './deep-inspect-find-cursor-wrapper';
+import { addCustomInspect } from './custom-inspect';
+import type { PickMethodsByReturnType } from './pick-methods-by-return-type';
+import { DeepInspectRunCommandCursorWrapper } from './deep-inspect-run-command-cursor-wrapper';
+import { DeepInspectChangeStreamWrapper } from './deep-inspect-change-stream-wrapper';
 
 export class DeepInspectServiceProviderWrapper
   extends ServiceProviderCore
@@ -18,13 +18,22 @@ export class DeepInspectServiceProviderWrapper
     this._sp = sp;
   }
 
-  aggregate = cursorMethod('aggregate');
-  aggregateDb = cursorMethod('aggregateDb');
+  aggregate = (...args: Parameters<ServiceProvider['aggregate']>) => {
+    const cursor = this._sp.aggregate(...args);
+    return new DeepInspectAggregationCursorWrapper(cursor);
+  };
+  aggregateDb = (...args: Parameters<ServiceProvider['aggregateDb']>) => {
+    const cursor = this._sp.aggregateDb(...args);
+    return new DeepInspectAggregationCursorWrapper(cursor);
+  };
   count = forwardedMethod('count');
   estimatedDocumentCount = forwardedMethod('estimatedDocumentCount');
   countDocuments = forwardedMethod('countDocuments');
   distinct = bsonMethod('distinct');
-  find = cursorMethod('find');
+  find = (...args: Parameters<ServiceProvider['find']>) => {
+    const cursor = this._sp.find(...args);
+    return new DeepInspectFindCursorWrapper(cursor);
+  };
   findOneAndDelete = bsonMethod('findOneAndDelete');
   findOneAndReplace = bsonMethod('findOneAndReplace');
   findOneAndUpdate = bsonMethod('findOneAndUpdate');
@@ -32,12 +41,19 @@ export class DeepInspectServiceProviderWrapper
   getIndexes = bsonMethod('getIndexes');
   listCollections = bsonMethod('listCollections');
   readPreferenceFromOptions = forwardedMethod('readPreferenceFromOptions');
-  // TODO: this should be a cursor method, but the types are incompatible
-  watch = forwardedMethod('watch');
+  watch = (...args: Parameters<ServiceProvider['watch']>) => {
+    const cursor = this._sp.watch(...args);
+    return new DeepInspectChangeStreamWrapper(cursor);
+  };
   getSearchIndexes = bsonMethod('getSearchIndexes');
   runCommand = bsonMethod('runCommand');
   runCommandWithCheck = bsonMethod('runCommandWithCheck');
-  runCursorCommand = cursorMethod('runCursorCommand');
+  runCursorCommand = (
+    ...args: Parameters<ServiceProvider['runCursorCommand']>
+  ) => {
+    const cursor = this._sp.runCursorCommand(...args);
+    return new DeepInspectRunCommandCursorWrapper(cursor);
+  };
   dropDatabase = bsonMethod('dropDatabase');
   dropCollection = forwardedMethod('dropCollection');
   bulkWrite = bsonMethod('bulkWrite');
@@ -88,97 +104,6 @@ export class DeepInspectServiceProviderWrapper
   }
 }
 
-type PickMethodsByReturnType<T, R> = {
-  [k in keyof T as NonNullable<T[k]> extends (...args: any[]) => R
-    ? k
-    : never]: T[k];
-};
-
-function cursorMethod<
-  K extends keyof PickMethodsByReturnType<
-    ServiceProvider,
-    ServiceProviderAbstractCursor
-  >
->(
-  key: K
-): (
-  ...args: Parameters<Required<ServiceProvider>[K]>
-) => ReturnType<Required<ServiceProvider>[K]> {
-  return function (
-    this: DeepInspectServiceProviderWrapper,
-    ...args: Parameters<ServiceProvider[K]>
-  ): ReturnType<ServiceProvider[K]> {
-    // The problem here is that ReturnType<ServiceProvider[K]> results in
-    // ServiceProviderAnyCursor which includes ServiceProviderChangeStream which
-    // doesn't have readBufferedDocuments or toArray. We can try cast things to
-    // ServiceProviderAbstractCursor, but then that's not assignable to
-    // ServiceProviderAnyCursor. And that's why there's so much casting below.
-    const cursor = (this._sp[key] as any)(...args) as any;
-
-    cursor.next = cursorNext(
-      cursor.next.bind(cursor) as () => Promise<Document | null>
-    );
-    cursor.tryNext = cursorTryNext(
-      cursor.tryNext.bind(cursor) as () => Promise<Document | null>
-    );
-
-    if (cursor.readBufferedDocuments) {
-      cursor.readBufferedDocuments = cursorReadBufferedDocuments(
-        cursor.readBufferedDocuments.bind(cursor) as (
-          number?: number
-        ) => Document[]
-      );
-    }
-    if (cursor.toArray) {
-      cursor.toArray = cursorToArray(
-        cursor.toArray.bind(cursor) as () => Promise<Document[]>
-      );
-    }
-
-    return cursor;
-  };
-}
-
-const customInspectSymbol = Symbol.for('nodejs.util.inspect.custom');
-
-function cursorNext(
-  original: () => Promise<Document | null>
-): () => Promise<Document | null> {
-  return async function (): Promise<Document | null> {
-    const result = await original();
-    if (result) {
-      addCustomInspect(result);
-    }
-    return result;
-  };
-}
-
-const cursorTryNext = cursorNext;
-
-function cursorReadBufferedDocuments(
-  original: (number?: number) => Document[]
-): (number?: number) => Document[] {
-  return function (number?: number): Document[] {
-    const results = original(number);
-
-    addCustomInspect(results);
-
-    return results;
-  };
-}
-
-function cursorToArray(
-  original: () => Promise<Document[]>
-): () => Promise<Document[]> {
-  return async function (): Promise<Document[]> {
-    const results = await original();
-
-    addCustomInspect(results);
-
-    return results;
-  };
-}
-
 function bsonMethod<
   K extends keyof PickMethodsByReturnType<ServiceProvider, Promise<any>>
 >(
@@ -213,37 +138,4 @@ function forwardedMethod<
     // values only
     return (this._sp[key] as any)(...args);
   };
-}
-
-function customDocumentInspect(
-  this: Document,
-  depth: number,
-  inspectOptions: InspectOptions
-) {
-  const newInspectOptions = {
-    ...inspectOptions,
-    depth: Infinity,
-    maxArrayLength: Infinity,
-    maxStringLength: Infinity,
-  };
-
-  // reuse the standard inpect logic for an object without causing infinite
-  // recursion
-  const copyToInspect: any = Array.isArray(this) ? this.slice() : { ...this };
-  delete copyToInspect[customInspectSymbol];
-  return inspect(copyToInspect, newInspectOptions);
-}
-
-function addCustomInspect(obj: any) {
-  if (Array.isArray(obj)) {
-    (obj as any)[customInspectSymbol] ??= customDocumentInspect;
-    for (const item of obj) {
-      addCustomInspect(item);
-    }
-  } else if (obj && typeof obj === 'object' && obj !== null && !obj._bsontype) {
-    obj[customInspectSymbol] = customDocumentInspect;
-    for (const value of Object.values(obj)) {
-      addCustomInspect(value);
-    }
-  }
 }
