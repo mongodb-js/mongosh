@@ -1,5 +1,6 @@
 import type { CliOptions, ConnectionInfo } from './';
-import chai, { expect } from 'chai';
+import * as chai from 'chai';
+import { expect } from 'chai';
 import sinonChai from 'sinon-chai';
 import { mapCliToDriver } from './arg-mapper';
 import type { DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';

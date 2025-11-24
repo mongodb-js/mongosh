@@ -39,7 +39,7 @@
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@mongosh/types": "^3.14.0",
-    "@types/sinon-chai": "^3.2.4",
+    "@types/sinon-chai": "^4.0.0",
     "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
     "prettier": "^2.8.8"

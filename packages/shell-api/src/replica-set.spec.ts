@@ -9,7 +9,8 @@ import type {
   ServiceProvider,
 } from '@mongosh/service-provider-core';
 import * as bson from 'bson';
-import chai, { expect } from 'chai';
+import * as chai from 'chai';
+import { expect } from 'chai';
 import { EventEmitter } from 'events';
 import semver from 'semver';
 import sinonChai from 'sinon-chai';
