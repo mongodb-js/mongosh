@@ -28,6 +28,7 @@ for (const {
       nShort,
       nVersion,
       skipNodeVersionCheck,
+      disable: optional === true,
     });
     for (const {
       shortName: mShort,
@@ -65,7 +66,7 @@ for (const {
         mShort,
         mVersion,
         skipNodeVersionCheck,
-        disabled: optional === true,
+        disable: optional === true,
       });
     }
   }

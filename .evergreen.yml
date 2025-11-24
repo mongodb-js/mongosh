@@ -14724,6 +14724,7 @@ buildvariants:
     display_name: "MacOS 14 arm64 n20 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
+    disable: false
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: ""
@@ -14757,6 +14758,7 @@ buildvariants:
     display_name: "MacOS 14 arm64 m60xc n20 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
+    disable: false
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "6.0.x"
@@ -14790,6 +14792,7 @@ buildvariants:
     display_name: "MacOS 14 arm64 m60xe n20 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
+    disable: false
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "6.0.x-enterprise"
@@ -14823,6 +14826,7 @@ buildvariants:
     display_name: "MacOS 14 arm64 m70xc n20 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
+    disable: false
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "7.0.x"
@@ -14856,6 +14860,7 @@ buildvariants:
     display_name: "MacOS 14 arm64 m70xe n20 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
+    disable: false
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "7.0.x-enterprise"
@@ -14889,6 +14894,7 @@ buildvariants:
     display_name: "MacOS 14 arm64 m80xc n20 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
+    disable: false
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.0.x"
@@ -14922,6 +14928,7 @@ buildvariants:
     display_name: "MacOS 14 arm64 m80xe n20 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
+    disable: false
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.0.x-enterprise"
@@ -14955,6 +14962,7 @@ buildvariants:
     display_name: "MacOS 14 arm64 m82xc n20 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
+    disable: false
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.2.0"
@@ -14988,6 +14996,7 @@ buildvariants:
     display_name: "MacOS 14 arm64 m82xe n20 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
+    disable: false
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.2.0-enterprise"
@@ -15021,6 +15030,7 @@ buildvariants:
     display_name: "MacOS 14 arm64 mlatest n20 (Unit tests)"
     run_on: macos-14-arm64
     tags: ["mlatest"]
+    disable: false
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "latest-alpha-enterprise"
@@ -15054,6 +15064,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 n20 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    disable: false
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: ""
@@ -15087,6 +15098,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 m42xc n20 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    disable: false
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "4.2.x"
@@ -15120,6 +15132,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 m44xc n20 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    disable: false
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "4.4.x"
@@ -15153,6 +15166,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 m44xe n20 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    disable: false
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "4.4.x-enterprise"
@@ -15186,6 +15200,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 m50xc n20 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    disable: false
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "5.0.x"
@@ -15219,6 +15234,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 m50xe n20 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    disable: false
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "5.0.x-enterprise"
@@ -15252,6 +15268,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 m60xc n20 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    disable: false
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "6.0.x"
@@ -15285,6 +15302,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 m60xe n20 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    disable: false
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "6.0.x-enterprise"
@@ -15318,6 +15336,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 m70xc n20 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    disable: false
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "7.0.x"
@@ -15351,6 +15370,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 m70xe n20 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    disable: false
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "7.0.x-enterprise"
@@ -15384,6 +15404,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 m80xc n20 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    disable: false
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.0.x"
@@ -15417,6 +15438,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 m80xe n20 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    disable: false
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.0.x-enterprise"
@@ -15450,6 +15472,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 m82xc n20 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    disable: false
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.2.0"
@@ -15483,6 +15506,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 m82xe n20 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    disable: false
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.2.0-enterprise"
@@ -15516,6 +15540,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 mlatest n20 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver","mlatest"]
+    disable: false
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "latest-alpha-enterprise"
@@ -15549,6 +15574,7 @@ buildvariants:
     display_name: "Windows n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: false
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: ""
@@ -15581,6 +15607,7 @@ buildvariants:
     display_name: "Windows m42xc n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: false
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "4.2.x"
@@ -15613,6 +15640,7 @@ buildvariants:
     display_name: "Windows m42xe n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: false
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "4.2.x-enterprise"
@@ -15645,6 +15673,7 @@ buildvariants:
     display_name: "Windows m44xc n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: false
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "4.4.x"
@@ -15677,6 +15706,7 @@ buildvariants:
     display_name: "Windows m44xe n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: false
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "4.4.x-enterprise"
@@ -15709,6 +15739,7 @@ buildvariants:
     display_name: "Windows m50xc n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: false
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "5.0.x"
@@ -15741,6 +15772,7 @@ buildvariants:
     display_name: "Windows m50xe n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: false
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "5.0.x-enterprise"
@@ -15773,6 +15805,7 @@ buildvariants:
     display_name: "Windows m60xc n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: false
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "6.0.x"
@@ -15805,6 +15838,7 @@ buildvariants:
     display_name: "Windows m60xe n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: false
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "6.0.x-enterprise"
@@ -15837,6 +15871,7 @@ buildvariants:
     display_name: "Windows m70xc n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: false
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "7.0.x"
@@ -15869,6 +15904,7 @@ buildvariants:
     display_name: "Windows m70xe n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: false
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "7.0.x-enterprise"
@@ -15901,6 +15937,7 @@ buildvariants:
     display_name: "Windows m80xc n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: false
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "8.0.x"
@@ -15933,6 +15970,7 @@ buildvariants:
     display_name: "Windows m80xe n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: false
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "8.0.x-enterprise"
@@ -15965,6 +16003,7 @@ buildvariants:
     display_name: "Windows m82xc n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: false
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "8.2.0"
@@ -15997,6 +16036,7 @@ buildvariants:
     display_name: "Windows m82xe n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: false
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "8.2.0-enterprise"
@@ -16029,6 +16069,7 @@ buildvariants:
     display_name: "Windows mlatest n20 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: ["mlatest"]
+    disable: false
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "latest-alpha-enterprise"
@@ -16061,6 +16102,7 @@ buildvariants:
     display_name: "MacOS 14 arm64 n24 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
+    disable: true
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: ""
@@ -16094,6 +16136,7 @@ buildvariants:
     display_name: "MacOS 14 arm64 m60xc n24 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
+    disable: true
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "6.0.x"
@@ -16127,6 +16170,7 @@ buildvariants:
     display_name: "MacOS 14 arm64 m60xe n24 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
+    disable: true
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "6.0.x-enterprise"
@@ -16160,6 +16204,7 @@ buildvariants:
     display_name: "MacOS 14 arm64 m70xc n24 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
+    disable: true
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "7.0.x"
@@ -16193,6 +16238,7 @@ buildvariants:
     display_name: "MacOS 14 arm64 m70xe n24 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
+    disable: true
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "7.0.x-enterprise"
@@ -16226,6 +16272,7 @@ buildvariants:
     display_name: "MacOS 14 arm64 m80xc n24 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
+    disable: true
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.0.x"
@@ -16259,6 +16306,7 @@ buildvariants:
     display_name: "MacOS 14 arm64 m80xe n24 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
+    disable: true
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.0.x-enterprise"
@@ -16292,6 +16340,7 @@ buildvariants:
     display_name: "MacOS 14 arm64 m82xc n24 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
+    disable: true
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.2.0"
@@ -16325,6 +16374,7 @@ buildvariants:
     display_name: "MacOS 14 arm64 m82xe n24 (Unit tests)"
     run_on: macos-14-arm64
     tags: []
+    disable: true
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.2.0-enterprise"
@@ -16358,6 +16408,7 @@ buildvariants:
     display_name: "MacOS 14 arm64 mlatest n24 (Unit tests)"
     run_on: macos-14-arm64
     tags: ["mlatest"]
+    disable: true
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "latest-alpha-enterprise"
@@ -16391,6 +16442,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 n24 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    disable: true
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: ""
@@ -16424,6 +16476,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 m42xc n24 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    disable: true
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "4.2.x"
@@ -16457,6 +16510,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 m44xc n24 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    disable: true
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "4.4.x"
@@ -16490,6 +16544,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 m44xe n24 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    disable: true
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "4.4.x-enterprise"
@@ -16523,6 +16578,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 m50xc n24 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    disable: true
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "5.0.x"
@@ -16556,6 +16612,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 m50xe n24 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    disable: true
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "5.0.x-enterprise"
@@ -16589,6 +16646,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 m60xc n24 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    disable: true
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "6.0.x"
@@ -16622,6 +16680,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 m60xe n24 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    disable: true
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "6.0.x-enterprise"
@@ -16655,6 +16714,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 m70xc n24 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    disable: true
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "7.0.x"
@@ -16688,6 +16748,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 m70xe n24 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    disable: true
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "7.0.x-enterprise"
@@ -16721,6 +16782,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 m80xc n24 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    disable: true
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.0.x"
@@ -16754,6 +16816,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 m80xe n24 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    disable: true
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.0.x-enterprise"
@@ -16787,6 +16850,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 m82xc n24 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    disable: true
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.2.0"
@@ -16820,6 +16884,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 m82xe n24 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    disable: true
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.2.0-enterprise"
@@ -16853,6 +16918,7 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 mlatest n24 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver","mlatest"]
+    disable: true
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "latest-alpha-enterprise"
@@ -16886,6 +16952,7 @@ buildvariants:
     display_name: "Windows n24 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: true
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: ""
@@ -16918,6 +16985,7 @@ buildvariants:
     display_name: "Windows m42xc n24 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: true
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "4.2.x"
@@ -16950,6 +17018,7 @@ buildvariants:
     display_name: "Windows m42xe n24 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: true
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "4.2.x-enterprise"
@@ -16982,6 +17051,7 @@ buildvariants:
     display_name: "Windows m44xc n24 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: true
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "4.4.x"
@@ -17014,6 +17084,7 @@ buildvariants:
     display_name: "Windows m44xe n24 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: true
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "4.4.x-enterprise"
@@ -17046,6 +17117,7 @@ buildvariants:
     display_name: "Windows m50xc n24 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: true
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "5.0.x"
@@ -17078,6 +17150,7 @@ buildvariants:
     display_name: "Windows m50xe n24 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: true
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "5.0.x-enterprise"
@@ -17110,6 +17183,7 @@ buildvariants:
     display_name: "Windows m60xc n24 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: true
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "6.0.x"
@@ -17142,6 +17216,7 @@ buildvariants:
     display_name: "Windows m60xe n24 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: true
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "6.0.x-enterprise"
@@ -17174,6 +17249,7 @@ buildvariants:
     display_name: "Windows m70xc n24 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: true
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "7.0.x"
@@ -17206,6 +17282,7 @@ buildvariants:
     display_name: "Windows m70xe n24 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: true
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "7.0.x-enterprise"
@@ -17238,6 +17315,7 @@ buildvariants:
     display_name: "Windows m80xc n24 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: true
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "8.0.x"
@@ -17270,6 +17348,7 @@ buildvariants:
     display_name: "Windows m80xe n24 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: true
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "8.0.x-enterprise"
@@ -17302,6 +17381,7 @@ buildvariants:
     display_name: "Windows m82xc n24 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: true
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "8.2.0"
@@ -17334,6 +17414,7 @@ buildvariants:
     display_name: "Windows m82xe n24 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: []
+    disable: true
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "8.2.0-enterprise"
@@ -17366,6 +17447,7 @@ buildvariants:
     display_name: "Windows mlatest n24 (Unit tests)"
     run_on: windows-vsCurrent-small
     tags: ["mlatest"]
+    disable: true
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "latest-alpha-enterprise"

@@ -50,6 +50,7 @@ exports.NODE_VERSIONS = [
     shortName: '20',
     versionSpec: NODE_JS_VERSION_20,
     skipNodeVersionCheck: '',
+    optional: false,
   },
   {
     shortName: '24',
