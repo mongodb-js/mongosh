@@ -171,6 +171,18 @@
     "packages/connectivity-tests"
   ],
   "overrides": {
-    "cookie": "^0.7.2"
+    "cookie": "^0.7.2",
+    "mongodb-connection-string-url": "^7.0.0",
+    "kerberos": "^7.0.0",
+    "mongodb-client-encryption": "^7.0.0",
+    "bson": "^7.0.0",
+    "mongodb": "^7.0.0"
+  },
+  "dependencies": {
+    "mongodb-connection-string-url": "^7.0.0",
+    "kerberos": "^7.0.0",
+    "mongodb-client-encryption": "^7.0.0",
+    "bson": "^7.0.0",
+    "mongodb": "^7.0.0"
   }
 }

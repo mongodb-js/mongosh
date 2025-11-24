@@ -37,11 +37,11 @@
   },
   "dependencies": {
     "@mongosh/errors": "2.4.4",
-    "@mongosh/shell-bson": "1.0.4",
+    "@mongosh/shell-bson": "1.0.3",
     "bson": "^7.0.0",
     "mongodb": "^7.0.0",
     "mongodb-build-info": "^1.8.1",
-    "mongodb-connection-string-url": "^3.0.2"
+    "mongodb-connection-string-url": "^7.0.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",

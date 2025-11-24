@@ -37,7 +37,7 @@
   "dependencies": {
     "@mongosh/errors": "2.4.4",
     "@mongosh/i18n": "^2.19.0",
-    "mongodb-connection-string-url": "^3.0.2"
+    "mongodb-connection-string-url": "^7.0.0"
   },
   "devDependencies": {
     "@mongodb-js/devtools-connect": "^3.9.4",

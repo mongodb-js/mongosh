@@ -47,22 +47,24 @@
     }
   },
   "dependencies": {
+    "@aws-sdk/credential-providers": "^3.925.0",
     "@mongodb-js/devtools-connect": "^3.9.4",
     "@mongodb-js/oidc-plugin": "^2.0.5",
     "@mongosh/errors": "2.4.4",
     "@mongosh/service-provider-core": "3.6.3",
     "@mongosh/types": "^3.14.0",
     "aws4": "^1.12.0",
+    "gcp-metadata": "^7.0.1",
     "mongodb": "^7.0.0",
     "mongodb-build-info": "^1.8.1",
-    "mongodb-connection-string-url": "^3.0.2",
+    "mongodb-connection-string-url": "^7.0.0",
     "socks": "^2.8.3",
-    "mongodb-client-encryption": "^6.5.0",
-    "kerberos": "2.1.0"
+    "mongodb-client-encryption": "^7.0.0",
+    "kerberos": "^7.0.0"
   },
   "optionalDependencies": {
-    "kerberos": "2.1.0",
-    "mongodb-client-encryption": "^6.5.0"
+    "kerberos": "^7.0.0",
+    "mongodb-client-encryption": "^7.0.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
