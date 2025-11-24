@@ -59,11 +59,13 @@ describe('Runtime independence', function () {
       platform: 'CLI',
       close: sinon.spy(),
       bsonLibrary: absolutePathRequire(require.resolve('bson')).exports,
+      getURI: sinon.stub().returns('mongodb://localhost:27017'),
+      getFleOptions: sinon.stub().returns(undefined),
     };
     const evaluationListener = { onExit: sinon.spy() };
     const instanceState = new shellApi.ShellInstanceState(sp as any);
     instanceState.setEvaluationListener(evaluationListener);
-    expect(instanceState.initialServiceProvider).to.equal(sp);
+    expect((instanceState.initialServiceProvider as any)._sp).to.equal(sp);
     const bsonObj = instanceState.shellBson.ISODate(
       '2025-01-09T20:43:51+01:00'
     );
