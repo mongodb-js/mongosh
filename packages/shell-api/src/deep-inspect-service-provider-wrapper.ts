@@ -234,12 +234,9 @@ function customDocumentInspect(
   };
 
   // reuse the standard inpect logic for an object without causing infinite
-  // recursion
-  const inspectBackup = (this as any)[customInspectSymbol];
-  delete (this as any)[customInspectSymbol];
-  const result = inspect(this, newInspectOptions);
-  (this as any)[customInspectSymbol] = inspectBackup;
-  return result;
+  const copyToInspect: any = Array.isArray(this) ? this.slice() : { ...this };
+  delete copyToInspect[customInspectSymbol];
+  return inspect(copyToInspect, newInspectOptions);
 }
 
 function addCustomInspect(obj: any) {
