@@ -70,13 +70,6 @@ fi
 # On RHEL hosts, we run as root for some reason
 if [ `uname` = Linux ]; then
     export npm_config_unsafe_perm=true
-    if [ "$NODE_JS_MAJOR_VERSION" = "24" ] ; then
-        # This is a temporary fix until we upgrade our toolkit to 24.11+
-        # More info: https://github.com/mongodb-js/devtools-toolchain/pull/10
-        export NODE_OPTIONS="$NODE_OPTIONS --jitless"
-        echo "[WARNING] Using jitless v8."
-        echo "[WARNING] NODE_OPTIONS: $NODE_OPTIONS"
-    fi
 fi
 
 # npm@7 changed the behavior to run install scripts for packages
