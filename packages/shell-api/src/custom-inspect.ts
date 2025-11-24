@@ -28,7 +28,14 @@ export function addCustomInspect(obj: any) {
     for (const item of obj) {
       addCustomInspect(item);
     }
-  } else if (obj && typeof obj === 'object' && obj !== null && !obj._bsontype) {
+  } else if (
+    obj &&
+    typeof obj === 'object' &&
+    obj !== null &&
+    !obj._bsontype &&
+    !(obj instanceof Date) &&
+    !(obj instanceof RegExp)
+  ) {
     obj[customInspectSymbol] = customDocumentInspect;
     for (const value of Object.values(obj)) {
       addCustomInspect(value);
