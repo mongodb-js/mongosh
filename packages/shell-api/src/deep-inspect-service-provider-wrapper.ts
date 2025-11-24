@@ -100,7 +100,7 @@ export class DeepInspectServiceProviderWrapper
     ...args: Parameters<ServiceProvider['getNewConnection']>
   ): Promise<ServiceProvider> {
     const sp = await this._sp.getNewConnection(...args);
-    return new DeepInspectServiceProviderWrapper(sp as ServiceProvider);
+    return new DeepInspectServiceProviderWrapper(sp);
   }
 }
 
