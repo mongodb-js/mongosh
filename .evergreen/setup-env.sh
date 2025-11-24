@@ -6,7 +6,7 @@ OS_ARCH="$(uname "-m")"
 export BASEDIR="$PWD/.evergreen"
 export PATH="$BASEDIR/npm-10/node_modules/.bin:$BASEDIR/node-v$NODE_JS_VERSION-win-x64:/opt/java/jdk16/bin:$PATH"
 
-export MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING="$BASEDIR/../../testing/tests-globalconfig.conf"
+export MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING="$BASEDIR/../../packages/testing/tests-globalconfig.conf"
 
 export IS_MONGOSH_EVERGREEN_CI=1
 export DEBUG="mongodb*,$DEBUG"

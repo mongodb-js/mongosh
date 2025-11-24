@@ -14,7 +14,7 @@ const execFile = promisify(child_process.execFile);
 
 // Return the path to the temporary directory and ensure that it exists.
 async function getTmpdir(): Promise<string> {
-  const tmpdir = path.resolve(__dirname, '..', 'tmp');
+  const tmpdir = path.resolve(__dirname, '..', '..', '..', 'tmp');
   await fs.mkdir(tmpdir, { recursive: true });
   return tmpdir;
 }

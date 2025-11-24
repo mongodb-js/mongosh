@@ -9,7 +9,7 @@ import {
   skipIfServerVersion,
   skipIfApiStrict,
   startSharedTestServer,
-} from '../../../testing/integration-testing-hooks';
+} from '@mongosh/testing';
 import type { ShellApi, Mongo } from './index';
 import { toShellResult, Topologies } from './index';
 import type {

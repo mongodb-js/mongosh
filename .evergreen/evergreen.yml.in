@@ -336,7 +336,7 @@ functions:
           (cd scripts/docker && docker build --build-arg NODE_JS_VERSION="$NODE_VERSION" -t ubuntu24.04-xvfb -f ubuntu24.04-xvfb.Dockerfile .)
           docker run \
             --rm -v $PWD:/tmp/build ubuntu24.04-xvfb \
-            -c 'cd /tmp/build && ./testing/test-vscode.sh'
+            -c 'cd /tmp/build && ./scripts/test-vscode.sh'
           }
   test_connectivity:
     - command: expansions.write

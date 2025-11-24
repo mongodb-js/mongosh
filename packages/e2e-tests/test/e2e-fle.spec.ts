@@ -1,16 +1,17 @@
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import type { TestShell } from './test-shell';
-import { eventually } from '../../../testing/eventually';
 import {
+  eventually,
   startTestServer,
   skipIfApiStrict,
   skipIfServerVersion,
   skipIfCommunityServer,
   downloadCurrentCryptSharedLibrary,
   sortObjectArray,
-} from '../../../testing/integration-testing-hooks';
-import { makeFakeHTTPServer, fakeAWSHandlers } from '../../../testing/fake-kms';
+  makeFakeHTTPServer,
+  fakeAWSHandlers,
+} from '@mongosh/testing';
 import { once } from 'events';
 import { serialize } from 'v8';
 import { inspect } from 'util';

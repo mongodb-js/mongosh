@@ -1,0 +1,127 @@
+{
+  "folders": [
+    {
+      "name": "mongosh",
+      "path": "."
+    },
+    {
+      "name": "📦 @mongosh/arg-parser",
+      "path": "packages/arg-parser"
+    },
+    {
+      "name": "📦 @mongosh/async-rewriter2",
+      "path": "packages/async-rewriter2"
+    },
+    {
+      "name": "📦 @mongosh/autocomplete",
+      "path": "packages/autocomplete"
+    },
+    // {
+    //   "name": "📦 @mongosh/browser-repl",
+    //   "path": "packages/browser-repl"
+    // },
+    {
+      "name": "📦 @mongosh/browser-runtime-core",
+      "path": "packages/browser-runtime-core"
+    },
+    {
+      "name": "📦 @mongosh/browser-runtime-electron",
+      "path": "packages/browser-runtime-electron"
+    },
+    {
+      "name": "📦 @mongosh/build",
+      "path": "packages/build"
+    },
+    {
+      "name": "📦 @mongosh/cli-repl",
+      "path": "packages/cli-repl"
+    },
+    {
+      "name": "📦 @mongosh/connectivity-tests",
+      "path": "packages/connectivity-tests"
+    },
+    {
+      "name": "📦 @mongosh/e2e-tests",
+      "path": "packages/e2e-tests"
+    },
+    {
+      "name": "📦 @mongosh/editor",
+      "path": "packages/editor"
+    },
+    {
+      "name": "📦 @mongosh/errors",
+      "path": "packages/errors"
+    },
+    {
+      "name": "📦 @mongosh/history",
+      "path": "packages/history"
+    },
+    {
+      "name": "📦 @mongosh/i18n",
+      "path": "packages/i18n"
+    },
+    {
+      "name": "📦 @mongosh/java-shell",
+      "path": "packages/java-shell"
+    },
+    {
+      "name": "📦 @mongosh/js-multiline-to-singleline",
+      "path": "packages/js-multiline-to-singleline"
+    },
+    {
+      "name": "📦 @mongosh/logging",
+      "path": "packages/logging"
+    },
+    {
+      "name": "📦 @mongosh/node-runtime-worker-thread",
+      "path": "packages/node-runtime-worker-thread"
+    },
+    {
+      "name": "📦 @mongosh/service-provider-core",
+      "path": "packages/service-provider-core"
+    },
+    {
+      "name": "📦 @mongosh/service-provider-node-driver",
+      "path": "packages/service-provider-node-driver"
+    },
+    {
+      "name": "📦 @mongosh/shell-api",
+      "path": "packages/shell-api"
+    },
+    {
+      "name": "📦 @mongosh/shell-bson",
+      "path": "packages/shell-bson"
+    },
+    {
+      "name": "📦 @mongosh/shell-evaluator",
+      "path": "packages/shell-evaluator"
+    },
+    {
+      "name": "📦 @mongosh/snippet-manager",
+      "path": "packages/snippet-manager"
+    },
+    {
+      "name": "📦 @mongosh/testing",
+      "path": "packages/testing"
+    },
+    {
+      "name": "📦 @mongosh/types",
+      "path": "packages/types"
+    }
+  ],
+  "settings": {
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "mochaExplorer.files": "./{src,lib}/**/*.spec.ts",
+    "mochaExplorer.require": [
+      "../../scripts/import-expansions.js",
+      "ts-node/register"
+    ],
+    "mochaExplorer.timeout": 60000,
+    "mochaExplorer.ui": "bdd",
+    "mochaExplorer.esmLoader": false,
+    "mochaExplorer.monkeyPatch": true,
+    "mochaExplorer.autoload": true,
+    "testExplorer.codeLens": true,
+    "testExplorer.gutterDecoration": true
+  }
+}
