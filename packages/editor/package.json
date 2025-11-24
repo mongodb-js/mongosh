@@ -39,7 +39,7 @@
     "@mongosh/shell-api": "^3.26.2",
     "@mongosh/shell-evaluator": "^3.26.2",
     "@mongosh/types": "^3.14.0",
-    "bson": "^6.10.4",
+    "bson": "^7.0.0",
     "js-beautify": "^1.15.1"
   },
   "devDependencies": {

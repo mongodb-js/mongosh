@@ -68,10 +68,10 @@
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@mongosh/types": "^3.14.0",
-    "bson": "^6.10.4",
+    "bson": "^7.0.0",
     "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
-    "mongodb": "^6.19.0",
+    "mongodb": "^7.0.0",
     "prettier": "^2.8.8",
     "semver": "^7.5.3"
   }
