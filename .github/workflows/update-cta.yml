@@ -32,7 +32,7 @@ jobs:
       npm_config_foreground_scripts: "true"
       PUPPETEER_SKIP_DOWNLOAD: "true"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v4.1.0
         with:
@@ -41,10 +41,10 @@ jobs:
       - name: Sts GetCallerIdentity
         run: |
           aws sts get-caller-identity
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: ^20.x
-          cache: "npm"
+          check-latest: true
+          node-version: 24.x
       - name: Install Dependencies and Compile
         run: |
           npm ci
