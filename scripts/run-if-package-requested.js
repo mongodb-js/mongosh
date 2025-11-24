@@ -8,13 +8,12 @@ if (process.env.MONGOSH_RUN_ONLY_IN_PACKAGE && process.env.MONGOSH_RUN_ONLY_IN_P
   return;
 }
 
-let parentEnv = process.env;
 if (process.version.startsWith("v24")) {
-    parentEnv.NODE_OPTIONS = `${parentEnv.NODE_OPTIONS} --no-experimental-strip-types`;
+    process.env.NODE_OPTIONS = `${parentEnv.NODE_OPTIONS ?? ''} --no-experimental-strip-types`;
 }
 
 const child_process = require('child_process');
-child_process.spawn(process.argv[2], process.argv.slice(3), { stdio: 'inherit', shell: process.platform === 'win32', env: parentEnv })
+child_process.spawn(process.argv[2], process.argv.slice(3), { stdio: 'inherit', shell: process.platform === 'win32' })
   .on('exit', (code, signal) => {
     if (signal) {
       process.kill(process.pid, signal);
