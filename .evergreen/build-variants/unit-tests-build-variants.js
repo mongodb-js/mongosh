@@ -13,6 +13,7 @@ for (const {
   shortName: nShort,
   versionSpec: nVersion,
   skipNodeVersionCheck,
+  optional,
 } of NODE_VERSIONS) {
   for (const platform of PLATFORMS) {
     const platformDetails = platformToDetails[platform];
@@ -64,6 +65,7 @@ for (const {
         mShort,
         mVersion,
         skipNodeVersionCheck,
+        disabled: optional === true,
       });
     }
   }
