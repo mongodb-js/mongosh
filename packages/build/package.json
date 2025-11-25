@@ -60,7 +60,7 @@
     "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
     "prettier": "^2.8.8",
-    "sinon-chai": "^3.5.0",
+    "sinon-chai": "^4.0.1",
     "yaml": "^2.3.1"
   },
   "dependencies": {
@@ -72,7 +72,7 @@
     "@octokit/rest": "^17.9.0",
     "ajv": "^8.17.1",
     "aws-sdk": "^2.674.0",
-    "boxednode": "^2.4.3",
+    "boxednode": "^3.0.0",
     "command-exists": "^1.2.9",
     "download": "^8.0.0",
     "es-aggregate-error": "^1.0.9",

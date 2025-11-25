@@ -1,4 +1,5 @@
-import chai, { expect } from 'chai';
+import * as chai from 'chai';
+import { expect } from 'chai';
 import sinon from 'sinon';
 import type { Config } from './config';
 import { ALL_PACKAGE_VARIANTS } from './config';
@@ -12,8 +13,9 @@ import {
 } from './run-draft';
 import { dummyConfig } from '../test/helpers';
 import { PackageBumper } from './npm-packages';
+import sinonChai from 'sinon-chai';
 
-chai.use(require('sinon-chai'));
+chai.use(sinonChai);
 
 function createStubRepo(overrides?: any): GithubRepo {
   return sinon.createStubInstance(

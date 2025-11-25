@@ -50,7 +50,7 @@ import {
   MongoshUnimplementedError,
   MongoshInternalError,
 } from '@mongosh/errors';
-import { HIDDEN_COMMANDS } from '@mongosh/history';
+import { shouldRedactCommand } from 'mongodb-redact';
 import type Session from './session';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ShellApiErrors } from './error-codes';
@@ -401,8 +401,7 @@ export class Database<
     }
 
     try {
-      const hiddenCommands = new RegExp(HIDDEN_COMMANDS);
-      if (!Object.keys(cmd).some((k) => hiddenCommands.test(k))) {
+      if (!Object.keys(cmd).some((k) => shouldRedactCommand(k))) {
         this._emitDatabaseApiCall('runCommand', { cmd, options });
       }
       return await this._runCommand(cmd, options);
@@ -435,8 +434,7 @@ export class Database<
       cmd = { [cmd]: 1 };
     }
 
-    const hiddenCommands = new RegExp(HIDDEN_COMMANDS);
-    if (!Object.keys(cmd).some((k) => hiddenCommands.test(k))) {
+    if (!Object.keys(cmd).some((k) => shouldRedactCommand(k))) {
       this._emitDatabaseApiCall('adminCommand', { cmd });
     }
     return await this._runAdminCommand(cmd, {});

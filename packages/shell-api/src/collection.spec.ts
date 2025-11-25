@@ -34,10 +34,9 @@ import {
   MongoshRuntimeError,
 } from '@mongosh/errors';
 import type { StringKey } from './helpers';
-
-const sinonChai = require('sinon-chai'); // weird with import
-
+import sinonChai from 'sinon-chai';
 use(sinonChai);
+
 describe('Collection', function () {
   describe('help', function () {
     const apiClass = new Collection({} as any, {} as any, 'name');

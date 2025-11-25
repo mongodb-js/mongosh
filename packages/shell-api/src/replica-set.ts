@@ -4,7 +4,7 @@ import {
   MongoshInvalidInputError,
   MongoshRuntimeError,
 } from '@mongosh/errors';
-import { redactURICredentials } from '@mongosh/history';
+import { redactConnectionString } from 'mongodb-redact';
 import type { Document } from '@mongosh/service-provider-core';
 import type Mongo from './mongo';
 import type { Database, DatabaseWithSchema } from './database';
@@ -419,7 +419,7 @@ export default class ReplicaSet<
    * Internal method to determine what is printed for this class.
    */
   [asPrintable](): string {
-    return `ReplicaSet class connected to ${redactURICredentials(
+    return `ReplicaSet class connected to ${redactConnectionString(
       this._database._mongo._uri
     )} via db ${this._database._name}`;
   }
