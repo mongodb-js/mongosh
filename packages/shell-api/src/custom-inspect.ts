@@ -22,9 +22,20 @@ function customDocumentInspect(
   return inspect(copyToInspect, newInspectOptions);
 }
 
+function addInspectSymbol(obj: any) {
+  if (!(obj as any)[customInspectSymbol]) {
+    Object.defineProperty(obj, customInspectSymbol, {
+      value: customDocumentInspect,
+      enumerable: false,
+      writable: true,
+      configurable: true,
+    });
+  }
+}
+
 export function addCustomInspect(obj: any) {
   if (Array.isArray(obj)) {
-    (obj as any)[customInspectSymbol] ??= customDocumentInspect;
+    addInspectSymbol(obj);
     for (const item of obj) {
       addCustomInspect(item);
     }
@@ -36,7 +47,7 @@ export function addCustomInspect(obj: any) {
     !(obj instanceof Date) &&
     !(obj instanceof RegExp)
   ) {
-    obj[customInspectSymbol] = customDocumentInspect;
+    addInspectSymbol(obj);
     for (const value of Object.values(obj)) {
       addCustomInspect(value);
     }
