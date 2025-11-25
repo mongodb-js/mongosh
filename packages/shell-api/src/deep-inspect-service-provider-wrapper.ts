@@ -1,5 +1,4 @@
 import type { ServiceProvider } from '@mongosh/service-provider-core';
-import { ServiceProviderCore } from '@mongosh/service-provider-core';
 import { DeepInspectAggregationCursorWrapper } from './deep-inspect-aggregation-cursor-wrapper';
 import { DeepInspectFindCursorWrapper } from './deep-inspect-find-cursor-wrapper';
 import { addCustomInspect } from './custom-inspect';
@@ -7,15 +6,14 @@ import type { PickMethodsByReturnType } from './pick-methods-by-return-type';
 import { DeepInspectRunCommandCursorWrapper } from './deep-inspect-run-command-cursor-wrapper';
 import { DeepInspectChangeStreamWrapper } from './deep-inspect-change-stream-wrapper';
 
-export class DeepInspectServiceProviderWrapper
-  extends ServiceProviderCore
-  implements ServiceProvider
-{
+export class DeepInspectServiceProviderWrapper implements ServiceProvider {
   _sp: ServiceProvider;
 
   constructor(sp: ServiceProvider) {
-    super(sp.bsonLibrary);
     this._sp = sp;
+  }
+  get bsonLibrary() {
+    return this._sp.bsonLibrary;
   }
 
   aggregate = (...args: Parameters<ServiceProvider['aggregate']>) => {
