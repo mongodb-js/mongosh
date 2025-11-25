@@ -1,4 +1,5 @@
-import chai, { expect } from 'chai';
+import * as chai from 'chai';
+import { expect } from 'chai';
 import sinon from 'sinon';
 import type { Config } from './config';
 import type { uploadArtifactToEvergreen } from './evergreen';
@@ -7,8 +8,9 @@ import { runUpload } from './run-upload';
 import { dummyConfig } from '../test/helpers';
 import type { promises as fs } from 'fs';
 import path from 'path';
+import sinonChai from 'sinon-chai';
 
-chai.use(require('sinon-chai'));
+chai.use(sinonChai);
 
 const normalizePathToCurrentOS = (p: string) => path.join(p);
 

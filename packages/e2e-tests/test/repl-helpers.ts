@@ -2,7 +2,7 @@ import { promises as fs } from 'fs';
 import { promisify } from 'util';
 import path from 'path';
 import rimraf from 'rimraf';
-import chai from 'chai';
+import * as chai from 'chai';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import type { MongodSetup } from '../../../testing/integration-testing-hooks';
