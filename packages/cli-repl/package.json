@@ -97,7 +97,6 @@
     "yargs-parser": "^20.2.4"
   },
   "devDependencies": {
-    "mongodb": "^7.0.0",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/sbom-tools": "^0.8.1",

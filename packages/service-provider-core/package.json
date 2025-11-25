@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "@mongosh/errors": "2.4.4",
-    "@mongosh/shell-bson": "1.0.3",
+    "@mongosh/shell-bson": "1.0.4",
     "bson": "^7.0.0",
     "mongodb": "^7.0.0",
     "mongodb-build-info": "^1.8.1",
