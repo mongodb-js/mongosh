@@ -83,7 +83,7 @@ export class PackageBumper {
       encoding: 'utf8',
       env: {
         ...process.env,
-        PUPPETEER_SKIP_CHROME_DOWNLOAD: 'true',
+        PUPPETEER_SKIP_DOWNLOAD: 'true',
       },
     });
   }

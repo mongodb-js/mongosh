@@ -121,7 +121,7 @@ functions:
           NODE_JS_VERSION: ${node_js_version}
           DISTRO_ID: ${distro_id}
           MONOGDB_DRIVER_VERSION_OVERRIDE: ${mongodb_driver_version_override}
-          PUPPETEER_SKIP_CHROME_DOWNLOAD: "true"
+          PUPPETEER_SKIP_DOWNLOAD: "true"
         script: |
           set -e
           set -x
@@ -162,7 +162,7 @@ functions:
           NODE_JS_VERSION: ${node_js_version}
           DISTRO_ID: ${distro_id}
           MONOGDB_DRIVER_VERSION_OVERRIDE: ${mongodb_driver_version_override}
-          PUPPETEER_SKIP_CHROME_DOWNLOAD: ${puppeteer_skip_download|true}
+          PUPPETEER_SKIP_DOWNLOAD: ${puppeteer_skip_download|true}
         script: |
           set -e
           set -x

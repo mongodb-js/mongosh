@@ -21,7 +21,7 @@ jobs:
     env:
       npm_config_loglevel: verbose
       npm_config_foreground_scripts: "true"
-      PUPPETEER_SKIP_CHROME_DOWNLOAD: "true"
+      PUPPETEER_SKIP_DOWNLOAD: "true"
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v6
