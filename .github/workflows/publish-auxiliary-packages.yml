@@ -9,7 +9,7 @@ on:
     branches:
       - main
 env:
-  PUPPETEER_SKIP_DOWNLOAD: "true"
+  PUPPETEER_SKIP_CHROME_DOWNLOAD: "true"
 
 permissions:
   contents: none # We use the github app to checkout and push tags

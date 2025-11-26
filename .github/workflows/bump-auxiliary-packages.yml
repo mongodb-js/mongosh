@@ -6,7 +6,7 @@ permissions:
   contents: none # We use the github app to checkout and create PR
 
 env:
-  PUPPETEER_SKIP_DOWNLOAD: "true"
+  PUPPETEER_SKIP_CHROME_DOWNLOAD: "true"
 
 description: |
   This workflow increases the versions of the auxiliary (i.e. non-mongosh) packages and creates a PR

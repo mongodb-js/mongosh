@@ -18,7 +18,7 @@ jobs:
     env:
       npm_config_loglevel: verbose
       npm_config_foreground_scripts: "true"
-      PUPPETEER_SKIP_DOWNLOAD: "true"
+      PUPPETEER_SKIP_CHROME_DOWNLOAD: "true"
     steps:
       - uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
         id: app-token

@@ -9,7 +9,7 @@
   "author": "Compass Team <compass@mongodb.com>",
   "scripts": {
     "bootstrap-with-chromium": "npm install && npm run compile",
-    "bootstrap": "npx cross-env PUPPETEER_SKIP_DOWNLOAD=1 npm install && npm run compile",
+    "bootstrap": "npx cross-env PUPPETEER_SKIP_CHROME_DOWNLOAD=1 npm install && npm run compile",
     "clean": "lerna clean -y && rm -Rf node_modules",
     "check": "lerna run check --since HEAD --exclude-dependents",
     "check-ci": "npm run check --workspaces --if-present",
