@@ -171,6 +171,7 @@
     "packages/connectivity-tests"
   ],
   "overrides": {
-    "cookie": "^0.7.2"
+    "cookie": "^0.7.2",
+    "body-parser": "^2.2.1"
   }
 }
