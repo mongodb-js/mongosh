@@ -15,7 +15,7 @@ enableFipsIfRequested();
 
 import { markTime } from './startup-timing';
 import { CliRepl } from './cli-repl';
-import { parseCliArgs } from './arg-parser';
+import { parseMongoshCliArgs } from './arg-parser';
 import { runSmokeTests } from './smoke-tests';
 import { USAGE } from './constants';
 import { baseBuildInfo, buildInfo } from './build-info';
@@ -33,6 +33,7 @@ import v8 from 'v8';
 import { TimingCategories } from '@mongosh/types';
 import './webpack-self-inspection';
 import { systemCA } from '@mongodb-js/devtools-proxy-support';
+import clr from './clr';
 
 // TS does not yet have type definitions for v8.startupSnapshot
 if ((v8 as any)?.startupSnapshot?.isBuildingSnapshot?.()) {
@@ -85,7 +86,7 @@ async function main() {
   try {
     (net as any)?.setDefaultAutoSelectFamily?.(true);
 
-    const options = parseCliArgs(process.argv);
+    const options = parseMongoshCliArgs(process.argv);
     for (const warning of options._argParseWarnings) {
       console.warn(warning);
     }
