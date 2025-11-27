@@ -1195,6 +1195,30 @@ describe('MongoshNodeRepl', function () {
         );
       });
     });
+
+    context('pasting code', function () {
+      const pasteStart = '\x1b[200~';
+      const pasteEnd = '\x1b[201~';
+      const moveLeft = '\x1b[1D';
+
+      it('can paste code and run it', async function () {
+        input.write(`${pasteStart}12 * 34${pasteEnd}\n`);
+        await waitEval(bus);
+        expect(output).to.include('408');
+      });
+
+      it('can paste code in the middle of a line and run it', async function () {
+        input.write(`56${moveLeft}${pasteStart}12 * 34${pasteEnd}\n`);
+        await waitEval(bus);
+        expect(output).to.include('177152'); // 512 * 346
+      });
+
+      it('can paste code in the middle of multiline input and run it', async function () {
+        input.write(`{\n56${moveLeft}${pasteStart}12 * 34${pasteEnd}\n}\n`);
+        await waitEval(bus);
+        expect(output).to.include('177152'); // 512 * 346
+      });
+    });
   });
 
   context('with somewhat unreachable history file', function () {
