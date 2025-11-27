@@ -33,7 +33,7 @@ import v8 from 'v8';
 import { TimingCategories } from '@mongosh/types';
 import './webpack-self-inspection';
 import { systemCA } from '@mongodb-js/devtools-proxy-support';
-import clr from './clr';
+
 
 // TS does not yet have type definitions for v8.startupSnapshot
 if ((v8 as any)?.startupSnapshot?.isBuildingSnapshot?.()) {

@@ -19,7 +19,7 @@ describe('parseMongoshCliArgs', function () {
       expect.fail('parsing unknown parameter did not throw');
     });
 
-    context('provides the usual functionality of arg-parser', function () {
+    context('parses standard arguments correctly', function () {
       it('sets passed fields', function () {
         const argv = [...baseArgv, uri, '--tls', '--port', '1234'];
 

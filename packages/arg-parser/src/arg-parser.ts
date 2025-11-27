@@ -240,7 +240,7 @@ export class UnknownCliArgumentError extends Error {
   readonly argument: string;
   constructor(argument: string) {
     super(`Unknown argument: ${argument}`);
-    this.name = 'UnknownParserArgumentError';
+    this.name = 'UnknownCliArgumentError';
     this.argument = argument;
   }
 }
