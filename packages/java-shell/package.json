@@ -12,7 +12,7 @@
   },
   "scripts": {
     "webpack-shell-api": "webpack --mode production",
-    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 --colors -r ts-node/register --reporter \"../../configs/mocha-config-mongosh/reporter.ts\" \"./src/test/js/run-tests.ts\"",
+    "test": "mocha",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm run test",
     "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci"
