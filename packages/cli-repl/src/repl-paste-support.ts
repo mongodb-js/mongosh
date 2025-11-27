@@ -1,5 +1,5 @@
 import type { Interface as ReadlineInterface } from 'readline';
-import { start as replStart, type REPLServer } from 'repl';
+import type { REPLServer } from 'repl';
 import { PassThrough } from 'stream';
 
 // https://github.com/nodejs/node/blob/d9786109b2a0982677135f0c146f6b591a0e4961/lib/internal/readline/utils.js#L90
@@ -72,9 +72,13 @@ export function installPasteSupport(repl: REPLServer): string {
 // Introduced by: https://github.com/nodejs/node/pull/59857
 // Fixed by: https://github.com/nodejs/node/pull/60470
 function _hasNode60446(): boolean {
+  // repl is not supported in startup snapshots yet
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { start } = require('repl');
+
   const input = new PassThrough();
   const output = new PassThrough();
-  const repl = replStart({ terminal: true, input, output, useColors: false });
+  const repl = start({ terminal: true, input, output, useColors: false });
   repl.input.emit('data', '{}');
   repl.input.emit('keypress', '', { name: 'left' });
   repl.input.emit('data', 'node');
