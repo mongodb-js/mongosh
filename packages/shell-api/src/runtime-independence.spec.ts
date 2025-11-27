@@ -56,6 +56,7 @@ describe('Runtime independence', function () {
 
     // Verify that `shellApi` is generally usable.
     const sp = {
+      deepInspectWrappable: true,
       platform: 'CLI',
       close: sinon.spy(),
       bsonLibrary: absolutePathRequire(require.resolve('bson')).exports,
