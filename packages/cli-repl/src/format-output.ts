@@ -428,6 +428,7 @@ function dateInspect(
 function inspect(output: unknown, options: FormatOptions): string {
   // Set a custom inspection function for 'Date' objects. Since we only want this
   // to affect mongosh scripts, we unset it later.
+  const originalDateInspect = (Date.prototype as any)[util.inspect.custom];
   (Date.prototype as any)[util.inspect.custom] = dateInspect;
   try {
     return util.inspect(
@@ -443,6 +444,8 @@ function inspect(output: unknown, options: FormatOptions): string {
     );
   } finally {
     delete (Date.prototype as any)[util.inspect.custom];
+    if (originalDateInspect)
+      (Date.prototype as any)[util.inspect.custom] = originalDateInspect;
   }
 }
 

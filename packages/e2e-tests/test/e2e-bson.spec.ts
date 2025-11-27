@@ -588,4 +588,53 @@ describe('BSON e2e', function () {
       shell.assertNoErrors();
     });
   });
+  describe('inspect nesting depth', function () {
+    it('inspects a full bson document when it is read from the server', async function () {
+      await shell.executeLine(`use ${dbName}`);
+      await shell.executeLine(`deepAndNested = ({
+          a: { b: { c: { d: { e: { f: { g: { h: "foundme" } } } } } } },
+          array: [...Array(100000).keys()].map(i => ({ num: i })),
+          str: 'All work and no play makes Jack a dull boy'.repeat(4096) + 'The End'
+      });`);
+      await shell.executeLine(`db.coll.insertOne(deepAndNested)`);
+      // Deeply nested object from the server should be fully printed
+      const output = await shell.executeLine('db.coll.findOne()');
+      expect(output).not.to.include('[Object');
+      expect(output).not.to.include('more items');
+      expect(output).to.include('foundme');
+      expect(output).to.include('num: 99999');
+      expect(output).to.include('The End');
+      // Same object doesn't need to be fully printed if created by the user
+      const output2 = await shell.executeLine('deepAndNested');
+      expect(output2).to.include('[Object');
+      expect(output2).to.include('more items');
+      expect(output2).not.to.include('foundme');
+      expect(output2).not.to.include('num: 99999');
+      expect(output2).not.to.include('The End');
+      shell.assertNoErrors();
+    });
+    it('can parse serverStatus back to its original form', async function () {
+      // Dates get special treatment but that doesn't currently apply
+      // to mongosh's util.inspect that's available to users
+      // (although maybe it should?).
+      await shell.executeLine(
+        `Date.prototype[Symbol.for('nodejs.util.inspect.custom')] = function(){ return 'ISODate("' + this.toISOString() + '")'; };`
+      );
+      // 'void 0' to avoid large output in the shell from serverStatus
+      await shell.executeLine(
+        'A = db.adminCommand({ serverStatus: 1 }); void 0'
+      );
+      await shell.executeLine('util.inspect(A)');
+      await shell.executeLine(`B = eval('(' + util.inspect(A) + ')'); void 0`);
+      shell.assertNoErrors();
+      const output1 = await shell.executeLineWithJSONResult('A', {
+        parseAsEJSON: false,
+      });
+      const output2 = await shell.executeLineWithJSONResult('B', {
+        parseAsEJSON: false,
+      });
+      expect(output1).to.deep.equal(output2);
+      shell.assertNoErrors();
+    });
+  });
 });
