@@ -8,6 +8,8 @@ import type { StubbedInstance } from 'ts-sinon';
 import { stubInterface } from 'ts-sinon';
 import { DeepInspectServiceProviderWrapper } from './deep-inspect-service-provider-wrapper';
 import * as util from 'util';
+import { makePrintableBson } from '@mongosh/shell-bson';
+
 chai.use(sinonChai);
 
 const customInspectSymbol = Symbol.for('nodejs.util.inspect.custom');
@@ -30,6 +32,10 @@ function wasTruncated(text: string): boolean {
 describe('DeepInspectServiceProviderWrapper', function () {
   let serviceProvider: StubbedInstance<ServiceProvider>;
   let sp: DeepInspectServiceProviderWrapper;
+
+  // make the tests behave the same regardless of whether this file was focused
+  // or not
+  makePrintableBson(bson);
 
   const doc = {
     array: Array.from(Array(1000), (_, i) => i),
@@ -107,6 +113,45 @@ describe('DeepInspectServiceProviderWrapper', function () {
     ),
   };
 
+  function checkResultEveryType(result: any) {
+    expect(result).to.deep.equal(everyType);
+    expect(wasTruncated(util.inspect(result))).to.equal(false);
+
+    // this makes sure that we didn't accidentally mess with the custom inspect
+    // methods of the BSON types, dates, regexes or simple values
+    expect(util.inspect(result)).to.equal(`{
+  double: Double(1.2),
+  doubleThatIsAlsoAnInteger: Double(1),
+  string: 'Hello, world!',
+  binData: Binary.createFromBase64('AQID', 0),
+  boolean: true,
+  date: 2023-04-05T13:25:08.445Z,
+  null: null,
+  regex: BSONRegExp('pattern', 'i'),
+  javascript: Code('function() {}'),
+  symbol: BSONSymbol('symbol'),
+  javascriptWithScope: Code('function() {}', { foo: 1, bar: 'a' }),
+  int: Int32(12345),
+  timestamp: Timestamp({ t: 1680701109, i: 1 }),
+  long: Long('123456789123456789'),
+  decimal: Decimal128('5.477284286264328586719275128128001E-4088'),
+  minKey: MinKey(),
+  maxKey: MaxKey(),
+  binaries: {
+    generic: Binary.createFromBase64('AQID', 0),
+    functionData: Binary.createFromBase64('Ly84PQ==', 1),
+    binaryOld: Binary.createFromBase64('Ly84PQ==', 2),
+    uuidOld: Binary.createFromBase64('Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09', 3),
+    uuid: UUID('aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa'),
+    md5: MD5('632f2f535a45537a54476d51364f66523338413131413d3d'),
+    encrypted: Binary.createFromBase64('Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09', 6),
+    compressedTimeSeries: Binary.createFromBase64('CQCKW/8XjAEAAIfx//////////H/////////AQAAAAAAAABfAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAHAAAAAAAAAA4AAAAAAAAAAA==', 0),
+    custom: Binary.createFromBase64('Ly84PQ==', 128)
+  },
+  dbRef: DBRef('namespace', ObjectId('642d76b4b7ebfab15d3c4a78'))
+}`);
+  }
+
   beforeEach(function () {
     serviceProvider = stubInterface<ServiceProvider>();
     serviceProvider.initialDb = 'db1';
@@ -166,10 +211,12 @@ describe('DeepInspectServiceProviderWrapper', function () {
     const toArrayResult = await cursor.toArray();
     expect(toArrayResult).to.deep.equal([doc, everyType]);
     checkResultDoc(toArrayResult[0]);
+    checkResultEveryType(toArrayResult[1]);
 
     const readBufferedDocumentsResult = cursor.readBufferedDocuments();
     expect(readBufferedDocumentsResult).to.deep.equal([doc, everyType]);
     checkResultDoc(readBufferedDocumentsResult[0]);
+    checkResultEveryType(readBufferedDocumentsResult[1]);
   });
 
   it('wraps aggregation cursors', async function () {
@@ -202,9 +249,11 @@ describe('DeepInspectServiceProviderWrapper', function () {
 
     const toArrayResult = await cursor.toArray();
     checkResultDoc(toArrayResult[0]);
+    checkResultEveryType(toArrayResult[1]);
 
     const readBufferedDocumentsResult = cursor.readBufferedDocuments();
     checkResultDoc(readBufferedDocumentsResult[0]);
+    checkResultEveryType(readBufferedDocumentsResult[1]);
   });
 
   it('wraps run command cursors', async function () {
@@ -234,10 +283,12 @@ describe('DeepInspectServiceProviderWrapper', function () {
     const toArrayResult = await cursor.toArray();
     expect(toArrayResult).to.deep.equal([doc, everyType]);
     checkResultDoc(toArrayResult[0]);
+    checkResultEveryType(toArrayResult[1]);
 
     const readBufferedDocumentsResult = cursor.readBufferedDocuments();
     expect(readBufferedDocumentsResult).to.deep.equal([doc, everyType]);
     checkResultDoc(readBufferedDocumentsResult[0]);
+    checkResultEveryType(readBufferedDocumentsResult[1]);
   });
 
   it('wraps change streams', async function () {
