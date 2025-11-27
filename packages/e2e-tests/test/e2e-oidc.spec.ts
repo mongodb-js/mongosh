@@ -374,7 +374,7 @@ describe('OIDC auth e2e', function () {
 
     // Internal hack to get a state-share server as e.g. Compass or the VSCode extension would
     let handle = await shell.executeLine(
-      'db.getMongo()._serviceProvider._sp.currentClientOptions.parentState.getStateShareServer()'
+      'db.getMongo()._serviceProvider[Symbol.for("@@mongosh.originalServiceProvider")].currentClientOptions.parentState.getStateShareServer()'
     );
     // `handle` can include the next prompt when returned by `shell.executeLine()`,
     // so look for the longest prefix of it that is valid JSON.
