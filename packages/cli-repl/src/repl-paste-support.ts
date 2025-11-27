@@ -82,7 +82,6 @@ function _hasNode60446(): boolean {
   repl.close();
   return line === '{}noed';
 }
-_hasNode60446();
 let hasNode60446: boolean | undefined = undefined;
 
 export function fixNode60446(repl: ReadlineInterface): void {
