@@ -1,10 +1,7 @@
 import type { ServiceProvider } from '@mongosh/service-provider-core';
-import { DeepInspectAggregationCursorWrapper } from './deep-inspect-aggregation-cursor-wrapper';
-import { DeepInspectFindCursorWrapper } from './deep-inspect-find-cursor-wrapper';
+import { deepInspectCursorWrapper } from './cursor-wrapper';
 import { addCustomInspect } from './custom-inspect';
-import type { PickMethodsByReturnType } from './pick-methods-by-return-type';
-import { DeepInspectRunCommandCursorWrapper } from './deep-inspect-run-command-cursor-wrapper';
-import { DeepInspectChangeStreamWrapper } from './deep-inspect-change-stream-wrapper';
+import type { PickMethodsByReturnType } from './ts-helpers';
 
 export function deepInspectServiceProviderWrapper(
   sp: ServiceProvider
@@ -15,11 +12,11 @@ export function deepInspectServiceProviderWrapper(
     },
     aggregate: (...args: Parameters<ServiceProvider['aggregate']>) => {
       const cursor = sp.aggregate(...args);
-      return new DeepInspectAggregationCursorWrapper(cursor);
+      return deepInspectCursorWrapper(cursor);
     },
     aggregateDb: (...args: Parameters<ServiceProvider['aggregateDb']>) => {
       const cursor = sp.aggregateDb(...args);
-      return new DeepInspectAggregationCursorWrapper(cursor);
+      return deepInspectCursorWrapper(cursor);
     },
     count: forwardedMethod('count', sp),
     estimatedDocumentCount: forwardedMethod('estimatedDocumentCount', sp),
@@ -27,7 +24,7 @@ export function deepInspectServiceProviderWrapper(
     distinct: bsonMethod('distinct', sp),
     find: (...args: Parameters<ServiceProvider['find']>) => {
       const cursor = sp.find(...args);
-      return new DeepInspectFindCursorWrapper(cursor);
+      return deepInspectCursorWrapper(cursor);
     },
     findOneAndDelete: bsonMethod('findOneAndDelete', sp),
     findOneAndReplace: bsonMethod('findOneAndReplace', sp),
@@ -38,7 +35,7 @@ export function deepInspectServiceProviderWrapper(
     readPreferenceFromOptions: forwardedMethod('readPreferenceFromOptions', sp),
     watch: (...args: Parameters<ServiceProvider['watch']>) => {
       const cursor = sp.watch(...args);
-      return new DeepInspectChangeStreamWrapper(cursor);
+      return deepInspectCursorWrapper(cursor);
     },
     getSearchIndexes: bsonMethod('getSearchIndexes', sp),
     runCommand: bsonMethod('runCommand', sp),
@@ -47,7 +44,7 @@ export function deepInspectServiceProviderWrapper(
       ...args: Parameters<ServiceProvider['runCursorCommand']>
     ) => {
       const cursor = sp.runCursorCommand(...args);
-      return new DeepInspectRunCommandCursorWrapper(cursor);
+      return deepInspectCursorWrapper(cursor);
     },
     dropDatabase: bsonMethod('dropDatabase', sp),
     dropCollection: forwardedMethod('dropCollection', sp),

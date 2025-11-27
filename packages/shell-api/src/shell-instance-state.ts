@@ -51,7 +51,7 @@ import type { AutocompletionContext } from '@mongodb-js/mongodb-ts-autocomplete'
 import type { JSONSchema } from 'mongodb-schema';
 import { analyzeDocuments } from 'mongodb-schema';
 import type { BaseCursor } from './abstract-cursor';
-import { deepInspectServiceProviderWrapper } from './deep-inspect-service-provider-wrapper';
+import { deepInspectServiceProviderWrapper } from './deep-inspect/service-provider-wrapper';
 
 /**
  * The subset of CLI options that is relevant for the shell API's behavior itself.

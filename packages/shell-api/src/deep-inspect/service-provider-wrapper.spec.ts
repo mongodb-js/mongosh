@@ -6,7 +6,7 @@ import sinonChai from 'sinon-chai';
 import sinon from 'sinon';
 import type { StubbedInstance } from 'ts-sinon';
 import { stubInterface } from 'ts-sinon';
-import { deepInspectServiceProviderWrapper } from './deep-inspect-service-provider-wrapper';
+import { deepInspectServiceProviderWrapper } from './service-provider-wrapper';
 import * as util from 'util';
 import { makePrintableBson } from '@mongosh/shell-bson';
 
