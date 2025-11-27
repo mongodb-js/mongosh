@@ -444,7 +444,7 @@ describe('SnippetManager', function () {
       expect(err.message).to.include(
         `The specified index file ${indexURL} is not a valid index file:`
       );
-      expect(err.message).to.include(`Number must be less than or equal to 1`);
+      expect(err.message).to.include(`Too big: expected number to be <=1`);
     }
   });
 
