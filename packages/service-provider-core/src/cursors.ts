@@ -15,7 +15,7 @@ export interface ServiceProviderBaseCursor<TSchema = Document> {
   next(): Promise<TSchema | null>;
   tryNext(): Promise<TSchema | null>;
   readonly closed: boolean;
-  [Symbol.asyncIterator](): AsyncGenerator<TSchema, void, void>;
+  [Symbol.asyncIterator]?(): AsyncGenerator<TSchema, void, void>;
 }
 
 export interface ServiceProviderAbstractCursor<TSchema = Document>

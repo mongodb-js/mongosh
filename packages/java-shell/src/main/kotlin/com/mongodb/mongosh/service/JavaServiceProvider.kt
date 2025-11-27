@@ -22,10 +22,6 @@ internal class JavaServiceProvider(private var client: MongoClient?,
     @HostAccess.Export
     val platform = "JavaShell"
 
-    @JvmField
-    @HostAccess.Export
-    val deepInspectWrappable = false
-
     @HostAccess.Export
     override fun runCommand(database: String, spec: Value): Value = promise {
         getDatabase(database, null).map { db ->

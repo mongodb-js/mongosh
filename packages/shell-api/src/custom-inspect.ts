@@ -24,12 +24,16 @@ function customDocumentInspect(
 
 function addInspectSymbol(obj: any) {
   if (!(obj as any)[customInspectSymbol]) {
-    Object.defineProperty(obj, customInspectSymbol, {
-      value: customDocumentInspect,
-      enumerable: false,
-      writable: true,
-      configurable: true,
-    });
+    try {
+      Object.defineProperty(obj, customInspectSymbol, {
+        value: customDocumentInspect,
+        enumerable: false,
+        writable: true,
+        configurable: true,
+      });
+    } catch {
+      // Ignore, if the object is non-extensible we cannot do much about that
+    }
   }
 }
 

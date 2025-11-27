@@ -6,7 +6,7 @@ import sinonChai from 'sinon-chai';
 import sinon from 'sinon';
 import type { StubbedInstance } from 'ts-sinon';
 import { stubInterface } from 'ts-sinon';
-import { DeepInspectServiceProviderWrapper } from './deep-inspect-service-provider-wrapper';
+import { deepInspectServiceProviderWrapper } from './deep-inspect-service-provider-wrapper';
 import * as util from 'util';
 import { makePrintableBson } from '@mongosh/shell-bson';
 
@@ -29,9 +29,9 @@ function wasTruncated(text: string): boolean {
   return truncatedString(text) || truncatedArray(text) || truncatedObject(text);
 }
 
-describe('DeepInspectServiceProviderWrapper', function () {
+describe('deepInspectServiceProviderWrapper', function () {
   let serviceProvider: StubbedInstance<ServiceProvider>;
-  let sp: DeepInspectServiceProviderWrapper;
+  let sp: ServiceProvider;
 
   // make the tests behave the same regardless of whether this file was focused
   // or not
@@ -156,7 +156,7 @@ describe('DeepInspectServiceProviderWrapper', function () {
     serviceProvider = stubInterface<ServiceProvider>();
     serviceProvider.initialDb = 'db1';
     serviceProvider.bsonLibrary = bson;
-    sp = new DeepInspectServiceProviderWrapper(serviceProvider);
+    sp = deepInspectServiceProviderWrapper(serviceProvider);
   });
 
   it('would have truncated the test documents without deep inspection', function () {

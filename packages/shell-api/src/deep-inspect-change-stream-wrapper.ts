@@ -29,10 +29,10 @@ export class DeepInspectChangeStreamWrapper<TSchema = Document>
     return this._cursor.closed;
   }
 
-  async *[Symbol.asyncIterator]() {
+  /*async *[Symbol.asyncIterator]() {
     yield* this._cursor;
     return;
-  }
+  }*/
 }
 
 function forwardResultPromise<
