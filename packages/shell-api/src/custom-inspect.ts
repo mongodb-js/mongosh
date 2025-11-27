@@ -44,8 +44,9 @@ export function addCustomInspect(obj: any) {
     typeof obj === 'object' &&
     obj !== null &&
     !obj._bsontype &&
-    !(obj instanceof Date) &&
-    !(obj instanceof RegExp)
+    !['[object Date]', '[object RegExp]'].includes(
+      Object.prototype.toString.call(obj)
+    )
   ) {
     addInspectSymbol(obj);
     for (const value of Object.values(obj)) {
