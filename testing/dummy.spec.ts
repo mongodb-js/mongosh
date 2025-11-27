@@ -1,4 +1,4 @@
-// This is just a dummy test for make Mocha test explorer work.
+// This is just a dummy test to make Mocha Test Explorer work.
 // Should be removed as part of testing refactoring.
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-ignore
