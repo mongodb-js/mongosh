@@ -9,6 +9,8 @@ import { DeepInspectChangeStreamWrapper } from './deep-inspect-change-stream-wra
 export class DeepInspectServiceProviderWrapper implements ServiceProvider {
   _sp: ServiceProvider;
 
+  deepInspectWrappable = false;
+
   constructor(sp: ServiceProvider) {
     this._sp = sp;
   }

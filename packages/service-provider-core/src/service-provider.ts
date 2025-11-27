@@ -13,10 +13,13 @@ export default interface ServiceProvider
   extends Readable,
     Writable,
     Closable,
-    Admin {}
+    Admin {
+  deepInspectWrappable: boolean;
+}
 
 export class ServiceProviderCore {
   public bsonLibrary: BSON;
+  public deepInspectWrappable = true;
   constructor(bsonLibrary?: BSON) {
     if (bsonLibrary === undefined) {
       throw new MongoshInternalError('BSON Library is undefined.');

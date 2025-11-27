@@ -204,9 +204,9 @@ export class ShellInstanceState {
     cliOptions: ShellCliOptions = {},
     bsonLibrary: BSONLibrary = initialServiceProvider.bsonLibrary
   ) {
-    this.initialServiceProvider = new DeepInspectServiceProviderWrapper(
-      initialServiceProvider
-    );
+    this.initialServiceProvider = initialServiceProvider.deepInspectWrappable
+      ? new DeepInspectServiceProviderWrapper(initialServiceProvider)
+      : initialServiceProvider;
     this.bsonLibrary = bsonLibrary;
     this.messageBus = messageBus;
     this.shellApi = new ShellApi(this);
