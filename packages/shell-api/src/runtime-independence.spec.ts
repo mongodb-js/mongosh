@@ -65,7 +65,11 @@ describe('Runtime independence', function () {
     const evaluationListener = { onExit: sinon.spy() };
     const instanceState = new shellApi.ShellInstanceState(sp as any);
     instanceState.setEvaluationListener(evaluationListener);
-    expect((instanceState.initialServiceProvider as any)._sp).to.equal(sp);
+    expect(
+      (instanceState.initialServiceProvider as any)[
+        Symbol.for('@@mongosh.originalServiceProvider')
+      ]
+    ).to.equal(sp);
     const bsonObj = instanceState.shellBson.ISODate(
       '2025-01-09T20:43:51+01:00'
     );

@@ -29,6 +29,9 @@ export function deepInspectCursorWrapper<
   // All methods are potentially defined on the union
   const cursor = _cursor as Cursor & Partial<AllCursor<TSchema>>;
   return {
+    get [Symbol.for('@@mongosh.originalCursor')]() {
+      return cursor;
+    },
     allowDiskUse: forwardedMethod('allowDiskUse', cursor),
     collation: forwardedMethod('collation', cursor),
     comment: forwardedMethod('comment', cursor),

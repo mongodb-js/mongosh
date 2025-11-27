@@ -7,6 +7,9 @@ export function deepInspectServiceProviderWrapper(
   sp: ServiceProvider
 ): ServiceProvider {
   return {
+    get [Symbol.for('@@mongosh.originalServiceProvider')]() {
+      return sp;
+    },
     get bsonLibrary() {
       return sp.bsonLibrary;
     },
