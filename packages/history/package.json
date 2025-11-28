@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/history",
-  "version": "2.4.9",
+  "version": "2.4.11",
   "description": "MongoDB Shell History Package",
   "main": "./lib/index.js",
   "repository": {
