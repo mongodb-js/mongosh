@@ -36,7 +36,7 @@ export const CONTROL_CHAR_REGEXP_ALLOW_SIMPLE =
   // eslint-disable-next-line no-control-regex
   /[\x00-\x08\x0B-\x1F\x7F-\x9F]/;
 
-const fullDepthInspectOptions = {
+export const fullDepthInspectOptions = {
   depth: Infinity,
   maxArrayLength: Infinity,
   maxStringLength: Infinity,

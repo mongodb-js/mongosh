@@ -43,6 +43,9 @@ export const USAGE = `
         --retryWrites[=true|false]             ${i18n.__(
           'cli-repl.args.retryWrites'
         )}
+        --deep-inspect[=true|false]           ${i18n.__(
+          'cli-repl.args.deepInspect'
+        )}
 
   ${clr(
     i18n.__('cli-repl.args.authenticationOptions'),

@@ -58,6 +58,7 @@ import { deepInspectServiceProviderWrapper } from './deep-inspect/service-provid
  */
 export interface ShellCliOptions {
   nodb?: boolean;
+  deepInspect?: boolean;
 }
 
 /**
@@ -204,9 +205,10 @@ export class ShellInstanceState {
     cliOptions: ShellCliOptions = {},
     bsonLibrary: BSONLibrary = initialServiceProvider.bsonLibrary
   ) {
-    this.initialServiceProvider = deepInspectServiceProviderWrapper(
-      initialServiceProvider
-    );
+    this.initialServiceProvider =
+      cliOptions.deepInspect === false
+        ? initialServiceProvider
+        : deepInspectServiceProviderWrapper(initialServiceProvider);
     this.bsonLibrary = bsonLibrary;
     this.messageBus = messageBus;
     this.shellApi = new ShellApi(this);

@@ -955,7 +955,7 @@ class MongoshNodeRepl implements EvaluationListener {
   /**
    * Format the result to a string so it can be written to the output stream.
    */
-  writer(result: any): string {
+  writer(result: any, extraFormatOptions?: Partial<FormatOptions>): string {
     // This checks for error instances.
     // The writer gets called immediately by the internal `repl.eval`
     // in case of errors.
@@ -975,7 +975,8 @@ class MongoshNodeRepl implements EvaluationListener {
       this.rawValueToShellResult.get(result) ?? {
         type: null,
         printable: result,
-      }
+      },
+      extraFormatOptions
     );
   }
 

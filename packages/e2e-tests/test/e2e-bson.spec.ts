@@ -589,30 +589,128 @@ describe('BSON e2e', function () {
     });
   });
   describe('inspect nesting depth', function () {
-    it('inspects a full bson document when it is read from the server', async function () {
+    const deepAndNestedDefinition = `({
+        a: { b: { c: { d: { e: { f: { g: { h: "foundme" } } } } } } },
+        array: [...Array(100000).keys()].map(i => ({ num: i })),
+        str: 'All work and no playmakes Jack a dull boy'.repeat(4096) + 'The End'
+      })`;
+    const checkForDeepOutput = (output: string, wantFullOutput: boolean) => {
+      if (wantFullOutput) {
+        expect(output).not.to.include('[Object');
+        expect(output).not.to.include('more items');
+        expect(output).to.include('foundme');
+        expect(output).to.include('num: 99999');
+        expect(output).to.include('The End');
+      } else {
+        expect(output).to.include('[Object');
+        expect(output).to.include('more items');
+        expect(output).not.to.include('foundme');
+        expect(output).not.to.include('num: 99999');
+        expect(output).not.to.include('The End');
+      }
+    };
+
+    beforeEach(async function () {
       await shell.executeLine(`use ${dbName}`);
-      await shell.executeLine(`deepAndNested = ({
-          a: { b: { c: { d: { e: { f: { g: { h: "foundme" } } } } } } },
-          array: [...Array(100000).keys()].map(i => ({ num: i })),
-          str: 'All work and no play makes Jack a dull boy'.repeat(4096) + 'The End'
-      });`);
+      await shell.executeLine(`deepAndNested = ${deepAndNestedDefinition}`);
       await shell.executeLine(`db.coll.insertOne(deepAndNested)`);
+    });
+
+    it('inspects a full bson document when it is read from the server (interactive mode)', async function () {
       // Deeply nested object from the server should be fully printed
       const output = await shell.executeLine('db.coll.findOne()');
-      expect(output).not.to.include('[Object');
-      expect(output).not.to.include('more items');
-      expect(output).to.include('foundme');
-      expect(output).to.include('num: 99999');
-      expect(output).to.include('The End');
+      checkForDeepOutput(output, true);
       // Same object doesn't need to be fully printed if created by the user
       const output2 = await shell.executeLine('deepAndNested');
-      expect(output2).to.include('[Object');
-      expect(output2).to.include('more items');
-      expect(output2).not.to.include('foundme');
-      expect(output2).not.to.include('num: 99999');
-      expect(output2).not.to.include('The End');
+      checkForDeepOutput(output2, false);
       shell.assertNoErrors();
     });
+
+    it('can explicitly disable full-depth nesting (interactive mode)', async function () {
+      shell.kill();
+      shell = this.startTestShell({
+        args: [await testServer.connectionString(), '--deepInspect=false'],
+      });
+      await shell.executeLine(`use ${dbName}`);
+      const output = await shell.executeLine('db.coll.findOne()');
+      checkForDeepOutput(output, false);
+      shell.assertNoErrors();
+    });
+
+    it('does not deeply inspect objects in non-interactive mode for intermediate output', async function () {
+      shell.kill();
+      shell = this.startTestShell({
+        args: [
+          await testServer.connectionString(),
+          '--eval',
+          `use(${JSON.stringify(dbName)}); print(db.coll.findOne()); 0`,
+        ],
+      });
+      await shell.waitForSuccessfulExit();
+      checkForDeepOutput(shell.output, false);
+      shell.assertNoErrors();
+      shell = this.startTestShell({
+        args: [
+          await testServer.connectionString(),
+          '--eval',
+          `print(${deepAndNestedDefinition}); 0`,
+        ],
+      });
+      await shell.waitForSuccessfulExit();
+      checkForDeepOutput(shell.output, false);
+      shell.assertNoErrors();
+    });
+
+    it('inspect full objects in non-interactive mode for final output', async function () {
+      shell.kill();
+      shell = this.startTestShell({
+        args: [
+          await testServer.connectionString(),
+          '--eval',
+          `use(${JSON.stringify(dbName)}); db.coll.findOne();`,
+        ],
+      });
+      await shell.waitForSuccessfulExit();
+      checkForDeepOutput(shell.output, true);
+      shell.assertNoErrors();
+      shell = this.startTestShell({
+        args: [
+          await testServer.connectionString(),
+          '--eval',
+          deepAndNestedDefinition,
+        ],
+      });
+      await shell.waitForSuccessfulExit();
+      checkForDeepOutput(shell.output, true);
+      shell.assertNoErrors();
+    });
+
+    it('can explicitly disable full-depth nesting (non-interactive mode)', async function () {
+      shell.kill();
+      shell = this.startTestShell({
+        args: [
+          await testServer.connectionString(),
+          '--deepInspect=false',
+          '--eval',
+          `use(${JSON.stringify(dbName)}); db.coll.findOne();`,
+        ],
+      });
+      await shell.waitForSuccessfulExit();
+      checkForDeepOutput(shell.output, false);
+      shell.assertNoErrors();
+      shell = this.startTestShell({
+        args: [
+          await testServer.connectionString(),
+          '--deepInspect=false',
+          '--eval',
+          deepAndNestedDefinition,
+        ],
+      });
+      await shell.waitForSuccessfulExit();
+      checkForDeepOutput(shell.output, false);
+      shell.assertNoErrors();
+    });
+
     it('can parse serverStatus back to its original form', async function () {
       // Dates get special treatment but that doesn't currently apply
       // to mongosh's util.inspect that's available to users
