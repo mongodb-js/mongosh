@@ -631,6 +631,7 @@ describe('BSON e2e', function () {
       shell = this.startTestShell({
         args: [await testServer.connectionString(), '--deepInspect=false'],
       });
+      await shell.waitForPrompt();
       await shell.executeLine(`use ${dbName}`);
       const output = await shell.executeLine('db.coll.findOne()');
       checkForDeepOutput(output, false);
