@@ -23,7 +23,7 @@
     "eslint": "eslint",
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "prepublish": "npm run compile",
-    "test": "mocha --timeout 15000 -r ts-node/register --reporter \"../../configs/mocha-config-mongosh/reporter.ts\" \"./src/*.spec.ts\"",
+    "test": "mocha",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",

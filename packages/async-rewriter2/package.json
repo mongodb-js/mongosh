@@ -6,7 +6,7 @@
   "scripts": {
     "pretest": "npm run compile",
     "benchmark": "node -r ts-node/register benchmark/index.ts",
-    "test": "mocha --experimental-vm-modules -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\" --reporter \"../../configs/mocha-config-mongosh/reporter.ts\"",
+    "test": "mocha --experimental-vm-modules",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
