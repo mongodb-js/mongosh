@@ -20,6 +20,16 @@ type SignalType = ChildProcess extends { kill: (signal: infer T) => any }
   ? T
   : never;
 
+export interface TestShellInputOptions {
+  end?: boolean;
+  requireFinishedInitialization?: boolean;
+}
+
+export interface TestShellWaitForPromptOptions {
+  timeout?: number;
+  promptPattern?: RegExp;
+}
+
 // Assume that prompt strings are those that end in '> ' but do not contain
 // < or > (so that e.g. '- <repl>' in a stack trace is not considered a prompt).
 const PROMPT_PATTERN = /^([^<>]*> ?)+$/m;
@@ -152,6 +162,7 @@ export class TestShell {
   private _output: string;
   private _rawOutput: string;
   private _onClose: Promise<number>;
+  private _initializationKnownToBeFinished = false;
 
   constructor(
     shellProcess: ChildProcessWithoutNullStreams,
@@ -205,11 +216,14 @@ export class TestShell {
         });
       }
     });
+    // Not technically true, but in practice the patterns we wait for
+    // are sufficient to indicate that initialization is done.
+    this._initializationKnownToBeFinished = true;
   }
 
   async waitForPrompt(
     start = 0,
-    opts: { timeout?: number; promptPattern?: RegExp } = {}
+    opts: TestShellWaitForPromptOptions = {}
   ): Promise<void> {
     await eventually(
       () => {
@@ -247,10 +261,13 @@ export class TestShell {
       },
       { ...opts }
     );
+    this._initializationKnownToBeFinished = true;
   }
 
-  waitForAnyExit(): Promise<number> {
-    return this._onClose;
+  async waitForAnyExit(): Promise<number> {
+    const code = await this._onClose;
+    this._initializationKnownToBeFinished = true;
+    return code;
   }
 
   async waitForSuccessfulExit(): Promise<void> {
@@ -267,7 +284,7 @@ export class TestShell {
   }
 
   async waitForPromptOrExit(
-    opts: { timeout?: number; start?: number } = {}
+    opts: TestShellWaitForPromptOptions & { start?: number } = {}
   ): Promise<TestShellStartupResult> {
     return Promise.race([
       this.waitForPrompt(opts.start ?? 0, opts).then(
@@ -283,21 +300,29 @@ export class TestShell {
     this._process.kill(signal);
   }
 
-  writeInput(chars: string, { end = false } = {}): void {
+  writeInput(
+    chars: string,
+    {
+      end = false,
+      requireFinishedInitialization = true,
+    }: TestShellInputOptions = {}
+  ): void {
+    if (requireFinishedInitialization && !this._initializationKnownToBeFinished)
+      throw new Error('Wait for shell to be initialized before writing input');
     this._process.stdin.write(chars);
     if (end) this._process.stdin.end();
   }
 
-  writeInputLine(chars: string): void {
-    this.writeInput(`${chars}\n`);
+  writeInputLine(chars: string, options?: TestShellInputOptions): void {
+    this.writeInput(`${chars}\n`, options);
   }
 
   async executeLine(
     line: string,
-    opts: { timeout?: number; promptPattern?: RegExp } = {}
+    opts: TestShellWaitForPromptOptions & TestShellInputOptions = {}
   ): Promise<string> {
     const previousOutputLength = this._output.length;
-    this.writeInputLine(line);
+    this.writeInputLine(line, opts);
     await this.waitForPrompt(previousOutputLength, opts);
     return this._output.slice(previousOutputLength);
   }
