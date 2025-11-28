@@ -67,7 +67,7 @@ export function createCommands(
     },
     {
       key: 'ArrowUp',
-      run: (context) => {
+      run: (context: any) => {
         const selection = context.state.selection.main;
         if (!selection.empty) {
           return false;
@@ -88,7 +88,7 @@ export function createCommands(
     },
     {
       key: 'ArrowDown',
-      run: (context) => {
+      run: (context: any) => {
         const selection = context.state.selection.main;
         if (!selection.empty) {
           return false;
@@ -146,7 +146,7 @@ export class Editor extends Component<EditorProps> {
 
   constructor(props: EditorProps) {
     super(props);
-    this.autocompleter = (context) => {
+    this.autocompleter = (context: any) => {
       if (!this.props.autocompleter?.getCompletions) {
         return null;
       }
