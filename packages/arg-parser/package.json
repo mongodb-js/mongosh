@@ -56,6 +56,7 @@
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
+    "@types/yargs-parser": "^21.0.3",
     "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
     "mongodb": "^6.19.0",
