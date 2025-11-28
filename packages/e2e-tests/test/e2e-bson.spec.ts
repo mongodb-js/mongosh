@@ -647,9 +647,7 @@ describe('BSON e2e', function () {
           `use(${JSON.stringify(dbName)}); print(db.coll.findOne()); 0`,
         ],
       });
-      await shell.waitForSuccessfulExit();
-      checkForDeepOutput(shell.output, false);
-      shell.assertNoErrors();
+      checkForDeepOutput(await shell.waitForCleanOutput(), false);
       shell = this.startTestShell({
         args: [
           await testServer.connectionString(),
@@ -657,9 +655,7 @@ describe('BSON e2e', function () {
           `print(${deepAndNestedDefinition}); 0`,
         ],
       });
-      await shell.waitForSuccessfulExit();
-      checkForDeepOutput(shell.output, false);
-      shell.assertNoErrors();
+      checkForDeepOutput(await shell.waitForCleanOutput(), false);
     });
 
     it('inspect full objects in non-interactive mode for final output', async function () {
@@ -671,9 +667,7 @@ describe('BSON e2e', function () {
           `use(${JSON.stringify(dbName)}); db.coll.findOne();`,
         ],
       });
-      await shell.waitForSuccessfulExit();
-      checkForDeepOutput(shell.output, true);
-      shell.assertNoErrors();
+      checkForDeepOutput(await shell.waitForCleanOutput(), true);
       shell = this.startTestShell({
         args: [
           await testServer.connectionString(),
@@ -681,9 +675,7 @@ describe('BSON e2e', function () {
           deepAndNestedDefinition,
         ],
       });
-      await shell.waitForSuccessfulExit();
-      checkForDeepOutput(shell.output, true);
-      shell.assertNoErrors();
+      checkForDeepOutput(await shell.waitForCleanOutput(), true);
     });
 
     it('can explicitly disable full-depth nesting (non-interactive mode)', async function () {
@@ -696,9 +688,7 @@ describe('BSON e2e', function () {
           `use(${JSON.stringify(dbName)}); db.coll.findOne();`,
         ],
       });
-      await shell.waitForSuccessfulExit();
-      checkForDeepOutput(shell.output, false);
-      shell.assertNoErrors();
+      checkForDeepOutput(await shell.waitForCleanOutput(), false);
       shell = this.startTestShell({
         args: [
           await testServer.connectionString(),
@@ -707,9 +697,7 @@ describe('BSON e2e', function () {
           deepAndNestedDefinition,
         ],
       });
-      await shell.waitForSuccessfulExit();
-      checkForDeepOutput(shell.output, false);
-      shell.assertNoErrors();
+      checkForDeepOutput(await shell.waitForCleanOutput(), false);
     });
 
     it('can parse serverStatus back to its original form', async function () {
