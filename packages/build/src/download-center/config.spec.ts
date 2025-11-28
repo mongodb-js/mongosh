@@ -1,4 +1,4 @@
-import type { DownloadCenterConfig } from '@mongodb-js/dl-center/dist/download-center-config';
+import type { DownloadCenterConfig } from '@mongodb-js/dl-center';
 import { type PackageInformationProvider } from '../packaging';
 import { expect } from 'chai';
 import sinon from 'sinon';
