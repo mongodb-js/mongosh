@@ -310,10 +310,9 @@ describe('e2e', function () {
       // The number of newlines here matters
       shell.writeInput(
         'sleep(100);print([1,2,3,4,5,6,7,8,9,10].reduce(\n(a,b) => { return a*b; }, 1))\n\n\n\n',
-        { end: true }
+        { end: true, requireFinishedInitialization: false }
       );
-      await shell.waitForSuccessfulExit();
-      shell.assertContainsOutput('3628800');
+      expect(await shell.waitForCleanOutput()).to.include('3628800');
     });
     it('ignores control characters in TTY input', async function () {
       shell = this.startTestShell({
@@ -1155,10 +1154,9 @@ describe('e2e', function () {
       });
       shell.writeInput(
         '[db.hello()].reduce(\n() => { return 11111*11111; },0)\n\n\n',
-        { end: true }
+        { end: true, requireFinishedInitialization: false }
       );
-      await shell.waitForSuccessfulExit();
-      shell.assertContainsOutput('123454321');
+      expect(await shell.waitForCleanOutput()).to.include('123454321');
     });
   });
 
@@ -2605,9 +2603,7 @@ describe('e2e', function () {
 
     it('allows connecting to a host and running commands against it', async function () {
       const connectionString = await testServer.connectionString();
-      await eventually(() => {
-        shell.assertContainsOutput('Please enter a MongoDB connection string');
-      });
+      await shell.waitForLine(/Please enter a MongoDB connection string/);
       shell.writeInputLine(connectionString);
       await shell.waitForPrompt();
 
