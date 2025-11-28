@@ -47,7 +47,7 @@ import type { FormatOptions } from './format-output';
 import { markTime } from './startup-timing';
 import type { Context } from 'vm';
 import { Script, createContext, runInContext } from 'vm';
-import { installPasteSupport } from './repl-paste-support';
+import { fixNode60446, installPasteSupport } from './repl-paste-support';
 import util from 'util';
 import { fixNodeReplCompleterSideEffectHandling } from './node-repl-fix-completer-side-effects';
 
@@ -278,6 +278,7 @@ class MongoshNodeRepl implements EvaluationListener {
         onAsyncSigint: this.onAsyncSigint.bind(this),
         ...this.nodeReplOptions,
       });
+      fixNode60446(repl);
       context = repl.context;
     } else {
       // https://nodejs.org/api/repl.html#replbuiltinmodules not represented in TS types

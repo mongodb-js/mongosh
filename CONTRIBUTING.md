@@ -15,6 +15,9 @@ MongoDB welcomes community contributions! If you’re interested in making a con
 1. Add comments around your new code that explain what's happening
 1. Commit and push your changes to your branch then submit a pull request
 
+## Running Tests on VSCode
+You can use the `mongosh.code-workspace` file along with the [Mocha Test Explorer](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-mocha-test-adapter) to run and debug tests in VSCode UI.
+
 ## Bugs
 
 You can report new bugs by
