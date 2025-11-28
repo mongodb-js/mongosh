@@ -1,6 +1,16 @@
 import { MongoshUnimplementedError } from '@mongosh/errors';
 import { expect } from 'chai';
-import { getLocale, parseCliArgs, UnknownCliArgumentError } from './arg-parser';
+import stripAnsi from 'strip-ansi';
+import {
+  CliOptionsSchema,
+  coerceIfBoolean,
+  generateYargsOptionsFromSchema,
+  getLocale,
+  parseCliArgs,
+  parseMongoshCliOptionsArgs,
+  UnknownCliArgumentError,
+} from './arg-parser';
+import { z } from 'zod/v4';
 
 describe('arg-parser', function () {
   describe('.getLocale', function () {
@@ -80,7 +90,9 @@ describe('arg-parser', function () {
       const argv = [...baseArgv, uri];
 
       it('returns the URI in the object', function () {
-        expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+        expect(
+          parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+        ).to.equal(uri);
       });
     });
 
@@ -92,11 +104,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--ipv6'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the ipv6 value in the object', function () {
-            expect(parseCliArgs(argv).ipv6).to.equal(true);
+            expect(parseMongoshCliOptionsArgs(argv).options.ipv6).to.equal(
+              true
+            );
           });
         });
 
@@ -104,11 +120,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '-h'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the help value in the object', function () {
-            expect(parseCliArgs(argv).help).to.equal(true);
+            expect(parseMongoshCliOptionsArgs(argv).options.help).to.equal(
+              true
+            );
           });
         });
 
@@ -116,11 +136,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--help'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the help value in the object', function () {
-            expect(parseCliArgs(argv).help).to.equal(true);
+            expect(parseMongoshCliOptionsArgs(argv).options.help).to.equal(
+              true
+            );
           });
         });
 
@@ -128,11 +152,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--version'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the version value in the object', function () {
-            expect(parseCliArgs(argv).version).to.equal(true);
+            expect(parseMongoshCliOptionsArgs(argv).options.version).to.equal(
+              true
+            );
           });
         });
 
@@ -140,11 +168,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--verbose'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the verbose value in the object', function () {
-            expect(parseCliArgs(argv).verbose).to.equal(true);
+            expect(parseMongoshCliOptionsArgs(argv).options.verbose).to.equal(
+              true
+            );
           });
         });
 
@@ -152,11 +184,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--shell'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the shell value in the object', function () {
-            expect(parseCliArgs(argv).shell).to.equal(true);
+            expect(parseMongoshCliOptionsArgs(argv).options.shell).to.equal(
+              true
+            );
           });
         });
 
@@ -164,12 +200,18 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--nodb'];
 
           it('does not return the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(undefined);
-            expect(parseCliArgs(argv).fileNames).to.deep.equal([uri]);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(undefined);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.fileNames
+            ).to.deep.equal([uri]);
           });
 
           it('sets the nodb value in the object', function () {
-            expect(parseCliArgs(argv).nodb).to.equal(true);
+            expect(parseMongoshCliOptionsArgs(argv).options.nodb).to.equal(
+              true
+            );
           });
         });
 
@@ -177,11 +219,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--norc'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the norc value in the object', function () {
-            expect(parseCliArgs(argv).norc).to.equal(true);
+            expect(parseMongoshCliOptionsArgs(argv).options.norc).to.equal(
+              true
+            );
           });
         });
 
@@ -189,11 +235,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--quiet'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the quiet value in the object', function () {
-            expect(parseCliArgs(argv).quiet).to.equal(true);
+            expect(parseMongoshCliOptionsArgs(argv).options.quiet).to.equal(
+              true
+            );
           });
         });
 
@@ -201,11 +251,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--eval', '1+1'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the eval value in the object', function () {
-            expect(parseCliArgs(argv).eval).to.deep.equal(['1+1']);
+            expect(parseMongoshCliOptionsArgs(argv).options.eval).to.deep.equal(
+              ['1+1']
+            );
           });
         });
 
@@ -213,11 +267,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--eval', '1+1', '--eval', '2+2'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the eval value in the object', function () {
-            expect(parseCliArgs(argv).eval).to.deep.equal(['1+1', '2+2']);
+            expect(parseMongoshCliOptionsArgs(argv).options.eval).to.deep.equal(
+              ['1+1', '2+2']
+            );
           });
         });
 
@@ -225,11 +283,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--retryWrites'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the retryWrites value in the object', function () {
-            expect(parseCliArgs(argv).retryWrites).to.equal(true);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.retryWrites
+            ).to.equal(true);
           });
         });
 
@@ -238,14 +300,15 @@ describe('arg-parser', function () {
 
           it('raises an error', function () {
             try {
-              parseCliArgs(argv);
+              parseMongoshCliOptionsArgs(argv).options;
             } catch (err: any) {
               if (err instanceof UnknownCliArgumentError) {
-                expect(err.argument).equals('--what');
+                expect(stripAnsi(err.message)).to.equal(
+                  'Unknown argument: --what'
+                );
                 return;
-              } else {
-                expect.fail('Did not throw an unknown cli error');
               }
+              expect.fail('Expected UnknownCliArgumentError');
             }
             expect.fail('parsing unknown parameter did not throw');
           });
@@ -257,11 +320,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '-u', 'richard'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the username in the object', function () {
-            expect(parseCliArgs(argv).username).to.equal('richard');
+            expect(parseMongoshCliOptionsArgs(argv).options.username).to.equal(
+              'richard'
+            );
           });
         });
 
@@ -269,11 +336,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--username', 'richard'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the username in the object', function () {
-            expect(parseCliArgs(argv).username).to.equal('richard');
+            expect(parseMongoshCliOptionsArgs(argv).options.username).to.equal(
+              'richard'
+            );
           });
         });
 
@@ -281,11 +352,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '-p', 'pw'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the password in the object', function () {
-            expect(parseCliArgs(argv).password).to.equal('pw');
+            expect(parseMongoshCliOptionsArgs(argv).options.password).to.equal(
+              'pw'
+            );
           });
         });
 
@@ -293,11 +368,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--password', 'pw'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the password in the object', function () {
-            expect(parseCliArgs(argv).password).to.equal('pw');
+            expect(parseMongoshCliOptionsArgs(argv).options.password).to.equal(
+              'pw'
+            );
           });
         });
 
@@ -305,11 +384,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--authenticationDatabase', 'db'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the authenticationDatabase in the object', function () {
-            expect(parseCliArgs(argv).authenticationDatabase).to.equal('db');
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.authenticationDatabase
+            ).to.equal('db');
           });
         });
 
@@ -322,13 +405,15 @@ describe('arg-parser', function () {
           ];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the authenticationMechanism in the object', function () {
-            expect(parseCliArgs(argv).authenticationMechanism).to.equal(
-              'SCRAM-SHA-256'
-            );
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.authenticationMechanism
+            ).to.equal('SCRAM-SHA-256');
           });
         });
 
@@ -336,11 +421,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--gssapiServiceName', 'mongosh'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the gssapiServiceName in the object', function () {
-            expect(parseCliArgs(argv).gssapiServiceName).to.equal('mongosh');
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.gssapiServiceName
+            ).to.equal('mongosh');
           });
         });
 
@@ -349,7 +438,7 @@ describe('arg-parser', function () {
 
           it('throws an error since it is not supported', function () {
             try {
-              parseCliArgs(argv);
+              parseMongoshCliOptionsArgs(argv).options;
             } catch (e: any) {
               expect(e).to.be.instanceOf(MongoshUnimplementedError);
               expect(e.message).to.include(
@@ -361,11 +450,11 @@ describe('arg-parser', function () {
           });
 
           // it('returns the URI in the object', () => {
-          //   expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+          //   expect(parseMongoshCliOptionsArgs(argv).options.connectionSpecifier).to.equal(uri);
           // });
 
           // it('sets the gssapiHostName in the object', () => {
-          //   expect(parseCliArgs(argv).gssapiHostName).to.equal('example.com');
+          //   expect(parseMongoshCliOptionsArgs(argv).options.gssapiHostName).to.equal('example.com');
           // });
         });
 
@@ -378,13 +467,16 @@ describe('arg-parser', function () {
           ];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the gssapiHostName in the object', function () {
-            expect(parseCliArgs(argv).sspiHostnameCanonicalization).to.equal(
-              'forward'
-            );
+            expect(
+              parseMongoshCliOptionsArgs(argv).options
+                .sspiHostnameCanonicalization
+            ).to.equal('forward');
           });
         });
 
@@ -397,13 +489,15 @@ describe('arg-parser', function () {
           ];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the gssapiHostName in the object', function () {
-            expect(parseCliArgs(argv).sspiRealmOverride).to.equal(
-              'example2.com'
-            );
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.sspiRealmOverride
+            ).to.equal('example2.com');
           });
         });
 
@@ -411,11 +505,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--awsIamSessionToken', 'tok'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the awsIamSessionToken in the object', function () {
-            expect(parseCliArgs(argv).awsIamSessionToken).to.equal('tok');
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.awsIamSessionToken
+            ).to.equal('tok');
           });
         });
       });
@@ -425,11 +523,13 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--tls'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the tls in the object', function () {
-            expect(parseCliArgs(argv).tls).to.equal(true);
+            expect(parseMongoshCliOptionsArgs(argv).options.tls).to.equal(true);
           });
         });
 
@@ -437,11 +537,13 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '-tls'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the tls in the object', function () {
-            expect(parseCliArgs(argv).tls).to.equal(true);
+            expect(parseMongoshCliOptionsArgs(argv).options.tls).to.equal(true);
           });
         });
 
@@ -449,11 +551,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--tlsCertificateKeyFile', 'test'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the tlsCertificateKeyFile in the object', function () {
-            expect(parseCliArgs(argv).tlsCertificateKeyFile).to.equal('test');
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.tlsCertificateKeyFile
+            ).to.equal('test');
           });
         });
 
@@ -463,11 +569,15 @@ describe('arg-parser', function () {
             const argv = [...baseArgv, uri, '-tlsCertificateKeyFile', 'test'];
 
             it('returns the URI in the object', function () {
-              expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+              expect(
+                parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+              ).to.equal(uri);
             });
 
             it('sets the tlsCertificateKeyFile in the object', function () {
-              expect(parseCliArgs(argv).tlsCertificateKeyFile).to.equal('test');
+              expect(
+                parseMongoshCliOptionsArgs(argv).options.tlsCertificateKeyFile
+              ).to.equal('test');
             });
           }
         );
@@ -481,13 +591,16 @@ describe('arg-parser', function () {
           ];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the tlsCertificateKeyFilePassword in the object', function () {
-            expect(parseCliArgs(argv).tlsCertificateKeyFilePassword).to.equal(
-              'test'
-            );
+            expect(
+              parseMongoshCliOptionsArgs(argv).options
+                .tlsCertificateKeyFilePassword
+            ).to.equal('test');
           });
         });
 
@@ -495,11 +608,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--tlsCAFile', 'test'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the tlsCAFile in the object', function () {
-            expect(parseCliArgs(argv).tlsCAFile).to.equal('test');
+            expect(parseMongoshCliOptionsArgs(argv).options.tlsCAFile).to.equal(
+              'test'
+            );
           });
         });
 
@@ -507,11 +624,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--tlsCRLFile', 'test'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the tlsCRLFile in the object', function () {
-            expect(parseCliArgs(argv).tlsCRLFile).to.equal('test');
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.tlsCRLFile
+            ).to.equal('test');
           });
         });
 
@@ -519,11 +640,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--tlsAllowInvalidHostnames'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the tlsAllowInvalidHostnames in the object', function () {
-            expect(parseCliArgs(argv).tlsAllowInvalidHostnames).to.equal(true);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.tlsAllowInvalidHostnames
+            ).to.equal(true);
           });
         });
 
@@ -531,13 +656,16 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--tlsAllowInvalidCertificates'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the tlsAllowInvalidCertificates in the object', function () {
-            expect(parseCliArgs(argv).tlsAllowInvalidCertificates).to.equal(
-              true
-            );
+            expect(
+              parseMongoshCliOptionsArgs(argv).options
+                .tlsAllowInvalidCertificates
+            ).to.equal(true);
           });
         });
 
@@ -546,7 +674,7 @@ describe('arg-parser', function () {
 
           it('throws an error since it is not supported', function () {
             try {
-              parseCliArgs(argv);
+              parseMongoshCliOptionsArgs(argv).options;
             } catch (e: any) {
               expect(e).to.be.instanceOf(MongoshUnimplementedError);
               expect(e.message).to.include(
@@ -558,11 +686,11 @@ describe('arg-parser', function () {
           });
 
           // it('returns the URI in the object', () => {
-          //   expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+          //   expect(parseMongoshCliOptionsArgs(argv).options.connectionSpecifier).to.equal(uri);
           // });
 
           // it('sets the tlsFIPSMode in the object', () => {
-          //   expect(parseCliArgs(argv).tlsFIPSMode).to.equal(true);
+          //   expect(parseMongoshCliOptionsArgs(argv).options.tlsFIPSMode).to.equal(true);
           // });
         });
 
@@ -570,11 +698,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--tlsCertificateSelector', 'test'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the tlsCertificateSelector in the object', function () {
-            expect(parseCliArgs(argv).tlsCertificateSelector).to.equal('test');
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.tlsCertificateSelector
+            ).to.equal('test');
           });
         });
 
@@ -587,13 +719,15 @@ describe('arg-parser', function () {
           ];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the tlsDisabledProtocols in the object', function () {
-            expect(parseCliArgs(argv).tlsDisabledProtocols).to.equal(
-              'TLS1_0,TLS2_0'
-            );
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.tlsDisabledProtocols
+            ).to.equal('TLS1_0,TLS2_0');
           });
         });
       });
@@ -603,11 +737,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--awsAccessKeyId', 'foo'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the awsAccessKeyId in the object', function () {
-            expect(parseCliArgs(argv).awsAccessKeyId).to.equal('foo');
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.awsAccessKeyId
+            ).to.equal('foo');
           });
         });
 
@@ -615,11 +753,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--awsSecretAccessKey', 'foo'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the awsSecretAccessKey in the object', function () {
-            expect(parseCliArgs(argv).awsSecretAccessKey).to.equal('foo');
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.awsSecretAccessKey
+            ).to.equal('foo');
           });
         });
 
@@ -627,11 +769,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--awsSessionToken', 'foo'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the awsSessionToken in the object', function () {
-            expect(parseCliArgs(argv).awsSessionToken).to.equal('foo');
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.awsSessionToken
+            ).to.equal('foo');
           });
         });
 
@@ -639,11 +785,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--keyVaultNamespace', 'foo.bar'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the keyVaultNamespace in the object', function () {
-            expect(parseCliArgs(argv).keyVaultNamespace).to.equal('foo.bar');
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.keyVaultNamespace
+            ).to.equal('foo.bar');
           });
         });
 
@@ -651,11 +801,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--kmsURL', 'example.com'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the kmsURL in the object', function () {
-            expect(parseCliArgs(argv).kmsURL).to.equal('example.com');
+            expect(parseMongoshCliOptionsArgs(argv).options.kmsURL).to.equal(
+              'example.com'
+            );
           });
         });
       });
@@ -665,11 +819,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--apiVersion', '1'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the apiVersion in the object', function () {
-            expect(parseCliArgs(argv).apiVersion).to.equal('1');
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.apiVersion
+            ).to.equal('1');
           });
         });
 
@@ -677,11 +835,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--apiDeprecationErrors'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the apiVersion in the object', function () {
-            expect(parseCliArgs(argv).apiDeprecationErrors).to.equal(true);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.apiDeprecationErrors
+            ).to.equal(true);
           });
         });
 
@@ -689,11 +851,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '--apiStrict'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the apiVersion in the object', function () {
-            expect(parseCliArgs(argv).apiStrict).to.equal(true);
+            expect(parseMongoshCliOptionsArgs(argv).options.apiStrict).to.equal(
+              true
+            );
           });
         });
       });
@@ -703,12 +869,18 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, 'test1.js', 'test2.js'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the filenames', function () {
-            expect(parseCliArgs(argv).fileNames?.[0]).to.equal('test1.js');
-            expect(parseCliArgs(argv).fileNames?.[1]).to.equal('test2.js');
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.fileNames?.[0]
+            ).to.equal('test1.js');
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.fileNames?.[1]
+            ).to.equal('test2.js');
           });
         });
 
@@ -716,12 +888,18 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, 'test1.mongodb', 'test2.mongodb'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the filenames', function () {
-            expect(parseCliArgs(argv).fileNames?.[0]).to.equal('test1.mongodb');
-            expect(parseCliArgs(argv).fileNames?.[1]).to.equal('test2.mongodb');
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.fileNames?.[0]
+            ).to.equal('test1.mongodb');
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.fileNames?.[1]
+            ).to.equal('test2.mongodb');
           });
         });
 
@@ -729,12 +907,18 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, 'test1.txt', 'test2.txt'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the filenames', function () {
-            expect(parseCliArgs(argv).fileNames?.[0]).to.equal('test1.txt');
-            expect(parseCliArgs(argv).fileNames?.[1]).to.equal('test2.txt');
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.fileNames?.[0]
+            ).to.equal('test1.txt');
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.fileNames?.[1]
+            ).to.equal('test2.txt');
           });
         });
 
@@ -742,12 +926,18 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, uri, '-f', 'test1.txt', '-f', 'test2.txt'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the filenames', function () {
-            expect(parseCliArgs(argv).fileNames?.[0]).to.equal('test1.txt');
-            expect(parseCliArgs(argv).fileNames?.[1]).to.equal('test2.txt');
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.fileNames?.[0]
+            ).to.equal('test1.txt');
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.fileNames?.[1]
+            ).to.equal('test2.txt');
           });
         });
 
@@ -762,12 +952,18 @@ describe('arg-parser', function () {
           ];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the filenames', function () {
-            expect(parseCliArgs(argv).fileNames?.[0]).to.equal('test1.txt');
-            expect(parseCliArgs(argv).fileNames?.[1]).to.equal('test2.txt');
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.fileNames?.[0]
+            ).to.equal('test1.txt');
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.fileNames?.[1]
+            ).to.equal('test2.txt');
           });
         });
       });
@@ -777,12 +973,18 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, 'test1.js', 'test2.js'];
 
           it('returns no URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(undefined);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(undefined);
           });
 
           it('sets the filenames', function () {
-            expect(parseCliArgs(argv).fileNames?.[0]).to.equal('test1.js');
-            expect(parseCliArgs(argv).fileNames?.[1]).to.equal('test2.js');
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.fileNames?.[0]
+            ).to.equal('test1.js');
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.fileNames?.[1]
+            ).to.equal('test2.js');
           });
         });
 
@@ -790,12 +992,18 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, 'test1.mongodb', 'test2.mongodb'];
 
           it('returns no URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(undefined);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(undefined);
           });
 
           it('sets the filenames', function () {
-            expect(parseCliArgs(argv).fileNames?.[0]).to.equal('test1.mongodb');
-            expect(parseCliArgs(argv).fileNames?.[1]).to.equal('test2.mongodb');
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.fileNames?.[0]
+            ).to.equal('test1.mongodb');
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.fileNames?.[1]
+            ).to.equal('test2.mongodb');
           });
         });
 
@@ -803,13 +1011,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, 'test1.txt', 'test2.txt'];
 
           it('returns the first filename as an URI', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(
-              'test1.txt'
-            );
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal('test1.txt');
           });
 
           it('uses the remainder as filenames', function () {
-            expect(parseCliArgs(argv).fileNames?.[0]).to.equal('test2.txt');
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.fileNames?.[0]
+            ).to.equal('test2.txt');
           });
         });
 
@@ -817,13 +1027,15 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, 'mongodb://domain.foo.js', 'test2.txt'];
 
           it('returns the first filename as an URI', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(
-              'mongodb://domain.foo.js'
-            );
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal('mongodb://domain.foo.js');
           });
 
           it('uses the remainder as filenames', function () {
-            expect(parseCliArgs(argv).fileNames?.[0]).to.equal('test2.txt');
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.fileNames?.[0]
+            ).to.equal('test2.txt');
           });
         });
 
@@ -838,15 +1050,15 @@ describe('arg-parser', function () {
             ];
 
             it('returns the first filename as an URI', function () {
-              expect(parseCliArgs(argv).connectionSpecifier).to.equal(
-                'mongodb://domain.bar.js'
-              );
+              expect(
+                parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+              ).to.equal('mongodb://domain.bar.js');
             });
 
             it('uses the remainder as filenames', function () {
-              expect(parseCliArgs(argv).fileNames?.[0]).to.equal(
-                'mongodb://domain.foo.js'
-              );
+              expect(
+                parseMongoshCliOptionsArgs(argv).options.fileNames?.[0]
+              ).to.equal('mongodb://domain.foo.js');
             });
           }
         );
@@ -860,7 +1072,9 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, db];
 
           it('sets the db in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(db);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(db);
           });
         });
 
@@ -869,7 +1083,9 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, db];
 
           it('sets the db in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(db);
+            expect(
+              parseMongoshCliOptionsArgs(argv).options.connectionSpecifier
+            ).to.equal(db);
           });
         });
       });
@@ -879,7 +1095,9 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, '--host', 'example.com'];
 
           it('sets the host value in the object', function () {
-            expect(parseCliArgs(argv).host).to.equal('example.com');
+            expect(parseMongoshCliOptionsArgs(argv).options.host).to.equal(
+              'example.com'
+            );
           });
         });
 
@@ -887,7 +1105,9 @@ describe('arg-parser', function () {
           const argv = [...baseArgv, '--port', '20000'];
 
           it('sets the port value in the object', function () {
-            expect(parseCliArgs(argv).port).to.equal('20000');
+            expect(parseMongoshCliOptionsArgs(argv).options.port).to.equal(
+              '20000'
+            );
           });
         });
       });
@@ -938,11 +1158,263 @@ describe('arg-parser', function () {
             argv.push(value);
           }
 
-          const args = parseCliArgs(argv);
+          const args = parseMongoshCliOptionsArgs(argv).options;
           expect(args).to.not.have.property(deprecated);
           expect(args[replacement]).to.equal(value ?? true);
         });
       }
+    });
+  });
+
+  describe('union type fields', function () {
+    for (const { argument, values, strict } of [
+      { argument: 'json', values: ['relaxed', 'canonical'] },
+      { argument: 'oidcDumpTokens', values: ['redacted', 'include-secrets'] },
+      { argument: 'browser', values: ['test'], strict: false },
+    ] as const) {
+      const baseArgv = ['node', 'mongosh', 'mongodb://domain.com:20000'];
+      describe(`with ${argument}`, function () {
+        context('with boolean', function () {
+          it(`get set to true with --${argument}`, function () {
+            expect(
+              parseMongoshCliOptionsArgs([...baseArgv, `--${argument}`])
+                .options[argument]
+            ).to.equal(true);
+          });
+
+          it(`sets to true with --${argument}=true`, function () {
+            expect(
+              parseMongoshCliOptionsArgs([...baseArgv, `--${argument}=true`])
+                .options[argument]
+            ).to.equal(true);
+          });
+
+          it(`sets to false with --${argument}=false`, function () {
+            expect(
+              parseMongoshCliOptionsArgs([...baseArgv, `--${argument}=false`])
+                .options[argument]
+            ).to.equal(false);
+          });
+        });
+
+        for (const value of values) {
+          context('with string value', function () {
+            // This matches the legacy behavior pre-Zod schema migration.
+            it(`does not work with "--${argument} ${value}"`, function () {
+              expect(
+                parseMongoshCliOptionsArgs([
+                  ...baseArgv,
+                  `--${argument} ${value}`,
+                ]).options[argument]
+              ).to.be.undefined;
+            });
+
+            it(`works "--${argument}=${value}"`, function () {
+              expect(
+                parseMongoshCliOptionsArgs([
+                  ...baseArgv,
+                  `--${argument}=${value}`,
+                ]).options[argument]
+              ).to.equal(value);
+            });
+          });
+        }
+
+        if (strict) {
+          it('throws an error with invalid value', function () {
+            try {
+              parseMongoshCliOptionsArgs([
+                ...baseArgv,
+                `--${argument}`,
+                'invalid',
+              ]);
+            } catch (e: any) {
+              expect(e).to.be.instanceOf(MongoshUnimplementedError);
+              expect(e.message).to.include(
+                `--${argument} can only have the values ${values.join(', ')}`
+              );
+              return;
+            }
+            expect.fail('Expected error');
+          });
+        }
+      });
+    }
+  });
+
+  const testSchema = z.object({
+    name: z.string(),
+    age: z.number(),
+    isAdmin: z.boolean(),
+    roles: z.array(z.string()),
+  });
+
+  describe('generateYargsOptions', function () {
+    it('generates from arbitrary schema', function () {
+      const options = generateYargsOptionsFromSchema({
+        schema: testSchema,
+        configuration: {
+          'combine-arrays': true,
+        },
+      });
+
+      expect(options).to.deep.equal({
+        string: ['name'],
+        number: ['age'],
+        boolean: ['isAdmin'],
+        array: ['roles'],
+        coerce: {},
+        alias: {},
+        configuration: {
+          'combine-arrays': true,
+        },
+      });
+    });
+
+    it('generates the expected options for Cli Options', function () {
+      const options = generateYargsOptionsFromSchema({
+        schema: CliOptionsSchema,
+      });
+
+      const expected = {
+        string: [
+          'apiVersion',
+          'authenticationDatabase',
+          'authenticationMechanism',
+          'awsAccessKeyId',
+          'awsIamSessionToken',
+          'awsSecretAccessKey',
+          'awsSessionToken',
+          'csfleLibraryPath',
+          'cryptSharedLibPath',
+          'db',
+          'gssapiHostName',
+          'gssapiServiceName',
+          'sspiHostnameCanonicalization',
+          'sspiRealmOverride',
+          'jsContext',
+          'host',
+          'keyVaultNamespace',
+          'kmsURL',
+          'locale',
+          'oidcFlows',
+          'oidcRedirectUri',
+          'password',
+          'port',
+          'sslPEMKeyFile',
+          'sslPEMKeyPassword',
+          'sslCAFile',
+          'sslCertificateSelector',
+          'sslCRLFile',
+          'sslDisabledProtocols',
+          'tlsCAFile',
+          'tlsCertificateKeyFile',
+          'tlsCertificateKeyFilePassword',
+          'tlsCertificateSelector',
+          'tlsCRLFile',
+          'tlsDisabledProtocols',
+          'username',
+        ],
+        boolean: [
+          'apiDeprecationErrors',
+          'apiStrict',
+          'buildInfo',
+          'exposeAsyncRewriter',
+          'help',
+          'ipv6',
+          'nodb',
+          'norc',
+          'oidcTrustedEndpoint',
+          'oidcIdTokenAsAccessToken',
+          'oidcNoNonce',
+          'perfTests',
+          'quiet',
+          'retryWrites',
+          'shell',
+          'smokeTests',
+          'skipStartupWarnings',
+          'ssl',
+          'sslAllowInvalidCertificates',
+          'sslAllowInvalidHostnames',
+          'sslFIPSMode',
+          'tls',
+          'tlsAllowInvalidCertificates',
+          'tlsAllowInvalidHostnames',
+          'tlsFIPSMode',
+          'tlsUseSystemCA',
+          'verbose',
+          'version',
+        ],
+        array: ['eval', 'file'],
+        coerce: {
+          json: coerceIfBoolean,
+          oidcDumpTokens: coerceIfBoolean,
+          browser: coerceIfBoolean,
+        },
+        alias: {
+          h: 'help',
+          p: 'password',
+          u: 'username',
+          f: 'file',
+          'build-info': 'buildInfo',
+          oidcRedirectUrl: 'oidcRedirectUri', // I'd get this wrong about 50% of the time
+          oidcIDTokenAsAccessToken: 'oidcIdTokenAsAccessToken', // ditto
+        },
+        configuration: {
+          'camel-case-expansion': false,
+          'unknown-options-as-args': true,
+          'parse-positional-numbers': false,
+          'parse-numbers': false,
+          'greedy-arrays': false,
+          'short-option-groups': false,
+        },
+      };
+
+      // Compare arrays without caring about order
+      expect(options.string?.sort()).to.deep.equal(expected.string.sort());
+      expect(options.boolean?.sort()).to.deep.equal(expected.boolean.sort());
+      expect(options.array?.sort()).to.deep.equal(expected.array.sort());
+
+      // Compare non-array properties normally
+      expect(options.alias).to.deep.equal(expected.alias);
+      expect(options.configuration).to.deep.equal(expected.configuration);
+    });
+  });
+
+  describe('parseCliArgs', function () {
+    it('parses the expected options for Cli Options', function () {
+      const options = parseCliArgs({
+        args: ['--port', '20000', '--ssl', '1', '--unknownField', '1'],
+        schema: CliOptionsSchema,
+      });
+
+      expect(options).to.deep.equal({
+        _: ['1', '--unknownField', '1'],
+        port: '20000',
+        ssl: true,
+      });
+    });
+  });
+
+  it('parses extended schema', function () {
+    const options = parseCliArgs({
+      args: [
+        '--port',
+        '20000',
+        '--extendedField',
+        '90',
+        '--unknownField',
+        '100',
+      ],
+      schema: CliOptionsSchema.extend({
+        extendedField: z.number(),
+      }),
+    });
+
+    expect(options).to.deep.equal({
+      _: ['--unknownField', '100'],
+      port: '20000',
+      extendedField: 90,
     });
   });
 });
