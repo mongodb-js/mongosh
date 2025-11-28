@@ -34,7 +34,6 @@ import { TimingCategories } from '@mongosh/types';
 import './webpack-self-inspection';
 import { systemCA } from '@mongodb-js/devtools-proxy-support';
 
-
 // TS does not yet have type definitions for v8.startupSnapshot
 if ((v8 as any)?.startupSnapshot?.isBuildingSnapshot?.()) {
   // Import a few nested deps of dependencies that cannot be included in the
