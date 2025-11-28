@@ -3,6 +3,17 @@
   "version": "3.22.2",
   "description": "MongoDB Shell CLI Argument List Parser Package",
   "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "exports": {
+    ".": {
+      "default": "./lib/index.js",
+      "types": "./lib/index.d.ts"
+    },
+    "./arg-parser": {
+      "default": "./lib/arg-parser.js",
+      "types": "./lib/arg-parser.d.ts"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/mongodb-js/mongosh.git"

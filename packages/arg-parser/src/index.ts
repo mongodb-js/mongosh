@@ -19,5 +19,3 @@ export function generateConnectionInfoFromCliArgs(
   const connectionString = generateUri(options);
   return mapCliToDriver(options, { connectionString, driverOptions: {} });
 }
-
-export { parseCliArgs, UnknownCliArgumentError } from './arg-parser';

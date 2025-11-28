@@ -1,5 +1,8 @@
 import i18n from '@mongosh/i18n';
-import { parseCliArgs, UnknownCliArgumentError } from '@mongosh/arg-parser';
+import {
+  parseCliArgs,
+  UnknownCliArgumentError,
+} from '@mongosh/arg-parser/arg-parser';
 import { colorizeForStderr as clr } from './clr';
 import { USAGE } from './constants';
 
