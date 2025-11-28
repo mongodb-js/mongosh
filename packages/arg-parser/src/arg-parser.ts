@@ -51,6 +51,7 @@ const OPTIONS = {
     'apiDeprecationErrors',
     'apiStrict',
     'buildInfo',
+    'deepInspect',
     'exposeAsyncRewriter',
     'help',
     'ipv6',
