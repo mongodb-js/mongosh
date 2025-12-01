@@ -135,6 +135,7 @@ describe('FLE tests', function () {
           },
           cwd: path.join(__dirname, '..', '..', 'cli-repl', 'test', 'fixtures'),
         });
+        await shell.waitForPrompt();
 
         if (withEnvVarCredentials) {
           // Need to set up the AWS context inside the shell for enabling
