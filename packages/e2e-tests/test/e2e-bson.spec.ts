@@ -380,6 +380,45 @@ describe('BSON e2e', function () {
       );
       shell.assertNoErrors();
     });
+    it('LegacyJavaUUID prints when created by user', async function () {
+      const value = 'LegacyJavaUUID()';
+      const output = await shell.executeLine(value);
+      expect(output).to.match(
+        /LegacyJavaUUID\('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'\)/
+      );
+      shell.assertNoErrors();
+    });
+    it('LegacyCSharpUUID prints when created by user', async function () {
+      const value = 'LegacyCSharpUUID()';
+      const output = await shell.executeLine(value);
+      expect(output).to.match(
+        /LegacyCSharpUUID\('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'\)/
+      );
+      shell.assertNoErrors();
+    });
+    it('LegacyPythonUUID prints when created by user', async function () {
+      const value = 'LegacyPythonUUID()';
+      const output = await shell.executeLine(value);
+      expect(output).to.match(
+        /LegacyPythonUUID\('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'\)/
+      );
+      shell.assertNoErrors();
+    });
+    it('BinData prints as LegacyJavaUUID when created by user as such', async function () {
+      const value = "LegacyJavaUUID('01234567-89ab-cdef-0123-456789abcdef')";
+      expect(await shell.executeLine(value)).to.include(value);
+      shell.assertNoErrors();
+    });
+    it('BinData prints as LegacyCSharpUUID when created by user as such', async function () {
+      const value = "LegacyCSharpUUID('01234567-89ab-cdef-0123-456789abcdef')";
+      expect(await shell.executeLine(value)).to.include(value);
+      shell.assertNoErrors();
+    });
+    it('BinData prints as LegacyPythonUUID when created by user as such', async function () {
+      const value = "LegacyPythonUUID('01234567-89ab-cdef-0123-456789abcdef')";
+      expect(await shell.executeLine(value)).to.include(value);
+      shell.assertNoErrors();
+    });
   });
   describe('MaxKey/MinKey special handling', function () {
     it('inserts and retrieves MaxKey/MinKey regardless of whether they have been called as functions', async function () {
