@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { parseMongoshArgs } from './parse-mongosh-args';
+import { parseMongoshArgs } from './arg-parser';
 import stripAnsi from 'strip-ansi';
 import { MongoshUnimplementedError } from '@mongosh/errors';
 
