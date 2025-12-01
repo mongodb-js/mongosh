@@ -29,6 +29,8 @@ describe('FLE tests', function () {
   let cryptLibrary82: string;
 
   before(async function () {
+    this.timeout(120_000); // Downloading the crypt-shared library can take some time
+
     if (process.platform === 'linux') {
       const [major, minor] = (process.report as any)
         .getReport()
