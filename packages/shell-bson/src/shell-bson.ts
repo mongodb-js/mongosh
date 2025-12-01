@@ -350,7 +350,7 @@ export function constructShellBson<
           // Generate a new UUID and format it.
           hexstr = new bson.UUID().toHexString();
         }
-        assertArgsDefinedType([hexstr], ['string'], 'UUID');
+        assertArgsDefinedType([hexstr], ['string'], 'LegacyJavaUUID');
 
         let hex: string = String.prototype.replace.call(
           hexstr,
@@ -390,7 +390,7 @@ export function constructShellBson<
           // Generate a new UUID and format it.
           hexstr = new bson.UUID().toHexString();
         }
-        assertArgsDefinedType([hexstr], ['string'], 'UUID');
+        assertArgsDefinedType([hexstr], ['string'], 'LegacyCSharpUUID');
 
         let hex: string = String.prototype.replace.call(
           hexstr,
@@ -421,7 +421,7 @@ export function constructShellBson<
         if (hexstr === undefined) {
           hexstr = new bson.UUID().toString();
         }
-        assertArgsDefinedType([hexstr], ['string'], 'UUID');
+        assertArgsDefinedType([hexstr], ['string'], 'LegacyPythonUUID');
         // Strip any dashes, as they occur in the standard UUID formatting
         // (e.g. 01234567-89ab-cdef-0123-456789abcdef).
         const buffer = Buffer.from(hexstr.replace(/-/g, ''), 'hex');
