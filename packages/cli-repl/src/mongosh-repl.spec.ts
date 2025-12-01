@@ -12,7 +12,7 @@ import path from 'path';
 import type { Duplex } from 'stream';
 import { PassThrough } from 'stream';
 import type { StubbedInstance } from 'ts-sinon';
-import { stubInterface } from 'ts-sinon';
+import sinon, { stubInterface } from 'ts-sinon';
 import { inspect, promisify } from 'util';
 import {
   expect,
@@ -95,6 +95,7 @@ describe('MongoshNodeRepl', function () {
       },
     });
     sp.runCommandWithCheck.resolves({ ok: 1 });
+    sp.find.resolves(sinon.stub());
 
     if (process.env.USE_NEW_AUTOCOMPLETE) {
       sp.listCollections.resolves([{ name: 'coll' }]);

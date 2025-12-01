@@ -1,8 +1,8 @@
-import type { CliOptions } from '@mongosh/arg-parser';
 import parser from 'yargs-parser';
 import { z } from 'zod/v4';
 import type { Options as YargsOptions } from 'yargs-parser';
 import {
+  type CliOptions,
   CliOptionsSchema,
   processPositionalCliOptions,
   validateCliOptions,

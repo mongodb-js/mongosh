@@ -1,0 +1,12 @@
+{ "acknowledged": true, "insertedId": <ObjectID> }
+true
+[ { "_id": <ObjectID>, "a": 1, "objectId": <ObjectID>, "maxKey": {"$maxKey": 1}, "minKey": {"$minKey": 1}, "binData": {"$binary": {"base64": "MTIzNA==", "subType": "10"}}, "date": {"$date": {"$numberLong": "1355875200000"}}, "isoDate": {"$date": {"$numberLong": "1355875200000"}}, "numberInt": 24, "timestamp": {"$timestamp": {"t": 100, "i": 0}}, "undefined": null, "null": null, "uuid": <UUID> } ]
+{ "acknowledged": true, "insertedId": null }
+{ "acknowledged": true, "insertedId": {"$date": {"$numberLong": "1355875200000"}} }
+{ "acknowledged": true, "insertedId": <UUID> }
+{ "acknowledged": true, "insertedId": {"$maxKey": 1} }
+{ "acknowledged": true, "insertedId": 24 }
+{ "acknowledged": true, "insertedId": true }
+{ "acknowledged": true, "insertedId": "string key" }
+{ "acknowledged": true, "insertedId": {"$binary": {"base64": "MTIzNA==", "subType": "10"}} }
+{ "acknowledged": true, "insertedId": { "document": "key" } }

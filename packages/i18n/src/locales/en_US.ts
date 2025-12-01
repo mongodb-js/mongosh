@@ -22,6 +22,8 @@ const translations: Catalog = {
       quiet: 'Silence output from the shell during the connection process',
       shell: 'Run the shell after executing files',
       nodb: "Don't connect to mongod on startup - no 'db address' [arg] expected",
+      deepInspect:
+        'Force full depth inspection of server results (default: true if in interactive mode)',
       norc: "Will not run the '.mongoshrc.js' file on start up",
       eval: 'Evaluate javascript',
       json: 'Print result of --eval as Extended JSON, including errors',

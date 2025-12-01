@@ -14,6 +14,8 @@ export const CurrentCliOptionsSchema = z.object({
   awsSessionToken: z.string().optional(),
   csfleLibraryPath: z.string().optional(),
   cryptSharedLibPath: z.string().optional(),
+  // TODO: This default doesn't do anything on its own but is used as documentation for now.
+  deepInspect: z.boolean().default(true).optional(),
   db: z.string().optional(),
   gssapiServiceName: z.string().optional(),
   sspiHostnameCanonicalization: z.string().optional(),

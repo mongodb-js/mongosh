@@ -543,6 +543,8 @@ describe('ShellApi', function () {
       bus = new EventEmitter();
       const newSP = stubInterface<ServiceProvider>();
       newSP.initialDb = 'test';
+      newSP.platform = 'CLI';
+      newSP.bsonLibrary = bson;
       serviceProvider = stubInterface<ServiceProvider>({
         getNewConnection: newSP,
       });
