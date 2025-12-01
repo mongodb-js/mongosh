@@ -11,7 +11,7 @@ import {
   deprecated,
   ShellApiWithMongoClass,
 } from './decorators';
-import { asPrintable, ServerVersions, Topologies } from './enums';
+import { asPrintable, ServerVersions } from './enums';
 import type {
   GenericDatabaseSchema,
   GenericServerSideSchema,

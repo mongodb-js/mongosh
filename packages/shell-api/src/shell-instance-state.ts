@@ -24,7 +24,7 @@ import {
   ALL_SERVER_VERSIONS,
   ALL_TOPOLOGIES,
   ServerVersions,
-  Topologies,
+  type Topologies,
 } from './enums';
 import { ShellApiErrors } from './error-codes';
 import type { ShellResult, DatabaseWithSchema } from './index';

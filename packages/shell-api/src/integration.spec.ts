@@ -11,7 +11,7 @@ import {
   startSharedTestServer,
 } from '../../../testing/integration-testing-hooks';
 import type { ShellApi, Mongo } from './index';
-import { toShellResult, Topologies } from './index';
+import { toShellResult } from './index';
 import type {
   AnyBulkWriteOperation,
   Document,
