@@ -53,6 +53,7 @@ import type {
   DevtoolsProxyOptions,
 } from '@mongodb-js/devtools-proxy-support';
 import { useOrCreateAgent } from '@mongodb-js/devtools-proxy-support';
+import { fullDepthInspectOptions } from './format-output';
 
 /**
  * Connecting text key.
@@ -210,10 +211,11 @@ export class CliRepl implements MongoshIOProvider {
     if (jsContext === 'auto' || !jsContext) {
       jsContext = willEnterInteractiveMode ? 'repl' : 'plain-vm';
     }
+    const deepInspect = this.cliOptions.deepInspect ?? willEnterInteractiveMode;
 
     this.mongoshRepl = new MongoshNodeRepl({
       ...options,
-      shellCliOptions: { ...this.cliOptions, jsContext, quiet },
+      shellCliOptions: { ...this.cliOptions, jsContext, quiet, deepInspect },
       nodeReplOptions: options.nodeReplOptions ?? {
         terminal: process.env.MONGOSH_FORCE_TERMINAL ? true : undefined,
       },
@@ -738,7 +740,12 @@ export class CliRepl implements MongoshIOProvider {
           formattedResult = formatForJSONOutput(e, this.cliOptions.json);
         }
       } else {
-        formattedResult = this.mongoshRepl.writer(lastEvalResult);
+        formattedResult = this.mongoshRepl.writer(
+          lastEvalResult,
+          this.cliOptions.deepInspect !== false
+            ? fullDepthInspectOptions
+            : undefined
+        );
       }
       this.output.write(formattedResult + '\n');
     }

@@ -51,12 +51,14 @@ import type { AutocompletionContext } from '@mongodb-js/mongodb-ts-autocomplete'
 import type { JSONSchema } from 'mongodb-schema';
 import { analyzeDocuments } from 'mongodb-schema';
 import type { BaseCursor } from './abstract-cursor';
+import { deepInspectServiceProviderWrapper } from './deep-inspect/service-provider-wrapper';
 
 /**
  * The subset of CLI options that is relevant for the shell API's behavior itself.
  */
 export interface ShellCliOptions {
   nodb?: boolean;
+  deepInspect?: boolean;
 }
 
 /**
@@ -203,7 +205,10 @@ export class ShellInstanceState {
     cliOptions: ShellCliOptions = {},
     bsonLibrary: BSONLibrary = initialServiceProvider.bsonLibrary
   ) {
-    this.initialServiceProvider = initialServiceProvider;
+    this.initialServiceProvider =
+      cliOptions.deepInspect === false
+        ? initialServiceProvider
+        : deepInspectServiceProviderWrapper(initialServiceProvider);
     this.bsonLibrary = bsonLibrary;
     this.messageBus = messageBus;
     this.shellApi = new ShellApi(this);
@@ -220,11 +225,11 @@ export class ShellInstanceState {
         undefined,
         undefined,
         undefined,
-        initialServiceProvider
+        this.initialServiceProvider
       );
       this.mongos.push(mongo);
       this.currentDb = mongo.getDB(
-        initialServiceProvider.initialDb || DEFAULT_DB
+        this.initialServiceProvider.initialDb || DEFAULT_DB
       );
     } else {
       this.currentDb = new NoDatabase() as DatabaseWithSchema;

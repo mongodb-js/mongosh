@@ -327,14 +327,17 @@ export class TestShell {
     return this._output.slice(previousOutputLength);
   }
 
-  async executeLineWithJSONResult(line: string): Promise<any> {
+  async executeLineWithJSONResult(
+    line: string,
+    { parseAsEJSON = true } = {}
+  ): Promise<any> {
     const output = await this.executeLine(
       `">>>>>>" + EJSON.stringify(${line}, {relaxed:false}) + "<<<<<<"`
     );
     const matching = output.match(/>>>>>>(.+)<<<<<</)?.[1];
     if (!matching)
       throw new Error(`Could not parse output from line: '${output}'`);
-    return EJSON.parse(matching);
+    return (parseAsEJSON ? EJSON : JSON).parse(matching);
   }
 
   assertNoErrors(): void {
