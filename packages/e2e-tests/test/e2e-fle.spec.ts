@@ -927,6 +927,7 @@ describe('FLE tests', function () {
             await testServer.connectionString(),
           ],
         });
+        await shell.waitForPrompt();
         await shell.executeLine(`{
       const keyMongo = Mongo(
         db.getMongo(),
