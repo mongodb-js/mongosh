@@ -346,6 +346,8 @@ function suppressExperimentalWarnings() {
 }
 
 function onExit(code?: number): never {
+  setTerminalWindowTitle(''); // Clear the terminal window title MONGOSH-1233
+
   // Node.js 20.0.0 made p.exit(undefined) behave as p.exit(0) rather than p.exit(): (code?: number | undefined): never => {
   try {
     try {
