@@ -50,7 +50,7 @@ import type ShellInstanceState from './shell-instance-state';
 import { ClientBulkWriteResult } from './result';
 import { CommandResult } from './result';
 import { redactConnectionString } from 'mongodb-redact';
-import { asPrintable, ServerVersions, Topologies } from './enums';
+import { asPrintable, ServerVersions } from './enums';
 import Session from './session';
 import type { GenericServerSideSchema, StringKey } from './helpers';
 import {
