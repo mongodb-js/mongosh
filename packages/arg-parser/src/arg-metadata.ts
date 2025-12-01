@@ -11,7 +11,7 @@ export const argMetadata = z.registry<ArgumentMetadata>();
 export type ArgumentMetadata = {
   /** If set, sets this field as deprecated and replaces this field with the set field. */
   deprecationReplacement?: string;
-  /** If set, gets replaced with a differet field name (without deprecation) */
+  /** If set, gets replaced with a different field name (without deprecation) */
   replacement?: string;
   /** Whether this argument is unsupported. Always throws an error if set to true. */
   unsupported?: boolean;
