@@ -15,7 +15,7 @@ enableFipsIfRequested();
 
 import { markTime } from './startup-timing';
 import { CliRepl } from './cli-repl';
-import { parseMongoshCliArgs } from './arg-parser';
+import { parseMongoshArgs } from './parse-mongosh-args';
 import { runSmokeTests } from './smoke-tests';
 import { USAGE } from './constants';
 import { baseBuildInfo, buildInfo } from './build-info';
@@ -85,8 +85,8 @@ async function main() {
   try {
     (net as any)?.setDefaultAutoSelectFamily?.(true);
 
-    const options = parseMongoshCliArgs(process.argv);
-    for (const warning of options._argParseWarnings) {
+    const { parsed: options, warnings } = parseMongoshArgs(process.argv);
+    for (const warning of warnings) {
       console.warn(warning);
     }
 

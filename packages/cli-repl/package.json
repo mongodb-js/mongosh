@@ -92,8 +92,7 @@
     "pretty-repl": "^4.0.1",
     "semver": "^7.5.4",
     "strip-ansi": "^6.0.0",
-    "text-table": "^0.2.0",
-    "glibc-version": "^1.0.0"
+    "text-table": "^0.2.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
@@ -106,7 +105,6 @@
     "@types/node": "^22.15.30",
     "@types/numeral": "^2.0.2",
     "@types/text-table": "^0.2.1",
-    "@types/yargs-parser": "^21.0.3",
     "chai-as-promised": "^8.0.2",
     "depcheck": "^1.4.7",
     "eslint": "^7.25.0",

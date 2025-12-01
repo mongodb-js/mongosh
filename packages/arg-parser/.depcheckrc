@@ -10,5 +10,7 @@ ignores:
  - eslint-config-mongodb-js
 # needed as a peer dependency of @mongodb-js/devtools-connect
  - mongodb
+ # only used in arg-parser export; should be removed once switched to knip
+ - yargs-parser
 ignore-patterns:
  - .eslintrc.js

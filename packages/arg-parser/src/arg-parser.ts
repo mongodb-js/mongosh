@@ -1,199 +1,26 @@
-import { CommonErrors, MongoshUnimplementedError } from '@mongosh/errors';
-import i18n from '@mongosh/i18n';
 import type { CliOptions } from '@mongosh/arg-parser';
 import parser from 'yargs-parser';
 import { z } from 'zod/v4';
 import type { Options as YargsOptions } from 'yargs-parser';
-
-/**
- * Custom registry for CLI options metadata
- */
-export const cliOptionsRegistry = z.registry<CliOptionsRegistryMetadata>();
-
-/**
- * CLI options schema with metadata attached via registry
- */
-export const CliOptionsSchema = z
-  .object({
-    // String options
-    apiVersion: z.string().optional(),
-    authenticationDatabase: z.string().optional(),
-    authenticationMechanism: z.string().optional(),
-    awsAccessKeyId: z.string().optional(),
-    awsIamSessionToken: z.string().optional(),
-    awsSecretAccessKey: z.string().optional(),
-    awsSessionToken: z.string().optional(),
-    csfleLibraryPath: z.string().optional(),
-    cryptSharedLibPath: z.string().optional(),
-    db: z.string().optional(),
-    gssapiHostName: z
-      .string()
-      .optional()
-      .register(cliOptionsRegistry, { unsupported: true }),
-    gssapiServiceName: z.string().optional(),
-    sspiHostnameCanonicalization: z.string().optional(),
-    sspiRealmOverride: z.string().optional(),
-    jsContext: z.string().optional(),
-    host: z.string().optional(),
-    keyVaultNamespace: z.string().optional(),
-    kmsURL: z.string().optional(),
-    locale: z.string().optional(),
-    oidcFlows: z.string().optional(),
-    oidcRedirectUri: z
-      .string()
-      .optional()
-      .register(cliOptionsRegistry, {
-        alias: ['oidcRedirectUrl'],
-      }),
-    password: z
-      .string()
-      .optional()
-      .register(cliOptionsRegistry, { alias: ['p'] }),
-    port: z.string().optional(),
-    username: z
-      .string()
-      .optional()
-      .register(cliOptionsRegistry, { alias: ['u'] }),
-
-    // Deprecated SSL options (now TLS)
-    sslPEMKeyFile: z.string().optional().register(cliOptionsRegistry, {
-      deprecationReplacement: 'tlsCertificateKeyFile',
-    }),
-    sslPEMKeyPassword: z.string().optional().register(cliOptionsRegistry, {
-      deprecationReplacement: 'tlsCertificateKeyFilePassword',
-    }),
-    sslCAFile: z.string().optional().register(cliOptionsRegistry, {
-      deprecationReplacement: 'tlsCAFile',
-    }),
-    sslCertificateSelector: z.string().optional().register(cliOptionsRegistry, {
-      deprecationReplacement: 'tlsCertificateSelector',
-    }),
-    sslCRLFile: z.string().optional().register(cliOptionsRegistry, {
-      deprecationReplacement: 'tlsCRLFile',
-    }),
-    sslDisabledProtocols: z.string().optional().register(cliOptionsRegistry, {
-      deprecationReplacement: 'tlsDisabledProtocols',
-    }),
-
-    // TLS options
-    tlsCAFile: z.string().optional(),
-    tlsCertificateKeyFile: z.string().optional(),
-    tlsCertificateKeyFilePassword: z.string().optional(),
-    tlsCertificateSelector: z.string().optional(),
-    tlsCRLFile: z.string().optional(),
-    tlsDisabledProtocols: z.string().optional(),
-
-    // Boolean options
-    apiDeprecationErrors: z.boolean().optional(),
-    apiStrict: z.boolean().optional(),
-    buildInfo: z
-      .boolean()
-      .optional()
-      .register(cliOptionsRegistry, { alias: ['build-info'] }),
-    exposeAsyncRewriter: z.boolean().optional(),
-    help: z
-      .boolean()
-      .optional()
-      .register(cliOptionsRegistry, { alias: ['h'] }),
-    ipv6: z.boolean().optional(),
-    nodb: z.boolean().optional(),
-    norc: z.boolean().optional(),
-    oidcTrustedEndpoint: z.boolean().optional(),
-    oidcIdTokenAsAccessToken: z
-      .boolean()
-      .optional()
-      .register(cliOptionsRegistry, {
-        alias: ['oidcIDTokenAsAccessToken'],
-      }),
-    oidcNoNonce: z.boolean().optional(),
-    perfTests: z.boolean().optional(),
-    quiet: z.boolean().optional(),
-    retryWrites: z.boolean().optional(),
-    shell: z.boolean().optional(),
-    smokeTests: z.boolean().optional(),
-    skipStartupWarnings: z.boolean().optional(),
-    verbose: z.boolean().optional(),
-    version: z.boolean().optional(),
-
-    // Deprecated SSL boolean options
-    ssl: z
-      .boolean()
-      .optional()
-      .register(cliOptionsRegistry, { deprecationReplacement: 'tls' }),
-    sslAllowInvalidCertificates: z
-      .boolean()
-      .optional()
-      .register(cliOptionsRegistry, {
-        deprecationReplacement: 'tlsAllowInvalidCertificates',
-      }),
-    sslAllowInvalidHostnames: z
-      .boolean()
-      .optional()
-      .register(cliOptionsRegistry, {
-        deprecationReplacement: 'tlsAllowInvalidHostnames',
-      }),
-    sslFIPSMode: z.boolean().optional().register(cliOptionsRegistry, {
-      deprecationReplacement: 'tlsFIPSMode',
-      unsupported: true,
-    }),
-
-    // TLS boolean options
-    tls: z.boolean().optional(),
-    tlsAllowInvalidCertificates: z.boolean().optional(),
-    tlsAllowInvalidHostnames: z.boolean().optional(),
-    tlsFIPSMode: z.boolean().optional(),
-    tlsUseSystemCA: z.boolean().optional(),
-
-    // Array options
-    eval: z.array(z.string()).optional(),
-    file: z
-      .array(z.string())
-      .optional()
-      .register(cliOptionsRegistry, { alias: ['f'] }),
-
-    // Options that can be boolean or string
-    json: z.union([z.boolean(), z.enum(['relaxed', 'canonical'])]).optional(),
-    oidcDumpTokens: z
-      .union([z.boolean(), z.enum(['redacted', 'include-secrets'])])
-      .optional(),
-    browser: z.union([z.boolean(), z.string()]).optional(),
-  })
-  .loose();
-
-/**
- * Metadata that can be used to define the yargs-parser configuration for a field.
- */
-export type YargsOptionsMetadata = {
-  alias?: string[];
-};
-
-/**
- * Type for option metadata
- */
-export type CliOptionsRegistryMetadata = YargsOptionsMetadata & {
-  deprecationReplacement?: keyof CliOptions;
-  unsupported?: boolean;
-};
-
-/**
- * Extract metadata for a field using the custom registry
- */
-const getCliOptionsMetadata = (
-  fieldName: string
-): CliOptionsRegistryMetadata | undefined => {
-  const fieldSchema =
-    CliOptionsSchema.shape[fieldName as keyof typeof CliOptionsSchema.shape];
-  if (!fieldSchema) {
-    return undefined;
-  }
-  return cliOptionsRegistry.get(fieldSchema);
-};
+import {
+  CliOptionsSchema,
+  processPositionalCliOptions,
+  validateCliOptions,
+} from './cli-options';
+import {
+  argMetadata,
+  getArgumentMetadata,
+  getDeprecatedArgsWithReplacement,
+  getUnsupportedArgs,
+  UnknownCliArgumentError,
+  UnsupportedCliArgumentError,
+} from './arg-metadata';
 
 /**
  * Generate yargs-parser configuration from schema
  */
 export function generateYargsOptionsFromSchema({
-  schema = CliOptionsSchema,
+  schema,
   configuration = {
     'camel-case-expansion': false,
     'unknown-options-as-args': true,
@@ -203,7 +30,7 @@ export function generateYargsOptionsFromSchema({
     'short-option-groups': false,
   },
 }: {
-  schema?: z.ZodObject;
+  schema: z.ZodObject;
   configuration?: YargsOptions['configuration'];
 }): YargsOptions {
   const options = {
@@ -221,7 +48,7 @@ export function generateYargsOptionsFromSchema({
   >;
 
   for (const [fieldName, fieldSchema] of Object.entries(schema.shape)) {
-    const meta = getCliOptionsMetadata(fieldName);
+    const meta = getArgumentMetadata(schema, fieldName);
 
     // Unwrap optional type
     let unwrappedType = fieldSchema;
@@ -240,25 +67,44 @@ export function generateYargsOptionsFromSchema({
       options.number.push(fieldName);
     } else if (unwrappedType instanceof z.ZodUnion) {
       // Handle union types (like json, browser, oidcDumpTokens)
-      // Check if the union includes boolean
       const unionOptions = (
         unwrappedType as z.ZodUnion<[z.ZodTypeAny, ...z.ZodTypeAny[]]>
       ).options;
-      const hasBoolean = unionOptions.some(
-        (opt) => opt instanceof z.ZodBoolean
-      );
+
       const hasString = unionOptions.some(
         (opt) => opt instanceof z.ZodString || opt instanceof z.ZodEnum
       );
 
-      if (hasString && !hasBoolean) {
-        options.string.push(fieldName);
+      if (hasString) {
+        const hasFalseLiteral = unionOptions.some(
+          (opt) => opt instanceof z.ZodLiteral && opt.value === false
+        );
+        const hasBoolean = unionOptions.some(
+          (opt) => opt instanceof z.ZodBoolean
+        );
+        if (hasFalseLiteral) {
+          // If set to 'false' coerce into false boolean; string in all other cases
+          options.coerce[fieldName] = coerceIfFalse;
+        } else if (hasBoolean) {
+          // If the field is 'true' or 'false', we coerce the value to a boolean.
+          options.coerce[fieldName] = coerceIfBoolean;
+        } else {
+          options.string.push(fieldName);
+        }
       }
-
-      if (hasBoolean && hasString) {
-        // When a field has both boolean and string, we add a coerce function to the field.
-        // This allows to get a value in both --<field> and --<field>=<value> for boolean and string.
-        options.coerce[fieldName] = coerceIfBoolean;
+    } else if (unwrappedType instanceof z.ZodEnum) {
+      if (
+        unwrappedType.options.every((opt: unknown) => typeof opt === 'string')
+      ) {
+        options.string.push(fieldName);
+      } else if (
+        unwrappedType.options.every((opt: unknown) => typeof opt === 'number')
+      ) {
+        options.number.push(fieldName);
+      } else {
+        throw new Error(
+          `${fieldName} has unsupported enum options. Currently, only string and number enum options are supported.`
+        );
       }
     } else {
       throw new Error(`Unknown field type: ${unwrappedType.constructor.name}`);
@@ -279,37 +125,6 @@ export function generateYargsOptionsFromSchema({
 }
 
 /**
- * Maps deprecated arguments to their new counterparts, derived from schema metadata.
- */
-function getDeprecatedArgsWithReplacement(): Record<
-  keyof z.infer<typeof CliOptionsSchema>,
-  keyof CliOptions
-> {
-  const deprecated: Record<string, keyof CliOptions> = {};
-  for (const fieldName of Object.keys(CliOptionsSchema.shape)) {
-    const meta = getCliOptionsMetadata(fieldName);
-    if (meta?.deprecationReplacement) {
-      deprecated[fieldName] = meta.deprecationReplacement;
-    }
-  }
-  return deprecated;
-}
-
-/**
- * Get list of unsupported arguments, derived from schema metadata.
- */
-function getUnsupportedArgs(schema: z.ZodObject): string[] {
-  const unsupported: string[] = [];
-  for (const fieldName of Object.keys(schema.shape)) {
-    const meta = getCliOptionsMetadata(fieldName);
-    if (meta?.unsupported) {
-      unsupported.push(fieldName);
-    }
-  }
-  return unsupported;
-}
-
-/**
  * Determine the locale of the shell.
  *
  * @param {string[]} args - The arguments.
@@ -325,130 +140,106 @@ export function getLocale(args: string[], env: any): string {
   return lang ? lang.split('.')[0] : lang;
 }
 
-function isConnectionSpecifier(arg?: string): boolean {
-  return (
-    typeof arg === 'string' &&
-    (arg.startsWith('mongodb://') ||
-      arg.startsWith('mongodb+srv://') ||
-      !(arg.endsWith('.js') || arg.endsWith('.mongodb')))
-  );
-}
-
-export function parseCliArgs<T>({
+export function parseArgs<T>({
   args,
   schema,
   parserConfiguration,
 }: {
   args: string[];
-  schema?: z.ZodObject;
+  schema: z.ZodObject;
   parserConfiguration?: YargsOptions['configuration'];
-}): T & parser.Arguments {
+}): {
+  /** Parsed options from the schema, including replaced deprecated arguments. */
+  parsed: T & Omit<parser.Arguments, '_'>;
+  /** Record of used deprecated arguments which have been replaced. */
+  deprecated: Record<keyof z.infer<typeof schema>, T>;
+  /** Positional arguments which were not parsed as options. */
+  positional: parser.Arguments['_'];
+} {
   const options = generateYargsOptionsFromSchema({
     schema,
     configuration: parserConfiguration,
   });
 
-  return parser(args, options) as unknown as T & parser.Arguments;
-}
+  const { _: positional, ...parsedArgs } = parser(args, options);
 
-/**
- * Parses mongosh-specific arguments into a JS object.
- *
- * @param args - The CLI arguments.
- *
- * @returns The arguments as cli options.
- */
-export function parseMongoshCliOptionsArgs(args: string[]): {
-  options: CliOptions;
-  warnings: string[];
-} {
-  const programArgs = args.slice(2);
-  i18n.setLocale(getLocale(programArgs, process.env));
+  const allDeprecatedArgs = getDeprecatedArgsWithReplacement<T>(schema);
+  const usedDeprecatedArgs = {} as Record<keyof z.infer<typeof schema>, T>;
 
-  const parsed = parseCliArgs<
-    CliOptions & {
-      smokeTests: boolean;
-      perfTests: boolean;
-      buildInfo: boolean;
-      file?: string[];
+  for (const deprecated of Object.keys(allDeprecatedArgs)) {
+    if (deprecated in parsedArgs) {
+      const replacement = allDeprecatedArgs[deprecated];
+
+      // This is a complicated type scenario.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (parsedArgs as any)[replacement] =
+        parsedArgs[deprecated as keyof typeof parsedArgs];
+      usedDeprecatedArgs[deprecated] = replacement;
+
+      delete parsedArgs[deprecated as keyof typeof parsedArgs];
     }
-  >({ args: programArgs, schema: CliOptionsSchema });
+  }
 
-  const positionalArguments = parsed._ ?? [];
-  for (const arg of positionalArguments) {
+  for (const arg of positional) {
     if (typeof arg === 'string' && arg.startsWith('-')) {
       throw new UnknownCliArgumentError(arg);
     }
   }
 
-  if (typeof positionalArguments[0] === 'string') {
-    if (!parsed.nodb && isConnectionSpecifier(positionalArguments[0])) {
-      parsed.connectionSpecifier = positionalArguments.shift() as string;
+  const unsupportedArgs = getUnsupportedArgs(schema);
+  for (const unsupported of unsupportedArgs) {
+    if (unsupported in parsedArgs) {
+      throw new UnsupportedCliArgumentError(unsupported);
     }
   }
 
-  // Remove the _ property from the parsed object
-  const { _: _exclude, ...parsedCliOptions } = parsed;
-
   return {
-    options: {
-      ...parsedCliOptions,
-      fileNames: [
-        ...(parsedCliOptions.file ?? []),
-        ...(positionalArguments as string[]),
-      ],
-    },
-    warnings: verifyCliArguments(parsed),
+    parsed: parsedArgs as T & Omit<parser.Arguments, '_'>,
+    deprecated: usedDeprecatedArgs,
+    positional,
   };
 }
 
-function verifyCliArguments(args: CliOptions): string[] {
-  const unsupportedArgs = getUnsupportedArgs(CliOptionsSchema);
-  for (const unsupported of unsupportedArgs) {
-    if (unsupported in args) {
-      throw new MongoshUnimplementedError(
-        `Argument --${unsupported} is not supported in mongosh`,
-        CommonErrors.InvalidArgument
-      );
-    }
-  }
+type ParsedCliOptions = CliOptions & {
+  smokeTests: boolean;
+  perfTests: boolean;
+  buildInfo: boolean;
+  file?: string[];
+};
 
-  const jsonValidation = CliOptionsSchema.shape.json.safeParse(args.json);
-  if (!jsonValidation.success) {
-    throw new MongoshUnimplementedError(
-      '--json can only have the values relaxed or canonical',
-      CommonErrors.InvalidArgument
-    );
-  }
+/** Parses the arguments with special handling of mongosh CLI options fields. */
+export function parseArgsWithCliOptions({
+  args,
+  schema: schemaToExtend,
+}: {
+  args: string[];
+  /** Schema to extend the CLI options schema with. */
+  schema?: Record<string, z.ZodTypeAny>;
+}): ReturnType<typeof parseArgs<CliOptions>> {
+  const schema =
+    schemaToExtend !== undefined
+      ? CliOptionsSchema.extend(schemaToExtend)
+      : CliOptionsSchema;
+  const { parsed, positional, deprecated } = parseArgs<ParsedCliOptions>({
+    args,
+    schema,
+  });
 
-  const oidcDumpTokensValidation =
-    CliOptionsSchema.shape.oidcDumpTokens.safeParse(args.oidcDumpTokens);
-  if (!oidcDumpTokensValidation.success) {
-    throw new MongoshUnimplementedError(
-      '--oidcDumpTokens can only have the values redacted or include-secrets',
-      CommonErrors.InvalidArgument
-    );
-  }
+  const processed = processPositionalCliOptions({
+    parsed,
+    positional,
+  });
 
-  const messages = [];
-  const deprecatedArgs = getDeprecatedArgsWithReplacement();
-  for (const deprecated of Object.keys(deprecatedArgs)) {
-    if (deprecated in args) {
-      const replacement = deprecatedArgs[deprecated];
-      messages.push(
-        `WARNING: argument --${deprecated} is deprecated and will be removed. Use --${replacement} instead.`
-      );
+  validateCliOptions(processed);
 
-      // This is a complicated type scenario.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (args as any)[replacement] = args[deprecated as keyof CliOptions];
-      delete args[deprecated as keyof CliOptions];
-    }
-  }
-  return messages;
+  return {
+    parsed: processed,
+    positional,
+    deprecated,
+  };
 }
 
-export function coerceIfBoolean(value: unknown) {
+export function coerceIfBoolean(value: unknown): unknown {
   if (typeof value === 'string') {
     if (value === 'true') {
       return true;
@@ -461,12 +252,16 @@ export function coerceIfBoolean(value: unknown) {
   return value;
 }
 
-export class UnknownCliArgumentError extends Error {
-  /** The argument that was not parsed. */
-  readonly argument: string;
-  constructor(argument: string) {
-    super(`Unknown argument: ${argument}`);
-    this.name = 'UnknownCliArgumentError';
-    this.argument = argument;
+export function coerceIfFalse(value: unknown): unknown {
+  if (typeof value === 'string') {
+    if (value === 'false') {
+      return false;
+    }
+    return value;
   }
+  return value;
 }
+
+export { argMetadata, UnknownCliArgumentError, UnsupportedCliArgumentError };
+export { type ArgumentMetadata } from './arg-metadata';
+export { type CliOptions, CliOptionsSchema } from './cli-options';
