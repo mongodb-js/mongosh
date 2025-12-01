@@ -1535,7 +1535,7 @@ export class Database<
   }
 
   @returnsPromise
-  @topologies([Topologies.Sharded])
+  @topologies(['Sharded'])
   @apiVersions([1])
   async printShardingStatus(verbose = false): Promise<CommandResult> {
     this._emitDatabaseApiCall('printShardingStatus', { verbose });
@@ -1547,7 +1547,7 @@ export class Database<
   }
 
   @returnsPromise
-  @topologies([Topologies.ReplSet])
+  @topologies(['ReplSet'])
   @apiVersions([])
   async printSecondaryReplicationInfo(): Promise<CommandResult> {
     let startOptimeDate = null;
@@ -1628,7 +1628,7 @@ export class Database<
   }
 
   @returnsPromise
-  @topologies([Topologies.ReplSet])
+  @topologies(['ReplSet'])
   @apiVersions([])
   async getReplicationInfo(): Promise<Document> {
     const localdb = this.getSiblingDB('local');
@@ -1694,7 +1694,7 @@ export class Database<
 
   @returnsPromise
   @apiVersions([])
-  @topologies([Topologies.ReplSet])
+  @topologies(['ReplSet'])
   async printReplicationInfo(): Promise<CommandResult> {
     const result = {} as any;
     let replInfo;
@@ -1740,7 +1740,7 @@ export class Database<
   }
 
   @serverVersions(['3.1.0', ServerVersions.latest])
-  @topologies([Topologies.ReplSet, Topologies.Sharded])
+  @topologies(['ReplSet', 'Sharded'])
   @apiVersions([1])
   @returnsPromise
   async watch(
@@ -1820,7 +1820,7 @@ export class Database<
   }
 
   @serverVersions(['7.0.0', ServerVersions.latest])
-  @topologies([Topologies.Sharded])
+  @topologies(['Sharded'])
   @returnsPromise
   async checkMetadataConsistency(
     options: CheckMetadataConsistencyOptions = {}

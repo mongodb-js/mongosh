@@ -9,6 +9,7 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noImplicitReturns": true,
+    "erasableSyntaxOnly": true,
 
     "declaration": true,
     "removeComments": true,

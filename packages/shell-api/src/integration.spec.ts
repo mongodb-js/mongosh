@@ -2893,7 +2893,7 @@ describe('Shell API (integration)', function () {
 
       it('returns information that is meaningful for autocompletion', async function () {
         const params = instanceState.getAutocompleteParameters();
-        expect(params.topology()).to.equal(Topologies.Standalone);
+        expect(params.topology()).to.equal('Standalone');
         expect(params.connectionInfo()?.uri).to.equal(connectionString);
         expect(params.connectionInfo()?.is_atlas).to.equal(false);
         expect(params.connectionInfo()?.is_localhost).to.equal(true);
