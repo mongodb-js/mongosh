@@ -31,7 +31,7 @@ describe('BSON e2e', function () {
     await client.close();
   });
 
-  describe.only('printed BSON', function () {
+  describe('printed BSON', function () {
     const outputDoc = {
       ObjectId: "ObjectId('5f16b8bebe434dc98cdfc9ca')",
       DBRef1: "DBRef('a', ObjectId('5f16b8bebe434dc98cdfc9cb'), 'db')",
