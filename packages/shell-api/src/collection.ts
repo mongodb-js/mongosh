@@ -11,12 +11,7 @@ import {
   deprecated,
   ShellApiWithMongoClass,
 } from './decorators';
-import {
-  asPrintable,
-  namespaceInfo,
-  ServerVersions,
-  Topologies,
-} from './enums';
+import { asPrintable, namespaceInfo, ServerVersions } from './enums';
 import type {
   FindAndModifyShellOptions,
   FindAndModifyMethodShellOptions,
@@ -1439,7 +1434,7 @@ export class Collection<
    */
   @returnsPromise
   @deprecated
-  @topologies([Topologies.Standalone])
+  @topologies(['Standalone'])
   @apiVersions([])
   async reIndex(): Promise<Document> {
     this._emitCollectionApiCall('reIndex');
@@ -2095,7 +2090,7 @@ export class Collection<
   }
 
   @returnsPromise
-  @topologies([Topologies.Sharded])
+  @topologies(['Sharded'])
   @apiVersions([])
   async getShardVersion(): Promise<Document> {
     this._emitCollectionApiCall('getShardVersion', {});
@@ -2161,7 +2156,7 @@ export class Collection<
   }
 
   @returnsPromise
-  @topologies([Topologies.Sharded])
+  @topologies(['Sharded'])
   @apiVersions([])
   async getShardDistribution(): Promise<
     CommandResult<GetShardDistributionResult>
@@ -2289,7 +2284,7 @@ export class Collection<
   }
 
   @returnsPromise
-  @topologies([Topologies.Sharded])
+  @topologies(['Sharded'])
   @apiVersions([])
   @serverVersions(['8.0.10', ServerVersions.latest])
   async getShardLocation(): Promise<{
@@ -2334,7 +2329,7 @@ export class Collection<
   }
 
   @serverVersions(['3.1.0', ServerVersions.latest])
-  @topologies([Topologies.ReplSet, Topologies.Sharded])
+  @topologies(['ReplSet', 'Sharded'])
   @apiVersions([1])
   @returnsPromise
   async watch(
@@ -2405,7 +2400,7 @@ export class Collection<
 
   @serverVersions(['7.0.0', ServerVersions.latest])
   @returnsPromise
-  @topologies([Topologies.ReplSet, Topologies.Sharded])
+  @topologies(['ReplSet', 'Sharded'])
   @apiVersions([])
   async analyzeShardKey(
     key: Document,
@@ -2422,7 +2417,7 @@ export class Collection<
 
   @serverVersions(['7.0.0', ServerVersions.latest])
   @returnsPromise
-  @topologies([Topologies.ReplSet, Topologies.Sharded])
+  @topologies(['ReplSet', 'Sharded'])
   @apiVersions([])
   async configureQueryAnalyzer(options: Document): Promise<Document> {
     this._emitCollectionApiCall('configureQueryAnalyzer', options);
@@ -2433,7 +2428,7 @@ export class Collection<
   }
 
   @serverVersions(['7.0.0', ServerVersions.latest])
-  @topologies([Topologies.Sharded])
+  @topologies(['Sharded'])
   @returnsPromise
   async checkMetadataConsistency(
     options: CheckMetadataConsistencyOptions = {}

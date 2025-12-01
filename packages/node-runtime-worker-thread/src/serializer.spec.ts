@@ -6,7 +6,6 @@ import {
   deserializeError,
   serializeEvaluationResult,
   deserializeEvaluationResult,
-  SerializedResultTypes,
   serializeConnectOptions,
   deserializeConnectOptions,
 } from './serializer';
@@ -50,10 +49,7 @@ describe('serializer', function () {
         printable: new SyntaxError('Ooops!'),
       });
 
-      expect(serialized).to.have.property(
-        'type',
-        SerializedResultTypes.SerializedErrorResult
-      );
+      expect(serialized).to.have.property('type', 'SerializedErrorResult');
       expect(serialized).to.have.property('printable').not.instanceof(Error);
       expect(serialized).to.have.nested.property(
         'printable.name',
@@ -68,10 +64,7 @@ describe('serializer', function () {
         printable: function abc() {},
       });
 
-      expect(serialized).to.have.property(
-        'type',
-        SerializedResultTypes.InspectResult
-      );
+      expect(serialized).to.have.property('type', 'InspectResult');
       expect(serialized).to.have.property('printable', '[Function: abc]');
     });
 
@@ -81,10 +74,7 @@ describe('serializer', function () {
         printable: { foo: 'bar' },
       });
 
-      expect(serialized).to.have.property(
-        'type',
-        SerializedResultTypes.SerializedShellApiResult
-      );
+      expect(serialized).to.have.property('type', 'SerializedShellApiResult');
       expect(serialized).to.have.nested.property(
         'printable.origType',
         'TotallyRealShellApiType'
@@ -100,7 +90,7 @@ describe('serializer', function () {
   describe('deserializeEvaluationResult', function () {
     it('should deserialize SerializedErrorResult', function () {
       const deserialized = deserializeEvaluationResult({
-        type: SerializedResultTypes.SerializedErrorResult,
+        type: 'SerializedErrorResult',
         printable: { name: 'TypeError', message: 'Uh-oh' },
       });
 
@@ -117,7 +107,7 @@ describe('serializer', function () {
 
     it('should deserialize SerializedShellApiResult', function () {
       const deserialized = deserializeEvaluationResult({
-        type: SerializedResultTypes.SerializedShellApiResult,
+        type: 'SerializedShellApiResult',
         printable: {
           origType: 'ShellApiResult',
           serializedValue: { foo: 'bar' },

@@ -22,12 +22,21 @@ export interface EvergreenTask {
 }
 
 export class EvergreenApi {
+  public readonly apiBasepath: string;
+  public readonly apiUser: string;
+  public readonly apiKey: string;
+  private readonly fetch: typeof fetchFn;
   constructor(
-    public readonly apiBasepath: string,
-    public readonly apiUser: string,
-    public readonly apiKey: string,
-    private readonly fetch: typeof fetchFn = fetchFn
-  ) {}
+    apiBasepath: string,
+    apiUser: string,
+    apiKey: string,
+    fetch: typeof fetchFn = fetchFn
+  ) {
+    this.apiBasepath = apiBasepath;
+    this.apiUser = apiUser;
+    this.apiKey = apiKey;
+    this.fetch = fetch;
+  }
 
   public static async fromUserConfiguration(
     pathToConfiguration = path.join(os.homedir(), '.evergreen.yml')
