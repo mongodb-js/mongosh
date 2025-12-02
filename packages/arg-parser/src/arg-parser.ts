@@ -16,12 +16,16 @@ import {
   UnsupportedCliArgumentError,
 } from './arg-metadata';
 
-function unwrapType(type: unknown): unknown {
-  if (type instanceof z.ZodOptional) {
+function unwrapType(type: unknown): z.ZodType {
+  if (type instanceof z.ZodOptional || type instanceof z.ZodDefault) {
     return unwrapType(type.unwrap());
   }
-  if (type instanceof z.ZodDefault) {
-    return unwrapType(type.unwrap());
+  if (!(type instanceof z.ZodType)) {
+    throw new Error(
+      `Unknown schema field type: ${
+        type && typeof type === 'object' ? type.constructor.name : typeof type
+      }`
+    );
   }
   return type;
 }
@@ -49,20 +53,20 @@ export function generateYargsOptionsFromSchema({
   schema: z.ZodObject;
   parserOptions?: Partial<YargsOptions>;
 }): YargsOptions {
-  const options = {
-    ...parserOptions,
-    string: <string[]>[],
-    boolean: <string[]>[],
-    array: <string[]>[],
-    alias: <Record<string, string>>{},
-    coerce: <Record<string, (value: unknown) => unknown>>{},
-    number: <string[]>[],
-  } satisfies Required<
+  const options: Required<
     Pick<
       YargsOptions,
       'string' | 'boolean' | 'array' | 'alias' | 'coerce' | 'number'
-    >
-  >;
+    > & { array: string[] }
+  > = {
+    ...parserOptions,
+    string: [],
+    boolean: [],
+    array: [],
+    alias: {},
+    coerce: {},
+    number: [],
+  };
 
   for (const [fieldName, fieldSchema] of Object.entries(schema.shape)) {
     const meta = getArgumentMetadata(schema, fieldName);

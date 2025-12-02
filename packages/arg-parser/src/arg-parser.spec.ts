@@ -1381,7 +1381,7 @@ describe('arg-parser', function () {
   });
 
   describe('parseArgs', function () {
-    it('passes any schema, independent of CliOptionsSchema', function () {
+    it('parses any schema, independent of CliOptionsSchema', function () {
       const options = parseArgs({
         args: [
           'hello',
