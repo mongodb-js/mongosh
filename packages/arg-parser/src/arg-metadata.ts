@@ -26,7 +26,7 @@ export function getArgumentMetadata(
   schema: z.ZodObject,
   fieldName: string
 ): ArgumentMetadata | undefined {
-  const fieldSchema = schema.shape[fieldName as keyof typeof schema.shape];
+  const fieldSchema = schema.shape[fieldName];
   if (!fieldSchema) {
     return undefined;
   }
@@ -36,14 +36,14 @@ export function getArgumentMetadata(
 /**
  * Maps deprecated arguments to their new counterparts, derived from schema metadata.
  */
-export function getDeprecatedArgsWithReplacement<T>(
+export function getDeprecatedArgsWithReplacement(
   schema: z.ZodObject
-): Record<keyof z.infer<typeof schema>, T> {
-  const deprecated: Record<string, T> = {};
+): Record<string, keyof z.infer<typeof schema>> {
+  const deprecated: Record<string, keyof z.infer<typeof schema>> = {};
   for (const fieldName of Object.keys(schema.shape)) {
     const meta = getArgumentMetadata(schema, fieldName);
     if (meta?.deprecationReplacement) {
-      deprecated[fieldName] = meta.deprecationReplacement as T;
+      deprecated[fieldName] = meta.deprecationReplacement;
     }
   }
   return deprecated;

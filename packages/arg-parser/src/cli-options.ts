@@ -73,14 +73,16 @@ export const CurrentCliOptionsSchema = z.object({
       alias: ['oidcIDTokenAsAccessToken'],
     }),
   oidcNoNonce: z.boolean().optional(),
-  perfTests: z.boolean().optional(),
   quiet: z.boolean().optional(),
   retryWrites: z.boolean().optional(),
   shell: z.boolean().optional(),
-  smokeTests: z.boolean().optional(),
   skipStartupWarnings: z.boolean().optional(),
   verbose: z.boolean().optional(),
   version: z.boolean().optional(),
+
+  // Tests
+  smokeTests: z.boolean().optional(),
+  perfTests: z.boolean().optional(),
 
   // TLS boolean options
   tls: z.boolean().optional(),

@@ -2,7 +2,6 @@ import parser from 'yargs-parser';
 import { z, ZodError } from 'zod/v4';
 import type { Options as YargsOptions } from 'yargs-parser';
 import {
-  type CliOptions,
   CliOptionsSchema,
   processPositionalCliOptions,
   validateCliOptions,
@@ -36,19 +35,19 @@ export const defaultParserOptions: Partial<YargsOptions> = {
 
 export type ParserOptions = Partial<YargsOptions>;
 
-export function parseArgs<T>({
+export function parseArgs<T extends z.ZodObject>({
   args,
   schema,
   parserOptions,
 }: {
   args: string[];
-  schema: z.ZodObject;
+  schema: T;
   parserOptions?: YargsOptions;
 }): {
   /** Parsed options from the schema, including replaced deprecated arguments. */
-  parsed: z.infer<typeof schema> & Omit<parser.Arguments, '_'>;
+  parsed: z.infer<T> & Omit<parser.Arguments, '_'>;
   /** Record of used deprecated arguments which have been replaced. */
-  deprecated: Record<keyof z.infer<typeof schema>, T>;
+  deprecated: Record<string, keyof z.infer<T>>;
   /** Positional arguments which were not parsed as options. */
   positional: parser.Arguments['_'];
 } {
@@ -69,8 +68,8 @@ export function parseArgs<T>({
     throw error;
   }
 
-  const allDeprecatedArgs = getDeprecatedArgsWithReplacement<T>(schema);
-  const usedDeprecatedArgs = {} as Record<keyof z.infer<typeof schema>, T>;
+  const allDeprecatedArgs = getDeprecatedArgsWithReplacement(schema);
+  const usedDeprecatedArgs = {} as Record<string, keyof z.infer<typeof schema>>;
 
   for (const deprecated of Object.keys(allDeprecatedArgs)) {
     if (deprecated in parsedArgs) {
@@ -100,30 +99,21 @@ export function parseArgs<T>({
   }
 
   return {
-    parsed: parsedArgs as T & Omit<parser.Arguments, '_'>,
+    parsed: parsedArgs as z.infer<T> & Omit<parser.Arguments, '_'>,
     deprecated: usedDeprecatedArgs,
     positional,
   };
 }
 
-type ParsedCliOptions = CliOptions & {
-  smokeTests: boolean;
-  perfTests: boolean;
-  buildInfo: boolean;
-  file?: string[];
-};
-
 /** Parses the arguments with special handling of mongosh CLI options fields. */
-export function parseArgsWithCliOptions<
-  T extends CliOptions = ParsedCliOptions
->({
+export function parseArgsWithCliOptions<T extends z.ZodObject>({
   args,
   schema: schemaToExtend,
   parserOptions,
 }: {
   args: string[];
   /** Schema to extend the CLI options schema with. */
-  schema?: z.ZodObject;
+  schema?: T;
   parserOptions?: Partial<YargsOptions>;
 }): ReturnType<typeof parseArgs<T>> {
   const schema =
@@ -133,7 +123,7 @@ export function parseArgsWithCliOptions<
           ...schemaToExtend.shape,
         })
       : CliOptionsSchema;
-  const { parsed, positional, deprecated } = parseArgs<T>({
+  const { parsed, positional, deprecated } = parseArgs({
     args,
     schema,
     parserOptions,
@@ -147,7 +137,7 @@ export function parseArgsWithCliOptions<
   validateCliOptions(processed);
 
   return {
-    parsed: processed,
+    parsed: processed as z.infer<T> & Omit<parser.Arguments, '_'>,
     positional,
     deprecated,
   };
