@@ -2,8 +2,8 @@ import i18n from '@mongosh/i18n';
 import {
   getLocale,
   parseArgsWithCliOptions,
-  UnknownCliArgumentError,
-  UnsupportedCliArgumentError,
+  UnknownArgumentError,
+  UnsupportedArgumentError,
 } from '@mongosh/arg-parser/arg-parser';
 import { colorizeForStderr as clr } from './clr';
 import { USAGE } from './constants';
@@ -33,13 +33,13 @@ export function parseMongoshArgs(argsWithProgram: string[]): {
       warnings,
     };
   } catch (error) {
-    if (error instanceof UnsupportedCliArgumentError) {
+    if (error instanceof UnsupportedArgumentError) {
       throw new MongoshUnimplementedError(
         `Argument --${error.argument} is not supported in mongosh`,
         CommonErrors.InvalidArgument
       );
     }
-    if (error instanceof UnknownCliArgumentError) {
+    if (error instanceof UnknownArgumentError) {
       throw new MongoshUnimplementedError(
         `  ${clr(i18n.__(UNKNOWN), 'mongosh:error')} ${clr(
           String(error.argument),

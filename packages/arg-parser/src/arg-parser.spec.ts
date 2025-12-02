@@ -8,11 +8,12 @@ import {
   getLocale,
   parseArgs,
   parseArgsWithCliOptions,
-  UnknownCliArgumentError,
-  UnsupportedCliArgumentError,
+  UnknownArgumentError,
+  UnsupportedArgumentError,
 } from './arg-parser';
 import { z } from 'zod/v4';
 import { coerceIfBoolean, coerceIfFalse } from './utils';
+import { InvalidArgumentError } from './arg-metadata';
 
 describe('arg-parser', function () {
   describe('.getLocale', function () {
@@ -300,18 +301,9 @@ describe('arg-parser', function () {
           const argv = [uri, '--what'];
 
           it('raises an error', function () {
-            try {
+            expect(() => {
               parseArgsWithCliOptions({ args: argv }).parsed;
-            } catch (err: any) {
-              if (err instanceof UnknownCliArgumentError) {
-                expect(stripAnsi(err.message)).to.equal(
-                  'Unknown argument: --what'
-                );
-                return;
-              }
-              expect.fail('Expected UnknownCliArgumentError');
-            }
-            expect.fail('parsing unknown parameter did not throw');
+            }).to.throw(UnknownArgumentError, 'Unknown argument: --what');
           });
         });
       });
@@ -438,7 +430,7 @@ describe('arg-parser', function () {
             expect(
               () => parseArgsWithCliOptions({ args: argv }).parsed
             ).to.throw(
-              UnsupportedCliArgumentError,
+              UnsupportedArgumentError,
               'Unsupported argument: gssapiHostName'
             );
           });
@@ -655,7 +647,7 @@ describe('arg-parser', function () {
             expect(
               () => parseArgsWithCliOptions({ args: argv }).parsed
             ).to.throw(
-              UnsupportedCliArgumentError,
+              UnsupportedArgumentError,
               'Unsupported argument: sslFIPSMode'
             );
           });
@@ -1417,6 +1409,155 @@ describe('arg-parser', function () {
         },
       });
     });
+
+    describe('object fields', function () {
+      it('parses object fields', function () {
+        const options = parseArgs({
+          args: ['--objectField', '{"foo":"bar"}'],
+          schema: z.object({
+            objectField: z.object({
+              foo: z.string(),
+            }),
+          }),
+        });
+
+        expect(options.parsed).to.deep.equal({
+          objectField: {
+            foo: 'bar',
+          },
+        });
+      });
+
+      it('enforces the schema of the object field', function () {
+        const schema = z.object({
+          objectField: z.object({
+            foo: z.number(),
+          }),
+        });
+        expect(
+          parseArgs({
+            args: ['--objectField', '{"foo":3}'],
+            schema,
+          }).parsed.objectField
+        ).to.deep.equal({ foo: 3 });
+        expect(() =>
+          parseArgs({
+            args: ['--objectField', '{"foo":"hello"}'],
+            schema,
+          })
+        ).to.throw(InvalidArgumentError, 'expected number, received string');
+      });
+
+      it('can handle --a.b format', () => {
+        const schema = z.object({
+          a: z.object({
+            number: z.number(),
+            string: z.string(),
+            boolean: z.boolean(),
+          }),
+        });
+        expect(
+          parseArgs({
+            args: [
+              '--a.number',
+              '3',
+              '--a.string',
+              'hello',
+              '--a.boolean',
+              'true',
+            ],
+            schema,
+          }).parsed.a
+        ).to.deep.equal({
+          number: 3,
+          string: 'hello',
+          boolean: true,
+        });
+      });
+
+      it('can handle nested object fields', () => {
+        const schema = z.object({
+          parent: z.object({
+            child: z.string(),
+            nested: z.object({
+              deep: z.number(),
+            }),
+          }),
+        });
+        expect(
+          parseArgs({
+            args: ['--parent.child', 'hello', '--parent.nested.deep', '42'],
+            schema,
+          }).parsed.parent
+        ).to.deep.equal({
+          child: 'hello',
+          nested: {
+            deep: 42,
+          },
+        });
+      });
+
+      it('can handle multiple types in nested objects', () => {
+        const schema = z.object({
+          config: z.object({
+            enabled: z.boolean(),
+            name: z.string(),
+            count: z.number(),
+            tags: z.array(z.string()),
+          }),
+        });
+        const result = parseArgs({
+          args: [
+            '--config.enabled',
+            '--config.name',
+            'test',
+            '--config.count',
+            '10',
+            '--config.tags',
+            'tag1',
+            '--config.tags',
+            'tag2',
+          ],
+          schema,
+        });
+        expect(result.parsed.config).to.deep.equal({
+          enabled: true,
+          name: 'test',
+          count: 10,
+          tags: ['tag1', 'tag2'],
+        });
+      });
+
+      it('generateYargsOptionsFromSchema processes nested objects', () => {
+        const schema = z.object({
+          server: z.object({
+            host: z.string(),
+            port: z.number(),
+            ssl: z.boolean(),
+          }),
+        });
+        const options = generateYargsOptionsFromSchema({ schema });
+
+        expect(options.string).to.include('server.host');
+        expect(options.number).to.include('server.port');
+        expect(options.boolean).to.include('server.ssl');
+        expect(options.coerce).to.have.property('server');
+      });
+
+      it('generateYargsOptionsFromSchema processes deeply nested objects', () => {
+        const schema = z.object({
+          level1: z.object({
+            level2: z.object({
+              level3: z.string(),
+            }),
+          }),
+        });
+        const options = generateYargsOptionsFromSchema({ schema });
+
+        expect(options.string).to.include('level1.level2.level3');
+        expect(options.coerce).to.have.property('level1');
+      });
+    });
   });
 
   describe('parseArgsWithCliOptions', function () {
@@ -1450,6 +1591,8 @@ describe('arg-parser', function () {
           'true',
           '--deprecatedField',
           '100',
+          '--complexField',
+          'false',
         ],
         schema: z.object({
           extendedField: z.number(),
@@ -1457,6 +1600,14 @@ describe('arg-parser', function () {
           deprecatedField: z.number().register(argMetadata, {
             deprecationReplacement: 'replacedField',
           }),
+          // TODO: The expected behavior right now is pre-processing doesn't happen as part of the arg-parser.
+          // What we instead focus on is making sure the output is passed as expected type (i.e. z.boolean())
+          // The assumption is that external users will pass the output through their schema after this parse.
+          // With greater testing, we should support schema assertion directly in the parser.
+          complexField: z.preprocess(
+            (value: unknown) => value === 'true',
+            z.boolean()
+          ),
         }),
       });
 
@@ -1468,6 +1619,7 @@ describe('arg-parser', function () {
           extendedField: 90,
           tls: true,
           fileNames: [],
+          complexField: false,
         },
         deprecated: {
           ssl: 'tls',
@@ -1491,7 +1643,7 @@ describe('arg-parser', function () {
             extendedField: z.enum(['90', '100']),
           }),
         })
-      ).to.throw(UnknownCliArgumentError, 'Unknown argument: --unknownField');
+      ).to.throw(UnknownArgumentError, 'Unknown argument: --unknownField');
     });
   });
 });

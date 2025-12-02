@@ -63,22 +63,29 @@ export function getUnsupportedArgs(schema: z.ZodObject): string[] {
   return unsupported;
 }
 
-export class UnknownCliArgumentError extends Error {
+export class InvalidArgumentError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'InvalidArgumentError';
+  }
+}
+
+export class UnknownArgumentError extends Error {
   /** The argument that was not parsed. */
   readonly argument: string;
   constructor(argument: string) {
     super(`Unknown argument: ${argument}`);
-    this.name = 'UnknownCliArgumentError';
+    this.name = 'UnknownArgumentError';
     this.argument = argument;
   }
 }
 
-export class UnsupportedCliArgumentError extends Error {
+export class UnsupportedArgumentError extends Error {
   /** The argument that was not supported. */
   readonly argument: string;
   constructor(argument: string) {
     super(`Unsupported argument: ${argument}`);
-    this.name = 'UnsupportedCliArgumentError';
+    this.name = 'UnsupportedArgumentError';
     this.argument = argument;
   }
 }

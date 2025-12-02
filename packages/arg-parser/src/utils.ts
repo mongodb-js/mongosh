@@ -1,5 +1,18 @@
 import z from 'zod/v4';
 
+export function coerceObject(schema: z.ZodObject): (value: unknown) => unknown {
+  return (value: unknown) => {
+    switch (typeof value) {
+      case 'string':
+        return schema.parse(JSON.parse(value));
+      case 'object':
+        return value;
+      default:
+        return null;
+    }
+  };
+}
+
 export function coerceIfBoolean(value: unknown): unknown {
   if (typeof value === 'string') {
     if (value === 'true') {
@@ -32,11 +45,19 @@ export function unwrapType(type: unknown): z.ZodType {
   let unwrappedType = z.clone(type);
   while (
     unwrappedType instanceof z.ZodOptional ||
-    unwrappedType instanceof z.ZodDefault
+    unwrappedType instanceof z.ZodDefault ||
+    unwrappedType instanceof z.ZodNullable ||
+    unwrappedType instanceof z.ZodPipe
   ) {
-    const nextWrap = unwrappedType.unwrap();
-    assertZodType(nextWrap);
-    unwrappedType = nextWrap;
+    if (unwrappedType instanceof z.ZodPipe) {
+      const nextWrap = unwrappedType.def.out;
+      assertZodType(nextWrap);
+      unwrappedType = nextWrap;
+    } else {
+      const nextWrap = unwrappedType.unwrap();
+      assertZodType(nextWrap);
+      unwrappedType = nextWrap;
+    }
   }
 
   return unwrappedType;
