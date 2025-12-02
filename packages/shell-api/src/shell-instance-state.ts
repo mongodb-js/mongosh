@@ -24,7 +24,7 @@ import {
   ALL_SERVER_VERSIONS,
   ALL_TOPOLOGIES,
   ServerVersions,
-  Topologies,
+  type Topologies,
 } from './enums';
 import { ShellApiErrors } from './error-codes';
 import type { ShellResult, DatabaseWithSchema } from './index';
@@ -569,16 +569,16 @@ export class ShellInstanceState {
         switch (topologyType) {
           case 'ReplicaSetNoPrimary':
           case 'ReplicaSetWithPrimary':
-            topology = Topologies.ReplSet;
+            topology = 'ReplSet';
             break;
           case 'Sharded':
-            topology = Topologies.Sharded;
+            topology = 'Sharded';
             break;
           case 'LoadBalanced':
-            topology = Topologies.LoadBalanced;
+            topology = 'LoadBalanced';
             break;
           default:
-            topology = Topologies.Standalone;
+            topology = 'Standalone';
             // We're connected to a single server, but that doesn't necessarily
             // mean that that server isn't part of a replset or sharding setup
             // if we're using directConnection=true (which we do by default).
@@ -586,7 +586,7 @@ export class ShellInstanceState {
               const [server] = topologyDescription?.servers.values();
               switch (server.type) {
                 case 'Mongos':
-                  topology = Topologies.Sharded;
+                  topology = 'Sharded';
                   break;
                 case 'PossiblePrimary':
                 case 'RSPrimary':
@@ -594,7 +594,7 @@ export class ShellInstanceState {
                 case 'RSArbiter':
                 case 'RSOther':
                 case 'RSGhost':
-                  topology = Topologies.ReplSet;
+                  topology = 'ReplSet';
                   break;
                 default:
                   // Either Standalone, Unknown, or something so unknown that

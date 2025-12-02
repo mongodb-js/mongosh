@@ -50,7 +50,7 @@ import type ShellInstanceState from './shell-instance-state';
 import { ClientBulkWriteResult } from './result';
 import { CommandResult } from './result';
 import { redactConnectionString } from 'mongodb-redact';
-import { asPrintable, ServerVersions, Topologies } from './enums';
+import { asPrintable, ServerVersions } from './enums';
 import Session from './session';
 import type { GenericServerSideSchema, StringKey } from './helpers';
 import {
@@ -748,7 +748,7 @@ export default class Mongo<
     await this._serviceProvider.resetConnectionOptions(options);
   }
 
-  @topologies([Topologies.ReplSet])
+  @topologies(['ReplSet'])
   startSession(options: Document = {}): Session {
     const allTransactionOptions = [
       'readConcern',
@@ -845,7 +845,7 @@ export default class Mongo<
   }
 
   @serverVersions(['3.1.0', ServerVersions.latest])
-  @topologies([Topologies.ReplSet, Topologies.Sharded])
+  @topologies(['ReplSet', 'Sharded'])
   @apiVersions([1])
   @returnsPromise
   async watch(
