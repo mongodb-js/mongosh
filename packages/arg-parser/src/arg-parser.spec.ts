@@ -4,8 +4,6 @@ import stripAnsi from 'strip-ansi';
 import {
   argMetadata,
   CliOptionsSchema,
-  coerceIfBoolean,
-  coerceIfFalse,
   generateYargsOptionsFromSchema,
   getLocale,
   parseArgs,
@@ -14,6 +12,7 @@ import {
   UnsupportedCliArgumentError,
 } from './arg-parser';
 import { z } from 'zod/v4';
+import { coerceIfBoolean, coerceIfFalse } from './utils';
 
 describe('arg-parser', function () {
   describe('.getLocale', function () {

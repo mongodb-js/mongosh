@@ -15,31 +15,7 @@ import {
   UnknownCliArgumentError,
   UnsupportedCliArgumentError,
 } from './arg-metadata';
-
-function unwrapType(type: unknown): z.ZodType {
-  assertZodType(type);
-  let unwrappedType = z.clone(type);
-  while (
-    unwrappedType instanceof z.ZodOptional ||
-    unwrappedType instanceof z.ZodDefault
-  ) {
-    const nextWrap = unwrappedType.unwrap();
-    assertZodType(nextWrap);
-    unwrappedType = nextWrap;
-  }
-
-  return type;
-}
-
-function assertZodType(type: unknown): asserts type is z.ZodType {
-  if (!(type instanceof z.ZodType)) {
-    throw new Error(
-      `Unknown schema field type: ${
-        type && typeof type === 'object' ? type.constructor.name : typeof type
-      }`
-    );
-  }
-}
+import { coerceIfBoolean, coerceIfFalse, unwrapType } from './utils';
 
 export const defaultParserOptions: Partial<YargsOptions> = {
   configuration: {
@@ -278,33 +254,6 @@ export function parseArgsWithCliOptions<
     positional,
     deprecated,
   };
-}
-
-export function coerceIfBoolean(value: unknown): unknown {
-  if (typeof value === 'string') {
-    if (value === 'true') {
-      return true;
-    }
-    if (value === 'false') {
-      return false;
-    }
-    return value;
-  }
-  return value;
-}
-
-export function coerceIfFalse(value: unknown): unknown {
-  if (value === undefined || value === '') {
-    return null;
-  }
-
-  if (typeof value === 'string') {
-    if (value === 'false') {
-      return false;
-    }
-    return value;
-  }
-  return value;
 }
 
 export { argMetadata, UnknownCliArgumentError, UnsupportedCliArgumentError };
