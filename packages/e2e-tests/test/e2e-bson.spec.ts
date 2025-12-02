@@ -349,6 +349,13 @@ describe('BSON e2e', function () {
       expect(await shell.executeLine(value)).to.include(value);
       shell.assertNoErrors();
     });
+    it('BinData type 4 prints as UUID when valid', async function () {
+      const value = "BinData(4, 'ASNFZ4mrze8BI0VniavN7w==')";
+      expect(await shell.executeLine(value)).to.include(
+        "UUID('01234567-89ab-cdef-0123-456789abcdef')"
+      );
+      shell.assertNoErrors();
+    });
     it('BinData prints as MD5 when created by user as such', async function () {
       const value = "MD5('0123456789abcdef0123456789abcdef')";
       expect(await shell.executeLine(value)).to.include(value);
@@ -377,6 +384,45 @@ describe('BSON e2e', function () {
       const value = 'BSONRegExp(`(?-i)A"A_`, "im")';
       expect(await shell.executeLine(value)).to.include(
         String.raw`BSONRegExp('(?-i)A"A_', 'im')`
+      );
+      shell.assertNoErrors();
+    });
+    it('LegacyJavaUUID prints as Binary subtype 3 when created by user', async function () {
+      const value = 'LegacyJavaUUID()';
+      const output = await shell.executeLine(value);
+      expect(output).to.match(/Binary\.createFromBase64\('.+', 3\)/);
+      shell.assertNoErrors();
+    });
+    it('LegacyCSharpUUID prints as Binary subtype 3 when created by user', async function () {
+      const value = 'LegacyCSharpUUID()';
+      const output = await shell.executeLine(value);
+      expect(output).to.match(/Binary\.createFromBase64\('.+', 3\)/);
+      shell.assertNoErrors();
+    });
+    it('LegacyPythonUUID prints as Binary subtype 3 when created by user', async function () {
+      const value = 'LegacyPythonUUID()';
+      const output = await shell.executeLine(value);
+      expect(output).to.match(/Binary\.createFromBase64\('.+', 3\)/);
+      shell.assertNoErrors();
+    });
+    it('BinData created as LegacyJavaUUID prints as Binary subtype 3', async function () {
+      const value = "LegacyJavaUUID('01234567-89ab-cdef-0123-456789abcdef')";
+      expect(await shell.executeLine(value)).to.include(
+        "Binary.createFromBase64('782riWdFIwHvzauJZ0UjAQ==', 3)"
+      );
+      shell.assertNoErrors();
+    });
+    it('BinData created as LegacyCSharpUUID prints as Binary subtype 3', async function () {
+      const value = "LegacyCSharpUUID('01234567-89ab-cdef-0123-456789abcdef')";
+      expect(await shell.executeLine(value)).to.include(
+        "Binary.createFromBase64('Z0UjAauJ780BI0VniavN7w==', 3)"
+      );
+      shell.assertNoErrors();
+    });
+    it('BinData created as LegacyPythonUUID prints as Binary subtype 3', async function () {
+      const value = "LegacyPythonUUID('01234567-89ab-cdef-0123-456789abcdef')";
+      expect(await shell.executeLine(value)).to.include(
+        "Binary.createFromBase64('ASNFZ4mrze8BI0VniavN7w==', 3)"
       );
       shell.assertNoErrors();
     });
