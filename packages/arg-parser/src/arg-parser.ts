@@ -26,12 +26,8 @@ function unwrapType(type: unknown): unknown {
   return type;
 }
 
-/**
- * Generate yargs-parser configuration from schema
- */
-export function generateYargsOptionsFromSchema({
-  schema,
-  configuration = {
+export const defaultParserOptions: Partial<YargsOptions> = {
+  configuration: {
     'camel-case-expansion': false,
     'unknown-options-as-args': true,
     'parse-positional-numbers': false,
@@ -39,11 +35,22 @@ export function generateYargsOptionsFromSchema({
     'greedy-arrays': false,
     'short-option-groups': false,
   },
+};
+
+export type ParserOptions = Partial<YargsOptions>;
+
+/**
+ * Generate yargs-parser configuration from schema
+ */
+export function generateYargsOptionsFromSchema({
+  schema,
+  parserOptions = defaultParserOptions,
 }: {
   schema: z.ZodObject;
-  configuration?: YargsOptions['configuration'];
+  parserOptions?: Partial<YargsOptions>;
 }): YargsOptions {
   const options = {
+    ...parserOptions,
     string: <string[]>[],
     boolean: <string[]>[],
     array: <string[]>[],
@@ -132,10 +139,7 @@ export function generateYargsOptionsFromSchema({
     }
   }
 
-  return {
-    ...options,
-    configuration,
-  };
+  return options;
 }
 
 /**
@@ -157,11 +161,11 @@ export function getLocale(args: string[], env: any): string {
 export function parseArgs<T>({
   args,
   schema,
-  parserConfiguration,
+  parserOptions,
 }: {
   args: string[];
   schema: z.ZodObject;
-  parserConfiguration?: YargsOptions['configuration'];
+  parserOptions?: YargsOptions;
 }): {
   /** Parsed options from the schema, including replaced deprecated arguments. */
   parsed: T & Omit<parser.Arguments, '_'>;
@@ -172,7 +176,7 @@ export function parseArgs<T>({
 } {
   const options = generateYargsOptionsFromSchema({
     schema,
-    configuration: parserConfiguration,
+    parserOptions,
   });
 
   const { _: positional, ...parsedArgs } = parser(args, options);
@@ -222,14 +226,18 @@ type ParsedCliOptions = CliOptions & {
 };
 
 /** Parses the arguments with special handling of mongosh CLI options fields. */
-export function parseArgsWithCliOptions({
+export function parseArgsWithCliOptions<
+  T extends CliOptions = ParsedCliOptions
+>({
   args,
   schema: schemaToExtend,
+  parserOptions,
 }: {
   args: string[];
   /** Schema to extend the CLI options schema with. */
   schema?: z.ZodObject;
-}): ReturnType<typeof parseArgs<CliOptions>> {
+  parserOptions?: Partial<YargsOptions>;
+}): ReturnType<typeof parseArgs<T>> {
   const schema =
     schemaToExtend !== undefined
       ? z.object({
@@ -237,9 +245,10 @@ export function parseArgsWithCliOptions({
           ...schemaToExtend.shape,
         })
       : CliOptionsSchema;
-  const { parsed, positional, deprecated } = parseArgs<ParsedCliOptions>({
+  const { parsed, positional, deprecated } = parseArgs<T>({
     args,
     schema,
+    parserOptions,
   });
 
   const processed = processPositionalCliOptions({

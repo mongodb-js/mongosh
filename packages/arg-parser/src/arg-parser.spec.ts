@@ -1247,8 +1247,10 @@ describe('arg-parser', function () {
     it('generates from arbitrary schema', function () {
       const options = generateYargsOptionsFromSchema({
         schema: testSchema,
-        configuration: {
-          'combine-arrays': true,
+        parserOptions: {
+          configuration: {
+            'combine-arrays': true,
+          },
         },
       });
 

@@ -167,13 +167,13 @@ export type CliOptions = Omit<
   fileNames?: string[];
 };
 
-export function processPositionalCliOptions({
+export function processPositionalCliOptions<T extends CliOptions>({
   parsed,
   positional,
 }: {
-  parsed: CliOptions;
+  parsed: T;
   positional: parser.Arguments['_'];
-}): CliOptions {
+}): T {
   const processed = { ...parsed };
   if (typeof positional[0] === 'string') {
     if (!processed.nodb && isConnectionSpecifier(positional[0])) {
