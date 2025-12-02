@@ -17,9 +17,21 @@ import {
 } from './arg-metadata';
 
 function unwrapType(type: unknown): z.ZodType {
-  if (type instanceof z.ZodOptional || type instanceof z.ZodDefault) {
-    return unwrapType(type.unwrap());
+  assertZodType(type);
+  let unwrappedType = z.clone(type);
+  while (
+    unwrappedType instanceof z.ZodOptional ||
+    unwrappedType instanceof z.ZodDefault
+  ) {
+    const nextWrap = unwrappedType.unwrap();
+    assertZodType(nextWrap);
+    unwrappedType = nextWrap;
   }
+
+  return type;
+}
+
+function assertZodType(type: unknown): asserts type is z.ZodType {
   if (!(type instanceof z.ZodType)) {
     throw new Error(
       `Unknown schema field type: ${
@@ -27,7 +39,6 @@ function unwrapType(type: unknown): z.ZodType {
       }`
     );
   }
-  return type;
 }
 
 export const defaultParserOptions: Partial<YargsOptions> = {
