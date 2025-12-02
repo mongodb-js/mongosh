@@ -1134,10 +1134,45 @@ describe('arg-parser', function () {
   });
 
   describe('union type fields', function () {
-    for (const { argument, values, onlyFalse, strict } of [
+    describe('--browser', function () {
+      it('does not coerce to boolean with --browser=true', function () {
+        expect(
+          parseArgsWithCliOptions({ args: ['--browser=true'] }).parsed.browser
+        ).to.equal('true');
+      });
+
+      it('coerces to boolean with --browser=false', function () {
+        expect(
+          parseArgsWithCliOptions({ args: ['--browser=false'] }).parsed.browser
+        ).to.equal(false);
+      });
+
+      it('coerces to false with --no-browser', function () {
+        expect(
+          parseArgsWithCliOptions({ args: ['--no-browser'] }).parsed.browser
+        ).to.equal(false);
+      });
+
+      it('uses string if browser=something', function () {
+        expect(
+          parseArgsWithCliOptions({ args: ['--browser=something'] }).parsed
+            .browser
+        ).to.equal('something');
+      });
+
+      it('throws if just --browser is provided', function () {
+        expect(
+          () => parseArgsWithCliOptions({ args: ['--browser'] }).parsed.browser
+        ).to.throw(
+          MongoshUnimplementedError,
+          '--browser can only be true or a string'
+        );
+      });
+    });
+
+    for (const { argument, values } of [
       { argument: 'json', values: ['relaxed', 'canonical'] },
       { argument: 'oidcDumpTokens', values: ['redacted', 'include-secrets'] },
-      { argument: 'browser', values: ['test'], onlyFalse: true, strict: false },
     ] as const) {
       describe(`with ${argument}`, function () {
         context('with boolean', function () {
@@ -1149,23 +1184,13 @@ describe('arg-parser', function () {
             ).to.equal(true);
           });
 
-          if (!onlyFalse) {
-            it(`coerces to true with --${argument}=true`, function () {
-              expect(
-                parseArgsWithCliOptions({
-                  args: [`--${argument}=true`],
-                }).parsed[argument]
-              ).to.equal(true);
-            });
-          } else {
-            it(`does not coerce with "--${argument} true"`, function () {
-              expect(
-                parseArgsWithCliOptions({
-                  args: [`--${argument}=true`],
-                }).parsed[argument]
-              ).to.be.equal('true');
-            });
-          }
+          it(`coerces to true with --${argument}=true`, function () {
+            expect(
+              parseArgsWithCliOptions({
+                args: [`--${argument}=true`],
+              }).parsed[argument]
+            ).to.equal(true);
+          });
 
           it(`coerces to false with --${argument}=false`, function () {
             expect(
@@ -1197,22 +1222,16 @@ describe('arg-parser', function () {
           });
         }
 
-        if (strict) {
-          it('throws an error with invalid value', function () {
-            try {
-              parseArgsWithCliOptions({
-                args: [`--${argument}`, 'invalid'],
-              });
-            } catch (e: any) {
-              expect(e).to.be.instanceOf(MongoshUnimplementedError);
-              expect(e.message).to.include(
-                `--${argument} can only have the values ${values.join(', ')}`
-              );
-              return;
-            }
-            expect.fail('Expected error');
-          });
-        }
+        it('throws an error with invalid value', function () {
+          expect(() =>
+            parseArgsWithCliOptions({
+              args: [`--${argument}`, 'invalid'],
+            })
+          ).to.throw(
+            MongoshUnimplementedError,
+            `--${argument} can only have the values ${values.join(', ')}`
+          );
+        });
       });
     }
   });
@@ -1246,7 +1265,7 @@ describe('arg-parser', function () {
       });
     });
 
-    it('generates the expected options for Cli Options', function () {
+    it('generates the expected options for CliOptions', function () {
       const options = generateYargsOptionsFromSchema({
         schema: CliOptionsSchema,
       });
@@ -1260,6 +1279,7 @@ describe('arg-parser', function () {
           'awsIamSessionToken',
           'awsSecretAccessKey',
           'awsSessionToken',
+          'browser',
           'csfleLibraryPath',
           'cryptSharedLibPath',
           'db',
@@ -1294,6 +1314,7 @@ describe('arg-parser', function () {
           'apiDeprecationErrors',
           'apiStrict',
           'buildInfo',
+          'deepInspect',
           'exposeAsyncRewriter',
           'help',
           'ipv6',

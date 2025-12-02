@@ -16,6 +16,16 @@ import {
   UnsupportedCliArgumentError,
 } from './arg-metadata';
 
+function unwrapType(type: unknown): unknown {
+  if (type instanceof z.ZodOptional) {
+    return unwrapType(type.unwrap());
+  }
+  if (type instanceof z.ZodDefault) {
+    return unwrapType(type.unwrap());
+  }
+  return type;
+}
+
 /**
  * Generate yargs-parser configuration from schema
  */
@@ -50,11 +60,7 @@ export function generateYargsOptionsFromSchema({
   for (const [fieldName, fieldSchema] of Object.entries(schema.shape)) {
     const meta = getArgumentMetadata(schema, fieldName);
 
-    // Unwrap optional type
-    let unwrappedType = fieldSchema;
-    if (fieldSchema instanceof z.ZodOptional) {
-      unwrappedType = fieldSchema.unwrap();
-    }
+    const unwrappedType = unwrapType(fieldSchema);
 
     // Determine type
     if (unwrappedType instanceof z.ZodArray) {
@@ -85,6 +91,8 @@ export function generateYargsOptionsFromSchema({
         if (hasFalseLiteral) {
           // If set to 'false' coerce into false boolean; string in all other cases
           options.coerce[fieldName] = coerceIfFalse;
+          // Setting as string prevents --{field} from being valid.
+          options.string.push(fieldName);
         } else if (hasBoolean) {
           // If the field is 'true' or 'false', we coerce the value to a boolean.
           options.coerce[fieldName] = coerceIfBoolean;
@@ -107,7 +115,13 @@ export function generateYargsOptionsFromSchema({
         );
       }
     } else {
-      throw new Error(`Unknown field type: ${unwrappedType.constructor.name}`);
+      throw new Error(
+        `Unknown field type: ${
+          unwrappedType instanceof Object
+            ? unwrappedType.constructor.name
+            : typeof unwrappedType
+        }`
+      );
     }
 
     // Add aliases
@@ -253,6 +267,10 @@ export function coerceIfBoolean(value: unknown): unknown {
 }
 
 export function coerceIfFalse(value: unknown): unknown {
+  if (value === undefined || value === '') {
+    return null;
+  }
+
   if (typeof value === 'string') {
     if (value === 'false') {
       return false;

@@ -197,7 +197,7 @@ export function validateCliOptions(parsed: CliOptions): void {
   const jsonValidation = CliOptionsSchema.shape.json.safeParse(parsed.json);
   if (!jsonValidation.success) {
     throw new MongoshUnimplementedError(
-      '--json can only have the values relaxed or canonical',
+      '--json can only have the values relaxed, canonical',
       CommonErrors.InvalidArgument
     );
   }
@@ -206,7 +206,7 @@ export function validateCliOptions(parsed: CliOptions): void {
     CliOptionsSchema.shape.oidcDumpTokens.safeParse(parsed.oidcDumpTokens);
   if (!oidcDumpTokensValidation.success) {
     throw new MongoshUnimplementedError(
-      '--oidcDumpTokens can only have the values redacted or include-secrets',
+      '--oidcDumpTokens can only have the values redacted, include-secrets',
       CommonErrors.InvalidArgument
     );
   }
@@ -216,7 +216,17 @@ export function validateCliOptions(parsed: CliOptions): void {
   );
   if (!jsContextValidation.success) {
     throw new MongoshUnimplementedError(
-      '--jsContext can only have the values repl, plain-vm, or auto',
+      '--jsContext can only have the values repl, plain-vm, auto',
+      CommonErrors.InvalidArgument
+    );
+  }
+
+  const browserValidation = CliOptionsSchema.shape.browser.safeParse(
+    parsed.browser
+  );
+  if (!browserValidation.success) {
+    throw new MongoshUnimplementedError(
+      '--browser can only be true or a string',
       CommonErrors.InvalidArgument
     );
   }
