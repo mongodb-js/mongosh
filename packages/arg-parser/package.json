@@ -63,7 +63,6 @@
     "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
     "mongodb": "^6.19.0",
-    "prettier": "^2.8.8",
-    "strip-ansi": "^7.1.2"
+    "prettier": "^2.8.8"
   }
 }

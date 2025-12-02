@@ -1,6 +1,5 @@
 import { MongoshUnimplementedError } from '@mongosh/errors';
 import { expect } from 'chai';
-import stripAnsi from 'strip-ansi';
 import {
   argMetadata,
   CliOptionsSchema,
@@ -1448,7 +1447,7 @@ describe('arg-parser', function () {
         ).to.throw(InvalidArgumentError, 'expected number, received string');
       });
 
-      it('can handle --a.b format', () => {
+      it('can handle --a.b format', function () {
         const schema = z.object({
           a: z.object({
             number: z.number(),
@@ -1475,7 +1474,7 @@ describe('arg-parser', function () {
         });
       });
 
-      it('can handle nested object fields', () => {
+      it('can handle nested object fields', function () {
         const schema = z.object({
           parent: z.object({
             child: z.string(),
@@ -1497,7 +1496,7 @@ describe('arg-parser', function () {
         });
       });
 
-      it('can handle multiple types in nested objects', () => {
+      it('can handle multiple types in nested objects', function () {
         const schema = z.object({
           config: z.object({
             enabled: z.boolean(),
@@ -1528,7 +1527,7 @@ describe('arg-parser', function () {
         });
       });
 
-      it('generateYargsOptionsFromSchema processes nested objects', () => {
+      it('generateYargsOptionsFromSchema processes nested objects', function () {
         const schema = z.object({
           server: z.object({
             host: z.string(),
@@ -1544,7 +1543,7 @@ describe('arg-parser', function () {
         expect(options.coerce).to.have.property('server');
       });
 
-      it('generateYargsOptionsFromSchema processes deeply nested objects', () => {
+      it('generateYargsOptionsFromSchema processes deeply nested objects', function () {
         const schema = z.object({
           level1: z.object({
             level2: z.object({
