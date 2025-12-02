@@ -228,11 +228,14 @@ export function parseArgsWithCliOptions({
 }: {
   args: string[];
   /** Schema to extend the CLI options schema with. */
-  schema?: Record<string, z.ZodTypeAny>;
+  schema?: z.ZodObject;
 }): ReturnType<typeof parseArgs<CliOptions>> {
   const schema =
     schemaToExtend !== undefined
-      ? CliOptionsSchema.extend(schemaToExtend)
+      ? z.object({
+          ...CliOptionsSchema.shape,
+          ...schemaToExtend.shape,
+        })
       : CliOptionsSchema;
   const { parsed, positional, deprecated } = parseArgs<ParsedCliOptions>({
     args,

@@ -1450,13 +1450,13 @@ describe('arg-parser', function () {
           '--deprecatedField',
           '100',
         ],
-        schema: {
+        schema: z.object({
           extendedField: z.number(),
           replacedField: z.number(),
           deprecatedField: z.number().register(argMetadata, {
             deprecationReplacement: 'replacedField',
           }),
-        },
+        }),
       });
 
       expect(options).to.deep.equal({
@@ -1486,9 +1486,9 @@ describe('arg-parser', function () {
             '--unknownField',
             '100',
           ],
-          schema: {
+          schema: z.object({
             extendedField: z.enum(['90', '100']),
-          },
+          }),
         })
       ).to.throw(UnknownCliArgumentError, 'Unknown argument: --unknownField');
     });
