@@ -11,13 +11,7 @@ import tmp from 'tmp-promise';
 import util, { promisify } from 'util';
 import type { PackageVariant, Config } from './config';
 import semver from 'semver';
-import {
-  getArch,
-  getDistro,
-  getDebArchName,
-  getRPMArchName,
-  Platform,
-} from './config';
+import { getArch, getDistro, getDebArchName, getRPMArchName } from './config';
 import { withRetries } from './helpers';
 import type {
   PPARepository,
@@ -120,7 +114,7 @@ export class Barque {
   private downloadedCuratorPromise: Promise<string> | undefined;
 
   constructor(config: Config) {
-    if (config.platform !== Platform.Linux) {
+    if (config.platform !== 'linux') {
       throw new Error('Barque publishing is only supported on linux platforms');
     }
 

@@ -19,6 +19,7 @@ export interface CliOptions {
   csfleLibraryPath?: string;
   cryptSharedLibPath?: string;
   db?: string;
+  deepInspect?: boolean; // defaults to true
   eval?: string[];
   exposeAsyncRewriter?: boolean; // internal testing only
   gssapiServiceName?: string;

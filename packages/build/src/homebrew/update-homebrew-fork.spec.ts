@@ -1,9 +1,11 @@
-import chai, { expect } from 'chai';
+import * as chai from 'chai';
+import { expect } from 'chai';
 import sinon from 'sinon';
 import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { updateHomebrewFork } from './update-homebrew-fork';
+import sinonChai from 'sinon-chai';
 
-chai.use(require('sinon-chai'));
+chai.use(sinonChai);
 
 describe('Homebrew update-homebrew-fork', function () {
   let getFileContent: sinon.SinonStub;
