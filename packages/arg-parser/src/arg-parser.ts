@@ -36,6 +36,123 @@ export const defaultParserOptions: Partial<YargsOptions> = {
 
 export type ParserOptions = Partial<YargsOptions>;
 
+export function parseArgs<T>({
+  args,
+  schema,
+  parserOptions,
+}: {
+  args: string[];
+  schema: z.ZodObject;
+  parserOptions?: YargsOptions;
+}): {
+  /** Parsed options from the schema, including replaced deprecated arguments. */
+  parsed: z.infer<typeof schema> & Omit<parser.Arguments, '_'>;
+  /** Record of used deprecated arguments which have been replaced. */
+  deprecated: Record<keyof z.infer<typeof schema>, T>;
+  /** Positional arguments which were not parsed as options. */
+  positional: parser.Arguments['_'];
+} {
+  const options = generateYargsOptionsFromSchema({
+    schema,
+    parserOptions,
+  });
+
+  const { argv, error } = parser.detailed(args, {
+    ...options,
+  });
+  const { _: positional, ...parsedArgs } = argv;
+
+  if (error) {
+    if (error instanceof ZodError) {
+      throw new InvalidArgumentError(error.message);
+    }
+    throw error;
+  }
+
+  const allDeprecatedArgs = getDeprecatedArgsWithReplacement<T>(schema);
+  const usedDeprecatedArgs = {} as Record<keyof z.infer<typeof schema>, T>;
+
+  for (const deprecated of Object.keys(allDeprecatedArgs)) {
+    if (deprecated in parsedArgs) {
+      const replacement = allDeprecatedArgs[deprecated];
+
+      // This is a complicated type scenario.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (parsedArgs as any)[replacement] =
+        parsedArgs[deprecated as keyof typeof parsedArgs];
+      usedDeprecatedArgs[deprecated] = replacement;
+
+      delete parsedArgs[deprecated as keyof typeof parsedArgs];
+    }
+  }
+
+  for (const arg of positional) {
+    if (typeof arg === 'string' && arg.startsWith('-')) {
+      throw new UnknownArgumentError(arg);
+    }
+  }
+
+  const unsupportedArgs = getUnsupportedArgs(schema);
+  for (const unsupported of unsupportedArgs) {
+    if (unsupported in parsedArgs) {
+      throw new UnsupportedArgumentError(unsupported);
+    }
+  }
+
+  return {
+    parsed: parsedArgs as T & Omit<parser.Arguments, '_'>,
+    deprecated: usedDeprecatedArgs,
+    positional,
+  };
+}
+
+type ParsedCliOptions = CliOptions & {
+  smokeTests: boolean;
+  perfTests: boolean;
+  buildInfo: boolean;
+  file?: string[];
+};
+
+/** Parses the arguments with special handling of mongosh CLI options fields. */
+export function parseArgsWithCliOptions<
+  T extends CliOptions = ParsedCliOptions
+>({
+  args,
+  schema: schemaToExtend,
+  parserOptions,
+}: {
+  args: string[];
+  /** Schema to extend the CLI options schema with. */
+  schema?: z.ZodObject;
+  parserOptions?: Partial<YargsOptions>;
+}): ReturnType<typeof parseArgs<T>> {
+  const schema =
+    schemaToExtend !== undefined
+      ? z.object({
+          ...CliOptionsSchema.shape,
+          ...schemaToExtend.shape,
+        })
+      : CliOptionsSchema;
+  const { parsed, positional, deprecated } = parseArgs<T>({
+    args,
+    schema,
+    parserOptions,
+  });
+
+  const processed = processPositionalCliOptions({
+    parsed,
+    positional,
+  });
+
+  validateCliOptions(processed);
+
+  return {
+    parsed: processed,
+    positional,
+    deprecated,
+  };
+}
+
 /**
  * Generate yargs-parser configuration from schema
  */
@@ -171,123 +288,6 @@ export function getLocale(args: string[], env: any): string {
   }
   const lang = env.LANG || env.LANGUAGE || env.LC_ALL || env.LC_MESSAGES;
   return lang ? lang.split('.')[0] : lang;
-}
-
-export function parseArgs<T>({
-  args,
-  schema,
-  parserOptions,
-}: {
-  args: string[];
-  schema: z.ZodObject;
-  parserOptions?: YargsOptions;
-}): {
-  /** Parsed options from the schema, including replaced deprecated arguments. */
-  parsed: z.infer<typeof schema> & Omit<parser.Arguments, '_'>;
-  /** Record of used deprecated arguments which have been replaced. */
-  deprecated: Record<keyof z.infer<typeof schema>, T>;
-  /** Positional arguments which were not parsed as options. */
-  positional: parser.Arguments['_'];
-} {
-  const options = generateYargsOptionsFromSchema({
-    schema,
-    parserOptions,
-  });
-
-  const { argv, error } = parser.detailed(args, {
-    ...options,
-  });
-  const { _: positional, ...parsedArgs } = argv;
-
-  if (error) {
-    if (error instanceof ZodError) {
-      throw new InvalidArgumentError(error.message);
-    }
-    throw error;
-  }
-
-  const allDeprecatedArgs = getDeprecatedArgsWithReplacement<T>(schema);
-  const usedDeprecatedArgs = {} as Record<keyof z.infer<typeof schema>, T>;
-
-  for (const deprecated of Object.keys(allDeprecatedArgs)) {
-    if (deprecated in parsedArgs) {
-      const replacement = allDeprecatedArgs[deprecated];
-
-      // This is a complicated type scenario.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (parsedArgs as any)[replacement] =
-        parsedArgs[deprecated as keyof typeof parsedArgs];
-      usedDeprecatedArgs[deprecated] = replacement;
-
-      delete parsedArgs[deprecated as keyof typeof parsedArgs];
-    }
-  }
-
-  for (const arg of positional) {
-    if (typeof arg === 'string' && arg.startsWith('-')) {
-      throw new UnknownArgumentError(arg);
-    }
-  }
-
-  const unsupportedArgs = getUnsupportedArgs(schema);
-  for (const unsupported of unsupportedArgs) {
-    if (unsupported in parsedArgs) {
-      throw new UnsupportedArgumentError(unsupported);
-    }
-  }
-
-  return {
-    parsed: parsedArgs as T & Omit<parser.Arguments, '_'>,
-    deprecated: usedDeprecatedArgs,
-    positional,
-  };
-}
-
-type ParsedCliOptions = CliOptions & {
-  smokeTests: boolean;
-  perfTests: boolean;
-  buildInfo: boolean;
-  file?: string[];
-};
-
-/** Parses the arguments with special handling of mongosh CLI options fields. */
-export function parseArgsWithCliOptions<
-  T extends CliOptions = ParsedCliOptions
->({
-  args,
-  schema: schemaToExtend,
-  parserOptions,
-}: {
-  args: string[];
-  /** Schema to extend the CLI options schema with. */
-  schema?: z.ZodObject;
-  parserOptions?: Partial<YargsOptions>;
-}): ReturnType<typeof parseArgs<T>> {
-  const schema =
-    schemaToExtend !== undefined
-      ? z.object({
-          ...CliOptionsSchema.shape,
-          ...schemaToExtend.shape,
-        })
-      : CliOptionsSchema;
-  const { parsed, positional, deprecated } = parseArgs<T>({
-    args,
-    schema,
-    parserOptions,
-  });
-
-  const processed = processPositionalCliOptions({
-    parsed,
-    positional,
-  });
-
-  validateCliOptions(processed);
-
-  return {
-    parsed: processed,
-    positional,
-    deprecated,
-  };
 }
 
 export { argMetadata, UnknownArgumentError, UnsupportedArgumentError };
