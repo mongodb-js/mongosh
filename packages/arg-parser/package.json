@@ -51,6 +51,9 @@
     "mongodb-connection-string-url": "^3.0.2",
     "yargs-parser": "^20.2.4"
   },
+  "peerDependencies": {
+    "zod": "^3.25.76"
+  },
   "devDependencies": {
     "@mongodb-js/devtools-connect": "^3.9.4",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",

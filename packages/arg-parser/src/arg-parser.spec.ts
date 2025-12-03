@@ -1,6 +1,18 @@
 import { MongoshUnimplementedError } from '@mongosh/errors';
 import { expect } from 'chai';
-import { getLocale, parseCliArgs, UnknownCliArgumentError } from './arg-parser';
+import {
+  argMetadata,
+  CliOptionsSchema,
+  generateYargsOptionsFromSchema,
+  getLocale,
+  parseArgs,
+  parseArgsWithCliOptions,
+  UnknownArgumentError,
+  UnsupportedArgumentError,
+} from './arg-parser';
+import { z } from 'zod/v4';
+import { coerceIfBoolean, coerceIfFalse } from './utils';
+import { InvalidArgumentError } from './arg-metadata';
 
 describe('arg-parser', function () {
   describe('.getLocale', function () {
@@ -74,13 +86,14 @@ describe('arg-parser', function () {
   });
 
   describe('.parse', function () {
-    const baseArgv = ['node', 'mongosh'];
     context('when providing only a URI', function () {
       const uri = 'mongodb://domain.com:20000';
-      const argv = [...baseArgv, uri];
+      const argv = [uri];
 
       it('returns the URI in the object', function () {
-        expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+        expect(
+          parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+        ).to.equal(uri);
       });
     });
 
@@ -89,741 +102,897 @@ describe('arg-parser', function () {
 
       context('when providing general options', function () {
         context('when providing --ipv6', function () {
-          const argv = [...baseArgv, uri, '--ipv6'];
+          const argv = [uri, '--ipv6'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the ipv6 value in the object', function () {
-            expect(parseCliArgs(argv).ipv6).to.equal(true);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.ipv6
+            ).to.equal(true);
           });
         });
 
         context('when providing -h', function () {
-          const argv = [...baseArgv, uri, '-h'];
+          const argv = [uri, '-h'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the help value in the object', function () {
-            expect(parseCliArgs(argv).help).to.equal(true);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.help
+            ).to.equal(true);
           });
         });
 
         context('when providing --help', function () {
-          const argv = [...baseArgv, uri, '--help'];
+          const argv = [uri, '--help'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the help value in the object', function () {
-            expect(parseCliArgs(argv).help).to.equal(true);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.help
+            ).to.equal(true);
           });
         });
 
         context('when providing --version', function () {
-          const argv = [...baseArgv, uri, '--version'];
+          const argv = [uri, '--version'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the version value in the object', function () {
-            expect(parseCliArgs(argv).version).to.equal(true);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.version
+            ).to.equal(true);
           });
         });
 
         context('when providing --verbose', function () {
-          const argv = [...baseArgv, uri, '--verbose'];
+          const argv = [uri, '--verbose'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the verbose value in the object', function () {
-            expect(parseCliArgs(argv).verbose).to.equal(true);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.verbose
+            ).to.equal(true);
           });
         });
 
         context('when providing --shell', function () {
-          const argv = [...baseArgv, uri, '--shell'];
+          const argv = [uri, '--shell'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the shell value in the object', function () {
-            expect(parseCliArgs(argv).shell).to.equal(true);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.shell
+            ).to.equal(true);
           });
         });
 
         context('when providing --nodb', function () {
-          const argv = [...baseArgv, uri, '--nodb'];
+          const argv = [uri, '--nodb'];
 
           it('does not return the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(undefined);
-            expect(parseCliArgs(argv).fileNames).to.deep.equal([uri]);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(undefined);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.fileNames
+            ).to.deep.equal([uri]);
           });
 
           it('sets the nodb value in the object', function () {
-            expect(parseCliArgs(argv).nodb).to.equal(true);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.nodb
+            ).to.equal(true);
           });
         });
 
         context('when providing --norc', function () {
-          const argv = [...baseArgv, uri, '--norc'];
+          const argv = [uri, '--norc'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the norc value in the object', function () {
-            expect(parseCliArgs(argv).norc).to.equal(true);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.norc
+            ).to.equal(true);
           });
         });
 
         context('when providing --quiet', function () {
-          const argv = [...baseArgv, uri, '--quiet'];
+          const argv = [uri, '--quiet'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the quiet value in the object', function () {
-            expect(parseCliArgs(argv).quiet).to.equal(true);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.quiet
+            ).to.equal(true);
           });
         });
 
         context('when providing --eval (single value)', function () {
-          const argv = [...baseArgv, uri, '--eval', '1+1'];
+          const argv = [uri, '--eval', '1+1'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the eval value in the object', function () {
-            expect(parseCliArgs(argv).eval).to.deep.equal(['1+1']);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.eval
+            ).to.deep.equal(['1+1']);
           });
         });
 
         context('when providing --eval (multiple values)', function () {
-          const argv = [...baseArgv, uri, '--eval', '1+1', '--eval', '2+2'];
+          const argv = [uri, '--eval', '1+1', '--eval', '2+2'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the eval value in the object', function () {
-            expect(parseCliArgs(argv).eval).to.deep.equal(['1+1', '2+2']);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.eval
+            ).to.deep.equal(['1+1', '2+2']);
           });
         });
 
         context('when providing --retryWrites', function () {
-          const argv = [...baseArgv, uri, '--retryWrites'];
+          const argv = [uri, '--retryWrites'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the retryWrites value in the object', function () {
-            expect(parseCliArgs(argv).retryWrites).to.equal(true);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.retryWrites
+            ).to.equal(true);
           });
         });
 
         context('when providing an unknown parameter', function () {
-          const argv = [...baseArgv, uri, '--what'];
+          const argv = [uri, '--what'];
 
           it('raises an error', function () {
-            try {
-              parseCliArgs(argv);
-            } catch (err: any) {
-              if (err instanceof UnknownCliArgumentError) {
-                expect(err.argument).equals('--what');
-                return;
-              } else {
-                expect.fail('Did not throw an unknown cli error');
-              }
-            }
-            expect.fail('parsing unknown parameter did not throw');
+            expect(() => {
+              parseArgsWithCliOptions({ args: argv }).parsed;
+            }).to.throw(UnknownArgumentError, 'Unknown argument: --what');
           });
         });
       });
 
       context('when providing authentication options', function () {
         context('when providing -u', function () {
-          const argv = [...baseArgv, uri, '-u', 'richard'];
+          const argv = [uri, '-u', 'richard'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the username in the object', function () {
-            expect(parseCliArgs(argv).username).to.equal('richard');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.username
+            ).to.equal('richard');
           });
         });
 
         context('when providing --username', function () {
-          const argv = [...baseArgv, uri, '--username', 'richard'];
+          const argv = [uri, '--username', 'richard'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the username in the object', function () {
-            expect(parseCliArgs(argv).username).to.equal('richard');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.username
+            ).to.equal('richard');
           });
         });
 
         context('when providing -p', function () {
-          const argv = [...baseArgv, uri, '-p', 'pw'];
+          const argv = [uri, '-p', 'pw'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the password in the object', function () {
-            expect(parseCliArgs(argv).password).to.equal('pw');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.password
+            ).to.equal('pw');
           });
         });
 
         context('when providing --password', function () {
-          const argv = [...baseArgv, uri, '--password', 'pw'];
+          const argv = [uri, '--password', 'pw'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the password in the object', function () {
-            expect(parseCliArgs(argv).password).to.equal('pw');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.password
+            ).to.equal('pw');
           });
         });
 
         context('when providing --authenticationDatabase', function () {
-          const argv = [...baseArgv, uri, '--authenticationDatabase', 'db'];
+          const argv = [uri, '--authenticationDatabase', 'db'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the authenticationDatabase in the object', function () {
-            expect(parseCliArgs(argv).authenticationDatabase).to.equal('db');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed
+                .authenticationDatabase
+            ).to.equal('db');
           });
         });
 
         context('when providing --authenticationMechanism', function () {
-          const argv = [
-            ...baseArgv,
-            uri,
-            '--authenticationMechanism',
-            'SCRAM-SHA-256',
-          ];
+          const argv = [uri, '--authenticationMechanism', 'SCRAM-SHA-256'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the authenticationMechanism in the object', function () {
-            expect(parseCliArgs(argv).authenticationMechanism).to.equal(
-              'SCRAM-SHA-256'
-            );
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed
+                .authenticationMechanism
+            ).to.equal('SCRAM-SHA-256');
           });
         });
 
         context('when providing --gssapiServiceName', function () {
-          const argv = [...baseArgv, uri, '--gssapiServiceName', 'mongosh'];
+          const argv = [uri, '--gssapiServiceName', 'mongosh'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the gssapiServiceName in the object', function () {
-            expect(parseCliArgs(argv).gssapiServiceName).to.equal('mongosh');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.gssapiServiceName
+            ).to.equal('mongosh');
           });
         });
 
         context('when providing --gssapiHostName', function () {
-          const argv = [...baseArgv, uri, '--gssapiHostName', 'example.com'];
+          const argv = [uri, '--gssapiHostName', 'example.com'];
 
           it('throws an error since it is not supported', function () {
-            try {
-              parseCliArgs(argv);
-            } catch (e: any) {
-              expect(e).to.be.instanceOf(MongoshUnimplementedError);
-              expect(e.message).to.include(
-                'Argument --gssapiHostName is not supported in mongosh'
-              );
-              return;
-            }
-            expect.fail('Expected error');
+            expect(
+              () => parseArgsWithCliOptions({ args: argv }).parsed
+            ).to.throw(
+              UnsupportedArgumentError,
+              'Unsupported argument: gssapiHostName'
+            );
           });
-
-          // it('returns the URI in the object', () => {
-          //   expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
-          // });
-
-          // it('sets the gssapiHostName in the object', () => {
-          //   expect(parseCliArgs(argv).gssapiHostName).to.equal('example.com');
-          // });
         });
 
         context('when providing --sspiHostnameCanonicalization', function () {
-          const argv = [
-            ...baseArgv,
-            uri,
-            '--sspiHostnameCanonicalization',
-            'forward',
-          ];
+          const argv = [uri, '--sspiHostnameCanonicalization', 'forward'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the gssapiHostName in the object', function () {
-            expect(parseCliArgs(argv).sspiHostnameCanonicalization).to.equal(
-              'forward'
-            );
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed
+                .sspiHostnameCanonicalization
+            ).to.equal('forward');
           });
         });
 
         context('when providing --sspiRealmOverride', function () {
-          const argv = [
-            ...baseArgv,
-            uri,
-            '--sspiRealmOverride',
-            'example2.com',
-          ];
+          const argv = [uri, '--sspiRealmOverride', 'example2.com'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the gssapiHostName in the object', function () {
-            expect(parseCliArgs(argv).sspiRealmOverride).to.equal(
-              'example2.com'
-            );
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.sspiRealmOverride
+            ).to.equal('example2.com');
           });
         });
 
         context('when providing --awsIamSessionToken', function () {
-          const argv = [...baseArgv, uri, '--awsIamSessionToken', 'tok'];
+          const argv = [uri, '--awsIamSessionToken', 'tok'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the awsIamSessionToken in the object', function () {
-            expect(parseCliArgs(argv).awsIamSessionToken).to.equal('tok');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.awsIamSessionToken
+            ).to.equal('tok');
           });
         });
       });
 
       context('when providing TLS options', function () {
         context('when providing --tls', function () {
-          const argv = [...baseArgv, uri, '--tls'];
+          const argv = [uri, '--tls'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the tls in the object', function () {
-            expect(parseCliArgs(argv).tls).to.equal(true);
+            expect(parseArgsWithCliOptions({ args: argv }).parsed.tls).to.equal(
+              true
+            );
           });
         });
 
         context('when providing -tls (single dash)', function () {
-          const argv = [...baseArgv, uri, '-tls'];
+          const argv = [uri, '-tls'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the tls in the object', function () {
-            expect(parseCliArgs(argv).tls).to.equal(true);
+            expect(parseArgsWithCliOptions({ args: argv }).parsed.tls).to.equal(
+              true
+            );
           });
         });
 
         context('when providing --tlsCertificateKeyFile', function () {
-          const argv = [...baseArgv, uri, '--tlsCertificateKeyFile', 'test'];
+          const argv = [uri, '--tlsCertificateKeyFile', 'test'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the tlsCertificateKeyFile in the object', function () {
-            expect(parseCliArgs(argv).tlsCertificateKeyFile).to.equal('test');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed
+                .tlsCertificateKeyFile
+            ).to.equal('test');
           });
         });
 
         context(
           'when providing -tlsCertificateKeyFile (single dash)',
           function () {
-            const argv = [...baseArgv, uri, '-tlsCertificateKeyFile', 'test'];
+            const argv = [uri, '-tlsCertificateKeyFile', 'test'];
 
             it('returns the URI in the object', function () {
-              expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+              expect(
+                parseArgsWithCliOptions({ args: argv }).parsed
+                  .connectionSpecifier
+              ).to.equal(uri);
             });
 
             it('sets the tlsCertificateKeyFile in the object', function () {
-              expect(parseCliArgs(argv).tlsCertificateKeyFile).to.equal('test');
+              expect(
+                parseArgsWithCliOptions({ args: argv }).parsed
+                  .tlsCertificateKeyFile
+              ).to.equal('test');
             });
           }
         );
 
         context('when providing --tlsCertificateKeyFilePassword', function () {
-          const argv = [
-            ...baseArgv,
-            uri,
-            '--tlsCertificateKeyFilePassword',
-            'test',
-          ];
+          const argv = [uri, '--tlsCertificateKeyFilePassword', 'test'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the tlsCertificateKeyFilePassword in the object', function () {
-            expect(parseCliArgs(argv).tlsCertificateKeyFilePassword).to.equal(
-              'test'
-            );
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed
+                .tlsCertificateKeyFilePassword
+            ).to.equal('test');
           });
         });
 
         context('when providing --tlsCAFile', function () {
-          const argv = [...baseArgv, uri, '--tlsCAFile', 'test'];
+          const argv = [uri, '--tlsCAFile', 'test'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the tlsCAFile in the object', function () {
-            expect(parseCliArgs(argv).tlsCAFile).to.equal('test');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.tlsCAFile
+            ).to.equal('test');
           });
         });
 
         context('when providing --tlsCRLFile', function () {
-          const argv = [...baseArgv, uri, '--tlsCRLFile', 'test'];
+          const argv = [uri, '--tlsCRLFile', 'test'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the tlsCRLFile in the object', function () {
-            expect(parseCliArgs(argv).tlsCRLFile).to.equal('test');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.tlsCRLFile
+            ).to.equal('test');
           });
         });
 
         context('when providing --tlsAllowInvalidHostnames', function () {
-          const argv = [...baseArgv, uri, '--tlsAllowInvalidHostnames'];
+          const argv = [uri, '--tlsAllowInvalidHostnames'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the tlsAllowInvalidHostnames in the object', function () {
-            expect(parseCliArgs(argv).tlsAllowInvalidHostnames).to.equal(true);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed
+                .tlsAllowInvalidHostnames
+            ).to.equal(true);
           });
         });
 
         context('when providing --tlsAllowInvalidCertificates', function () {
-          const argv = [...baseArgv, uri, '--tlsAllowInvalidCertificates'];
+          const argv = [uri, '--tlsAllowInvalidCertificates'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the tlsAllowInvalidCertificates in the object', function () {
-            expect(parseCliArgs(argv).tlsAllowInvalidCertificates).to.equal(
-              true
-            );
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed
+                .tlsAllowInvalidCertificates
+            ).to.equal(true);
           });
         });
 
         context('when providing --sslFIPSMode', function () {
-          const argv = [...baseArgv, uri, '--sslFIPSMode'];
+          const argv = [uri, '--sslFIPSMode'];
 
           it('throws an error since it is not supported', function () {
-            try {
-              parseCliArgs(argv);
-            } catch (e: any) {
-              expect(e).to.be.instanceOf(MongoshUnimplementedError);
-              expect(e.message).to.include(
-                'Argument --sslFIPSMode is not supported in mongosh'
-              );
-              return;
-            }
-            expect.fail('Expected error');
+            expect(
+              () => parseArgsWithCliOptions({ args: argv }).parsed
+            ).to.throw(
+              UnsupportedArgumentError,
+              'Unsupported argument: sslFIPSMode'
+            );
           });
 
           // it('returns the URI in the object', () => {
-          //   expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+          //   expect(parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier).to.equal(uri);
           // });
 
           // it('sets the tlsFIPSMode in the object', () => {
-          //   expect(parseCliArgs(argv).tlsFIPSMode).to.equal(true);
+          //   expect(parseArgsWithCliOptions({ args: argv }).parsed.tlsFIPSMode).to.equal(true);
           // });
         });
 
         context('when providing --tlsCertificateSelector', function () {
-          const argv = [...baseArgv, uri, '--tlsCertificateSelector', 'test'];
+          const argv = [uri, '--tlsCertificateSelector', 'test'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the tlsCertificateSelector in the object', function () {
-            expect(parseCliArgs(argv).tlsCertificateSelector).to.equal('test');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed
+                .tlsCertificateSelector
+            ).to.equal('test');
           });
         });
 
         context('when providing --tlsDisabledProtocols', function () {
-          const argv = [
-            ...baseArgv,
-            uri,
-            '--tlsDisabledProtocols',
-            'TLS1_0,TLS2_0',
-          ];
+          const argv = [uri, '--tlsDisabledProtocols', 'TLS1_0,TLS2_0'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the tlsDisabledProtocols in the object', function () {
-            expect(parseCliArgs(argv).tlsDisabledProtocols).to.equal(
-              'TLS1_0,TLS2_0'
-            );
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed
+                .tlsDisabledProtocols
+            ).to.equal('TLS1_0,TLS2_0');
           });
         });
       });
 
       context('when providing FLE options', function () {
         context('when providing --awsAccessKeyId', function () {
-          const argv = [...baseArgv, uri, '--awsAccessKeyId', 'foo'];
+          const argv = [uri, '--awsAccessKeyId', 'foo'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the awsAccessKeyId in the object', function () {
-            expect(parseCliArgs(argv).awsAccessKeyId).to.equal('foo');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.awsAccessKeyId
+            ).to.equal('foo');
           });
         });
 
         context('when providing --awsSecretAccessKey', function () {
-          const argv = [...baseArgv, uri, '--awsSecretAccessKey', 'foo'];
+          const argv = [uri, '--awsSecretAccessKey', 'foo'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the awsSecretAccessKey in the object', function () {
-            expect(parseCliArgs(argv).awsSecretAccessKey).to.equal('foo');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.awsSecretAccessKey
+            ).to.equal('foo');
           });
         });
 
         context('when providing --awsSessionToken', function () {
-          const argv = [...baseArgv, uri, '--awsSessionToken', 'foo'];
+          const argv = [uri, '--awsSessionToken', 'foo'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the awsSessionToken in the object', function () {
-            expect(parseCliArgs(argv).awsSessionToken).to.equal('foo');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.awsSessionToken
+            ).to.equal('foo');
           });
         });
 
         context('when providing --keyVaultNamespace', function () {
-          const argv = [...baseArgv, uri, '--keyVaultNamespace', 'foo.bar'];
+          const argv = [uri, '--keyVaultNamespace', 'foo.bar'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the keyVaultNamespace in the object', function () {
-            expect(parseCliArgs(argv).keyVaultNamespace).to.equal('foo.bar');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.keyVaultNamespace
+            ).to.equal('foo.bar');
           });
         });
 
         context('when providing --kmsURL', function () {
-          const argv = [...baseArgv, uri, '--kmsURL', 'example.com'];
+          const argv = [uri, '--kmsURL', 'example.com'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the kmsURL in the object', function () {
-            expect(parseCliArgs(argv).kmsURL).to.equal('example.com');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.kmsURL
+            ).to.equal('example.com');
           });
         });
       });
 
       context('when providing versioned API options', function () {
         context('when providing --apiVersion', function () {
-          const argv = [...baseArgv, uri, '--apiVersion', '1'];
+          const argv = [uri, '--apiVersion', '1'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the apiVersion in the object', function () {
-            expect(parseCliArgs(argv).apiVersion).to.equal('1');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.apiVersion
+            ).to.equal('1');
           });
         });
 
         context('when providing --apiDeprecationErrors', function () {
-          const argv = [...baseArgv, uri, '--apiDeprecationErrors'];
+          const argv = [uri, '--apiDeprecationErrors'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the apiVersion in the object', function () {
-            expect(parseCliArgs(argv).apiDeprecationErrors).to.equal(true);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed
+                .apiDeprecationErrors
+            ).to.equal(true);
           });
         });
 
         context('when providing --apiStrict', function () {
-          const argv = [...baseArgv, uri, '--apiStrict'];
+          const argv = [uri, '--apiStrict'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the apiVersion in the object', function () {
-            expect(parseCliArgs(argv).apiStrict).to.equal(true);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.apiStrict
+            ).to.equal(true);
           });
         });
       });
 
       context('when providing filenames after an URI', function () {
         context('when the filenames end in .js', function () {
-          const argv = [...baseArgv, uri, 'test1.js', 'test2.js'];
+          const argv = [uri, 'test1.js', 'test2.js'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the filenames', function () {
-            expect(parseCliArgs(argv).fileNames?.[0]).to.equal('test1.js');
-            expect(parseCliArgs(argv).fileNames?.[1]).to.equal('test2.js');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.fileNames?.[0]
+            ).to.equal('test1.js');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.fileNames?.[1]
+            ).to.equal('test2.js');
           });
         });
 
         context('when the filenames end in .mongodb', function () {
-          const argv = [...baseArgv, uri, 'test1.mongodb', 'test2.mongodb'];
+          const argv = [uri, 'test1.mongodb', 'test2.mongodb'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the filenames', function () {
-            expect(parseCliArgs(argv).fileNames?.[0]).to.equal('test1.mongodb');
-            expect(parseCliArgs(argv).fileNames?.[1]).to.equal('test2.mongodb');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.fileNames?.[0]
+            ).to.equal('test1.mongodb');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.fileNames?.[1]
+            ).to.equal('test2.mongodb');
           });
         });
 
         context('when the filenames end in other extensions', function () {
-          const argv = [...baseArgv, uri, 'test1.txt', 'test2.txt'];
+          const argv = [uri, 'test1.txt', 'test2.txt'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the filenames', function () {
-            expect(parseCliArgs(argv).fileNames?.[0]).to.equal('test1.txt');
-            expect(parseCliArgs(argv).fileNames?.[1]).to.equal('test2.txt');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.fileNames?.[0]
+            ).to.equal('test1.txt');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.fileNames?.[1]
+            ).to.equal('test2.txt');
           });
         });
 
         context('when filenames are specified using -f', function () {
-          const argv = [...baseArgv, uri, '-f', 'test1.txt', '-f', 'test2.txt'];
+          const argv = [uri, '-f', 'test1.txt', '-f', 'test2.txt'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the filenames', function () {
-            expect(parseCliArgs(argv).fileNames?.[0]).to.equal('test1.txt');
-            expect(parseCliArgs(argv).fileNames?.[1]).to.equal('test2.txt');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.fileNames?.[0]
+            ).to.equal('test1.txt');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.fileNames?.[1]
+            ).to.equal('test2.txt');
           });
         });
 
         context('when filenames are specified using -f/--file', function () {
-          const argv = [
-            ...baseArgv,
-            uri,
-            '-f',
-            'test1.txt',
-            '--file',
-            'test2.txt',
-          ];
+          const argv = [uri, '-f', 'test1.txt', '--file', 'test2.txt'];
 
           it('returns the URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(uri);
           });
 
           it('sets the filenames', function () {
-            expect(parseCliArgs(argv).fileNames?.[0]).to.equal('test1.txt');
-            expect(parseCliArgs(argv).fileNames?.[1]).to.equal('test2.txt');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.fileNames?.[0]
+            ).to.equal('test1.txt');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.fileNames?.[1]
+            ).to.equal('test2.txt');
           });
         });
       });
 
       context('when providing filenames without an URI', function () {
         context('when the filenames end in .js', function () {
-          const argv = [...baseArgv, 'test1.js', 'test2.js'];
+          const argv = ['test1.js', 'test2.js'];
 
           it('returns no URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(undefined);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(undefined);
           });
 
           it('sets the filenames', function () {
-            expect(parseCliArgs(argv).fileNames?.[0]).to.equal('test1.js');
-            expect(parseCliArgs(argv).fileNames?.[1]).to.equal('test2.js');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.fileNames?.[0]
+            ).to.equal('test1.js');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.fileNames?.[1]
+            ).to.equal('test2.js');
           });
         });
 
         context('when the filenames end in .mongodb', function () {
-          const argv = [...baseArgv, 'test1.mongodb', 'test2.mongodb'];
+          const argv = ['test1.mongodb', 'test2.mongodb'];
 
           it('returns no URI in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(undefined);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(undefined);
           });
 
           it('sets the filenames', function () {
-            expect(parseCliArgs(argv).fileNames?.[0]).to.equal('test1.mongodb');
-            expect(parseCliArgs(argv).fileNames?.[1]).to.equal('test2.mongodb');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.fileNames?.[0]
+            ).to.equal('test1.mongodb');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.fileNames?.[1]
+            ).to.equal('test2.mongodb');
           });
         });
 
         context('when the filenames end in other extensions', function () {
-          const argv = [...baseArgv, 'test1.txt', 'test2.txt'];
+          const argv = ['test1.txt', 'test2.txt'];
 
           it('returns the first filename as an URI', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(
-              'test1.txt'
-            );
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal('test1.txt');
           });
 
           it('uses the remainder as filenames', function () {
-            expect(parseCliArgs(argv).fileNames?.[0]).to.equal('test2.txt');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.fileNames?.[0]
+            ).to.equal('test2.txt');
           });
         });
 
         context('when the first argument is an URI ending in .js', function () {
-          const argv = [...baseArgv, 'mongodb://domain.foo.js', 'test2.txt'];
+          const argv = ['mongodb://domain.foo.js', 'test2.txt'];
 
           it('returns the first filename as an URI', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(
-              'mongodb://domain.foo.js'
-            );
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal('mongodb://domain.foo.js');
           });
 
           it('uses the remainder as filenames', function () {
-            expect(parseCliArgs(argv).fileNames?.[0]).to.equal('test2.txt');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.fileNames?.[0]
+            ).to.equal('test2.txt');
           });
         });
 
@@ -831,22 +1000,22 @@ describe('arg-parser', function () {
           'when the first argument is an URI ending in .js but --file is used',
           function () {
             const argv = [
-              ...baseArgv,
               '--file',
               'mongodb://domain.foo.js',
               'mongodb://domain.bar.js',
             ];
 
             it('returns the first filename as an URI', function () {
-              expect(parseCliArgs(argv).connectionSpecifier).to.equal(
-                'mongodb://domain.bar.js'
-              );
+              expect(
+                parseArgsWithCliOptions({ args: argv }).parsed
+                  .connectionSpecifier
+              ).to.equal('mongodb://domain.bar.js');
             });
 
             it('uses the remainder as filenames', function () {
-              expect(parseCliArgs(argv).fileNames?.[0]).to.equal(
-                'mongodb://domain.foo.js'
-              );
+              expect(
+                parseArgsWithCliOptions({ args: argv }).parsed.fileNames?.[0]
+              ).to.equal('mongodb://domain.foo.js');
             });
           }
         );
@@ -857,37 +1026,45 @@ describe('arg-parser', function () {
       context('when providing a DB address', function () {
         context('when only a db name is provided', function () {
           const db = 'foo';
-          const argv = [...baseArgv, db];
+          const argv = [db];
 
           it('sets the db in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(db);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(db);
           });
         });
 
         context('when a db address is provided without a scheme', function () {
           const db = '192.168.0.5:9999/foo';
-          const argv = [...baseArgv, db];
+          const argv = [db];
 
           it('sets the db in the object', function () {
-            expect(parseCliArgs(argv).connectionSpecifier).to.equal(db);
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(db);
           });
         });
       });
 
       context('when providing no DB address', function () {
         context('when providing a host', function () {
-          const argv = [...baseArgv, '--host', 'example.com'];
+          const argv = ['--host', 'example.com'];
 
           it('sets the host value in the object', function () {
-            expect(parseCliArgs(argv).host).to.equal('example.com');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.host
+            ).to.equal('example.com');
           });
         });
 
         context('when providing a port', function () {
-          const argv = [...baseArgv, '--port', '20000'];
+          const argv = ['--port', '20000'];
 
           it('sets the port value in the object', function () {
-            expect(parseCliArgs(argv).port).to.equal('20000');
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.port
+            ).to.equal('20000');
           });
         });
       });
@@ -933,16 +1110,539 @@ describe('arg-parser', function () {
         },
       ] as const) {
         it(`replaces --${deprecated} with --${replacement}`, function () {
-          const argv = [...baseArgv, `--${deprecated}`];
+          const argv = [`--${deprecated}`];
           if (value) {
             argv.push(value);
           }
 
-          const args = parseCliArgs(argv);
+          const args = parseArgsWithCliOptions({ args: argv }).parsed;
           expect(args).to.not.have.property(deprecated);
           expect(args[replacement]).to.equal(value ?? true);
         });
       }
+    });
+  });
+
+  describe('union type fields', function () {
+    describe('--browser', function () {
+      it('does not coerce to boolean with --browser=true', function () {
+        expect(
+          parseArgsWithCliOptions({ args: ['--browser=true'] }).parsed.browser
+        ).to.equal('true');
+      });
+
+      it('coerces to boolean with --browser=false', function () {
+        expect(
+          parseArgsWithCliOptions({ args: ['--browser=false'] }).parsed.browser
+        ).to.equal(false);
+      });
+
+      it('coerces to false with --no-browser', function () {
+        expect(
+          parseArgsWithCliOptions({ args: ['--no-browser'] }).parsed.browser
+        ).to.equal(false);
+      });
+
+      it('uses string if browser=something', function () {
+        expect(
+          parseArgsWithCliOptions({ args: ['--browser=something'] }).parsed
+            .browser
+        ).to.equal('something');
+      });
+
+      it('throws if just --browser is provided', function () {
+        expect(
+          () => parseArgsWithCliOptions({ args: ['--browser'] }).parsed.browser
+        ).to.throw(
+          MongoshUnimplementedError,
+          '--browser can only be true or a string'
+        );
+      });
+    });
+
+    for (const { argument, values } of [
+      { argument: 'json', values: ['relaxed', 'canonical'] },
+      { argument: 'oidcDumpTokens', values: ['redacted', 'include-secrets'] },
+    ] as const) {
+      describe(`with ${argument}`, function () {
+        context('with boolean', function () {
+          it(`get set to true with --${argument}`, function () {
+            expect(
+              parseArgsWithCliOptions({
+                args: [`--${argument}`],
+              }).parsed[argument]
+            ).to.equal(true);
+          });
+
+          it(`coerces to true with --${argument}=true`, function () {
+            expect(
+              parseArgsWithCliOptions({
+                args: [`--${argument}=true`],
+              }).parsed[argument]
+            ).to.equal(true);
+          });
+
+          it(`coerces to false with --${argument}=false`, function () {
+            expect(
+              parseArgsWithCliOptions({
+                args: [`--${argument}=false`],
+              }).parsed[argument]
+            ).to.equal(false);
+          });
+        });
+
+        for (const value of values) {
+          context('with string value', function () {
+            // This matches the legacy behavior pre-Zod schema migration.
+            it(`does not work with "--${argument} ${value}"`, function () {
+              expect(
+                parseArgsWithCliOptions({
+                  args: [`--${argument} ${value}`],
+                }).parsed[argument]
+              ).to.be.undefined;
+            });
+
+            it(`works "--${argument}=${value}"`, function () {
+              expect(
+                parseArgsWithCliOptions({
+                  args: [`--${argument}=${value}`],
+                }).parsed[argument]
+              ).to.equal(value);
+            });
+          });
+        }
+
+        it('throws an error with invalid value', function () {
+          expect(() =>
+            parseArgsWithCliOptions({
+              args: [`--${argument}`, 'invalid'],
+            })
+          ).to.throw(
+            MongoshUnimplementedError,
+            `--${argument} can only have the values ${values.join(', ')}`
+          );
+        });
+      });
+    }
+  });
+
+  const testSchema = z.object({
+    name: z.string(),
+    age: z.number(),
+    isAdmin: z.boolean(),
+    roles: z.array(z.string()),
+  });
+
+  describe('generateYargsOptions', function () {
+    it('generates from arbitrary schema', function () {
+      const options = generateYargsOptionsFromSchema({
+        schema: testSchema,
+        parserOptions: {
+          configuration: {
+            'combine-arrays': true,
+          },
+        },
+      });
+
+      expect(options).to.deep.equal({
+        string: ['name'],
+        number: ['age'],
+        boolean: ['isAdmin'],
+        array: ['roles'],
+        coerce: {},
+        alias: {},
+        configuration: {
+          'combine-arrays': true,
+        },
+      });
+    });
+
+    it('generates the expected options for CliOptions', function () {
+      const options = generateYargsOptionsFromSchema({
+        schema: CliOptionsSchema,
+      });
+
+      const expected = {
+        string: [
+          'apiVersion',
+          'authenticationDatabase',
+          'authenticationMechanism',
+          'awsAccessKeyId',
+          'awsIamSessionToken',
+          'awsSecretAccessKey',
+          'awsSessionToken',
+          'browser',
+          'csfleLibraryPath',
+          'cryptSharedLibPath',
+          'db',
+          'gssapiHostName',
+          'gssapiServiceName',
+          'sspiHostnameCanonicalization',
+          'sspiRealmOverride',
+          'host',
+          'jsContext',
+          'keyVaultNamespace',
+          'kmsURL',
+          'locale',
+          'oidcFlows',
+          'oidcRedirectUri',
+          'password',
+          'port',
+          'sslPEMKeyFile',
+          'sslPEMKeyPassword',
+          'sslCAFile',
+          'sslCertificateSelector',
+          'sslCRLFile',
+          'sslDisabledProtocols',
+          'tlsCAFile',
+          'tlsCertificateKeyFile',
+          'tlsCertificateKeyFilePassword',
+          'tlsCertificateSelector',
+          'tlsCRLFile',
+          'tlsDisabledProtocols',
+          'username',
+        ],
+        boolean: [
+          'apiDeprecationErrors',
+          'apiStrict',
+          'buildInfo',
+          'deepInspect',
+          'exposeAsyncRewriter',
+          'help',
+          'ipv6',
+          'nodb',
+          'norc',
+          'oidcTrustedEndpoint',
+          'oidcIdTokenAsAccessToken',
+          'oidcNoNonce',
+          'perfTests',
+          'quiet',
+          'retryWrites',
+          'shell',
+          'smokeTests',
+          'skipStartupWarnings',
+          'ssl',
+          'sslAllowInvalidCertificates',
+          'sslAllowInvalidHostnames',
+          'sslFIPSMode',
+          'tls',
+          'tlsAllowInvalidCertificates',
+          'tlsAllowInvalidHostnames',
+          'tlsFIPSMode',
+          'tlsUseSystemCA',
+          'verbose',
+          'version',
+        ],
+        array: ['eval', 'file'],
+        coerce: {
+          json: coerceIfBoolean,
+          oidcDumpTokens: coerceIfBoolean,
+          browser: coerceIfFalse,
+        },
+        alias: {
+          h: 'help',
+          p: 'password',
+          u: 'username',
+          f: 'file',
+          'build-info': 'buildInfo',
+          oidcRedirectUrl: 'oidcRedirectUri', // I'd get this wrong about 50% of the time
+          oidcIDTokenAsAccessToken: 'oidcIdTokenAsAccessToken', // ditto
+        },
+        configuration: {
+          'camel-case-expansion': false,
+          'unknown-options-as-args': true,
+          'parse-positional-numbers': false,
+          'parse-numbers': false,
+          'greedy-arrays': false,
+          'short-option-groups': false,
+        },
+      };
+
+      // Compare arrays without caring about order
+      expect(options.string?.sort()).to.deep.equal(expected.string.sort());
+      expect(options.boolean?.sort()).to.deep.equal(expected.boolean.sort());
+      expect(options.array?.sort()).to.deep.equal(expected.array.sort());
+
+      // Compare non-array properties normally
+      expect(options.alias).to.deep.equal(expected.alias);
+      expect(options.configuration).to.deep.equal(expected.configuration);
+      expect(options.coerce).to.deep.equal(expected.coerce);
+    });
+  });
+
+  describe('parseArgs', function () {
+    it('parses any schema, independent of CliOptionsSchema', function () {
+      const options = parseArgs({
+        args: [
+          'hello',
+          '--port',
+          '20000',
+          '--ssl',
+          '1',
+          '--unknownField',
+          '1',
+          '--deprecatedField',
+          '100',
+        ],
+        schema: z.object({
+          port: z.number(),
+          ssl: z.boolean(),
+          unknownField: z.string(),
+          replacedField: z.number(),
+          deprecatedField: z.number().register(argMetadata, {
+            deprecationReplacement: 'replacedField',
+          }),
+        }),
+      });
+
+      expect(options).to.deep.equal({
+        positional: ['hello', '1'],
+        parsed: {
+          port: 20000,
+          replacedField: 100,
+          ssl: true,
+          unknownField: '1',
+        },
+        deprecated: {
+          deprecatedField: 'replacedField',
+        },
+      });
+    });
+
+    describe('object fields', function () {
+      it('parses object fields', function () {
+        const options = parseArgs({
+          args: ['--objectField', '{"foo":"bar"}'],
+          schema: z.object({
+            objectField: z.object({
+              foo: z.string(),
+            }),
+          }),
+        });
+
+        expect(options.parsed).to.deep.equal({
+          objectField: {
+            foo: 'bar',
+          },
+        });
+      });
+
+      it('enforces the schema of the object field', function () {
+        const schema = z.object({
+          objectField: z.object({
+            foo: z.number(),
+          }),
+        });
+        expect(
+          parseArgs({
+            args: ['--objectField', '{"foo":3}'],
+            schema,
+          }).parsed.objectField
+        ).to.deep.equal({ foo: 3 });
+        expect(() =>
+          parseArgs({
+            args: ['--objectField', '{"foo":"hello"}'],
+            schema,
+          })
+        ).to.throw(InvalidArgumentError, 'expected number, received string');
+      });
+
+      it('can handle --a.b format', function () {
+        const schema = z.object({
+          a: z.object({
+            number: z.number(),
+            string: z.string(),
+            boolean: z.boolean(),
+          }),
+        });
+        expect(
+          parseArgs({
+            args: [
+              '--a.number',
+              '3',
+              '--a.string',
+              'hello',
+              '--a.boolean',
+              'true',
+            ],
+            schema,
+          }).parsed.a
+        ).to.deep.equal({
+          number: 3,
+          string: 'hello',
+          boolean: true,
+        });
+      });
+
+      it('can handle nested object fields', function () {
+        const schema = z.object({
+          parent: z.object({
+            child: z.string(),
+            nested: z.object({
+              deep: z.number(),
+            }),
+          }),
+        });
+        expect(
+          parseArgs({
+            args: ['--parent.child', 'hello', '--parent.nested.deep', '42'],
+            schema,
+          }).parsed.parent
+        ).to.deep.equal({
+          child: 'hello',
+          nested: {
+            deep: 42,
+          },
+        });
+      });
+
+      it('can handle multiple types in nested objects', function () {
+        const schema = z.object({
+          config: z.object({
+            enabled: z.boolean(),
+            name: z.string(),
+            count: z.number(),
+            tags: z.array(z.string()),
+          }),
+        });
+        const result = parseArgs({
+          args: [
+            '--config.enabled',
+            '--config.name',
+            'test',
+            '--config.count',
+            '10',
+            '--config.tags',
+            'tag1',
+            '--config.tags',
+            'tag2',
+          ],
+          schema,
+        });
+        expect(result.parsed.config).to.deep.equal({
+          enabled: true,
+          name: 'test',
+          count: 10,
+          tags: ['tag1', 'tag2'],
+        });
+      });
+
+      it('generateYargsOptionsFromSchema processes nested objects', function () {
+        const schema = z.object({
+          server: z.object({
+            host: z.string(),
+            port: z.number(),
+            ssl: z.boolean(),
+          }),
+        });
+        const options = generateYargsOptionsFromSchema({ schema });
+
+        expect(options.string).to.include('server.host');
+        expect(options.number).to.include('server.port');
+        expect(options.boolean).to.include('server.ssl');
+        expect(options.coerce).to.have.property('server');
+      });
+
+      it('generateYargsOptionsFromSchema processes deeply nested objects', function () {
+        const schema = z.object({
+          level1: z.object({
+            level2: z.object({
+              level3: z.string(),
+            }),
+          }),
+        });
+        const options = generateYargsOptionsFromSchema({ schema });
+
+        expect(options.string).to.include('level1.level2.level3');
+        expect(options.coerce).to.have.property('level1');
+      });
+    });
+  });
+
+  describe('parseArgsWithCliOptions', function () {
+    it('parses the expected options for Cli Options and replacements', function () {
+      const options = parseArgsWithCliOptions({
+        args: ['--port', '20000', '--ssl', '1'],
+      });
+
+      expect(options).to.deep.equal({
+        positional: [],
+        parsed: {
+          connectionSpecifier: '1',
+          fileNames: [],
+          port: '20000',
+          tls: true,
+        },
+        deprecated: {
+          ssl: 'tls',
+        },
+      });
+    });
+
+    it('parses extended schema', function () {
+      const options = parseArgsWithCliOptions({
+        args: [
+          '--port',
+          '20000',
+          '--extendedField',
+          '90',
+          '--ssl',
+          'true',
+          '--deprecatedField',
+          '100',
+          '--complexField',
+          'false',
+        ],
+        schema: z.object({
+          extendedField: z.number(),
+          replacedField: z.number(),
+          deprecatedField: z.number().register(argMetadata, {
+            deprecationReplacement: 'replacedField',
+          }),
+          // TODO: The expected behavior right now is pre-processing doesn't happen as part of the arg-parser.
+          // What we instead focus on is making sure the output is passed as expected type (i.e. z.boolean())
+          // The assumption is that external users will pass the output through their schema after this parse.
+          // With greater testing, we should support schema assertion directly in the parser.
+          complexField: z.preprocess(
+            (value: unknown) => value === 'true',
+            z.boolean()
+          ),
+        }),
+      });
+
+      expect(options).to.deep.equal({
+        positional: [],
+        parsed: {
+          port: '20000',
+          replacedField: 100,
+          extendedField: 90,
+          tls: true,
+          fileNames: [],
+          complexField: false,
+        },
+        deprecated: {
+          ssl: 'tls',
+          deprecatedField: 'replacedField',
+        },
+      });
+    });
+
+    it('throws an error for fields outside of the custom schema', function () {
+      expect(() =>
+        parseArgsWithCliOptions({
+          args: [
+            '--port',
+            '20000',
+            '--extendedField',
+            '90',
+            '--unknownField',
+            '100',
+          ],
+          schema: z.object({
+            extendedField: z.enum(['90', '100']),
+          }),
+        })
+      ).to.throw(UnknownArgumentError, 'Unknown argument: --unknownField');
     });
   });
 });
