@@ -25,7 +25,7 @@
     "duplexpair": "^1.0.2",
     "mongodb": "^6.19.0",
     "mongodb-connection-string-url": "^3.0.1",
-    "mongodb-runner": "^6.2.0",
+    "mongodb-runner": "^6.0.0",
     "semver": "^7.3.4",
     "which": "^2.0.2"
   },
