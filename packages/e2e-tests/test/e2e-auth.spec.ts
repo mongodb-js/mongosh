@@ -1136,6 +1136,7 @@ describe('Auth e2e', function () {
           'Received authentication for mechanism GSSAPI which is unknown or not enabled',
           'Miscellaneous failure (see text): Unable to find realm of host localhost',
           'Miscellaneous failure (see text): no credential for',
+          'Miscellaneous failure (see text): Matching credential',
           "Unsupported mechanism 'GSSAPI' on authentication database '$external'",
           'The specified target is unknown or unreachable',
           'Server not found in Kerberos database',

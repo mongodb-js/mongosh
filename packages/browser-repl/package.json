@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/browser-repl",
-  "version": "3.26.2",
+  "version": "3.28.0",
   "description": "Browser presentation component for Mongo Shell",
   "engines": {
     "node": ">=14.15.1"
@@ -57,13 +57,13 @@
     ]
   },
   "dependencies": {
-    "@mongosh/browser-runtime-core": "^3.26.2",
+    "@mongosh/browser-runtime-core": "^3.28.0",
     "@mongosh/errors": "2.4.4",
-    "@mongosh/history": "2.4.9",
+    "@mongosh/history": "2.4.11",
     "@mongosh/i18n": "^2.19.0",
-    "@mongosh/node-runtime-worker-thread": "3.3.30",
-    "@mongosh/service-provider-core": "3.6.3",
-    "@mongosh/shell-bson": "1.0.4",
+    "@mongosh/node-runtime-worker-thread": "3.3.32",
+    "@mongosh/service-provider-core": "3.6.5",
+    "@mongosh/shell-bson": "1.0.6",
     "bson": "^6.10.4",
     "numeral": "^2.0.6",
     "text-table": "^0.2.0"
@@ -87,7 +87,7 @@
     "@types/react": "^16.9.17",
     "@types/react-dom": "^18.0.8",
     "@types/sinon": "^7.5.1",
-    "@types/sinon-chai": "^3.2.4",
+    "@types/sinon-chai": "^4.0.0",
     "@types/text-table": "^0.2.1",
     "@wojtekmaj/enzyme-adapter-react-17": "^0.8.0",
     "babel-loader": "^8.3.0",
@@ -107,7 +107,7 @@
     "path-browserify": "^1.0.1",
     "prettier": "^2.8.8",
     "prop-types": "^15.7.2",
-    "puppeteer": "^21.0.3",
+    "puppeteer": "^24.31.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-refresh": "^0.14.0",

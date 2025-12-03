@@ -54,7 +54,7 @@
     "create-purls-file": "node scripts/create-purls.js .sbom/dependencies.json .sbom/node-js-dep.json > .sbom/purls.txt",
     "preupdate-third-party-notices": "npm run create-dependency-sbom-lists",
     "update-third-party-notices": "mongodb-sbom-tools generate-3rd-party-notices --product='mongosh' --dependencies=.sbom/dependencies.json > THIRD_PARTY_NOTICES.md",
-    "update-node-js-versions": "npx @pkgjs/nv ls v20 > .evergreen/node-20-latest.json",
+    "update-node-js-versions": "npx @pkgjs/nv ls v20 > .evergreen/node-20-latest.json && npx @pkgjs/nv ls v24 > .evergreen/node-24-latest.json",
     "update-evergreen-config": "npm run test-evergreen-expansions && node .evergreen/generate-evergreen-yml.js .evergreen/evergreen.yml.in > .evergreen.yml",
     "update-cli-usage-text": "node scripts/update-cli-usage-text.js",
     "update-security-test-summary": "ts-node scripts/generate-security-test-summary.ts > docs/security-test-summary.md",
@@ -95,20 +95,20 @@
     "access": "public"
   },
   "engines": {
-    "node": ">=12.18.4"
+    "node": ">=20.19.3"
   },
   "devDependencies": {
     "@babel/compat-data": "^7.26.8",
     "@mongodb-js/monorepo-tools": "^1.1.10",
     "@pkgjs/nv": "^0.2.2",
-    "@types/chai": "^4.2.5",
+    "@types/chai": "^5.2.3",
     "@types/mocha": "^5.2.7",
     "@types/node": "^22.15.30",
     "@types/rimraf": "^3.0.0",
     "@types/semver": "^7.3.4",
-    "@types/sinon-chai": "^3.2.4",
+    "@types/sinon-chai": "^4.0.0",
     "@types/which": "^1.3.2",
-    "chai": "^4.2.0",
+    "chai": "^6.2.1",
     "cross-env": "^6.0.3",
     "depcheck": "^1.4.7",
     "duplexpair": "^1.0.2",
@@ -118,13 +118,13 @@
     "mocha": "^10.2.0",
     "mongodb": "^6.19.0",
     "mongodb-runner": "^6.2.0",
-    "node-gyp": "^9.0.0 || ^10.2.0",
+    "node-gyp": "^11.5.0",
     "nyc": "^15.1.0",
     "pkg-up": "^3.1.0",
     "rimraf": "^3.0.2",
     "semver": "^7.6.3",
     "sinon": "^7.5.0",
-    "sinon-chai": "^3.5.0",
+    "sinon-chai": "^4.0.1",
     "terser-webpack-plugin": "^5.3.11",
     "ts-loader": "^8.0.14",
     "ts-node": "^10.9.2",
@@ -171,6 +171,7 @@
     "packages/connectivity-tests"
   ],
   "overrides": {
-    "cookie": "^0.7.2"
+    "cookie": "^0.7.2",
+    "body-parser": "^2.2.1"
   }
 }

@@ -15,7 +15,7 @@ enableFipsIfRequested();
 
 import { markTime } from './startup-timing';
 import { CliRepl } from './cli-repl';
-import { parseCliArgs } from './arg-parser';
+import { parseMongoshCliArgs } from './arg-parser';
 import { runSmokeTests } from './smoke-tests';
 import { USAGE } from './constants';
 import { baseBuildInfo, buildInfo } from './build-info';
@@ -23,7 +23,7 @@ import { getStoragePaths, getGlobalConfigPaths } from './config-directory';
 import { getCryptLibraryPaths } from './crypt-library-paths';
 import { getTlsCertificateSelector } from './tls-certificate-selector';
 import { applyPacProxyS390XPatch } from './pac-proxy-s390x-patch';
-import { redactURICredentials } from '@mongosh/history';
+import { redactConnectionString } from 'mongodb-redact';
 import { generateConnectionInfoFromCliArgs } from '@mongosh/arg-parser';
 import askcharacter from 'askcharacter';
 import { PassThrough } from 'stream';
@@ -85,7 +85,7 @@ async function main() {
   try {
     (net as any)?.setDefaultAutoSelectFamily?.(true);
 
-    const options = parseCliArgs(process.argv);
+    const options = parseMongoshCliArgs(process.argv);
     for (const warning of options._argParseWarnings) {
       console.warn(warning);
     }
@@ -218,7 +218,7 @@ async function main() {
       driverInfo: { name: 'mongosh', version },
     };
 
-    const title = `mongosh ${redactURICredentials(
+    const title = `mongosh ${redactConnectionString(
       connectionInfo.connectionString
     )}`;
     process.title = title;
@@ -346,6 +346,8 @@ function suppressExperimentalWarnings() {
 }
 
 function onExit(code?: number): never {
+  setTerminalWindowTitle(''); // Clear the terminal window title MONGOSH-1233
+
   // Node.js 20.0.0 made p.exit(undefined) behave as p.exit(0) rather than p.exit(): (code?: number | undefined): never => {
   try {
     try {

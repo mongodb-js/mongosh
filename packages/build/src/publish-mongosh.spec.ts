@@ -1,4 +1,5 @@
-import chai, { expect } from 'chai';
+import * as chai from 'chai';
+import { expect } from 'chai';
 import sinon from 'sinon';
 import { Barque } from './barque';
 import { type Config } from './config';
@@ -7,8 +8,9 @@ import { HomebrewPublisher } from './homebrew';
 import { PackageBumper, PackagePublisher } from './npm-packages';
 import { MongoshPublisher } from './publish-mongosh';
 import { dummyConfig } from '../test/helpers';
+import sinonChai from 'sinon-chai';
 
-chai.use(require('sinon-chai'));
+chai.use(sinonChai);
 
 function createStubRepo(overrides?: any): GithubRepo {
   return sinon.createStubInstance(

@@ -29,6 +29,8 @@ describe('FLE tests', function () {
   let cryptLibrary82: string;
 
   before(async function () {
+    this.timeout(120_000); // Downloading the crypt-shared library can take some time
+
     if (process.platform === 'linux') {
       const [major, minor] = (process.report as any)
         .getReport()
@@ -135,6 +137,7 @@ describe('FLE tests', function () {
           },
           cwd: path.join(__dirname, '..', '..', 'cli-repl', 'test', 'fixtures'),
         });
+        await shell.waitForPrompt();
 
         if (withEnvVarCredentials) {
           // Need to set up the AWS context inside the shell for enabling
@@ -926,6 +929,7 @@ describe('FLE tests', function () {
             await testServer.connectionString(),
           ],
         });
+        await shell.waitForPrompt();
         await shell.executeLine(`{
       const keyMongo = Mongo(
         db.getMongo(),

@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/service-provider-core",
-  "version": "3.6.3",
+  "version": "3.6.5",
   "description": "MongoDB Shell Core Service Provider Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -14,7 +14,7 @@
   "scripts": {
     "compile": "tsc -p tsconfig.json",
     "prepublish": "npm run compile",
-    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register --reporter \"../../configs/mocha-config-mongosh/reporter.ts\" \"./src/**/*.spec.ts\"",
+    "test": "mocha",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "@mongosh/errors": "2.4.4",
-    "@mongosh/shell-bson": "1.0.4",
+    "@mongosh/shell-bson": "1.0.6",
     "bson": "^6.10.4",
     "mongodb": "^6.19.0",
     "mongodb-build-info": "^1.8.1",

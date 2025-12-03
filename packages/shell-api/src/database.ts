@@ -11,7 +11,7 @@ import {
   deprecated,
   ShellApiWithMongoClass,
 } from './decorators';
-import { asPrintable, ServerVersions, Topologies } from './enums';
+import { asPrintable, ServerVersions } from './enums';
 import type {
   GenericDatabaseSchema,
   GenericServerSideSchema,
@@ -50,7 +50,7 @@ import {
   MongoshUnimplementedError,
   MongoshInternalError,
 } from '@mongosh/errors';
-import { HIDDEN_COMMANDS } from '@mongosh/history';
+import { shouldRedactCommand } from 'mongodb-redact';
 import type Session from './session';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ShellApiErrors } from './error-codes';
@@ -401,8 +401,7 @@ export class Database<
     }
 
     try {
-      const hiddenCommands = new RegExp(HIDDEN_COMMANDS);
-      if (!Object.keys(cmd).some((k) => hiddenCommands.test(k))) {
+      if (!Object.keys(cmd).some((k) => shouldRedactCommand(k))) {
         this._emitDatabaseApiCall('runCommand', { cmd, options });
       }
       return await this._runCommand(cmd, options);
@@ -435,8 +434,7 @@ export class Database<
       cmd = { [cmd]: 1 };
     }
 
-    const hiddenCommands = new RegExp(HIDDEN_COMMANDS);
-    if (!Object.keys(cmd).some((k) => hiddenCommands.test(k))) {
+    if (!Object.keys(cmd).some((k) => shouldRedactCommand(k))) {
       this._emitDatabaseApiCall('adminCommand', { cmd });
     }
     return await this._runAdminCommand(cmd, {});
@@ -1537,7 +1535,7 @@ export class Database<
   }
 
   @returnsPromise
-  @topologies([Topologies.Sharded])
+  @topologies(['Sharded'])
   @apiVersions([1])
   async printShardingStatus(verbose = false): Promise<CommandResult> {
     this._emitDatabaseApiCall('printShardingStatus', { verbose });
@@ -1549,7 +1547,7 @@ export class Database<
   }
 
   @returnsPromise
-  @topologies([Topologies.ReplSet])
+  @topologies(['ReplSet'])
   @apiVersions([])
   async printSecondaryReplicationInfo(): Promise<CommandResult> {
     let startOptimeDate = null;
@@ -1630,7 +1628,7 @@ export class Database<
   }
 
   @returnsPromise
-  @topologies([Topologies.ReplSet])
+  @topologies(['ReplSet'])
   @apiVersions([])
   async getReplicationInfo(): Promise<Document> {
     const localdb = this.getSiblingDB('local');
@@ -1696,7 +1694,7 @@ export class Database<
 
   @returnsPromise
   @apiVersions([])
-  @topologies([Topologies.ReplSet])
+  @topologies(['ReplSet'])
   async printReplicationInfo(): Promise<CommandResult> {
     const result = {} as any;
     let replInfo;
@@ -1742,7 +1740,7 @@ export class Database<
   }
 
   @serverVersions(['3.1.0', ServerVersions.latest])
-  @topologies([Topologies.ReplSet, Topologies.Sharded])
+  @topologies(['ReplSet', 'Sharded'])
   @apiVersions([1])
   @returnsPromise
   async watch(
@@ -1822,7 +1820,7 @@ export class Database<
   }
 
   @serverVersions(['7.0.0', ServerVersions.latest])
-  @topologies([Topologies.Sharded])
+  @topologies(['Sharded'])
   @returnsPromise
   async checkMetadataConsistency(
     options: CheckMetadataConsistencyOptions = {}

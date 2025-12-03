@@ -24,7 +24,7 @@ import Cursor from './cursor';
 import type { DeleteResult } from './result';
 import { assertArgsDefinedType, assertKeysDefined } from './helpers';
 import { asPrintable } from './enums';
-import { redactURICredentials } from '@mongosh/history';
+import { redactConnectionString } from 'mongodb-redact';
 import type Mongo from './mongo';
 import {
   CommonErrors,
@@ -111,7 +111,7 @@ export class ClientEncryption extends ShellApiWithMongoClass {
   }
 
   [asPrintable](): string {
-    return `ClientEncryption class for ${redactURICredentials(
+    return `ClientEncryption class for ${redactConnectionString(
       this._mongo._uri
     )}`;
   }
@@ -280,7 +280,7 @@ export class KeyVault extends ShellApiWithMongoClass {
   }
 
   [asPrintable](): string {
-    return `KeyVault class for ${redactURICredentials(this._mongo._uri)}`;
+    return `KeyVault class for ${redactConnectionString(this._mongo._uri)}`;
   }
 
   createKey(kms: 'local', keyAltNames?: string[]): Promise<BinaryType>;
