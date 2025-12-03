@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Tue Dec 02 2025.
+This document was automatically generated on Wed Dec 03 2025.
 
 ## List of dependencies
 
@@ -514,7 +514,7 @@ Package|Version|License
 **[yargs-parser](#d114360895423d9e902d0d2591b959ed4b0c309f8cec3e7b22fb6ed5502d1c19)**|20.2.9|ISC
 **[yargs-parser](#617a7401008b7639df8cebae61c9c009bf04ca762c652da0975da4533bf33690)**|21.1.1|ISC
 **[yargs](#3f627b435d9e054beeefeac523a8b24e69406e6881905ede430915e78fb878c8)**|17.7.2|MIT
-**[zod](#36d2d68ea49c393ad7836e352f9fb8f5ba4c5d4b0bfece81110efb7b73a0bb45)**|3.24.1|MIT
+**[zod](#01aaa7ce197e0507c530a672d2a29df0cdd4139c3d75c9a8adc800f68c167b27)**|3.25.76|MIT
 
 ## Package details
 
@@ -31895,8 +31895,8 @@ License files:
       
 
 
-<a id="36d2d68ea49c393ad7836e352f9fb8f5ba4c5d4b0bfece81110efb7b73a0bb45"></a>
-### [zod](https://www.npmjs.com/package/zod) (version 3.24.1)
+<a id="01aaa7ce197e0507c530a672d2a29df0cdd4139c3d75c9a8adc800f68c167b27"></a>
+### [zod](https://www.npmjs.com/package/zod) (version 3.25.76)
 License tags: MIT
 
 License files:
@@ -31904,7 +31904,7 @@ License files:
 
       MIT License
       
-      Copyright (c) 2020 Colin McDonnell
+      Copyright (c) 2025 Colin McDonnell
       
       Permission is hereby granted, free of charge, to any person obtaining a copy
       of this software and associated documentation files (the "Software"), to deal
