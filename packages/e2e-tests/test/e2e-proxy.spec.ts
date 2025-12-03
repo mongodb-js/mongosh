@@ -431,8 +431,8 @@ describe('e2e proxy support', function () {
       oidcTestServer.allowWarning(
         (entry) =>
           entry.id === 7938401 &&
-          entry.attr?.error?.includes(
-            'SSL peer certificate or SSH remote key was not OK'
+          entry.attr?.error?.match(
+            /SSL peer certificate or SSH remote key was not OK|Peer certificate cannot be authenticated/
           )
       );
       await oidcTestServer.start();

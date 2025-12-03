@@ -121,8 +121,8 @@ describe('OIDC auth e2e', function () {
     testServer2.allowWarning(
       (entry) =>
         entry.id === 7938401 &&
-        entry.attr?.error?.includes(
-          'SSL peer certificate or SSH remote key was not OK'
+        entry.attr?.error?.match(
+          /SSL peer certificate or SSH remote key was not OK|Peer certificate cannot be authenticated/
         )
     );
     testServer3 = new MongoRunnerSetup('e2e-oidc-test-idtoken', {
