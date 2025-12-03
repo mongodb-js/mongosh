@@ -86,8 +86,10 @@ describe('e2e direct connection', function () {
         const shell = this.startTestShell({
           args: [await rs0.connectionString()],
         });
+        await shell.waitForPrompt();
         await shell.executeLine(`db.getSiblingDB("${dbname}").dropDatabase()`);
         shell.writeInputLine('exit');
+        await shell.waitForSuccessfulExit();
       });
 
       context('connecting to secondary members directly', function () {

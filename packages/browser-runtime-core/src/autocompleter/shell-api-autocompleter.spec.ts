@@ -1,11 +1,10 @@
 import { ShellApiAutocompleter } from './shell-api-autocompleter';
 import { expect } from 'chai';
-import { Topologies } from '@mongosh/shell-api';
 import type { AutocompleteParameters } from '@mongosh/autocomplete';
 import type { AutocompletionContext } from '@mongodb-js/mongodb-ts-autocomplete';
 
 const standalone440Parameters: AutocompleteParameters = {
-  topology: () => Topologies.Standalone,
+  topology: () => 'Standalone',
   apiVersionInfo: () => undefined,
   connectionInfo: () => ({
     is_atlas: false,

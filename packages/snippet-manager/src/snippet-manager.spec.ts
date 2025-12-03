@@ -1,7 +1,8 @@
 import type { EvaluationListener } from '@mongosh/shell-api';
 import { signatures } from '@mongosh/shell-api';
 import { SnippetManager } from './snippet-manager';
-import chai, { expect } from 'chai';
+import * as chai from 'chai';
+import { expect } from 'chai';
 import sinonChai from 'sinon-chai';
 import sinon from 'sinon';
 import type { StubbedInstance } from 'ts-sinon';

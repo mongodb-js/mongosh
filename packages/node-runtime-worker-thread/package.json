@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/node-runtime-worker-thread",
-  "version": "3.3.30",
+  "version": "3.3.32",
   "description": "MongoDB shell runtime that lives in a worker thread",
   "homepage": "https://github.com/mongodb-js/mongosh",
   "license": "Apache-2.0",
@@ -17,7 +17,7 @@
     "node": ">=14.15.1"
   },
   "scripts": {
-    "test": "mocha -r \"../../scripts/import-expansions.js\" -r \"./tests/register-worker.js \" --timeout 15000 -r ts-node/register --reporter \"../../configs/mocha-config-mongosh/reporter.ts\" \"./src/**/*.spec.ts\"",
+    "test": "mocha",
     "pretest-ci": "node ../../scripts/run-if-package-requested.js npm run webpack-build -- --no-stats --no-devtool",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
@@ -41,10 +41,10 @@
     "@mongodb-js/sbom-tools": "^0.8.1",
     "@mongosh/testing": "0.0.0-dev.0",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "@mongosh/browser-runtime-core": "^3.26.2",
-    "@mongosh/browser-runtime-electron": "^3.26.2",
-    "@mongosh/service-provider-core": "3.6.3",
-    "@mongosh/service-provider-node-driver": "^3.17.5",
+    "@mongosh/browser-runtime-core": "^3.28.0",
+    "@mongosh/browser-runtime-electron": "^3.28.0",
+    "@mongosh/service-provider-core": "3.6.5",
+    "@mongosh/service-provider-node-driver": "^3.17.7",
     "@mongosh/types": "^3.14.0",
     "bson": "^6.10.4",
     "depcheck": "^1.4.7",

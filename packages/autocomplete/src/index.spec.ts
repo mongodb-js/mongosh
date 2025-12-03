@@ -1,12 +1,12 @@
 import { completer, BASE_COMPLETIONS } from './';
-import { signatures as shellSignatures, Topologies } from '@mongosh/shell-api';
+import { signatures as shellSignatures } from '@mongosh/shell-api';
 
 import { expect } from 'chai';
 
 let collections: string[];
 let databases: string[];
 const standalone600 = {
-  topology: () => Topologies.Standalone,
+  topology: () => 'Standalone' as const,
   apiVersionInfo: () => undefined,
   connectionInfo: () => ({
     is_atlas: false,
@@ -18,7 +18,7 @@ const standalone600 = {
   getDatabaseCompletions: () => databases,
 };
 const standalone440 = {
-  topology: () => Topologies.Standalone,
+  topology: () => 'Standalone' as const,
   apiVersionInfo: () => undefined,
   connectionInfo: () => ({
     is_atlas: false,
@@ -30,7 +30,7 @@ const standalone440 = {
   getDatabaseCompletions: () => databases,
 };
 const apiStrictParams = {
-  topology: () => Topologies.Standalone,
+  topology: () => 'Standalone' as const,
   apiVersionInfo: () => ({
     version: '1',
     strict: true,
@@ -41,7 +41,7 @@ const apiStrictParams = {
   getDatabaseCompletions: () => databases,
 };
 const sharded440 = {
-  topology: () => Topologies.Sharded,
+  topology: () => 'Sharded' as const,
   apiVersionInfo: () => undefined,
   connectionInfo: () => ({
     is_atlas: false,
@@ -54,7 +54,7 @@ const sharded440 = {
 };
 
 const standalone300 = {
-  topology: () => Topologies.Standalone,
+  topology: () => 'Standalone' as const,
   apiVersionInfo: () => undefined,
   connectionInfo: () => ({
     is_atlas: false,
@@ -66,7 +66,7 @@ const standalone300 = {
   getDatabaseCompletions: () => databases,
 };
 const datalake440 = {
-  topology: () => Topologies.Sharded,
+  topology: () => 'Sharded' as const,
   apiVersionInfo: () => undefined,
   connectionInfo: () => ({
     is_atlas: true,
@@ -79,7 +79,7 @@ const datalake440 = {
 };
 
 const localAtlas600 = {
-  topology: () => Topologies.Standalone,
+  topology: () => 'Standalone' as const,
   apiVersionInfo: () => undefined,
   connectionInfo: () => ({
     is_atlas: false,
@@ -100,7 +100,7 @@ const noParams = {
 };
 
 const emptyConnectionInfoParams = {
-  topology: () => Topologies.Standalone,
+  topology: () => 'Standalone' as const,
   apiVersionInfo: () => undefined,
   connectionInfo: () => ({}),
   getCollectionCompletionsForCurrentDb: () => collections,

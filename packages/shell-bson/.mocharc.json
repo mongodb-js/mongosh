@@ -1,0 +1,6 @@
+{
+  "require": ["ts-node/register"],
+  "timeout": 15000,
+  "reporter": "../../configs/mocha-config-mongosh/reporter.ts",
+  "spec": ["./src/*.spec.ts"]
+}

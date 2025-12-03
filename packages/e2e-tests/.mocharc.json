@@ -1,0 +1,11 @@
+{
+  "require": [
+    "ts-node/register",
+    "../../scripts/import-expansions.js",
+    "./test/test-shell-context.ts"
+  ],
+  "timeout": 15000,
+  "reporter": "../../configs/mocha-config-mongosh/reporter.ts",
+  "spec": ["./test/*.spec.ts"],
+  "color": true
+}

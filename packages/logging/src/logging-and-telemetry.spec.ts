@@ -1132,6 +1132,54 @@ describe('MongoshLoggingAndTelemetry', function () {
     expect(analyticsOutput).to.be.empty;
   });
 
+  it('redacts logging of sensitive commands', async function () {
+    loggingAndTelemetry.attachLogger(logger);
+    await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
+
+    expect(logOutput).to.have.lengthOf(0);
+
+    // Test that sensitive commands are redacted
+    bus.emit('mongosh:evaluate-input', {
+      input: 'db.createUser({user: "admin", pwd: "password", roles: []})',
+    });
+    bus.emit('mongosh:evaluate-input', { input: 'db.auth("user", "pass")' });
+    bus.emit('mongosh:evaluate-input', {
+      input: 'db.updateUser("user", {pwd: "newpass"})',
+    });
+    bus.emit('mongosh:evaluate-input', {
+      input: 'db.changeUserPassword("user", "newpass")',
+    });
+    bus.emit('mongosh:evaluate-input', {
+      input: 'connect("mongodb://user:pass@localhost/")',
+    });
+    bus.emit('mongosh:evaluate-input', {
+      input: 'new Mongo("mongodb://user:pass@localhost/")',
+    });
+
+    // Test that non-sensitive commands are still logged
+    bus.emit('mongosh:evaluate-input', { input: 'db.getUsers()' });
+    bus.emit('mongosh:evaluate-input', { input: 'show dbs' });
+
+    // Should only have logged the non-sensitive commands
+    expect(logOutput).to.have.lengthOf(8);
+    expect(logOutput[0].msg).to.equal('Evaluating input');
+    expect(logOutput[0].attr.input).to.equal('<sensitive command used>');
+    expect(logOutput[1].msg).to.equal('Evaluating input');
+    expect(logOutput[1].attr.input).to.equal('<sensitive command used>');
+    expect(logOutput[2].msg).to.equal('Evaluating input');
+    expect(logOutput[2].attr.input).to.equal('<sensitive command used>');
+    expect(logOutput[3].msg).to.equal('Evaluating input');
+    expect(logOutput[3].attr.input).to.equal('<sensitive command used>');
+    expect(logOutput[4].msg).to.equal('Evaluating input');
+    expect(logOutput[4].attr.input).to.equal('<sensitive command used>');
+    expect(logOutput[5].msg).to.equal('Evaluating input');
+    expect(logOutput[5].attr.input).to.equal('<sensitive command used>');
+    expect(logOutput[6].msg).to.equal('Evaluating input');
+    expect(logOutput[6].attr.input).to.equal('db.getUsers()');
+    expect(logOutput[7].msg).to.equal('Evaluating input');
+    expect(logOutput[7].attr.input).to.equal('show dbs');
+  });
+
   it('tracks custom logging events', async function () {
     expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.be.empty;

@@ -1,10 +1,12 @@
-import chai, { expect } from 'chai';
+import * as chai from 'chai';
+import { expect } from 'chai';
 import sinon from 'sinon';
 import type { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import type { HomebrewPublisherConfig } from './publish-to-homebrew';
 import { HomebrewPublisher } from './publish-to-homebrew';
+import sinonChai from 'sinon-chai';
 
-chai.use(require('sinon-chai'));
+chai.use(sinonChai);
 
 describe('HomebrewPublisher', function () {
   let homebrewCore: GithubRepo;

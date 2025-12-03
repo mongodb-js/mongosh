@@ -8,25 +8,18 @@ export type RPCMessageBus = {
   removeEventListener: Function;
 };
 
-enum RPCMessageTypes {
-  Message,
-  Error,
-}
-
 type RPCMessage = {
-  type: RPCMessageTypes.Message;
+  type: 'Message';
   payload: string;
 };
 
 type RPCError = {
-  type: RPCMessageTypes.Error;
+  type: 'Error';
   payload: Error;
 };
 
 function isRPCError(data: any): data is RPCError {
-  return (
-    data && typeof data === 'object' && data.type === RPCMessageTypes.Error
-  );
+  return data && typeof data === 'object' && data.type === 'Error';
 }
 
 function getRPCOptions(messageBus: RPCMessageBus): PostmsgRpcOptions {
@@ -59,13 +52,13 @@ export function exposeAll<O extends object>(
       key,
       async (...args: unknown[]) => {
         try {
-          return { type: RPCMessageTypes.Message, payload: await val(...args) };
+          return { type: 'Message', payload: await val(...args) };
         } catch (e: any) {
           // If server (whatever is executing the exposed method) throws during
           // the execution, we want to propagate error to the client (whatever
           // issued the call) and re-throw there. We will do this with a special
           // return type.
-          return { type: RPCMessageTypes.Error, payload: serializeError(e) };
+          return { type: 'Error', payload: serializeError(e) };
         }
       },
       getRPCOptions(messageBus)
