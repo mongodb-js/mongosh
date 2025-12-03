@@ -28,6 +28,7 @@ const config = {
     interruptor: 'commonjs2 interruptor',
     'os-dns-native': 'commonjs2 os-dns-native',
     'system-ca': 'commonjs2 system-ca',
+    // TODO(MONGOSH-3055): This is a temporary workaround.
     // @aws-sdk/client-sts is an optional peer dependency of @aws-sdk/credential-providers
     '@aws-sdk/client-sts': 'commonjs2 @aws-sdk/client-sts',
   },
