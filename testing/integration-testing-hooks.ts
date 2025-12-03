@@ -236,6 +236,7 @@ export class MongoRunnerSetup extends MongodSetup {
     551190, // "Server certificate has no compatible Subject Alternative Name",
     20526, // "Failed to gather storage statistics for slow operation"
     22668, // "Unable to ping distributed locks"
+    21764, // "Unable to forward progress" REPL
     (l: LogEntry) => {
       // "Use of deprecated server parameter name" (FTDC)
      return (l.id === 636300 || l.id === 23803) && l.context === 'ftdc'
