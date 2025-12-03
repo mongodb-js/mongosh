@@ -192,6 +192,19 @@ describe('NodeDriverServiceProvider [integration]', function () {
   });
 
   describe('#aggregate', function () {
+    let unsubscribeAllowWarnings: (() => void)[] = [];
+
+    before(function () {
+      // Allow "$function is deprecated" warning in logs
+      unsubscribeAllowWarnings = [
+        testServer.allowWarning?.(8996503) ?? [],
+      ].flat();
+    });
+
+    after(function () {
+      for (const cb of unsubscribeAllowWarnings) cb();
+    });
+
     context(
       'when passing a $function to be serialized by the driver',
       function () {

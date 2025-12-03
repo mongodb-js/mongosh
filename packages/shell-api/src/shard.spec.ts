@@ -3035,7 +3035,7 @@ describe('Shard', function () {
     });
     describe('configureQueryAnalyzer()', function () {
       skipIfServerVersion(mongos, '< 7.0'); // analyzeShardKey will only be added in 7.0 which is not included in stable yet
-      let unsubscribeAllowWarnings: (() => void)[];
+      let unsubscribeAllowWarnings: (() => void)[] = [];
 
       before(function () {
         unsubscribeAllowWarnings = [mongos, rs0, rs1].flatMap((s) => [

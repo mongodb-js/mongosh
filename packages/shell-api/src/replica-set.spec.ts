@@ -1029,7 +1029,7 @@ describe('ReplicaSet', function () {
       });
 
       describe('remove member', function () {
-        let unsubscribeAllowWarnings: (() => void)[];
+        let unsubscribeAllowWarnings: (() => void)[] = [];
 
         before(function () {
           // Allow "Unable to forward progress" warnings
@@ -1079,7 +1079,7 @@ describe('ReplicaSet', function () {
     });
     describe('configureQueryAnalyzer()', function () {
       skipIfServerVersion(srv0, '< 7.0'); // analyzeShardKey will only be added in 7.0 which is not included in stable yet
-      let unsubscribeAllowWarnings: (() => void)[];
+      let unsubscribeAllowWarnings: (() => void)[] = [];
 
       before(function () {
         // Allow "Attempted to disable query sampling but query sampling was not active" warnings
@@ -1135,7 +1135,7 @@ describe('ReplicaSet', function () {
     );
 
     let serviceProvider: NodeDriverServiceProvider;
-    let unsubscribeAllowWarnings: (() => void)[];
+    let unsubscribeAllowWarnings: (() => void)[] = [];
 
     before(function () {
       // Allow "replSetReconfig" errors
