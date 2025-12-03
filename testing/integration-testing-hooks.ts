@@ -235,6 +235,10 @@ export class MongoRunnerSetup extends MongodSetup {
     5123300, // "vm.max_map_count is too low"
     551190, // "Server certificate has no compatible Subject Alternative Name",
     20526, // "Failed to gather storage statistics for slow operation"
+    (l: LogEntry) => {
+      // "Use of deprecated server parameter name" (FTDC)
+     return l.id === 636300 && l.component === 'ftdc'
+    },
     (l: LogEntry) => l.component === 'STORAGE', // Outside of mongosh's control
     (l: LogEntry) => l.context === 'BackgroundSync', // Outside of mongosh's control
     (l: LogEntry) => {
@@ -253,7 +257,12 @@ export class MongoRunnerSetup extends MongodSetup {
       // https://github.com/mongodb/mongo/blob/0c265adbde984c981946f804279693078e0b9f8a/src/mongo/db/global_catalog/ddl/sharding_catalog_manager.cpp#L558-L559
       // https://github.com/mongodb/mongo/blob/0c265adbde984c981946f804279693078e0b9f8a/src/mongo/s/balancer_configuration.cpp#L122-L143
       return l.id === 3216000 && ['ReplWriterWorker', 'OplogApplier'].some(match => l.context.includes(match));
-    }
+    },
+    (l: LogEntry) => {
+      // "Deprecated operation requested" for OP_QUERY which drivers may
+      // still send in limited situations until NODE-6287 is done
+      return l.id === 5578800 && l.attr?.op === 'query';
+    },
   ];
 }
 

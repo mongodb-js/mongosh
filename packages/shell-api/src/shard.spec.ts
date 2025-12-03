@@ -3038,10 +3038,10 @@ describe('Shard', function () {
       let unsubscribeAllowWarnings: (() => void)[];
 
       before(function () {
-        // Allow "Attempted to disable query sampling but query sampling was not active" warnings
-        unsubscribeAllowWarnings = [mongos, rs0, rs1].map((s) =>
-          s.allowWarning(7724700)
-        );
+        unsubscribeAllowWarnings = [mongos, rs0, rs1].flatMap((s) => [
+          s.allowWarning(7724700), // "Attempted to disable query sampling but query sampling was not active"
+          s.allowWarning(6791402), // "Error updating replica set on config server. Couldn't find shard."
+        ]);
       });
 
       after(function () {
