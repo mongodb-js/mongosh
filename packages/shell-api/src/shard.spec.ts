@@ -3040,7 +3040,7 @@ describe('Shard', function () {
       before(function () {
         // Allow "Attempted to disable query sampling but query sampling was not active" warnings
         unsubscribeAllowWarnings = [mongos, rs0, rs1].map((s) =>
-          s.allowWarning?.(7724700)
+          s.allowWarning(7724700)
         );
       });
 

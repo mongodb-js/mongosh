@@ -1034,7 +1034,7 @@ describe('ReplicaSet', function () {
         before(function () {
           // Allow "Unable to forward progress" warnings
           unsubscribeAllowWarnings = [srv0, srv1, srv2, srv3].map((s) =>
-            s.allowWarning?.(
+            s.allowWarning(
               (entry) =>
                 entry.id === 21764 &&
                 entry.attr?.error?.codeName === 'NodeNotFound'
@@ -1084,7 +1084,7 @@ describe('ReplicaSet', function () {
       before(function () {
         // Allow "Attempted to disable query sampling but query sampling was not active" warnings
         unsubscribeAllowWarnings = [srv0, srv1, srv2, srv3].map((s) =>
-          s.allowWarning?.(7724700)
+          s.allowWarning(7724700)
         );
       });
 
@@ -1140,7 +1140,7 @@ describe('ReplicaSet', function () {
     before(function () {
       // Allow "replSetReconfig" errors
       unsubscribeAllowWarnings = [srv0, srv1, srv2].map((s) =>
-        s.allowWarning?.((entry) => {
+        s.allowWarning((entry) => {
           return (
             entry.id === 21420 &&
             entry.attr?.error?.codeName ===
