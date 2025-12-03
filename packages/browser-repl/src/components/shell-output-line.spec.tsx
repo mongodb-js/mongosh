@@ -1,6 +1,6 @@
 import React from 'react';
-import { expect } from '../../testing/chai';
-import { shallow, mount } from '../../testing/enzyme';
+import { expect } from '../../testing/src/chai';
+import { shallow, mount } from '../../testing/src/enzyme';
 
 import { ShellOutputLine } from './shell-output-line';
 import { HelpOutput } from './types/help-output';

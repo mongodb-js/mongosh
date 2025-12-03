@@ -1,7 +1,7 @@
 import React from 'react';
-import { expect } from '../../../testing/chai';
-import type { ShallowWrapper } from '../../../testing/enzyme';
-import { shallow } from '../../../testing/enzyme';
+import { expect } from '../../testing/src/chai';
+import type { ShallowWrapper } from '../../testing/src/enzyme';
+import { shallow } from '../../testing/src/enzyme';
 
 import { HelpOutput } from './help-output';
 

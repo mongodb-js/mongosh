@@ -1,5 +1,5 @@
 import { IframeRuntime } from './iframe-runtime';
-import { expect } from '../../testing/chai';
+import { expect } from '../../testing/src/chai';
 import type { ServiceProvider } from '@mongosh/service-provider-core';
 import * as bson from 'bson';
 

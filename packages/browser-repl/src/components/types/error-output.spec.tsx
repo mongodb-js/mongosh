@@ -1,6 +1,6 @@
 import React from 'react';
-import { expect } from '../../../testing/chai';
-import { render, mount } from '../../../testing/enzyme';
+import { expect } from '../../testing/src/chai';
+import { render, mount } from '../../testing/src/enzyme';
 
 import { ErrorOutput } from './error-output';
 

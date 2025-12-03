@@ -3,7 +3,7 @@ import type { Db } from 'mongodb';
 import { MongoClient } from 'mongodb';
 import * as bson from 'bson';
 import type { TestShell } from './test-shell';
-import { startSharedTestServer } from '@mongosh/testing';
+import { startSharedTestServer } from '../../testing/src/integration-testing-hooks';
 
 describe('BSON e2e', function () {
   const testServer = startSharedTestServer();

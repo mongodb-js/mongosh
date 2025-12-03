@@ -1,6 +1,6 @@
 import React from 'react';
-import { expect } from '../../../testing/chai';
-import { shallow } from '../../../testing/enzyme';
+import { expect } from '../../testing/src/chai';
+import { shallow } from '../../testing/src/enzyme';
 import { LineWithIcon } from './line-with-icon';
 
 describe('<LineWithIcon />', function () {

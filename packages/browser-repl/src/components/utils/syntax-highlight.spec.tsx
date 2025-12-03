@@ -1,7 +1,7 @@
 import React from 'react';
 import { CodemirrorInlineEditor } from '@mongodb-js/compass-editor';
-import { expect } from '../../../testing/chai';
-import { mount } from '../../../testing/enzyme';
+import { expect } from '../../testing/src/chai';
+import { mount } from '../../testing/src/enzyme';
 import { SyntaxHighlight } from './syntax-highlight';
 
 describe('<SyntaxHighlight />', function () {

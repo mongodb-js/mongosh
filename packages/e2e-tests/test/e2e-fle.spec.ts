@@ -1,17 +1,19 @@
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import type { TestShell } from './test-shell';
+import { eventually } from '../../testing/src/eventually';
 import {
-  eventually,
   startTestServer,
   skipIfApiStrict,
   skipIfServerVersion,
   skipIfCommunityServer,
   downloadCurrentCryptSharedLibrary,
   sortObjectArray,
+} from '../../testing/src/integration-testing-hooks';
+import {
   makeFakeHTTPServer,
   fakeAWSHandlers,
-} from '@mongosh/testing';
+} from '../../testing/src/fake-kms';
 import { once } from 'events';
 import { serialize } from 'v8';
 import { inspect } from 'util';
@@ -30,6 +32,8 @@ describe('FLE tests', function () {
   let cryptLibrary82: string;
 
   before(async function () {
+    this.timeout(120_000); // Downloading the crypt-shared library can take some time
+
     if (process.platform === 'linux') {
       const [major, minor] = (process.report as any)
         .getReport()

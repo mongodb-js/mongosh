@@ -1,7 +1,7 @@
 import React from 'react';
 import sinon from 'sinon';
-import { expect } from '../../testing/chai';
-import { shallow, mount } from '../../testing/enzyme';
+import { expect } from '../../testing/src/chai';
+import { shallow, mount } from '../../testing/src/enzyme';
 
 import { ShellInput } from './shell-input';
 import { Editor } from './editor';

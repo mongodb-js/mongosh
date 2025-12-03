@@ -1,4 +1,7 @@
-import { skipIfApiStrict, startSharedTestServer } from '@mongosh/testing';
+import {
+  skipIfApiStrict,
+  startSharedTestServer,
+} from '../../testing/src/integration-testing-hooks';
 import type { TestShell } from './test-shell';
 
 describe('e2e startup banners', function () {

@@ -1,8 +1,8 @@
 import sinon from 'sinon';
-import { expect } from '../../testing/chai';
+import { expect } from '../../testing/src/chai';
 import { Editor, createCommands } from './editor';
 import type { Command } from '@mongodb-js/compass-editor';
-import { shallow } from '../../testing/enzyme';
+import { shallow } from '../../testing/src/enzyme';
 import React from 'react';
 
 describe('<Editor />', function () {
