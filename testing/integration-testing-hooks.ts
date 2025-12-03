@@ -245,7 +245,7 @@ export class MongoRunnerSetup extends MongodSetup {
     (l: LogEntry) => {
       // "Aggregate command executor error", we get this a lot for things like
       // $collStats which internally tries to open collections that may or may not exist
-      return l.id === 23799 && l.attr?.error?.codeName === 'NamespaceNotFound';
+      return l.id === 23799 && ['NamespaceNotFound', 'ShardNotFound'].includes(l.attr?.error?.codeName);
     },
     (l: LogEntry) => {
       // "getMore command executor error" can happen under normal circumstances
