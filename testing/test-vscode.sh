@@ -3,7 +3,7 @@ set -x
 set -e
 # just to make sure: we are in the mongosh root dir
 test -x packages && grep -q '"name": "mongosh"' package.json
-npm -v
+pnpm -v
 # we pick a target directory that is not affected by the mongosh node_modules directory
 mongosh_root_dir=$PWD
 test_root_dir=/tmp/mongosh-vscode-test
@@ -12,7 +12,7 @@ rm -rf "$test_root_dir" && mkdir -p "$test_root_dir"
 cd "$test_root_dir"
 git clone --depth=10 https://github.com/mongodb-js/vscode.git
 cd vscode
-npm install --force
+pnpm install
 rm -rf node_modules/@mongosh node_modules/mongodb node_modules/@mongodb-js/devtools-connect node_modules/@mongodb-js/devtools-proxy-support
 (cd node_modules && \
   ln -s "$mongosh_root_dir/packages" @mongosh && \
@@ -21,6 +21,6 @@ rm -rf node_modules/@mongosh node_modules/mongodb node_modules/@mongodb-js/devto
   ln -s "$mongosh_root_dir/node_modules/@mongodb-js/devtools-connect" devtools-connect && \
   ln -s "$mongosh_root_dir/node_modules/@mongodb-js/devtools-proxy-support" devtools-proxy-support)
 # This test can require a lot of memory so we bump the maximum size.
-NODE_OPTIONS='--max-old-space-size=4096 --no-experimental-strip-types' npm test
+NODE_OPTIONS='--max-old-space-size=4096 --no-experimental-strip-types' pnpm test
 cd /tmp
 rm -rf "$test_root_dir"
