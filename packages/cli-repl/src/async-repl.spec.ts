@@ -48,7 +48,7 @@ async function expectInStream(
 ): Promise<void> {
   let content = '';
   let ended = false;
-  await Promise.race([
+  const result = await Promise.race([
     (async () => {
       for await (const chunk of stream) {
         content += chunk;
@@ -57,17 +57,15 @@ async function expectInStream(
         }
       }
       ended = true;
+      return 'normal-completion' as const;
     })(),
-    ...(timeoutMs
-      ? [
-          delay(timeoutMs).then(() => {
-            throw new Error(
-              `Timeout waiting for substring: ${substring}, found so far: ${content} (ended = ${ended})`
-            );
-          }),
-        ]
-      : []),
+    ...(timeoutMs ? [delay(timeoutMs).then(() => 'timeout' as const)] : []),
   ]);
+  if (result === 'timeout') {
+    throw new Error(
+      `Timeout waiting for substring: ${substring}, found so far: ${content} (ended = ${ended})`
+    );
+  }
   expect(content).to.include(substring);
 }
 
