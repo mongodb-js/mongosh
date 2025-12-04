@@ -1029,6 +1029,23 @@ describe('ReplicaSet', function () {
       });
 
       describe('remove member', function () {
+        let unsubscribeAllowWarnings: (() => void)[] = [];
+
+        before(function () {
+          // Allow "Unable to forward progress" warnings
+          unsubscribeAllowWarnings = [srv0, srv1, srv2, srv3].map((s) =>
+            s.allowWarning(
+              (entry) =>
+                entry.id === 21764 &&
+                entry.attr?.error?.codeName === 'NodeNotFound'
+            )
+          );
+        });
+
+        after(function () {
+          for (const cb of unsubscribeAllowWarnings) cb();
+        });
+
         it('removes a member of the config', async function () {
           const removeWithRetry = createRetriableMethod(rs, 'remove');
           const version = (await rs.conf()).version;
@@ -1062,6 +1079,18 @@ describe('ReplicaSet', function () {
     });
     describe('configureQueryAnalyzer()', function () {
       skipIfServerVersion(srv0, '< 7.0'); // analyzeShardKey will only be added in 7.0 which is not included in stable yet
+      let unsubscribeAllowWarnings: (() => void)[] = [];
+
+      before(function () {
+        // Allow "Attempted to disable query sampling but query sampling was not active" warnings
+        unsubscribeAllowWarnings = [srv0, srv1, srv2, srv3].map((s) =>
+          s.allowWarning(7724700)
+        );
+      });
+
+      after(function () {
+        for (const cb of unsubscribeAllowWarnings) cb();
+      });
 
       const docs: any[] = [];
       for (let i = 0; i < 1000; i++) {
@@ -1106,6 +1135,24 @@ describe('ReplicaSet', function () {
     );
 
     let serviceProvider: NodeDriverServiceProvider;
+    let unsubscribeAllowWarnings: (() => void)[] = [];
+
+    before(function () {
+      // Allow "replSetReconfig" errors
+      unsubscribeAllowWarnings = [srv0, srv1, srv2].map((s) =>
+        s.allowWarning((entry) => {
+          return (
+            entry.id === 21420 &&
+            entry.attr?.error?.codeName ===
+              'NewReplicaSetConfigurationIncompatible'
+          );
+        })
+      );
+    });
+
+    after(function () {
+      for (const cb of unsubscribeAllowWarnings) cb();
+    });
 
     beforeEach(async function () {
       serviceProvider = await NodeDriverServiceProvider.connect(

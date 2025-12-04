@@ -446,6 +446,17 @@ describe('Session', function () {
     });
     describe('after resetting connection will error with expired session', function () {
       skipIfApiStrict();
+      let unsubscribeAllowWarning: undefined | (() => void);
+
+      before(function () {
+        // Allow "The logout command has been deprecated" warnings
+        unsubscribeAllowWarning = srv0.allowWarning?.(5626600);
+      });
+
+      after(function () {
+        unsubscribeAllowWarning?.();
+      });
+
       it('reset connection options', async function () {
         session = mongo.startSession();
         await mongo.setReadConcern('majority');

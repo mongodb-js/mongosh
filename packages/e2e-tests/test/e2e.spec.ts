@@ -686,6 +686,8 @@ describe('e2e', function () {
       if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
         return this.skip(); // mapReduce is unversioned
       }
+      // Allow "map reduce command is deprecated" warning in logs
+      const unsubscribe = testServer.allowWarning?.(5725801);
       await shell.executeLine(`use ${dbName}`);
       await shell.executeLine('db.test.insertMany([{i:1},{i:2},{i:3},{i:4}]);');
       const result = await shell.executeLine(`db.test.mapReduce(function() {
@@ -695,6 +697,7 @@ describe('e2e', function () {
       }, { out: { inline: 1 } }).results`);
       expect(result).to.include('{ _id: 0, value: 6 }');
       expect(result).to.include('{ _id: 1, value: 4 }');
+      unsubscribe?.();
     });
 
     it('rewrites async properly for common libraries', async function () {
@@ -799,6 +802,8 @@ describe('e2e', function () {
       });
 
       it('rewrites async properly for a complex $function', async function () {
+        // Allow "$function is deprecated" warning in logs
+        const unsubscribe = testServer.allowWarning?.(8996503);
         await shell.executeLine(`use ${dbName}`);
         await shell.executeLine(
           'db.test.insertMany([{i:[1,{v:5}]},{i:[2,{v:6}]},{i:[3,{v:7}]},{i:[4,{v:8}]}]);'
@@ -818,6 +823,7 @@ describe('e2e', function () {
           }
         ])`);
         expect(result).to.include("{ sum: '12' }");
+        unsubscribe?.();
       });
     });
 
@@ -2654,6 +2660,7 @@ describe('e2e', function () {
     context('with 2 shells', function () {
       let helperShell: TestShell;
       let currentOpShell: TestShell;
+      let unsubscribeAllowWarning: undefined | (() => void);
 
       const CURRENT_OP_WAIT_TIME = 400;
       const OPERATION_TIME = CURRENT_OP_WAIT_TIME * 2;
@@ -2670,6 +2677,15 @@ describe('e2e', function () {
 
         // Insert a dummy object so find commands will actually run with the delay.
         await helperShell.executeLine('db.coll.insertOne({})');
+      });
+
+      before(function () {
+        // Allow "$where is deprecated" warnings
+        unsubscribeAllowWarning = testServer.allowWarning?.(8996500);
+      });
+
+      after(function () {
+        unsubscribeAllowWarning?.();
       });
 
       it('should return the current operation and clear when it is complete', async function () {
@@ -2702,7 +2718,7 @@ describe('e2e', function () {
           -1
         );
 
-        void helperShell.executeLine(
+        const currentCommand = helperShell.executeLine(
           `db.coll.find({$where: function() { sleep(${OPERATION_TIME}) }}).projection({re: BSONRegExp('${stringifiedRegExpString}')})`
         );
         helperShell.assertNoErrors();
@@ -2715,6 +2731,7 @@ describe('e2e', function () {
         currentOpShell.assertNoErrors();
 
         expect(currentOpCall).to.include(stringifiedRegExpString);
+        await currentCommand;
       });
     });
   });

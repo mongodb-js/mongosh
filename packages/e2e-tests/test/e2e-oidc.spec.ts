@@ -116,6 +116,15 @@ describe('OIDC auth e2e', function () {
         ...commonOidcServerArgs,
       ],
     });
+    // The server will (rightfully) complain about the mock IdP's TLS certificate
+    // not being trusted - we can ignore that for the purposes of this test.
+    testServer2.allowWarning(
+      (entry) =>
+        entry.id === 7938401 &&
+        entry.attr?.error?.match(
+          /SSL peer certificate or SSH remote key was not OK|Peer certificate cannot be authenticated/
+        )
+    );
     testServer3 = new MongoRunnerSetup('e2e-oidc-test-idtoken', {
       args: [
         '--setParameter',
@@ -152,6 +161,12 @@ describe('OIDC auth e2e', function () {
         },
       };
     };
+  });
+
+  afterEach(function () {
+    testServer?.noServerWarningsCheckpoint();
+    testServer2?.noServerWarningsCheckpoint();
+    testServer3?.noServerWarningsCheckpoint();
   });
 
   after(async function () {

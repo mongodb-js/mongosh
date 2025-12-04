@@ -766,6 +766,15 @@ describe('Auth e2e', function () {
         });
       });
       describe('logout', function () {
+        let unsubscribeAllowWarning: (() => void) | undefined;
+        beforeEach(function () {
+          // https://jira.mongodb.org/browse/SERVER-56266
+          // https://jira.mongodb.org/browse/MONGOSH-2695
+          unsubscribeAllowWarning = testServer.allowWarning?.(5626600);
+        });
+        afterEach(function () {
+          unsubscribeAllowWarning?.();
+        });
         it('logs out after authenticating', async function () {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine('db.auth("anna", "pwd")')).to.include(

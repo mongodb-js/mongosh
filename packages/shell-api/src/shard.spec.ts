@@ -3035,6 +3035,18 @@ describe('Shard', function () {
     });
     describe('configureQueryAnalyzer()', function () {
       skipIfServerVersion(mongos, '< 7.0'); // analyzeShardKey will only be added in 7.0 which is not included in stable yet
+      let unsubscribeAllowWarnings: (() => void)[] = [];
+
+      before(function () {
+        unsubscribeAllowWarnings = [mongos, rs0, rs1].flatMap((s) => [
+          s.allowWarning(7724700), // "Attempted to disable query sampling but query sampling was not active"
+          s.allowWarning(6791402), // "Error updating replica set on config server. Couldn't find shard."
+        ]);
+      });
+
+      after(function () {
+        for (const cb of unsubscribeAllowWarnings) cb();
+      });
 
       let db: Database;
       const dbName = 'shard-analyze-test';
