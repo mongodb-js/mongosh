@@ -20,6 +20,9 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | b
 # Set PATH so node/npm are available in all contexts
 ENV PATH="$NVM_DIR/versions/node/v${NODE_JS_VERSION}/bin:$PATH"
 
+# Install pnpm globally
+RUN npm install -g pnpm
+
 # Install vscode dependencies
 RUN apt-get -y -qq install libnss3 gnupg libxkbfile1 libsecret-1-0 libsecret-1-dev libgtk-3-0t64 libxss1 libgbm1 libasound2t64 xvfb build-essential pkg-config
 
