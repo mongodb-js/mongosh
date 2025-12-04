@@ -12,14 +12,23 @@ rm -rf "$test_root_dir" && mkdir -p "$test_root_dir"
 cd "$test_root_dir"
 git clone --depth=10 https://github.com/mongodb-js/vscode.git
 cd vscode
+# Build overrides object for all local mongosh packages
+overrides="{"
+for pkg_dir in "$mongosh_root_dir"/packages/*/; do
+  if [ -f "$pkg_dir/package.json" ]; then
+    pkg_name=$(jq -r '.name' "$pkg_dir/package.json")
+    overrides="$overrides\"$pkg_name\":\"file:$pkg_dir\","
+  fi
+done
+# Add other required packages
+overrides="$overrides\"mongodb\":\"file:$mongosh_root_dir/node_modules/mongodb\","
+overrides="$overrides\"@mongodb-js/devtools-connect\":\"file:$mongosh_root_dir/node_modules/@mongodb-js/devtools-connect\","
+overrides="$overrides\"@mongodb-js/devtools-proxy-support\":\"file:$mongosh_root_dir/node_modules/@mongodb-js/devtools-proxy-support\""
+overrides="$overrides}"
+
+# Add pnpm overrides to package.json
+jq --argjson overrides "$overrides" '.pnpm.overrides = $overrides' package.json > package.json.tmp && mv package.json.tmp package.json
 pnpm install
-rm -rf node_modules/@mongosh node_modules/mongodb node_modules/@mongodb-js/devtools-connect node_modules/@mongodb-js/devtools-proxy-support
-(cd node_modules && \
-  ln -s "$mongosh_root_dir/packages" @mongosh && \
-  ln -s "$mongosh_root_dir/node_modules/mongodb" mongodb && \
-  cd @mongodb-js && \
-  ln -s "$mongosh_root_dir/node_modules/@mongodb-js/devtools-connect" devtools-connect && \
-  ln -s "$mongosh_root_dir/node_modules/@mongodb-js/devtools-proxy-support" devtools-proxy-support)
 # This test can require a lot of memory so we bump the maximum size.
 NODE_OPTIONS='--max-old-space-size=4096 --no-experimental-strip-types' pnpm test
 cd /tmp

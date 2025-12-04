@@ -7,7 +7,7 @@ RUN if [ -z "$NODE_JS_VERSION" ]; then echo "Error: NODE_JS_VERSION is not defin
 ENV NODE_JS_VERSION=${NODE_JS_VERSION}
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
-RUN apt-get -y -qq install git curl apt-transport-https ca-certificates apt-utils software-properties-common
+RUN apt-get -y -qq install git curl apt-transport-https ca-certificates apt-utils software-properties-common jq
 
 # Install Node.js using nvm (reusing pattern from .evergreen/install-node.sh)
 ENV NVM_DIR="/root/.nvm"
