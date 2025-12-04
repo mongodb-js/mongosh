@@ -43,22 +43,37 @@ function createDefaultAsyncRepl(extraOpts: Partial<AsyncREPLOptions> = {}): {
 
 async function expectInStream(
   stream: Readable,
-  substring: string
+  substring: string,
+  timeoutMs: number | null = 5000
 ): Promise<void> {
   let content = '';
-  let found = false;
-  for await (const chunk of stream) {
-    content += chunk;
-    if (content.includes(substring)) {
-      found = true;
-      break;
-    }
-  }
-  expect(found).to.be.true;
+  let ended = false;
+  await Promise.race([
+    (async () => {
+      for await (const chunk of stream) {
+        content += chunk;
+        if (content.includes(substring)) {
+          break;
+        }
+      }
+      ended = true;
+    })(),
+    ...(timeoutMs
+      ? [
+          delay(timeoutMs).then(() => {
+            throw new Error(
+              `Timeout waiting for substring: ${substring}, found so far: ${content} (ended = ${ended})`
+            );
+          }),
+        ]
+      : []),
+  ]);
+  expect(content).to.include(substring);
 }
 
 describe('AsyncRepl', function () {
   before(function () {
+    this.timeout(10000);
     // nyc adds its own SIGINT listener that annoys use here.
     process.removeAllListeners('SIGINT');
   });
