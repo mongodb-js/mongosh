@@ -170,9 +170,5 @@
     "packages/node-runtime-worker-thread",
     "packages/browser-repl",
     "packages/connectivity-tests"
-  ],
-  "overrides": {
-    "cookie": "^0.7.2",
-    "body-parser": "^2.2.1"
-  }
+  ]
 }
