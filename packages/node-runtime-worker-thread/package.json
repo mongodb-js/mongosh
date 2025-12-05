@@ -47,7 +47,7 @@
     "@mongosh/types": "^3.14.1",
     "bson": "^6.10.4",
     "eslint": "^7.25.0",
-    "mocha": "^10.2.0",
+    "mocha": "^11.7.5",
     "postmsg-rpc": "^2.4.0",
     "prettier": "^2.8.8",
     "webpack-merge": "^5.8.0",
