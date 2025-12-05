@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { signatures } from '../lib';
+import { signatures } from '../';
 
 Object.keys(signatures)
   .sort()
