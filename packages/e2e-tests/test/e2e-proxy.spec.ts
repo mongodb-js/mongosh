@@ -5,19 +5,16 @@ import type {
 } from 'http';
 import { createServer as createHTTPServer, request } from 'http';
 import {
+  getTestCertificatePath as getCertPath,
   MongoRunnerSetup,
   skipIfApiStrict,
   skipIfEnvServerVersion,
   startSharedTestServer,
   startTestServer,
-} from '../../testing/src/integration-testing-hooks';
+} from '@mongosh/testing';
 import type { Server as HTTPSServer } from 'https';
 import { createServer as createHTTPSServer } from 'https';
-import {
-  connectionStringWithLocalhost,
-  getCertPath,
-  useTmpdir,
-} from './repl-helpers';
+import { connectionStringWithLocalhost, useTmpdir } from './repl-helpers';
 import { once } from 'events';
 import { connect } from 'net';
 import type { AddressInfo, Socket } from 'net';

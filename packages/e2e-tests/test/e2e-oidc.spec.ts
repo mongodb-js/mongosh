@@ -1,8 +1,9 @@
 import {
+  getTestCertificatePath as getCertPath,
   MongoRunnerSetup,
   skipIfApiStrict,
   skipIfEnvServerVersion,
-} from '../../testing/src/integration-testing-hooks';
+} from '@mongosh/testing';
 import { promises as fs } from 'fs';
 import type { OIDCMockProviderConfig } from '@mongodb-js/oidc-mock-provider';
 import { OIDCMockProvider } from '@mongodb-js/oidc-mock-provider';
@@ -10,7 +11,7 @@ import type { TestShell } from './test-shell';
 import path from 'path';
 import { expect } from 'chai';
 import { createServer as createHTTPSServer } from 'https';
-import { getCertPath, readReplLogFile, useTmpdir } from './repl-helpers';
+import { readReplLogFile, useTmpdir } from './repl-helpers';
 import {
   baseOidcServerConfig,
   commonOidcServerArgs,

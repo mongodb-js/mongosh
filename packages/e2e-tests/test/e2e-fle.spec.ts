@@ -1,15 +1,15 @@
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import type { TestShell } from './test-shell';
-import { eventually } from '../../testing/src/eventually';
 import {
+  eventually,
   startTestServer,
   skipIfApiStrict,
   skipIfServerVersion,
   skipIfCommunityServer,
   downloadCurrentCryptSharedLibrary,
   sortObjectArray,
-} from '../../testing/src/integration-testing-hooks';
+} from '@mongosh/testing';
 import {
   makeFakeHTTPServer,
   fakeAWSHandlers,

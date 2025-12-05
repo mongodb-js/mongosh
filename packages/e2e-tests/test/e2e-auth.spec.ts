@@ -1,12 +1,12 @@
 import { expect } from 'chai';
 import type { Db, Document, MongoClientOptions } from 'mongodb';
 import { MongoClient } from 'mongodb';
-import { eventually } from '../../testing/src/eventually';
 import type { TestShell } from './test-shell';
 import {
+  eventually,
   skipIfApiStrict,
   startSharedTestServer,
-} from '../../testing/src/integration-testing-hooks';
+} from '@mongosh/testing';
 
 type AssertUserExists = (opts?: Document, username?: string) => Promise<void>;
 function createAssertUserExists(db: Db, dbName: string): AssertUserExists {

@@ -1,12 +1,14 @@
 import { expect } from 'chai';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { startTestServer } from '../../testing/src/integration-testing-hooks';
+import {
+  getTestCertificatePath as getCertPath,
+  startTestServer,
+} from '@mongosh/testing';
 import {
   useTmpdir,
   setTemporaryHomeDirectory,
   readReplLogFile,
-  getCertPath,
   connectionStringWithLocalhost,
 } from './repl-helpers';
 

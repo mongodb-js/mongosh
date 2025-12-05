@@ -4,7 +4,7 @@ import { MongoClient } from 'mongodb';
 import { expect } from 'chai';
 import type { TestShell } from './test-shell';
 import { sleep } from './util-helpers';
-import { eventually } from '../../testing/src/eventually';
+import { eventually } from '@mongosh/testing';
 
 const {
   STREAMS_E2E_SPI_CONNECTION_STRING = '',
