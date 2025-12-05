@@ -21,7 +21,8 @@
     }
   },
   "scripts": {
-    "start": "webpack serve --config ./config/webpack.config.watch.js",
+    "start": "npm run webpack-serve",
+    "webpack-serve": "webpack serve --config ./config/webpack.config.watch.js",
     "clean": "rimraf ./lib",
     "preprepublish": "rimraf ./lib",
     "prepublish": "npm run compile",

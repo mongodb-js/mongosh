@@ -442,7 +442,7 @@ describe('e2e', function () {
         }
         const currentOp = await shell.executeLine('db.currentOp()');
         const expectedVersion =
-          require('../package.json')['dependencies']['@mongosh/cli-repl'];
+          require('../package.json')['devDependencies']['@mongosh/cli-repl'];
         expect(currentOp).to.include(`appName: 'mongosh ${expectedVersion}'`);
         expect(currentOp).to.include("name: 'nodejs|mongosh'");
         shell.assertNoErrors();

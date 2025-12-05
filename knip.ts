@@ -52,7 +52,7 @@ const config: KnipConfig = {
 
     // Special cases for packages with different entry points
     "packages/cli-repl": {
-      project: ["src/**/*.ts", "bin/**/*.js", "test/**/*.ts"],
+      project: ["src/**/*.ts!", "bin/**/*.js", "test/**/*.ts"],
       ignoreDependencies: [
         // Eagerly loaded startup snapshot dependencies
         "@mongodb-js/saslprep",
@@ -67,7 +67,7 @@ const config: KnipConfig = {
     },
 
     "packages/shell-api": {
-      entry: ["src/api.ts"],
+      entry: ["src/api.ts!", "scripts/*.ts", "test/*.ts"],
     },
 
     "packages/mongosh": {
@@ -75,9 +75,9 @@ const config: KnipConfig = {
     },
 
     "packages/e2e-tests": {
-      entry: ["test/**/*", "test/fixtures/**/*"],
+      entry: ["test/**/*.ts", "test/fixtures/**/*"],
       ignoreDependencies: [
-        // Used indirectly
+        // This is used for version check. TODO: Consider changing that test.
         "@mongosh/cli-repl",
       ],
     },
@@ -109,9 +109,13 @@ const config: KnipConfig = {
       ],
     },
 
+    "packages/errors": {
+      entry: ["src/index.ts!", "scripts/*.ts"],
+    },
+
     "packages/browser-repl": {
-      entry: ["config/*.js"],
-      project: ["src/**/*.{ts,tsx}"],
+      entry: ["src/index.tsx!", "config/*.js"],
+      project: ["src/**/*.{ts,tsx}!"],
       ignoreDependencies: [
         "@wojtekmaj/enzyme-adapter-react-17",
         "enzyme",
@@ -149,7 +153,13 @@ const config: KnipConfig = {
     },
 
     "packages/async-rewriter2": {
-      entry: ["test/fixtures/**/*"],
+      entry: [
+        "src/index.ts!",
+        "bin/*.js!",
+        "test/fixtures/**/*",
+        "scripts/*.js",
+        "benchmark/index.ts",
+      ],
       ignoreFiles: [
         // Used by make-runtime-support.js
         "src/runtime-support.nocov.js",
@@ -185,7 +195,11 @@ const config: KnipConfig = {
 
   // Webpack configuration
   webpack: {
-    config: ["config/webpack.base.config.js", "**/webpack.config.js"],
+    config: [
+      "config/webpack.base.config.js",
+      "**/webpack.config.js",
+      "**/webpack.config.*.js",
+    ],
   },
 
   // ESLint configuration

@@ -23,14 +23,14 @@
   },
   "scripts": {
     "compile": "tsc -p tsconfig.json && npm run api-generate",
-    "api-generate": "api-extractor run && ts-node bin/api-postprocess.ts",
+    "api-generate": "api-extractor run && ts-node scripts/api-postprocess.ts",
     "pretest": "npm run compile",
     "eslint": "eslint",
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "check": "npm run lint && npm run depcheck",
     "depcheck": "depcheck",
-    "report-missing-help": "ts-node bin/report-missing-help.ts",
-    "report-supported-api": "ts-node bin/report-supported-api.ts",
+    "report-missing-help": "ts-node scripts/report-missing-help.ts",
+    "report-supported-api": "ts-node scripts/report-supported-api.ts",
     "test": "mocha",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
@@ -51,8 +51,6 @@
     "build"
   ],
   "dependencies": {
-    "@babel/core": "^7.26.10",
-    "@babel/types": "^7.26.10",
     "@mongosh/arg-parser": "^3.23.0",
     "@mongosh/errors": "2.4.5",
     "@mongosh/i18n": "^2.20.0",
@@ -74,6 +72,8 @@
     "eslint": "^7.25.0",
     "mongodb": "^6.19.0",
     "prettier": "^2.8.8",
-    "semver": "^7.5.3"
+    "semver": "^7.5.3",
+    "@babel/core": "^7.26.10",
+    "@babel/types": "^7.26.10"
   }
 }

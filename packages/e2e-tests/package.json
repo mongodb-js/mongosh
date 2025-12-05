@@ -26,12 +26,6 @@
   "engines": {
     "node": ">=16.15.0"
   },
-  "dependencies": {
-    "@mongosh/cli-repl": "2.5.10",
-    "@mongosh/service-provider-core": "3.7.0",
-    "@mongodb-js/oidc-plugin": "^2.0.5",
-    "strip-ansi": "^6.0.0"
-  },
   "devDependencies": {
     "mongodb-log-writer": "^2.4.3",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
@@ -50,6 +44,10 @@
     "mongodb": "^6.19.0",
     "node-fetch": "^3.3.2",
     "prettier": "^2.8.8",
-    "rimraf": "^3.0.2"
+    "rimraf": "^3.0.2",
+    "@mongodb-js/oidc-plugin": "^2.0.5",
+    "strip-ansi": "^6.0.0",
+    "@mongosh/cli-repl": "2.5.10",
+    "@mongosh/service-provider-core": "3.7.0"
   }
 }
