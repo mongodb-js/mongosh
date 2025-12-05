@@ -18,7 +18,6 @@
     "eslint": "eslint",
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "check": "npm run lint",
-    "depcheck": "depcheck",
     "compile": "tsc -p tsconfig.json",
     "prepublish": "npm run compile",
     "prettier": "prettier",
@@ -46,7 +45,6 @@
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
     "nanobus": "^4.5.0",
     "prettier": "^2.8.8"

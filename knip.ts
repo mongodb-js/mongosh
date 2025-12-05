@@ -19,7 +19,7 @@ const config: KnipConfig = {
     "**/tmp/**",
     "**/.sbom/**",
     "**/test/data/**",
-    // Configuration files (from depcheck ignore-patterns)
+    // Configuration files
     ".evergreen/**",
     "config/**",
     "configs/**",
@@ -124,7 +124,7 @@ const config: KnipConfig = {
         "karma-mocha",
         "karma-mocha-reporter",
         "karma-typescript",
-        // Resolved as `<depname>/` so depcheck doesn't see it being used
+        // Resolved as `<depname>/`
         "buffer",
         "util",
       ],

@@ -18,7 +18,6 @@
     "eslint": "eslint",
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "check": "npm run lint",
-    "depcheck": "depcheck",
     "prettier": "prettier",
     "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
   },
@@ -37,7 +36,6 @@
     "@types/rimraf": "^3.0.0",
     "bson": "^6.10.4",
     "chai-as-promised": "^8.0.2",
-    "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
