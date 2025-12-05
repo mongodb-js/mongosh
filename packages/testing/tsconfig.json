@@ -6,6 +6,12 @@
     "declaration": true,
     "declarationMap": true
   },
-  "include": ["src/**/*", "src/certificates/**/*"],
+  "include": [
+    "src/**/*",
+    "src/certificates/**/*",
+    "src/chai.ts",
+    "../browser-repl/testing/enzyme.ts",
+    "../browser-repl/testing/enzyme.ts"
+  ],
   "exclude": ["lib"]
 }

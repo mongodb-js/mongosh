@@ -1,6 +1,6 @@
 import React from 'react';
-import { expect } from '../../testing/src/chai';
-import { shallow, mount } from '../../testing/src/enzyme';
+import { expect } from '@mongosh/testing';
+import { shallow, mount } from '../../../testing/enzyme';
 
 import { CursorOutput } from './cursor-output';
 import { CursorIterationResultOutput } from './cursor-iteration-result-output';

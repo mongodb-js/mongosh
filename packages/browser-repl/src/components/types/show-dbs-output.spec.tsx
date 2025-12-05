@@ -1,6 +1,6 @@
 import React from 'react';
-import { expect } from '../../testing/src/chai';
-import { shallow } from '../../testing/src/enzyme';
+import { expect } from '@mongosh/testing';
+import { shallow } from '../../../testing/enzyme';
 
 import { ShowDbsOutput } from './show-dbs-output';
 

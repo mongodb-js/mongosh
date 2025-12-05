@@ -1,8 +1,8 @@
 import React from 'react';
 import sinon from 'sinon';
 import { Icon } from '@mongodb-js/compass-components';
-import { expect } from '../../testing/src/chai';
-import { mount } from '../../testing/src/enzyme';
+import { expect } from '@mongosh/testing';
+import { mount } from '../../../testing/enzyme';
 import { Expandable } from './expandable';
 
 describe('<Expandable />', function () {
