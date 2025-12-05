@@ -3,7 +3,7 @@ import path from 'path';
 import { expect } from 'chai';
 import type { TestShell } from './test-shell';
 import { useTmpdir } from './repl-helpers';
-import { eventually } from '../../../testing/eventually';
+import { eventually } from '../../testing/src/eventually';
 
 describe('snippet integration tests', function () {
   this.timeout(120_000);

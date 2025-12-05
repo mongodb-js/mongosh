@@ -1,7 +1,7 @@
 import {
   skipIfApiStrict,
   startSharedTestServer,
-} from '../../../testing/integration-testing-hooks';
+} from '../../testing/src/integration-testing-hooks';
 import type { TestShell } from './test-shell';
 
 describe('e2e startup banners', function () {

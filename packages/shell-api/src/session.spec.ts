@@ -23,7 +23,7 @@ import {
   startTestCluster,
   skipIfServerVersion,
   skipIfApiStrict,
-} from '../../../testing/integration-testing-hooks';
+} from '@mongosh/testing';
 import { ensureMaster, ensureSessionExists } from '../test/helpers';
 import { Database } from './database';
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';

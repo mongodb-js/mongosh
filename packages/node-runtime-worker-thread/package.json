@@ -39,6 +39,7 @@
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/sbom-tools": "^0.8.1",
+    "@mongosh/testing": "0.0.0-dev.0",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@mongosh/browser-runtime-core": "^3.29.0",
     "@mongosh/browser-runtime-electron": "^3.29.0",

@@ -57,6 +57,10 @@
       "path": "packages/shell-bson"
     },
     {
+      "name": "📦 @mongosh/testing",
+      "path": "packages/testing"
+    },
+    {
       "name": "📦 @mongosh/arg-parser",
       "path": "packages/arg-parser"
     },

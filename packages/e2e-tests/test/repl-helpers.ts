@@ -5,7 +5,7 @@ import rimraf from 'rimraf';
 import * as chai from 'chai';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
-import type { MongodSetup } from '../../../testing/integration-testing-hooks';
+import type { MongodSetup } from '../../testing/src/integration-testing-hooks';
 import type { MongoLogEntry } from 'mongodb-log-writer';
 
 chai.use(sinonChai);
@@ -141,15 +141,7 @@ const setTemporaryHomeDirectory = () => {
 };
 
 function getCertPath(filename: string): string {
-  return path.join(
-    __dirname,
-    '..',
-    '..',
-    '..',
-    'testing',
-    'certificates',
-    filename
-  );
+  return path.join(__dirname, '..', '..', 'testing', 'certificates', filename);
 }
 
 // TLS requires matching hostnames, so here we need to explicitly

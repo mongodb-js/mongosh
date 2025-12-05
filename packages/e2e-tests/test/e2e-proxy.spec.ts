@@ -10,7 +10,7 @@ import {
   skipIfEnvServerVersion,
   startSharedTestServer,
   startTestServer,
-} from '../../../testing/integration-testing-hooks';
+} from '../../testing/src/integration-testing-hooks';
 import type { Server as HTTPSServer } from 'https';
 import { createServer as createHTTPSServer } from 'https';
 import {

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import type { TestShell } from './test-shell';
-import { eventually } from '../../../testing/eventually';
+import { eventually } from '../../testing/src/eventually';
 import {
   startTestServer,
   skipIfApiStrict,
@@ -9,8 +9,11 @@ import {
   skipIfCommunityServer,
   downloadCurrentCryptSharedLibrary,
   sortObjectArray,
-} from '../../../testing/integration-testing-hooks';
-import { makeFakeHTTPServer, fakeAWSHandlers } from '../../../testing/fake-kms';
+} from '../../testing/src/integration-testing-hooks';
+import {
+  makeFakeHTTPServer,
+  fakeAWSHandlers,
+} from '../../testing/src/fake-kms';
 import { once } from 'events';
 import { serialize } from 'v8';
 import { inspect } from 'util';

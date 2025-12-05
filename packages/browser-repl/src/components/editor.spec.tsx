@@ -1,5 +1,5 @@
 import sinon from 'sinon';
-import { expect } from '../../testing/chai';
+import { expect } from '@mongosh/testing';
 import { Editor, createCommands } from './editor';
 import type { Command } from '@mongodb-js/compass-editor';
 import { shallow } from '../../testing/enzyme';

@@ -54,6 +54,7 @@
     "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
     "nanobus": "^4.5.0",
-    "prettier": "^2.8.8"
+    "prettier": "^2.8.8",
+    "@mongosh/testing": "0.0.0-dev.0"
   }
 }

@@ -2,7 +2,7 @@ import {
   MongoRunnerSetup,
   skipIfApiStrict,
   skipIfEnvServerVersion,
-} from '../../../testing/integration-testing-hooks';
+} from '../../testing/src/integration-testing-hooks';
 import { promises as fs } from 'fs';
 import type { OIDCMockProviderConfig } from '@mongodb-js/oidc-mock-provider';
 import { OIDCMockProvider } from '@mongodb-js/oidc-mock-provider';

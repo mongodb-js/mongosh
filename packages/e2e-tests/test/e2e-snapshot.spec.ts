@@ -1,7 +1,7 @@
 import {
   skipIfApiStrict,
   startSharedTestServer,
-} from '../../../testing/integration-testing-hooks';
+} from '../../testing/src/integration-testing-hooks';
 import { expect } from 'chai';
 
 const setDifference = <T>(a: T[], b: T[]) => a.filter((e) => !b.includes(e));
