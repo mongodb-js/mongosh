@@ -37,7 +37,7 @@
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "eslint": "^7.25.0",
-    "mocha": "^10.2.0",
+    "mocha": "^11.7.5",
     "prettier": "^2.8.8"
   },
   "dependencies": {
