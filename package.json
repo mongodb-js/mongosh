@@ -115,7 +115,7 @@
     "nyc": "^15.1.0",
     "pkg-up": "^3.1.0",
     "rimraf": "^3.0.2",
-    "sinon": "^7.5.0",
+    "sinon": "^19.0.4",
     "sinon-chai": "^4.0.1",
     "terser-webpack-plugin": "^5.3.11",
     "ts-loader": "^8.0.14",
