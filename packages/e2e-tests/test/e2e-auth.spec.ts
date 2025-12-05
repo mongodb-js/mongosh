@@ -1,12 +1,13 @@
 import { expect } from 'chai';
 import type { Db, Document, MongoClientOptions } from 'mongodb';
 import { MongoClient } from 'mongodb';
-import { eventually } from '../../testing/src/eventually';
 import type { TestShell } from './test-shell';
 import {
+  eventually,
   skipIfApiStrict,
   startSharedTestServer,
-} from '../../testing/src/integration-testing-hooks';
+} from '@mongosh/testing';
+import { startTestShell } from './test-shell-context';
 
 type AssertUserExists = (opts?: Document, username?: string) => Promise<void>;
 function createAssertUserExists(db: Db, dbName: string): AssertUserExists {
@@ -110,7 +111,7 @@ describe('Auth e2e', function () {
     beforeEach(async function () {
       const connectionString = await testServer.connectionString();
       dbName = `test-${Date.now()}`;
-      shell = this.startTestShell({ args: [connectionString] });
+      shell = startTestShell(this, { args: [connectionString] });
 
       client = await MongoClient.connect(connectionString, {});
 
@@ -878,7 +879,7 @@ describe('Auth e2e', function () {
           pathname: `/${dbName}`,
         }
       );
-      shell = this.startTestShell({ args: [authConnectionString] });
+      shell = startTestShell(this, { args: [authConnectionString] });
       await shell.waitForPrompt();
       shell.assertNoErrors();
       await shell.executeLine(`use ${dbName}`);
@@ -902,7 +903,7 @@ describe('Auth e2e', function () {
           pathname: `/${dbName}`,
         }
       );
-      shell = this.startTestShell({ args: [authConnectionString] });
+      shell = startTestShell(this, { args: [authConnectionString] });
       await shell.waitForPrompt();
       shell.assertNoErrors();
       await shell.executeLine(`use ${dbName}`);
@@ -929,7 +930,7 @@ describe('Auth e2e', function () {
     });
     it('can auth when there is -u and -p', async function () {
       const connectionString = await testServer.connectionString();
-      shell = this.startTestShell({
+      shell = startTestShell(this, {
         args: [
           connectionString,
           '-u',
@@ -964,7 +965,7 @@ describe('Auth e2e', function () {
           return this.skip(); // No SCRAM-SHA-1 in FIPS mode
         }
         const connectionString = await testServer.connectionString();
-        shell = this.startTestShell({
+        shell = startTestShell(this, {
           args: [
             connectionString,
             '-u',
@@ -988,7 +989,7 @@ describe('Auth e2e', function () {
           // This test is not particularly meaningful if we're using the system OpenSSL installation
           // and it is not properly configured for FIPS to begin with. This is the case on e.g.
           // Ubuntu 22.04 in evergreen CI.
-          const preTestShell = this.startTestShell({
+          const preTestShell = startTestShell(this, {
             args: [
               '--quiet',
               '--nodb',
@@ -1008,7 +1009,7 @@ describe('Auth e2e', function () {
         }
 
         const connectionString = await testServer.connectionString();
-        shell = this.startTestShell({
+        shell = startTestShell(this, {
           args: [
             connectionString,
             '--tlsFIPSMode',
@@ -1033,7 +1034,7 @@ describe('Auth e2e', function () {
       });
       it('can auth with SCRAM-SHA-256', async function () {
         const connectionString = await testServer.connectionString();
-        shell = this.startTestShell({
+        shell = startTestShell(this, {
           args: [
             connectionString,
             '-u',
@@ -1054,7 +1055,7 @@ describe('Auth e2e', function () {
       });
       it('cannot auth when authenticationMechanism mismatches (sha256 -> sha1)', async function () {
         const connectionString = await testServer.connectionString();
-        shell = this.startTestShell({
+        shell = startTestShell(this, {
           args: [
             connectionString,
             '-u',
@@ -1075,7 +1076,7 @@ describe('Auth e2e', function () {
       });
       it('cannot auth when authenticationMechanism mismatches (sha1 -> sha256)', async function () {
         const connectionString = await testServer.connectionString();
-        shell = this.startTestShell({
+        shell = startTestShell(this, {
           args: [
             connectionString,
             '-u',
@@ -1096,7 +1097,7 @@ describe('Auth e2e', function () {
       });
       it('does not fail with kerberos not found for GSSAPI', async function () {
         const connectionString = await testServer.connectionString();
-        shell = this.startTestShell({
+        shell = startTestShell(this, {
           args: [
             connectionString,
             '-u',

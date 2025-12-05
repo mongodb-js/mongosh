@@ -211,7 +211,6 @@ export async function downloadCurrentCryptSharedLibrary(
  * @export
  * @returns {MongodSetup} - Object with information about the started server.
  */
-let sharedSetup: MongodSetup | null = null;
 export function startTestServer(
   id: string,
   args: Partial<MongoClusterOptions> = {}
@@ -230,6 +229,8 @@ export function startTestServer(
   return server;
 }
 
+let installedGlobalAfterHook = false;
+let sharedSetup: MongodSetup | null = null;
 /**
  * Starts or reuse an existing shared local server managed by this process.
  *
@@ -242,11 +243,17 @@ export function startTestServer(
  * @returns {MongodSetup} - Object with information about the started server.
  */
 export function startSharedTestServer(): MongodSetup {
+  if (!installedGlobalAfterHook) {
+    throw new Error(
+      'Trying to start shared test server, but no global after hook was available at module load time'
+    );
+  }
+
   if (process.env.MONGOSH_TEST_SERVER_URL) {
     return new MongodSetup(process.env.MONGOSH_TEST_SERVER_URL);
   }
 
-  const server = sharedSetup ?? (sharedSetup = new MongoRunnerSetup('shared'));
+  const server = (sharedSetup ??= new MongoRunnerSetup('shared'));
 
   before(async function () {
     this.timeout(120_000); // Include potential mongod download time.
@@ -258,12 +265,15 @@ export function startSharedTestServer(): MongodSetup {
   return server;
 }
 
-global.after?.(async function () {
-  if (sharedSetup !== null) {
-    this.timeout(30_000);
-    await sharedSetup.stop();
-  }
-});
+if ('after' in globalThis) {
+  installedGlobalAfterHook = true;
+  after(async function () {
+    if (sharedSetup !== null) {
+      this.timeout(30_000);
+      await sharedSetup.stop();
+    }
+  });
+}
 
 // The same as startTestServer(), except that this starts multiple servers
 // in parallel in the same before() call.
