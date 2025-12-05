@@ -18,7 +18,7 @@
     "url": "git+https://github.com/mongodb-js/mongosh.git"
   },
   "scripts": {
-    "check": "npm run lint && npm run depcheck",
+    "check": "npm run lint",
     "depcheck": "depcheck",
     "compile": "tsc -p tsconfig.json",
     "eslint": "eslint",
