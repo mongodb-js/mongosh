@@ -2,7 +2,7 @@ import * as babel from '@babel/core';
 import type * as BabelTypes from '@babel/types';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { signatures } from '../lib';
+import { signatures } from '../src';
 import enUs from '../../i18n/src/locales/en_US';
 
 function applyAsyncRewriterChanges() {

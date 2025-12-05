@@ -1,4 +1,11 @@
 import type { KnipConfig } from "knip";
+import fs from "fs";
+
+// Create an empty file to satisfy the knip rule for async-rewriter2
+fs.writeFileSync(
+  "packages/async-rewriter2/src/runtime-support.out.nocov.ts",
+  ""
+);
 
 const config: KnipConfig = {
   rules: {
