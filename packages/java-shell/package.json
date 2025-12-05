@@ -28,7 +28,8 @@
     "path-browserify": "^1.0.1",
     "stream-browserify": "^3.0.0",
     "util": "^0.12.5",
-    "webpack-merge": "^5.8.0"
+    "webpack-merge": "^5.8.0",
+    "@mongosh/testing": "0.0.0-dev.0"
   },
   "license": "SSPL",
   "publishConfig": {
