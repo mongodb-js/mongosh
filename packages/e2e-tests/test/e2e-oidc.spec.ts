@@ -18,6 +18,7 @@ import {
   skipOIDCTestsDueToPlatformOrServerVersion,
 } from './oidc-helpers';
 import { createMongoDBOIDCPlugin } from '@mongodb-js/oidc-plugin';
+import { startTestShell } from './test-shell-context';
 
 /**
  * @securityTest OIDC Authentication End-to-End Tests
@@ -216,7 +217,7 @@ describe('OIDC auth e2e', function () {
           args.push('--oidcNoNonce');
         }
 
-        shell = this.startTestShell({
+        shell = startTestShell(this, {
           args,
         });
         if (!expectNonce || provideNonce) {
@@ -235,7 +236,7 @@ describe('OIDC auth e2e', function () {
   }
 
   it('can successfully authenticate using OIDC Auth Code Flow when a username is specified', async function () {
-    shell = this.startTestShell({
+    shell = startTestShell(this, {
       args: [
         await testServer.connectionString(),
         '--username=testuser',
@@ -251,7 +252,7 @@ describe('OIDC auth e2e', function () {
   });
 
   it('can successfully authenticate using OIDC Device Auth Flow', async function () {
-    shell = this.startTestShell({
+    shell = startTestShell(this, {
       args: [
         await testServer.connectionString(),
         '--authenticationMechanism=MONGODB-OIDC',
@@ -269,7 +270,7 @@ describe('OIDC auth e2e', function () {
   });
 
   it('hints the user to use Device Auth Flow if starting a browser fails', async function () {
-    shell = this.startTestShell({
+    shell = startTestShell(this, {
       args: [
         await testServer.connectionString(),
         '--authenticationMechanism=MONGODB-OIDC',
@@ -291,7 +292,7 @@ describe('OIDC auth e2e', function () {
         payload: (await originalGetPayload(metadata)).payload,
       };
     };
-    shell = this.startTestShell({
+    shell = startTestShell(this, {
       args: [
         await testServer.connectionString({
           maxIdleTimeMS: '1',
@@ -313,7 +314,7 @@ describe('OIDC auth e2e', function () {
 
   it('keeps authentication state when resetting connection options', async function () {
     const cs = await testServer.connectionString();
-    shell = this.startTestShell({
+    shell = startTestShell(this, {
       args: [
         cs,
         '--authenticationMechanism=MONGODB-OIDC',
@@ -337,7 +338,7 @@ describe('OIDC auth e2e', function () {
 
   it('re-authenticates when connecting to a different endpoint from the same shell', async function () {
     const urlOptions = { username: 'testuser' }; // Make sure these match between the two connections
-    shell = this.startTestShell({
+    shell = startTestShell(this, {
       args: [
         await testServer.connectionString({}, urlOptions),
         '--authenticationMechanism=MONGODB-OIDC',
@@ -361,7 +362,7 @@ describe('OIDC auth e2e', function () {
   });
 
   it('can share state with another shell', async function () {
-    shell = this.startTestShell({
+    shell = startTestShell(this, {
       args: [
         await testServer.connectionString(),
         '--authenticationMechanism=MONGODB-OIDC',
@@ -389,7 +390,7 @@ describe('OIDC auth e2e', function () {
       handle = handle.slice(0, -1);
     }
 
-    const shell2 = this.startTestShell({
+    const shell2 = startTestShell(this, {
       args: [
         await testServer.connectionString(),
         '--authenticationMechanism=MONGODB-OIDC',
@@ -416,7 +417,7 @@ describe('OIDC auth e2e', function () {
       path.join(tmpdir.path, 'certs', 'somefilename.crt')
     );
 
-    shell = this.startTestShell({
+    shell = startTestShell(this, {
       args: [
         await testServer2.connectionString(
           {},
@@ -446,7 +447,7 @@ describe('OIDC auth e2e', function () {
       path.join(tmpdir.path, 'certs', 'somefilename.crt')
     );
 
-    shell = this.startTestShell({
+    shell = startTestShell(this, {
       args: [
         await testServer2.connectionString(
           {},
@@ -488,7 +489,7 @@ describe('OIDC auth e2e', function () {
     };
 
     // Consistency check: ID token is *not* used by default
-    shell = this.startTestShell({
+    shell = startTestShell(this, {
       args: [
         await testServer3.connectionString(),
         '--authenticationMechanism=MONGODB-OIDC',
@@ -501,7 +502,7 @@ describe('OIDC auth e2e', function () {
     await verifyUser(shell, 'testuser-at', 'testuser-at-group');
 
     // Actual test: ID token data is used when --oidcIdTokenAsAccessToken is set
-    shell = this.startTestShell({
+    shell = startTestShell(this, {
       args: [
         await testServer3.connectionString(),
         '--authenticationMechanism=MONGODB-OIDC',
@@ -517,7 +518,7 @@ describe('OIDC auth e2e', function () {
   });
 
   it('can print tokens as debug information if requested', async function () {
-    shell = this.startTestShell({
+    shell = startTestShell(this, {
       args: [
         await testServer.connectionString(),
         '--authenticationMechanism=MONGODB-OIDC',
@@ -537,7 +538,7 @@ describe('OIDC auth e2e', function () {
     shell.assertContainsOutput('"lastServerIdPInfo":');
     shell.assertNotContainsOutput(/"refreshToken": "(?!debugid:)/);
 
-    shell = this.startTestShell({
+    shell = startTestShell(this, {
       args: [
         await testServer.connectionString(),
         '--authenticationMechanism=MONGODB-OIDC',
@@ -559,7 +560,7 @@ describe('OIDC auth e2e', function () {
   });
 
   it('logs OIDC HTTP calls', async function () {
-    shell = this.startTestShell({
+    shell = startTestShell(this, {
       args: [
         await testServer.connectionString(),
         '--authenticationMechanism=MONGODB-OIDC',
@@ -607,7 +608,7 @@ describe('OIDC auth e2e', function () {
     }
     await fs.writeFile(tokenFile, accessToken);
 
-    shell = this.startTestShell({
+    shell = startTestShell(this, {
       args: [
         await testServer.connectionString({
           authMechanism: 'MONGODB-OIDC',

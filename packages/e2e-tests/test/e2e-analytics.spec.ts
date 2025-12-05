@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { startTestCluster, eventually } from '@mongosh/testing';
+import { startTestShell } from './test-shell-context';
 
 describe('e2e Analytics Node', function () {
   const replSetName = 'replicaSet';
@@ -32,7 +33,7 @@ describe('e2e Analytics Node', function () {
       ],
     };
 
-    const shell = this.startTestShell({
+    const shell = startTestShell(this, {
       args: [await rs0.connectionString()],
     });
     await shell.waitForPrompt();
@@ -51,7 +52,7 @@ describe('e2e Analytics Node', function () {
 
   context('without readPreference', function () {
     it('a direct connection ends up at primary', async function () {
-      const shell = this.startTestShell({
+      const shell = startTestShell(this, {
         args: [await rs0.connectionString()],
       });
       await shell.waitForPrompt();
@@ -64,13 +65,13 @@ describe('e2e Analytics Node', function () {
 
   context('specifying readPreference and tags', function () {
     it('ends up at the ANALYTICS node', async function () {
-      const shell = this.startTestShell({
+      const shell = startTestShell(this, {
         args: [
           `${await rs0.connectionString()}?replicaSet=${replSetName}&readPreference=secondary&readPreferenceTags=nodeType:ANALYTICS`,
         ],
       });
 
-      const directConnectionToAnalyticsShell = this.startTestShell({
+      const directConnectionToAnalyticsShell = startTestShell(this, {
         args: [`${await rs3.connectionString()}?directConnection=true`],
       });
       await Promise.all([

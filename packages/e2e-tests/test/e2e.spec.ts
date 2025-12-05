@@ -4,7 +4,7 @@ import type { Db } from 'mongodb';
 import { MongoClient, ObjectId } from 'mongodb';
 
 import { TestShell } from './test-shell';
-import { ensureTestShellAfterHook } from './test-shell-context';
+import { ensureTestShellAfterHook, startTestShell } from './test-shell-context';
 import {
   eventually,
   skipIfServerVersion,
@@ -42,17 +42,17 @@ describe('e2e', function () {
       // version() sources its version data from the shell-api package's generated files,
       // --version from the cli-repl package.json and --build-info from the generated build-info.json
       // (if available), which should all match.
-      const shell = this.startTestShell({ args: ['--nodb'] });
+      const shell = startTestShell(this, { args: ['--nodb'] });
       await shell.waitForPrompt();
       const versionFromShellApi = (await shell.executeLine('version()'))
         .replace(/>/g, '')
         .trim();
 
-      const versionShell = this.startTestShell({ args: ['--version'] });
+      const versionShell = startTestShell(this, { args: ['--version'] });
       await versionShell.waitForSuccessfulExit();
       const versionFromCliFlag = versionShell.output.trim();
 
-      const buildInfoShell = this.startTestShell({ args: ['--build-info'] });
+      const buildInfoShell = startTestShell(this, { args: ['--build-info'] });
       await buildInfoShell.waitForSuccessfulExit();
       const versionFromBuildInfo = JSON.parse(buildInfoShell.output).version;
 
@@ -63,7 +63,7 @@ describe('e2e', function () {
 
   describe('--build-info', function () {
     it('shows build info in JSON format', async function () {
-      const shell = this.startTestShell({ args: ['--build-info'] });
+      const shell = startTestShell(this, { args: ['--build-info'] });
       await shell.waitForSuccessfulExit();
 
       const data = JSON.parse(shell.output);
@@ -111,7 +111,7 @@ describe('e2e', function () {
 
       let processReport: any;
       {
-        const shell = this.startTestShell({
+        const shell = startTestShell(this, {
           args: [
             '--quiet',
             '--nodb',
@@ -129,7 +129,7 @@ describe('e2e', function () {
     });
 
     it('provides build info via the buildInfo() builtin', async function () {
-      const shell = this.startTestShell({
+      const shell = startTestShell(this, {
         args: [
           '--quiet',
           '--eval',
@@ -148,7 +148,7 @@ describe('e2e', function () {
   describe('--nodb', function () {
     let shell: TestShell;
     beforeEach(async function () {
-      shell = this.startTestShell({
+      shell = startTestShell(this, {
         args: ['--nodb'],
       });
       await shell.waitForPrompt();
@@ -175,7 +175,7 @@ describe('e2e', function () {
       expect(shell.output).to.include('No connected database\n> ');
     });
     it('colorizes syntax errors', async function () {
-      shell = this.startTestShell({
+      shell = startTestShell(this, {
         args: ['--nodb'],
         env: { ...process.env, FORCE_COLOR: 'true', TERM: 'xterm-256color' },
         forceTerminal: true,
@@ -258,7 +258,7 @@ describe('e2e', function () {
       });
     });
     it('accepts a --tlsFIPSMode argument', async function () {
-      shell = this.startTestShell({
+      shell = startTestShell(this, {
         args: ['--nodb', '--tlsFIPSMode'],
       });
       const result = await shell.waitForPromptOrExit();
@@ -274,7 +274,7 @@ describe('e2e', function () {
       }
     });
     it('prints full output even when that output is buffered', async function () {
-      shell = this.startTestShell({
+      shell = startTestShell(this, {
         args: [
           '--nodb',
           '--quiet',
@@ -299,7 +299,7 @@ describe('e2e', function () {
     });
     it('handles custom prompt() function in conjunction with line-by-line input well', async function () {
       // https://jira.mongodb.org/browse/MONGOSH-1617
-      shell = this.startTestShell({
+      shell = startTestShell(this, {
         args: [
           '--nodb',
           '--shell',
@@ -315,7 +315,7 @@ describe('e2e', function () {
       expect(await shell.waitForCleanOutput()).to.include('3628800');
     });
     it('ignores control characters in TTY input', async function () {
-      shell = this.startTestShell({
+      shell = startTestShell(this, {
         args: ['--nodb'],
         forceTerminal: true,
       });
@@ -328,7 +328,7 @@ describe('e2e', function () {
       ).to.include('\n72\n');
     });
     it('ignores control characters in TTY input inside of .editor', async function () {
-      shell = this.startTestShell({
+      shell = startTestShell(this, {
         args: ['--nodb'],
         forceTerminal: true,
       });
@@ -368,7 +368,7 @@ describe('e2e', function () {
         describe('via host:port/test', function () {
           let shell: TestShell;
           beforeEach(async function () {
-            shell = this.startTestShell({
+            shell = startTestShell(this, {
               args: [`${await testServer.hostport()}/${dbname}`],
             });
             await shell.waitForPrompt();
@@ -382,7 +382,7 @@ describe('e2e', function () {
         describe('via mongodb://uri', function () {
           let shell: TestShell;
           beforeEach(async function () {
-            shell = this.startTestShell({
+            shell = startTestShell(this, {
               args: [`mongodb://${await testServer.hostport()}/${dbnameUri}`],
             });
             await shell.waitForPrompt();
@@ -397,7 +397,7 @@ describe('e2e', function () {
           let shell: TestShell;
           beforeEach(async function () {
             const port = await testServer.port();
-            shell = this.startTestShell({ args: [dbname, `--port=${port}`] });
+            shell = startTestShell(this, { args: [dbname, `--port=${port}`] });
             await shell.waitForPrompt();
             shell.assertNoErrors();
           });
@@ -409,7 +409,7 @@ describe('e2e', function () {
         describe('via use() method', function () {
           let shell: TestShell;
           beforeEach(async function () {
-            shell = this.startTestShell({
+            shell = startTestShell(this, {
               args: [`mongodb://${await testServer.hostport()}/`],
             });
             await shell.waitForPrompt();
@@ -430,7 +430,7 @@ describe('e2e', function () {
     context('with default appName', function () {
       let shell: TestShell;
       beforeEach(async function () {
-        shell = this.startTestShell({
+        shell = startTestShell(this, {
           args: [`mongodb://${await testServer.hostport()}/`],
         });
         await shell.waitForPrompt();
@@ -452,7 +452,7 @@ describe('e2e', function () {
     context('with custom appName', function () {
       let shell: TestShell;
       beforeEach(async function () {
-        shell = this.startTestShell({
+        shell = startTestShell(this, {
           args: [`mongodb://${await testServer.hostport()}/?appName=Felicia`],
         });
         await shell.waitForPrompt();
@@ -479,7 +479,7 @@ describe('e2e', function () {
     beforeEach(async function () {
       const connectionString = await testServer.connectionString();
       dbName = `test-${Date.now()}`;
-      shell = this.startTestShell({ args: [connectionString] });
+      shell = startTestShell(this, { args: [connectionString] });
 
       client = await MongoClient.connect(connectionString, {});
 
@@ -944,7 +944,7 @@ describe('e2e', function () {
   describe('with --host', function () {
     let shell: TestShell;
     it('allows invalid hostnames with _', async function () {
-      shell = this.startTestShell({
+      shell = startTestShell(this, {
         args: ['--host', 'xx_invalid_domain_xx'],
         env: { ...process.env, FORCE_COLOR: 'true', TERM: 'xterm-256color' },
         forceTerminal: true,
@@ -983,7 +983,7 @@ describe('e2e', function () {
             'load',
             'long-sleep.js'
           );
-          const shell = this.startTestShell({
+          const shell = startTestShell(this, {
             args: ['--nodb', ...jsContextFlags, filename],
             removeSigintListeners: true,
             forceTerminal: true,
@@ -1011,7 +1011,7 @@ describe('e2e', function () {
     describe('interactive', function () {
       let shell: TestShell;
       beforeEach(async function () {
-        shell = this.startTestShell({
+        shell = startTestShell(this, {
           args: ['--nodb'],
           removeSigintListeners: true,
         });
@@ -1069,7 +1069,7 @@ describe('e2e', function () {
   describe('printing', function () {
     let shell: TestShell;
     beforeEach(async function () {
-      shell = this.startTestShell({ args: ['--nodb'] });
+      shell = startTestShell(this, { args: ['--nodb'] });
       await shell.waitForPrompt();
       shell.assertNoErrors();
     });
@@ -1088,7 +1088,7 @@ describe('e2e', function () {
   describe('pipe from stdin', function () {
     let shell: TestShell;
     beforeEach(async function () {
-      shell = this.startTestShell({
+      shell = startTestShell(this, {
         args: [await testServer.connectionString()],
       });
     });
@@ -1144,7 +1144,7 @@ describe('e2e', function () {
 
     it('works fine with custom prompts', async function () {
       // https://jira.mongodb.org/browse/MONGOSH-1617
-      shell = this.startTestShell({
+      shell = startTestShell(this, {
         args: [
           await testServer.connectionString(),
           '--eval',
@@ -1163,7 +1163,7 @@ describe('e2e', function () {
   describe('Node.js builtin APIs in the shell', function () {
     let shell: TestShell;
     beforeEach(async function () {
-      shell = this.startTestShell({
+      shell = startTestShell(this, {
         args: ['--nodb'],
         cwd: path.resolve(__dirname, 'fixtures', 'require-base'),
         env: {
@@ -1221,7 +1221,7 @@ describe('e2e', function () {
     )})`, function () {
       context('file from disk', function () {
         it('loads a file from the command line as requested', async function () {
-          const shell = this.startTestShell({
+          const shell = startTestShell(this, {
             args: ['--nodb', ...jsContextFlags, './hello1.js'],
             cwd: path.resolve(
               __dirname,
@@ -1245,7 +1245,7 @@ describe('e2e', function () {
 
         if (!jsContextFlags.includes('--jsContext=plain-vm')) {
           it('drops into shell if --shell is used', async function () {
-            const shell = this.startTestShell({
+            const shell = startTestShell(this, {
               args: ['--nodb', ...jsContextFlags, '--shell', './hello1.js'],
               cwd: path.resolve(
                 __dirname,
@@ -1264,7 +1264,7 @@ describe('e2e', function () {
           });
 
           it('fails with the error if the loaded script throws', async function () {
-            const shell = this.startTestShell({
+            const shell = startTestShell(this, {
               args: ['--nodb', ...jsContextFlags, '--shell', './throw.js'],
               cwd: path.resolve(
                 __dirname,
@@ -1287,7 +1287,7 @@ describe('e2e', function () {
       context('--eval', function () {
         const script = 'const a = "hello", b = " one"; a + b';
         it('loads a script from the command line as requested', async function () {
-          const shell = this.startTestShell({
+          const shell = startTestShell(this, {
             args: ['--nodb', ...jsContextFlags, '--eval', script],
           });
           await eventually(() => {
@@ -1298,7 +1298,7 @@ describe('e2e', function () {
 
         if (!jsContextFlags.includes('--jsContext=plain-vm')) {
           it('drops into shell if --shell is used', async function () {
-            const shell = this.startTestShell({
+            const shell = startTestShell(this, {
               args: ['--nodb', ...jsContextFlags, '--eval', script, '--shell'],
             });
             await shell.waitForPrompt();
@@ -1309,7 +1309,7 @@ describe('e2e', function () {
         }
 
         it('fails with the error if the loaded script throws synchronously', async function () {
-          const shell = this.startTestShell({
+          const shell = startTestShell(this, {
             args: [
               '--nodb',
               ...jsContextFlags,
@@ -1324,7 +1324,7 @@ describe('e2e', function () {
         });
 
         it('fails with the error if the loaded script throws asynchronously (setImmediate)', async function () {
-          const shell = this.startTestShell({
+          const shell = startTestShell(this, {
             args: [
               '--nodb',
               ...jsContextFlags,
@@ -1341,7 +1341,7 @@ describe('e2e', function () {
         });
 
         it('fails with the error if the loaded script throws asynchronously (Promise)', async function () {
-          const shell = this.startTestShell({
+          const shell = startTestShell(this, {
             args: [
               '--nodb',
               ...jsContextFlags,
@@ -1365,7 +1365,7 @@ describe('e2e', function () {
             executionAsyncId: async_hooks.executionAsyncId()
           };
         })()`;
-          const shell = this.startTestShell({
+          const shell = startTestShell(this, {
             args: [
               '--nodb',
               ...jsContextFlags,
@@ -1408,7 +1408,10 @@ describe('e2e', function () {
     let readLogFile: <T extends MongoLogEntryFromFile>(
       customBasePath?: string
     ) => Promise<T[]>;
-    let startTestShell: (...extraArgs: string[]) => Promise<TestShell>;
+    let startNodbTestShellAndWaitForPrompt: (
+      context: Mocha.Context,
+      ...extraArgs: string[]
+    ) => Promise<TestShell>;
 
     beforeEach(function () {
       const homeInfo = setTemporaryHomeDirectory();
@@ -1456,8 +1459,11 @@ describe('e2e', function () {
         );
         return readReplLogFile<T>(logPath);
       };
-      startTestShell = async (...extraArgs: string[]) => {
-        const shell = this.startTestShell({
+      startNodbTestShellAndWaitForPrompt = async (
+        context: Mocha.Context,
+        ...extraArgs: string[]
+      ) => {
+        const shell = startTestShell(context, {
           args: ['--nodb', ...extraArgs],
           env,
           forceTerminal: true,
@@ -1485,7 +1491,7 @@ describe('e2e', function () {
     context('in fully accessible environment', function () {
       beforeEach(async function () {
         await fs.mkdir(homedir, { recursive: true });
-        shell = await startTestShell();
+        shell = await startNodbTestShellAndWaitForPrompt(this);
       });
 
       describe('config file', function () {
@@ -1499,7 +1505,7 @@ describe('e2e', function () {
 
         it('persists between sessions', async function () {
           const config1 = await readConfig();
-          await startTestShell();
+          await startNodbTestShellAndWaitForPrompt(this);
           const config2 = await readConfig();
           expect(config1.userId).to.equal(config2.userId);
         });
@@ -1510,7 +1516,7 @@ describe('e2e', function () {
             globalConfig,
             'mongosh:\n  redactHistory: remove-redact'
           );
-          shell = this.startTestShell({
+          shell = startTestShell(this, {
             args: ['--nodb'],
             env,
             globalConfigPath: globalConfig,
@@ -1565,7 +1571,7 @@ describe('e2e', function () {
         it('does not get created if global config has disableLogging', async function () {
           const globalConfig = path.join(homedir, 'globalconfig.conf');
           await fs.writeFile(globalConfig, 'mongosh:\n  disableLogging: true');
-          shell = this.startTestShell({
+          shell = startTestShell(this, {
             args: ['--nodb'],
             env,
             globalConfigPath: globalConfig,
@@ -1584,7 +1590,7 @@ describe('e2e', function () {
         it('gets created if global config has disableLogging set to false', async function () {
           const globalConfig = path.join(homedir, 'globalconfig.conf');
           await fs.writeFile(globalConfig, 'mongosh:\n  disableLogging: false');
-          shell = this.startTestShell({
+          shell = startTestShell(this, {
             args: ['--nodb'],
             env,
             globalConfigPath: globalConfig,
@@ -1619,7 +1625,7 @@ describe('e2e', function () {
               `mongosh:\n  logLocation: "./some-relative-path"`
             );
 
-            shell = this.startTestShell({
+            shell = startTestShell(this, {
               args: ['--nodb'],
               env,
               globalConfigPath: globalConfig,
@@ -1647,7 +1653,7 @@ describe('e2e', function () {
               `mongosh:\n  logLocation: ${JSON.stringify(customLogDir.path)}`
             );
 
-            shell = this.startTestShell({
+            shell = startTestShell(this, {
               args: ['--nodb'],
               env,
               globalConfigPath: globalConfig,
@@ -1780,7 +1786,7 @@ describe('e2e', function () {
               )}\n  logCompressionEnabled: true`
             );
 
-            shell = this.startTestShell({
+            shell = startTestShell(this, {
               args: ['--nodb'],
               env,
               globalConfigPath: globalConfig,
@@ -1847,7 +1853,7 @@ describe('e2e', function () {
 
             expect(await getFilesState(paths)).equals('1111111111');
 
-            shell = this.startTestShell({
+            shell = startTestShell(this, {
               args: ['--nodb'],
               env,
               globalConfigPath: globalConfig,
@@ -1901,7 +1907,7 @@ describe('e2e', function () {
             // All 7 existing log files exist.
             expect(await getFilesState(paths)).to.equal('111111');
 
-            shell = this.startTestShell({
+            shell = startTestShell(this, {
               args: ['--nodb'],
               env: {
                 ...env,
@@ -1940,7 +1946,7 @@ describe('e2e', function () {
 
             // All 10 existing log files exist.
             expect(await getFilesState(paths)).to.equal('1111111111');
-            shell = this.startTestShell({
+            shell = startTestShell(this, {
               args: ['--nodb'],
               env,
               globalConfigPath: globalConfig,
@@ -1988,7 +1994,7 @@ describe('e2e', function () {
 
             // All 10 existing log files exist.
             expect(await getFilesState(paths)).to.equal('1111111111');
-            shell = this.startTestShell({
+            shell = startTestShell(this, {
               args: ['--nodb'],
               env,
               globalConfigPath: globalConfig,
@@ -2178,7 +2184,7 @@ describe('e2e', function () {
         });
 
         it('flushes log file (normal exit)', async function () {
-          const shell = this.startTestShell({
+          const shell = startTestShell(this, {
             args: [
               '--nodb',
               '--eval',
@@ -2197,7 +2203,7 @@ describe('e2e', function () {
         });
 
         it('flushes log file (exception thrown)', async function () {
-          const shell = this.startTestShell({
+          const shell = startTestShell(this, {
             args: [
               '--nodb',
               '--eval',
@@ -2224,7 +2230,7 @@ describe('e2e', function () {
           shell.writeInput('.exit\n');
           await shell.waitForSuccessfulExit();
 
-          shell = await startTestShell();
+          shell = await startNodbTestShellAndWaitForPrompt(this);
           // Arrow up twice to skip the .exit line
           shell.writeInput('\u001b[A\u001b[A');
           await eventually(() => {
@@ -2272,12 +2278,12 @@ describe('e2e', function () {
         });
 
         it('loads .mongoshrc.js if it is there', async function () {
-          shell = await startTestShell();
+          shell = await startNodbTestShellAndWaitForPrompt(this);
           shell.assertContainsOutput('hi from mongoshrc');
         });
 
         it('does not load .mongoshrc.js if --norc is passed', async function () {
-          shell = await startTestShell('--norc');
+          shell = await startNodbTestShellAndWaitForPrompt(this, '--norc');
           shell.assertNotContainsOutput('hi from mongoshrc');
         });
       });
@@ -2308,7 +2314,10 @@ describe('e2e', function () {
 
         it('shows an update notification if a newer version is available', async function () {
           {
-            const shell = await startTestShell('--quiet');
+            const shell = await startNodbTestShellAndWaitForPrompt(
+              this,
+              '--quiet'
+            );
             await shell.executeLine(
               `config.set("updateURL", ${JSON.stringify(httpServerUrl)})`
             );
@@ -2321,7 +2330,7 @@ describe('e2e', function () {
           env.MONGOSH_ASSUME_DIFFERENT_VERSION_FOR_UPDATE_NOTIFICATION_TEST =
             '1.0.0';
           {
-            const shell = await startTestShell();
+            const shell = await startNodbTestShellAndWaitForPrompt(this);
             await eventually(async () => {
               expect(
                 JSON.parse(
@@ -2337,7 +2346,7 @@ describe('e2e', function () {
           }
 
           {
-            const shell = await startTestShell();
+            const shell = await startNodbTestShellAndWaitForPrompt(this);
             shell.writeInputLine('exit');
             await shell.waitForSuccessfulExit();
             shell.assertContainsOutput(
@@ -2351,7 +2360,7 @@ describe('e2e', function () {
     context('in a restricted environment', function () {
       it('keeps working when the home directory cannot be created at all', async function () {
         await fs.writeFile(homedir, 'this is a file and not a directory');
-        const shell = await startTestShell();
+        const shell = await startNodbTestShellAndWaitForPrompt(this);
         await eventually(() => {
           expect(shell.output).to.include('Warning: Could not access file:');
         });
@@ -2365,7 +2374,7 @@ describe('e2e', function () {
       it('keeps working when the log files cannot be created', async function () {
         await fs.mkdir(path.dirname(logBasePath), { recursive: true });
         await fs.writeFile(logBasePath, 'also not a directory');
-        const shell = await startTestShell();
+        const shell = await startNodbTestShellAndWaitForPrompt(this);
         await eventually(() => {
           expect(shell.output).to.include('Warning: Could not access file:');
         });
@@ -2390,7 +2399,7 @@ describe('e2e', function () {
         await fs.mkdir(path.dirname(configPath), { recursive: true });
         await fs.writeFile(configPath, '{}');
         await fs.chmod(configPath, 0); // Remove all permissions
-        const shell = await startTestShell();
+        const shell = await startNodbTestShellAndWaitForPrompt(this);
         await eventually(() => {
           expect(shell.output).to.include('Warning: Could not access file:');
         });
@@ -2427,7 +2436,7 @@ describe('e2e', function () {
       skipIfServerVersion(testServer, '> 4.4');
 
       it('errors if an API version is specified', async function () {
-        const shell = this.startTestShell({
+        const shell = startTestShell(this, {
           args: [
             await testServer.connectionString({}, { pathname: `/${dbName}` }),
             '--apiVersion',
@@ -2445,7 +2454,7 @@ describe('e2e', function () {
       skipIfServerVersion(testServer, '<= 4.4');
 
       it('can specify an API version', async function () {
-        const shell = this.startTestShell({
+        const shell = startTestShell(this, {
           args: [
             await testServer.connectionString({}, { pathname: `/${dbName}` }),
             '--apiVersion',
@@ -2461,7 +2470,7 @@ describe('e2e', function () {
       });
 
       it('can specify an API version and strict mode', async function () {
-        const shell = this.startTestShell({
+        const shell = startTestShell(this, {
           args: [
             await testServer.connectionString({}, { pathname: `/${dbName}` }),
             '--apiVersion',
@@ -2480,7 +2489,7 @@ describe('e2e', function () {
 
       it('can iterate cursors', async function () {
         // Make sure SERVER-55593 doesn't happen to us.
-        const shell = this.startTestShell({
+        const shell = startTestShell(this, {
           args: [
             await testServer.connectionString({}, { pathname: `/${dbName}` }),
             '--apiVersion',
@@ -2502,7 +2511,7 @@ describe('e2e', function () {
 
   describe('fail-fast connections', function () {
     it('fails fast for ENOTFOUND errors', async function () {
-      const shell = this.startTestShell({
+      const shell = startTestShell(this, {
         args: [
           'mongodb://' +
             'verymuchnonexistentdomainname'.repeat(4) +
@@ -2516,7 +2525,7 @@ describe('e2e', function () {
     it('fails fast for ENOTFOUND/EINVAL errors', async function () {
       // Very long & nonexistent domain can result in EINVAL in Node.js >= 20.11
       // In lower versions, it would be ENOTFOUND
-      const shell = this.startTestShell({
+      const shell = startTestShell(this, {
         args: [
           'mongodb://' +
             'verymuchnonexistentdomainname'.repeat(10) +
@@ -2528,7 +2537,7 @@ describe('e2e', function () {
     });
 
     it('fails fast for ECONNREFUSED errors to a single host', async function () {
-      const shell = this.startTestShell({ args: ['--port', '1'] });
+      const shell = startTestShell(this, { args: ['--port', '1'] });
       const result = await shell.waitForPromptOrExit();
       expect(result).to.deep.equal({ state: 'exit', exitCode: 1 });
     });
@@ -2540,7 +2549,7 @@ describe('e2e', function () {
         // isn't a shell-specific issue.
         return this.skip();
       }
-      const shell = this.startTestShell({
+      const shell = startTestShell(this, {
         args: [
           'mongodb://127.0.0.1:1,127.0.0.2:1,127.0.0.3:1/?replicaSet=foo&readPreference=secondary',
         ],
@@ -2554,7 +2563,7 @@ describe('e2e', function () {
     let shell: TestShell;
 
     beforeEach(async function () {
-      shell = this.startTestShell({
+      shell = startTestShell(this, {
         args: [await testServer.connectionString()],
       });
       await shell.waitForPrompt();
@@ -2594,7 +2603,7 @@ describe('e2e', function () {
     let shell: TestShell;
 
     beforeEach(function () {
-      shell = this.startTestShell({
+      shell = startTestShell(this, {
         args: [],
         env: { ...process.env, MONGOSH_FORCE_CONNECTION_STRING_PROMPT: '1' },
         forceTerminal: true,
@@ -2619,7 +2628,7 @@ describe('e2e', function () {
 
   describe('with incomplete loadBalanced connectivity', function () {
     it('prints a warning at startup', async function () {
-      const shell = this.startTestShell({
+      const shell = startTestShell(this, {
         args: ['mongodb://localhost:1/?loadBalanced=true'],
       });
       await shell.waitForPrompt();
@@ -2641,7 +2650,7 @@ describe('e2e', function () {
         'fixtures',
         'simple-console-log.js'
       );
-      const shell = this.startTestShell({
+      const shell = startTestShell(this, {
         args: [filename],
         env: { ...process.env, MONGOSH_RUN_NODE_SCRIPT: '1' },
       });
@@ -2659,10 +2668,10 @@ describe('e2e', function () {
       const OPERATION_TIME = CURRENT_OP_WAIT_TIME * 2;
 
       beforeEach(async function () {
-        helperShell = this.startTestShell({
+        helperShell = startTestShell(this, {
           args: [await testServer.connectionString()],
         });
-        currentOpShell = this.startTestShell({
+        currentOpShell = startTestShell(this, {
           args: [await testServer.connectionString()],
         });
         await helperShell.waitForPrompt();

@@ -4,6 +4,7 @@ import { expect } from 'chai';
 import type { TestShell } from './test-shell';
 import { useTmpdir } from './repl-helpers';
 import { eventually } from '@mongosh/testing';
+import { startTestShell } from './test-shell-context';
 
 describe('snippet integration tests', function () {
   this.timeout(120_000);
@@ -19,7 +20,7 @@ describe('snippet integration tests', function () {
     }
 
     makeTestShell = () =>
-      this.startTestShell({
+      startTestShell(this, {
         args: ['--nodb'],
         cwd: tmpdir.path,
         env: {

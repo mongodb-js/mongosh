@@ -28,6 +28,7 @@ import {
   commonOidcServerArgs,
   skipOIDCTestsDueToPlatformOrServerVersion,
 } from './oidc-helpers';
+import { startTestShell } from './test-shell-context';
 
 const CA_CERT = getCertPath('ca.crt');
 const SERVER_BUNDLE = getCertPath('server.bundle.pem');
@@ -126,7 +127,7 @@ describe('e2e proxy support', function () {
   });
 
   it('can connect using an HTTP proxy', async function () {
-    const shell = this.startTestShell({
+    const shell = startTestShell(this, {
       args: [await testServer.connectionString()],
       env: {
         ...process.env,
@@ -146,7 +147,7 @@ describe('e2e proxy support', function () {
   });
 
   it('can connect using an HTTP proxy with auth', async function () {
-    const shell = this.startTestShell({
+    const shell = startTestShell(this, {
       args: [await testServer.connectionString()],
       env: {
         ...process.env,
@@ -168,7 +169,7 @@ describe('e2e proxy support', function () {
   });
 
   it('can connect using an HTTP proxy specified via ALL_PROXY', async function () {
-    const shell = this.startTestShell({
+    const shell = startTestShell(this, {
       args: [await testServer.connectionString()],
       env: {
         ...process.env,
@@ -190,7 +191,7 @@ describe('e2e proxy support', function () {
   });
 
   it('can connect using an HTTPS proxy (explicit CA on command line)', async function () {
-    const shell = this.startTestShell({
+    const shell = startTestShell(this, {
       args: [await testServer.connectionString(), '--tlsCAFile', CA_CERT],
       env: {
         ...process.env,
@@ -210,7 +211,7 @@ describe('e2e proxy support', function () {
   });
 
   it('can connect using an HTTPS proxy (CA in connection string)', async function () {
-    const shell = this.startTestShell({
+    const shell = startTestShell(this, {
       args: [await testServer.connectionString({ tlsCAFile: CA_CERT })],
       env: {
         ...process.env,
@@ -237,7 +238,7 @@ describe('e2e proxy support', function () {
       path.join(tmpdir.path, 'certs', 'somefilename.crt')
     );
 
-    const shell = this.startTestShell({
+    const shell = startTestShell(this, {
       args: [await testServer.connectionString()],
       env: {
         ...process.env,
@@ -258,7 +259,7 @@ describe('e2e proxy support', function () {
   });
 
   it('fails to connect using HTTPS proxy (no CA)', async function () {
-    const shell = this.startTestShell({
+    const shell = startTestShell(this, {
       args: [await testServer.connectionString({ connectTimeoutMS: '2000' })],
       env: {
         ...process.env,
@@ -286,7 +287,7 @@ describe('e2e proxy support', function () {
     });
 
     it('can connect using an HTTP proxy', async function () {
-      const shell = this.startTestShell({
+      const shell = startTestShell(this, {
         args: [
           await connectionStringWithLocalhost(tlsServer, {
             tlsCAFile: CA_CERT,
@@ -311,7 +312,7 @@ describe('e2e proxy support', function () {
     });
 
     it('can connect using an HTTPS proxy', async function () {
-      const shell = this.startTestShell({
+      const shell = startTestShell(this, {
         args: [
           await connectionStringWithLocalhost(tlsServer, {
             tlsCAFile: CA_CERT,
@@ -337,7 +338,7 @@ describe('e2e proxy support', function () {
   });
 
   it('will exclude a proxy host specified in NO_PROXY', async function () {
-    const shell = this.startTestShell({
+    const shell = startTestShell(this, {
       args: [await testServer.connectionString()],
       env: {
         ...process.env,
@@ -451,7 +452,7 @@ describe('e2e proxy support', function () {
     });
 
     it('can route all traffic through the proxy', async function () {
-      const shell = this.startTestShell({
+      const shell = startTestShell(this, {
         args: [
           await oidcTestServer.connectionString({}, { username: 'testuser' }),
           '--authenticationMechanism=MONGODB-OIDC',
@@ -495,7 +496,7 @@ describe('e2e proxy support', function () {
     });
 
     it('can route only http traffic through the proxy', async function () {
-      const shell = this.startTestShell({
+      const shell = startTestShell(this, {
         args: [
           await oidcTestServer.connectionString({}, { username: 'testuser' }),
           '--authenticationMechanism=MONGODB-OIDC',
@@ -554,7 +555,7 @@ describe('e2e proxy support', function () {
           })().catch(console.error);
         }
       );
-      const shell = this.startTestShell({
+      const shell = startTestShell(this, {
         args: [
           await oidcTestServer.connectionString({}, { username: 'testuser' }),
           '--authenticationMechanism=MONGODB-OIDC',
@@ -599,7 +600,7 @@ describe('e2e proxy support', function () {
     });
 
     it('can route all traffic through the proxy (https, incomplete without CA)', async function () {
-      const shell = this.startTestShell({
+      const shell = startTestShell(this, {
         args: [
           await oidcTestServer.connectionString(
             {},

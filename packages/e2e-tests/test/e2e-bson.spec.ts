@@ -4,6 +4,7 @@ import { MongoClient } from 'mongodb';
 import * as bson from 'bson';
 import type { TestShell } from './test-shell';
 import { startSharedTestServer } from '@mongosh/testing';
+import { startTestShell } from './test-shell-context';
 
 describe('BSON e2e', function () {
   const testServer = startSharedTestServer();
@@ -15,7 +16,7 @@ describe('BSON e2e', function () {
   beforeEach(async function () {
     const connectionString = await testServer.connectionString();
     dbName = `test-${Date.now()}`;
-    shell = this.startTestShell({ args: [connectionString] });
+    shell = startTestShell(this, { args: [connectionString] });
 
     client = await MongoClient.connect(connectionString, {});
 
@@ -674,7 +675,7 @@ describe('BSON e2e', function () {
 
     it('can explicitly disable full-depth nesting (interactive mode)', async function () {
       shell.kill();
-      shell = this.startTestShell({
+      shell = startTestShell(this, {
         args: [await testServer.connectionString(), '--deepInspect=false'],
       });
       await shell.waitForPrompt();
@@ -686,7 +687,7 @@ describe('BSON e2e', function () {
 
     it('does not deeply inspect objects in non-interactive mode for intermediate output', async function () {
       shell.kill();
-      shell = this.startTestShell({
+      shell = startTestShell(this, {
         args: [
           await testServer.connectionString(),
           '--eval',
@@ -694,7 +695,7 @@ describe('BSON e2e', function () {
         ],
       });
       checkForDeepOutput(await shell.waitForCleanOutput(), false);
-      shell = this.startTestShell({
+      shell = startTestShell(this, {
         args: [
           await testServer.connectionString(),
           '--eval',
@@ -706,7 +707,7 @@ describe('BSON e2e', function () {
 
     it('inspect full objects in non-interactive mode for final output', async function () {
       shell.kill();
-      shell = this.startTestShell({
+      shell = startTestShell(this, {
         args: [
           await testServer.connectionString(),
           '--eval',
@@ -714,7 +715,7 @@ describe('BSON e2e', function () {
         ],
       });
       checkForDeepOutput(await shell.waitForCleanOutput(), true);
-      shell = this.startTestShell({
+      shell = startTestShell(this, {
         args: [
           await testServer.connectionString(),
           '--eval',
@@ -726,7 +727,7 @@ describe('BSON e2e', function () {
 
     it('can explicitly disable full-depth nesting (non-interactive mode)', async function () {
       shell.kill();
-      shell = this.startTestShell({
+      shell = startTestShell(this, {
         args: [
           await testServer.connectionString(),
           '--deepInspect=false',
@@ -735,7 +736,7 @@ describe('BSON e2e', function () {
         ],
       });
       checkForDeepOutput(await shell.waitForCleanOutput(), false);
-      shell = this.startTestShell({
+      shell = startTestShell(this, {
         args: [
           await testServer.connectionString(),
           '--deepInspect=false',
