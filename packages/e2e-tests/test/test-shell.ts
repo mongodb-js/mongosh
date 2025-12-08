@@ -9,7 +9,7 @@ import { inspect } from 'util';
 import path from 'path';
 import stripAnsi from 'strip-ansi';
 import { EJSON } from 'bson';
-import { eventually } from '../../testing/src/eventually';
+import { eventually } from '@mongosh/testing';
 
 /* eslint-disable mocha/no-exports -- This file export hooks wrapping Mocha's Hooks APIs */
 
