@@ -18,8 +18,7 @@
     "url": "git+https://github.com/mongodb-js/mongosh.git"
   },
   "scripts": {
-    "check": "npm run lint && npm run depcheck",
-    "depcheck": "depcheck",
+    "check": "npm run lint",
     "compile": "tsc -p tsconfig.json",
     "eslint": "eslint",
     "lint": "npm run eslint . && npm run prettier -- --check .",
@@ -44,7 +43,6 @@
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
     "mongodb": "^6.19.0",
     "prettier": "^2.8.8"

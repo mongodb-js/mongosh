@@ -12,9 +12,8 @@
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
     "eslint": "eslint",
     "lint": "npm run eslint . && npm run prettier -- --check .",
-    "check": "npm run lint && npm run depcheck",
-    "depcheck": "depcheck",
-    "compile": "node bin/make-runtime-support.js --firstpass && tsc -p tsconfig.json && node bin/make-runtime-support.js --secondpass && tsc -p tsconfig.json",
+    "check": "npm run lint",
+    "compile": "node scripts/make-runtime-support.js --firstpass && tsc -p tsconfig.json && node scripts/make-runtime-support.js --secondpass && tsc -p tsconfig.json",
     "prepublish": "npm run compile",
     "prettier": "prettier",
     "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
@@ -51,7 +50,6 @@
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@types/babel__core": "^7.20.1",
-    "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
     "prettier": "^2.8.8"
   }
