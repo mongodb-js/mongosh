@@ -104,7 +104,7 @@ describe('FLE tests', function () {
       const secretAccessKey = '44mjXTk34uMUmORma3w1viIAx4RCUv78bzwDY0R7';
       const sessionToken = 'WXWHMnniSqij0CH27KK7H';
       async function makeTestShell(ctx: Mocha.Context): Promise<TestShell> {
-        const shell = ctx.startTestShell({
+        const shell = startTestShell(ctx, {
           args: [
             `--cryptSharedLibPath=${cryptLibrary}`,
             ...(withEnvVarCredentials
