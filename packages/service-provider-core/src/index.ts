@@ -3,7 +3,6 @@ import ServiceProvider, { ServiceProviderCore } from './service-provider';
 import getConnectExtraInfo, { ConnectionExtraInfo } from './connect-info';
 import type { ReplPlatform } from './platform';
 const DEFAULT_DB = 'test';
-import { bsonStringifiers } from './printable-bson';
 import ShellAuthOptions from './shell-auth-options';
 export * from './all-transport-types';
 export * from './all-fle-types';
@@ -17,8 +16,6 @@ export {
   CheckMetadataConsistencyOptions,
   ConnectionInfo,
 } from './admin';
-
-export { bson } from './bson-export';
 
 export {
   ServiceProviderAbstractCursor,
@@ -36,6 +33,5 @@ export {
   ReplPlatform,
   DEFAULT_DB,
   ServiceProviderCore,
-  bsonStringifiers,
   ConnectionExtraInfo,
 };

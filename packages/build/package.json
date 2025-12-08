@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/build",
-  "version": "3.7.4",
+  "version": "3.7.8",
   "private": true,
   "description": "MongoDB Shell Build Tools",
   "main": "lib/index.js",
@@ -82,7 +82,7 @@
     "rimraf": "^3.0.2",
     "semver": "^7.5.3",
     "tar": "^6.1.15",
-    "tar-fs": "^2.1.0",
+    "tar-fs": "^2.1.4",
     "tmp-promise": "^3.0.2"
   }
 }

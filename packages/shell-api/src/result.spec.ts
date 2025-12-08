@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as results from './result';
 import { signatures, toShellResult } from './decorators';
-import { bson } from '@mongosh/service-provider-core';
+import * as bson from 'bson';
 
 describe('Results', function () {
   describe('signatures', function () {

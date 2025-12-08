@@ -556,6 +556,39 @@ export default class Shard<
       )) as UpdateResult;
   }
 
+  private async _setAllowMigrations(
+    ns: string,
+    allowMigrations: boolean
+  ): Promise<Document> {
+    const apiCall = `${allowMigrations ? 'enable' : 'disable'}Migrations`;
+    assertArgsDefinedType([ns], ['string'], `Shard.${apiCall}`);
+    this._emitShardApiCall(apiCall, { ns });
+
+    const helloResult = await this._database._maybeCachedHello();
+    if (helloResult.msg !== 'isdbgrid') {
+      await this._database._instanceState.printWarning(
+        'MongoshWarning: [SHAPI-10003] You are not connected to a mongos. This command may not work as expected.'
+      );
+    }
+
+    return await this._database._runAdminCommand({
+      setAllowMigrations: ns,
+      allowMigrations,
+    });
+  }
+
+  @returnsPromise
+  @apiVersions([])
+  async enableMigrations(ns: string): Promise<Document> {
+    return await this._setAllowMigrations(ns, true);
+  }
+
+  @returnsPromise
+  @apiVersions([])
+  async disableMigrations(ns: string): Promise<Document> {
+    return await this._setAllowMigrations(ns, false);
+  }
+
   @returnsPromise
   @apiVersions([])
   async getBalancerState(): Promise<boolean> {

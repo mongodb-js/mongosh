@@ -3,7 +3,7 @@ import type {
   ServiceProvider,
   BulkWriteResult as SPBulkWriteResult,
 } from '@mongosh/service-provider-core';
-import { bson } from '@mongosh/service-provider-core';
+import * as bson from 'bson';
 import { fail } from 'assert';
 import chai, { expect } from 'chai';
 import sinonChai from 'sinon-chai';

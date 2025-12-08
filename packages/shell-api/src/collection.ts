@@ -525,7 +525,12 @@ export class Collection<
         CommonErrors.InvalidArgument
       );
     }
-    reducedOptions.projection ??= reducedOptions.fields;
+    if (
+      reducedOptions.projection === undefined &&
+      reducedOptions.fields !== undefined
+    ) {
+      reducedOptions.projection ??= reducedOptions.fields;
+    }
     delete (reducedOptions as any).query;
     delete (reducedOptions as any).update;
     delete (reducedOptions as any).fields;

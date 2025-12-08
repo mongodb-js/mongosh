@@ -1,5 +1,5 @@
 import { MongoshInternalError } from '@mongosh/errors';
-import { bson } from '@mongosh/service-provider-core';
+import { EJSON, ObjectId } from 'bson';
 import { once } from 'events';
 import { promises as fs } from 'fs';
 import type { Server as HTTPServer } from 'http';
@@ -34,7 +34,6 @@ import type { AddressInfo } from 'net';
 import sinon from 'sinon';
 import type { CliUserConfig } from '@mongosh/types';
 import { MongoLogWriter, MongoLogManager } from 'mongodb-log-writer';
-const { EJSON } = bson;
 
 const delay = promisify(setTimeout);
 
@@ -475,10 +474,7 @@ describe('CliRepl', function () {
           tmpdir.path,
           '60a0064774d771e863d9a1e1_log'
         );
-        const newerlogfile = path.join(
-          tmpdir.path,
-          `${new bson.ObjectId()}_log`
-        );
+        const newerlogfile = path.join(tmpdir.path, `${new ObjectId()}_log`);
         await fs.writeFile(oldlogfile, 'ignoreme');
         await fs.writeFile(newerlogfile, 'ignoreme');
         cliRepl = new CliRepl(cliReplOptions);
@@ -2777,19 +2773,19 @@ describe('CliRepl', function () {
       (process as any).version = actualVersions.node;
     });
 
-    it('prints a deprecation warning when running on platforms with GLIBC < 2.28, otherwise not', async function () {
-      for (const { version, deprecated } of [
-        { version: '3.0+glibcstring', deprecated: false },
-        { version: '2.28.2', deprecated: false },
-        { version: '2.28', deprecated: false },
-        // This might look like is deprecated but since this is not a valid
-        // semver even after co-ercion, we don't push warnings for such versions
-        { version: '1.08', deprecated: false },
-        { version: '2.21', deprecated: true },
-        { version: '2.21-glibcstring', deprecated: true },
-        { version: '2.21.4', deprecated: true },
-        { version: '1.3.8', deprecated: true },
-      ]) {
+    for (const { version, deprecated } of [
+      { version: '3.0+glibcstring', deprecated: false },
+      { version: '2.28.2', deprecated: false },
+      { version: '2.28', deprecated: false },
+      // This might look like is deprecated but since this is not a valid
+      // semver even after co-ercion, we don't push warnings for such versions
+      { version: '1.08', deprecated: false },
+      { version: '2.21', deprecated: true },
+      { version: '2.21-glibcstring', deprecated: true },
+      { version: '2.21.4', deprecated: true },
+      { version: '1.3.8', deprecated: true },
+    ]) {
+      it(`prints a deprecation warning when running on platforms with GLIBC < 2.28, otherwise not (version=${version})`, async function () {
         cliRepl = new CliRepl(cliReplOptions);
         cliRepl.getGlibcVersion = () => version;
         await cliRepl.start('', {});
@@ -2807,8 +2803,8 @@ describe('CliRepl', function () {
             'Using mongosh on the current operating system is deprecated, and support may be removed in a future release.'
           );
         }
-      }
-    });
+      });
+    }
 
     it('does not print a platform unsupported deprecation warning when GLIBC information is not present (non-linux systems)', async function () {
       cliRepl = new CliRepl(cliReplOptions);
@@ -2820,17 +2816,17 @@ describe('CliRepl', function () {
       );
     });
 
-    it('prints a deprecation warning when running with OpenSSL < 3.0.0, otherwise not', async function () {
-      for (const { version, deprecated } of [
-        { version: '4.0.1+uniqssl', deprecated: false },
-        { version: '4.0', deprecated: false },
-        { version: '3.0+uniqssl', deprecated: false },
-        { version: '3.0', deprecated: false },
-        { version: '2.21', deprecated: true },
-        { version: '2.21-uniqssl', deprecated: true },
-        { version: '2.21.4', deprecated: true },
-        { version: '1.3.8', deprecated: true },
-      ]) {
+    for (const { version, deprecated } of [
+      { version: '4.0.1+uniqssl', deprecated: false },
+      { version: '4.0', deprecated: false },
+      { version: '3.0+uniqssl', deprecated: false },
+      { version: '3.0', deprecated: false },
+      { version: '2.21', deprecated: true },
+      { version: '2.21-uniqssl', deprecated: true },
+      { version: '2.21.4', deprecated: true },
+      { version: '1.3.8', deprecated: true },
+    ]) {
+      it(`prints a deprecation warning when running with OpenSSL < 3.0.0, otherwise not (version=${version})`, async function () {
         delete (process.versions as any).openssl;
         (process.versions as any).openssl = version;
 
@@ -2849,8 +2845,8 @@ describe('CliRepl', function () {
             'Using mongosh with OpenSSL versions lower than 3.0.0 is deprecated, and support may be removed in a future release.'
           );
         }
-      }
-    });
+      });
+    }
 
     it('prints a deprecation warning when running on Node.js < 20.0.0', async function () {
       for (const { version, deprecated } of [

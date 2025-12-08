@@ -2124,6 +2124,18 @@ const translations: Catalog = {
                 'Disable balancing on a single collection in a sharded database. Does not affect balancing of other collections in a sharded cluster.',
               example: 'sh.disableBalancing(ns)',
             },
+            enableMigrations: {
+              link: 'https://mongodb.com/docs/manual/reference/method/sh.enableMigrations',
+              description:
+                'Enables migrations for a specific collection. Uses `setAllowMigrations` admin command.',
+              example: 'sh.enableMigrations(ns)',
+            },
+            disableMigrations: {
+              link: 'https://mongodb.com/docs/manual/reference/method/sh.disableMigrations',
+              description:
+                'Disables migrations for a specific collection. Uses `setAllowMigrations` admin command.',
+              example: 'sh.disableMigrations(ns)',
+            },
             getBalancerState: {
               link: 'https://mongodb.com/docs/manual/reference/method/sh.getBalancerState',
               description:
@@ -2434,7 +2446,7 @@ const translations: Catalog = {
       DBRef: {
         help: {
           description: 'The DBRef BSON Class.',
-          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/DBRef.html',
+          link: 'https://mongodb.github.io/node-mongodb-native/Next/classes/BSON.DBRef.html',
           example:
             'new DBRef(namespace: string, oid: ObjectId, db: string [optional])',
         },
@@ -2443,7 +2455,7 @@ const translations: Catalog = {
       MaxKey: {
         help: {
           description: 'The MaxKey BSON Class.',
-          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/MaxKey.html',
+          link: 'https://mongodb.github.io/node-mongodb-native/Next/classes/BSON.MaxKey.html',
           example: 'new MaxKey()',
         },
         attributes: {},
@@ -2451,7 +2463,7 @@ const translations: Catalog = {
       MinKey: {
         help: {
           description: 'The MinKey BSON Class',
-          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/MinKey.html',
+          link: 'https://mongodb.github.io/node-mongodb-native/Next/classes/BSON.MinKey.html',
           example: 'new MinKey()',
         },
         attributes: {},
@@ -2459,7 +2471,7 @@ const translations: Catalog = {
       ObjectId: {
         help: {
           description: 'The ObjectId BSON Class',
-          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/ObjectID.html',
+          link: 'https://mongodb.github.io/node-mongodb-native/Next/classes/BSON.ObjectId.html',
           example: 'new ObjectId(id: string|number [optional])',
         },
         attributes: {},
@@ -2468,7 +2480,7 @@ const translations: Catalog = {
         help: {
           description:
             'The Symbol BSON Class. Deprecated since server version 1.6',
-          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Symbol.html',
+          link: 'https://mongodb.github.io/node-mongodb-native/Next/classes/BSON.BSONSymbol.html',
           example: 'new BSONSymbol("abc")',
         },
         attributes: {},
@@ -2476,7 +2488,7 @@ const translations: Catalog = {
       Timestamp: {
         help: {
           description: 'The Timestamp BSON Class',
-          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Timestamp.html',
+          link: 'https://mongodb.github.io/node-mongodb-native/Next/classes/BSON.Timestamp.html',
           example:
             'new Timestamp(low: signed 32 bit number, high: signed 32 bit number)',
         },
@@ -2485,7 +2497,7 @@ const translations: Catalog = {
       Code: {
         help: {
           description: 'The Code BSON Class',
-          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Code.html',
+          link: 'https://mongodb.github.io/node-mongodb-native/Next/classes/BSON.Code.html',
           example: 'new Code("x", { x: 1 } [optional])',
         },
         attributes: {},
@@ -2494,7 +2506,7 @@ const translations: Catalog = {
         help: {
           description:
             'A helper method that constructs a Decimal128 BSON Class from a string',
-          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Decimal128.html',
+          link: 'https://mongodb.github.io/node-mongodb-native/Next/classes/BSON.Decimal128.html',
           example: 'NumberDecimal("1.23423423")',
         },
       },
@@ -2502,7 +2514,7 @@ const translations: Catalog = {
         help: {
           description:
             'The Decimal128 BSON Class. Takes a Buffer as an argument.',
-          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Decimal128.html',
+          link: 'https://mongodb.github.io/node-mongodb-native/Next/classes/BSON.Decimal128.html',
         },
         attributes: {},
       },
@@ -2510,14 +2522,14 @@ const translations: Catalog = {
         help: {
           description:
             'A helper method that constructs an Int32 BSON Class from a string',
-          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Int32.html',
+          link: 'https://mongodb.github.io/node-mongodb-native/Next/classes/BSON.Int32.html',
           example: 'NumberInt("123")',
         },
       },
       Int32: {
         help: {
           description: 'The 32-bit Integer BSON Class',
-          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Int32.html',
+          link: 'https://mongodb.github.io/node-mongodb-native/Next/classes/BSON.Int32.html',
           example: 'new Int32(123)',
         },
         attributes: {},
@@ -2525,7 +2537,7 @@ const translations: Catalog = {
       Long: {
         help: {
           description: 'The Long BSON Class',
-          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Long.html',
+          link: 'https://mongodb.github.io/node-mongodb-native/Next/classes/BSON.Long.html',
           example:
             'new Long(low: signed 32 bit number, high: signed 32 bit number)',
         },
@@ -2534,7 +2546,7 @@ const translations: Catalog = {
       Double: {
         help: {
           description: 'The Double BSON Class.',
-          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Long.html',
+          link: 'https://mongodb.github.io/node-mongodb-native/Next/classes/BSON.Double.html',
           example: 'new Double(123)',
         },
         attributes: {},
@@ -2543,7 +2555,7 @@ const translations: Catalog = {
         help: {
           description:
             'A helper method that constructs a Long BSON Class from a string',
-          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Long.html',
+          link: 'https://mongodb.github.io/node-mongodb-native/Next/classes/BSON.Long.html',
           example: 'NumberLong("123")',
         },
       },
@@ -2560,7 +2572,7 @@ const translations: Catalog = {
       BinData: {
         help: {
           description: 'A helper method that constructs a Binary BSON Class.',
-          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Binary.html',
+          link: 'https://mongodb.github.io/node-mongodb-native/Next/classes/BSON.Binary.html',
           example: 'BinData(subtype: number, base64string)',
         },
       },
@@ -2568,7 +2580,7 @@ const translations: Catalog = {
         help: {
           description:
             'The Binary BSON Class that takes in (Buffer, subtype: number) as arguments.',
-          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Binary.html',
+          link: 'https://mongodb.github.io/node-mongodb-native/Next/classes/BSON.Binary.html',
         },
         attributes: {
           SUBTYPE_BYTE_ARRAY: {
@@ -2881,6 +2893,10 @@ const translations: Catalog = {
             listConnections: {
               description:
                 'Show a list of all the named connections for this instance from the Connection Registry.',
+            },
+            listWorkspaceDefaults: {
+              description:
+                'Show the default tier and maxTierSize for the stream processor workspace.',
             },
           },
         },

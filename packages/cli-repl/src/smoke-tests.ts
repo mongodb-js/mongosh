@@ -82,6 +82,7 @@ export async function runSmokeTests({
     });
   }
   const perfResults: PerfTestResult[] = [];
+  const commonPerfTags = [process.arch, process.platform];
 
   for (const {
     name,
@@ -365,7 +366,7 @@ export async function runSmokeTests({
         perfResults.push({
           info: {
             test_name: name,
-            tags: [...(tags ?? []), process.arch, process.platform],
+            tags: [...(tags ?? []), ...commonPerfTags],
           },
           created_at,
           completed_at,
@@ -378,6 +379,22 @@ export async function runSmokeTests({
     }
   }
   if (wantPerformanceTesting) {
+    perfResults.push({
+      info: {
+        test_name: 'executable_size',
+        tags: [...commonPerfTags],
+      },
+      created_at: new Date().toISOString(),
+      completed_at: new Date().toISOString(),
+      artifacts: [],
+      metrics: [
+        {
+          name: 'size_bytes_mean',
+          type: 'MEAN',
+          value: (await fs.stat(process.execPath)).size,
+        },
+      ],
+    });
     console.log(JSON.stringify(perfResults));
   } else {
     console.log('all tests passed');

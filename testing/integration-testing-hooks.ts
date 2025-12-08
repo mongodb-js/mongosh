@@ -1,22 +1,16 @@
+/* eslint-disable mocha/no-exports */
 import child_process from 'child_process';
 import { promises as fs } from 'fs';
-import { MongoClient, MongoClientOptions } from 'mongodb';
+import { MongoClient, type MongoClientOptions } from 'mongodb';
 import path from 'path';
 import semver from 'semver';
 import { promisify } from 'util';
 import which from 'which';
+import { MongoCluster, type MongoClusterOptions } from 'mongodb-runner';
 import { ConnectionString } from 'mongodb-connection-string-url';
-import { MongoCluster, MongoClusterOptions } from 'mongodb-runner';
-import { downloadCryptLibrary } from '../packages/build/src/packaging/download-crypt-library';
+import { downloadCryptLibrary } from '@mongosh/build';
 
 const execFile = promisify(child_process.execFile);
-
-const isCI = !!process.env.IS_CI;
-function ciLog(...args: any[]) {
-  if (isCI) {
-    console.error(...args);
-  }
-}
 
 // Return the path to the temporary directory and ensure that it exists.
 async function getTmpdir(): Promise<string> {
@@ -26,6 +20,7 @@ async function getTmpdir(): Promise<string> {
 }
 
 // Represents one running test server instance.
+// eslint-disable-next-line mocha/no-exports
 export class MongodSetup {
   _connectionString: Promise<string>;
   _setConnectionString: (connectionString: string) => void;
@@ -34,8 +29,10 @@ export class MongodSetup {
   _bindir = '';
 
   constructor(connectionString?: string) {
-    this._setConnectionString = (connectionString: string) => {};  // Make TypeScript happy.
-    this._connectionString = new Promise(resolve => {
+    this._setConnectionString = () => {
+      // no-op to make TypeScript happy.
+    };
+    this._connectionString = new Promise((resolve) => {
       this._setConnectionString = resolve;
     });
 
@@ -45,15 +42,21 @@ export class MongodSetup {
   }
 
   async start(): Promise<void> {
-    throw new Error('Server not managed');
+    await Promise.reject(new Error('Server not managed'));
   }
 
   async stop(): Promise<void> {
-    throw new Error('Server not managed');
+    await Promise.reject(new Error('Server not managed'));
   }
 
-  async connectionString(searchParams: Partial<Record<keyof MongoClientOptions, string>> = {}, uriOptions: Partial<ConnectionString> = {}): Promise<string> {
-    if (Object.keys(searchParams).length + Object.keys(uriOptions).length === 0) {
+  async connectionString(
+    searchParams: Partial<Record<keyof MongoClientOptions, string>> = {},
+    uriOptions: Partial<ConnectionString> = {}
+  ): Promise<string> {
+    if (
+      Object.keys(searchParams).length + Object.keys(uriOptions).length ===
+      0
+    ) {
       return this._connectionString;
     }
 
@@ -82,7 +85,7 @@ export class MongodSetup {
       return this._serverVersion;
     }
 
-    const { version } = await this.withClient(async client => {
+    const { version } = await this.withClient(async (client) => {
       return await client.db('db1').admin().serverStatus();
     });
     this._serverVersion = version;
@@ -94,7 +97,7 @@ export class MongodSetup {
       return this._isCommunityServer;
     }
 
-    const { modules } = await this.withClient(async client => {
+    const { modules } = await this.withClient(async (client) => {
       return await client.db('db1').admin().command({ buildInfo: 1 });
     });
     const isCommunityServer = !modules.includes('enterprise');
@@ -109,7 +112,7 @@ export class MongodSetup {
       return await fn(client);
     } finally {
       if (client) {
-        client.close();
+        await client.close();
       }
     }
   }
@@ -123,8 +126,15 @@ export class MongodSetup {
 export class MongoRunnerSetup extends MongodSetup {
   private static _usedDirPrefix: Record<string, 0> = {};
 
-  private static _buildDirPath(id: string, version?: string, topology?: string) {
-    const prefix = [id, version, topology].filter(Boolean).join('-').replace(/[^a-zA-Z0-9_.-]/g, '');
+  private static _buildDirPath(
+    id: string,
+    version?: string,
+    topology?: string
+  ) {
+    const prefix = [id, version, topology]
+      .filter(Boolean)
+      .join('-')
+      .replace(/[^a-zA-Z0-9_.-]/g, '');
 
     this._usedDirPrefix[prefix] ??= 0;
 
@@ -148,15 +158,20 @@ export class MongoRunnerSetup extends MongodSetup {
     if (this._cluster) return;
     const tmpDir = await getTmpdir();
     const version = process.env.MONGOSH_SERVER_TEST_VERSION;
-    const dirPath = MongoRunnerSetup._buildDirPath(this._id, version, this._opts.topology);
+    const dirPath = MongoRunnerSetup._buildDirPath(
+      this._id,
+      version,
+      this._opts.topology
+    );
 
     this._cluster = await MongoCluster.start({
       topology: 'standalone',
       tmpDir: path.join(tmpDir, 'mongodb-runner', 'dbs', dirPath),
       logDir: path.join(tmpDir, 'mongodb-runner', 'logs', dirPath),
+      downloadDir: path.join(tmpDir, 'mongodb-runner'),
       version: version,
-      ...this._opts
-    })
+      ...this._opts,
+    });
 
     this._setConnectionString(this._cluster.connectionString);
   }
@@ -170,15 +185,23 @@ export class MongoRunnerSetup extends MongodSetup {
 async function getInstalledMongodVersion(): Promise<string> {
   await Promise.all([which('mongod'), which('mongos')]);
   const { stdout } = await execFile('mongod', ['--version']);
-  const { version } = stdout.match(/^db version (?<version>.+)$/m)!.groups as any;
+  const { version } = stdout.match(/^db version (?<version>.+)$/m)!
+    .groups as any;
   return version;
 }
 
-export async function downloadCurrentCryptSharedLibrary(): Promise<string> {
+export async function downloadCurrentCryptSharedLibrary(
+  versionSpec?: string
+): Promise<string> {
   if (process.platform === 'linux') {
-    return (await downloadCryptLibrary(`linux-${process.arch.replace('ppc64', 'ppc64le')}` as any)).cryptLibrary;
+    return (
+      await downloadCryptLibrary(
+        `linux-${process.arch.replace('ppc64', 'ppc64le')}` as any,
+        versionSpec
+      )
+    ).cryptLibrary;
   }
-  return (await downloadCryptLibrary('host')).cryptLibrary;
+  return (await downloadCryptLibrary('host', versionSpec)).cryptLibrary;
 }
 
 /**
@@ -188,22 +211,24 @@ export async function downloadCurrentCryptSharedLibrary(): Promise<string> {
  * @export
  * @returns {MongodSetup} - Object with information about the started server.
  */
-let sharedSetup : MongodSetup | null = null;
-export function startTestServer(id: string, args: Partial<MongoClusterOptions> = {}): MongodSetup {
+let sharedSetup: MongodSetup | null = null;
+export function startTestServer(
+  id: string,
+  args: Partial<MongoClusterOptions> = {}
+): MongodSetup {
   const server = new MongoRunnerSetup(id, args);
-  before(async function() {
-    this.timeout(120_000);  // Include potential mongod download time.
+  before(async function () {
+    this.timeout(120_000); // Include potential mongod download time.
     await server.start();
   });
 
-  after(async function() {
+  after(async function () {
     this.timeout(30_000);
     await server.stop();
   });
 
   return server;
 }
-
 
 /**
  * Starts or reuse an existing shared local server managed by this process.
@@ -223,8 +248,8 @@ export function startSharedTestServer(): MongodSetup {
 
   const server = sharedSetup ?? (sharedSetup = new MongoRunnerSetup('shared'));
 
-  before(async function() {
-    this.timeout(120_000);  // Include potential mongod download time.
+  before(async function () {
+    this.timeout(120_000); // Include potential mongod download time.
     await server.start();
   });
 
@@ -233,7 +258,7 @@ export function startSharedTestServer(): MongodSetup {
   return server;
 }
 
-global.after?.(async function() {
+global.after?.(async function () {
   if (sharedSetup !== null) {
     this.timeout(30_000);
     await sharedSetup.stop();
@@ -242,15 +267,18 @@ global.after?.(async function() {
 
 // The same as startTestServer(), except that this starts multiple servers
 // in parallel in the same before() call.
-export function startTestCluster(id: string, ...argLists: Partial<MongoClusterOptions>[]): MongodSetup[] {
-  const servers = argLists.map(args => new MongoRunnerSetup(id, args));
+export function startTestCluster(
+  id: string,
+  ...argLists: Partial<MongoClusterOptions>[]
+): MongodSetup[] {
+  const servers = argLists.map((args) => new MongoRunnerSetup(id, args));
 
-  before(async function() {
+  before(async function () {
     this.timeout(90_000 + 30_000 * servers.length);
     await Promise.all(servers.map((server: MongodSetup) => server.start()));
   });
 
-  after(async function() {
+  after(async function () {
     this.timeout(30_000 * servers.length);
     await Promise.all(servers.map((server: MongodSetup) => server.stop()));
   });
@@ -258,8 +286,16 @@ export function startTestCluster(id: string, ...argLists: Partial<MongoClusterOp
   return servers;
 }
 
-function skipIfVersion(test: any, testServerVersion: string, semverCondition: string): void {
-  if (semver.satisfies(testServerVersion, semverCondition, { includePrerelease: true })) {
+function skipIfVersion(
+  test: any,
+  testServerVersion: string,
+  semverCondition: string
+): void {
+  if (
+    semver.satisfies(testServerVersion, semverCondition, {
+      includePrerelease: true,
+    })
+  ) {
     test.skip();
   }
 }
@@ -272,8 +308,11 @@ function skipIfVersion(test: any, testServerVersion: string, semverCondition: st
  *   e.g. skipIfServerVersion(testServer, '< 4.4')
  * });
  */
-export function skipIfServerVersion(server: MongodSetup, semverCondition: string): void {
-  before(async function() {
+export function skipIfServerVersion(
+  server: MongodSetup,
+  semverCondition: string
+): void {
+  before(async function () {
     skipIfVersion(this, await server.serverVersion(), semverCondition);
   });
 }
@@ -286,7 +325,7 @@ export function skipIfServerVersion(server: MongodSetup, semverCondition: string
  * });
  */
 export function skipIfCommunityServer(server: MongodSetup): void {
-  before(async function() {
+  before(async function () {
     if (await server.isCommunityServer()) {
       this.skip();
     }
@@ -298,7 +337,7 @@ export function skipIfCommunityServer(server: MongodSetup): void {
  * --apiStrict.
  */
 export function skipIfApiStrict(): void {
-  before(function() {
+  before(function () {
     if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
       this.skip();
     }
@@ -320,20 +359,32 @@ export function skipIfApiStrict(): void {
  * @param semverCondition Semver condition
  */
 export function skipIfEnvServerVersion(semverCondition: string): void {
-  before(async function() {
+  before(async function () {
     let testServerVersion = process.env.MONGOSH_SERVER_TEST_VERSION;
     if (!testServerVersion) {
       try {
         testServerVersion = await getInstalledMongodVersion();
-      } catch(e: any) {
+      } catch (e: any) {
         // no explicitly specified version but also no local mongod installation
         testServerVersion = '9999.9999.9999';
       }
     } else {
-      testServerVersion = testServerVersion.split('-')[0].split('.')
-        .map(num => /[0-9]+/.test(num) ? num : '0')
+      testServerVersion = testServerVersion
+        .split('-')[0]
+        .split('.')
+        .map((num) => (/[0-9]+/.test(num) ? num : '0'))
         .join('.');
     }
     skipIfVersion(this, testServerVersion, semverCondition);
+  });
+}
+
+export function sortObjectArray<T extends any[]>(arr: T): T {
+  return arr.sort((a, b) => {
+    const aStr = JSON.stringify(a);
+    const bStr = JSON.stringify(b);
+    if (aStr < bStr) return -1;
+    if (aStr > bStr) return 1;
+    return 0;
   });
 }

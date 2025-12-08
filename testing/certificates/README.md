@@ -5,6 +5,7 @@ This directory contains all certificates and keys used in testing.
 To recreate the certificates follow the steps outlined below.
 
 ## Setup CA
+
 1. Create a new key to use for the CA:
    ```
    openssl genrsa -out ca.key 4096
@@ -13,10 +14,11 @@ To recreate the certificates follow the steps outlined below.
    ```
    openssl req -new -x509 -key ca.key -out ca.crt -days 99999
    ```
-   * Organization Name: `MongoDB`
-   * Organizational Unit Name: `DevTools`
-   * Common Name: `DevTools CA`
+   - Organization Name: `MongoDB`
+   - Organizational Unit Name: `DevTools`
+   - Common Name: `DevTools CA`
 3. To sign and revoke certificates, an openssl config files is required. Create `ca.cnf` with the following content:
+
    ```
    [ca]
    default_ca=CA_default
@@ -43,12 +45,14 @@ To recreate the certificates follow the steps outlined below.
    commonName=supplied
    emailAddress=optional
    ```
+
 4. Ensure the `ca.db` file exists:
    ```
    touch ca.db
    ```
 
 ## Setup Server Certificate
+
 1. Create a new key to use for the server:
    ```
    openssl genrsa -out server.key 4096
@@ -57,9 +61,9 @@ To recreate the certificates follow the steps outlined below.
    ```
    openssl req -new -key server.key -out server.csr -days 99999
    ```
-   * Organization Name: `MongoDB`
-   * Organizational Unit Name: `DevTools`
-   * Common Name: `localhost`
+   - Organization Name: `MongoDB`
+   - Organizational Unit Name: `DevTools`
+   - Common Name: `localhost`
 3. Sign the CSR to generate server certificate:
    ```
    openssl ca -create_serial -config ca.cnf -in server.csr -out server.pem -days 99999
@@ -71,6 +75,7 @@ To recreate the certificates follow the steps outlined below.
    ```
 
 ## Setup Server Certificate with invalid hostname
+
 1. Create a new key to use for the server:
    ```
    openssl genrsa -out server-invalidhost.key 4096
@@ -79,9 +84,9 @@ To recreate the certificates follow the steps outlined below.
    ```
    openssl req -new -key server-invalidhost.key -out server-invalidhost.csr -days 99999
    ```
-   * Organization Name: `MongoDB`
-   * Organizational Unit Name: `DevTools`
-   * Common Name: `invalidhost`
+   - Organization Name: `MongoDB`
+   - Organizational Unit Name: `DevTools`
+   - Common Name: `invalidhost`
 3. Sign the CSR to generate server certificate:
    ```
    openssl ca -create_serial -config ca.cnf -in server-invalidhost.csr -out server-invalidhost.pem -days 99999
@@ -93,6 +98,7 @@ To recreate the certificates follow the steps outlined below.
    ```
 
 ## Setup "Non-CA" for testing invalid CA cert
+
 1. Create a new key to use for the Non CA:
    ```
    openssl genrsa -out non-ca.key 4096
@@ -101,11 +107,12 @@ To recreate the certificates follow the steps outlined below.
    ```
    openssl req -new -x509 -key non-ca.key -out non-ca.crt -days 99999
    ```
-   * Organization Name: `MongoDB`
-   * Organizational Unit Name: `DevTools`
-   * Common Name: `NOT DevTools CA`
+   - Organization Name: `MongoDB`
+   - Organizational Unit Name: `DevTools`
+   - Common Name: `NOT DevTools CA`
 
 ## Revoke Server Certificate and generate CRL
+
 1. Revoke the server's certificate:
    ```
    openssl ca -config ca.cnf -revoke server.pem
@@ -116,6 +123,7 @@ To recreate the certificates follow the steps outlined below.
    ```
 
 ## Create Client Certificate from CA
+
 1. Create a new key to use for the client:
    ```
    openssl genrsa -out client.key 4096
@@ -124,10 +132,10 @@ To recreate the certificates follow the steps outlined below.
    ```
    openssl req -new -key client.key -out client.csr -days 99999
    ```
-   * Organization Name: `MongoDB`
-   * Organizational Unit Name: `DevTools Testers`
-   * Common Name: `Wonderwoman`
-   * E-Mail: `tester@example.com`
+   - Organization Name: `MongoDB`
+   - Organizational Unit Name: `DevTools Testers`
+   - Common Name: `Wonderwoman`
+   - E-Mail: `tester@example.com`
 3. Sign the CSR to generate server certificate:
    ```
    openssl ca -create_serial -config ca.cnf -in client.csr -out client.pem -days 99999
@@ -146,9 +154,10 @@ To recreate the certificates follow the steps outlined below.
    ```
    openssl pkcs12 -inkey client.bundle.pem -in client.bundle.pem -export -out client.bundle.pfx
    ```
-   * Password: `passw0rd`
+   - Password: `passw0rd`
 
 ## Create Client Certificate not from CA
+
 1. Create a new key to use for the Non CA:
    ```
    openssl genrsa -out invalid-client.key 4096
@@ -157,10 +166,10 @@ To recreate the certificates follow the steps outlined below.
    ```
    openssl req -new -x509 -key invalid-client.key -out invalid-client.crt -days 99999
    ```
-   * Organization Name: `MongoDB`
-   * Organizational Unit Name: `DevTools Testers`
-   * Common Name: `Wonderwoman`
-   * E-Mail: `tester@example.com`
+   - Organization Name: `MongoDB`
+   - Organizational Unit Name: `DevTools Testers`
+   - Common Name: `Wonderwoman`
+   - E-Mail: `tester@example.com`
 3. Create a bundle with client key and certificate to use for connecting:
    ```
    cat invalid-client.crt invalid-client.key > invalid-client.bundle.pem

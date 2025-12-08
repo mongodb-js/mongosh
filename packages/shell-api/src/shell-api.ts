@@ -31,7 +31,6 @@ import {
   MongoshInternalError,
 } from '@mongosh/errors';
 import { DBQuery } from './dbquery';
-import { promisify } from 'util';
 import type { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
 import { dirname } from 'path';
 import { ShellUserConfig } from '@mongosh/types';
@@ -422,7 +421,7 @@ export default class ShellApi extends ShellApiClass {
 
   @returnsPromise
   async sleep(ms: number): Promise<void> {
-    return await promisify(setTimeout)(ms);
+    return await new Promise<void>((resolve) => setTimeout(resolve, ms));
   }
 
   private async _print(

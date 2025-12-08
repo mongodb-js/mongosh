@@ -13,9 +13,14 @@ cd "$test_root_dir"
 git clone --depth=10 https://github.com/mongodb-js/vscode.git
 cd vscode
 npm install --force
-rm -rf node_modules/@mongosh node_modules/mongodb
-(cd node_modules && ln -s "$mongosh_root_dir/packages" @mongosh && ln -s "$mongosh_root_dir/node_modules/mongodb" mongodb)
+rm -rf node_modules/@mongosh node_modules/mongodb node_modules/@mongodb-js/devtools-connect node_modules/@mongodb-js/devtools-proxy-support
+(cd node_modules && \
+  ln -s "$mongosh_root_dir/packages" @mongosh && \
+  ln -s "$mongosh_root_dir/node_modules/mongodb" mongodb && \
+  cd @mongodb-js && \
+  ln -s "$mongosh_root_dir/node_modules/@mongodb-js/devtools-connect" devtools-connect && \
+  ln -s "$mongosh_root_dir/node_modules/@mongodb-js/devtools-proxy-support" devtools-proxy-support)
 # This test can require a lot of memory so we bump the maximum size.
-NODE_OPTIONS=--max-old-space-size=4096 npm test
+NODE_OPTIONS='--max-old-space-size=4096 --no-experimental-strip-types' npm test
 cd /tmp
 rm -rf "$test_root_dir"
