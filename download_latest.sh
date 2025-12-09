@@ -56,12 +56,22 @@ case "$arch" in
         # Use uname’s reported architecture in the jq query.
 esac
 
+if [ "$os" = "linux" ]; then
+    if ldd $(which curl) | grep -q libssl.so.3 ; then
+        openssl_query='.sharedOpenssl == "openssl3"'
+    else
+        openssl_query='(has("sharedOpenssl") | not)'
+    fi
+else
+    openssl_query=''
+fi
+
 jq_query=$(cat <<EOF
 .versions[0].downloads[] |
 select(
     .distro == "$os" and
     .arch == "$arch" and
-    (has("sharedOpenssl") | not)
+    $openssl_query
 ) |
 .archive.url
 EOF

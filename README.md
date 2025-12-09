@@ -23,10 +23,11 @@ variable. For detailed instructions for each of our supported platforms, please 
 [installation documentation](https://www.mongodb.com/docs/mongodb-shell/install#mdb-shell-install).
 
 Alternatively:
-- Run `npx mongosh` to run mongosh without a full installation.
+- Run `npx mongosh` to run mongosh without a full installation. This is
+  easiest if you already have npm installed.
 - Run `download_latest.sh` to download a `mongosh` binary. You can use
-this script without cloning the repository thus:
-```
+  the following script:
+```sh
 curl -fsSL https://raw.githubusercontent.com/mongodb-js/mongosh/refs/heads/main/download_latest.sh | sh
 ```
 
