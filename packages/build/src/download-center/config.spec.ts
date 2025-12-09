@@ -205,6 +205,24 @@ describe('DownloadCenter config', function () {
           tutorial_link: 'test',
         });
       });
+
+      it('the list is sorted by semver even if versions are added out of order', function () {
+        const getVersionConfig1x = sinon.stub().returns({ version: '1.2.2' });
+        const getVersionConfig2x = sinon.stub().returns({ version: '2.0.0' });
+        const existingDownloadCenterConfig =
+          createDownloadCenterConfig(getVersionConfig2x);
+        expect(existingDownloadCenterConfig.versions).to.have.lengthOf(1);
+
+        const updatedConfig = getUpdatedDownloadCenterConfig(
+          existingDownloadCenterConfig,
+          getVersionConfig1x
+        );
+
+        expect(updatedConfig.versions).to.deep.equal([
+          { version: '2.0.0' },
+          { version: '1.2.2' },
+        ]);
+      });
     });
 
     context(
