@@ -5,7 +5,13 @@ export BASEDIR="$PWD/.evergreen"
 
 . "$BASEDIR/setup-env.sh"
 
-npm ci --verbose
+# If MONGOSH_INSTALL_WORKSPACE is set, install only that workspace
+if [[ -n "$MONGOSH_INSTALL_WORKSPACE" ]]; then
+  echo "Installing workspace: $MONGOSH_INSTALL_WORKSPACE"
+  npm ci -w "$MONGOSH_INSTALL_WORKSPACE" --include-workspace-root --verbose
+else
+  npm ci --verbose
+fi
 echo "MONOGDB_DRIVER_VERSION_OVERRIDE:$MONOGDB_DRIVER_VERSION_OVERRIDE"
 
 # if MONOGDB_DRIVER_VERSION_OVERRIDE is set, then we want to replace the package version
@@ -28,7 +34,17 @@ npm run mark-ci-required-optional-dependencies
 # mongodb-client-encryption failed to install (it can't install on some
 # platforms), then install again ignoring scripts so that the package installs
 # along with its types, but npm wouldn't try and compile the addon
-(npm ci && test -e node_modules/mongodb-client-encryption) || npm ci --ignore-scripts
+if [[ -n "$MONGOSH_INSTALL_WORKSPACE" ]]; then
+  # Check if the workspace or root actually depends on mongodb-client-encryption
+  if npm ls --workspace "$MONGOSH_INSTALL_WORKSPACE" --depth=1 mongodb-client-encryption > /dev/null 2>&1; then
+    echo "Workspace or root depends on mongodb-client-encryption, retrying install with optional deps..."
+    (npm ci -w "$MONGOSH_INSTALL_WORKSPACE" --include-workspace-root && test -e node_modules/mongodb-client-encryption) || npm ci -w "$MONGOSH_INSTALL_WORKSPACE" --include-workspace-root --ignore-scripts
+  else
+    echo "Workspace does not depend on mongodb-client-encryption, skipping optional deps reinstall"
+  fi
+else
+  (npm ci && test -e node_modules/mongodb-client-encryption) || npm ci --ignore-scripts
+fi
 
 echo "npm packages after installation"
 npm ls || true
