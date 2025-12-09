@@ -58,9 +58,9 @@ esac
 
 if [ "$os" = "linux" ]; then
     if ldd $(which curl) | grep -q libssl.so.3 ; then
-        openssl_query='.sharedOpenssl == "openssl3"'
+        openssl_query='and .sharedOpenssl == "openssl3"'
     else
-        openssl_query='(has("sharedOpenssl") | not)'
+        openssl_query='and (has("sharedOpenssl") | not)'
     fi
 else
     openssl_query=''
@@ -70,7 +70,7 @@ jq_query=$(cat <<EOF
 .versions[0].downloads[] |
 select(
     .distro == "$os" and
-    .arch == "$arch" and
+    .arch == "$arch"
     $openssl_query
 ) |
 .archive.url
@@ -90,12 +90,12 @@ case "$ext" in
         file=$(mktemp)
 
         say "Downloading $url to $file …"
-        trap 'rm -f "$file"' EXIT
+        #trap 'rm -f "$file"' EXIT
 
         curl -fsSL "$url" > "$file"
         say "Downloaded $ext file; extracting mongosh …"
 
-        unzip -vj "$file" '*/bin/mongosh*'
+        unzip -j "$file" '*/bin/mongosh*'
         ;;
     tgz)
         say "Downloading & extracting from $url …"
