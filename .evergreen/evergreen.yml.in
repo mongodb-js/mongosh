@@ -336,7 +336,7 @@ functions:
           (cd scripts/docker && docker build --build-arg NODE_JS_VERSION="$NODE_VERSION" -t ubuntu24.04-xvfb -f ubuntu24.04-xvfb.Dockerfile .)
           docker run \
             --rm -v $PWD:/tmp/build ubuntu24.04-xvfb \
-            -c 'cd /tmp/build && ./testing/test-vscode.sh'
+            -c 'cd /tmp/build && ./scripts/test-vscode.sh'
           }
   test_connectivity:
     - command: expansions.write
@@ -1166,6 +1166,7 @@ tasks:
       - func: install
         vars:
           node_js_version: ${node_js_version}
+          puppeteer_skip_download: "<% out(usePuppeteer ? "false" : "true") %>"
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -1174,7 +1175,6 @@ tasks:
           mongosh_test_id: "<% out(id) %>"
           mongosh_run_only_in_package: "<% out(packageName) %>"
           task_name: ${task_name}
-          puppeteer_skip_download: "<% out(usePuppeteer ? "false" : "true") %>"
   <% } %>
 
   ###
@@ -1560,6 +1560,7 @@ buildvariants:
     display_name: "<% out(variant.displayName) %>"
     run_on: <% out(variant.runOn) %>
     tags: <% out(variant.tags) %>
+    disable: <% out(variant.disable) %>
     expansions:
       executable_os_id: <% out(variant.executableOsId) %>
       mongosh_server_test_version: "<% out(variant.mVersion || '') %>"

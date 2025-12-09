@@ -3,7 +3,7 @@ import path from 'path';
 import {
   downloadCurrentCryptSharedLibrary,
   startSharedTestServer,
-} from '../../../testing/integration-testing-hooks';
+} from '@mongosh/testing';
 
 describe('smoke tests', function () {
   const testServer = startSharedTestServer();

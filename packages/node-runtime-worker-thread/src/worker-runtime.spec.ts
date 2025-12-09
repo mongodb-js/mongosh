@@ -1,11 +1,12 @@
 import path from 'path';
 import { once } from 'events';
 import Worker from 'web-worker';
-import chai, { expect } from 'chai';
+import * as chai from 'chai';
+import { expect } from 'chai';
 import sinonChai from 'sinon-chai';
 import sinon from 'sinon';
 import { EJSON, ObjectId } from 'bson';
-import { startSharedTestServer } from '../../../testing/integration-testing-hooks';
+import { startSharedTestServer } from '@mongosh/testing';
 import type { Caller, Exposed } from './rpc';
 import { cancel, close, createCaller, exposeAll } from './rpc';
 import { deserializeEvaluationResult } from './serializer';

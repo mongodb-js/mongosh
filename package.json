@@ -1,7 +1,6 @@
 {
   "name": "mongosh",
   "description": "The MongoDB Shell",
-  "main": "index.js",
   "bin": {
     "mongosh": "packages/cli-repl/bin/mongosh.js"
   },
@@ -12,10 +11,10 @@
     "bootstrap": "npx cross-env PUPPETEER_SKIP_DOWNLOAD=1 npm install && npm run compile",
     "clean": "lerna clean -y && rm -Rf node_modules",
     "check": "lerna run check --since HEAD --exclude-dependents",
-    "check-ci": "npm run check --workspaces --if-present",
+    "check-ci": "npm run depcheck && npm run check --workspaces --if-present",
     "depalign": "depalign",
     "predepcheck": "npm run depalign",
-    "depcheck": "npm run depcheck --workspaces --if-present",
+    "depcheck": "knip && knip --production",
     "lint": "npm run lint --workspaces --if-present",
     "test": "rimraf .nyc_output && npm run test-coverage --workspaces --if-present && npm run report-coverage",
     "test-ci": "rimraf .nyc_output && npm run test-ci-coverage --workspaces --if-present && npm run post-process-nyc",
@@ -54,7 +53,7 @@
     "create-purls-file": "node scripts/create-purls.js .sbom/dependencies.json .sbom/node-js-dep.json > .sbom/purls.txt",
     "preupdate-third-party-notices": "npm run create-dependency-sbom-lists",
     "update-third-party-notices": "mongodb-sbom-tools generate-3rd-party-notices --product='mongosh' --dependencies=.sbom/dependencies.json > THIRD_PARTY_NOTICES.md",
-    "update-node-js-versions": "npx @pkgjs/nv ls v20 > .evergreen/node-20-latest.json",
+    "update-node-js-versions": "npx @pkgjs/nv ls v20 > .evergreen/node-20-latest.json && npx @pkgjs/nv ls v24 > .evergreen/node-24-latest.json",
     "update-evergreen-config": "npm run test-evergreen-expansions && node .evergreen/generate-evergreen-yml.js .evergreen/evergreen.yml.in > .evergreen.yml",
     "update-cli-usage-text": "node scripts/update-cli-usage-text.js",
     "update-security-test-summary": "ts-node scripts/generate-security-test-summary.ts > docs/security-test-summary.md",
@@ -95,36 +94,29 @@
     "access": "public"
   },
   "engines": {
-    "node": ">=12.18.4"
+    "node": ">=20.19.3"
   },
   "devDependencies": {
-    "@babel/compat-data": "^7.26.8",
     "@mongodb-js/monorepo-tools": "^1.1.10",
     "@pkgjs/nv": "^0.2.2",
-    "@types/chai": "^4.2.5",
+    "@types/chai": "^5.2.3",
     "@types/mocha": "^5.2.7",
     "@types/node": "^22.15.30",
-    "@types/rimraf": "^3.0.0",
     "@types/semver": "^7.3.4",
-    "@types/sinon-chai": "^3.2.4",
-    "@types/which": "^1.3.2",
-    "chai": "^4.2.0",
+    "@types/sinon-chai": "^4.0.0",
+    "chai": "^6.2.1",
     "cross-env": "^6.0.3",
-    "depcheck": "^1.4.7",
-    "duplexpair": "^1.0.2",
     "find-up": "^5.0.0",
     "glob": "^10.3.12",
     "husky": "^9.0.11",
-    "mocha": "^10.2.0",
-    "mongodb": "^6.19.0",
+    "knip": "^5.71.0",
+    "mocha": "^11.7.5",
     "mongodb-runner": "^6.0.0",
-    "node-gyp": "^9.0.0 || ^10.2.0",
     "nyc": "^15.1.0",
     "pkg-up": "^3.1.0",
     "rimraf": "^3.0.2",
-    "semver": "^7.6.3",
-    "sinon": "^7.5.0",
-    "sinon-chai": "^3.5.0",
+    "sinon": "^19.0.4",
+    "sinon-chai": "^4.0.1",
     "terser-webpack-plugin": "^5.3.11",
     "ts-loader": "^8.0.14",
     "ts-node": "^10.9.2",
@@ -133,7 +125,6 @@
     "webpack": "^5.99.9",
     "webpack-bundle-analyzer": "^4.7.0",
     "webpack-cli": "^6.0.1",
-    "which": "^2.0.2",
     "yaml": "^1.10.0"
   },
   "optionalDependencies": {
@@ -147,13 +138,14 @@
     "packages/build",
     "packages/errors",
     "packages/history",
-    "packages/java-shell",
     "packages/js-multiline-to-singleline",
     "packages/types",
     "packages/i18n",
     "packages/logging",
     "packages/shell-bson",
+    "packages/testing",
     "packages/arg-parser",
+    "packages/java-shell",
     "packages/service-provider-core",
     "packages/service-provider-node-driver",
     "packages/shell-api",
@@ -169,8 +161,5 @@
     "packages/node-runtime-worker-thread",
     "packages/browser-repl",
     "packages/connectivity-tests"
-  ],
-  "overrides": {
-    "cookie": "^0.7.2"
-  }
+  ]
 }

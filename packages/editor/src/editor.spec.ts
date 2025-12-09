@@ -1,5 +1,6 @@
 import * as bson from 'bson';
-import chai, { expect } from 'chai';
+import * as chai from 'chai';
+import { expect } from 'chai';
 import type { Duplex } from 'stream';
 import { PassThrough } from 'stream';
 import Nanobus from 'nanobus';

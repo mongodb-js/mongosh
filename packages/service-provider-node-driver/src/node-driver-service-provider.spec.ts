@@ -1,5 +1,6 @@
 import { CommonErrors } from '@mongosh/errors';
-import chai, { expect } from 'chai';
+import * as chai from 'chai';
+import { expect } from 'chai';
 import type { ClientSession, SearchIndexDescription } from 'mongodb';
 import { Collection, Db, MongoClient } from 'mongodb';
 import sinonChai from 'sinon-chai';

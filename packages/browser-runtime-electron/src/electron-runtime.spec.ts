@@ -1,6 +1,6 @@
 import type { SinonStubbedInstance } from 'sinon';
 import sinon from 'sinon';
-import chai from 'chai';
+import * as chai from 'chai';
 import sinonChai from 'sinon-chai';
 chai.use(sinonChai);
 const { expect } = chai;
@@ -24,8 +24,9 @@ describe('Electron runtime', function () {
       extraInfo: { uri: '' },
     } as any);
     messageBus = sinon.createStubInstance(EventEmitter);
-    evaluationListener = sinon.createStubInstance(class FakeListener {});
-    evaluationListener.onPrint = sinon.stub();
+    evaluationListener = {
+      onPrint: sinon.stub(),
+    } as SinonStubbedInstance<RuntimeEvaluationListener>;
     electronRuntime = new ElectronRuntime(serviceProvider, messageBus);
     electronRuntime.setEvaluationListener(evaluationListener as any);
   });

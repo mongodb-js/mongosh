@@ -6,7 +6,7 @@ import { major as majorVersion } from 'semver';
 import type {
   DownloadCenterConfig,
   PlatformWithPackages,
-} from '@mongodb-js/dl-center/dist/download-center-config';
+} from '@mongodb-js/dl-center';
 import {
   ARTIFACTS_BUCKET,
   JSON_FEED_ARTIFACT_KEY,

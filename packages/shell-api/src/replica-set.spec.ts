@@ -9,19 +9,21 @@ import type {
   ServiceProvider,
 } from '@mongosh/service-provider-core';
 import * as bson from 'bson';
-import chai, { expect } from 'chai';
+import * as chai from 'chai';
+import { expect } from 'chai';
 import { EventEmitter } from 'events';
 import semver from 'semver';
 import sinonChai from 'sinon-chai';
 import type { StubbedInstance } from 'ts-sinon';
 import { stubInterface } from 'ts-sinon';
 import { createRetriableMethod, ensureMaster } from '../test/helpers';
-import type { MongodSetup } from '../../../testing/integration-testing-hooks';
 import {
+  type MongodSetup,
   skipIfServerVersion,
   startTestCluster,
   skipIfApiStrict,
-} from '../../../testing/integration-testing-hooks';
+  eventually,
+} from '@mongosh/testing';
 import { NodeDriverServiceProvider } from '../../service-provider-node-driver';
 import { Database } from './database';
 import {
@@ -38,7 +40,6 @@ import type { ReplSetConfig, ReplSetMemberConfig } from './replica-set';
 import ReplicaSet from './replica-set';
 import type { EvaluationListener } from './shell-instance-state';
 import ShellInstanceState from './shell-instance-state';
-import { eventually } from '../../../testing/eventually';
 chai.use(sinonChai);
 
 function deepClone<T>(value: T): T {

@@ -76,11 +76,9 @@ export abstract class BaseCursor<
   }
 
   async *[Symbol.asyncIterator]() {
-    if (
-      this._cursor[Symbol.asyncIterator] &&
-      this._canDelegateIterationToUnderlyingCursor()
-    ) {
-      yield* this._cursor;
+    const baseIterator = this._cursor[Symbol.asyncIterator];
+    if (baseIterator && this._canDelegateIterationToUnderlyingCursor()) {
+      yield* baseIterator.call(this._cursor);
       return;
     }
 

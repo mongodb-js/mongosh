@@ -4,7 +4,8 @@ import {
   serialize as bsonSerialize,
   deserialize as bsonDeserialize,
 } from 'bson';
-import chai, { expect } from 'chai';
+import * as chai from 'chai';
+import { expect } from 'chai';
 import sinonChai from 'sinon-chai';
 import sinon from 'sinon';
 import type { BSON, ShellBson } from './';
@@ -559,6 +560,187 @@ describe('Shell BSON', function () {
       expect.fail('Expecting error, nothing thrown');
     });
   });
+  describe('LegacyJavaUUID', function () {
+    it('creates a Binary with SUBTYPE_UUID_OLD', function () {
+      const uuid = shellBson.LegacyJavaUUID('0123456789abcdef0123456789abcdef');
+      expect(uuid.sub_type).to.equal(3); // SUBTYPE_UUID_OLD
+    });
+
+    it('strips dashes from input', function () {
+      expect(
+        shellBson.LegacyJavaUUID('01234567-89ab-cdef-0123-456789abcdef').value()
+      ).to.deep.equal(
+        shellBson.LegacyJavaUUID('0123456789abcdef0123456789abcdef').value()
+      );
+    });
+
+    it('generates a random UUID when no arguments are passed', function () {
+      const uuid = shellBson.LegacyJavaUUID();
+      expect(uuid.sub_type).to.equal(3);
+      expect(uuid.value().length).to.equal(16);
+    });
+
+    it('has help and other metadata', function () {
+      const uuid = shellBson.LegacyJavaUUID('0123456789abcdef0123456789abcdef');
+      expect(uuid?.help?.type).to.equal('Help');
+      expect(uuid?.help?.().type).to.equal('Help');
+      expect((uuid as any).serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
+    });
+
+    it('performs byte-swapping for Java compatibility', function () {
+      // Test that the byte order is swapped correctly for Java UUID format
+      const uuid = shellBson.LegacyJavaUUID('0123456789abcdef0123456789abcdef');
+      // The MSB and LSB should be byte-swapped according to Java's UUID format
+      expect(uuid.toString('hex')).to.equal('efcdab8967452301efcdab8967452301');
+    });
+
+    it('errors for wrong type of arg 1', function () {
+      try {
+        (shellBson.LegacyJavaUUID as any)(1);
+      } catch (e: any) {
+        return expect(e.message).to.contain('string, got number');
+      }
+      expect.fail('Expecting error, nothing thrown');
+    });
+  });
+
+  describe('LegacyCSharpUUID', function () {
+    it('creates a Binary with SUBTYPE_UUID_OLD', function () {
+      const uuid = shellBson.LegacyCSharpUUID(
+        '0123456789abcdef0123456789abcdef'
+      );
+      expect(uuid.sub_type).to.equal(3); // SUBTYPE_UUID_OLD
+    });
+
+    it('strips dashes from input', function () {
+      expect(
+        shellBson
+          .LegacyCSharpUUID('01234567-89ab-cdef-0123-456789abcdef')
+          .value()
+      ).to.deep.equal(
+        shellBson.LegacyCSharpUUID('0123456789abcdef0123456789abcdef').value()
+      );
+    });
+
+    it('generates a random UUID when no arguments are passed', function () {
+      const uuid = shellBson.LegacyCSharpUUID();
+      expect(uuid.sub_type).to.equal(3);
+      expect(uuid.value().length).to.equal(16);
+    });
+
+    it('has help and other metadata', function () {
+      const uuid = shellBson.LegacyCSharpUUID(
+        '0123456789abcdef0123456789abcdef'
+      );
+      expect(uuid?.help?.type).to.equal('Help');
+      expect(uuid?.help?.().type).to.equal('Help');
+      expect((uuid as any).serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
+    });
+
+    it('performs byte-swapping for C# compatibility', function () {
+      // Test that the byte order is swapped correctly for C# UUID format
+      const uuid = shellBson.LegacyCSharpUUID(
+        '0123456789abcdef0123456789abcdef'
+      );
+      // The first three groups should be byte-swapped according to C#'s GUID format
+      expect(uuid.toString('hex')).to.equal('67452301ab89efcd0123456789abcdef');
+    });
+
+    it('errors for wrong type of arg 1', function () {
+      try {
+        (shellBson.LegacyCSharpUUID as any)(1);
+      } catch (e: any) {
+        return expect(e.message).to.contain('string, got number');
+      }
+      expect.fail('Expecting error, nothing thrown');
+    });
+  });
+
+  describe('LegacyPythonUUID', function () {
+    it('creates a Binary with SUBTYPE_UUID_OLD', function () {
+      const uuid = shellBson.LegacyPythonUUID(
+        '0123456789abcdef0123456789abcdef'
+      );
+      expect(uuid.sub_type).to.equal(3); // SUBTYPE_UUID_OLD
+    });
+
+    it('strips dashes from input', function () {
+      expect(
+        shellBson
+          .LegacyPythonUUID('01234567-89ab-cdef-0123-456789abcdef')
+          .value()
+      ).to.deep.equal(
+        shellBson.LegacyPythonUUID('0123456789abcdef0123456789abcdef').value()
+      );
+    });
+
+    it('generates a random UUID when no arguments are passed', function () {
+      const uuid = shellBson.LegacyPythonUUID();
+      expect(uuid.sub_type).to.equal(3);
+      expect(uuid.value().length).to.equal(16);
+    });
+
+    it('has help and other metadata', function () {
+      const uuid = shellBson.LegacyPythonUUID(
+        '0123456789abcdef0123456789abcdef'
+      );
+      expect(uuid?.help?.type).to.equal('Help');
+      expect(uuid?.help?.().type).to.equal('Help');
+      expect((uuid as any).serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
+    });
+
+    it('uses standard byte order (no swapping)', function () {
+      // Python UUID uses standard network byte order (big-endian, no swapping)
+      const uuid = shellBson.LegacyPythonUUID(
+        '0123456789abcdef0123456789abcdef'
+      );
+      expect(uuid.toString('hex')).to.equal('0123456789abcdef0123456789abcdef');
+    });
+
+    it('errors for wrong type of arg 1', function () {
+      try {
+        (shellBson.LegacyPythonUUID as any)(1);
+      } catch (e: any) {
+        return expect(e.message).to.contain('string, got number');
+      }
+      expect.fail('Expecting error, nothing thrown');
+    });
+  });
+
+  describe('Legacy UUID comparison', function () {
+    const testUuid = '0123456789abcdef0123456789abcdef';
+
+    it('each legacy UUID type produces different byte representations', function () {
+      const javaUuid = shellBson.LegacyJavaUUID(testUuid);
+      const csharpUuid = shellBson.LegacyCSharpUUID(testUuid);
+      const pythonUuid = shellBson.LegacyPythonUUID(testUuid);
+
+      const javaBytes = javaUuid.toString('hex');
+      const csharpBytes = csharpUuid.toString('hex');
+      const pythonBytes = pythonUuid.toString('hex');
+
+      // They should all be different due to different byte-swapping
+      expect(javaBytes).to.not.equal(csharpBytes);
+      expect(javaBytes).to.not.equal(pythonBytes);
+      expect(csharpBytes).to.not.equal(pythonBytes);
+
+      // Python should match the original (no swapping)
+      expect(pythonBytes).to.equal(testUuid);
+    });
+
+    it('all legacy UUID types use SUBTYPE_UUID_OLD', function () {
+      const javaUuid = shellBson.LegacyJavaUUID(testUuid);
+      const csharpUuid = shellBson.LegacyCSharpUUID(testUuid);
+      const pythonUuid = shellBson.LegacyPythonUUID(testUuid);
+      const uuid = shellBson.UUID(testUuid);
+
+      expect(javaUuid.sub_type).to.equal(3);
+      expect(csharpUuid.sub_type).to.equal(3);
+      expect(pythonUuid.sub_type).to.equal(3);
+      expect(uuid.sub_type).to.equal(4);
+    });
+  });
+
   describe('MD5', function () {
     let b: any;
     let h: any;

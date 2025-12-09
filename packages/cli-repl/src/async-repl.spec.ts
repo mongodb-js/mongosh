@@ -6,7 +6,8 @@ import type { Readable, Writable } from 'stream';
 import { PassThrough } from 'stream';
 import { promisify, inspect } from 'util';
 import { once } from 'events';
-import chai, { expect } from 'chai';
+import * as chai from 'chai';
+import { expect } from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { tick } from '../test/repl-helpers';
@@ -42,22 +43,35 @@ function createDefaultAsyncRepl(extraOpts: Partial<AsyncREPLOptions> = {}): {
 
 async function expectInStream(
   stream: Readable,
-  substring: string
+  substring: string,
+  timeoutMs: number | null = 5000
 ): Promise<void> {
   let content = '';
-  let found = false;
-  for await (const chunk of stream) {
-    content += chunk;
-    if (content.includes(substring)) {
-      found = true;
-      break;
-    }
+  let ended = false;
+  const result = await Promise.race([
+    (async () => {
+      for await (const chunk of stream) {
+        content += chunk;
+        if (content.includes(substring)) {
+          break;
+        }
+      }
+      ended = true;
+      return 'normal-completion' as const;
+    })(),
+    ...(timeoutMs ? [delay(timeoutMs).then(() => 'timeout' as const)] : []),
+  ]);
+  if (result === 'timeout') {
+    throw new Error(
+      `Timeout waiting for substring: ${substring}, found so far: ${content} (ended = ${ended})`
+    );
   }
-  expect(found).to.be.true;
+  expect(content).to.include(substring);
 }
 
 describe('AsyncRepl', function () {
   before(function () {
+    this.timeout(10000);
     // nyc adds its own SIGINT listener that annoys use here.
     process.removeAllListeners('SIGINT');
   });

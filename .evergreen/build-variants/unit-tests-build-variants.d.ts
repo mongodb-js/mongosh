@@ -10,6 +10,7 @@ export type UnitTestsBuildVariant = {
   nShort: string;
   nVersion: string;
   skipNodeVersionCheck: boolean;
+  disable: boolean;
 };
 
 export const UNIT_TESTS_BUILD_VARIANTS: UnitTestsBuildVariant[];

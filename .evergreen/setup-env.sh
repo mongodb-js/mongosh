@@ -4,9 +4,8 @@ set -x
 OS_ARCH="$(uname "-m")"
 
 export BASEDIR="$PWD/.evergreen"
-export PATH="$BASEDIR/npm-10/node_modules/.bin:$BASEDIR/node-v$NODE_JS_VERSION-win-x64:/opt/java/jdk16/bin:$PATH"
-
-export MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING="$BASEDIR/../../testing/tests-globalconfig.conf"
+export PATH="$BASEDIR/node-v$NODE_JS_VERSION-win-x64:/opt/java/jdk17/bin:$PATH"
+export MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING="$BASEDIR/../packages/testing/tests-globalconfig.conf"
 
 export IS_MONGOSH_EVERGREEN_CI=1
 export DEBUG="mongodb*,$DEBUG"
@@ -69,7 +68,7 @@ fi
 
 # On RHEL hosts, we run as root for some reason
 if [ `uname` = Linux ]; then
-  export npm_config_unsafe_perm=true
+    export npm_config_unsafe_perm=true
 fi
 
 # npm@7 changed the behavior to run install scripts for packages

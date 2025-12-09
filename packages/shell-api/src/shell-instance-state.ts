@@ -17,14 +17,14 @@ import type {
   ShellUserConfig,
 } from '@mongosh/types';
 import { EventEmitter } from 'events';
-import redactInfo from 'mongodb-redact';
+import { redactConnectionString } from 'mongodb-redact';
 import { toIgnore } from './decorators';
 import {
   ALL_PLATFORMS,
   ALL_SERVER_VERSIONS,
   ALL_TOPOLOGIES,
   ServerVersions,
-  Topologies,
+  type Topologies,
 } from './enums';
 import { ShellApiErrors } from './error-codes';
 import type { ShellResult, DatabaseWithSchema } from './index';
@@ -51,12 +51,14 @@ import type { AutocompletionContext } from '@mongodb-js/mongodb-ts-autocomplete'
 import type { JSONSchema } from 'mongodb-schema';
 import { analyzeDocuments } from 'mongodb-schema';
 import type { BaseCursor } from './abstract-cursor';
+import { deepInspectServiceProviderWrapper } from './deep-inspect/service-provider-wrapper';
 
 /**
  * The subset of CLI options that is relevant for the shell API's behavior itself.
  */
 export interface ShellCliOptions {
   nodb?: boolean;
+  deepInspect?: boolean;
 }
 
 /**
@@ -203,7 +205,10 @@ export class ShellInstanceState {
     cliOptions: ShellCliOptions = {},
     bsonLibrary: BSONLibrary = initialServiceProvider.bsonLibrary
   ) {
-    this.initialServiceProvider = initialServiceProvider;
+    this.initialServiceProvider =
+      cliOptions.deepInspect === false
+        ? initialServiceProvider
+        : deepInspectServiceProviderWrapper(initialServiceProvider);
     this.bsonLibrary = bsonLibrary;
     this.messageBus = messageBus;
     this.shellApi = new ShellApi(this);
@@ -220,11 +225,11 @@ export class ShellInstanceState {
         undefined,
         undefined,
         undefined,
-        initialServiceProvider
+        this.initialServiceProvider
       );
       this.mongos.push(mongo);
       this.currentDb = mongo.getDB(
-        initialServiceProvider.initialDb || DEFAULT_DB
+        this.initialServiceProvider.initialDb || DEFAULT_DB
       );
     } else {
       this.currentDb = new NoDatabase() as DatabaseWithSchema;
@@ -304,7 +309,7 @@ export class ShellInstanceState {
         api_version: apiVersionInfo?.version,
         api_strict: apiVersionInfo?.strict,
         api_deprecation_errors: apiVersionInfo?.deprecationErrors,
-        uri: redactInfo(connectionInfo?.extraInfo?.uri),
+        uri: redactConnectionString(connectionInfo?.extraInfo?.uri ?? ''),
       });
       return connectionInfo;
     }
@@ -564,16 +569,16 @@ export class ShellInstanceState {
         switch (topologyType) {
           case 'ReplicaSetNoPrimary':
           case 'ReplicaSetWithPrimary':
-            topology = Topologies.ReplSet;
+            topology = 'ReplSet';
             break;
           case 'Sharded':
-            topology = Topologies.Sharded;
+            topology = 'Sharded';
             break;
           case 'LoadBalanced':
-            topology = Topologies.LoadBalanced;
+            topology = 'LoadBalanced';
             break;
           default:
-            topology = Topologies.Standalone;
+            topology = 'Standalone';
             // We're connected to a single server, but that doesn't necessarily
             // mean that that server isn't part of a replset or sharding setup
             // if we're using directConnection=true (which we do by default).
@@ -581,7 +586,7 @@ export class ShellInstanceState {
               const [server] = topologyDescription?.servers.values();
               switch (server.type) {
                 case 'Mongos':
-                  topology = Topologies.Sharded;
+                  topology = 'Sharded';
                   break;
                 case 'PossiblePrimary':
                 case 'RSPrimary':
@@ -589,7 +594,7 @@ export class ShellInstanceState {
                 case 'RSArbiter':
                 case 'RSOther':
                 case 'RSGhost':
-                  topology = Topologies.ReplSet;
+                  topology = 'ReplSet';
                   break;
                 default:
                   // Either Standalone, Unknown, or something so unknown that
