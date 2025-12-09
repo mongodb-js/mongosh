@@ -112,4 +112,10 @@ case "$ext" in
         exit 1
 esac
 
+./mongosh --build-info >/dev/null 2>&1 || {
+    say "❌ Downloaded mongosh is not executable."
+    ./mongosh --build-info
+    exit 1
+}
+
 say "✅ Success! 'mongosh' and its crypto library are now saved in this directory."
