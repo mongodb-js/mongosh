@@ -63,7 +63,7 @@ function test_connection_string() {
 }
 
 function test_connection_string_fqdn_dot() {
-  printf "test_connection_string ... "
+  printf "test_connection_string_fqdn_dot ... "
 
   CONNECTION_STRING="mongodb+srv://${ATLAS_USERNAME}:${ATLAS_PASSWORD}@${ATLAS_HOSTNAME}./admin"
 
