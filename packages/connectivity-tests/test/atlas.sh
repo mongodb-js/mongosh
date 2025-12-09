@@ -62,6 +62,18 @@ function test_connection_string() {
   check_failed
 }
 
+function test_connection_string_fqdn_dot() {
+  printf "test_connection_string ... "
+
+  CONNECTION_STRING="mongodb+srv://${ATLAS_USERNAME}:${ATLAS_PASSWORD}@${ATLAS_HOSTNAME}./admin"
+
+  echo "${CONNECTION_STATUS_COMMAND}" | "${MONGOSH}" "${CONNECTION_STRING}" |
+    grep -Fq "${CONNECTION_STATUS_CHECK_STRING}" ||
+    FAILED="Can't connect to Atlas using connection string with trailing dot"
+
+  check_failed
+}
+
 function test_atlas_in_logs() {
   printf "test_atlas_in_logs ... "
 
@@ -144,6 +156,7 @@ function test_srv_without_nodejs_dns() {
 }
 
 test_connection_string
+test_connection_string_fqdn_dot
 test_atlas_in_logs
 test_credentials_masking
 test_cli_args
