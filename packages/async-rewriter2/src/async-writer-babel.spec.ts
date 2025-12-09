@@ -79,6 +79,7 @@ describe('AsyncWriter', function () {
     });
     runTranspiledCode = (code: string, context?: any) => {
       const transpiled = asyncWriter.process(code);
+      //console.log({transpiled})
       return runUntranspiledCode(transpiled, context);
     };
     runUntranspiledCode = (code: string, context?: any) => {
