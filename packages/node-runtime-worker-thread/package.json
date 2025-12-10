@@ -70,9 +70,6 @@
       "win-export-certificate-and-key": [
         "win32"
       ],
-      "get-console-process-list": [
-        "win32"
-      ],
       "glibc-version": [
         "linux"
       ]
