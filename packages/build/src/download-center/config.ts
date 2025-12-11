@@ -202,6 +202,7 @@ export function getUpdatedDownloadCenterConfig(
     currentVersions[matchingMajorVersionIdx] = versionConfig;
   }
 
+  // NB: download_latest.sh depends on the specific ordering of versions here.
   currentVersions.sort((a, b) => semver.rcompare(a.version, b.version));
 
   return {
