@@ -12470,7 +12470,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: ""
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12505,7 +12505,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "6.0.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12540,7 +12540,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "6.0.x-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12575,7 +12575,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "7.0.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12610,7 +12610,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "7.0.x-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12645,7 +12645,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.0.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12680,7 +12680,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.0.x-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12715,7 +12715,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.2.0"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12750,7 +12750,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.2.0-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12785,7 +12785,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "latest-alpha-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12820,7 +12820,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: ""
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12855,7 +12855,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "4.2.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12890,7 +12890,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "4.4.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12925,7 +12925,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "4.4.x-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12960,7 +12960,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "5.0.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12995,7 +12995,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "5.0.x-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -13030,7 +13030,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "6.0.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -13065,7 +13065,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "6.0.x-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -13100,7 +13100,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "7.0.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -13135,7 +13135,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "7.0.x-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -13170,7 +13170,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.0.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -13205,7 +13205,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.0.x-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -13240,7 +13240,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.2.0"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -13275,7 +13275,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.2.0-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -13310,7 +13310,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "latest-alpha-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -13345,7 +13345,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: ""
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -13379,7 +13379,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "4.2.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -13413,7 +13413,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "4.2.x-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -13447,7 +13447,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "4.4.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -13481,7 +13481,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "4.4.x-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -13515,7 +13515,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "5.0.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -13549,7 +13549,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "5.0.x-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -13583,7 +13583,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "6.0.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -13617,7 +13617,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "6.0.x-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -13651,7 +13651,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "7.0.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -13685,7 +13685,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "7.0.x-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -13719,7 +13719,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "8.0.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -13753,7 +13753,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "8.0.x-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -13787,7 +13787,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "8.2.0"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -13821,7 +13821,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "8.2.0-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -13855,7 +13855,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "latest-alpha-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
