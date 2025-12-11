@@ -1,5 +1,7 @@
 name: "Test download_latest script"
 on:
+  schedule:
+    - cron: "0 3 * * *"  # every day at 03:00 UTC
   push:
     branches:
       - main
