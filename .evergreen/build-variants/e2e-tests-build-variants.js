@@ -246,7 +246,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     runOn: 'ubuntu2404-arm64-small',
     sharedOpenSsl: 'openssl3',
     executableOsId: 'linux-arm64-openssl3',
-    mVersion: '8.2.0-rc4',
+    mVersion: '8.2.x',
   },
   {
     displayName: 'Amazon Linux 2 arm64',
@@ -264,7 +264,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     displayName: 'Amazon Linux 2023 arm64',
     runOn: 'amazon2023.0-arm64-small',
     executableOsId: 'linux-arm64',
-    mVersion: '8.2.0-rc4',
+    mVersion: '8.2.x',
   },
   {
     displayName: 'RHEL 8.2 arm64',
@@ -314,7 +314,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     displayName: 'RHEL 9 PPC',
     runOn: 'rhel9-power-small',
     executableOsId: 'linux-ppc64le',
-    mVersion: '8.2.0-rc4',
+    mVersion: '8.2.x',
   },
   {
     displayName: 'RHEL 7 s390x',
@@ -338,7 +338,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     displayName: 'RHEL 9 s390x',
     runOn: 'rhel9-zseries-small',
     executableOsId: 'linux-s390x',
-    mVersion: '8.2.0-rc4',
+    mVersion: '8.2.x',
   },
   {
     displayName: 'MacOS 14 x64',
@@ -356,7 +356,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     displayName: 'MacOS 14 arm64',
     runOn: 'macos-14-arm64',
     executableOsId: 'darwin-arm64',
-    mVersion: '8.2.0-rc4',
+    mVersion: '8.2.x',
   },
   {
     displayName: 'MacOS Big Sur',
@@ -392,11 +392,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     displayName: 'Windows VS 2022',
     runOn: 'windows-vsCurrent-small',
     executableOsId: 'win32',
-    mVersion: '8.2.0-rc4',
-    additionalTasks: [
-      'package_artifact_win32_x64',
-      'package_artifact_win32msi_x64',
-    ],
+    mVersion: '8.2.x'
   },
 ].map((buildVariant) => {
   const { displayName, fips, sharedOpenSsl, mVersion, runOn, executableOsId } =
