@@ -5,14 +5,23 @@ import {
   CliOptionsSchema,
   generateYargsOptionsFromSchema,
   getLocale,
-  parseArgs,
-  parseArgsWithCliOptions,
+  createParseArgs,
+  createParseArgsWithCliOptions,
   UnknownArgumentError,
   UnsupportedArgumentError,
+  type ParserCreationOptions,
+  type ArgsListOptions,
 } from './arg-parser';
 import { z } from 'zod/v4';
 import { coerceIfBoolean, coerceIfFalse } from './utils';
 import { InvalidArgumentError } from './arg-metadata';
+
+const parseArgs = <T extends z.ZodObject>(
+  opts: ParserCreationOptions<T> & ArgsListOptions
+) => createParseArgs(opts)(opts);
+const parseArgsWithCliOptions = <T extends z.ZodObject>(
+  opts: Partial<ParserCreationOptions<T>> & ArgsListOptions
+) => createParseArgsWithCliOptions(opts)(opts);
 
 describe('arg-parser', function () {
   describe('.getLocale', function () {
