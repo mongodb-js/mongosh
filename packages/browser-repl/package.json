@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/browser-repl",
-  "version": "3.29.0",
+  "version": "3.29.1",
   "description": "Browser presentation component for Mongo Shell",
   "engines": {
     "node": ">=14.15.1"
@@ -57,13 +57,13 @@
     ]
   },
   "dependencies": {
-    "@mongosh/browser-runtime-core": "^3.29.0",
-    "@mongosh/errors": "2.4.5",
-    "@mongosh/history": "2.4.12",
-    "@mongosh/i18n": "^2.20.0",
-    "@mongosh/node-runtime-worker-thread": "3.3.33",
-    "@mongosh/service-provider-core": "3.7.0",
-    "@mongosh/shell-bson": "1.1.0",
+    "@mongosh/browser-runtime-core": "^3.29.1",
+    "@mongosh/errors": "2.4.6",
+    "@mongosh/history": "2.4.13",
+    "@mongosh/i18n": "^2.20.1",
+    "@mongosh/node-runtime-worker-thread": "3.3.34",
+    "@mongosh/service-provider-core": "3.7.1",
+    "@mongosh/shell-bson": "1.1.1",
     "bson": "^6.10.4",
     "numeral": "^2.0.6",
     "text-table": "^0.2.0"
@@ -92,7 +92,7 @@
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
     "html-webpack-plugin": "^5.5.0",
-    "@mongosh/testing": "0.0.0-dev.0",
+    "@mongosh/testing": "0.0.0",
     "karma": "^6.3.9",
     "karma-chrome-launcher": "^3.1.0",
     "karma-cli": "^2.0.0",
