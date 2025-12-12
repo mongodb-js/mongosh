@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/build",
-  "version": "3.7.11",
+  "version": "3.7.12",
   "private": true,
   "description": "MongoDB Shell Build Tools",
   "main": "lib/index.js",
