@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/async-rewriter2",
-  "version": "2.4.13",
+  "version": "2.4.14",
   "description": "MongoDB Shell Async Rewriter Package",
   "main": "./lib/index.js",
   "scripts": {
