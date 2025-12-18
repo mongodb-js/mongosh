@@ -3,11 +3,6 @@ import assert from "assert";
 import path from "path";
 import { getPackagesInTopologicalOrder } from "@mongodb-js/monorepo-tools";
 
-// esm __dirname
-import { fileURLToPath } from "url";
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 (async () => {
   const monorepoRootPath = path.resolve(__dirname, "..");
   // not really relevant that it is in topological order, but it is a convenient
