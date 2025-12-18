@@ -57,7 +57,7 @@
     "update-evergreen-config": "npm run test-evergreen-expansions && node .evergreen/generate-evergreen-yml.js .evergreen/evergreen.yml.in > .evergreen.yml",
     "update-cli-usage-text": "node scripts/update-cli-usage-text.js",
     "update-security-test-summary": "ts-node scripts/generate-security-test-summary.ts > docs/security-test-summary.md",
-    "mark-ci-required-optional-dependencies": "ts-node scripts/mark-ci-required-optional-dependencies.ts",
+    "mark-ci-required-optional-dependencies": "node scripts/mark-ci-required-optional-dependencies.mts",
     "write-node-js-dep": "node scripts/write-nodejs-dep > .sbom/node-js-dep.json",
     "scan-node-js": "mongodb-sbom-tools scan-node-js --version=$NODE_JS_VERSION > .sbom/node-js-vuln.json",
     "snyk-test": "node scripts/snyk-test.js",

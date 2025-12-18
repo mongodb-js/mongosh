@@ -5,13 +5,8 @@ export BASEDIR="$PWD/.evergreen"
 
 . "$BASEDIR/setup-env.sh"
 
-# If MONGOSH_INSTALL_WORKSPACE is set, install only that workspace
-if [[ -n "$MONGOSH_INSTALL_WORKSPACE" ]]; then
-  echo "Installing workspace: $MONGOSH_INSTALL_WORKSPACE"
-  npm ci -w "$MONGOSH_INSTALL_WORKSPACE" --include-workspace-root --verbose
-else
-  npm ci --verbose
-fi
+npm run mark-ci-required-optional-dependencies
+
 echo "MONOGDB_DRIVER_VERSION_OVERRIDE:$MONOGDB_DRIVER_VERSION_OVERRIDE"
 
 # if MONOGDB_DRIVER_VERSION_OVERRIDE is set, then we want to replace the package version
@@ -26,9 +21,6 @@ if [[ -n "$MONOGDB_DRIVER_VERSION_OVERRIDE" ]]; then
   # we set MONOGDB_DRIVER_VERSION_OVERRIDE=nightly in CI
   npm i --verbose --force
 fi
-
-# if we rewrote this script in javascript using just builtin node modules we could skip the npm ci above
-npm run mark-ci-required-optional-dependencies
 
 # install again, this time with all the optional deps. If
 # mongodb-client-encryption failed to install (it can't install on some
