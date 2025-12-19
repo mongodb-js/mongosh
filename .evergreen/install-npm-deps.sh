@@ -5,6 +5,9 @@ export BASEDIR="$PWD/.evergreen"
 
 . "$BASEDIR/setup-env.sh"
 
+# Install root directories used by scripts. We should consider moving scripts to separate packages.
+npm ci --workspaces=false
+
 npm run mark-ci-required-optional-dependencies
 
 echo "MONOGDB_DRIVER_VERSION_OVERRIDE:$MONOGDB_DRIVER_VERSION_OVERRIDE"
