@@ -6,7 +6,8 @@ export BASEDIR="$PWD/.evergreen"
 . "$BASEDIR/setup-env.sh"
 
 # Install root directories used by scripts. We should consider moving scripts to separate packages.
-npm ci --workspaces=false
+# Also install config workspaces since they're referenced by tsconfig.json files but not automatically linked when workspaces=false is used
+npm ci -w configs/tsconfig-mongosh -w configs/eslint-config-mongosh --include-workspace-root
 
 npm run mark-ci-required-optional-dependencies
 
