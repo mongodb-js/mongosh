@@ -7,11 +7,14 @@ export BASEDIR="$PWD/.evergreen"
 
 # Install root directories used by scripts. We should consider moving scripts to separate packages.
 # Also install config workspaces since they're referenced by tsconfig.json files but not automatically linked when workspaces=false is used
-npm ci -w configs/tsconfig-mongosh -w configs/eslint-config-mongosh  --include-workspace-root
+npm ci -w configs/tsconfig-mongosh -w configs/eslint-config-mongosh --include-workspace-root
 
 npm run mark-ci-required-optional-dependencies
 
-npm ci -w "$MONGOSH_INSTALL_WORKSPACE"
+
+if [[ -n "$MONGOSH_INSTALL_WORKSPACE" ]]; then
+  npm ci -w "$MONGOSH_INSTALL_WORKSPACE"
+fi
 
 echo "MONOGDB_DRIVER_VERSION_OVERRIDE:$MONOGDB_DRIVER_VERSION_OVERRIDE"
 
@@ -38,7 +41,7 @@ if [[ -n "$MONGOSH_INSTALL_WORKSPACE" ]]; then
     echo "Workspace or root depends on mongodb-client-encryption, retrying install with optional deps..."
     (npm ci -w "$MONGOSH_INSTALL_WORKSPACE" --include-workspace-root && test -e node_modules/mongodb-client-encryption) || npm ci -w "$MONGOSH_INSTALL_WORKSPACE" --include-workspace-root --ignore-scripts
   else
-  
+    echo "Workspace does not depend on mongodb-client-encryption, skipping optional deps reinstall"
   fi
 else
   (npm ci && test -e node_modules/mongodb-client-encryption) || npm ci --ignore-scripts
