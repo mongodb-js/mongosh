@@ -1,4 +1,5 @@
-import type Catalog from '../catalog';
+// eslint-disable-next-line filename-rules/match
+import type { Catalog } from '../catalog';
 import enUs from './en_US';
 
 /**
