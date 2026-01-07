@@ -56,7 +56,6 @@
     "mongodb-build-info": "^1.8.1",
     "mongodb-connection-string-url": "^3.0.2",
     "socks": "^2.8.3",
-    "mongodb-client-encryption": "^6.5.0",
     "kerberos": "2.1.0"
   },
   "optionalDependencies": {

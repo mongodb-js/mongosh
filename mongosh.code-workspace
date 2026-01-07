@@ -61,10 +61,6 @@
       "path": "packages/arg-parser"
     },
     {
-      "name": "📦 @mongosh/java-shell",
-      "path": "packages/java-shell"
-    },
-    {
       "name": "📦 @mongosh/service-provider-core",
       "path": "packages/service-provider-core"
     },
@@ -95,6 +91,10 @@
     {
       "name": "📦 @mongosh/editor",
       "path": "packages/editor"
+    },
+    {
+      "name": "📦 @mongosh/java-shell",
+      "path": "packages/java-shell"
     },
     {
       "name": "📦 @mongosh/browser-runtime-electron",

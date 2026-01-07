@@ -142,7 +142,6 @@ const config: KnipConfig = {
       project: ["src/main/js/**/*"],
       ignoreDependencies: [
         // Used in webpack and build scripts
-        "bson",
         "tr46",
         "assert",
         "buffer",

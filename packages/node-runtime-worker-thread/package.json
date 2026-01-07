@@ -60,7 +60,8 @@
   "optionalDependencies": {
     "glibc-version": "^1.0.0",
     "macos-export-certificate-and-key": "^1.2.4",
-    "win-export-certificate-and-key": "^2.1.0"
+    "win-export-certificate-and-key": "^2.1.0",
+    "mongodb-client-encryption": "^6.5.0"
   },
   "mongosh": {
     "ciRequiredOptionalDependencies": {
@@ -72,6 +73,11 @@
       ],
       "glibc-version": [
         "linux"
+      ],
+      "mongodb-client-encryption": [
+        "darwin",
+        "linux",
+        "win32"
       ]
     }
   }
