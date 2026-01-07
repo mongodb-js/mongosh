@@ -41,18 +41,18 @@ exports.COMPILE_BUILD_VARIANTS = [
   },
   {
     displayName: 'Amazon 2 arm64',
-    runOn: 'amazon2-arm64-large',
+    runOn: 'amazon2-arm64-latest-large',
     executableOsId: 'linux-arm64',
   },
   {
     displayName: 'Amazon 2 arm64',
-    runOn: 'amazon2-arm64-large',
+    runOn: 'amazon2-arm64-latest-large',
     executableOsId: 'linux-arm64-openssl11',
     sharedOpenSsl: 'openssl11',
   },
   {
     displayName: 'Amazon 2 arm64',
-    runOn: 'amazon2-arm64-large',
+    runOn: 'amazon2-arm64-latest-large',
     executableOsId: 'linux-arm64-openssl3',
     sharedOpenSsl: 'openssl3',
   },

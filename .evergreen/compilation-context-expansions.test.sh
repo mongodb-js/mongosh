@@ -16,7 +16,7 @@ function success {
 TEST_CASES='
 amazon2023.0-arm64-small=false
 amazon2023.0-small=false
-amazon2-arm64-large=true
+amazon2-arm64-latest-large=true
 amazon2-large=false
 debian10-small=false
 debian11-small=false

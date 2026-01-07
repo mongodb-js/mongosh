@@ -170,7 +170,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
   },
   {
     displayName: 'Amazon Linux 2 x64',
-    runOn: 'amazon2-large',
+    runOn: 'amazon2-latest-large',
     tags: ['nightly-driver'],
     executableOsId: 'linux-x64',
     mVersion: '7.0.x',
@@ -250,7 +250,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
   },
   {
     displayName: 'Amazon Linux 2 arm64',
-    runOn: 'amazon2-arm64-large',
+    runOn: 'amazon2-arm64-latest-large',
     executableOsId: 'linux-arm64',
     mVersion: '7.0.x',
   },
