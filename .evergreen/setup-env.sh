@@ -46,6 +46,7 @@ if [ "$OS" != "Windows_NT" ]; then
     (which g++ && g++ --version)
   fi
 else
+  export NODE_GYP_FORCE_PYTHON="C:\python\Python311\python.exe"
   export PATH="/cygdrive/c/python/Python311/Scripts:/cygdrive/c/python/Python311:/cygdrive/c/Python311/Scripts:/cygdrive/c/Python311:/cygdrive/c/cmake/bin:$PATH"
 fi
 
