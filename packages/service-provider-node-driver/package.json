@@ -20,8 +20,7 @@
     "prepublish": "npm run compile",
     "eslint": "eslint",
     "lint": "npm run eslint . && npm run prettier -- --check .",
-    "check": "npm run lint && npm run depcheck",
-    "depcheck": "depcheck",
+    "check": "npm run lint",
     "prettier": "prettier",
     "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
   },
@@ -58,10 +57,10 @@
     "mongodb-connection-string-url": "^3.0.2",
     "socks": "^2.8.3",
     "mongodb-client-encryption": "^6.5.0",
-    "kerberos": "2.1.0"
+    "kerberos": "2.2.2"
   },
   "optionalDependencies": {
-    "kerberos": "2.1.0",
+    "kerberos": "2.2.2",
     "mongodb-client-encryption": "^6.5.0"
   },
   "devDependencies": {
@@ -69,8 +68,8 @@
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@types/sinon-chai": "^4.0.0",
-    "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
-    "prettier": "^2.8.8"
+    "prettier": "^2.8.8",
+    "@mongosh/testing": "0.0.0-dev.0"
   }
 }

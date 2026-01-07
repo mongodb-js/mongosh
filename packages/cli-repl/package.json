@@ -29,8 +29,7 @@
     "test-smoke": "node bin/mongosh.js --smokeTests",
     "eslint": "eslint",
     "lint": "npm run eslint . && npm run prettier -- --check .",
-    "check": "npm run lint && npm run depcheck",
-    "depcheck": "depcheck",
+    "check": "npm run lint",
     "prepublish": "npm run compile",
     "webpack-build": "npm run compile && webpack --mode production && cat dist/add-module-mapping.js >> dist/mongosh.js",
     "webpack-build-dev": "npm run compile && webpack --mode development && cat dist/add-module-mapping.js >> dist/mongosh.js",
@@ -106,12 +105,12 @@
     "@types/numeral": "^2.0.2",
     "@types/text-table": "^0.2.1",
     "chai-as-promised": "^8.0.2",
-    "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
     "mongodb": "^6.19.0",
     "mongodb-crypt-library-dummy": "^1.0.2",
     "prettier": "^2.8.8",
-    "webpack-merge": "^5.8.0"
+    "webpack-merge": "^5.8.0",
+    "@mongosh/testing": "0.0.0-dev.0"
   },
   "optionalDependencies": {
     "get-console-process-list": "^1.0.5",

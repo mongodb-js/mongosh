@@ -1,11 +1,12 @@
 import {
+  eventually,
   startTestCluster,
   skipIfServerVersion,
   skipIfApiStrict,
-} from '../../../testing/integration-testing-hooks';
-import { eventually } from '../../../testing/eventually';
+} from '@mongosh/testing';
 import { expect } from 'chai';
 import type { TestShell } from './test-shell';
+import { startTestShell } from './test-shell-context';
 
 describe('e2e direct connection', function () {
   skipIfApiStrict();
@@ -31,7 +32,7 @@ describe('e2e direct connection', function () {
       { server: rs2, name: 'rs2' },
     ].forEach(({ server, name }) => {
       it(`works when connecting to node ${name} of uninitialized set`, async function () {
-        const shell = this.startTestShell({
+        const shell = startTestShell(this, {
           args: [await server.connectionString()],
         });
         await shell.waitForPrompt();
@@ -56,7 +57,7 @@ describe('e2e direct connection', function () {
           ],
         };
 
-        const shell = this.startTestShell({
+        const shell = startTestShell(this, {
           args: [await rs0.connectionString()],
         });
         await shell.waitForPrompt();
@@ -83,7 +84,7 @@ describe('e2e direct connection', function () {
         shell.writeInputLine('exit');
       });
       after(async function () {
-        const shell = this.startTestShell({
+        const shell = startTestShell(this, {
           args: [await rs0.connectionString()],
         });
         await shell.waitForPrompt();
@@ -94,7 +95,7 @@ describe('e2e direct connection', function () {
 
       context('connecting to secondary members directly', function () {
         it('works when specifying a connection string', async function () {
-          const shell = this.startTestShell({
+          const shell = startTestShell(this, {
             args: [await rs1.connectionString()],
           });
           await shell.waitForPrompt();
@@ -105,7 +106,7 @@ describe('e2e direct connection', function () {
         });
 
         it('works when specifying just host and port', async function () {
-          const shell = this.startTestShell({ args: [await rs1.hostport()] });
+          const shell = startTestShell(this, { args: [await rs1.hostport()] });
           await shell.waitForPrompt();
           await shell.executeLine('db.isMaster()');
           shell.assertContainsOutput('ismaster: false');
@@ -114,7 +115,7 @@ describe('e2e direct connection', function () {
         });
 
         it('lists collections without explicit readPreference', async function () {
-          const shell = this.startTestShell({
+          const shell = startTestShell(this, {
             args: [`${await rs1.connectionString()}`],
           });
           await shell.waitForPrompt();
@@ -124,7 +125,7 @@ describe('e2e direct connection', function () {
         });
 
         it('lists collections when an incompatible readPreference is provided', async function () {
-          const shell = this.startTestShell({
+          const shell = startTestShell(this, {
             args: [`${await rs1.connectionString()}`],
           });
           await shell.waitForPrompt();
@@ -136,7 +137,7 @@ describe('e2e direct connection', function () {
         });
 
         it('lists collections when readPreference is set via Mongo', async function () {
-          const shell = this.startTestShell({
+          const shell = startTestShell(this, {
             args: [await rs1.connectionString()],
           });
           await shell.waitForPrompt();
@@ -149,7 +150,7 @@ describe('e2e direct connection', function () {
         });
 
         it('slists databases without explicit readPreference', async function () {
-          const shell = this.startTestShell({
+          const shell = startTestShell(this, {
             args: [await rs1.connectionString()],
           });
           await shell.waitForPrompt();
@@ -159,7 +160,7 @@ describe('e2e direct connection', function () {
         });
 
         it('lists databases when an incompatible readPreference is provided', async function () {
-          const shell = this.startTestShell({
+          const shell = startTestShell(this, {
             args: [await rs1.connectionString()],
           });
           await shell.waitForPrompt();
@@ -171,7 +172,7 @@ describe('e2e direct connection', function () {
         });
 
         it('lists databases when readPreference is set via Mongo', async function () {
-          const shell = this.startTestShell({
+          const shell = startTestShell(this, {
             args: [await rs1.connectionString()],
           });
           await shell.waitForPrompt();
@@ -184,7 +185,7 @@ describe('e2e direct connection', function () {
         });
 
         it('lists collections and dbs using show by default', async function () {
-          const shell = this.startTestShell({
+          const shell = startTestShell(this, {
             args: [await rs1.connectionString()],
           });
           await shell.waitForPrompt();
@@ -199,7 +200,7 @@ describe('e2e direct connection', function () {
           if (process.arch === 's390x') {
             return this.skip(); // https://jira.mongodb.org/browse/MONGOSH-746
           }
-          const shell = this.startTestShell({
+          const shell = startTestShell(this, {
             args: [await rs1.connectionString({}, { pathname: `/${dbname}` })],
             forceTerminal: true,
           });
@@ -215,7 +216,7 @@ describe('e2e direct connection', function () {
           skipIfServerVersion(rs0, '< 4.2');
 
           it('allows aggregate with $merge with secondary readpref', async function () {
-            const shell = this.startTestShell({
+            const shell = startTestShell(this, {
               args: [
                 await rs1.connectionString(
                   {
@@ -247,7 +248,7 @@ describe('e2e direct connection', function () {
 
       context('connecting to primary', function () {
         it('when specifying replicaSet', async function () {
-          const shell = this.startTestShell({
+          const shell = startTestShell(this, {
             args: [await rs1.connectionString({ replicaSet: replSetId })],
           });
           await shell.waitForPrompt();
@@ -257,7 +258,7 @@ describe('e2e direct connection', function () {
           shell.assertContainsOutput(`setName: '${replSetId}'`);
         });
         it('when setting directConnection to false', async function () {
-          const shell = this.startTestShell({
+          const shell = startTestShell(this, {
             args: [await rs1.connectionString({ directConnection: 'false' })],
           });
           await shell.waitForPrompt();
@@ -274,7 +275,7 @@ describe('e2e direct connection', function () {
             (await rs1.hostport()) +
             ',' +
             (await rs0.hostport());
-          const shell = this.startTestShell({ args: [connectionString] });
+          const shell = startTestShell(this, { args: [connectionString] });
           await shell.waitForPrompt();
           await shell.executeLine('db.isMaster()');
           shell.assertContainsOutput('ismaster: true');
@@ -288,7 +289,7 @@ describe('e2e direct connection', function () {
             (await rs1.hostport()) +
             ',' +
             (await rs0.hostport());
-          const shell = this.startTestShell({ args: ['--host', hostlist] });
+          const shell = startTestShell(this, { args: ['--host', hostlist] });
           await shell.waitForPrompt();
           await shell.executeLine('db.isMaster()');
           await shell.executeLine('({ dbname: db.getName() })');
@@ -306,7 +307,7 @@ describe('e2e direct connection', function () {
             (await rs1.hostport()) +
             ',' +
             (await rs0.hostport());
-          const shell = this.startTestShell({ args: ['--host', hostlist] });
+          const shell = startTestShell(this, { args: ['--host', hostlist] });
           await shell.waitForPrompt();
           await shell.executeLine('db.isMaster()');
           await shell.executeLine('({ dbname: db.getName() })');
@@ -324,7 +325,7 @@ describe('e2e direct connection', function () {
             (await rs1.hostport()) +
             ',' +
             (await rs0.hostport());
-          const shell = this.startTestShell({
+          const shell = startTestShell(this, {
             args: ['--host', hostlist, 'admin'],
           });
           await shell.waitForPrompt();
@@ -343,7 +344,7 @@ describe('e2e direct connection', function () {
             (await rs1.hostport()) +
             ',' +
             (await rs0.hostport());
-          const shell = this.startTestShell({
+          const shell = startTestShell(this, {
             args: ['--host', hostlist, 'admin'],
           });
           await shell.waitForAnyExit();
@@ -351,7 +352,7 @@ describe('e2e direct connection', function () {
         });
 
         it('lists collections and dbs using show by default', async function () {
-          const shell = this.startTestShell({
+          const shell = startTestShell(this, {
             args: [`${await rs1.connectionString()}`],
           });
           await shell.waitForPrompt();
@@ -365,7 +366,7 @@ describe('e2e direct connection', function () {
           if (process.arch === 's390x') {
             return this.skip(); // https://jira.mongodb.org/browse/MONGOSH-746
           }
-          const shell = this.startTestShell({
+          const shell = startTestShell(this, {
             args: [await rs1.connectionString({}, { pathname: `/${dbname}` })],
             forceTerminal: true,
           });
@@ -385,7 +386,7 @@ describe('e2e direct connection', function () {
             (await rs1.hostport()) +
             ',' +
             (await rs0.hostport());
-          const shell = this.startTestShell({
+          const shell = startTestShell(this, {
             args: [
               '--host',
               hostlist,
@@ -400,7 +401,7 @@ describe('e2e direct connection', function () {
           shell.assertContainsOutput("user: 'anna'");
         });
         it('drops indexes even if a read preference is specified in the connection url', async function () {
-          const shell = this.startTestShell({
+          const shell = startTestShell(this, {
             args: [await rs0.connectionString({ readPreference: 'secondary' })],
           });
 
@@ -414,7 +415,7 @@ describe('e2e direct connection', function () {
 
       describe('fail-fast connections', function () {
         it('does not fail fast for ECONNREFUSED errors when one host is reachable', async function () {
-          const shell = this.startTestShell({
+          const shell = startTestShell(this, {
             args: [
               `mongodb://${await rs1.hostport()},127.0.0.1:1/?replicaSet=${replSetId}&readPreference=secondary`,
             ],

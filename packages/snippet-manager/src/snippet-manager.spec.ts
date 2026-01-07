@@ -14,7 +14,7 @@ import bson from 'bson';
 import path from 'path';
 import { promises as fs, createReadStream } from 'fs';
 import Nanobus from 'nanobus';
-import { eventually } from '../../../testing/eventually';
+import { eventually } from '@mongosh/testing';
 chai.use(sinonChai);
 
 describe('SnippetManager', function () {

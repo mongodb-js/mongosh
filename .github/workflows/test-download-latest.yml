@@ -1,0 +1,38 @@
+name: "Test download_latest script"
+on:
+  schedule:
+    - cron: "0 3 * * *"  # every day at 03:00 UTC
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke-tests:
+    name: "OS: ${{ matrix.runner }}, node@${{ matrix.node }}"
+    strategy:
+      matrix:
+        runner: [ubuntu, macos]
+        node: [24.x]
+      fail-fast: false
+    runs-on: ${{ matrix.runner }}-latest
+    timeout-minutes: 30 # Installing dependencies on windows can take a while
+    env:
+      npm_config_loglevel: verbose
+      npm_config_foreground_scripts: "true"
+      PUPPETEER_SKIP_DOWNLOAD: "true"
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          check-latest: true
+          node-version: ${{ matrix.node }}
+
+      - name: Install mongosh through download_latest.sh
+        run: ./download_latest.sh
+
+      - name: Run smoke tests
+        run: npx -y mongodb-runner -- exec -- sh -c 'env MONGOSH_SMOKE_TEST_SERVER=$MONGODB_URI ./mongosh --smokeTests'

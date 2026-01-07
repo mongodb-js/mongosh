@@ -549,6 +549,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin-n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin-n20-testing.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-darwin-n20-types.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n20-types.tgz
         bucket: mciuploads
@@ -633,6 +647,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_darwin-m60xc_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m60xc_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_darwin-m60xc_n20-testing.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_darwin-m60xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m60xe_n20-cli_repl.tgz
         bucket: mciuploads
@@ -699,6 +727,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_darwin-m60xe_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_darwin-m60xe_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m60xe_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_darwin-m60xe_n20-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -773,6 +815,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_darwin-m70xc_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m70xc_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_darwin-m70xc_n20-testing.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_darwin-m70xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m70xe_n20-cli_repl.tgz
         bucket: mciuploads
@@ -839,6 +895,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_darwin-m70xe_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_darwin-m70xe_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m70xe_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_darwin-m70xe_n20-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -913,6 +983,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_darwin-m80xc_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m80xc_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_darwin-m80xc_n20-testing.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_darwin-m80xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m80xe_n20-cli_repl.tgz
         bucket: mciuploads
@@ -979,6 +1063,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_darwin-m80xe_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_darwin-m80xe_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m80xe_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_darwin-m80xe_n20-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -1053,6 +1151,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_darwin-m82xc_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m82xc_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_darwin-m82xc_n20-testing.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_darwin-m82xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m82xe_n20-cli_repl.tgz
         bucket: mciuploads
@@ -1123,6 +1235,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_darwin-m82xe_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m82xe_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_darwin-m82xe_n20-testing.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_darwin-mlatest_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-mlatest_n20-cli_repl.tgz
         bucket: mciuploads
@@ -1189,6 +1315,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_darwin-mlatest_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_darwin-mlatest_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-mlatest_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_darwin-mlatest_n20-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -1501,6 +1641,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux-n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux-n20-testing.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-linux-n20-types.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n20-types.tgz
         bucket: mciuploads
@@ -1599,6 +1753,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m42xc_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m42xc_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m42xc_n20-testing.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_linux-m44xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m44xc_n20-cli_repl.tgz
         bucket: mciuploads
@@ -1679,6 +1847,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_linux-m44xc_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m44xc_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m44xc_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m44xc_n20-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -1767,6 +1949,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m44xe_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m44xe_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m44xe_n20-testing.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_linux-m50xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m50xc_n20-cli_repl.tgz
         bucket: mciuploads
@@ -1847,6 +2043,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_linux-m50xc_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m50xc_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m50xc_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m50xc_n20-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -1935,6 +2145,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m50xe_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m50xe_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m50xe_n20-testing.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_linux-m60xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m60xc_n20-cli_repl.tgz
         bucket: mciuploads
@@ -2015,6 +2239,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_linux-m60xc_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m60xc_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m60xc_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m60xc_n20-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -2103,6 +2341,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m60xe_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m60xe_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m60xe_n20-testing.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_linux-m70xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m70xc_n20-cli_repl.tgz
         bucket: mciuploads
@@ -2183,6 +2435,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_linux-m70xc_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m70xc_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m70xc_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m70xc_n20-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -2271,6 +2537,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m70xe_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m70xe_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m70xe_n20-testing.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_linux-m80xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m80xc_n20-cli_repl.tgz
         bucket: mciuploads
@@ -2351,6 +2631,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_linux-m80xc_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m80xc_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m80xc_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m80xc_n20-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -2439,6 +2733,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m80xe_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m80xe_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m80xe_n20-testing.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_linux-m82xc_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m82xc_n20-cli_repl.tgz
         bucket: mciuploads
@@ -2519,6 +2827,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_linux-m82xc_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m82xc_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m82xc_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m82xc_n20-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -2607,6 +2929,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m82xe_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m82xe_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m82xe_n20-testing.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_linux-mlatest_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-mlatest_n20-cli_repl.tgz
         bucket: mciuploads
@@ -2687,6 +3023,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_linux-mlatest_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-mlatest_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-mlatest_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-mlatest_n20-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -2985,6 +3335,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32-n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32-n20-testing.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-win32-n20-types.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-n20-types.tgz
         bucket: mciuploads
@@ -3069,6 +3433,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m42xc_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m42xc_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m42xc_n20-testing.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_win32-m42xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m42xe_n20-cli_repl.tgz
         bucket: mciuploads
@@ -3135,6 +3513,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_win32-m42xe_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m42xe_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m42xe_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m42xe_n20-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -3209,6 +3601,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m44xc_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m44xc_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m44xc_n20-testing.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_win32-m44xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m44xe_n20-cli_repl.tgz
         bucket: mciuploads
@@ -3275,6 +3681,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_win32-m44xe_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m44xe_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m44xe_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m44xe_n20-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -3349,6 +3769,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m50xc_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m50xc_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m50xc_n20-testing.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_win32-m50xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m50xe_n20-cli_repl.tgz
         bucket: mciuploads
@@ -3415,6 +3849,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_win32-m50xe_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m50xe_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m50xe_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m50xe_n20-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -3489,6 +3937,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m60xc_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m60xc_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m60xc_n20-testing.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_win32-m60xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m60xe_n20-cli_repl.tgz
         bucket: mciuploads
@@ -3555,6 +4017,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_win32-m60xe_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m60xe_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m60xe_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m60xe_n20-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -3629,6 +4105,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m70xc_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m70xc_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m70xc_n20-testing.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_win32-m70xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m70xe_n20-cli_repl.tgz
         bucket: mciuploads
@@ -3695,6 +4185,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_win32-m70xe_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m70xe_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m70xe_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m70xe_n20-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -3769,6 +4273,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m80xc_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m80xc_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m80xc_n20-testing.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_win32-m80xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m80xe_n20-cli_repl.tgz
         bucket: mciuploads
@@ -3835,6 +4353,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_win32-m80xe_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m80xe_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m80xe_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m80xe_n20-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -3909,6 +4441,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m82xc_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m82xc_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m82xc_n20-testing.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_win32-m82xe_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m82xe_n20-cli_repl.tgz
         bucket: mciuploads
@@ -3979,6 +4525,20 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m82xe_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m82xe_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m82xe_n20-testing.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_win32-mlatest_n20-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-mlatest_n20-cli_repl.tgz
         bucket: mciuploads
@@ -4045,6 +4605,20 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_win32-mlatest_n20-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-mlatest_n20-testing.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-mlatest_n20-testing.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-mlatest_n20-testing.tgz
     - command: shell.exec
       params:
         working_dir: src
@@ -4117,7 +4691,7 @@ functions:
           (cd scripts/docker && docker build --build-arg NODE_JS_VERSION="$NODE_VERSION" -t ubuntu24.04-xvfb -f ubuntu24.04-xvfb.Dockerfile .)
           docker run \
             --rm -v $PWD:/tmp/build ubuntu24.04-xvfb \
-            -c 'cd /tmp/build && ./testing/test-vscode.sh'
+            -c 'cd /tmp/build && ./scripts/test-vscode.sh'
           }
   test_connectivity:
     - command: expansions.write
@@ -5026,6 +5600,8 @@ tasks:
         variant: darwin-n20
       - name: test_snippet_manager
         variant: darwin-n20
+      - name: test_testing
+        variant: darwin-n20
       - name: test_types
         variant: darwin-n20
       - name: test_cli_repl
@@ -5038,6 +5614,8 @@ tasks:
         variant: tests_darwin-m60xc_n20
       - name: test_shell_api
         variant: tests_darwin-m60xc_n20
+      - name: test_testing
+        variant: tests_darwin-m60xc_n20
       - name: test_cli_repl
         variant: tests_darwin-m60xe_n20
       - name: test_e2e_tests
@@ -5048,6 +5626,8 @@ tasks:
         variant: tests_darwin-m60xe_n20
       - name: test_shell_api
         variant: tests_darwin-m60xe_n20
+      - name: test_testing
+        variant: tests_darwin-m60xe_n20
       - name: test_cli_repl
         variant: tests_darwin-m70xc_n20
       - name: test_e2e_tests
@@ -5058,6 +5638,8 @@ tasks:
         variant: tests_darwin-m70xc_n20
       - name: test_shell_api
         variant: tests_darwin-m70xc_n20
+      - name: test_testing
+        variant: tests_darwin-m70xc_n20
       - name: test_cli_repl
         variant: tests_darwin-m70xe_n20
       - name: test_e2e_tests
@@ -5068,6 +5650,8 @@ tasks:
         variant: tests_darwin-m70xe_n20
       - name: test_shell_api
         variant: tests_darwin-m70xe_n20
+      - name: test_testing
+        variant: tests_darwin-m70xe_n20
       - name: test_cli_repl
         variant: tests_darwin-m80xc_n20
       - name: test_e2e_tests
@@ -5077,6 +5661,8 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_darwin-m80xc_n20
       - name: test_shell_api
+        variant: tests_darwin-m80xc_n20
+      - name: test_testing
         variant: tests_darwin-m80xc_n20
       - name: test_cli_repl
         variant: tests_darwin-m80xe_n20
@@ -5087,6 +5673,8 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_darwin-m80xe_n20
       - name: test_shell_api
+        variant: tests_darwin-m80xe_n20
+      - name: test_testing
         variant: tests_darwin-m80xe_n20
       - name: test_cli_repl
         variant: tests_darwin-m82xc_n20
@@ -5097,6 +5685,8 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_darwin-m82xc_n20
       - name: test_shell_api
+        variant: tests_darwin-m82xc_n20
+      - name: test_testing
         variant: tests_darwin-m82xc_n20
       - name: test_cli_repl
         variant: tests_darwin-m82xe_n20
@@ -5107,6 +5697,8 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_darwin-m82xe_n20
       - name: test_shell_api
+        variant: tests_darwin-m82xe_n20
+      - name: test_testing
         variant: tests_darwin-m82xe_n20
       - name: test_cli_repl
         variant: tests_darwin-mlatest_n20
@@ -5117,6 +5709,8 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_darwin-mlatest_n20
       - name: test_shell_api
+        variant: tests_darwin-mlatest_n20
+      - name: test_testing
         variant: tests_darwin-mlatest_n20
       - name: test_arg_parser
         variant: linux-n20
@@ -5162,6 +5756,8 @@ tasks:
         variant: linux-n20
       - name: test_snippet_manager
         variant: linux-n20
+      - name: test_testing
+        variant: linux-n20
       - name: test_types
         variant: linux-n20
       - name: test_cli_repl
@@ -5176,6 +5772,8 @@ tasks:
         variant: tests_linux-m42xc_n20
       - name: test_shell_api
         variant: tests_linux-m42xc_n20
+      - name: test_testing
+        variant: tests_linux-m42xc_n20
       - name: test_cli_repl
         variant: tests_linux-m44xc_n20
       - name: test_e2e_tests
@@ -5188,6 +5786,8 @@ tasks:
         variant: tests_linux-m44xc_n20
       - name: test_shell_api
         variant: tests_linux-m44xc_n20
+      - name: test_testing
+        variant: tests_linux-m44xc_n20
       - name: test_cli_repl
         variant: tests_linux-m44xe_n20
       - name: test_e2e_tests
@@ -5200,6 +5800,8 @@ tasks:
         variant: tests_linux-m44xe_n20
       - name: test_shell_api
         variant: tests_linux-m44xe_n20
+      - name: test_testing
+        variant: tests_linux-m44xe_n20
       - name: test_cli_repl
         variant: tests_linux-m50xc_n20
       - name: test_e2e_tests
@@ -5212,6 +5814,8 @@ tasks:
         variant: tests_linux-m50xc_n20
       - name: test_shell_api
         variant: tests_linux-m50xc_n20
+      - name: test_testing
+        variant: tests_linux-m50xc_n20
       - name: test_cli_repl
         variant: tests_linux-m50xe_n20
       - name: test_e2e_tests
@@ -5224,6 +5828,8 @@ tasks:
         variant: tests_linux-m50xe_n20
       - name: test_shell_api
         variant: tests_linux-m50xe_n20
+      - name: test_testing
+        variant: tests_linux-m50xe_n20
       - name: test_cli_repl
         variant: tests_linux-m60xc_n20
       - name: test_e2e_tests
@@ -5235,6 +5841,8 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_linux-m60xc_n20
       - name: test_shell_api
+        variant: tests_linux-m60xc_n20
+      - name: test_testing
         variant: tests_linux-m60xc_n20
       - name: test_cli_repl
         variant: tests_linux-m60xe_n20
@@ -5247,6 +5855,8 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_linux-m60xe_n20
       - name: test_shell_api
+        variant: tests_linux-m60xe_n20
+      - name: test_testing
         variant: tests_linux-m60xe_n20
       - name: test_cli_repl
         variant: tests_linux-m70xc_n20
@@ -5259,6 +5869,8 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_linux-m70xc_n20
       - name: test_shell_api
+        variant: tests_linux-m70xc_n20
+      - name: test_testing
         variant: tests_linux-m70xc_n20
       - name: test_cli_repl
         variant: tests_linux-m70xe_n20
@@ -5271,6 +5883,8 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_linux-m70xe_n20
       - name: test_shell_api
+        variant: tests_linux-m70xe_n20
+      - name: test_testing
         variant: tests_linux-m70xe_n20
       - name: test_cli_repl
         variant: tests_linux-m80xc_n20
@@ -5283,6 +5897,8 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_linux-m80xc_n20
       - name: test_shell_api
+        variant: tests_linux-m80xc_n20
+      - name: test_testing
         variant: tests_linux-m80xc_n20
       - name: test_cli_repl
         variant: tests_linux-m80xe_n20
@@ -5295,6 +5911,8 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_linux-m80xe_n20
       - name: test_shell_api
+        variant: tests_linux-m80xe_n20
+      - name: test_testing
         variant: tests_linux-m80xe_n20
       - name: test_cli_repl
         variant: tests_linux-m82xc_n20
@@ -5307,6 +5925,8 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_linux-m82xc_n20
       - name: test_shell_api
+        variant: tests_linux-m82xc_n20
+      - name: test_testing
         variant: tests_linux-m82xc_n20
       - name: test_cli_repl
         variant: tests_linux-m82xe_n20
@@ -5319,6 +5939,8 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_linux-m82xe_n20
       - name: test_shell_api
+        variant: tests_linux-m82xe_n20
+      - name: test_testing
         variant: tests_linux-m82xe_n20
       - name: test_cli_repl
         variant: tests_linux-mlatest_n20
@@ -5331,6 +5953,8 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_linux-mlatest_n20
       - name: test_shell_api
+        variant: tests_linux-mlatest_n20
+      - name: test_testing
         variant: tests_linux-mlatest_n20
       - name: test_arg_parser
         variant: win32-n20
@@ -5374,6 +5998,8 @@ tasks:
         variant: win32-n20
       - name: test_snippet_manager
         variant: win32-n20
+      - name: test_testing
+        variant: win32-n20
       - name: test_types
         variant: win32-n20
       - name: test_cli_repl
@@ -5386,6 +6012,8 @@ tasks:
         variant: tests_win32-m42xc_n20
       - name: test_shell_api
         variant: tests_win32-m42xc_n20
+      - name: test_testing
+        variant: tests_win32-m42xc_n20
       - name: test_cli_repl
         variant: tests_win32-m42xe_n20
       - name: test_e2e_tests
@@ -5396,6 +6024,8 @@ tasks:
         variant: tests_win32-m42xe_n20
       - name: test_shell_api
         variant: tests_win32-m42xe_n20
+      - name: test_testing
+        variant: tests_win32-m42xe_n20
       - name: test_cli_repl
         variant: tests_win32-m44xc_n20
       - name: test_e2e_tests
@@ -5406,6 +6036,8 @@ tasks:
         variant: tests_win32-m44xc_n20
       - name: test_shell_api
         variant: tests_win32-m44xc_n20
+      - name: test_testing
+        variant: tests_win32-m44xc_n20
       - name: test_cli_repl
         variant: tests_win32-m44xe_n20
       - name: test_e2e_tests
@@ -5416,6 +6048,8 @@ tasks:
         variant: tests_win32-m44xe_n20
       - name: test_shell_api
         variant: tests_win32-m44xe_n20
+      - name: test_testing
+        variant: tests_win32-m44xe_n20
       - name: test_cli_repl
         variant: tests_win32-m50xc_n20
       - name: test_e2e_tests
@@ -5425,6 +6059,8 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_win32-m50xc_n20
       - name: test_shell_api
+        variant: tests_win32-m50xc_n20
+      - name: test_testing
         variant: tests_win32-m50xc_n20
       - name: test_cli_repl
         variant: tests_win32-m50xe_n20
@@ -5435,6 +6071,8 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_win32-m50xe_n20
       - name: test_shell_api
+        variant: tests_win32-m50xe_n20
+      - name: test_testing
         variant: tests_win32-m50xe_n20
       - name: test_cli_repl
         variant: tests_win32-m60xc_n20
@@ -5445,6 +6083,8 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_win32-m60xc_n20
       - name: test_shell_api
+        variant: tests_win32-m60xc_n20
+      - name: test_testing
         variant: tests_win32-m60xc_n20
       - name: test_cli_repl
         variant: tests_win32-m60xe_n20
@@ -5455,6 +6095,8 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_win32-m60xe_n20
       - name: test_shell_api
+        variant: tests_win32-m60xe_n20
+      - name: test_testing
         variant: tests_win32-m60xe_n20
       - name: test_cli_repl
         variant: tests_win32-m70xc_n20
@@ -5465,6 +6107,8 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_win32-m70xc_n20
       - name: test_shell_api
+        variant: tests_win32-m70xc_n20
+      - name: test_testing
         variant: tests_win32-m70xc_n20
       - name: test_cli_repl
         variant: tests_win32-m70xe_n20
@@ -5475,6 +6119,8 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_win32-m70xe_n20
       - name: test_shell_api
+        variant: tests_win32-m70xe_n20
+      - name: test_testing
         variant: tests_win32-m70xe_n20
       - name: test_cli_repl
         variant: tests_win32-m80xc_n20
@@ -5485,6 +6131,8 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_win32-m80xc_n20
       - name: test_shell_api
+        variant: tests_win32-m80xc_n20
+      - name: test_testing
         variant: tests_win32-m80xc_n20
       - name: test_cli_repl
         variant: tests_win32-m80xe_n20
@@ -5495,6 +6143,8 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_win32-m80xe_n20
       - name: test_shell_api
+        variant: tests_win32-m80xe_n20
+      - name: test_testing
         variant: tests_win32-m80xe_n20
       - name: test_cli_repl
         variant: tests_win32-m82xc_n20
@@ -5505,6 +6155,8 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_win32-m82xc_n20
       - name: test_shell_api
+        variant: tests_win32-m82xc_n20
+      - name: test_testing
         variant: tests_win32-m82xc_n20
       - name: test_cli_repl
         variant: tests_win32-m82xe_n20
@@ -5515,6 +6167,8 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_win32-m82xe_n20
       - name: test_shell_api
+        variant: tests_win32-m82xe_n20
+      - name: test_testing
         variant: tests_win32-m82xe_n20
       - name: test_cli_repl
         variant: tests_win32-mlatest_n20
@@ -5525,6 +6179,8 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_win32-mlatest_n20
       - name: test_shell_api
+        variant: tests_win32-mlatest_n20
+      - name: test_testing
         variant: tests_win32-mlatest_n20
     commands:
       - func: checkout
@@ -6013,6 +6669,25 @@ tasks:
           mongosh_skip_node_version_check: ${mongosh_skip_node_version_check}
           mongosh_test_id: "snippet_manager"
           mongosh_run_only_in_package: "snippet-manager"
+          task_name: ${task_name}
+  - name: test_testing
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_compile
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: ${node_js_version}
+          puppeteer_skip_download: "true"
+      - func: test
+        vars:
+          mongosh_server_test_version: ${mongosh_server_test_version}
+          node_js_version: ${node_js_version}
+          mongosh_skip_node_version_check: ${mongosh_skip_node_version_check}
+          mongosh_test_id: "testing"
+          mongosh_run_only_in_package: "testing"
           task_name: ${task_name}
   - name: test_types
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
@@ -10401,6 +11076,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_darwin-m60xc_n20
     display_name: "MacOS 14 arm64 m60xc n20 (Unit tests)"
@@ -10435,6 +11111,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_darwin-m60xe_n20
     display_name: "MacOS 14 arm64 m60xe n20 (Unit tests)"
@@ -10469,6 +11146,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_darwin-m70xc_n20
     display_name: "MacOS 14 arm64 m70xc n20 (Unit tests)"
@@ -10503,6 +11181,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_darwin-m70xe_n20
     display_name: "MacOS 14 arm64 m70xe n20 (Unit tests)"
@@ -10537,6 +11216,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_darwin-m80xc_n20
     display_name: "MacOS 14 arm64 m80xc n20 (Unit tests)"
@@ -10571,6 +11251,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_darwin-m80xe_n20
     display_name: "MacOS 14 arm64 m80xe n20 (Unit tests)"
@@ -10605,6 +11286,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_darwin-m82xc_n20
     display_name: "MacOS 14 arm64 m82xc n20 (Unit tests)"
@@ -10639,6 +11321,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_darwin-m82xe_n20
     display_name: "MacOS 14 arm64 m82xe n20 (Unit tests)"
@@ -10673,6 +11356,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_darwin-mlatest_n20
     display_name: "MacOS 14 arm64 mlatest n20 (Unit tests)"
@@ -10707,6 +11391,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: linux-n20
     display_name: "Ubuntu 20.04 x64 n20 (Unit tests)"
@@ -10741,6 +11426,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_linux-m42xc_n20
     display_name: "Ubuntu 20.04 x64 m42xc n20 (Unit tests)"
@@ -10775,6 +11461,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_linux-m44xc_n20
     display_name: "Ubuntu 20.04 x64 m44xc n20 (Unit tests)"
@@ -10809,6 +11496,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_linux-m44xe_n20
     display_name: "Ubuntu 20.04 x64 m44xe n20 (Unit tests)"
@@ -10843,6 +11531,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_linux-m50xc_n20
     display_name: "Ubuntu 20.04 x64 m50xc n20 (Unit tests)"
@@ -10877,6 +11566,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_linux-m50xe_n20
     display_name: "Ubuntu 20.04 x64 m50xe n20 (Unit tests)"
@@ -10911,6 +11601,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_linux-m60xc_n20
     display_name: "Ubuntu 20.04 x64 m60xc n20 (Unit tests)"
@@ -10945,6 +11636,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_linux-m60xe_n20
     display_name: "Ubuntu 20.04 x64 m60xe n20 (Unit tests)"
@@ -10979,6 +11671,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_linux-m70xc_n20
     display_name: "Ubuntu 20.04 x64 m70xc n20 (Unit tests)"
@@ -11013,6 +11706,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_linux-m70xe_n20
     display_name: "Ubuntu 20.04 x64 m70xe n20 (Unit tests)"
@@ -11047,6 +11741,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_linux-m80xc_n20
     display_name: "Ubuntu 20.04 x64 m80xc n20 (Unit tests)"
@@ -11081,6 +11776,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_linux-m80xe_n20
     display_name: "Ubuntu 20.04 x64 m80xe n20 (Unit tests)"
@@ -11115,6 +11811,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_linux-m82xc_n20
     display_name: "Ubuntu 20.04 x64 m82xc n20 (Unit tests)"
@@ -11149,6 +11846,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_linux-m82xe_n20
     display_name: "Ubuntu 20.04 x64 m82xe n20 (Unit tests)"
@@ -11183,6 +11881,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_linux-mlatest_n20
     display_name: "Ubuntu 20.04 x64 mlatest n20 (Unit tests)"
@@ -11217,6 +11916,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: win32-n20
     display_name: "Windows n20 (Unit tests)"
@@ -11250,6 +11950,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-m42xc_n20
     display_name: "Windows m42xc n20 (Unit tests)"
@@ -11283,6 +11984,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-m42xe_n20
     display_name: "Windows m42xe n20 (Unit tests)"
@@ -11316,6 +12018,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-m44xc_n20
     display_name: "Windows m44xc n20 (Unit tests)"
@@ -11349,6 +12052,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-m44xe_n20
     display_name: "Windows m44xe n20 (Unit tests)"
@@ -11382,6 +12086,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-m50xc_n20
     display_name: "Windows m50xc n20 (Unit tests)"
@@ -11415,6 +12120,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-m50xe_n20
     display_name: "Windows m50xe n20 (Unit tests)"
@@ -11448,6 +12154,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-m60xc_n20
     display_name: "Windows m60xc n20 (Unit tests)"
@@ -11481,6 +12188,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-m60xe_n20
     display_name: "Windows m60xe n20 (Unit tests)"
@@ -11514,6 +12222,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-m70xc_n20
     display_name: "Windows m70xc n20 (Unit tests)"
@@ -11547,6 +12256,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-m70xe_n20
     display_name: "Windows m70xe n20 (Unit tests)"
@@ -11580,6 +12290,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-m80xc_n20
     display_name: "Windows m80xc n20 (Unit tests)"
@@ -11613,6 +12324,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-m80xe_n20
     display_name: "Windows m80xe n20 (Unit tests)"
@@ -11646,6 +12358,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-m82xc_n20
     display_name: "Windows m82xc n20 (Unit tests)"
@@ -11679,6 +12392,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-m82xe_n20
     display_name: "Windows m82xe n20 (Unit tests)"
@@ -11712,6 +12426,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-mlatest_n20
     display_name: "Windows mlatest n20 (Unit tests)"
@@ -11745,6 +12460,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: darwin-n24
     display_name: "MacOS 14 arm64 n24 (Unit tests)"
@@ -11754,7 +12470,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: ""
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11779,6 +12495,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_darwin-m60xc_n24
     display_name: "MacOS 14 arm64 m60xc n24 (Unit tests)"
@@ -11788,7 +12505,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "6.0.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11813,6 +12530,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_darwin-m60xe_n24
     display_name: "MacOS 14 arm64 m60xe n24 (Unit tests)"
@@ -11822,7 +12540,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "6.0.x-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11847,6 +12565,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_darwin-m70xc_n24
     display_name: "MacOS 14 arm64 m70xc n24 (Unit tests)"
@@ -11856,7 +12575,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "7.0.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11881,6 +12600,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_darwin-m70xe_n24
     display_name: "MacOS 14 arm64 m70xe n24 (Unit tests)"
@@ -11890,7 +12610,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "7.0.x-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11915,6 +12635,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_darwin-m80xc_n24
     display_name: "MacOS 14 arm64 m80xc n24 (Unit tests)"
@@ -11924,7 +12645,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.0.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11949,6 +12670,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_darwin-m80xe_n24
     display_name: "MacOS 14 arm64 m80xe n24 (Unit tests)"
@@ -11958,7 +12680,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.0.x-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11983,6 +12705,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_darwin-m82xc_n24
     display_name: "MacOS 14 arm64 m82xc n24 (Unit tests)"
@@ -11992,7 +12715,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.2.0"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12017,6 +12740,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_darwin-m82xe_n24
     display_name: "MacOS 14 arm64 m82xe n24 (Unit tests)"
@@ -12026,7 +12750,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.2.0-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12051,6 +12775,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_darwin-mlatest_n24
     display_name: "MacOS 14 arm64 mlatest n24 (Unit tests)"
@@ -12060,7 +12785,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "latest-alpha-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12085,6 +12810,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: linux-n24
     display_name: "Ubuntu 20.04 x64 n24 (Unit tests)"
@@ -12094,7 +12820,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: ""
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12119,6 +12845,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_linux-m42xc_n24
     display_name: "Ubuntu 20.04 x64 m42xc n24 (Unit tests)"
@@ -12128,7 +12855,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "4.2.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12153,6 +12880,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_linux-m44xc_n24
     display_name: "Ubuntu 20.04 x64 m44xc n24 (Unit tests)"
@@ -12162,7 +12890,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "4.4.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12187,6 +12915,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_linux-m44xe_n24
     display_name: "Ubuntu 20.04 x64 m44xe n24 (Unit tests)"
@@ -12196,7 +12925,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "4.4.x-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12221,6 +12950,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_linux-m50xc_n24
     display_name: "Ubuntu 20.04 x64 m50xc n24 (Unit tests)"
@@ -12230,7 +12960,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "5.0.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12255,6 +12985,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_linux-m50xe_n24
     display_name: "Ubuntu 20.04 x64 m50xe n24 (Unit tests)"
@@ -12264,7 +12995,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "5.0.x-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12289,6 +13020,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_linux-m60xc_n24
     display_name: "Ubuntu 20.04 x64 m60xc n24 (Unit tests)"
@@ -12298,7 +13030,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "6.0.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12323,6 +13055,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_linux-m60xe_n24
     display_name: "Ubuntu 20.04 x64 m60xe n24 (Unit tests)"
@@ -12332,7 +13065,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "6.0.x-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12357,6 +13090,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_linux-m70xc_n24
     display_name: "Ubuntu 20.04 x64 m70xc n24 (Unit tests)"
@@ -12366,7 +13100,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "7.0.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12391,6 +13125,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_linux-m70xe_n24
     display_name: "Ubuntu 20.04 x64 m70xe n24 (Unit tests)"
@@ -12400,7 +13135,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "7.0.x-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12425,6 +13160,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_linux-m80xc_n24
     display_name: "Ubuntu 20.04 x64 m80xc n24 (Unit tests)"
@@ -12434,7 +13170,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.0.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12459,6 +13195,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_linux-m80xe_n24
     display_name: "Ubuntu 20.04 x64 m80xe n24 (Unit tests)"
@@ -12468,7 +13205,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.0.x-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12493,6 +13230,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_linux-m82xc_n24
     display_name: "Ubuntu 20.04 x64 m82xc n24 (Unit tests)"
@@ -12502,7 +13240,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.2.0"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12527,6 +13265,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_linux-m82xe_n24
     display_name: "Ubuntu 20.04 x64 m82xe n24 (Unit tests)"
@@ -12536,7 +13275,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.2.0-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12561,6 +13300,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_linux-mlatest_n24
     display_name: "Ubuntu 20.04 x64 mlatest n24 (Unit tests)"
@@ -12570,7 +13310,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "latest-alpha-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12595,6 +13335,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: win32-n24
     display_name: "Windows n24 (Unit tests)"
@@ -12604,7 +13345,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: ""
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12628,6 +13369,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-m42xc_n24
     display_name: "Windows m42xc n24 (Unit tests)"
@@ -12637,7 +13379,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "4.2.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12661,6 +13403,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-m42xe_n24
     display_name: "Windows m42xe n24 (Unit tests)"
@@ -12670,7 +13413,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "4.2.x-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12694,6 +13437,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-m44xc_n24
     display_name: "Windows m44xc n24 (Unit tests)"
@@ -12703,7 +13447,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "4.4.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12727,6 +13471,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-m44xe_n24
     display_name: "Windows m44xe n24 (Unit tests)"
@@ -12736,7 +13481,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "4.4.x-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12760,6 +13505,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-m50xc_n24
     display_name: "Windows m50xc n24 (Unit tests)"
@@ -12769,7 +13515,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "5.0.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12793,6 +13539,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-m50xe_n24
     display_name: "Windows m50xe n24 (Unit tests)"
@@ -12802,7 +13549,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "5.0.x-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12826,6 +13573,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-m60xc_n24
     display_name: "Windows m60xc n24 (Unit tests)"
@@ -12835,7 +13583,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "6.0.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12859,6 +13607,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-m60xe_n24
     display_name: "Windows m60xe n24 (Unit tests)"
@@ -12868,7 +13617,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "6.0.x-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12892,6 +13641,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-m70xc_n24
     display_name: "Windows m70xc n24 (Unit tests)"
@@ -12901,7 +13651,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "7.0.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12925,6 +13675,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-m70xe_n24
     display_name: "Windows m70xe n24 (Unit tests)"
@@ -12934,7 +13685,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "7.0.x-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12958,6 +13709,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-m80xc_n24
     display_name: "Windows m80xc n24 (Unit tests)"
@@ -12967,7 +13719,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "8.0.x"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12991,6 +13743,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-m80xe_n24
     display_name: "Windows m80xe n24 (Unit tests)"
@@ -13000,7 +13753,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "8.0.x-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -13024,6 +13777,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-m82xc_n24
     display_name: "Windows m82xc n24 (Unit tests)"
@@ -13033,7 +13787,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "8.2.0"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -13057,6 +13811,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-m82xe_n24
     display_name: "Windows m82xe n24 (Unit tests)"
@@ -13066,7 +13821,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "8.2.0-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -13090,6 +13845,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: tests_win32-mlatest_n24
     display_name: "Windows mlatest n24 (Unit tests)"
@@ -13099,7 +13855,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "latest-alpha-enterprise"
-      node_js_version: "24.11.1"
+      node_js_version: "24.12.0"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -13123,6 +13879,7 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
+      - name: test_testing
       - name: test_types
   - name: build_linux_x64
     display_name: "RHEL 7.0 x64 (Build)"

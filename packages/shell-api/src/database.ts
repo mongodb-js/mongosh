@@ -1602,7 +1602,7 @@ export class Database<
           if (startOptimeDate) {
             nodeResult.syncedTo = node.optimeDate.toString();
           }
-          const ago = (node.optimeDate - startOptimeDate) / 1000;
+          const ago = (startOptimeDate - node.optimeDate) / 1000;
           const hrs = Math.round(ago / 36) / 100;
           let suffix = '';
           if (primary) {

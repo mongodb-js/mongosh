@@ -1,6 +1,6 @@
 import React from 'react';
 import { CodemirrorInlineEditor } from '@mongodb-js/compass-editor';
-import { expect } from '../../../testing/chai';
+import { expect } from '@mongosh/testing';
 import { mount } from '../../../testing/enzyme';
 import { SyntaxHighlight } from './syntax-highlight';
 

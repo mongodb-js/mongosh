@@ -24,8 +24,9 @@ describe('Electron runtime', function () {
       extraInfo: { uri: '' },
     } as any);
     messageBus = sinon.createStubInstance(EventEmitter);
-    evaluationListener = sinon.createStubInstance(class FakeListener {});
-    evaluationListener.onPrint = sinon.stub();
+    evaluationListener = {
+      onPrint: sinon.stub(),
+    } as SinonStubbedInstance<RuntimeEvaluationListener>;
     electronRuntime = new ElectronRuntime(serviceProvider, messageBus);
     electronRuntime.setEvaluationListener(evaluationListener as any);
   });

@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Thu Dec 04 2025.
+This document was automatically generated on Tue Jan 06 2026.
 
 ## List of dependencies
 
@@ -316,7 +316,7 @@ Package|Version|License
 **[jsesc](#ea0becb009dc00e5116c19296121a196c13ad07e74e6a35b68220ae5e3aac71c)**|3.1.0|MIT
 **[json5](#16281c6ea25e0cec4bc0bb8c01d1759d66992776381bf9c5af6959bec47d2f77)**|2.2.3|MIT
 **[jsonfile](#1504ddbe5031429f6d90bb02373b4629ff5da9ef4e869d5015ff42f685817e74)**|6.1.0|MIT
-**[kerberos](#05c7d2f17faccacb505a07f79ccba22ce089aa668a8bef64de84cf5dcd4f585e)**|2.1.0|Apache-2.0
+**[kerberos](#8a37f60cb8e7212c7829a2457fa64a519f157c353c26a9ffc72e45609cedfad1)**|2.2.2|Apache-2.0
 **[lodash.merge](#996e40d63a94f1b8693d7c81e0cdfb874c6432d6bbd675976fc1b6b13652c8db)**|4.6.2|MIT
 **[lodash](#adaac4144887ebc2c1b682380ff385210f681fc58b4bc1ef3986148cf8dcd28a)**|4.17.21|MIT
 **[lowlight](#6efc5090c0eda3b461d933d6b79bddcdf8165a10aea9f39ac76620ce5fb05bf5)**|1.17.0|MIT
@@ -348,7 +348,6 @@ Package|Version|License
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
 **[ms](#2083576c5af8054927640b4788059806d07e250a26066c9ccb2d928394fb9226)**|2.1.3|MIT
 **[nan](#00e62787551d5f453687d2666461908a6c4499fffd8f66e7d9d7c6036c7f1a65)**|2.19.0|MIT
-**[napi-build-utils](#26912b5ff7632f262d64273f99cd1a869376c5c378960e24501585e35b31054a)**|1.0.2|MIT
 **[napi-build-utils](#4446cbf58ee41dfc4c30b35af90a053cab7e15fcc9736c67a43265eeef531372)**|2.0.0|MIT
 **[native-machine-id](#d847ad140662f3169e292928617ca86aaccc42e28022f914072e4185fd101f16)**|0.1.1|Apache-2.0
 **[negotiator](#617fa350c7c0fe851efe2301be0dfe1e0a38808562f7dbd2e655d30b17730ccc)**|1.0.0|MIT
@@ -381,7 +380,6 @@ Package|Version|License
 **[path-to-regexp](#168d56c99792c464d579835a0fcb9209cb9bd6108a54802e4ada6084b8e20b86)**|8.3.0|MIT
 **[picocolors](#7c5f372425355293c448d7405cb3b0a1fe19402bd0298caae8e341077624f0b7)**|1.1.1|ISC
 **[possible-typed-array-names](#5ba4283f5512abd5d57e79c0a75acb3818d98d169df979afb01ad6867cefd312)**|1.0.0|MIT
-**[prebuild-install](#b3a047e51af19ed4c091ca34a3d59939490120cbc75e67f511fc02d31379c55d)**|7.1.1|MIT
 **[prebuild-install](#034b3dd1336ef871b8a3739cb1647e8750e3bf21d4ecc9bbfb45525b798ddf20)**|7.1.3|MIT
 **[pretty-repl](#52450099e67a2b965036ab65b63b01d615b3fbcff38085a23fd8e80694d2a8ed)**|4.0.1|MIT
 **[progress](#b598d996665da76d10446d00412c9422fc984e52a6e405e322aa93c70ae317a1)**|2.0.3|MIT
@@ -389,7 +387,7 @@ Package|Version|License
 **[proxy-addr](#7b128e3d41d39ecb1a405a490a53ae86f70ef45f01079333ed3ca49939f5fba8)**|2.0.7|MIT
 **[pump](#147f1bd3a6380306e696f0574feda0b1490121a1d12e4500e91ffb6e888ffa3a)**|3.0.0|MIT
 **[punycode](#3fe331f5536b72438f24d644ea9804b5e462f791a4c72a6d94f37193af1086aa)**|2.3.1|MIT
-**[qs](#8033b41a5d88393af16efc6fe6f3cc561fd17f4a31b313b5431db45adb10ad24)**|6.14.0|BSD-3-Clause
+**[qs](#1ebbf0f553916f7c3d47d3fc76326849d0b3f3f0eb305406c75d9a6804dc6e92)**|6.14.1|BSD-3-Clause
 **[range-parser](#e973789240fef3c00f359e6acc8570dd769b70ee8b29fdcb679897fa2d696bff)**|1.2.1|MIT
 **[raw-body](#6c791d6d9ec7a011e573514432e037b3a1a50a921c494c45b57d79af7f2a3d7b)**|3.0.2|MIT
 **[rc](#0dd705bd5862b4c60ed88e6b4a6f5ece23c627c97f6928233d32aefdd463c3f7)**|1.2.8|(BSD-2-Clause OR MIT OR Apache-2.0)
@@ -23759,8 +23757,8 @@ License files:
       
 
 
-<a id="05c7d2f17faccacb505a07f79ccba22ce089aa668a8bef64de84cf5dcd4f585e"></a>
-### [kerberos](https://www.npmjs.com/package/kerberos) (version 2.1.0)
+<a id="8a37f60cb8e7212c7829a2457fa64a519f157c353c26a9ffc72e45609cedfad1"></a>
+### [kerberos](https://www.npmjs.com/package/kerberos) (version 2.2.2)
 License tags: Apache-2.0
 
 License files:
@@ -26347,37 +26345,6 @@ License files:
       
 
 
-<a id="26912b5ff7632f262d64273f99cd1a869376c5c378960e24501585e35b31054a"></a>
-### [napi-build-utils](https://www.npmjs.com/package/napi-build-utils) (version 1.0.2)
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      MIT License
-      
-      Copyright (c) 2018 inspiredware
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-      
-
-
 <a id="4446cbf58ee41dfc4c30b35af90a053cab7e15fcc9736c67a43265eeef531372"></a>
 ### [napi-build-utils](https://www.npmjs.com/package/napi-build-utils) (version 2.0.0)
 License tags: MIT
@@ -27442,37 +27409,6 @@ License files:
       
 
 
-<a id="b3a047e51af19ed4c091ca34a3d59939490120cbc75e67f511fc02d31379c55d"></a>
-### [prebuild-install](https://www.npmjs.com/package/prebuild-install) (version 7.1.1)
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      The MIT License (MIT)
-      
-      Copyright (c) 2015 Mathias Buus
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-
 <a id="034b3dd1336ef871b8a3739cb1647e8750e3bf21d4ecc9bbfb45525b798ddf20"></a>
 ### [prebuild-install](https://www.npmjs.com/package/prebuild-install) (version 7.1.3)
 License tags: MIT
@@ -27683,8 +27619,8 @@ License files:
       
 
 
-<a id="8033b41a5d88393af16efc6fe6f3cc561fd17f4a31b313b5431db45adb10ad24"></a>
-### [qs](https://www.npmjs.com/package/qs) (version 6.14.0)
+<a id="1ebbf0f553916f7c3d47d3fc76326849d0b3f3f0eb305406c75d9a6804dc6e92"></a>
+### [qs](https://www.npmjs.com/package/qs) (version 6.14.1)
 License tags: BSD-3-Clause
 
 License files:
