@@ -380,7 +380,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
   },
   {
     displayName: 'Windows VS 2022',
-    runOn: 'windows-vsCurrent-small',
+    runOn: 'windows-2022-xlarge',
     executableOsId: 'win32',
     mVersion: 'stable',
     additionalTasks: [
@@ -390,7 +390,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
   },
   {
     displayName: 'Windows VS 2022',
-    runOn: 'windows-vsCurrent-small',
+    runOn: 'windows-2022-xlarge',
     executableOsId: 'win32',
     mVersion: '8.2.0-rc4',
     additionalTasks: [

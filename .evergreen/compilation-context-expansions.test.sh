@@ -49,7 +49,7 @@ ubuntu2204-arm64-small=false
 ubuntu2204-small=false
 windows-64-vs2019-build=true
 windows-64-vs2019-small=true
-windows-vsCurrent-small=true
+windows-2022-xlarge=true
 '
 
 EXIT_VAL=0

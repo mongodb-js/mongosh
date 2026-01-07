@@ -1445,7 +1445,7 @@ tasks:
       case 'ssh': { %>
       - func: spawn_host
         vars:
-          distro: windows-vsCurrent-small
+          distro: windows-2022-xlarge
       - func: run_pkg_tests_through_ssh
         vars:
           admin_user_name: Administrator
@@ -1655,7 +1655,7 @@ buildvariants:
       <% } } } %>
   - name: verify_windows_artifact
     display_name: "Windows (Signature Verification)"
-    run_on: windows-vsCurrent-small
+    run_on: windows-2022-xlarge
     tasks:
       - name: verify_artifact_win32_x64
       - name: verify_artifact_win32msi_x64
