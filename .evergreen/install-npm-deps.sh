@@ -9,7 +9,6 @@ export BASEDIR="$PWD/.evergreen"
 # Also install config workspaces since they're referenced by tsconfig.json files but not automatically linked when workspaces=false is used
 npm ci -w configs/tsconfig-mongosh -w configs/eslint-config-mongosh --include-workspace-root
 
-npm run mark-ci-required-optional-dependencies
 
 echo "MONOGDB_DRIVER_VERSION_OVERRIDE:$MONOGDB_DRIVER_VERSION_OVERRIDE"
 
@@ -25,6 +24,8 @@ if [[ -n "$MONOGDB_DRIVER_VERSION_OVERRIDE" ]]; then
   # we set MONOGDB_DRIVER_VERSION_OVERRIDE=nightly in CI
   npm i --verbose --force
 fi
+
+npm run mark-ci-required-optional-dependencies
 
 # install again, this time with all the optional deps. If
 # mongodb-client-encryption failed to install (it can't install on some
