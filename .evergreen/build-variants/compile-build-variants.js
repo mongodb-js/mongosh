@@ -69,12 +69,12 @@ exports.COMPILE_BUILD_VARIANTS = [
   {
     displayName: 'MacOS Big Sur',
     id: 'darwin',
-    runOn: 'macos-11',
+    runOn: 'macos-13',
     executableOsId: 'darwin-x64',
   },
   {
     displayName: 'MacOS Big Sur arm64',
-    runOn: 'macos-11-arm64',
+    runOn: 'macos-13-arm64',
     executableOsId: 'darwin-arm64',
   },
   {
