@@ -6567,7 +6567,6 @@ tasks:
         vars:
           node_js_version: ${node_js_version}
           puppeteer_skip_download: "true"
-          mongosh_install_workspace: "@mongosh/node-runtime-worker-thread"
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
