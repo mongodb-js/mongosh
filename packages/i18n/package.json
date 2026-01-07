@@ -10,8 +10,7 @@
       "types": "./lib/index.d.ts"
     },
     "./locales": {
-      "default": "./src/locales/index.ts",
-      "types": "./src/locales/index.d.ts"
+      "default": "./src/locales/index.ts"
     }
   },
   "repository": {
