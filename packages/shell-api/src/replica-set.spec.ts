@@ -895,8 +895,17 @@ describe('ReplicaSet', function () {
         expect(result.ismaster).to.be.true;
       });
       it('returns StatsResult for print secondary replication info', async function () {
+        const coll = db.getCollection('cstest');
+        await coll.insertOne({ i: 42 });
+
         const result = await rs.printSecondaryReplicationInfo();
         expect(result.type).to.equal('StatsResult');
+        for (const value of Object.values(
+          result.value as Record<string, any>
+        )) {
+          // just check that the value is not negative
+          expect(value.replLag).to.match(/^\d+ sec/);
+        }
       });
       it('returns StatsResult for print replication info', async function () {
         const result = await rs.printReplicationInfo();
