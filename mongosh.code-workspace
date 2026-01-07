@@ -101,12 +101,12 @@
       "path": "packages/cli-repl"
     },
     {
-      "name": "📦 @mongosh/java-shell",
-      "path": "packages/java-shell"
-    },
-    {
       "name": "📦 @mongosh/e2e-tests",
       "path": "packages/e2e-tests"
+    },
+    {
+      "name": "📦 @mongosh/java-shell",
+      "path": "packages/java-shell"
     },
     {
       "name": "📦 mongosh",
