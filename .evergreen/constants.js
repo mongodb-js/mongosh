@@ -56,6 +56,6 @@ exports.NODE_VERSIONS = [
     shortName: '24',
     versionSpec: NODE_JS_VERSION_24,
     skipNodeVersionCheck: '',
-    optional: true,
+    optional: false,
   },
 ];
