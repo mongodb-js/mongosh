@@ -69,7 +69,7 @@
     "@mongodb-js/signing-utils": "^0.3.7",
     "@octokit/rest": "^17.9.0",
     "ajv": "^8.17.1",
-    "aws-sdk": "^2.1693.0",
+    "aws-sdk": "^2.674.0",
     "boxednode": "^3.0.0",
     "command-exists": "^1.2.9",
     "download": "^8.0.0",
