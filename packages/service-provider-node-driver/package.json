@@ -52,6 +52,7 @@
     "@mongosh/service-provider-core": "3.7.0",
     "@mongosh/types": "^3.14.1",
     "aws4": "^1.12.0",
+    "@aws-sdk/credential-providers": "^3.188.0",
     "mongodb": "^6.19.0",
     "mongodb-build-info": "^1.8.1",
     "mongodb-connection-string-url": "^3.0.2",

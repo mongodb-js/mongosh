@@ -130,9 +130,6 @@
   "optionalDependencies": {
     "lerna": "^8.1.8"
   },
-  "peerDependencies": {
-    "aws-sdk": "2.674.0"
-  },
   "workspaces": [
     "configs/eslint-config-mongosh",
     "configs/tsconfig-mongosh",
