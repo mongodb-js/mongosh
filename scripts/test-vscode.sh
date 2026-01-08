@@ -30,6 +30,6 @@ overrides="$overrides}"
 jq --argjson overrides "$overrides" '.pnpm.overrides = $overrides' package.json > package.json.tmp && mv package.json.tmp package.json
 pnpm install
 # This test can require a lot of memory so we bump the maximum size.
-NODE_OPTIONS='--max-old-space-size=4096 --no-experimental-strip-types' pnpm test
+NODE_OPTIONS='--max-old-space-size=4096' pnpm test
 cd /tmp
 rm -rf "$test_root_dir"
