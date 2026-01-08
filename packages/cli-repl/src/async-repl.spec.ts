@@ -168,7 +168,7 @@ describe('AsyncRepl', function () {
     let wroteClosingParenthesis = false;
     let foundUid = false;
     for await (const chunk of output) {
-      if (chunk.includes('...') && !wroteClosingParenthesis) {
+      if (chunk.includes('|') && !wroteClosingParenthesis) {
         input.write(')}\n');
         wroteClosingParenthesis = true;
       }
@@ -337,14 +337,11 @@ describe('AsyncRepl', function () {
     output.read(); // Read prompt so it doesn't mess with further output
     input.write('\x1b[200~1234\n*5678\n\x1b[201~');
     await tick();
-    // ESC[nG is horizontal cursor movement, ESC[nJ is cursor display reset
-    expect(output.read()).to.equal(
-      '1234\r\n\x1B[1G\x1B[0J... \x1B[5G*5678\r\n\x1B[1G\x1B[0J... \x1B[5G'
-    );
+    expect(output.read()).to.equal('1234\r\n| *5678\r\n| ');
     input.write('\n');
     await tick();
     // Contains the expected result after hitting newline
-    expect(output.read()).to.equal('\r\n7006652\n\x1B[1G\x1B[0J> \x1B[3G');
+    expect(output.read()).to.equal('\r\n7006652\n> ');
   });
 
   it('allows using ctrl+c to avoid running pasted text', async function () {

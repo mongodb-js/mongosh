@@ -283,7 +283,7 @@ describe('MongoshNodeRepl', function () {
         await waitEval(bus);
       }
       // Three ... because we entered three incomplete lines.
-      expect(output).to.include('... ... ... 987');
+      expect(output).to.include('| | | 987');
       expect(output).not.to.include('Error');
     });
 
@@ -620,8 +620,10 @@ describe('MongoshNodeRepl', function () {
             const { history } = mongoshRepl.runtimeState().repl as unknown as {
               history: string[];
             };
-            getHistory = () =>
-              history.filter((line) => !line.startsWith('prefill-'));
+            getHistory = () => {
+              console.log(process.version, history);
+              return history.filter((line) => !line.startsWith('prefill-'));
+            };
             getAllHistoryItems = () => history;
             for (let i = 0; i < prefill; i++) {
               history.unshift(`prefill-${i}`);
