@@ -41,18 +41,18 @@ exports.COMPILE_BUILD_VARIANTS = [
   },
   {
     displayName: 'Amazon 2 arm64',
-    runOn: 'amazon2-arm64-latest-large',
+    runOn: 'amazon2-arm64-large',
     executableOsId: 'linux-arm64',
   },
   {
     displayName: 'Amazon 2 arm64',
-    runOn: 'amazon2-arm64-latest-large',
+    runOn: 'amazon2-arm64-large',
     executableOsId: 'linux-arm64-openssl11',
     sharedOpenSsl: 'openssl11',
   },
   {
     displayName: 'Amazon 2 arm64',
-    runOn: 'amazon2-arm64-latest-large',
+    runOn: 'amazon2-arm64-large',
     executableOsId: 'linux-arm64-openssl3',
     sharedOpenSsl: 'openssl3',
   },
@@ -80,7 +80,7 @@ exports.COMPILE_BUILD_VARIANTS = [
   {
     id: 'win32',
     displayName: 'Windows VS 2022',
-    runOn: 'windows-2022-xlarge',
+    runOn: 'windows-2022-small',
     executableOsId: 'win32',
   },
 ].map((buildVariant) => {

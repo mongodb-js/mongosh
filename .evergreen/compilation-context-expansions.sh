@@ -1,4 +1,4 @@
-export DISTRO_UPLOADLIST_REGEX="^(rhel70|win|rhel7-zseries|rhel8-power|amazon2-latest-arm64|macos)"
+export DISTRO_UPLOADLIST_REGEX="^(rhel70|win|rhel7-zseries|rhel8-power|amazon2-arm64|macos)"
 export COMPILING_CONTEXT_FILE="$(pwd)/../tmp/compiling-context.yml"
 
 if ! [[ "$DISTRO_ID" =~ $DISTRO_UPLOADLIST_REGEX ]]; then

@@ -1445,7 +1445,7 @@ tasks:
       case 'ssh': { %>
       - func: spawn_host
         vars:
-          distro: windows-2022-xlarge
+          distro: windows-2022-small
       - func: run_pkg_tests_through_ssh
         vars:
           admin_user_name: Administrator
@@ -1724,6 +1724,16 @@ buildvariants:
     tasks:
       - name: pkg_test_ssh_win32_x64
       - name: pkg_test_ssh_win32msi_x64
+  - name: pkg_smoke_tests_macos_1100_x64
+    display_name: "package smoke tests (macos 11.00 x64)"
+    run_on: macos-11
+    tasks:
+      - name: pkg_test_macos_darwin_x64
+  - name: pkg_smoke_tests_macos_1100_arm64
+    display_name: "package smoke tests (macos 11.00 arm64)"
+    run_on: macos-11-arm64
+    tasks:
+      - name: pkg_test_macos_darwin_arm64
   - name: pkg_smoke_tests_macos_1300_arm64
     display_name: "package smoke tests (macos 13.00 arm64)"
     run_on: macos-13-arm64

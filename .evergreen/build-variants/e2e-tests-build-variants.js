@@ -170,7 +170,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
   },
   {
     displayName: 'Amazon Linux 2 x64',
-    runOn: 'amazon2-latest-large',
+    runOn: 'amazon2-large',
     tags: ['nightly-driver'],
     executableOsId: 'linux-x64',
     mVersion: '7.0.x',
@@ -250,7 +250,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
   },
   {
     displayName: 'Amazon Linux 2 arm64',
-    runOn: 'amazon2-arm64-latest-large',
+    runOn: 'amazon2-arm64-large',
     executableOsId: 'linux-arm64',
     mVersion: '7.0.x',
   },
@@ -380,7 +380,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
   },
   {
     displayName: 'Windows VS 2022',
-    runOn: 'windows-2022-xlarge',
+    runOn: 'windows-2022-small',
     executableOsId: 'win32',
     mVersion: 'stable',
     additionalTasks: [
@@ -390,7 +390,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
   },
   {
     displayName: 'Windows VS 2022',
-    runOn: 'windows-2022-xlarge',
+    runOn: 'windows-2022-small',
     executableOsId: 'win32',
     mVersion: '8.2.0-rc4',
     additionalTasks: [

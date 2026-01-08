@@ -16,11 +16,12 @@ function success {
 TEST_CASES='
 amazon2023.0-arm64-small=false
 amazon2023.0-small=false
-amazon2-arm64-latest-large=true
+amazon2-arm64-large=true
 amazon2-large=false
 debian10-small=false
 debian11-small=false
-macos-13=true
+macos-11=true
+macos-11-arm64=true
 macos-13-arm64=true
 rhel70-build=true
 rhel70-large=true
@@ -49,7 +50,7 @@ ubuntu2204-arm64-small=false
 ubuntu2204-small=false
 windows-64-vs2019-build=true
 windows-64-vs2019-small=true
-windows-2022-xlarge=true
+windows-vsCurrent-small=true
 '
 
 EXIT_VAL=0
