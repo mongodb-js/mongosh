@@ -397,7 +397,7 @@ Package|Version|License
 **[regexp.prototype.flags](#a15ad9e3604c5f7c3af83cb95b0695d81bd65b11bb75a62096f7c5afab53399d)**|1.5.4|MIT
 **[require-directory](#5ac5f9cb1cb4ba110ae3b9487ee8bdc0cf2dd5fd22f1aaeec4f71bb81e3c8fc7)**|2.1.1|MIT
 **[reservoir](#84f8998f94ad5bd85b50458378edf3815fff553cdcabf8ced3db418f05e85ff6)**|0.1.2|MIT
-**[resolve-mongodb-srv](#2ae8b0c9dbe8e8c900bfaf5567bcf2af917e62fb0a24121b4d667dffbeaffa99)**|1.1.5|Apache-2.0
+**[resolve-mongodb-srv](#e797eff0fd333efbb1d1e2a4a12bfab5fd17187e63684ec49a596053d03ec3ab)**|1.1.7|Apache-2.0
 **[router](#1b270661457a8f738b0cfe76c768fd3585c8771d04fad5f7aae1f1feed84a8da)**|2.2.0|MIT
 **[run-applescript](#235c737185151e246ca6c3099135f0b89a61bababb6e5b16f4444a5578eee364)**|7.0.0|MIT
 **[safe-array-concat](#6a70583d2389f167356be873177edab01c2b46ba5e76c7db90d6c6ae0e32ff75)**|1.1.3|MIT
@@ -27995,8 +27995,8 @@ License files:
 License tags: MIT
 
 
-<a id="2ae8b0c9dbe8e8c900bfaf5567bcf2af917e62fb0a24121b4d667dffbeaffa99"></a>
-### [resolve-mongodb-srv](https://www.npmjs.com/package/resolve-mongodb-srv) (version 1.1.5)
+<a id="e797eff0fd333efbb1d1e2a4a12bfab5fd17187e63684ec49a596053d03ec3ab"></a>
+### [resolve-mongodb-srv](https://www.npmjs.com/package/resolve-mongodb-srv) (version 1.1.7)
 License tags: Apache-2.0
 
 License files:
