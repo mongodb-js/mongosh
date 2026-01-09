@@ -338,28 +338,28 @@ export class NodeDriverServiceProvider
         try {
           return require('mongodb/package.json').version;
         } catch {
-          /* ignore */
+          return undefined;
         }
       })(),
       libmongocryptVersion: (() => {
         try {
           return ClientEncryption.libmongocryptVersion; // getter that actually loads the native addon (!)
         } catch {
-          /* ignore */
+          return undefined;
         }
       })(),
       libmongocryptNodeBindingsVersion: (() => {
         try {
           return require('mongodb-client-encryption/package.json').version;
         } catch {
-          /* ignore */
+          return undefined;
         }
       })(),
       kerberosVersion: (() => {
         try {
           return require('kerberos/package.json').version;
         } catch {
-          /* ignore */
+          return undefined;
         }
       })(),
     };
