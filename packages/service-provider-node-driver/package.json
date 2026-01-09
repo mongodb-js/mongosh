@@ -46,6 +46,7 @@
     }
   },
   "dependencies": {
+    "@aws-sdk/credential-providers": "^3.965.0",
     "@mongodb-js/devtools-connect": "^3.9.4",
     "@mongodb-js/oidc-plugin": "^2.0.5",
     "@mongosh/errors": "2.4.5",
