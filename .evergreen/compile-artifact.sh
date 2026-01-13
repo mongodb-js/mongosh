@@ -76,7 +76,17 @@ elif [ -n "$MONGOSH_SHARED_OPENSSL" ]; then
   export LD_LIBRARY_PATH=/opt/devtools/lib:/tmp/m/opt/lib
 fi
 
-npm run evergreen-release compile
+if [ "$OS" == "Windows_NT" ]; then
+    # The CI machines we have for Windows don't have a working
+    # installation of VS2022, (vswhere.exe can't find the correct path)
+    # So we run the scripts to set up the environment manually, and they
+    # only work properly in CMD
+    WIN_PATH=$(cygpath -aw .evergreen/compile-in-vcdev-env.bat)
+    cmd.exe /c "$WIN_PATH"
+else
+    npm run evergreen-release compile
+fi
+
 dist/mongosh --version
 dist/mongosh --build-info
 dist/mongosh --build-info | grep -q '"distributionKind": "compiled"'
