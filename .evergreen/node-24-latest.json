@@ -1,7 +1,7 @@
 {
-  "version": "24.12.0",
+  "version": "24.13.0",
   "major": 24,
-  "minor": 12,
+  "minor": 13,
   "patch": 0,
   "tag": "",
   "codename": "krypton",
@@ -10,11 +10,11 @@
   "lts": "2025-10-28T00:00:00.000Z",
   "maintenance": "2026-10-20T00:00:00.000Z",
   "end": "2028-04-30T00:00:00.000Z",
-  "releaseDate": "2025-12-10T00:00:00.000Z",
+  "releaseDate": "2026-01-12T00:00:00.000Z",
   "isLts": true,
   "isSupported": true,
   "isMaintenance": false,
-  "isSecurity": false,
+  "isSecurity": true,
   "modules": "137",
   "files": [
     "aix-ppc64",
