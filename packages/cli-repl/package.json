@@ -115,7 +115,7 @@
   "optionalDependencies": {
     "get-console-process-list": "^1.0.5",
     "glibc-version": "^1.0.0",
-    "macos-export-certificate-and-key": "^1.2.4",
+    "macos-export-certificate-and-key": "^2.0.0",
     "mongodb-crypt-library-version": "^2.0.0",
     "win-export-certificate-and-key": "^2.1.0"
   }
