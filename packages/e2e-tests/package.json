@@ -46,7 +46,7 @@
     "rimraf": "^3.0.2",
     "@mongodb-js/oidc-plugin": "^2.0.5",
     "strip-ansi": "^6.0.0",
-    "@mongosh/cli-repl": "2.5.10",
+    "@mongosh/cli-repl": "2.6.0",
     "@mongosh/service-provider-core": "3.7.1"
   }
 }

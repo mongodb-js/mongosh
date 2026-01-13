@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/cli-repl",
-  "version": "2.5.10",
+  "version": "2.6.0",
   "description": "MongoDB Shell CLI REPL Package",
   "homepage": "https://github.com/mongodb-js/mongosh",
   "author": "Compass Team <compass@mongodb.com>",
@@ -91,7 +91,8 @@
     "pretty-repl": "^4.0.1",
     "semver": "^7.5.4",
     "strip-ansi": "^6.0.0",
-    "text-table": "^0.2.0"
+    "text-table": "^0.2.0",
+    "glibc-version": "^1.0.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
