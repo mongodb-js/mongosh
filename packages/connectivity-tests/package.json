@@ -11,7 +11,7 @@
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci"
   },
   "devDependencies": {
-    "mongosh": "2.5.10"
+    "mongosh": "2.6.0"
   },
   "mongosh": {
     "unitTestsOnly": true,
