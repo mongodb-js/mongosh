@@ -161,5 +161,10 @@
     "packages/node-runtime-worker-thread",
     "packages/browser-repl",
     "packages/connectivity-tests"
-  ]
+  ],
+  "overrides": {
+    "@mongosh/service-provider-node-driver": {
+      "mongodb-client-encryption": "^7.0.0"
+    }
+  }
 }

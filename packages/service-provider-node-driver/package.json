@@ -57,12 +57,12 @@
     "mongodb-build-info": "^1.8.1",
     "mongodb-connection-string-url": "^3.0.2",
     "socks": "^2.8.3",
-    "mongodb-client-encryption": "^6.5.0",
+    "mongodb-client-encryption": "^7.0.0",
     "kerberos": "2.2.2"
   },
   "optionalDependencies": {
     "kerberos": "2.2.2",
-    "mongodb-client-encryption": "^6.5.0"
+    "mongodb-client-encryption": "^7.0.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
