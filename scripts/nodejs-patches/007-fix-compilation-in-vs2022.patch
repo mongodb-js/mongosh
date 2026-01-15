@@ -1,0 +1,28 @@
+diff --git a/common.gypi b/common.gypi
+index 20acf954bc0..54817e6cbe8 100644
+--- a/common.gypi
++++ b/common.gypi
+@@ -166,6 +166,11 @@
+             'OmitFramePointers': 'false',
+             'Optimization': 0,              # /Od, no optimization
+             'RuntimeLibrary': '<(MSVC_runtimeType)',
++	    'AdditionalOptions': [
++	       '/Zc:twoPhase-',
++	       '/clang:-fdelayed-template-parsing',
++	       '/clang:-Wno-typename-missing',
++	    ],
+           },
+           'VCLinkerTool': {
+             'LinkIncremental': 2, # enable incremental linking
+@@ -265,6 +270,11 @@
+             'Optimization': 3,              # /Ox, full optimization
+             'RuntimeLibrary': '<(MSVC_runtimeType)',
+             'RuntimeTypeInfo': 'false',
++	    'AdditionalOptions': [
++	       '/Zc:twoPhase-',
++	       '/clang:-fdelayed-template-parsing',
++	       '/clang:-Wno-typename-missing',
++	    ],
+           }
+         },
+         'xcode_settings': {
