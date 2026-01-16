@@ -10934,7 +10934,7 @@ tasks:
       - func: write_preload_script
       - func: spawn_host
         vars:
-          distro: windows-2022-small
+          distro: windows-2022-latest-small
       - func: run_pkg_tests_through_ssh
         vars:
           admin_user_name: Administrator
@@ -10954,7 +10954,7 @@ tasks:
       - func: write_preload_script
       - func: spawn_host
         vars:
-          distro: windows-2022-small
+          distro: windows-2022-latest-small
       - func: run_pkg_tests_through_ssh
         vars:
           admin_user_name: Administrator
@@ -13993,7 +13993,7 @@ buildvariants:
       - name: compile_artifact
   - name: build_win32
     display_name: "Windows VS 2022 (Build)"
-    run_on: windows-2022-small
+    run_on: windows-2022-latest-small
     expansions:
       executable_os_id: "win32"
       node_js_version: "24.12.0"
@@ -14597,9 +14597,9 @@ buildvariants:
       - name: sign_artifact_darwin_x64
       - name: package_artifact_darwin_arm64
       - name: sign_artifact_darwin_arm64
-  - name: e2e_tests_windows_2022_small
+  - name: e2e_tests_windows_2022_latest_small
     display_name: "Windows VS 2022 (E2E tests)"
-    run_on: windows-2022-small
+    run_on: windows-2022-latest-small
     tags: []
     expansions:
       executable_os_id: "win32"
@@ -14610,9 +14610,9 @@ buildvariants:
       - name: e2e_tests_win32
       - name: package_artifact_win32_x64
       - name: package_artifact_win32msi_x64
-  - name: e2e_tests_windows_2022_small_m820-rc4
+  - name: e2e_tests_windows_2022_latest_small_m820-rc4
     display_name: "Windows VS 2022 820-rc4 (E2E tests)"
-    run_on: windows-2022-small
+    run_on: windows-2022-latest-small
     tags: []
     expansions:
       executable_os_id: "win32"

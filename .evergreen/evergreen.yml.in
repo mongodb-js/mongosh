@@ -1445,7 +1445,7 @@ tasks:
       case 'ssh': { %>
       - func: spawn_host
         vars:
-          distro: windows-2022-small
+          distro: windows-2022-latest-small
       - func: run_pkg_tests_through_ssh
         vars:
           admin_user_name: Administrator
