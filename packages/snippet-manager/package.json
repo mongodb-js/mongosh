@@ -41,7 +41,7 @@
     "bson": "^6.10.4",
     "cross-spawn": "^7.0.5",
     "escape-string-regexp": "^4.0.0",
-    "tar": "^6.1.15",
+    "tar": "^7.5.3",
     "zod": "^3.25.76"
   },
   "devDependencies": {
