@@ -7147,13 +7147,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "20.19.6"
+          node_js_version: "20.20.0"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64
       - func: test_connectivity
         vars:
-          node_js_version: "20.19.6"
+          node_js_version: "20.20.0"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.rocky10"
           task_name: ${task_name}
@@ -7261,13 +7261,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "20.19.6"
+          node_js_version: "20.20.0"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl3
       - func: test_connectivity
         vars:
-          node_js_version: "20.19.6"
+          node_js_version: "20.20.0"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.rocky10"
           task_name: ${task_name}
@@ -7375,13 +7375,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "20.19.6"
+          node_js_version: "20.20.0"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64
       - func: test_connectivity
         vars:
-          node_js_version: "20.19.6"
+          node_js_version: "20.20.0"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.rocky10"
           task_name: ${task_name}
@@ -7489,13 +7489,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "20.19.6"
+          node_js_version: "20.20.0"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl3
       - func: test_connectivity
         vars:
-          node_js_version: "20.19.6"
+          node_js_version: "20.20.0"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.rocky10"
           task_name: ${task_name}
@@ -9924,10 +9924,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "20.19.6"
+          node_js_version: "20.20.0"
       - func: test_artifact_docker
         vars:
-          node_js_version: "20.19.6"
+          node_js_version: "20.20.0"
           dockerfile: debian13-deb
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_centos7_rpm
@@ -10044,10 +10044,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "20.19.6"
+          node_js_version: "20.20.0"
       - func: test_artifact_docker
         vars:
-          node_js_version: "20.19.6"
+          node_js_version: "20.20.0"
           dockerfile: rocky10-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_fedora34_rpm
@@ -10364,10 +10364,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "20.19.6"
+          node_js_version: "20.20.0"
       - func: test_artifact_docker
         vars:
-          node_js_version: "20.19.6"
+          node_js_version: "20.20.0"
           dockerfile: debian13-deb
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_openssl3_rocky8_epel_rpm
@@ -10444,10 +10444,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "20.19.6"
+          node_js_version: "20.20.0"
       - func: test_artifact_docker
         vars:
-          node_js_version: "20.19.6"
+          node_js_version: "20.20.0"
           dockerfile: rocky10-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_openssl3_amazonlinux2023_rpm
@@ -10684,10 +10684,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "20.19.6"
+          node_js_version: "20.20.0"
       - func: test_artifact_docker
         vars:
-          node_js_version: "20.19.6"
+          node_js_version: "20.20.0"
           dockerfile: debian13-deb
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_rocky8_rpm
@@ -10744,10 +10744,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "20.19.6"
+          node_js_version: "20.20.0"
       - func: test_artifact_docker
         vars:
-          node_js_version: "20.19.6"
+          node_js_version: "20.20.0"
           dockerfile: rocky10-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_fedora34_rpm
@@ -10884,10 +10884,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "20.19.6"
+          node_js_version: "20.20.0"
       - func: test_artifact_docker
         vars:
-          node_js_version: "20.19.6"
+          node_js_version: "20.20.0"
           dockerfile: debian13-deb
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_openssl11_rocky8_rpm
@@ -10929,26 +10929,6 @@ tasks:
         vars:
           node_js_version: "20.20.0"
           dockerfile: rocky9-rpm
-          task_name: ${task_name}
-  - name: pkg_test_docker_rpm_arm64_openssl11_rocky10_rpm
-    tags: ["smoke-test"]
-    depends_on:
-      - name: sign_artifact_rpm_arm64_openssl11
-        variant: "*"
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          package_variant: rpm-arm64-openssl11
-          signature_tag: signed
-      - func: write_preload_script
-      - func: install
-        vars:
-          node_js_version: "20.19.6"
-      - func: test_artifact_docker
-        vars:
-          node_js_version: "20.19.6"
-          dockerfile: rocky10-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_openssl11_fedora34_rpm
     tags: ["smoke-test"]
@@ -11064,10 +11044,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "20.19.6"
+          node_js_version: "20.20.0"
       - func: test_artifact_docker
         vars:
-          node_js_version: "20.19.6"
+          node_js_version: "20.20.0"
           dockerfile: debian13-deb
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_openssl3_rocky8_epel_rpm
@@ -11144,10 +11124,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "20.19.6"
+          node_js_version: "20.20.0"
       - func: test_artifact_docker
         vars:
-          node_js_version: "20.19.6"
+          node_js_version: "20.20.0"
           dockerfile: rocky10-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_openssl3_amazonlinux2023_rpm
@@ -14402,7 +14382,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
-      node_js_version: "20.19.6"
+      node_js_version: "20.20.0"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -14413,7 +14393,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64-openssl3"
-      node_js_version: "20.19.6"
+      node_js_version: "20.20.0"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -14765,7 +14745,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-arm64"
-      node_js_version: "20.19.6"
+      node_js_version: "20.20.0"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -14776,7 +14756,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-arm64-openssl3"
-      node_js_version: "20.19.6"
+      node_js_version: "20.20.0"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -15144,7 +15124,6 @@ buildvariants:
       - name: pkg_test_docker_deb_arm64_openssl11_debian13_deb
       - name: pkg_test_docker_rpm_arm64_openssl11_rocky8_rpm
       - name: pkg_test_docker_rpm_arm64_openssl11_rocky9_rpm
-      - name: pkg_test_docker_rpm_arm64_openssl11_rocky10_rpm
       - name: pkg_test_docker_rpm_arm64_openssl11_fedora34_rpm
       - name: pkg_test_docker_rpm_arm64_openssl11_amazonlinux2_rpm
       - name: pkg_test_docker_deb_arm64_openssl3_ubuntu22_04_deb

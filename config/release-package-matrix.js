@@ -314,7 +314,6 @@ exports.RELEASE_PACKAGE_MATRIX = [
         smokeTestDockerfiles: [
           'rocky8-rpm',
           'rocky9-rpm',
-          'rocky10-rpm',
           'fedora34-rpm',
           'amazonlinux2-rpm',
         ],
