@@ -5,14 +5,14 @@ const { COMPILE_BUILD_VARIANTS } = require('./compile-build-variants');
 exports.E2E_TESTS_BUILD_VARIANTS = [
   {
     displayName: 'RHEL 7.0 x64',
-    runOn: 'rhel70-large',
+    runOn: 'rhel70-small',
     tags: ['nightly-driver'],
     executableOsId: 'linux-x64',
     mVersion: '7.0.x',
   },
   {
     displayName: 'RHEL 7.6 x64',
-    runOn: 'rhel76-large',
+    runOn: 'rhel76-small',
     tags: ['nightly-driver'],
     executableOsId: 'linux-x64',
     mVersion: '7.0.x',
@@ -87,8 +87,23 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     mVersion: 'stable',
   },
   {
+    displayName: 'RHEL 10 x64',
+    runOn: 'rhel10.0-small',
+    tags: ['nightly-driver'],
+    executableOsId: 'linux-x64',
+    mVersion: 'stable',
+  },
+  {
+    displayName: 'RHEL 10 x64',
+    runOn: 'rhel10.0-small',
+    tags: ['nightly-driver'],
+    sharedOpenSsl: 'openssl3',
+    executableOsId: 'linux-x64-openssl3',
+    mVersion: 'stable',
+  },
+  {
     displayName: 'Ubuntu 18.04 x64',
-    runOn: 'ubuntu1804-large',
+    runOn: 'ubuntu1804-small',
     tags: ['nightly-driver'],
     executableOsId: 'linux-x64',
     mVersion: '6.0.x',
@@ -170,7 +185,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
   },
   {
     displayName: 'Amazon Linux 2 x64',
-    runOn: 'amazon2-large',
+    runOn: 'amazon2-small',
     tags: ['nightly-driver'],
     executableOsId: 'linux-x64',
     mVersion: '7.0.x',
@@ -184,7 +199,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
   },
   {
     displayName: 'SLES 12 x64',
-    runOn: 'suse12-sp5-large',
+    runOn: 'suse12-sp5-small',
     tags: ['nightly-driver'],
     executableOsId: 'linux-x64',
     mVersion: '7.0.x',
@@ -198,7 +213,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
   },
   {
     displayName: 'Ubuntu 18.04 arm64',
-    runOn: 'ubuntu1804-arm64-large',
+    runOn: 'ubuntu1804-arm64-small',
     executableOsId: 'linux-arm64',
     mVersion: '6.0.x',
   },
@@ -250,7 +265,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
   },
   {
     displayName: 'Amazon Linux 2 arm64',
-    runOn: 'amazon2-arm64-large',
+    runOn: 'amazon2-arm64-small',
     executableOsId: 'linux-arm64',
     mVersion: '7.0.x',
   },
@@ -299,6 +314,21 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     mVersion: 'stable',
   },
   {
+    displayName: 'RHEL 10 arm64',
+    runOn: 'rhel10.0-arm64-small',
+    tags: ['nightly-driver'],
+    executableOsId: 'linux-arm64',
+    mVersion: 'stable',
+  },
+  {
+    displayName: 'RHEL 10 arm64',
+    runOn: 'rhel10.0-arm64-small',
+    tags: ['nightly-driver'],
+    sharedOpenSsl: 'openssl3',
+    executableOsId: 'linux-arm64-openssl3',
+    mVersion: 'stable',
+  },
+  {
     displayName: 'RHEL 8 PPC',
     runOn: 'rhel8-power-small',
     executableOsId: 'linux-ppc64le',
@@ -318,7 +348,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
   },
   {
     displayName: 'RHEL 7 s390x',
-    runOn: 'rhel7-zseries-large',
+    runOn: 'rhel7-zseries-small',
     executableOsId: 'linux-s390x',
     mVersion: '6.0.x',
   },
