@@ -1655,7 +1655,7 @@ buildvariants:
       <% } } } %>
   - name: verify_windows_artifact
     display_name: "Windows (Signature Verification)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tasks:
       - name: verify_artifact_win32_x64
       - name: verify_artifact_win32msi_x64
