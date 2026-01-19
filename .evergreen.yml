@@ -7138,6 +7138,25 @@ tasks:
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.rocky9"
           task_name: ${task_name}
+  - name: executable_connectivity_test_linux_x64_rocky10
+    tags: ["connectivity-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: build_linux_x64
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.20.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64
+      - func: test_connectivity
+        vars:
+          node_js_version: "20.20.0"
+          test_mongosh_executable: dist/mongosh
+          kerberos_jumphost_dockerfile: "Dockerfile.rocky10"
+          task_name: ${task_name}
   - name: executable_connectivity_test_linux_x64_ubuntu2204
     tags: ["connectivity-test"]
     depends_on:
@@ -7232,6 +7251,25 @@ tasks:
           node_js_version: "20.20.0"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.rocky9"
+          task_name: ${task_name}
+  - name: executable_connectivity_test_linux_x64_openssl3_rocky10
+    tags: ["connectivity-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: build_linux_x64_openssl3
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.20.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl3
+      - func: test_connectivity
+        vars:
+          node_js_version: "20.20.0"
+          test_mongosh_executable: dist/mongosh
+          kerberos_jumphost_dockerfile: "Dockerfile.rocky10"
           task_name: ${task_name}
   - name: executable_connectivity_test_linux_x64_openssl3_ubuntu2204
     tags: ["connectivity-test"]
@@ -7328,6 +7366,25 @@ tasks:
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.rocky9"
           task_name: ${task_name}
+  - name: executable_connectivity_test_linux_arm64_rocky10
+    tags: ["connectivity-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: build_linux_arm64
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.20.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64
+      - func: test_connectivity
+        vars:
+          node_js_version: "20.20.0"
+          test_mongosh_executable: dist/mongosh
+          kerberos_jumphost_dockerfile: "Dockerfile.rocky10"
+          task_name: ${task_name}
   - name: executable_connectivity_test_linux_arm64_ubuntu2204
     tags: ["connectivity-test"]
     depends_on:
@@ -7422,6 +7479,25 @@ tasks:
           node_js_version: "20.20.0"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.rocky9"
+          task_name: ${task_name}
+  - name: executable_connectivity_test_linux_arm64_openssl3_rocky10
+    tags: ["connectivity-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: build_linux_arm64_openssl3
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.20.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl3
+      - func: test_connectivity
+        vars:
+          node_js_version: "20.20.0"
+          test_mongosh_executable: dist/mongosh
+          kerberos_jumphost_dockerfile: "Dockerfile.rocky10"
           task_name: ${task_name}
   - name: executable_connectivity_test_linux_arm64_openssl3_ubuntu2204
     tags: ["connectivity-test"]
@@ -9834,6 +9910,26 @@ tasks:
           node_js_version: "20.20.0"
           dockerfile: debian12-deb
           task_name: ${task_name}
+  - name: pkg_test_docker_deb_x64_debian13_deb
+    tags: ["smoke-test"]
+    depends_on:
+      - name: sign_artifact_deb_x64
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          package_variant: deb-x64
+          signature_tag: signed
+      - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "20.20.0"
+      - func: test_artifact_docker
+        vars:
+          node_js_version: "20.20.0"
+          dockerfile: debian13-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_centos7_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -9933,6 +10029,26 @@ tasks:
         vars:
           node_js_version: "20.20.0"
           dockerfile: rocky9-rpm
+          task_name: ${task_name}
+  - name: pkg_test_docker_rpm_x64_rocky10_rpm
+    tags: ["smoke-test"]
+    depends_on:
+      - name: sign_artifact_rpm_x64
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          package_variant: rpm-x64
+          signature_tag: signed
+      - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "20.20.0"
+      - func: test_artifact_docker
+        vars:
+          node_js_version: "20.20.0"
+          dockerfile: rocky10-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_fedora34_rpm
     tags: ["smoke-test"]
@@ -10234,6 +10350,26 @@ tasks:
           node_js_version: "20.20.0"
           dockerfile: debian12-deb
           task_name: ${task_name}
+  - name: pkg_test_docker_deb_x64_openssl3_debian13_deb
+    tags: ["smoke-test"]
+    depends_on:
+      - name: sign_artifact_deb_x64_openssl3
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          package_variant: deb-x64-openssl3
+          signature_tag: signed
+      - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "20.20.0"
+      - func: test_artifact_docker
+        vars:
+          node_js_version: "20.20.0"
+          dockerfile: debian13-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_openssl3_rocky8_epel_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -10293,6 +10429,26 @@ tasks:
         vars:
           node_js_version: "20.20.0"
           dockerfile: rocky9-fips-rpm
+          task_name: ${task_name}
+  - name: pkg_test_docker_rpm_x64_openssl3_rocky10_rpm
+    tags: ["smoke-test"]
+    depends_on:
+      - name: sign_artifact_rpm_x64_openssl3
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          package_variant: rpm-x64-openssl3
+          signature_tag: signed
+      - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "20.20.0"
+      - func: test_artifact_docker
+        vars:
+          node_js_version: "20.20.0"
+          dockerfile: rocky10-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_openssl3_amazonlinux2023_rpm
     tags: ["smoke-test"]
@@ -10514,6 +10670,26 @@ tasks:
           node_js_version: "20.20.0"
           dockerfile: debian12-deb
           task_name: ${task_name}
+  - name: pkg_test_docker_deb_arm64_debian13_deb
+    tags: ["smoke-test"]
+    depends_on:
+      - name: sign_artifact_deb_arm64
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          package_variant: deb-arm64
+          signature_tag: signed
+      - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "20.20.0"
+      - func: test_artifact_docker
+        vars:
+          node_js_version: "20.20.0"
+          dockerfile: debian13-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_rocky8_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -10553,6 +10729,26 @@ tasks:
         vars:
           node_js_version: "20.20.0"
           dockerfile: rocky9-rpm
+          task_name: ${task_name}
+  - name: pkg_test_docker_rpm_arm64_rocky10_rpm
+    tags: ["smoke-test"]
+    depends_on:
+      - name: sign_artifact_rpm_arm64
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          package_variant: rpm-arm64
+          signature_tag: signed
+      - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "20.20.0"
+      - func: test_artifact_docker
+        vars:
+          node_js_version: "20.20.0"
+          dockerfile: rocky10-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_fedora34_rpm
     tags: ["smoke-test"]
@@ -10814,6 +11010,26 @@ tasks:
           node_js_version: "20.20.0"
           dockerfile: debian12-deb
           task_name: ${task_name}
+  - name: pkg_test_docker_deb_arm64_openssl3_debian13_deb
+    tags: ["smoke-test"]
+    depends_on:
+      - name: sign_artifact_deb_arm64_openssl3
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          package_variant: deb-arm64-openssl3
+          signature_tag: signed
+      - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "20.20.0"
+      - func: test_artifact_docker
+        vars:
+          node_js_version: "20.20.0"
+          dockerfile: debian13-deb
+          task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_openssl3_rocky8_epel_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -10873,6 +11089,26 @@ tasks:
         vars:
           node_js_version: "20.20.0"
           dockerfile: rocky9-fips-rpm
+          task_name: ${task_name}
+  - name: pkg_test_docker_rpm_arm64_openssl3_rocky10_rpm
+    tags: ["smoke-test"]
+    depends_on:
+      - name: sign_artifact_rpm_arm64_openssl3
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          package_variant: rpm-arm64-openssl3
+          signature_tag: signed
+      - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "20.20.0"
+      - func: test_artifact_docker
+        vars:
+          node_js_version: "20.20.0"
+          dockerfile: rocky10-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_openssl3_amazonlinux2023_rpm
     tags: ["smoke-test"]
@@ -13999,9 +14235,9 @@ buildvariants:
       node_js_version: "20.20.0"
     tasks:
       - name: compile_artifact
-  - name: e2e_tests_rhel70_large_m70x
+  - name: e2e_tests_rhel70_small_m70x
     display_name: "RHEL 7.0 x64 70x (E2E tests)"
-    run_on: rhel70-large
+    run_on: rhel70-small
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
@@ -14010,9 +14246,9 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_x64
-  - name: e2e_tests_rhel76_large_m70x
+  - name: e2e_tests_rhel76_small_m70x
     display_name: "RHEL 7.6 x64 70x (E2E tests)"
-    run_on: rhel76-large
+    run_on: rhel76-small
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
@@ -14120,9 +14356,31 @@ buildvariants:
       mongosh_test_e2e_force_fips: "1"
     tasks:
       - name: e2e_tests_linux_x64_openssl3
-  - name: e2e_tests_ubuntu1804_large_m60x
+  - name: e2e_tests_rhel10.0_small
+    display_name: "RHEL 10 x64 (E2E tests)"
+    run_on: rhel10.0-small
+    tags: ["nightly-driver"]
+    expansions:
+      executable_os_id: "linux-x64"
+      node_js_version: "20.20.0"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests_linux_x64
+  - name: e2e_tests_rhel10.0_small_openssl3
+    display_name: "RHEL 10 x64 openssl3 (E2E tests)"
+    run_on: rhel10.0-small
+    tags: ["nightly-driver"]
+    expansions:
+      executable_os_id: "linux-x64-openssl3"
+      node_js_version: "20.20.0"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests_linux_x64_openssl3
+  - name: e2e_tests_ubuntu1804_small_m60x
     display_name: "Ubuntu 18.04 x64 60x (E2E tests)"
-    run_on: ubuntu1804-large
+    run_on: ubuntu1804-small
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
@@ -14241,9 +14499,9 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_x64_openssl11
-  - name: e2e_tests_amazon2_large_m70x
+  - name: e2e_tests_amazon2_small_m70x
     display_name: "Amazon Linux 2 x64 70x (E2E tests)"
-    run_on: amazon2-large
+    run_on: amazon2-small
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
@@ -14263,9 +14521,9 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_x64
-  - name: e2e_tests_suse12_sp5_large_m70x
+  - name: e2e_tests_suse12_sp5_small_m70x
     display_name: "SLES 12 x64 70x (E2E tests)"
-    run_on: suse12-sp5-large
+    run_on: suse12-sp5-small
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
@@ -14285,9 +14543,9 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_x64
-  - name: e2e_tests_ubuntu1804_arm64_large_m60x
+  - name: e2e_tests_ubuntu1804_arm64_small_m60x
     display_name: "Ubuntu 18.04 arm64 60x (E2E tests)"
-    run_on: ubuntu1804-arm64-large
+    run_on: ubuntu1804-arm64-small
     tags: []
     expansions:
       executable_os_id: "linux-arm64"
@@ -14373,9 +14631,9 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_arm64_openssl3
-  - name: e2e_tests_amazon2_arm64_large_m70x
+  - name: e2e_tests_amazon2_arm64_small_m70x
     display_name: "Amazon Linux 2 arm64 70x (E2E tests)"
-    run_on: amazon2-arm64-large
+    run_on: amazon2-arm64-small
     tags: []
     expansions:
       executable_os_id: "linux-arm64"
@@ -14461,6 +14719,28 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_arm64_openssl3
+  - name: e2e_tests_rhel10.0_arm64_small
+    display_name: "RHEL 10 arm64 (E2E tests)"
+    run_on: rhel10.0-arm64-small
+    tags: ["nightly-driver"]
+    expansions:
+      executable_os_id: "linux-arm64"
+      node_js_version: "20.20.0"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests_linux_arm64
+  - name: e2e_tests_rhel10.0_arm64_small_openssl3
+    display_name: "RHEL 10 arm64 openssl3 (E2E tests)"
+    run_on: rhel10.0-arm64-small
+    tags: ["nightly-driver"]
+    expansions:
+      executable_os_id: "linux-arm64-openssl3"
+      node_js_version: "20.20.0"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests_linux_arm64_openssl3
   - name: e2e_tests_rhel8_power_small
     display_name: "RHEL 8 PPC (E2E tests)"
     run_on: rhel8-power-small
@@ -14494,9 +14774,9 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_ppc64le
-  - name: e2e_tests_rhel7_zseries_large_m60x
+  - name: e2e_tests_rhel7_zseries_small_m60x
     display_name: "RHEL 7 s390x 60x (E2E tests)"
-    run_on: rhel7-zseries-large
+    run_on: rhel7-zseries-small
     tags: []
     expansions:
       executable_os_id: "linux-s390x"
@@ -14768,11 +15048,13 @@ buildvariants:
       - name: pkg_test_docker_deb_x64_debian10_deb
       - name: pkg_test_docker_deb_x64_debian11_deb
       - name: pkg_test_docker_deb_x64_debian12_deb
+      - name: pkg_test_docker_deb_x64_debian13_deb
       - name: pkg_test_docker_rpm_x64_centos7_rpm
       - name: pkg_test_docker_rpm_x64_amazonlinux2_rpm
       - name: pkg_test_docker_rpm_x64_amazonlinux2023_rpm
       - name: pkg_test_docker_rpm_x64_rocky8_rpm
       - name: pkg_test_docker_rpm_x64_rocky9_rpm
+      - name: pkg_test_docker_rpm_x64_rocky10_rpm
       - name: pkg_test_docker_rpm_x64_fedora34_rpm
       - name: pkg_test_docker_rpm_x64_suse12_rpm
       - name: pkg_test_docker_rpm_x64_suse15_rpm
@@ -14788,9 +15070,11 @@ buildvariants:
       - name: pkg_test_docker_deb_x64_openssl3_ubuntu22_04_deb
       - name: pkg_test_docker_deb_x64_openssl3_ubuntu22_04_fips_deb
       - name: pkg_test_docker_deb_x64_openssl3_debian12_deb
+      - name: pkg_test_docker_deb_x64_openssl3_debian13_deb
       - name: pkg_test_docker_rpm_x64_openssl3_rocky8_epel_rpm
       - name: pkg_test_docker_rpm_x64_openssl3_rocky9_rpm
       - name: pkg_test_docker_rpm_x64_openssl3_rocky9_fips_rpm
+      - name: pkg_test_docker_rpm_x64_openssl3_rocky10_rpm
       - name: pkg_test_docker_rpm_x64_openssl3_amazonlinux2023_rpm
   - name: pkg_smoke_tests_docker_arm64
     display_name: "package smoke (arm64 Docker)"
@@ -14807,8 +15091,10 @@ buildvariants:
       - name: pkg_test_docker_deb_arm64_debian10_deb
       - name: pkg_test_docker_deb_arm64_debian11_deb
       - name: pkg_test_docker_deb_arm64_debian12_deb
+      - name: pkg_test_docker_deb_arm64_debian13_deb
       - name: pkg_test_docker_rpm_arm64_rocky8_rpm
       - name: pkg_test_docker_rpm_arm64_rocky9_rpm
+      - name: pkg_test_docker_rpm_arm64_rocky10_rpm
       - name: pkg_test_docker_rpm_arm64_fedora34_rpm
       - name: pkg_test_docker_rpm_arm64_amazonlinux2_rpm
       - name: pkg_test_docker_rpm_arm64_amazonlinux2023_rpm
@@ -14822,9 +15108,11 @@ buildvariants:
       - name: pkg_test_docker_deb_arm64_openssl3_ubuntu22_04_deb
       - name: pkg_test_docker_deb_arm64_openssl3_ubuntu22_04_fips_deb
       - name: pkg_test_docker_deb_arm64_openssl3_debian12_deb
+      - name: pkg_test_docker_deb_arm64_openssl3_debian13_deb
       - name: pkg_test_docker_rpm_arm64_openssl3_rocky8_epel_rpm
       - name: pkg_test_docker_rpm_arm64_openssl3_rocky9_rpm
       - name: pkg_test_docker_rpm_arm64_openssl3_rocky9_fips_rpm
+      - name: pkg_test_docker_rpm_arm64_openssl3_rocky10_rpm
       - name: pkg_test_docker_rpm_arm64_openssl3_amazonlinux2023_rpm
   - name: exec_connectitivty_tests_docker_x64_openssl11
     display_name: "executable connectivity tests (x64 Docker for OpenSSL 1.1 base OS)"
@@ -14835,6 +15123,7 @@ buildvariants:
       - name: executable_connectivity_test_linux_x64_ubuntu2004
       - name: executable_connectivity_test_linux_x64_node20
       - name: executable_connectivity_test_linux_x64_rocky9
+      - name: executable_connectivity_test_linux_x64_rocky10
       - name: executable_connectivity_test_linux_x64_ubuntu2204
       - name: executable_connectivity_test_linux_x64_openssl11_rocky8
       - name: executable_connectivity_test_linux_x64_openssl11_ubuntu2004
@@ -14846,6 +15135,7 @@ buildvariants:
       - name: executable_connectivity_test_linux_arm64_ubuntu2004
       - name: executable_connectivity_test_linux_arm64_node20
       - name: executable_connectivity_test_linux_arm64_rocky9
+      - name: executable_connectivity_test_linux_arm64_rocky10
       - name: executable_connectivity_test_linux_arm64_ubuntu2204
       - name: executable_connectivity_test_linux_arm64_openssl11_rocky8
       - name: executable_connectivity_test_linux_arm64_openssl11_ubuntu2004
@@ -14858,9 +15148,11 @@ buildvariants:
       - name: executable_connectivity_test_linux_x64_ubuntu2004
       - name: executable_connectivity_test_linux_x64_node20
       - name: executable_connectivity_test_linux_x64_rocky9
+      - name: executable_connectivity_test_linux_x64_rocky10
       - name: executable_connectivity_test_linux_x64_ubuntu2204
       - name: executable_connectivity_test_linux_x64_openssl3_node20
       - name: executable_connectivity_test_linux_x64_openssl3_rocky9
+      - name: executable_connectivity_test_linux_x64_openssl3_rocky10
       - name: executable_connectivity_test_linux_x64_openssl3_ubuntu2204
   - name: exec_connectitivty_tests_docker_arm64_openssl3
     display_name: "executable connectivity tests (arm64 Docker for OpenSSL 3 base OS)"
@@ -14870,9 +15162,11 @@ buildvariants:
       - name: executable_connectivity_test_linux_arm64_ubuntu2004
       - name: executable_connectivity_test_linux_arm64_node20
       - name: executable_connectivity_test_linux_arm64_rocky9
+      - name: executable_connectivity_test_linux_arm64_rocky10
       - name: executable_connectivity_test_linux_arm64_ubuntu2204
       - name: executable_connectivity_test_linux_arm64_openssl3_node20
       - name: executable_connectivity_test_linux_arm64_openssl3_rocky9
+      - name: executable_connectivity_test_linux_arm64_openssl3_rocky10
       - name: executable_connectivity_test_linux_arm64_openssl3_ubuntu2204
   - name: pkg_smoke_tests_win32
     display_name: "package smoke tests (win32)"
