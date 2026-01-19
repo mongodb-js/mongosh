@@ -447,19 +447,26 @@ export class SnippetManager implements ShellPlugin {
     return result;
   }
 
-  async runNpm(...npmArgs: string[]): Promise<string> {
+  /** If lenient is true we will return the stdout either way, even if the process fails.
+   * This is important for commands like `npm outdated` that might exit with a non-zero
+   *	status but the output is still useful.
+   **/
+  async runNpm(npmArgs: string[], lenient = false): Promise<string> {
     await this.editPackageJSON(() => {}); // Ensure package.json exists.
-    return await this.execFile([
-      ...(await this.ensureSetup()),
-      '--no-package-lock',
-      '--ignore-scripts',
-      '--loglevel=notice',
-      `--registry=${await this.registryBaseUrl()}`,
-      ...npmArgs,
-    ]);
+    return await this.execFile(
+      [
+        ...(await this.ensureSetup()),
+        '--no-package-lock',
+        '--ignore-scripts',
+        '--loglevel=notice',
+        `--registry=${await this.registryBaseUrl()}`,
+        ...npmArgs,
+      ],
+      lenient
+    );
   }
 
-  async execFile([cmd, ...args]: string[]) {
+  async execFile([cmd, ...args]: string[], lenient = false) {
     const { interrupted } = this._instanceState;
     this.messageBus.emit('mongosh-snippets:spawn-child', {
       args: [cmd, ...args],
@@ -496,7 +503,11 @@ export class SnippetManager implements ShellPlugin {
       ]);
       // Allow exit code 1 if stderr is empty, i.e. no error occurred, because
       // that is how commands like `npm outdated` report their result.
-      if (exitCode === 0 || (exitCode === 1 && stderr === '' && stdout)) {
+      if (
+        lenient ||
+        exitCode === 0 ||
+        (exitCode === 1 && stderr === '' && stdout)
+      ) {
         return stdout;
       }
       throw new Error(
@@ -578,9 +589,9 @@ export class SnippetManager implements ShellPlugin {
       case 'ls': {
         let output;
         if (args[0] === 'ls') {
-          output = await this.runNpm('ls', '--depth=0');
+          output = await this.runNpm(['ls', '--depth=0'], true);
         } else {
-          output = await this.runNpm(args[0]);
+          output = await this.runNpm([args[0]], true);
         }
 
         const firstLineEnd = output.indexOf('\n');
@@ -634,7 +645,7 @@ export class SnippetManager implements ShellPlugin {
       return name + (args[0] === 'install' ? `@${installSpec ?? '*'}` : '');
     });
     await this.print(`Running ${args[0]}...`);
-    await this.runNpm(args[0], '--save', ...npmArguments);
+    await this.runNpm([args[0], '--save', ...npmArguments]);
     if (args[0] === 'install' && snippetDescs.length > 0) {
       this._instanceState.interrupted.checkpoint();
       const loadNow = await evaluationListener.onPrompt?.(
