@@ -165,6 +165,12 @@
   "overrides": {
     "@mongosh/service-provider-node-driver": {
       "mongodb-client-encryption": "^7.0.0"
+    },
+    "mongodb": {
+      "mongodb-client-encryption": "^7.0.0"
+    },
+    "@mongodb-js/devtools-connect": {
+      "mongodb-client-encryption": "^7.0.0"
     }
   }
 }
