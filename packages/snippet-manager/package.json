@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/snippet-manager",
-  "version": "3.29.0",
+  "version": "3.29.1",
   "description": "MongoDB Shell Snippet Manager",
   "main": "./lib/index.js",
   "repository": {
@@ -35,9 +35,9 @@
   },
   "dependencies": {
     "@mongodb-js/devtools-proxy-support": "^0.7.3",
-    "@mongosh/errors": "2.4.5",
-    "@mongosh/shell-api": "^3.29.0",
-    "@mongosh/types": "^3.14.1",
+    "@mongosh/errors": "2.4.6",
+    "@mongosh/shell-api": "^3.29.1",
+    "@mongosh/types": "^3.14.2",
     "bson": "^6.10.4",
     "cross-spawn": "^7.0.5",
     "escape-string-regexp": "^4.0.0",
@@ -53,6 +53,6 @@
     "eslint": "^7.25.0",
     "nanobus": "^4.5.0",
     "prettier": "^2.8.8",
-    "@mongosh/testing": "0.0.0-dev.0"
+    "@mongosh/testing": "0.0.0"
   }
 }

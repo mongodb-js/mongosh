@@ -284,6 +284,7 @@ describe('e2e proxy support', function () {
         '--tlsCAFile',
         CA_CERT,
       ],
+      tlsAddClientKey: false,
     });
 
     it('can connect using an HTTP proxy', async function () {
