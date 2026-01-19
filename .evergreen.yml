@@ -10870,26 +10870,6 @@ tasks:
           node_js_version: "20.20.0"
           dockerfile: debian11-deb
           task_name: ${task_name}
-  - name: pkg_test_docker_deb_arm64_openssl11_debian13_deb
-    tags: ["smoke-test"]
-    depends_on:
-      - name: sign_artifact_deb_arm64_openssl11
-        variant: "*"
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          package_variant: deb-arm64-openssl11
-          signature_tag: signed
-      - func: write_preload_script
-      - func: install
-        vars:
-          node_js_version: "20.20.0"
-      - func: test_artifact_docker
-        vars:
-          node_js_version: "20.20.0"
-          dockerfile: debian13-deb
-          task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_openssl11_rocky8_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -15121,7 +15101,6 @@ buildvariants:
       - name: pkg_test_docker_deb_arm64_openssl11_ubuntu20_04_deb
       - name: pkg_test_docker_deb_arm64_openssl11_debian10_deb
       - name: pkg_test_docker_deb_arm64_openssl11_debian11_deb
-      - name: pkg_test_docker_deb_arm64_openssl11_debian13_deb
       - name: pkg_test_docker_rpm_arm64_openssl11_rocky8_rpm
       - name: pkg_test_docker_rpm_arm64_openssl11_rocky9_rpm
       - name: pkg_test_docker_rpm_arm64_openssl11_fedora34_rpm

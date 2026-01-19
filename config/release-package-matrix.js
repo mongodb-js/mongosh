@@ -301,7 +301,6 @@ exports.RELEASE_PACKAGE_MATRIX = [
           'ubuntu20.04-deb',
           'debian10-deb',
           'debian11-deb',
-          'debian13-deb',
         ],
         serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased],
       },
