@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/arg-parser",
-  "version": "3.23.0",
+  "version": "3.23.1",
   "description": "MongoDB Shell CLI Argument List Parser Package",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -45,8 +45,8 @@
     "unitTestsOnly": true
   },
   "dependencies": {
-    "@mongosh/errors": "2.4.5",
-    "@mongosh/i18n": "^2.20.0",
+    "@mongosh/errors": "2.4.6",
+    "@mongosh/i18n": "^2.20.1",
     "mongodb-connection-string-url": "^3.0.2",
     "yargs-parser": "^20.2.4"
   },
@@ -60,7 +60,7 @@
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@types/yargs-parser": "^21.0.3",
     "eslint": "^7.25.0",
-    "mongodb": "^6.19.0",
+    "mongodb": "^6.21.0",
     "prettier": "^2.8.8"
   }
 }

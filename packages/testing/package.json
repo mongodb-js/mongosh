@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/testing",
-  "version": "0.0.0-dev.0",
+  "version": "0.0.0",
   "description": "MongoDB Shell Testing Utilities",
   "homepage": "https://github.com/mongodb-js/mongosh",
   "license": "Apache-2.0",
@@ -27,11 +27,11 @@
     "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
   },
   "dependencies": {
-    "@mongosh/build": "^3.7.10",
+    "@mongosh/build": "^3.8.0",
     "duplexpair": "^1.0.2",
-    "mongodb": "^6.19.0",
+    "mongodb": "^6.21.0",
     "mongodb-connection-string-url": "^3.0.1",
-    "mongodb-runner": "^6.0.0",
+    "mongodb-runner": "^6.5.3",
     "semver": "^7.3.4",
     "which": "^2.0.2"
   },

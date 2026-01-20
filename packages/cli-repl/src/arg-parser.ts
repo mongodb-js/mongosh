@@ -1,7 +1,7 @@
 import i18n from '@mongosh/i18n';
 import {
+  createParseArgsWithCliOptions,
   getLocale,
-  parseArgsWithCliOptions,
   UnknownArgumentError,
   UnsupportedArgumentError,
 } from '@mongosh/arg-parser/arg-parser';
@@ -9,6 +9,9 @@ import { colorizeForStderr as clr } from './clr';
 import { USAGE } from './constants';
 import type { CliOptions } from '@mongosh/arg-parser';
 import { CommonErrors, MongoshUnimplementedError } from '@mongosh/errors';
+
+// Make sure this is part of the startup snapshot
+const parseArgsWithCliOptions = createParseArgsWithCliOptions();
 
 /**
  * Unknown translation key.

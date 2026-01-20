@@ -109,6 +109,7 @@ describe('e2e TLS', function () {
           '--tlsCAFile',
           CA_CERT,
         ],
+        tlsAddClientKey: false,
       });
 
       it('works with matching CA (args)', async function () {
@@ -342,6 +343,7 @@ describe('e2e TLS', function () {
           '--tlsCAFile',
           PARTIAL_TRUST_CHAIN_CA,
         ],
+        tlsAddClientKey: false,
       });
 
       it('works with matching CA (connection string)', async function () {
@@ -415,6 +417,7 @@ describe('e2e TLS', function () {
         '--tlsCAFile',
         CA_CERT,
       ],
+      tlsAddClientKey: false,
     });
     const certUser =
       'emailAddress=tester@example.com,CN=Wonderwoman,OU=DevTools Testers,O=MongoDB';
@@ -751,6 +754,7 @@ describe('e2e TLS', function () {
         CA_CERT,
         '--tlsAllowConnectionsWithoutCertificates',
       ],
+      tlsAddClientKey: false,
     });
 
     it('works with allowInvalidCertificates', async function () {

@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/service-provider-core",
-  "version": "3.7.0",
+  "version": "3.7.1",
   "description": "MongoDB Shell Core Service Provider Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -35,10 +35,10 @@
     "unitTestsOnly": true
   },
   "dependencies": {
-    "@mongosh/errors": "2.4.5",
-    "@mongosh/shell-bson": "1.1.0",
+    "@mongosh/errors": "2.4.6",
+    "@mongosh/shell-bson": "1.1.1",
     "bson": "^6.10.4",
-    "mongodb": "^6.19.0",
+    "mongodb": "^6.21.0",
     "mongodb-build-info": "^1.8.1",
     "mongodb-connection-string-url": "^3.0.2"
   },

@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/types",
-  "version": "3.14.1",
+  "version": "3.14.2",
   "description": "Types for mongosh internals",
   "author": "Anna Henningsen <anna.henningsen@mongodb.com>",
   "homepage": "https://github.com/mongodb-js/mongosh/tree/main/packages/types#readme",
@@ -44,7 +44,7 @@
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "eslint": "^7.25.0",
-    "mongodb": "^6.19.0",
+    "mongodb": "^6.21.0",
     "prettier": "^2.8.8"
   }
 }
