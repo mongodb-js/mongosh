@@ -1168,7 +1168,7 @@ tasks:
         vars:
           node_js_version: ${node_js_version}
           puppeteer_skip_download: "<% out(usePuppeteer ? "false" : "true") %>"
-          <% if (packageName !== 'node-runtime-worker-thread') /* TODO: Make it possible to run it there too */ { %>
+          <% if (packageName !== 'node-runtime-worker-thread' && packageName !== 'e2e-tests') /* TODO(MONGOSH-3167): Make it possible to run it there too */ { %>
           mongosh_install_workspace: "@mongosh/<% out(packageName) %>"
           <% } %>
       - func: test
