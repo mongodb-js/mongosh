@@ -1690,6 +1690,7 @@ export class Collection<
     let unscaledCollSize = 0;
 
     let nindexes = 0;
+    let timeseriesHasStats = false;
     let timeseriesBucketsNs: string | undefined;
     let timeseriesTotalBucketSize = 0;
 
@@ -1722,14 +1723,16 @@ export class Collection<
           // match across shards.
           result[fieldName] ??= shardStorageStats[fieldName];
         } else if (fieldName === 'timeseries') {
+          timeseriesHasStats = true;
           const shardTimeseriesStats: Document = shardStorageStats[fieldName];
+          if (typeof shardTimeseriesStats.bucketsNs === 'string')
+            timeseriesBucketsNs ??= shardTimeseriesStats.bucketsNs;
+
           for (const [timeseriesStatName, timeseriesStat] of Object.entries(
             shardTimeseriesStats
           )) {
             if (typeof timeseriesStat === 'string') {
-              if (!timeseriesBucketsNs) {
-                timeseriesBucketsNs = timeseriesStat;
-              }
+              // ignore
             } else if (timeseriesStatName === 'avgBucketSize') {
               timeseriesTotalBucketSize +=
                 coerceToJSNumber(shardTimeseriesStats.bucketCount) *
@@ -1803,7 +1806,11 @@ export class Collection<
 
     try {
       result.sharded = !!(await config.getCollection('collections').findOne({
-        _id: timeseriesBucketsNs ?? ns,
+        // Currently, for timeseries collections, the sharding catalog entry
+        // always uses the buckets namespace, but that is not a guarantee we
+        // want to rely on, given the move towards hiding the bucket namespace
+        // as an implementation detail more and more.
+        _id: { $in: [timeseriesBucketsNs, ns].filter(Boolean) },
         ...onlyShardedCollectionsInConfigFilter,
       }));
     } catch (e) {
@@ -1824,7 +1831,10 @@ export class Collection<
         result[countField] = count;
       }
     }
-    if (timeseriesBucketsNs && Object.keys(clusterTimeseriesStats).length > 0) {
+    if (
+      (timeseriesHasStats || timeseriesBucketsNs) &&
+      Object.keys(clusterTimeseriesStats).length > 0
+    ) {
       result.timeseries = {
         ...clusterTimeseriesStats,
         // Average across all the shards.
@@ -2121,22 +2131,19 @@ export class Collection<
     }
 
     // If the collection info is not found, check if it is timeseries and use the bucket
-    const timeseriesShardStats = collStats.find(
-      (extractedShardStats) =>
-        typeof extractedShardStats.storageStats.timeseries !== 'undefined'
-    );
+    const timeseriesBucketNs = collStats
+      .map(
+        (extractedShardStats) =>
+          extractedShardStats.storageStats?.timeseries?.bucketsNs
+      )
+      .find((bucketsNs) => typeof bucketsNs === 'string');
 
-    if (!timeseriesShardStats) {
+    if (!timeseriesBucketNs) {
       throw new MongoshInvalidInputError(
         `Collection ${this._name} is not sharded`,
         ShellApiErrors.NotConnectedToShardedCluster
       );
     }
-
-    const { storageStats } = timeseriesShardStats;
-
-    const timeseries: Document = storageStats.timeseries;
-    const timeseriesBucketNs: string = timeseries.bucketsNs;
 
     const timeseriesCollectionInfo = await config
       .getCollection('collections')

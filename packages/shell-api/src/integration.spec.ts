@@ -211,6 +211,26 @@ describe('Shell API (integration)', function () {
     expect(res.acknowledged).to.equal(true);
   };
 
+  async function createTimeseriesCollection(
+    serviceProvider: NodeDriverServiceProvider,
+    dbName: string,
+    collectionName: string
+  ): Promise<void> {
+    await serviceProvider.createCollection(dbName, collectionName, {
+      timeseries: {
+        timeField: 'timestamp',
+        metaField: 'metadata',
+        granularity: 'hours',
+      },
+    });
+    await serviceProvider.insertOne(dbName, collectionName, {
+      timestamp: new Date(),
+      metadata: {
+        test: true,
+      },
+    });
+  }
+
   before(async function () {
     serviceProvider = await NodeDriverServiceProvider.connect(
       await testServer.connectionString(),
@@ -966,19 +986,11 @@ describe('Shell API (integration)', function () {
         skipIfServerVersion(testServer, '< 5.0');
 
         beforeEach(async function () {
-          await serviceProvider.createCollection(dbName, collectionName, {
-            timeseries: {
-              timeField: 'timestamp',
-              metaField: 'metadata',
-              granularity: 'hours',
-            },
-          });
-          await serviceProvider.insertOne(dbName, collectionName, {
-            timestamp: new Date(),
-            metadata: {
-              test: true,
-            },
-          });
+          await createTimeseriesCollection(
+            serviceProvider,
+            dbName,
+            collectionName
+          );
         });
 
         it('returns the timeseries stats', async function () {
@@ -988,9 +1000,10 @@ describe('Shell API (integration)', function () {
           expect(stats.count).to.equal(undefined);
           expect(stats.maxSize).to.equal(undefined);
           expect(stats.capped).to.equal(false);
-          expect(stats.timeseries.bucketsNs).to.equal(
-            `${dbName}.system.buckets.${collectionName}`
-          );
+          expect(stats.timeseries.bucketsNs).to.be.oneOf([
+            `${dbName}.system.buckets.${collectionName}`,
+            `${dbName}.${collectionName}`,
+          ]);
           expect(stats.timeseries.bucketCount).to.equal(1);
           expect(stats.timeseries.numBucketInserts).to.equal(1);
           expect(stats.timeseries.numBucketUpdates).to.equal(0);
@@ -1344,6 +1357,36 @@ describe('Shell API (integration)', function () {
         const doc = await collection.findOne({}, {}, { promoteLongs: true });
 
         expect(doc).to.deep.equal({ longOne: 1, _id: 0 });
+      });
+
+      context('with a timeseries collection (rawData available)', function () {
+        skipIfServerVersion(testServer, '< 8.2');
+
+        beforeEach(async function () {
+          await createTimeseriesCollection(
+            serviceProvider,
+            dbName,
+            collectionName
+          );
+        });
+
+        it('can control raw data access via `rawData`', async function () {
+          const docWithRawDataFalse = await collection.findOne({}, {}, {
+            rawData: false,
+          } as any);
+          expect(docWithRawDataFalse).to.have.property('timestamp');
+          expect(docWithRawDataFalse).not.to.have.property('meta');
+          expect(docWithRawDataFalse?.metadata).to.deep.equal({ test: true });
+          expect(docWithRawDataFalse).not.to.have.property('control');
+
+          const docWithRawDataTrue = await collection.findOne({}, {}, {
+            rawData: true,
+          } as any);
+          expect(docWithRawDataTrue).not.to.have.property('timestamp');
+          expect(docWithRawDataTrue).not.to.have.property('metadata');
+          expect(docWithRawDataTrue?.meta).to.deep.equal({ test: true });
+          expect(docWithRawDataTrue).to.have.property('control');
+        });
       });
     });
 
