@@ -1732,7 +1732,8 @@ export class Collection<
             shardTimeseriesStats
           )) {
             if (typeof timeseriesStat === 'string') {
-              // ignore
+              // Skip string-valued timeseries fields (other than bucketsNs, which was handled above);
+              // these are metadata-only and are not included in aggregated numeric statistics.
             } else if (timeseriesStatName === 'avgBucketSize') {
               timeseriesTotalBucketSize +=
                 coerceToJSNumber(shardTimeseriesStats.bucketCount) *
