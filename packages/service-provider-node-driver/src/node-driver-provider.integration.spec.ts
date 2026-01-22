@@ -704,26 +704,26 @@ describe('NodeDriverServiceProvider [integration]', function () {
           timeseries: { timeField: 'time' },
         });
 
-        const collections = await serviceProvider.listCollections(
+        const nameOnlyCollections = await serviceProvider.listCollections(
           dbName,
           {},
           { nameOnly: true }
         );
 
-        expect(collections).to.deep.contain({
+        expect(nameOnlyCollections).to.deep.contain({
           name: 'coll1',
           type: 'timeseries',
         });
 
-        expect(collections).to.deep.contain({
-          name: 'system.buckets.coll1',
-          type: 'collection',
-        });
+        const fullCollections = await serviceProvider.listCollections(
+          dbName,
+          { name: 'coll1' },
+          { nameOnly: false }
+        );
 
-        expect(collections).to.deep.contain({
-          name: 'system.views',
-          type: 'collection',
-        });
+        expect(fullCollections[0].options.timeseries.timeField).to.equal(
+          'time'
+        );
       });
     });
 
