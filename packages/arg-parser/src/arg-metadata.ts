@@ -1,0 +1,91 @@
+import z from 'zod/v4';
+
+/**
+ * Registry for argument options metadata
+ */
+export const argMetadata = z.registry<ArgumentMetadata>();
+
+/**
+ * Metadata that can be used to define field's parsing behavior
+ */
+export type ArgumentMetadata = {
+  /** If set, sets this field as deprecated and replaces this field with the set field. */
+  deprecationReplacement?: string;
+  /** If set, gets replaced with a different field name (without deprecation) */
+  replacement?: string;
+  /** Whether this argument is unsupported. Always throws an error if set to true. */
+  unsupported?: boolean;
+  /** Aliases for this argument. */
+  alias?: string[];
+};
+
+/**
+ * Extract metadata for a field using the custom registry
+ */
+export function getArgumentMetadata(
+  schema: z.ZodObject,
+  fieldName: string
+): ArgumentMetadata | undefined {
+  const fieldSchema = schema.shape[fieldName];
+  if (!fieldSchema) {
+    return undefined;
+  }
+  return argMetadata.get(fieldSchema);
+}
+
+/**
+ * Maps deprecated arguments to their new counterparts, derived from schema metadata.
+ */
+export function getDeprecatedArgsWithReplacement(
+  schema: z.ZodObject
+): Record<string, keyof z.infer<typeof schema>> {
+  const deprecated: Record<string, keyof z.infer<typeof schema>> = {};
+  for (const fieldName of Object.keys(schema.shape)) {
+    const meta = getArgumentMetadata(schema, fieldName);
+    if (meta?.deprecationReplacement) {
+      deprecated[fieldName] = meta.deprecationReplacement;
+    }
+  }
+  return deprecated;
+}
+
+/**
+ * Get list of unsupported arguments, derived from schema metadata.
+ */
+export function getUnsupportedArgs(schema: z.ZodObject): string[] {
+  const unsupported: string[] = [];
+  for (const fieldName of Object.keys(schema.shape)) {
+    const meta = getArgumentMetadata(schema, fieldName);
+    if (meta?.unsupported) {
+      unsupported.push(fieldName);
+    }
+  }
+  return unsupported;
+}
+
+export class InvalidArgumentError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'InvalidArgumentError';
+  }
+}
+
+export class UnknownArgumentError extends Error {
+  /** The argument that was not parsed. */
+  readonly argument: string;
+  constructor(argument: string) {
+    super(`Unknown argument: ${argument}`);
+    this.name = 'UnknownArgumentError';
+    this.argument = argument;
+  }
+}
+
+export class UnsupportedArgumentError extends Error {
+  /** The argument that was not supported. */
+  readonly argument: string;
+  constructor(argument: string) {
+    super(`Unsupported argument: ${argument}`);
+    this.name = 'UnsupportedArgumentError';
+    this.argument = argument;
+  }
+}

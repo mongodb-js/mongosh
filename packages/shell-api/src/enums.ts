@@ -1,27 +1,22 @@
-export enum ServerVersions {
-  latest = '999.999.999', // set a really high max value
-  earliest = '0.0.0',
-}
-
-export enum Topologies {
-  ReplSet = 'ReplSet',
-  Standalone = 'Standalone',
-  Sharded = 'Sharded',
-  LoadBalanced = 'LoadBalanced',
-}
-
-import type { ReplPlatform } from '@mongosh/service-provider-core';
-
+export const ServerVersions = {
+  latest: '999.999.999', // set a really high max value
+  earliest: '0.0.0',
+} as const;
 export const ALL_SERVER_VERSIONS = [
   ServerVersions.earliest,
   ServerVersions.latest,
 ];
+
 export const ALL_TOPOLOGIES = [
-  Topologies.ReplSet,
-  Topologies.Sharded,
-  Topologies.LoadBalanced,
-  Topologies.Standalone,
-];
+  'ReplSet',
+  'Standalone',
+  'Sharded',
+  'LoadBalanced',
+] as const;
+export type Topologies = (typeof ALL_TOPOLOGIES)[number];
+
+import type { ReplPlatform } from '@mongosh/service-provider-core';
+
 export const ALL_PLATFORMS: ReplPlatform[] = ['Compass', 'Browser', 'CLI'];
 export const ALL_API_VERSIONS = [0, Infinity];
 

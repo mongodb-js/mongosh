@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import type { MongoshBus } from '@mongosh/types';
-import { startSharedTestServer } from '../../../testing/integration-testing-hooks';
+import { startSharedTestServer } from '@mongosh/testing';
 import { WorkerRuntime } from '../dist/index';
 
 import type { DevtoolsConnectOptions } from '@mongosh/service-provider-node-driver';

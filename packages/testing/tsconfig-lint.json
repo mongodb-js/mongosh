@@ -1,0 +1,4 @@
+{
+  "extends": "@mongodb-js/tsconfig-mongosh/tsconfig.lint.json",
+  "include": ["src/**/*"]
+}

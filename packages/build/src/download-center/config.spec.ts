@@ -1,4 +1,4 @@
-import type { DownloadCenterConfig } from '@mongodb-js/dl-center/dist/download-center-config';
+import type { DownloadCenterConfig } from '@mongodb-js/dl-center';
 import { type PackageInformationProvider } from '../packaging';
 import { expect } from 'chai';
 import sinon from 'sinon';
@@ -42,6 +42,17 @@ const DUMMY_ACCESS_KEY = 'accessKey';
 const DUMMY_SECRET_KEY = 'secretKey';
 const DUMMY_SESSION_TOKEN = 'sessionToken';
 const DUMMY_CTA_CONFIG: CTAConfig = {};
+
+// built-in symmetricDifference is available in Node.js 22+ only
+function setXor<T, U>(a: Iterable<T>, b: Iterable<U>): Set<T | U> {
+  const setA = new Set(a);
+  const setB = new Set(b);
+
+  return new Set([
+    ...[...setA].filter((item) => !setB.has(item as any)),
+    ...[...setB].filter((item) => !setA.has(item as any)),
+  ]);
+}
 
 describe('DownloadCenter config', function () {
   let outputDir: string;
@@ -204,6 +215,24 @@ describe('DownloadCenter config', function () {
           supported_browsers_link: '',
           tutorial_link: 'test',
         });
+      });
+
+      it('the list is sorted by semver even if versions are added out of order', function () {
+        const getVersionConfig1x = sinon.stub().returns({ version: '1.2.2' });
+        const getVersionConfig2x = sinon.stub().returns({ version: '2.0.0' });
+        const existingDownloadCenterConfig =
+          createDownloadCenterConfig(getVersionConfig2x);
+        expect(existingDownloadCenterConfig.versions).to.have.lengthOf(1);
+
+        const updatedConfig = getUpdatedDownloadCenterConfig(
+          existingDownloadCenterConfig,
+          getVersionConfig1x
+        );
+
+        expect(updatedConfig.versions).to.deep.equal([
+          { version: '2.0.0' },
+          { version: '1.2.2' },
+        ]);
       });
     });
 
@@ -555,8 +584,14 @@ describe('DownloadCenter config', function () {
         ...new Set(mongoshJsonFeedEntry.downloads.flatMap((d) => d.arch)),
       ];
       const mongoshTargets = [
-        ...new Set(mongoshJsonFeedEntry.downloads.flatMap((d) => d.targets)),
-      ].filter((t) => t !== 'ubuntu2404'); // ubuntu2404 is not part of the server platform list at the time of writing
+        // rhel10 and debian13 are not in the full feed yet
+        // confirmed that these will be the names in
+        // https://mongodb.slack.com/archives/C1XQ502TA/p1768240223788769
+        ...setXor(
+          mongoshJsonFeedEntry.downloads.flatMap((d) => d.targets),
+          ['rhel10', 'debian13']
+        ),
+      ];
 
       for (const arch of mongoshArchs) expect(serverArchs).to.include(arch);
       for (const target of mongoshTargets)

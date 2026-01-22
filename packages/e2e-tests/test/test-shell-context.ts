@@ -2,15 +2,6 @@ import assert from 'assert';
 import Mocha from 'mocha';
 import { TestShell, type TestShellOptions } from './test-shell';
 
-declare module 'mocha' {
-  interface Context {
-    /**
-     * Starts a test shell and registers a hook to kill it after the test
-     */
-    startTestShell(options?: TestShellOptions): TestShell;
-  }
-}
-
 const TEST_SHELLS_AFTER_ALL = Symbol('test-shells-after-all');
 const TEST_SHELLS_AFTER_EACH = Symbol('test-shells-after-each');
 
@@ -67,11 +58,11 @@ export function ensureTestShellAfterHook(
   }
 }
 
-Mocha.Context.prototype.startTestShell = function (
-  this: Mocha.Context,
+export function startTestShell(
+  context: Mocha.Context,
   options: TestShellOptions
 ) {
-  const { test: runnable } = this;
+  const { test: runnable } = context;
   assert(runnable, 'Expected a runnable / test');
   const { parent } = runnable;
   assert(parent, 'Expected runnable to have a parent');
@@ -101,4 +92,4 @@ Mocha.Context.prototype.startTestShell = function (
     throw new Error('Unexpected Runnable: Expected a Hook or a Test');
   }
   return shell;
-};
+}

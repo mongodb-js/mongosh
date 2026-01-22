@@ -5,7 +5,7 @@ import rimraf from 'rimraf';
 import * as chai from 'chai';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
-import type { MongodSetup } from '../../../testing/integration-testing-hooks';
+import type { MongodSetup } from '@mongosh/testing';
 import type { MongoLogEntry } from 'mongodb-log-writer';
 
 chai.use(sinonChai);
@@ -140,18 +140,6 @@ const setTemporaryHomeDirectory = () => {
   return { homedir, env };
 };
 
-function getCertPath(filename: string): string {
-  return path.join(
-    __dirname,
-    '..',
-    '..',
-    '..',
-    'testing',
-    'certificates',
-    filename
-  );
-}
-
 // TLS requires matching hostnames, so here we need to explicitly
 // specify `localhost` + IPv4 instead of `127.0.0.1`
 async function connectionStringWithLocalhost(
@@ -174,7 +162,6 @@ export {
   readReplLogFile,
   fakeExternalEditor,
   setTemporaryHomeDirectory,
-  getCertPath,
   connectionStringWithLocalhost,
   MongoLogEntryFromFile,
 };

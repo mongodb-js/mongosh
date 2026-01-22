@@ -1,20 +1,24 @@
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import type { TestShell } from './test-shell';
-import { eventually } from '../../../testing/eventually';
 import {
+  eventually,
   startTestServer,
   skipIfApiStrict,
   skipIfServerVersion,
   skipIfCommunityServer,
   downloadCurrentCryptSharedLibrary,
   sortObjectArray,
-} from '../../../testing/integration-testing-hooks';
-import { makeFakeHTTPServer, fakeAWSHandlers } from '../../../testing/fake-kms';
+} from '@mongosh/testing';
+import {
+  makeFakeHTTPServer,
+  fakeAWSHandlers,
+} from '../../testing/src/fake-kms';
 import { once } from 'events';
 import { serialize } from 'v8';
 import { inspect } from 'util';
 import path from 'path';
+import { startTestShell } from './test-shell-context';
 
 describe('FLE tests', function () {
   const testServer = startTestServer('e2e-fle', {
@@ -29,6 +33,8 @@ describe('FLE tests', function () {
   let cryptLibrary82: string;
 
   before(async function () {
+    this.timeout(120_000); // Downloading the crypt-shared library can take some time
+
     if (process.platform === 'linux') {
       const [major, minor] = (process.report as any)
         .getReport()
@@ -98,7 +104,7 @@ describe('FLE tests', function () {
       const secretAccessKey = '44mjXTk34uMUmORma3w1viIAx4RCUv78bzwDY0R7';
       const sessionToken = 'WXWHMnniSqij0CH27KK7H';
       async function makeTestShell(ctx: Mocha.Context): Promise<TestShell> {
-        const shell = ctx.startTestShell({
+        const shell = startTestShell(ctx, {
           args: [
             `--cryptSharedLibPath=${cryptLibrary}`,
             ...(withEnvVarCredentials
@@ -135,6 +141,7 @@ describe('FLE tests', function () {
           },
           cwd: path.join(__dirname, '..', '..', 'cli-repl', 'test', 'fixtures'),
         });
+        await shell.waitForPrompt();
 
         if (withEnvVarCredentials) {
           // Need to set up the AWS context inside the shell for enabling
@@ -222,7 +229,7 @@ describe('FLE tests', function () {
   }
 
   it('works when the original shell was started with --nodb', async function () {
-    const shell = this.startTestShell({
+    const shell = startTestShell(this, {
       args: ['--nodb'],
     });
     await shell.waitForPrompt();
@@ -253,7 +260,7 @@ describe('FLE tests', function () {
   });
 
   it('works when a schemaMap option has been passed', async function () {
-    const shell = this.startTestShell({
+    const shell = startTestShell(this, {
       args: ['--nodb', `--cryptSharedLibPath=${cryptLibrary}`],
     });
     await shell.waitForPrompt();
@@ -299,7 +306,7 @@ describe('FLE tests', function () {
   });
 
   it('skips automatic encryption when a bypassQueryAnalysis option has been passed', async function () {
-    const shell = this.startTestShell({
+    const shell = startTestShell(this, {
       args: ['--nodb', `--cryptSharedLibPath=${cryptLibrary}`],
     });
     const uri = JSON.stringify(await testServer.connectionString());
@@ -378,7 +385,7 @@ describe('FLE tests', function () {
   });
 
   it('does not allow compactStructuredEncryptionData command when mongo instance configured without auto encryption', async function () {
-    const shell = this.startTestShell({
+    const shell = startTestShell(this, {
       args: [await testServer.connectionString()],
     });
     await shell.waitForPrompt();
@@ -397,7 +404,7 @@ describe('FLE tests', function () {
 
     it('can read existing QEv1 data', async function () {
       const uri = await testServer.connectionString();
-      const shell = this.startTestShell({
+      const shell = startTestShell(this, {
         args: [uri, `--cryptSharedLibPath=${cryptLibrary}`],
       });
       await shell.waitForPrompt();
@@ -508,7 +515,7 @@ describe('FLE tests', function () {
 
     it('allows explicit enryption with bypassQueryAnalysis', async function () {
       // No --cryptSharedLibPath since bypassQueryAnalysis is also a community edition feature
-      const shell = this.startTestShell({ args: ['--nodb'] });
+      const shell = startTestShell(this, { args: ['--nodb'] });
       const uri = JSON.stringify(await testServer.connectionString());
 
       await shell.waitForPrompt();
@@ -570,7 +577,7 @@ describe('FLE tests', function () {
     });
 
     it('drops fle2 collection with all helper collections when encryptedFields options are in listCollections', async function () {
-      const shell = this.startTestShell({
+      const shell = startTestShell(this, {
         args: ['--nodb', `--cryptSharedLibPath=${cryptLibrary}`],
       });
       const uri = JSON.stringify(await testServer.connectionString());
@@ -645,7 +652,7 @@ describe('FLE tests', function () {
     });
 
     it('creates an encrypted collection and generates data encryption keys automatically per encrypted fields', async function () {
-      const shell = this.startTestShell({ args: ['--nodb'] });
+      const shell = startTestShell(this, { args: ['--nodb'] });
       const uri = JSON.stringify(await testServer.connectionString());
       await shell.waitForPrompt();
       await shell.executeLine(
@@ -699,7 +706,7 @@ describe('FLE tests', function () {
     }`;
 
     it('allows compactStructuredEncryptionData command when mongo instance configured with auto encryption', async function () {
-      const shell = this.startTestShell({
+      const shell = startTestShell(this, {
         args: ['--nodb', `--cryptSharedLibPath=${cryptLibrary}`],
       });
       const uri = JSON.stringify(await testServer.connectionString());
@@ -744,7 +751,7 @@ describe('FLE tests', function () {
     });
 
     it('creates an encrypted collection and generates data encryption keys automatically per encrypted fields', async function () {
-      const shell = this.startTestShell({ args: ['--nodb'] });
+      const shell = startTestShell(this, { args: ['--nodb'] });
       const uri = JSON.stringify(await testServer.connectionString());
       await shell.waitForPrompt();
       await shell.executeLine(
@@ -786,7 +793,7 @@ describe('FLE tests', function () {
 
     it('allows explicit range encryption with bypassQueryAnalysis', async function () {
       // No --cryptSharedLibPath since bypassQueryAnalysis is also a community edition feature
-      const shell = this.startTestShell({ args: ['--nodb'] });
+      const shell = startTestShell(this, { args: ['--nodb'] });
       const uri = JSON.stringify(await testServer.connectionString());
 
       await shell.waitForPrompt();
@@ -861,7 +868,7 @@ describe('FLE tests', function () {
     });
 
     it('allows automatic range encryption', async function () {
-      const shell = this.startTestShell({
+      const shell = startTestShell(this, {
         args: ['--nodb', `--cryptSharedLibPath=${cryptLibrary}`],
       });
       const uri = JSON.stringify(await testServer.connectionString());
@@ -920,12 +927,13 @@ describe('FLE tests', function () {
       skipIfCommunityServer(testServer);
 
       it('allows $lookup with a collection with automatic encryption', async function () {
-        const shell = this.startTestShell({
+        const shell = startTestShell(this, {
           args: [
             `--cryptSharedLibPath=${cryptLibrary82}`,
             await testServer.connectionString(),
           ],
         });
+        await shell.waitForPrompt();
         await shell.executeLine(`{
       const keyMongo = Mongo(
         db.getMongo(),
@@ -1023,7 +1031,7 @@ describe('FLE tests', function () {
           const testCollection = 'qeSubstringTest';
 
           beforeEach(async function () {
-            shell = this.startTestShell({
+            shell = startTestShell(this, {
               args: [
                 `--cryptSharedLibPath=${cryptLibrary82}`,
                 await testServer.connectionString(),
@@ -1222,7 +1230,7 @@ describe('FLE tests', function () {
     skipIfServerVersion(testServer, '>= 6.0'); // FLE2 available on 6.0+
 
     it('provides a good error message when createCollection fails due to low server version', async function () {
-      const shell = this.startTestShell({
+      const shell = startTestShell(this, {
         args: [
           `--cryptSharedLibPath=${cryptLibrary}`,
           await testServer.connectionString(),
@@ -1236,7 +1244,7 @@ describe('FLE tests', function () {
     });
 
     it('provides a good error message when createCollection fails due to low FCV', async function () {
-      const shell = this.startTestShell({
+      const shell = startTestShell(this, {
         args: [
           `--cryptSharedLibPath=${cryptLibrary}`,
           await testServer.connectionString(),
@@ -1253,7 +1261,7 @@ describe('FLE tests', function () {
   });
 
   it('performs KeyVault data key management as expected', async function () {
-    const shell = this.startTestShell({
+    const shell = startTestShell(this, {
       args: [
         await testServer.connectionString(),
         `--cryptSharedLibPath=${cryptLibrary}`,

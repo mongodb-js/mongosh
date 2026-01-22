@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { spawnSync } from 'child_process';
+import { startTestShell } from './test-shell-context';
 
 function assertEnvVariable(variableName: string): string {
   if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
@@ -123,7 +124,7 @@ describe('e2e AWS AUTH', function () {
   context('without environment variables being present', function () {
     context('specifying explicit parameters', function () {
       it('connects with access key and secret', async function () {
-        const shell = this.startTestShell({
+        const shell = startTestShell(this, {
           args: [
             getConnectionString(),
             '--username',
@@ -145,7 +146,7 @@ describe('e2e AWS AUTH', function () {
 
       it('connects with access key, secret, and session token for IAM role', async function () {
         const tokenDetails = generateIamSessionToken();
-        const shell = this.startTestShell({
+        const shell = startTestShell(this, {
           args: [
             getConnectionString(),
             '--username',
@@ -170,7 +171,7 @@ describe('e2e AWS AUTH', function () {
 
     context('specifying connection string parameters', function () {
       it('connects with access key and secret', async function () {
-        const shell = this.startTestShell({
+        const shell = startTestShell(this, {
           args: [getConnectionString(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)],
         });
         const result = await shell.waitForPromptOrExit(
@@ -186,7 +187,7 @@ describe('e2e AWS AUTH', function () {
 
       it('connects with access key, secret, and session token for IAM role', async function () {
         const tokenDetails = generateIamSessionToken();
-        const shell = this.startTestShell({
+        const shell = startTestShell(this, {
           args: [
             `${getConnectionString(
               tokenDetails.key,
@@ -212,7 +213,7 @@ describe('e2e AWS AUTH', function () {
   context('with AWS environment variables', function () {
     context('without any other parameters', function () {
       it('connects for the IAM user', async function () {
-        const shell = this.startTestShell({
+        const shell = startTestShell(this, {
           args: [getConnectionString()],
           env: {
             ...process.env,
@@ -233,7 +234,7 @@ describe('e2e AWS AUTH', function () {
 
       it('connects for the IAM role session', async function () {
         const tokenDetails = generateIamSessionToken();
-        const shell = this.startTestShell({
+        const shell = startTestShell(this, {
           args: [getConnectionString()],
           env: {
             ...process.env,
@@ -256,7 +257,7 @@ describe('e2e AWS AUTH', function () {
 
     context('with invalid environment but valid parameters', function () {
       it('connects for the IAM user', async function () {
-        const shell = this.startTestShell({
+        const shell = startTestShell(this, {
           args: [
             getConnectionString(),
             '--username',
@@ -283,7 +284,7 @@ describe('e2e AWS AUTH', function () {
 
       it('connects for the IAM role session', async function () {
         const tokenDetails = generateIamSessionToken();
-        const shell = this.startTestShell({
+        const shell = startTestShell(this, {
           args: [
             getConnectionString(),
             '--username',

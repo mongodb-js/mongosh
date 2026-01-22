@@ -39,9 +39,12 @@ export interface MongoshAnalytics {
 }
 
 class Queue<T> {
+  private applyFn: (val: T) => void;
   private queue: T[] = [];
   private state: 'paused' | 'enabled' | 'disabled' = 'paused';
-  constructor(private applyFn: (val: T) => void) {}
+  constructor(applyFn: (val: T) => void) {
+    this.applyFn = applyFn;
+  }
   push(val: T) {
     switch (this.state) {
       case 'paused':

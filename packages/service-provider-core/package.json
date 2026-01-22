@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/service-provider-core",
-  "version": "3.6.3",
+  "version": "3.7.1",
   "description": "MongoDB Shell Core Service Provider Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -14,14 +14,13 @@
   "scripts": {
     "compile": "tsc -p tsconfig.json",
     "prepublish": "npm run compile",
-    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register --reporter \"../../configs/mocha-config-mongosh/reporter.ts\" \"./src/**/*.spec.ts\"",
+    "test": "mocha",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
     "eslint": "eslint",
     "lint": "npm run eslint . && npm run prettier -- --check .",
-    "check": "npm run lint && npm run depcheck",
-    "depcheck": "depcheck",
+    "check": "npm run lint",
     "prettier": "prettier",
     "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
   },
@@ -36,9 +35,9 @@
     "unitTestsOnly": true
   },
   "dependencies": {
-    "@mongosh/errors": "2.4.4",
-    "@mongosh/shell-bson": "1.0.4",
-    "bson": "^7.0.0",
+    "@mongosh/errors": "2.4.6",
+    "@mongosh/shell-bson": "1.1.1",
+    "bson": "^7.1.1",
     "mongodb": "^7.0.0",
     "mongodb-build-info": "^1.8.1",
     "mongodb-connection-string-url": "^7.0.0"
@@ -47,7 +46,6 @@
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
     "prettier": "^2.8.8"
   }

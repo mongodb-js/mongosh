@@ -1,0 +1,4 @@
+{
+  "spec": "./dummy.spec.ts",
+  "exclude": "**/**"
+}

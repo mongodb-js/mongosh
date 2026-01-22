@@ -3,7 +3,8 @@ import type { Db } from 'mongodb';
 import { MongoClient } from 'mongodb';
 import * as bson from 'bson';
 import type { TestShell } from './test-shell';
-import { startSharedTestServer } from '../../../testing/integration-testing-hooks';
+import { startSharedTestServer } from '@mongosh/testing';
+import { startTestShell } from './test-shell-context';
 
 describe('BSON e2e', function () {
   const testServer = startSharedTestServer();
@@ -15,7 +16,7 @@ describe('BSON e2e', function () {
   beforeEach(async function () {
     const connectionString = await testServer.connectionString();
     dbName = `test-${Date.now()}`;
-    shell = this.startTestShell({ args: [connectionString] });
+    shell = startTestShell(this, { args: [connectionString] });
 
     client = await MongoClient.connect(connectionString, {});
 
@@ -349,6 +350,13 @@ describe('BSON e2e', function () {
       expect(await shell.executeLine(value)).to.include(value);
       shell.assertNoErrors();
     });
+    it('BinData type 4 prints as UUID when valid', async function () {
+      const value = "BinData(4, 'ASNFZ4mrze8BI0VniavN7w==')";
+      expect(await shell.executeLine(value)).to.include(
+        "UUID('01234567-89ab-cdef-0123-456789abcdef')"
+      );
+      shell.assertNoErrors();
+    });
     it('BinData prints as MD5 when created by user as such', async function () {
       const value = "MD5('0123456789abcdef0123456789abcdef')";
       expect(await shell.executeLine(value)).to.include(value);
@@ -377,6 +385,45 @@ describe('BSON e2e', function () {
       const value = 'BSONRegExp(`(?-i)A"A_`, "im")';
       expect(await shell.executeLine(value)).to.include(
         String.raw`BSONRegExp('(?-i)A"A_', 'im')`
+      );
+      shell.assertNoErrors();
+    });
+    it('LegacyJavaUUID prints as Binary subtype 3 when created by user', async function () {
+      const value = 'LegacyJavaUUID()';
+      const output = await shell.executeLine(value);
+      expect(output).to.match(/Binary\.createFromBase64\('.+', 3\)/);
+      shell.assertNoErrors();
+    });
+    it('LegacyCSharpUUID prints as Binary subtype 3 when created by user', async function () {
+      const value = 'LegacyCSharpUUID()';
+      const output = await shell.executeLine(value);
+      expect(output).to.match(/Binary\.createFromBase64\('.+', 3\)/);
+      shell.assertNoErrors();
+    });
+    it('LegacyPythonUUID prints as Binary subtype 3 when created by user', async function () {
+      const value = 'LegacyPythonUUID()';
+      const output = await shell.executeLine(value);
+      expect(output).to.match(/Binary\.createFromBase64\('.+', 3\)/);
+      shell.assertNoErrors();
+    });
+    it('BinData created as LegacyJavaUUID prints as Binary subtype 3', async function () {
+      const value = "LegacyJavaUUID('01234567-89ab-cdef-0123-456789abcdef')";
+      expect(await shell.executeLine(value)).to.include(
+        "Binary.createFromBase64('782riWdFIwHvzauJZ0UjAQ==', 3)"
+      );
+      shell.assertNoErrors();
+    });
+    it('BinData created as LegacyCSharpUUID prints as Binary subtype 3', async function () {
+      const value = "LegacyCSharpUUID('01234567-89ab-cdef-0123-456789abcdef')";
+      expect(await shell.executeLine(value)).to.include(
+        "Binary.createFromBase64('Z0UjAauJ780BI0VniavN7w==', 3)"
+      );
+      shell.assertNoErrors();
+    });
+    it('BinData created as LegacyPythonUUID prints as Binary subtype 3', async function () {
+      const value = "LegacyPythonUUID('01234567-89ab-cdef-0123-456789abcdef')";
+      expect(await shell.executeLine(value)).to.include(
+        "Binary.createFromBase64('ASNFZ4mrze8BI0VniavN7w==', 3)"
       );
       shell.assertNoErrors();
     });
@@ -585,6 +632,142 @@ describe('BSON e2e', function () {
       expect(
         await shell.executeLine('ObjectId() instanceof ObjectId')
       ).to.include('true');
+      shell.assertNoErrors();
+    });
+  });
+  describe('inspect nesting depth', function () {
+    const deepAndNestedDefinition = `({
+        a: { b: { c: { d: { e: { f: { g: { h: "foundme" } } } } } } },
+        array: [...Array(100000).keys()].map(i => ({ num: i })),
+        str: 'All work and no playmakes Jack a dull boy'.repeat(4096) + 'The End'
+      })`;
+    const checkForDeepOutput = (output: string, wantFullOutput: boolean) => {
+      if (wantFullOutput) {
+        expect(output).not.to.include('[Object');
+        expect(output).not.to.include('more items');
+        expect(output).to.include('foundme');
+        expect(output).to.include('num: 99999');
+        expect(output).to.include('The End');
+      } else {
+        expect(output).to.include('[Object');
+        expect(output).to.include('more items');
+        expect(output).not.to.include('foundme');
+        expect(output).not.to.include('num: 99999');
+        expect(output).not.to.include('The End');
+      }
+    };
+
+    beforeEach(async function () {
+      await shell.executeLine(`use ${dbName}`);
+      await shell.executeLine(`deepAndNested = ${deepAndNestedDefinition}`);
+      await shell.executeLine(`db.coll.insertOne(deepAndNested)`);
+    });
+
+    it('inspects a full bson document when it is read from the server (interactive mode)', async function () {
+      // Deeply nested object from the server should be fully printed
+      const output = await shell.executeLine('db.coll.findOne()');
+      checkForDeepOutput(output, true);
+      // Same object doesn't need to be fully printed if created by the user
+      const output2 = await shell.executeLine('deepAndNested');
+      checkForDeepOutput(output2, false);
+      shell.assertNoErrors();
+    });
+
+    it('can explicitly disable full-depth nesting (interactive mode)', async function () {
+      shell.kill();
+      shell = startTestShell(this, {
+        args: [await testServer.connectionString(), '--deepInspect=false'],
+      });
+      await shell.waitForPrompt();
+      await shell.executeLine(`use ${dbName}`);
+      const output = await shell.executeLine('db.coll.findOne()');
+      checkForDeepOutput(output, false);
+      shell.assertNoErrors();
+    });
+
+    it('does not deeply inspect objects in non-interactive mode for intermediate output', async function () {
+      shell.kill();
+      shell = startTestShell(this, {
+        args: [
+          await testServer.connectionString(),
+          '--eval',
+          `use(${JSON.stringify(dbName)}); print(db.coll.findOne()); 0`,
+        ],
+      });
+      checkForDeepOutput(await shell.waitForCleanOutput(), false);
+      shell = startTestShell(this, {
+        args: [
+          await testServer.connectionString(),
+          '--eval',
+          `print(${deepAndNestedDefinition}); 0`,
+        ],
+      });
+      checkForDeepOutput(await shell.waitForCleanOutput(), false);
+    });
+
+    it('inspect full objects in non-interactive mode for final output', async function () {
+      shell.kill();
+      shell = startTestShell(this, {
+        args: [
+          await testServer.connectionString(),
+          '--eval',
+          `use(${JSON.stringify(dbName)}); db.coll.findOne();`,
+        ],
+      });
+      checkForDeepOutput(await shell.waitForCleanOutput(), true);
+      shell = startTestShell(this, {
+        args: [
+          await testServer.connectionString(),
+          '--eval',
+          deepAndNestedDefinition,
+        ],
+      });
+      checkForDeepOutput(await shell.waitForCleanOutput(), true);
+    });
+
+    it('can explicitly disable full-depth nesting (non-interactive mode)', async function () {
+      shell.kill();
+      shell = startTestShell(this, {
+        args: [
+          await testServer.connectionString(),
+          '--deepInspect=false',
+          '--eval',
+          `use(${JSON.stringify(dbName)}); db.coll.findOne();`,
+        ],
+      });
+      checkForDeepOutput(await shell.waitForCleanOutput(), false);
+      shell = startTestShell(this, {
+        args: [
+          await testServer.connectionString(),
+          '--deepInspect=false',
+          '--eval',
+          deepAndNestedDefinition,
+        ],
+      });
+      checkForDeepOutput(await shell.waitForCleanOutput(), false);
+    });
+
+    it('can parse serverStatus back to its original form', async function () {
+      // Dates get special treatment but that doesn't currently apply
+      // to mongosh's util.inspect that's available to users
+      // (although maybe it should?).
+      await shell.executeLine(
+        `Date.prototype[Symbol.for('nodejs.util.inspect.custom')] = function(){ return 'ISODate("' + this.toISOString() + '")'; };`
+      );
+      // 'void 0' to avoid large output in the shell from serverStatus
+      await shell.executeLine(
+        'A = db.adminCommand({ serverStatus: 1 }); void 0'
+      );
+      await shell.executeLine('util.inspect(A)');
+      await shell.executeLine(`B = eval('(' + util.inspect(A) + ')'); void 0`);
+      shell.assertNoErrors();
+      const output1 = await shell.executeLineWithJSONResult('A', {
+        parseAsEJSON: false,
+      });
+      const output2 = await shell.executeLineWithJSONResult('B', {
+        parseAsEJSON: false,
+      });
+      expect(output1).to.deep.equal(output2);
       shell.assertNoErrors();
     });
   });

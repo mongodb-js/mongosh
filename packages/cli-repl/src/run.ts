@@ -15,7 +15,7 @@ enableFipsIfRequested();
 
 import { markTime } from './startup-timing';
 import { CliRepl } from './cli-repl';
-import { parseCliArgs } from './arg-parser';
+import { parseMongoshArgs } from './arg-parser';
 import { runSmokeTests } from './smoke-tests';
 import { USAGE } from './constants';
 import { baseBuildInfo, buildInfo } from './build-info';
@@ -85,8 +85,8 @@ async function main() {
   try {
     (net as any)?.setDefaultAutoSelectFamily?.(true);
 
-    const options = parseCliArgs(process.argv);
-    for (const warning of options._argParseWarnings) {
+    const { parsed: options, warnings } = parseMongoshArgs(process.argv);
+    for (const warning of warnings) {
       console.warn(warning);
     }
 
@@ -346,6 +346,8 @@ function suppressExperimentalWarnings() {
 }
 
 function onExit(code?: number): never {
+  setTerminalWindowTitle(''); // Clear the terminal window title MONGOSH-1233
+
   // Node.js 20.0.0 made p.exit(undefined) behave as p.exit(0) rather than p.exit(): (code?: number | undefined): never => {
   try {
     try {

@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/service-provider-node-driver",
-  "version": "3.17.5",
+  "version": "3.18.1",
   "description": "MongoDB Shell Server Service Provider Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -13,15 +13,14 @@
   },
   "scripts": {
     "compile": "tsc -p tsconfig.json",
-    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register --reporter \"../../configs/mocha-config-mongosh/reporter.ts\" \"./src/**/*.spec.ts\"",
+    "test": "mocha",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
     "prepublish": "npm run compile",
     "eslint": "eslint",
     "lint": "npm run eslint . && npm run prettier -- --check .",
-    "check": "npm run lint && npm run depcheck",
-    "depcheck": "depcheck",
+    "check": "npm run lint",
     "prettier": "prettier",
     "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
   },
@@ -47,12 +46,12 @@
     }
   },
   "dependencies": {
-    "@aws-sdk/credential-providers": "^3.925.0",
+    "@aws-sdk/credential-providers": "^3.965.0",
     "@mongodb-js/devtools-connect": "^3.9.4",
     "@mongodb-js/oidc-plugin": "^2.0.5",
-    "@mongosh/errors": "2.4.4",
-    "@mongosh/service-provider-core": "3.6.3",
-    "@mongosh/types": "^3.14.0",
+    "@mongosh/errors": "2.4.6",
+    "@mongosh/service-provider-core": "3.7.1",
+    "@mongosh/types": "^3.14.2",
     "aws4": "^1.12.0",
     "gcp-metadata": "^7.0.1",
     "mongodb": "^7.0.0",
@@ -71,8 +70,8 @@
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@types/sinon-chai": "^4.0.0",
-    "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
-    "prettier": "^2.8.8"
+    "prettier": "^2.8.8",
+    "@mongosh/testing": "0.0.0"
   }
 }

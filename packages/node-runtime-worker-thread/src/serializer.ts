@@ -44,11 +44,10 @@ export function deserializeError(err: any): Error {
   return Object.assign(new Error(), err);
 }
 
-export enum SerializedResultTypes {
-  SerializedErrorResult = 'SerializedErrorResult',
-  InspectResult = 'InspectResult',
-  SerializedShellApiResult = 'SerializedShellApiResult',
-}
+export type SerializedResultTypes =
+  | 'SerializedErrorResult'
+  | 'InspectResult'
+  | 'SerializedShellApiResult';
 
 export function serializeEvaluationResult({
   type,
@@ -63,7 +62,7 @@ export function serializeEvaluationResult({
   // Errors are serialized as some error metadata can be lost without this
   if (isError(printable)) {
     return {
-      type: SerializedResultTypes.SerializedErrorResult,
+      type: 'SerializedErrorResult',
       printable: serializeError(printable),
       source,
     };
@@ -77,7 +76,7 @@ export function serializeEvaluationResult({
   // before passing to the main thread
   if (type === null) {
     return {
-      type: SerializedResultTypes.InspectResult,
+      type: 'InspectResult',
       printable: inspect(printable),
       source,
     };
@@ -87,7 +86,7 @@ export function serializeEvaluationResult({
   // to preserve as much information as possible, including serializing the
   // printable value to EJSON as its a common thing to be returned by shell-api
   return {
-    type: SerializedResultTypes.SerializedShellApiResult,
+    type: 'SerializedShellApiResult',
     printable: {
       origType: type,
       serializedValue: EJSON.serialize(printable),
@@ -100,11 +99,11 @@ export function deserializeEvaluationResult({
   printable,
   source,
 }: RuntimeEvaluationResult): RuntimeEvaluationResult {
-  if (type === SerializedResultTypes.SerializedErrorResult) {
+  if (type === 'SerializedErrorResult') {
     return { type, printable: deserializeError(printable), source };
   }
 
-  if (type === SerializedResultTypes.SerializedShellApiResult) {
+  if (type === 'SerializedShellApiResult') {
     return {
       type: printable.origType,
       printable: EJSON.deserialize(printable.serializedValue),

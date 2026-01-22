@@ -22,6 +22,15 @@ Once downloaded, you will have to extract the binary and add it to your PATH
 variable. For detailed instructions for each of our supported platforms, please visit
 [installation documentation](https://www.mongodb.com/docs/mongodb-shell/install#mdb-shell-install).
 
+Alternatively:
+- Run `npx mongosh` to run mongosh without a full installation. This is
+  easiest if you already have npm installed.
+- Run `download_latest.sh` to download a `mongosh` binary. You can use
+  the following script:
+```sh
+curl -fsSL https://raw.githubusercontent.com/mongodb-js/mongosh/refs/heads/main/download_latest.sh | sh
+```
+
 ## CLI Usage
 
 <!-- AUTOMATICALLY_INSERT_CLI_USAGE -->
@@ -44,6 +53,7 @@ variable. For detailed instructions for each of our supported platforms, please 
         --eval [arg]                           Evaluate javascript
         --json[=canonical|relaxed]             Print result of --eval as Extended JSON, including errors
         --retryWrites[=true|false]             Automatically retry write operations upon transient network errors (Default: true)
+        --deep-inspect[=true|false]           Force full depth inspection of server results (default: true if in interactive mode)
 
   Authentication Options:
 
