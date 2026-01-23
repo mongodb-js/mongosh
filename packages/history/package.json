@@ -42,7 +42,6 @@
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "eslint": "^7.25.0",
-    "mongodb-connection-string-url": "^7.0.0",
     "prettier": "^2.8.8"
   }
 }
