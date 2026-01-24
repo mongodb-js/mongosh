@@ -23,6 +23,6 @@
     "node": ">=12.4.0"
   },
   "dependencies": {
-    "mongodb-crypt-library-version": "^2.0.0"
+    "mongodb-crypt-library-version": "^2.0.1"
   }
 }
