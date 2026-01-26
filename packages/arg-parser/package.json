@@ -47,7 +47,7 @@
   "dependencies": {
     "@mongosh/errors": "2.4.6",
     "@mongosh/i18n": "^2.20.1",
-    "mongodb-connection-string-url": "^7.0.0",
+    "mongodb-connection-string-url": "^7.0.1",
     "yargs-parser": "^20.2.4"
   },
   "peerDependencies": {

@@ -39,8 +39,8 @@
     "@mongosh/shell-bson": "1.1.1",
     "bson": "^7.1.1",
     "mongodb": "^7.0.0",
-    "mongodb-build-info": "^1.8.1",
-    "mongodb-connection-string-url": "^7.0.0"
+    "mongodb-build-info": "^1.9.5",
+    "mongodb-connection-string-url": "^7.0.1"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",

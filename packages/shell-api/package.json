@@ -56,7 +56,7 @@
     "@mongosh/service-provider-core": "3.7.1",
     "@mongosh/shell-bson": "1.1.1",
     "mongodb-redact": "^1.3.0",
-    "mongodb-schema": "^12.6.2"
+    "mongodb-schema": "^12.7.0"
   },
   "devDependencies": {
     "@microsoft/api-extractor": "^7.39.3",
