@@ -1,4 +1,5 @@
 import { PassThrough } from 'stream';
+import type { REPLServer } from 'repl';
 
 function awaitNextPrompt(repl: any): Promise<void> {
   return new Promise((resolve) => {
