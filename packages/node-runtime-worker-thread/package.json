@@ -37,7 +37,7 @@
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
-    "@mongodb-js/sbom-tools": "^0.8.1",
+    "@mongodb-js/sbom-tools": "^0.10.4",
     "@mongosh/testing": "0.0.0",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@mongosh/browser-runtime-core": "^3.29.1",
