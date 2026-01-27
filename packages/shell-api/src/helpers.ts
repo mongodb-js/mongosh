@@ -22,7 +22,13 @@ import type { CursorIterationResult } from './result';
 import { ShellApiErrors } from './error-codes';
 import type { BinaryType, ReplPlatform } from '@mongosh/service-provider-core';
 import type { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
-import type { AutoEncryptionOptions, Long, ObjectId, Timestamp } from 'mongodb';
+import type {
+  AggregateOptions,
+  AutoEncryptionOptions,
+  Long,
+  ObjectId,
+  Timestamp,
+} from 'mongodb';
 import { shellApiType } from './enums';
 import type { AbstractFiniteCursor } from './abstract-cursor';
 import type ChangeStreamCursor from './change-stream-cursor';
@@ -40,32 +46,26 @@ let coreUtilInspect: ((obj: any, options: InspectOptions) => string) & {
  *
  * @param options
  */
-export function adaptAggregateOptions(options: any = {}): {
+export function adaptAggregateOptions(
+  options: AggregateOptions & { explain?: ExplainVerbosityLike } = {}
+): {
   aggOptions: Document;
-  dbOptions: DbOptions;
   explain?: ExplainVerbosityLike & string;
 } {
   const aggOptions = { ...options };
 
-  const dbOptions: DbOptions = {};
   let explain;
-
-  if ('readConcern' in aggOptions) {
-    dbOptions.readConcern = options.readConcern;
-    delete aggOptions.readConcern;
-  }
-
-  if ('writeConcern' in aggOptions) {
-    Object.assign(dbOptions, options.writeConcern);
-    delete aggOptions.writeConcern;
-  }
-
   if ('explain' in aggOptions) {
     explain = validateExplainableVerbosity(aggOptions.explain);
     delete aggOptions.explain;
+    aggOptions.session ??= {
+      inTransaction() {
+        return true;
+      },
+    } as any; // MONGOSH-1002, SERVER-28678
   }
 
-  return { aggOptions, dbOptions, explain };
+  return { aggOptions, explain };
 }
 
 export function validateExplainableVerbosity(
