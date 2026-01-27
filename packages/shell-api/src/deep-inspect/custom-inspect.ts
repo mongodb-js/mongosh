@@ -1,3 +1,4 @@
+import { getBsonType } from '@mongosh/shell-bson';
 import type { InspectOptions, inspect as _inspect } from 'util';
 
 const customInspectSymbol = Symbol.for('nodejs.util.inspect.custom');
@@ -47,7 +48,7 @@ export function addCustomInspect(obj: any) {
     obj &&
     typeof obj === 'object' &&
     obj !== null &&
-    !obj._bsontype &&
+    !getBsonType(obj) &&
     !['[object Date]', '[object RegExp]'].includes(
       Object.prototype.toString.call(obj)
     )

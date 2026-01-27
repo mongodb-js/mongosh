@@ -9,7 +9,7 @@ import { expect } from 'chai';
 import sinonChai from 'sinon-chai';
 import sinon from 'sinon';
 import type { BSON, ShellBson } from './';
-import { constructShellBson } from './';
+import { constructShellBson, getBsonType } from './';
 chai.use(sinonChai);
 
 const hex_1234 = '31323334';
@@ -49,11 +49,11 @@ describe('Shell BSON', function () {
   describe('DBRef', function () {
     it('without new', function () {
       const s = shellBson.DBRef('namespace', 'oid');
-      expect(s._bsontype).to.equal('DBRef');
+      expect(getBsonType(s)).to.equal('DBRef');
     });
     it('with new', function () {
       const s = new (shellBson.DBRef as any)('namespace', 'oid');
-      expect(s._bsontype).to.equal('DBRef');
+      expect(getBsonType(s)).to.equal('DBRef');
     });
     it('has help and other metadata', function () {
       const s = shellBson.DBRef('namespace', 'oid');
@@ -97,15 +97,15 @@ describe('Shell BSON', function () {
   describe('MaxKey', function () {
     it('without new', function () {
       const s = shellBson.MaxKey();
-      expect(s._bsontype).to.equal('MaxKey');
+      expect(getBsonType(s)).to.equal('MaxKey');
     });
     it('with new', function () {
       const s = new (shellBson.MaxKey as any)();
-      expect(s._bsontype).to.equal('MaxKey');
+      expect(getBsonType(s)).to.equal('MaxKey');
     });
     it('using toBSON', function () {
       const s = (shellBson.MaxKey as any).toBSON();
-      expect(s._bsontype).to.equal('MaxKey');
+      expect(getBsonType(s)).to.equal('MaxKey');
     });
     it('has help and other metadata', function () {
       const s = shellBson.MaxKey();
@@ -117,15 +117,15 @@ describe('Shell BSON', function () {
   describe('MinKey', function () {
     it('without new', function () {
       const s = shellBson.MinKey();
-      expect(s._bsontype).to.equal('MinKey');
+      expect(getBsonType(s)).to.equal('MinKey');
     });
     it('with new', function () {
       const s = new (shellBson.MinKey as any)();
-      expect(s._bsontype).to.equal('MinKey');
+      expect(getBsonType(s)).to.equal('MinKey');
     });
     it('using toBSON', function () {
       const s = (shellBson.MinKey as any).toBSON();
-      expect(s._bsontype).to.equal('MinKey');
+      expect(getBsonType(s)).to.equal('MinKey');
     });
     it('has help and other metadata', function () {
       const s = shellBson.MinKey();
@@ -155,29 +155,29 @@ describe('Shell BSON', function () {
   describe('ObjectId', function () {
     it('without new', function () {
       const s = shellBson.ObjectId('5ebbe8e2905bb493d6981b6b');
-      expect(s._bsontype).to.equal('ObjectId');
+      expect(getBsonType(s)).to.equal('ObjectId');
       expect(s.toHexString()).to.equal('5ebbe8e2905bb493d6981b6b');
     });
     it('with new', function () {
       const s = new (shellBson.ObjectId as any)('5ebbe8e2905bb493d6981b6b');
-      expect(s._bsontype).to.equal('ObjectId');
+      expect(getBsonType(s)).to.equal('ObjectId');
       expect(s.toHexString()).to.equal('5ebbe8e2905bb493d6981b6b');
     });
     it('works with an integer argument', function () {
       const s = new (shellBson.ObjectId as any)(0x12345678);
-      expect(s._bsontype).to.equal('ObjectId');
+      expect(getBsonType(s)).to.equal('ObjectId');
       expect(s.toHexString().slice(0, 8)).to.equal('12345678');
     });
     it('can be created through createFromTime', function () {
       const s = (shellBson.ObjectId as any).createFromTime(0x12345678);
-      expect(s._bsontype).to.equal('ObjectId');
+      expect(getBsonType(s)).to.equal('ObjectId');
       expect(s.toHexString().slice(0, 8)).to.equal('12345678');
     });
     it('can be created using createFromHexString', function () {
       const s = shellBson.ObjectId.createFromHexString(
         '64c122afaf44ca299136bbc3'
       );
-      expect(s._bsontype).to.equal('ObjectId');
+      expect(getBsonType(s)).to.equal('ObjectId');
       expect(s.toHexString()).to.equal('64c122afaf44ca299136bbc3');
     });
     it('has help and other metadata', function () {
@@ -198,12 +198,12 @@ describe('Shell BSON', function () {
   describe('BSONSymbol', function () {
     it('without new', function () {
       const s = (shellBson.BSONSymbol as any)('5ebbe8e2905bb493d6981b6b');
-      expect(s._bsontype).to.equal('BSONSymbol');
+      expect(getBsonType(s)).to.equal('BSONSymbol');
       expect(s.toString()).to.equal('5ebbe8e2905bb493d6981b6b');
     });
     it('with new', function () {
       const s = new (shellBson.BSONSymbol as any)('5ebbe8e2905bb493d6981b6b');
-      expect(s._bsontype).to.equal('BSONSymbol');
+      expect(getBsonType(s)).to.equal('BSONSymbol');
       expect(s.toString()).to.equal('5ebbe8e2905bb493d6981b6b');
     });
     it('has help and other metadata', function () {
@@ -215,15 +215,15 @@ describe('Shell BSON', function () {
   describe('Timestamp', function () {
     it('without new', function () {
       const s = shellBson.Timestamp(0, 100);
-      expect(s._bsontype).to.equal('Timestamp');
+      expect(getBsonType(s)).to.equal('Timestamp');
     });
     it('with new', function () {
       const s = new (shellBson.Timestamp as any)(0, 100);
-      expect(s._bsontype).to.equal('Timestamp');
+      expect(getBsonType(s)).to.equal('Timestamp');
     });
     it('with a long argument', function () {
       const s = shellBson.Timestamp((shellBson.Long as any)(1, 2));
-      expect(s._bsontype).to.equal('Timestamp');
+      expect(getBsonType(s)).to.equal('Timestamp');
       expect((s as any).toExtendedJSON()).to.deep.equal({
         $timestamp: { t: 2, i: 1 },
       });
