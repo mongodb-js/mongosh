@@ -1,6 +1,6 @@
 import type { CompletionResults } from '@mongosh/autocomplete';
 import { completer, initNewAutocompleter } from '@mongosh/autocomplete';
-import { MongoshInternalError, MongoshWarning } from '@mongosh/errors';
+import { MongoshInternalError } from '@mongosh/errors';
 import { changeHistory } from '@mongosh/history';
 import type {
   AutoEncryptionOptions,
@@ -50,6 +50,7 @@ import { Script, createContext, runInContext } from 'vm';
 import { fixNode60446, installPasteSupport } from './repl-paste-support';
 import util from 'util';
 import { fixNodeReplCompleterSideEffectHandling } from './node-repl-fix-completer-side-effects';
+import { fixNodeReplHistoryHandler } from './node-repl-fix-history-rewrite-on-error';
 
 declare const __non_webpack_require__: any;
 
@@ -439,6 +440,7 @@ class MongoshNodeRepl implements EvaluationListener {
       promisify(repl.completer.bind(repl))
     ); // repl.completer is callback-style
 
+    await fixNodeReplHistoryHandler(repl);
     let newMongoshCompleter: (line: string) => Promise<CompletionResults>;
     let oldMongoshCompleter: (line: string) => Promise<CompletionResults>;
 
@@ -1192,16 +1194,17 @@ class MongoshNodeRepl implements EvaluationListener {
         // hidden, but we still need to be able to modify it at runtime.
         // We will want to fix this upstream, in Node itself.
         const historyManager = (this.runtimeState().repl as any).historyManager;
-        const historyManagerSymbols =
-          Object.getOwnPropertySymbols(historyManager);
-        const kSize = historyManagerSymbols.find((symbol) =>
-          String(symbol).includes('(_kSize)')
-        );
-        if (kSize === undefined) {
-          // Best effort, write historySize (older versions of Node.js)
-          (this.runtimeState().repl as any).historySize = value;
+        if (historyManager) {
+          const historyManagerSymbols =
+            Object.getOwnPropertySymbols(historyManager);
+          const kSize = historyManagerSymbols.find((symbol) =>
+            String(symbol).includes('(_kSize)')
+          );
+          if (kSize) {
+            historyManager[kSize] = value;
+          }
         } else {
-          historyManager[kSize] = value;
+          (this.runtimeState().repl as any).historySize = value;
         }
       }
 

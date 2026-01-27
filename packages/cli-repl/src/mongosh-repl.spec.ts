@@ -1228,7 +1228,7 @@ describe('MongoshNodeRepl', function () {
 
     before(function () {
       origReadFile = fs.promises.readFile;
-      fs.promises.readFile = (...args: any[]) => {
+      fs.promises.readFile = () => {
         throw new Error();
       };
     });
