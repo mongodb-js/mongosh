@@ -562,6 +562,7 @@ class MongoshNodeRepl implements EvaluationListener {
       // repl.history is an array of previous commands. We need to hijack the
       // value we just typed, and shift it off the history array if the info is
       // sensitive.
+
       repl.on('line', () => {
         if (this.redactHistory !== 'keep') {
           const history: string[] = (repl as any).history;
@@ -1201,8 +1202,23 @@ class MongoshNodeRepl implements EvaluationListener {
     const result = await this.ioProvider.setConfig(key, value);
     if (result === 'success') {
       if (key === 'historyLength' && this._runtimeState) {
-        (this.runtimeState().repl as any).historySize = value;
+        // TODO: We monkey-patch the history size of the historyManager because in Node.js 24+ it got
+        // hidden, but we still need to be able to modify it at runtime.
+        // We will want to fix this upstream, in Node itself.
+        const historyManager = (this.runtimeState().repl as any).historyManager;
+        const historyManagerSymbols =
+          Object.getOwnPropertySymbols(historyManager);
+        const kSize = historyManagerSymbols.find((symbol) =>
+          String(symbol).includes('(_kSize)')
+        );
+        if (kSize === undefined) {
+          // Best effort, write historySize (older versions of Node.js)
+          (this.runtimeState().repl as any).historySize = value;
+        } else {
+          historyManager[kSize] = value;
+        }
       }
+
       if (key === 'inspectCompact') {
         this.inspectCompact = value as number | boolean;
       }

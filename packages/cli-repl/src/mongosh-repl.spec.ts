@@ -620,10 +620,8 @@ describe('MongoshNodeRepl', function () {
             const { history } = mongoshRepl.runtimeState().repl as unknown as {
               history: string[];
             };
-            getHistory = () => {
-              console.log(process.version, history);
-              return history.filter((line) => !line.startsWith('prefill-'));
-            };
+            getHistory = () =>
+              history.filter((line) => !line.startsWith('prefill-'));
             getAllHistoryItems = () => history;
             for (let i = 0; i < prefill; i++) {
               history.unshift(`prefill-${i}`);
@@ -1229,18 +1227,19 @@ describe('MongoshNodeRepl', function () {
     let origReadFile: any;
 
     before(function () {
-      origReadFile = fs.readFile;
-      fs.readFile = (...args: any[]) =>
-        process.nextTick(args[args.length - 1], new Error());
+      origReadFile = fs.promises.readFile;
+      fs.promises.readFile = (...args: any[]) => {
+        throw new Error();
+      };
     });
-
     after(function () {
-      fs.readFile = origReadFile;
+      fs.promises.readFile = origReadFile;
     });
 
     it('warns about the unavailable history file support', async function () {
       await mongoshRepl.initialize(serviceProvider);
-      expect(output).to.include('Error processing history file');
+      expect(output).to.include('Error: Could not open history file.');
+      expect(output).to.include('REPL session history will not be persisted.');
     });
   });
 
