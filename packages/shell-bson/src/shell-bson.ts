@@ -10,6 +10,7 @@ import {
   assignAll,
   pickWithExactKeyMatch,
 } from './helpers';
+import type { Document } from 'bson';
 
 type LongWithoutAccidentallyExposedMethods = Omit<
   typeof Long,

@@ -46,6 +46,11 @@ const config: KnipConfig = {
         // Lerna is listed as an optional dependency.
         "lerna",
       ],
+      ignoreDependencies: [
+        // Shared lint and build-related dependencies
+        "@mongodb-js/eslint-config-mongosh",
+        "@mongodb-js/tsconfig-mongosh",
+      ],
     },
 
     // Config packages
@@ -142,11 +147,12 @@ const config: KnipConfig = {
       project: ["src/main/js/**/*"],
       ignoreDependencies: [
         // Used in webpack and build scripts
-        "bson",
         "tr46",
         "assert",
         "buffer",
         "util",
+        // Needed to run tests
+        "@mongosh/cli-repl",
       ],
     },
 
