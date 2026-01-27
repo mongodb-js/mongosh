@@ -67,6 +67,7 @@ Package|Version|License
 **[@babel/template](#70eb0d4b4e94ec9e48721d54604bb5bf6b68c355267277200baae8a9ef07b72f)**|7.27.0|MIT
 **[@babel/traverse](#ea49e770eac5209a0e4836cf7d16e903ddd5387aefe67455778f984782a9d5ee)**|7.27.0|MIT
 **[@babel/types](#3f9534182611fb6b137e56e3b1b5dfebd7f40b5e1ef0121b0751be6d7e18ae00)**|7.27.0|MIT
+**[@isaacs/fs-minipass](#e298238290176ef140cd179ac13befbbe0db95d3b7cb458c074d43740e206522)**|4.0.1|ISC
 **[@jridgewell/gen-mapping](#1e660067f4d1364dc830c372517d8ec92eddc9af7eaa6b1e698d478b286abafa)**|0.1.1|MIT
 **[@jridgewell/gen-mapping](#25a8188ec7d87cf1b9baf2470bad1f75a22f246ca0fca732933d26fd488ef5d2)**|0.3.5|MIT
 **[@jridgewell/resolve-uri](#f356bc3bb9c04f5fe4e387a4eea4e74125aae03bb50f846d956d7d986d200f50)**|3.1.0|MIT
@@ -185,7 +186,7 @@ Package|Version|License
 **[caniuse-lite](#54bd51d2b0ee09b15bd5c8421bc31dfa3a5f8fc4766a3c4ab9f9866ce2d749ef)**|1.0.30001709|CC-BY-4.0
 **[chalk](#c1619ad3bd43ce54cc7a4702c368501fd4fb4fa629077ba610f81d81bcd3f5f1)**|4.1.2|MIT
 **[chownr](#0550527b7b5e20ea58d882e34eadff9ea25b5cb64ff4beffa1ca8f2e6ff9cdf1)**|1.1.4|ISC
-**[chownr](#3dbff1a17bbf2c33026995132ecdd14757cb3bee815f4636fe43df0f5ebdcf07)**|2.0.0|ISC
+**[chownr](#833f419be73da0c49a0e76a21c14643978fa322085371cc9adec92ce3afd85d1)**|3.0.0|BlueOak-1.0.0
 **[cli-table](#7fb35fe68b59a077feef5608b5ee4713adbaa83c57d201480259a275f0c2de80)**|0.3.11|MIT
 **[cliui](#4546c8b3643627bee58bb3e38d8c0740c26d957ecb817a1cde707428725c7efd)**|8.0.1|ISC
 **[clone](#1212d68ae6811596ccdc8d31040c17ecba52dde7b2faeeb92edcc68d36cf4372)**|2.1.2|MIT
@@ -257,7 +258,6 @@ Package|Version|License
 **[fresh](#f40feff15332333f77ef3844d2ab9af4f31ddb4da37a99a2dbf7dfd255c314a5)**|2.0.0|MIT
 **[fs-constants](#9961a9f7535cded379a7696ad6d002a62d4826a3a8c2ffb5624383b942c879e5)**|1.0.0|MIT
 **[fs-extra](#e862edbd1eefa8dd5325b1fe3ddc6e8be0374791bd73fea93d80c18d281f1ec4)**|11.3.0|MIT
-**[fs-minipass](#c2c405232aa58245a067fead9e0e8bd8330cda684111af434bcab882090c44fa)**|2.1.0|ISC
 **[function-bind](#83de3b394293d96fb3fea968392a9d9ffb8b461f6c173bbb76a5bc51db5bec52)**|1.1.2|MIT
 **[function.prototype.name](#775c04e76594f9c73207c02d86d212b6054f2dc54ad9b970b65c43c176213ddf)**|1.1.8|MIT
 **[functions-have-names](#e47bfb8af99536984c43eccff65479505a133c528be9e5e73fa43c03b31749bf)**|1.2.3|MIT
@@ -356,11 +356,9 @@ Package|Version|License
 **[mimic-response](#3a8c7e8eed886630dd878b11cbb7ef72840b3bab1f8d4251956ca4f9fa40925f)**|3.1.0|MIT
 **[minimatch](#a24e851afb332c98f897b23a4f024ff71e6c55d357e5fd10a6de1fc90e00f46b)**|9.0.1|ISC
 **[minimist](#8162d302efd0533ce00fc8a52dd6703dbb4205435af84e72b7694c608a729de4)**|1.2.8|MIT
-**[minipass](#6659995a0bae79f2075c7aec70b4628402b31d1cf67e614593cfa7d93da24b51)**|3.3.6|ISC
-**[minipass](#21ff204c865e5c5c51a710c1fe90bbbd312925407f0405f1636cd2f284e7883c)**|5.0.0|ISC
-**[minizlib](#cce17959eefb79a78461796cc716519d9f9ba1b56fa35ae9bb2f589c61514cd2)**|2.1.2|MIT
+**[minipass](#64557a4d1a957fa17a1619163ebd758b0f5a17798dca3d46e923d88a1e653471)**|7.1.2|ISC
+**[minizlib](#9d2296e811f3f6d934eaebbf7ddbb45009e3a251171f11c42d76186d2f998878)**|3.1.0|MIT
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
-**[mkdirp](#f34eebd27506e3aa07ba3b64064715e0c4f310dad1207ad88fff362353cd4cce)**|1.0.4|MIT
 **[mongodb-build-info](#a050d38af51c89a382b2731b4ce1003e1f02cfb9de007455dc65ceb5617c6c16)**|1.9.5|Apache-2.0
 **[mongodb-client-encryption](#f24794d804800d6c453e41a022153224598e9e9c89b0cf7a097419d8e9df3a2e)**|7.0.0|Apache-2.0
 **[mongodb-connection-string-url](#296e917903ac3f9373c527dbe188f557395fb620f871b166921cd51aa5db6ce5)**|7.0.1|Apache-2.0
@@ -469,7 +467,7 @@ Package|Version|License
 **[system-ca](#37546d95936426fb53ac75c628cd4ab062b360fd5e95279a3b8a26f57afd66fe)**|3.0.0|Apache-2.0
 **[tar-fs](#907e1fea910142adbe6c4af5f6279670d17eff5a61dd89c7c7487b4a1257f35a)**|2.1.4|MIT
 **[tar-stream](#0dc8f500e45626ff1f83a8b3bb9d4dbae5ce9f2df7fc81b5eca6af1af2e85d27)**|2.2.0|MIT
-**[tar](#8bb3ceb646ea33186c42416eb9a4191d844ba4a9a59571a8deb01683c7b60c3a)**|6.2.1|ISC
+**[tar](#ebb635eb5fe30d09434693191dbc4871b838ec2b2b26c054c9da0bcfff78385c)**|7.5.4|BlueOak-1.0.0
 **[text-table](#408475075eb207dd5ae8858365d5b39a25bebe2b757601c43164cec36f315b23)**|0.2.0|MIT
 **[toidentifier](#2067d1f99d35f28c8384d3e9762282f3c2ded0041392af855caf28ba2209bd2a)**|1.0.1|MIT
 **[tr46](#a94418e116fb43931c49abb9cd596d6814a55956c3d0d11b7e225592b9977197)**|0.0.3|MIT
@@ -506,7 +504,7 @@ Package|Version|License
 **[wsl-utils](#3c6cb23f48b28398188bbe0a6b73ab9fa96d0ba5322f8f68b056cfc22a3f1f7a)**|0.1.0|MIT
 **[y18n](#1dd471a41f77455fc624d6d6ba14ef1b741362d6c36295d66fa1474d3fc2e27d)**|5.0.8|ISC
 **[yallist](#63b110ffd18712146937e9f182800c6f2b5783e76d1659a0bd4b457789b0df07)**|3.1.1|ISC
-**[yallist](#d400799c4e1f58dbbbe68b4d9c1b6e80e023f744bd7d16da491005fd8439200f)**|4.0.0|ISC
+**[yallist](#4a8b5707001b2845384e2d4c2f14242ec0753d95d7c347a294bace7a9784891d)**|5.0.0|BlueOak-1.0.0
 **[yargs-parser](#d114360895423d9e902d0d2591b959ed4b0c309f8cec3e7b22fb6ed5502d1c19)**|20.2.9|ISC
 **[yargs-parser](#617a7401008b7639df8cebae61c9c009bf04ca762c652da0975da4533bf33690)**|21.1.1|ISC
 **[yargs](#3f627b435d9e054beeefeac523a8b24e69406e6881905ede430915e78fb878c8)**|17.7.2|MIT
@@ -7563,6 +7561,31 @@ License files:
       LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
       OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
       WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      
+
+
+<a id="e298238290176ef140cd179ac13befbbe0db95d3b7cb458c074d43740e206522"></a>
+### [@isaacs/fs-minipass](https://www.npmjs.com/package/@isaacs/fs-minipass) (version 4.0.1)
+License tags: ISC
+
+License files:
+* LICENSE:
+
+      The ISC License
+      
+      Copyright (c) Isaac Z. Schlueter and Contributors
+      
+      Permission to use, copy, modify, and/or distribute this software for any
+      purpose with or without fee is hereby granted, provided that the above
+      copyright notice and this permission notice appear in all copies.
+      
+      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+      IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
       
 
 
@@ -22267,28 +22290,76 @@ License files:
       
 
 
-<a id="3dbff1a17bbf2c33026995132ecdd14757cb3bee815f4636fe43df0f5ebdcf07"></a>
-### [chownr](https://www.npmjs.com/package/chownr) (version 2.0.0)
-License tags: ISC
+<a id="833f419be73da0c49a0e76a21c14643978fa322085371cc9adec92ce3afd85d1"></a>
+### [chownr](https://www.npmjs.com/package/chownr) (version 3.0.0)
+License tags: BlueOak-1.0.0
 
 License files:
-* LICENSE:
+* LICENSE.md:
 
-      The ISC License
+      All packages under `src/` are licensed according to the terms in
+      their respective `LICENSE` or `LICENSE.md` files.
       
-      Copyright (c) Isaac Z. Schlueter and Contributors
+      The remainder of this project is licensed under the Blue Oak
+      Model License, as follows:
       
-      Permission to use, copy, modify, and/or distribute this software for any
-      purpose with or without fee is hereby granted, provided that the above
-      copyright notice and this permission notice appear in all copies.
+      -----
       
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-      IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+      # Blue Oak Model License
+      
+      Version 1.0.0
+      
+      ## Purpose
+      
+      This license gives everyone as much permission to work with
+      this software as possible, while protecting contributors
+      from liability.
+      
+      ## Acceptance
+      
+      In order to receive this license, you must agree to its
+      rules.  The rules of this license are both obligations
+      under that agreement and conditions to your license.
+      You must not do anything with this software that triggers
+      a rule that you cannot or will not follow.
+      
+      ## Copyright
+      
+      Each contributor licenses you to do everything with this
+      software that would otherwise infringe that contributor's
+      copyright in it.
+      
+      ## Notices
+      
+      You must ensure that everyone who gets a copy of
+      any part of this software from you, with or without
+      changes, also gets the text of this license or a link to
+      <https://blueoakcouncil.org/license/1.0.0>.
+      
+      ## Excuse
+      
+      If anyone notifies you in writing that you have not
+      complied with [Notices](#notices), you can keep your
+      license by taking all practical steps to comply within 30
+      days after the notice.  If you do not do so, your license
+      ends immediately.
+      
+      ## Patent
+      
+      Each contributor licenses you to do everything with this
+      software that would otherwise infringe any patent claims
+      they can license or become able to license.
+      
+      ## Reliability
+      
+      No contributor can revoke this license.
+      
+      ## No Liability
+      
+      ***As far as the law allows, this software comes as is,
+      without any warranty or condition, and no contributor
+      will be liable to anyone for any damages related to this
+      software or this license, under any kind of legal claim.***
       
 
 
@@ -24433,31 +24504,6 @@ License files:
       WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS
       OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
        ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-
-<a id="c2c405232aa58245a067fead9e0e8bd8330cda684111af434bcab882090c44fa"></a>
-### [fs-minipass](https://www.npmjs.com/package/fs-minipass) (version 2.1.0)
-License tags: ISC
-
-License files:
-* LICENSE:
-
-      The ISC License
-      
-      Copyright (c) Isaac Z. Schlueter and Contributors
-      
-      Permission to use, copy, modify, and/or distribute this software for any
-      purpose with or without fee is hereby granted, provided that the above
-      copyright notice and this permission notice appear in all copies.
-      
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-      IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
       
 
 
@@ -28570,33 +28616,8 @@ License files:
       
 
 
-<a id="6659995a0bae79f2075c7aec70b4628402b31d1cf67e614593cfa7d93da24b51"></a>
-### [minipass](https://www.npmjs.com/package/minipass) (version 3.3.6)
-License tags: ISC
-
-License files:
-* LICENSE:
-
-      The ISC License
-      
-      Copyright (c) 2017-2022 npm, Inc., Isaac Z. Schlueter, and Contributors
-      
-      Permission to use, copy, modify, and/or distribute this software for any
-      purpose with or without fee is hereby granted, provided that the above
-      copyright notice and this permission notice appear in all copies.
-      
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-      IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-      
-
-
-<a id="21ff204c865e5c5c51a710c1fe90bbbd312925407f0405f1636cd2f284e7883c"></a>
-### [minipass](https://www.npmjs.com/package/minipass) (version 5.0.0)
+<a id="64557a4d1a957fa17a1619163ebd758b0f5a17798dca3d46e923d88a1e653471"></a>
+### [minipass](https://www.npmjs.com/package/minipass) (version 7.1.2)
 License tags: ISC
 
 License files:
@@ -28620,8 +28641,8 @@ License files:
       
 
 
-<a id="cce17959eefb79a78461796cc716519d9f9ba1b56fa35ae9bb2f589c61514cd2"></a>
-### [minizlib](https://www.npmjs.com/package/minizlib) (version 2.1.2)
+<a id="9d2296e811f3f6d934eaebbf7ddbb45009e3a251171f11c42d76186d2f998878"></a>
+### [minizlib](https://www.npmjs.com/package/minizlib) (version 3.1.0)
 License tags: MIT
 
 License files:
@@ -28631,9 +28652,9 @@ License files:
       It is a derivative work of the Node.js project.
       
       """
-      Copyright Isaac Z. Schlueter and Contributors
-      Copyright Node.js contributors. All rights reserved.
-      Copyright Joyent, Inc. and other Node contributors. All rights reserved.
+      Copyright (c) 2017-2023 Isaac Z. Schlueter and Contributors
+      Copyright (c) 2017-2023 Node.js contributors. All rights reserved.
+      Copyright (c) 2017-2023 Joyent, Inc. and other Node contributors. All rights reserved.
       
       Permission is hereby granted, free of charge, to any person obtaining a
       copy of this software and associated documentation files (the "Software"),
@@ -28666,37 +28687,6 @@ License files:
       The MIT License (MIT)
       
       Copyright (c) 2020 James Halliday (mail@substack.net) and Mathias Buus
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-
-<a id="f34eebd27506e3aa07ba3b64064715e0c4f310dad1207ad88fff362353cd4cce"></a>
-### [mkdirp](https://www.npmjs.com/package/mkdirp) (version 1.0.4)
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      Copyright James Halliday (mail@substack.net) and Isaac Z. Schlueter (i@izs.me)
-      
-      This project is free software released under the MIT license:
       
       Permission is hereby granted, free of charge, to any person obtaining a copy
       of this software and associated documentation files (the "Software"), to deal
@@ -34062,28 +34052,68 @@ License files:
       THE SOFTWARE.
 
 
-<a id="8bb3ceb646ea33186c42416eb9a4191d844ba4a9a59571a8deb01683c7b60c3a"></a>
-### [tar](https://www.npmjs.com/package/tar) (version 6.2.1)
-License tags: ISC
+<a id="ebb635eb5fe30d09434693191dbc4871b838ec2b2b26c054c9da0bcfff78385c"></a>
+### [tar](https://www.npmjs.com/package/tar) (version 7.5.4)
+License tags: BlueOak-1.0.0
 
 License files:
-* LICENSE:
+* LICENSE.md:
 
-      The ISC License
+      # Blue Oak Model License
       
-      Copyright (c) Isaac Z. Schlueter and Contributors
+      Version 1.0.0
       
-      Permission to use, copy, modify, and/or distribute this software for any
-      purpose with or without fee is hereby granted, provided that the above
-      copyright notice and this permission notice appear in all copies.
+      ## Purpose
       
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-      IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+      This license gives everyone as much permission to work with
+      this software as possible, while protecting contributors
+      from liability.
+      
+      ## Acceptance
+      
+      In order to receive this license, you must agree to its
+      rules.  The rules of this license are both obligations
+      under that agreement and conditions to your license.
+      You must not do anything with this software that triggers
+      a rule that you cannot or will not follow.
+      
+      ## Copyright
+      
+      Each contributor licenses you to do everything with this
+      software that would otherwise infringe that contributor's
+      copyright in it.
+      
+      ## Notices
+      
+      You must ensure that everyone who gets a copy of
+      any part of this software from you, with or without
+      changes, also gets the text of this license or a link to
+      <https://blueoakcouncil.org/license/1.0.0>.
+      
+      ## Excuse
+      
+      If anyone notifies you in writing that you have not
+      complied with [Notices](#notices), you can keep your
+      license by taking all practical steps to comply within 30
+      days after the notice.  If you do not do so, your license
+      ends immediately.
+      
+      ## Patent
+      
+      Each contributor licenses you to do everything with this
+      software that would otherwise infringe any patent claims
+      they can license or become able to license.
+      
+      ## Reliability
+      
+      No contributor can revoke this license.
+      
+      ## No Liability
+      
+      ***As far as the law allows, this software comes as is,
+      without any warranty or condition, and no contributor
+      will be liable to anyone for any damages related to this
+      software or this license, under any kind of legal claim.***
       
 
 
@@ -35200,28 +35230,76 @@ License files:
       
 
 
-<a id="d400799c4e1f58dbbbe68b4d9c1b6e80e023f744bd7d16da491005fd8439200f"></a>
-### [yallist](https://www.npmjs.com/package/yallist) (version 4.0.0)
-License tags: ISC
+<a id="4a8b5707001b2845384e2d4c2f14242ec0753d95d7c347a294bace7a9784891d"></a>
+### [yallist](https://www.npmjs.com/package/yallist) (version 5.0.0)
+License tags: BlueOak-1.0.0
 
 License files:
-* LICENSE:
+* LICENSE.md:
 
-      The ISC License
+      All packages under `src/` are licensed according to the terms in
+      their respective `LICENSE` or `LICENSE.md` files.
       
-      Copyright (c) Isaac Z. Schlueter and Contributors
+      The remainder of this project is licensed under the Blue Oak
+      Model License, as follows:
       
-      Permission to use, copy, modify, and/or distribute this software for any
-      purpose with or without fee is hereby granted, provided that the above
-      copyright notice and this permission notice appear in all copies.
+      -----
       
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-      IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+      # Blue Oak Model License
+      
+      Version 1.0.0
+      
+      ## Purpose
+      
+      This license gives everyone as much permission to work with
+      this software as possible, while protecting contributors
+      from liability.
+      
+      ## Acceptance
+      
+      In order to receive this license, you must agree to its
+      rules.  The rules of this license are both obligations
+      under that agreement and conditions to your license.
+      You must not do anything with this software that triggers
+      a rule that you cannot or will not follow.
+      
+      ## Copyright
+      
+      Each contributor licenses you to do everything with this
+      software that would otherwise infringe that contributor's
+      copyright in it.
+      
+      ## Notices
+      
+      You must ensure that everyone who gets a copy of
+      any part of this software from you, with or without
+      changes, also gets the text of this license or a link to
+      <https://blueoakcouncil.org/license/1.0.0>.
+      
+      ## Excuse
+      
+      If anyone notifies you in writing that you have not
+      complied with [Notices](#notices), you can keep your
+      license by taking all practical steps to comply within 30
+      days after the notice.  If you do not do so, your license
+      ends immediately.
+      
+      ## Patent
+      
+      Each contributor licenses you to do everything with this
+      software that would otherwise infringe any patent claims
+      they can license or become able to license.
+      
+      ## Reliability
+      
+      No contributor can revoke this license.
+      
+      ## No Liability
+      
+      ***As far as the law allows, this software comes as is,
+      without any warranty or condition, and no contributor
+      will be liable to anyone for any damages related to this
+      software or this license, under any kind of legal claim.***
       
 
 
