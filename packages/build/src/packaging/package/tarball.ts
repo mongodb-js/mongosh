@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import rimraf from 'rimraf';
-import tar from 'tar';
+import * as tar from 'tar';
 import { promisify } from 'util';
 import { createCompressedArchiveContents } from './helpers';
 import type { PackageInformation } from './package-information';

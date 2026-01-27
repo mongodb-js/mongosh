@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import tar from 'tar';
+import * as tar from 'tar';
 import { createReadStream, createWriteStream, promises as fs } from 'fs';
 import { promisify } from 'util';
 import { join, basename } from 'path';

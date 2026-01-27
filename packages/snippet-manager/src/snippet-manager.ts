@@ -13,7 +13,7 @@ import { Console } from 'console';
 import { promises as fs } from 'fs';
 import stream, { PassThrough } from 'stream';
 import { once } from 'events';
-import tar from 'tar';
+import * as tar from 'tar';
 import zlib from 'zlib';
 import bson from 'bson';
 import { z } from 'zod';
