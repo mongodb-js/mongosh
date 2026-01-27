@@ -34,11 +34,11 @@
     "unitTestsOnly": true
   },
   "dependencies": {
-    "@mongodb-js/devtools-proxy-support": "^0.5.3",
+    "@mongodb-js/devtools-proxy-support": "^0.7.4",
     "@mongosh/errors": "2.4.6",
     "@mongosh/shell-api": "^3.29.1",
     "@mongosh/types": "^3.14.2",
-    "bson": "^6.10.4",
+    "bson": "^7.1.1",
     "cross-spawn": "^7.0.5",
     "escape-string-regexp": "^4.0.0",
     "tar": "^6.1.15",
