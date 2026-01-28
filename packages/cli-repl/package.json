@@ -61,7 +61,7 @@
     }
   },
   "dependencies": {
-    "@mongodb-js/devtools-proxy-support": "^0.7.3",
+    "@mongodb-js/devtools-proxy-support": "^0.7.4",
     "@mongosh/arg-parser": "^3.23.1",
     "@mongosh/autocomplete": "^3.29.1",
     "@mongosh/editor": "^3.29.1",
@@ -80,11 +80,11 @@
     "ansi-escape-sequences": "^5.1.2",
     "askcharacter": "^2.0.4",
     "askpassword": "^2.0.2",
-    "bson": "^6.10.4",
+    "bson": "^7.1.1",
     "escape-string-regexp": "^4.0.0",
     "is-recoverable-error": "^1.0.3",
     "js-yaml": "^4.1.1",
-    "mongodb-connection-string-url": "^3.0.2",
+    "mongodb-connection-string-url": "^7.0.1",
     "mongodb-log-writer": "^2.4.3",
     "mongodb-redact": "^1.3.0",
     "numeral": "^2.0.6",
@@ -97,7 +97,7 @@
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
-    "@mongodb-js/sbom-tools": "^0.8.1",
+    "@mongodb-js/sbom-tools": "^0.10.4",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@types/ansi-escape-sequences": "^4.0.0",
     "@types/chai-as-promised": "^8.0.2",
@@ -107,7 +107,7 @@
     "@types/text-table": "^0.2.1",
     "chai-as-promised": "^8.0.2",
     "eslint": "^7.25.0",
-    "mongodb": "^6.19.0",
+    "mongodb": "^7.0.0",
     "mongodb-crypt-library-dummy": "^1.0.2",
     "prettier": "^2.8.8",
     "webpack-merge": "^5.8.0",
@@ -115,9 +115,9 @@
   },
   "optionalDependencies": {
     "get-console-process-list": "^1.0.5",
-    "glibc-version": "^1.0.0",
+    "glibc-version": "^1.0.1",
     "macos-export-certificate-and-key": "^2.0.1",
-    "mongodb-crypt-library-version": "^2.0.0",
+    "mongodb-crypt-library-version": "^2.0.1",
     "win-export-certificate-and-key": "^3.0.2"
   }
 }

@@ -49,20 +49,22 @@
     "@mongodb-js/devtools-connect": "^3.14.4",
     "@aws-sdk/credential-providers": "^3.965.0",
     "@mongodb-js/oidc-plugin": "^2.0.7",
+    "@mongodb-js/devtools-connect": "^3.14.7",
+    "@mongodb-js/oidc-plugin": "^2.0.5",
     "@mongosh/errors": "2.4.6",
     "@mongosh/service-provider-core": "3.7.1",
     "@mongosh/types": "^3.14.2",
     "aws4": "^1.12.0",
-    "@aws-sdk/credential-providers": "^3.188.0",
-    "mongodb": "^6.19.0",
-    "mongodb-build-info": "^1.8.1",
-    "mongodb-connection-string-url": "^3.0.2",
+    "gcp-metadata": "^7.0.1",
+    "mongodb": "^7.0.0",
+    "mongodb-build-info": "^1.9.5",
+    "mongodb-connection-string-url": "^7.0.1",
     "socks": "^2.8.3",
     "mongodb-client-encryption": "^7.0.0",
-    "kerberos": "2.2.2"
+    "kerberos": "^7.0.0"
   },
   "optionalDependencies": {
-    "kerberos": "2.2.2",
+    "kerberos": "^7.0.0",
     "mongodb-client-encryption": "^7.0.0"
   },
   "devDependencies": {

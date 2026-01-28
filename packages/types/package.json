@@ -37,14 +37,14 @@
     "unitTestsOnly": true
   },
   "dependencies": {
-    "@mongodb-js/devtools-connect": "^3.14.4"
+    "@mongodb-js/devtools-connect": "^3.14.7"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "eslint": "^7.25.0",
-    "mongodb": "^6.19.0",
+    "mongodb": "^7.0.0",
     "prettier": "^2.8.8"
   }
 }
