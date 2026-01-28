@@ -341,7 +341,9 @@ describe('AsyncRepl', function () {
     input.write('\n');
     await tick();
     // Contains the expected result after hitting newline
-    expect(output.read()).to.equal('\r\n7006652\n> ');
+    expect(output.read()).to.equal(
+      '\r\n7006652\n\u001b[1G\u001b[0J> \u001b[3G'
+    );
   });
 
   it('allows using ctrl+c to avoid running pasted text', async function () {
@@ -356,9 +358,11 @@ describe('AsyncRepl', function () {
     expect(output.read()).to.equal('1234\r\n| *5678\r\n| ');
     input.write('\x03'); // Ctrl+C
     await tick();
-    expect(output.read()).to.equal('\r\n> ');
+    expect(output.read()).to.equal('\r\n\u001b[1G\u001b[0J> \u001b[3G');
     input.write('"foo";\n'); // Write something else
     await tick();
-    expect(output.read()).to.equal(`"foo";\r\n\'foo\'\n> `);
+    expect(output.read()).to.equal(
+      `"foo";\r\n'foo'\n\u001b[1G\u001b[0J> \u001b[3G`
+    );
   });
 });
