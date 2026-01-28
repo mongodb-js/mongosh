@@ -12156,7 +12156,7 @@ buildvariants:
       - name: test_types
   - name: win32-n20
     display_name: "Windows n20 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: true
     expansions:
@@ -12190,7 +12190,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-m42xc_n20
     display_name: "Windows m42xc n20 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: true
     expansions:
@@ -12224,7 +12224,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-m42xe_n20
     display_name: "Windows m42xe n20 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: true
     expansions:
@@ -12258,7 +12258,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-m44xc_n20
     display_name: "Windows m44xc n20 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: true
     expansions:
@@ -12292,7 +12292,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-m44xe_n20
     display_name: "Windows m44xe n20 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: true
     expansions:
@@ -12326,7 +12326,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-m50xc_n20
     display_name: "Windows m50xc n20 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: true
     expansions:
@@ -12360,7 +12360,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-m50xe_n20
     display_name: "Windows m50xe n20 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: true
     expansions:
@@ -12394,7 +12394,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-m60xc_n20
     display_name: "Windows m60xc n20 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: true
     expansions:
@@ -12428,7 +12428,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-m60xe_n20
     display_name: "Windows m60xe n20 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: true
     expansions:
@@ -12462,7 +12462,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-m70xc_n20
     display_name: "Windows m70xc n20 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: true
     expansions:
@@ -12496,7 +12496,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-m70xe_n20
     display_name: "Windows m70xe n20 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: true
     expansions:
@@ -12530,7 +12530,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-m80xc_n20
     display_name: "Windows m80xc n20 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: true
     expansions:
@@ -12564,7 +12564,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-m80xe_n20
     display_name: "Windows m80xe n20 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: true
     expansions:
@@ -12598,7 +12598,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-m82xc_n20
     display_name: "Windows m82xc n20 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: true
     expansions:
@@ -12632,7 +12632,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-m82xe_n20
     display_name: "Windows m82xe n20 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: true
     expansions:
@@ -12666,7 +12666,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-mlatest_n20
     display_name: "Windows mlatest n20 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: ["mlatest"]
     disable: true
     expansions:
@@ -13575,7 +13575,7 @@ buildvariants:
       - name: test_types
   - name: win32-n24
     display_name: "Windows n24 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: false
     expansions:
@@ -13609,7 +13609,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-m42xc_n24
     display_name: "Windows m42xc n24 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: false
     expansions:
@@ -13643,7 +13643,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-m42xe_n24
     display_name: "Windows m42xe n24 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: false
     expansions:
@@ -13677,7 +13677,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-m44xc_n24
     display_name: "Windows m44xc n24 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: false
     expansions:
@@ -13711,7 +13711,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-m44xe_n24
     display_name: "Windows m44xe n24 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: false
     expansions:
@@ -13745,7 +13745,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-m50xc_n24
     display_name: "Windows m50xc n24 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: false
     expansions:
@@ -13779,7 +13779,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-m50xe_n24
     display_name: "Windows m50xe n24 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: false
     expansions:
@@ -13813,7 +13813,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-m60xc_n24
     display_name: "Windows m60xc n24 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: false
     expansions:
@@ -13847,7 +13847,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-m60xe_n24
     display_name: "Windows m60xe n24 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: false
     expansions:
@@ -13881,7 +13881,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-m70xc_n24
     display_name: "Windows m70xc n24 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: false
     expansions:
@@ -13915,7 +13915,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-m70xe_n24
     display_name: "Windows m70xe n24 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: false
     expansions:
@@ -13949,7 +13949,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-m80xc_n24
     display_name: "Windows m80xc n24 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: false
     expansions:
@@ -13983,7 +13983,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-m80xe_n24
     display_name: "Windows m80xe n24 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: false
     expansions:
@@ -14017,7 +14017,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-m82xc_n24
     display_name: "Windows m82xc n24 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: false
     expansions:
@@ -14051,7 +14051,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-m82xe_n24
     display_name: "Windows m82xe n24 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: []
     disable: false
     expansions:
@@ -14085,7 +14085,7 @@ buildvariants:
       - name: test_types
   - name: tests_win32-mlatest_n24
     display_name: "Windows mlatest n24 (Unit tests)"
-    run_on: windows-2022-xlarge
+    run_on: windows-2022-small
     tags: ["mlatest"]
     disable: false
     expansions:
@@ -14877,6 +14877,30 @@ buildvariants:
       - name: sign_artifact_darwin_x64
       - name: package_artifact_darwin_arm64
       - name: sign_artifact_darwin_arm64
+  - name: e2e_tests_windows_vsCurrent_small
+    display_name: "Windows VS PRE-2022 (E2E tests)"
+    run_on: windows-vsCurrent-small
+    tags: []
+    expansions:
+      executable_os_id: "win32"
+      node_js_version: "24.13.0"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests_win32
+      - name: package_artifact_win32_x64
+      - name: package_artifact_win32msi_x64
+  - name: e2e_tests_windows_vsCurrent_small_m82x
+    display_name: "Windows VS PRE-2022 82x (E2E tests)"
+    run_on: windows-vsCurrent-small
+    tags: []
+    expansions:
+      executable_os_id: "win32"
+      node_js_version: "24.13.0"
+      mongosh_server_test_version: "8.2.x-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests_win32
   - name: e2e_tests_windows_2022_latest_small
     display_name: "Windows VS 2022 (E2E tests)"
     run_on: windows-2022-latest-small

@@ -16,7 +16,7 @@ exports.platformToDetails = {
   },
   win32: {
     displayName: 'Windows',
-    runOn: 'windows-2022-xlarge',
+    runOn: 'windows-2022-small',
     executableOsId: 'win32',
   },
 };
