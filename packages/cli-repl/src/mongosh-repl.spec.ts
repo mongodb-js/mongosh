@@ -1201,6 +1201,7 @@ describe('MongoshNodeRepl', function () {
       const pasteStart = '\x1b[200~';
       const pasteEnd = '\x1b[201~';
       const moveLeft = '\x1b[1D';
+      const moveRight = '\x1b[C';
 
       it('can paste code and run it', async function () {
         input.write(`${pasteStart}12 * 34${pasteEnd}\n`);
@@ -1215,7 +1216,9 @@ describe('MongoshNodeRepl', function () {
       });
 
       it('can paste code in the middle of multiline input and run it', async function () {
-        input.write(`{\n56${moveLeft}${pasteStart}12 * 34${pasteEnd}\n}\n`);
+        input.write(
+          `{\n56${moveLeft}${pasteStart}12 * 34${pasteEnd}${moveRight}\n}\n`
+        );
         await waitEval(bus);
         expect(output).to.include('177152'); // 512 * 346
       });
