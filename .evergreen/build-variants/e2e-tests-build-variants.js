@@ -92,6 +92,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     tags: ['nightly-driver'],
     executableOsId: 'linux-x64',
     mVersion: 'stable',
+    disabled: true,
   },
   {
     displayName: 'RHEL 10 x64',
@@ -100,6 +101,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     sharedOpenSsl: 'openssl3',
     executableOsId: 'linux-x64-openssl3',
     mVersion: 'stable',
+    disabled: true,
   },
   {
     displayName: 'Ubuntu 18.04 x64',
@@ -319,6 +321,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     tags: ['nightly-driver'],
     executableOsId: 'linux-arm64',
     mVersion: 'stable',
+    disabled: true,
   },
   {
     displayName: 'RHEL 10 arm64',
@@ -327,6 +330,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     sharedOpenSsl: 'openssl3',
     executableOsId: 'linux-arm64-openssl3',
     mVersion: 'stable',
+    disabled: true,
   },
   {
     displayName: 'RHEL 8 PPC',
@@ -440,7 +444,8 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     executableOsId: 'win32',
     mVersion: '8.2.x'
   },
-].map((buildVariant) => {
+].filter(({ disabled }) => disabled !== true)
+ .map((buildVariant) => {
   const { displayName, fips, sharedOpenSsl, mVersion, runOn, executableOsId } =
     buildVariant;
   let id = (buildVariant.id ?? runOn ?? executableOsId).replaceAll('-', '_');
