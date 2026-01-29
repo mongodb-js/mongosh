@@ -27,7 +27,7 @@ overrides="$overrides\"@mongodb-js/devtools-proxy-support\":\"file:$mongosh_root
 overrides="$overrides}"
 
 # Add pnpm overrides to package.json
-jq --argjson overrides "$overrides" '.pnpm.overrides = $overrides' package.json > package.json.tmp && mv package.json.tmp package.json
+jq --argjson overrides "$overrides" '.pnpm.overrides = (.pnpm.overrides // {}) + $overrides' package.json > package.json.tmp && mv package.json.tmp package.json
 pnpm install
 # This test can require a lot of memory so we bump the maximum size.
 NODE_OPTIONS='--max-old-space-size=4096' pnpm test
