@@ -601,7 +601,7 @@ describe('e2e', function () {
     it('runs an unterminated function', async function () {
       shell.writeInputLine('function x () {');
       await eventually(() => {
-        shell.assertContainsOutput('...');
+        shell.assertContainsOutput('|');
       });
       shell.assertNoErrors();
     });

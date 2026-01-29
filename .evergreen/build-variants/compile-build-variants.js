@@ -69,18 +69,18 @@ exports.COMPILE_BUILD_VARIANTS = [
   {
     displayName: 'MacOS Big Sur',
     id: 'darwin',
-    runOn: 'macos-11',
+    runOn: 'macos-13',
     executableOsId: 'darwin-x64',
   },
   {
     displayName: 'MacOS Big Sur arm64',
-    runOn: 'macos-11-arm64',
+    runOn: 'macos-13-arm64',
     executableOsId: 'darwin-arm64',
   },
   {
     id: 'win32',
     displayName: 'Windows VS 2022',
-    runOn: 'windows-vsCurrent-large',
+    runOn: 'windows-2022-latest-small',
     executableOsId: 'win32',
   },
 ].map((buildVariant) => {

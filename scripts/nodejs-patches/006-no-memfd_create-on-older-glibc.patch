@@ -1,0 +1,81 @@
+diff --git a/deps/v8/src/wasm/wasm-objects.cc b/deps/v8/src/wasm/wasm-objects.cc
+index 91ebf45a50bd..8ab8b59e8a3e 100644
+--- a/deps/v8/src/wasm/wasm-objects.cc
++++ b/deps/v8/src/wasm/wasm-objects.cc
+@@ -9,6 +9,76 @@
+ // Since we don't need `sys/mman.h`'s `MAP_TYPE`, we undefine it immediately
+ // after the `#include`.
+ #undef MAP_TYPE
++
++#include <sys/syscall.h>
++#include <unistd.h>
++
++// https://github.com/torvalds/linux/blob/fd57572253bc356330dbe5b233c2e1d8426c66fd/include/uapi/linux/memfd.h#L8-L14
++#ifndef MFD_CLOEXEC
++#define MFD_CLOEXEC		0x0001U
++#endif
++#ifndef MFD_ALLOW_SEALING
++#define MFD_ALLOW_SEALING	0x0002U
++#endif
++#ifndef MFD_HUGETLB
++#define MFD_HUGETLB		0x0004U
++#endif
++#ifndef MFD_NOEXEC_SEAL
++#define MFD_NOEXEC_SEAL		0x0008U
++#endif
++#ifndef MFD_EXEC
++#define MFD_EXEC		0x0010U
++#endif
++
++// $ git describe
++// v6.18-rc3-7-gfd57572253bc
++// $ grep memfd_create arch/**/syscall*.tbl
++// arch/alpha/kernel/syscalls/syscall.tbl:512	common	memfd_create			sys_memfd_create
++// arch/arm/tools/syscall.tbl:385	common	memfd_create		sys_memfd_create
++// arch/arm64/tools/syscall_32.tbl:385	common	memfd_create		sys_memfd_create
++// arch/arm64/tools/syscall_64.tbl:279	common	memfd_create			sys_memfd_create
++// arch/m68k/kernel/syscalls/syscall.tbl:353	common	memfd_create			sys_memfd_create
++// arch/microblaze/kernel/syscalls/syscall.tbl:386	common	memfd_create			sys_memfd_create
++// arch/mips/kernel/syscalls/syscall_n32.tbl:318	n32	memfd_create			sys_memfd_create
++// arch/mips/kernel/syscalls/syscall_n64.tbl:314	n64	memfd_create			sys_memfd_create
++// arch/mips/kernel/syscalls/syscall_o32.tbl:354	o32	memfd_create			sys_memfd_create
++// arch/parisc/kernel/syscalls/syscall.tbl:340	common	memfd_create		sys_memfd_create
++// arch/powerpc/kernel/syscalls/syscall.tbl:360	common	memfd_create			sys_memfd_create
++// arch/s390/kernel/syscalls/syscall.tbl:350  common	memfd_create		sys_memfd_create		sys_memfd_create
++// arch/sh/kernel/syscalls/syscall.tbl:374	common	memfd_create			sys_memfd_create
++// arch/sparc/kernel/syscalls/syscall.tbl:348	common	memfd_create		sys_memfd_create
++// arch/x86/entry/syscalls/syscall_32.tbl:356	i386	memfd_create		sys_memfd_create
++// arch/x86/entry/syscalls/syscall_64.tbl:319	common	memfd_create		sys_memfd_create
++// arch/xtensa/kernel/syscalls/syscall.tbl:339	common	memfd_create			sys_memfd_create
++
++#ifndef __NR_memfd_create
++#if defined(__aarch64__)
++#define __NR_memfd_create 279
++#elif defined(__x86_64__)
++#define __NR_memfd_create 319
++#elif defined(__i386__)
++#define __NR_memfd_create 356
++#elif defined(__s390x__)
++#define __NR_memfd_create 350
++#elif defined(__ppc64__)
++#define __NR_memfd_create 360
++#endif
++#endif  // __NR_memfd_create
++
++namespace {
++inline int memfd_create(const char* name, unsigned int flags) {
++  return syscall(__NR_memfd_create, name, flags);
++}
++}
++
++namespace v8 {
++inline int memfd_create(const char* name, unsigned int flags) {
++  // This will call the glibc helper if it exists in the top-level
++  // namespace, or the one from the anonymous namespace above otherwise
++  return ::memfd_create(name, flags);
++}
++}
++
+ #endif  // V8_TARGET_OS_LINUX
+
+ #include "src/wasm/wasm-objects.h"
