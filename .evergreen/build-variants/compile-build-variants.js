@@ -74,7 +74,7 @@ exports.COMPILE_BUILD_VARIANTS = [
   },
   {
     displayName: 'MacOS 15 Sequoia (arm64)',
-    runOn: 'macos-15-arm64',
+    runOn: 'macos-15-arm64-gui',
     executableOsId: 'darwin-arm64',
   },
   {
