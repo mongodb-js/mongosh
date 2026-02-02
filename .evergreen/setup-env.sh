@@ -23,15 +23,6 @@ if [ "$OS" != "Windows_NT" ]; then
     # cannot build recent Node.js versions, so we use
     # the LLVM version installed via Homebrew
     # (both on arm64 and x64)
-
-    LLVM_PREFIX="$(brew --prefix llvm)"
-    export PATH="$LLVM_PREFIX/bin:$PATH"
-    export CC="$LLVM_PREFIX/bin/clang"
-    export CXX="$LLVM_PREFIX/bin/clang++"
-    export LDFLAGS="-L$LLVM_PREFIX/lib -L$LLVM_PREFIX/lib/c++ -L$LLVM_PREFIX/lib/unwind"
-    export CPPFLAGS="-I$LLVM_PREFIX/include"
-    export CMAKE_PREFIX_PATH="$LLVM_PREFIX"
-    
     echo "Using clang version:"
     (which clang && clang --version)
 

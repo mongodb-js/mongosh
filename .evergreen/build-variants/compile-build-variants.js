@@ -67,14 +67,14 @@ exports.COMPILE_BUILD_VARIANTS = [
     executableOsId: 'linux-s390x',
   },
   {
-    displayName: 'MacOS Big Sur',
+    displayName: 'MacOS 15 Sequoia (amd64)',
     id: 'darwin',
-    runOn: 'macos-13',
+    runOn: 'macos-15-amd64-gui',
     executableOsId: 'darwin-x64',
   },
   {
-    displayName: 'MacOS Big Sur arm64',
-    runOn: 'macos-13-arm64',
+    displayName: 'MacOS 15 Sequoia (arm64)',
+    runOn: 'macos-15-arm64',
     executableOsId: 'darwin-arm64',
   },
   {

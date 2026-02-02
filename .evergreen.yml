@@ -14212,16 +14212,16 @@ buildvariants:
     tasks:
       - name: compile_artifact
   - name: build_darwin
-    display_name: "MacOS Big Sur (Build)"
-    run_on: macos-13
+    display_name: "MacOS 15 Sequoia (amd64) (Build)"
+    run_on: macos-15-amd64-gui
     expansions:
       executable_os_id: "darwin-x64"
       node_js_version: "24.13.0"
     tasks:
       - name: compile_artifact
   - name: build_darwin_arm64
-    display_name: "MacOS Big Sur arm64 (Build)"
-    run_on: macos-13-arm64
+    display_name: "MacOS 15 Sequoia (arm64) (Build)"
+    run_on: macos-15-arm64
     expansions:
       executable_os_id: "darwin-arm64"
       node_js_version: "24.13.0"
@@ -14774,6 +14774,39 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_s390x
+  - name: e2e_tests_macos_15_amd64_gui
+    display_name: "MacOS 15 Sequoia (amd64) (E2E tests)"
+    run_on: macos-15-amd64-gui
+    tags: []
+    expansions:
+      executable_os_id: "darwin-x64"
+      node_js_version: "24.13.0"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests_darwin
+  - name: e2e_tests_macos_15_arm64
+    display_name: "MacOS 15 Sequoia (arm64) (E2E tests)"
+    run_on: macos-15-arm64
+    tags: []
+    expansions:
+      executable_os_id: "darwin-arm64"
+      node_js_version: "24.13.0"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests_darwin_arm64
+  - name: e2e_tests_macos_15_arm64_m82x
+    display_name: "MacOS 15 Sequoia (arm64) 82x (E2E tests)"
+    run_on: macos-15-arm64
+    tags: []
+    expansions:
+      executable_os_id: "darwin-arm64"
+      node_js_version: "24.13.0"
+      mongosh_server_test_version: "8.2.x-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests_darwin_arm64
   - name: e2e_tests_macos_14
     display_name: "MacOS 14 x64 (E2E tests)"
     run_on: macos-14
