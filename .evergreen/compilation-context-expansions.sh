@@ -1,4 +1,4 @@
-export DISTRO_UPLOADLIST_REGEX="^(rhel70|win|rhel7-zseries|rhel8-power|amazon2-arm64|macos-12|macos-13|macos-14)"
+export DISTRO_UPLOADLIST_REGEX="^(rhel70|win|rhel7-zseries|rhel8-power|amazon2-arm64|macos-12|macos-13|macos-14|macos-15)"
 export COMPILING_CONTEXT_FILE="$(pwd)/../tmp/compiling-context.yml"
 mkdir -p $(dirname $COMPILING_CONTEXT_FILE)
 
