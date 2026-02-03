@@ -186,6 +186,20 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     mVersion: '7.0.x',
   },
   {
+    displayName: 'Debian 13 x64',
+    runOn: 'debian13-small',
+    tags: ['nightly-driver'],
+    executableOsId: 'linux-x64-openssl3',
+    mVersion: '8.0.x',
+  },
+  {
+    displayName: 'Debian 13 arm64',
+    runOn: 'debian13-arm64-small',
+    tags: ['nightly-driver'],
+    executableOsId: 'linux-arm64-openssl3',
+    mVersion: '8.0.x',
+  },
+  {
     displayName: 'Amazon Linux 2 x64',
     runOn: 'amazon2-small',
     tags: ['nightly-driver'],
