@@ -283,7 +283,7 @@ describe('MongoshNodeRepl', function () {
         await waitEval(bus);
       }
       // Three ... because we entered three incomplete lines.
-      expect(output).to.include('... ... ... 987');
+      expect(output).to.include('| | | 987');
       expect(output).not.to.include('Error');
     });
 
@@ -1201,6 +1201,7 @@ describe('MongoshNodeRepl', function () {
       const pasteStart = '\x1b[200~';
       const pasteEnd = '\x1b[201~';
       const moveLeft = '\x1b[1D';
+      const moveRight = '\x1b[C';
 
       it('can paste code and run it', async function () {
         input.write(`${pasteStart}12 * 34${pasteEnd}\n`);
@@ -1215,7 +1216,9 @@ describe('MongoshNodeRepl', function () {
       });
 
       it('can paste code in the middle of multiline input and run it', async function () {
-        input.write(`{\n56${moveLeft}${pasteStart}12 * 34${pasteEnd}\n}\n`);
+        input.write(
+          `{\n56${moveLeft}${pasteStart}12 * 34${pasteEnd}${moveRight}\n}\n`
+        );
         await waitEval(bus);
         expect(output).to.include('177152'); // 512 * 346
       });
@@ -1227,18 +1230,19 @@ describe('MongoshNodeRepl', function () {
     let origReadFile: any;
 
     before(function () {
-      origReadFile = fs.readFile;
-      fs.readFile = (...args: any[]) =>
-        process.nextTick(args[args.length - 1], new Error());
+      origReadFile = fs.promises.readFile;
+      fs.promises.readFile = () => {
+        throw new Error();
+      };
     });
-
     after(function () {
-      fs.readFile = origReadFile;
+      fs.promises.readFile = origReadFile;
     });
 
     it('warns about the unavailable history file support', async function () {
       await mongoshRepl.initialize(serviceProvider);
-      expect(output).to.include('Error processing history file');
+      expect(output).to.include('Error: Could not open history file.');
+      expect(output).to.include('REPL session history will not be persisted.');
     });
   });
 

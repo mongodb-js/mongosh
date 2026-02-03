@@ -9,7 +9,7 @@ if (process.env.MONGOSH_RUN_ONLY_IN_PACKAGE && process.env.MONGOSH_RUN_ONLY_IN_P
 }
 
 if (process.version.startsWith("v24")) {
-    process.env.NODE_OPTIONS = `${parentEnv.NODE_OPTIONS ?? ''} --no-experimental-strip-types`;
+    process.env.NODE_OPTIONS = `${process.env.NODE_OPTIONS ?? ''} --no-experimental-strip-types`;
 }
 
 const child_process = require('child_process');
