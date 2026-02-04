@@ -2893,7 +2893,7 @@ describe('CliRepl', function () {
         'Using mongosh on the current operating system is deprecated, and support may be removed in a future release.'
       );
       expect(output).not.to.include(
-        'Using mongosh with Node.js versions lower than 24.0.0 is deprecated, and support will be removed in a future release.'
+        'Using mongosh with Node.js versions lower than 24.0.0 is deprecated, and support may be removed in a future release.'
       );
       expect(output).not.to.include(
         'Using mongosh with OpenSSL versions lower than 3.0.0 is deprecated, and support may be removed in a future release.'
