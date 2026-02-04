@@ -691,20 +691,6 @@ class MongoshNodeRepl implements EvaluationListener {
       text += `${TELEMETRY_GREETING_MESSAGE}\n`;
       await this.setConfig('disableGreetingMessage', true);
     }
-
-    const nodeVersion = process.versions.node;
-    const [nodeMajor] = nodeVersion.split('.');
-    if (+nodeMajor < 24) {
-      const unsupportedMessage = this.clr(
-        `Node.js ${nodeVersion} is unsupported and mongosh may not behave as expected.`,
-        'mongosh:additional-error-info'
-      );
-      const pleaseUpgrade = `Upgrade your Node.js runtime to a supported version or download mongosh from: ${this.clr(
-        'https://www.mongodb.com/try/download/shell',
-        'mongosh:uri'
-      )}`;
-      text += `${unsupportedMessage}\n${pleaseUpgrade}\n`;
-    }
     this.output.write(text);
   }
 
