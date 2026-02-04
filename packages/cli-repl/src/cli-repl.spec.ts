@@ -2848,10 +2848,11 @@ describe('CliRepl', function () {
       });
     }
 
-    it('prints a deprecation warning when running on Node.js < 20.0.0', async function () {
+    it('prints a deprecation warning when running on Node.js < 24.0.0', async function () {
       for (const { version, deprecated } of [
-        { version: 'v20.5.1', deprecated: false },
-        { version: '20.0.0', deprecated: false },
+        { version: 'v24.5.1', deprecated: false },
+        { version: 'v20.5.1', deprecated: true },
+        { version: '20.0.0', deprecated: true },
         { version: '18.19.0', deprecated: true },
       ]) {
         delete (process as any).version;
@@ -2863,14 +2864,14 @@ describe('CliRepl', function () {
         if (deprecated) {
           expect(output).to.include('Deprecation warnings:');
           expect(output).to.include(
-            'Using mongosh with Node.js versions lower than 20.0.0 is deprecated, and support may be removed in a future release.'
+            'Using mongosh with Node.js versions lower than 24.0.0 is deprecated, and support may be removed in a future release.'
           );
           expect(output).to.include(
             'See https://www.mongodb.com/docs/mongodb-shell/install/#supported-operating-systems for documentation on supported platforms.'
           );
         } else {
           expect(output).to.not.include(
-            'Using mongosh with Node.js versions lower than 20.0.0 is deprecated, and support may be removed in a future release.'
+            'Using mongosh with Node.js versions lower than 24.0.0 is deprecated, and support may be removed in a future release.'
           );
         }
       }
@@ -2892,7 +2893,7 @@ describe('CliRepl', function () {
         'Using mongosh on the current operating system is deprecated, and support may be removed in a future release.'
       );
       expect(output).not.to.include(
-        'Using mongosh with Node.js versions lower than 20.0.0 is deprecated, and support will be removed in a future release.'
+        'Using mongosh with Node.js versions lower than 24.0.0 is deprecated, and support will be removed in a future release.'
       );
       expect(output).not.to.include(
         'Using mongosh with OpenSSL versions lower than 3.0.0 is deprecated, and support may be removed in a future release.'
