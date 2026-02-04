@@ -14867,7 +14867,7 @@ buildvariants:
       - name: package_artifact_darwin_arm64
       - name: sign_artifact_darwin_arm64
   - name: e2e_tests_windows_vsCurrent_small
-    display_name: "Windows VS PRE-2022 (E2E tests)"
+    display_name: "Windows VS pre-2022 (E2E tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
@@ -14877,10 +14877,8 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_win32
-      - name: package_artifact_win32_x64
-      - name: package_artifact_win32msi_x64
   - name: e2e_tests_windows_vsCurrent_small_m82x
-    display_name: "Windows VS PRE-2022 82x (E2E tests)"
+    display_name: "Windows VS pre-2022 82x (E2E tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
