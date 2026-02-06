@@ -92,6 +92,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     tags: ['nightly-driver'],
     executableOsId: 'linux-x64',
     mVersion: 'stable',
+    disabled: true,
   },
   {
     displayName: 'RHEL 10 x64',
@@ -100,6 +101,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     sharedOpenSsl: 'openssl3',
     executableOsId: 'linux-x64-openssl3',
     mVersion: 'stable',
+    disabled: true,
   },
   {
     displayName: 'Ubuntu 18.04 x64',
@@ -319,6 +321,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     tags: ['nightly-driver'],
     executableOsId: 'linux-arm64',
     mVersion: 'stable',
+    disabled: true,
   },
   {
     displayName: 'RHEL 10 arm64',
@@ -327,6 +330,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     sharedOpenSsl: 'openssl3',
     executableOsId: 'linux-arm64-openssl3',
     mVersion: 'stable',
+    disabled: true,
   },
   {
     displayName: 'RHEL 8 PPC',
@@ -371,6 +375,24 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     mVersion: '8.3.0-alpha3',
   },
   {
+    displayName: 'MacOS 15 Sequoia (amd64)',
+    runOn: 'macos-15-amd64-gui',
+    executableOsId: 'darwin-x64',
+    mVersion: 'stable',
+  },
+  {
+    displayName: 'MacOS 15 Sequoia (arm64)',
+    runOn: 'macos-15-arm64-gui',
+    executableOsId: 'darwin-arm64',
+    mVersion: 'stable',
+  },
+  {
+    displayName: 'MacOS 15 Sequoia (arm64)',
+    runOn: 'macos-15-arm64-gui',
+    executableOsId: 'darwin-arm64',
+    mVersion: '8.2.x',
+  },
+  {
     displayName: 'MacOS 14 x64',
     runOn: 'macos-14',
     executableOsId: 'darwin-x64',
@@ -391,13 +413,13 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
   {
     displayName: 'MacOS Big Sur',
     id: 'darwin',
-    runOn: 'macos-11',
+    runOn: 'macos-13',
     executableOsId: 'darwin-x64',
     mVersion: '8.0.5',
   },
   {
     displayName: 'MacOS Big Sur arm64',
-    runOn: 'macos-11-arm64',
+    runOn: 'macos-13-arm64',
     id: 'darwin_arm64',
     executableOsId: 'darwin-arm64',
     mVersion: '8.0.5',
@@ -409,8 +431,20 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     ],
   },
   {
-    displayName: 'Windows VS 2022',
+    displayName: 'Windows VS pre-2022',
     runOn: 'windows-vsCurrent-small',
+    executableOsId: 'win32',
+    mVersion: 'stable'
+  },
+  {
+    displayName: 'Windows VS pre-2022',
+    runOn: 'windows-vsCurrent-small',
+    executableOsId: 'win32',
+    mVersion: '8.2.x'
+  },
+  {
+    displayName: 'Windows VS 2022',
+    runOn: 'windows-2022-latest-small',
     executableOsId: 'win32',
     mVersion: 'stable',
     additionalTasks: [
@@ -420,11 +454,12 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
   },
   {
     displayName: 'Windows VS 2022',
-    runOn: 'windows-vsCurrent-small',
+    runOn: 'windows-2022-latest-small',
     executableOsId: 'win32',
     mVersion: '8.3.0-alpha3'
   },
-].map((buildVariant) => {
+].filter(({ disabled }) => disabled !== true)
+ .map((buildVariant) => {
   const { displayName, fips, sharedOpenSsl, mVersion, runOn, executableOsId } =
     buildVariant;
   let id = (buildVariant.id ?? runOn ?? executableOsId).replaceAll('-', '_');

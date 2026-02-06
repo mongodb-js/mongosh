@@ -18,7 +18,11 @@ fi
 echo "TERM variable is set to '${TERM:-}'"
 
 if [ "$OS" != "Windows_NT" ]; then
-  if [ `uname` = Darwin ]; then
+    if [ `uname` = Darwin ]; then
+    # the CI macOS machines have an outdated Clang that
+    # cannot build recent Node.js versions, so we use
+    # the LLVM version installed via Homebrew
+    # (both on arm64 and x64)
     echo "Using clang version:"
     (which clang && clang --version)
 
@@ -46,6 +50,7 @@ if [ "$OS" != "Windows_NT" ]; then
     (which g++ && g++ --version)
   fi
 else
+  export NODE_GYP_FORCE_PYTHON="C:\python\Python311\python.exe"
   export PATH="/cygdrive/c/python/Python311/Scripts:/cygdrive/c/python/Python311:/cygdrive/c/Python311/Scripts:/cygdrive/c/Python311:/cygdrive/c/cmake/bin:$PATH"
 fi
 
