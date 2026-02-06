@@ -39,13 +39,13 @@
     "@mongosh/errors": "^2.4.6"
   },
   "peerDependencies": {
-    "bson": "^7.1.1"
+    "bson": "^7.2.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "bson": "^7.1.1",
+    "bson": "^7.2.0",
     "eslint": "^7.25.0",
     "prettier": "^2.8.8"
   }
