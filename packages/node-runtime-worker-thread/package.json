@@ -45,7 +45,7 @@
     "@mongosh/service-provider-core": "3.7.1",
     "@mongosh/service-provider-node-driver": "^3.18.1",
     "@mongosh/types": "^3.14.2",
-    "bson": "^7.1.1",
+    "bson": "^7.2.0",
     "eslint": "^7.25.0",
     "mocha": "^11.7.5",
     "postmsg-rpc": "^2.4.0",
