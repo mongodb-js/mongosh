@@ -7,7 +7,7 @@ import { makeMultilineJSIntoSingleLine } from '@mongosh/js-multiline-to-singleli
 import type { ShellInstanceState, TypeSignature } from '@mongosh/shell-api';
 import { signatures } from '@mongosh/shell-api';
 import type { ShellResult } from '@mongosh/shell-evaluator';
-
+import { spawn } from 'child_process';
 import type { MongoshBus } from '@mongosh/types';
 
 const beautify = require('js-beautify').js;
@@ -235,10 +235,6 @@ export class Editor {
       code,
     });
 
-    // 'child_process' is not supported in startup snapshots yet.
-    const { spawn } =
-      // eslint-disable-next-line
-      require('child_process') as typeof import('child_process');
     const proc = spawn(editor, [path.basename(tmpDoc)], {
       stdio: 'inherit',
       cwd: path.dirname(tmpDoc),

@@ -23,6 +23,8 @@ import type {
   Response,
 } from '@mongodb-js/devtools-proxy-support';
 import { createFetch } from '@mongodb-js/devtools-proxy-support';
+import { spawn } from 'cross-spawn';
+
 const pipeline = promisify(stream.pipeline);
 const brotliCompress = promisify(zlib.brotliCompress);
 const brotliDecompress = promisify(zlib.brotliDecompress);
@@ -473,9 +475,6 @@ export class SnippetManager implements ShellPlugin {
     });
     interrupted.checkpoint();
 
-    // 'child_process' is not supported in startup snapshots yet.
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const spawn = require('cross-spawn');
     const proc = spawn(cmd, args, {
       cwd: this.installdir,
       env: { ...process.env, MONGOSH_RUN_NODE_SCRIPT: '1' },
