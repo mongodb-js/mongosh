@@ -436,6 +436,9 @@ async function runSmokeTest({
     stdio: 'pipe',
     env: { ...process.env, ...env },
   });
+  process.stdin.on('error', () => {
+    // silence write errors
+  });
   let stdout = '';
   let stderr = '';
   proc.stdout!.setEncoding('utf8').on('data', (chunk) => {
