@@ -601,6 +601,14 @@ describe('Collection', function () {
       });
     });
 
+    describe('find', function () {
+      it('warns when the deprecated explain option is passed after a projection', async function () {
+        await collection.find({}, {}, { explain: true });
+        expect(printDeprecationWarning).to.have.been.calledWith(
+          'Collection.find(query, projection, { explain }) is deprecated and will be removed in the future.'
+        );
+      });
+    });
     describe('findOneAndReplace', function () {
       it('sets returnDocument to before by default', async function () {
         serviceProvider.findOneAndReplace = sinon.spy(() =>

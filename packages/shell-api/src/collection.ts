@@ -485,6 +485,12 @@ export class Collection<
       options.projection = projection;
     }
 
+    if (options.explain) {
+      await this._instanceState.printDeprecationWarning(
+        'Collection.find(query, projection, { explain }) is deprecated and will be removed in the future.'
+      );
+    }
+
     this._emitCollectionApiCall('find', { query, options });
     const cursor = new Cursor(
       this._mongo,
