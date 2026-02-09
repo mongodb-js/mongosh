@@ -475,7 +475,7 @@ export class Collection<
   async find(
     query?: MQLQuery,
     projection?: Document,
-    options: FindOptions = {}
+    options: FindOptions & { explain?: ExplainVerbosityLike } = {}
   ): Promise<Cursor> {
     if (projection) {
       options.projection = projection;
@@ -491,6 +491,11 @@ export class Collection<
         { ...(await this._database._baseOptions()), ...options }
       )
     );
+
+    const explain = options.explain;
+    if (explain) {
+      return await cursor.explain(explain);
+    }
 
     this._mongo._instanceState.currentCursor = cursor;
     return cursor;
