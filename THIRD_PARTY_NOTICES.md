@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Sun Feb 08 2026.
+This document was automatically generated on Mon Feb 09 2026.
 
 ## List of dependencies
 
@@ -165,7 +165,6 @@ Package|Version|License
 **[ast-types](#b10f17e6889028ee16e1f388d24ed535333cd289f0871c70d99c6180f498c6e0)**|0.13.4|MIT
 **[async-function](#28865b33dd84d0cc1e23351f5cda98976429c185c6ec939d3ed81f5141907486)**|1.0.0|MIT
 **[available-typed-arrays](#b26a9227325a0e2f27e4793244a52200e15f63f970e71f86ead22e0f696c4a41)**|1.0.7|MIT
-**[aws4](#448dbd1f0b89311b6805a63a3314f0ce1138f18f3575914656c7ddc96a571fcf)**|1.12.0|MIT
 **[base64-js](#cf278cb8d073b3bd22b60816c2ba78b69043aec6bcd673437b4c1db3375153d6)**|1.5.1|MIT
 **[baseline-browser-mapping](#bacc0480d6bdcf9547fbcfa53fcc4c0feb578efac43b4a8cac173c61a9f25d85)**|2.9.19|Apache-2.0
 **[basic-ftp](#a44b053322d0e5bf88d0ce80a9343d0da900fe887ae81d7fba273ce82a293546)**|5.0.3|MIT
@@ -176,7 +175,7 @@ Package|Version|License
 **[body-parser](#d7490fc67d710c27059fb0a86e6577555d3fe8ee074b92adb53a633dbc05d385)**|2.2.1|MIT
 **[bowser](#60d8cf5ae540f65166361dcc72b8dd8c1b208ebc6aa14375a248015bde10801a)**|2.13.1|MIT
 **[browserslist](#cfc692fe3baf990d1b809ccf9a9885899c2f934c61ec4ef24b790a0d56bb000c)**|4.28.1|MIT
-**[bson](#55066e1bf9013b9769f12e31ac0fe5eb82e2ec1eec782ee0e500440c27724a48)**|7.1.1|Apache-2.0
+**[bson](#a3a364829d55c90b5dd8133a198aa1164a86ef4642f89d4fff608b98f37f02e4)**|7.2.0|Apache-2.0
 **[buffer-from](#d08b5e69ef91add4f03dac1707f36962c172cf6cccaf6f9ff2ca502a5210d287)**|1.1.2|MIT
 **[buffer](#409d076f160d0351818531a7c09f5e2928335b83e3f0070a7f3e2685553efa6a)**|5.7.1|MIT
 **[buffer](#d57501d0d9fdd3c1bec12d2258e7609aae021266bb59cc2c13bc21b28448aa41)**|6.0.3|MIT
@@ -370,7 +369,7 @@ Package|Version|License
 **[mongodb-ns](#08ec71c1363132bf8e3166d828abfabaab899750d2a515b59e6002dc3c3785f1)**|3.1.5|Apache-2.0
 **[mongodb-redact](#1d7ad125a1e68f6cd3eb8007613c2737ec2b1a2a9f687501157cfdfe8dc26e67)**|1.3.0|Apache-2.0
 **[mongodb-schema](#e0300e77409789ae795961e8ed90b479d8816c8b4c2e078c0c8679293eae5c9d)**|12.7.0|Apache-2.0
-**[mongodb](#3782ac13c369c828e0344c8905752f340ddc9768e6012f88f3947728dc948e93)**|7.0.0|Apache-2.0
+**[mongodb](#af6fb6c5b9e3da65371aabbd16a55eee36392e0779db3a41f28b93d3b97750a1)**|7.1.0|Apache-2.0
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
 **[ms](#2083576c5af8054927640b4788059806d07e250a26066c9ccb2d928394fb9226)**|2.1.3|MIT
 **[nan](#5007ce5fab0ecba53610a8ffb04600f0e486fdb6c7f3d7822a6796b17d29f598)**|2.24.0|MIT
@@ -21452,35 +21451,6 @@ License files:
       
 
 
-<a id="448dbd1f0b89311b6805a63a3314f0ce1138f18f3575914656c7ddc96a571fcf"></a>
-### [aws4](https://www.npmjs.com/package/aws4) (version 1.12.0)
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      Copyright 2013 Michael Hart (michael.hart.au@gmail.com)
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy of
-      this software and associated documentation files (the "Software"), to deal in
-      the Software without restriction, including without limitation the rights to
-      use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-      of the Software, and to permit persons to whom the Software is furnished to do
-      so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-      
-
-
 <a id="cf278cb8d073b3bd22b60816c2ba78b69043aec6bcd673437b4c1db3375153d6"></a>
 ### [base64-js](https://www.npmjs.com/package/base64-js) (version 1.5.1)
 License tags: MIT
@@ -21999,8 +21969,8 @@ License files:
       
 
 
-<a id="55066e1bf9013b9769f12e31ac0fe5eb82e2ec1eec782ee0e500440c27724a48"></a>
-### [bson](https://www.npmjs.com/package/bson) (version 7.1.1)
+<a id="a3a364829d55c90b5dd8133a198aa1164a86ef4642f89d4fff608b98f37f02e4"></a>
+### [bson](https://www.npmjs.com/package/bson) (version 7.2.0)
 License tags: Apache-2.0
 
 License files:
@@ -31013,8 +30983,8 @@ License files:
       
 
 
-<a id="3782ac13c369c828e0344c8905752f340ddc9768e6012f88f3947728dc948e93"></a>
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 7.0.0)
+<a id="af6fb6c5b9e3da65371aabbd16a55eee36392e0779db3a41f28b93d3b97750a1"></a>
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 7.1.0)
 License tags: Apache-2.0
 
 License files:
