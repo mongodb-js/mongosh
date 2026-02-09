@@ -141,6 +141,7 @@ describe('Database', function () {
     let database: Database;
     let bus: StubbedInstance<EventEmitter>;
     let instanceState: ShellInstanceState;
+    let printDeprecationWarning: ShellInstanceState['printDeprecationWarning'];
 
     beforeEach(function () {
       bus = stubInterface<EventEmitter>();
@@ -149,7 +150,9 @@ describe('Database', function () {
       serviceProvider.bsonLibrary = bson;
       serviceProvider.runCommand.resolves({ ok: 1 });
       serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
+      printDeprecationWarning = sinon.spy();
       instanceState = new ShellInstanceState(serviceProvider, bus);
+      instanceState.printDeprecationWarning = printDeprecationWarning;
       mongo = new Mongo(
         instanceState,
         undefined,
@@ -478,6 +481,20 @@ describe('Database', function () {
 
         const explainResult = await database.aggregate([], { explain: true });
 
+        expect(explainResult).to.deep.equal(expectedExplainResult);
+        expect(serviceProviderCursor.explain).to.have.been.calledOnce;
+      });
+
+      it('warns if the explain option is passed', async function () {
+        const expectedExplainResult = {};
+        serviceProviderCursor.explain.resolves(expectedExplainResult);
+        serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
+
+        const explainResult = await database.aggregate([], { explain: true });
+
+        expect(printDeprecationWarning).to.have.been.calledWith(
+          'Database.aggregate(pipeline, { explain }) is deprecated and will be removed in the future.'
+        );
         expect(explainResult).to.deep.equal(expectedExplainResult);
         expect(serviceProviderCursor.explain).to.have.been.calledOnce;
       });
