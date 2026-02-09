@@ -489,9 +489,6 @@ export class Database<
     const cursor = new AggregationCursor(this._mongo, providerCursor);
 
     if (explain) {
-      await this._instanceState.printDeprecationWarning(
-        'Database.aggregate(pipeline, { explain }) is deprecated and will be removed in the future.'
-      );
       return await cursor.explain(explain);
     } else if (shouldRunAggregationImmediately(pipeline)) {
       await cursor.hasNext();

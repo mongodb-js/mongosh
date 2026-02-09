@@ -225,10 +225,6 @@ export class Collection<
     const cursor = new AggregationCursor(this._mongo, providerCursor);
 
     if (explain) {
-      await this._instanceState.printDeprecationWarning(
-        'Collection.aggregate(pipeline, { explain }) is deprecated and will be removed in the future.'
-      );
-
       return await cursor.explain(explain);
     } else if (shouldRunAggregationImmediately(pipeline)) {
       await cursor.hasNext();
@@ -479,16 +475,10 @@ export class Collection<
   async find(
     query?: MQLQuery,
     projection?: Document,
-    options: FindOptions = {}
+    options: FindOptions & { explain?: ExplainVerbosityLike } = {}
   ): Promise<Cursor> {
     if (projection) {
       options.projection = projection;
-    }
-
-    if (options.explain) {
-      await this._instanceState.printDeprecationWarning(
-        'Collection.find(query, projection, { explain }) is deprecated and will be removed in the future.'
-      );
     }
 
     this._emitCollectionApiCall('find', { query, options });
@@ -501,6 +491,11 @@ export class Collection<
         { ...(await this._database._baseOptions()), ...options }
       )
     );
+
+    const explain = options.explain;
+    if (explain) {
+      return await cursor.explain(explain);
+    }
 
     this._mongo._instanceState.currentCursor = cursor;
     return cursor;

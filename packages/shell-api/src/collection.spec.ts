@@ -24,6 +24,7 @@ import type {
   ClientSession as ServiceProviderSession,
   Document,
   AnyBulkWriteOperation,
+  ServiceProviderFindCursor,
 } from '@mongosh/service-provider-core';
 import * as bson from 'bson';
 import ShellInstanceState from './shell-instance-state';
@@ -145,7 +146,6 @@ describe('Collection', function () {
       ServerSchema['db1'],
       ServerSchema['db1']['coll1']
     >;
-    let printDeprecationWarning: ShellInstanceState['printDeprecationWarning'];
 
     beforeEach(function () {
       bus = stubInterface<EventEmitter>();
@@ -154,9 +154,7 @@ describe('Collection', function () {
       serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
       serviceProvider.initialDb = 'test';
       serviceProvider.bsonLibrary = bson;
-      printDeprecationWarning = sinon.spy();
       instanceState = new ShellInstanceState(serviceProvider, bus);
-      instanceState.printDeprecationWarning = printDeprecationWarning;
       mongo = new Mongo(
         instanceState,
         undefined,
@@ -280,23 +278,6 @@ describe('Collection', function () {
         expect(explainResult).to.deep.equal(expectedExplainResult);
         expect((await toShellResult(explainResult)).type).to.equal(
           'ExplainOutput'
-        );
-        expect(serviceProviderCursor.explain).to.have.been.calledOnce;
-      });
-
-      it('warns the user if the explain option is passed', async function () {
-        const expectedExplainResult = {};
-        serviceProviderCursor.explain.resolves(expectedExplainResult);
-        serviceProvider.aggregate.returns(serviceProviderCursor as any);
-
-        const explainResult = await collection.aggregate([], { explain: true });
-
-        expect(explainResult).to.deep.equal(expectedExplainResult);
-        expect((await toShellResult(explainResult)).type).to.equal(
-          'ExplainOutput'
-        );
-        expect(printDeprecationWarning).to.have.been.calledWith(
-          'Collection.aggregate(pipeline, { explain }) is deprecated and will be removed in the future.'
         );
         expect(serviceProviderCursor.explain).to.have.been.calledOnce;
       });
@@ -602,13 +583,27 @@ describe('Collection', function () {
     });
 
     describe('find', function () {
-      it('warns when the deprecated explain option is passed after a projection', async function () {
-        await collection.find({}, {}, { explain: true });
-        expect(printDeprecationWarning).to.have.been.calledWith(
-          'Collection.find(query, projection, { explain }) is deprecated and will be removed in the future.'
+      let serviceProviderCursor: StubbedInstance<ServiceProviderFindCursor>;
+
+      beforeEach(function () {
+        serviceProviderCursor = stubInterface<ServiceProviderFindCursor>();
+      });
+
+      it('delegates to explain in the cursor when using the explain option', async function () {
+        const expectedExplainResult = {};
+        serviceProviderCursor.explain.resolves(expectedExplainResult);
+        serviceProvider.find.returns(serviceProviderCursor as any);
+
+        const explainResult = await collection.find({}, {}, { explain: true });
+
+        expect(explainResult).to.deep.equal(expectedExplainResult);
+        expect((await toShellResult(explainResult)).type).to.equal(
+          'ExplainOutput'
         );
+        expect(serviceProviderCursor.explain).to.have.been.calledOnce;
       });
     });
+
     describe('findOneAndReplace', function () {
       it('sets returnDocument to before by default', async function () {
         serviceProvider.findOneAndReplace = sinon.spy(() =>
