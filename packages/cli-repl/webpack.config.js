@@ -12,11 +12,13 @@ const {
 const baseWebpackConfig = require('../../config/webpack.base.config');
 
 // Builtins that the driver and/or devtools-connect refer to but which
-// cannot be snapshotted yet
-// https://github.com/nodejs/node/pull/50943 addresses some of this,
-// we can try to remove at least child_process once we are using a
-// Node.js version that supports it.
-const lazyNodeBuiltins = ['http', 'https', 'tls', 'child_process'];
+// cannot be snapshotted yet.
+// The supported modules are documented in the Node.js tests
+// here:
+// https://github.com/nodejs/node/blob/main/test/parallel/test-bootstrap-modules.js#L24
+// according to the Node.js official documentation in:
+// https://nodejs.org/api/cli.html#--build-snapshot
+const lazyNodeBuiltins = ['http', 'https', 'tls'];
 const eagerNodeBuiltins = Module.builtinModules.filter(
   (m) => !lazyNodeBuiltins.includes(m)
 );
