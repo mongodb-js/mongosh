@@ -444,7 +444,7 @@ class MongoshNodeRepl implements EvaluationListener {
     let newMongoshCompleter: (line: string) => Promise<CompletionResults>;
     let oldMongoshCompleter: (line: string) => Promise<CompletionResults>;
 
-    if (process.env.USE_NEW_AUTOCOMPLETE) {
+    if (process.env.USE_NEW_AUTOCOMPLETE !== '0') {
       // we will lazily instantiate the new autocompleter on first use
     } else {
       const autocompleteParams = instanceState.getAutocompleteParameters();
@@ -464,7 +464,7 @@ class MongoshNodeRepl implements EvaluationListener {
           return nodeResults;
         })(),
         (async () => {
-          if (process.env.USE_NEW_AUTOCOMPLETE) {
+          if (process.env.USE_NEW_AUTOCOMPLETE !== '0') {
             if (!newMongoshCompleter) {
               newMongoshCompleter = await initNewAutocompleter(instanceState);
             }
