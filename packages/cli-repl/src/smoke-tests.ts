@@ -436,6 +436,10 @@ async function runSmokeTest({
     stdio: 'pipe',
     env: { ...process.env, ...env },
   });
+  proc.stdin.on('error', (e: unknown) => {
+    // squash write errors
+    console.warn('error writing to stdin of smoke test process, ignoring', e);
+  });
   let stdout = '';
   let stderr = '';
   proc.stdout!.setEncoding('utf8').on('data', (chunk) => {
