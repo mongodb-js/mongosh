@@ -203,7 +203,7 @@ Package|Version|License
 **[cookie-signature](#c34745e22d9cb7780483441cd3d34efff81714675558c13ce856e7e94aa640f3)**|1.2.2|MIT
 **[cookie](#bde361a738adb8c6192392882be351044a7c3288371719294b61bf796e2a8126)**|0.7.2|MIT
 **[cpu-features](#5cc8a81a046950da99f4224ebaf7f620dad62a61362f6cc5e8629aebf7d59094)**|0.0.10|MIT
-**[cross-spawn](#18650458ca35439e7a812c8f7c2ed7a891653f9c6686fd1f0456eb4f645d367d)**|7.0.5|MIT
+**[cross-spawn](#50cb51119b3e7a0445ea15e1e026e95d2137df62a2bd344230886c9dcc0a7e64)**|7.0.6|MIT
 **[data-uri-to-buffer](#496bb13aeb7c14308e5c8c3e20ea81509260ff27a35abfc39b316ced3c5d6860)**|4.0.1|MIT
 **[data-uri-to-buffer](#27ce7d71d79fc8fbfcac8bfd802d2dd044056224bb2a737180caf2d7e268c5ad)**|6.0.2|MIT
 **[data-view-buffer](#82badc9846f49d35cc0e3be5437e1a9f461963d80c0b54c058307a2c64f07049)**|1.0.2|MIT
@@ -23332,8 +23332,8 @@ License files:
       IN THE SOFTWARE.
 
 
-<a id="18650458ca35439e7a812c8f7c2ed7a891653f9c6686fd1f0456eb4f645d367d"></a>
-### [cross-spawn](https://www.npmjs.com/package/cross-spawn) (version 7.0.5)
+<a id="50cb51119b3e7a0445ea15e1e026e95d2137df62a2bd344230886c9dcc0a7e64"></a>
+### [cross-spawn](https://www.npmjs.com/package/cross-spawn) (version 7.0.6)
 License tags: MIT
 
 License files:
