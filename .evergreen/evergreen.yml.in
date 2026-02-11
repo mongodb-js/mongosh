@@ -858,7 +858,9 @@ functions:
 
           if [[ "${is_patch}" != "true" ]]; then
             # Run `snyk monitor` to keep `main` tracked
-            npx snyk monitor --org=dcd6db53-1532-4e65-beca-55db83f2cd52 --file=package-lock.json
+            # TODO: remove --strict-out-of-sync=false once we update
+            # to a newer npm version in our toolchain
+            npx -y snyk monitor --org=dcd6db53-1532-4e65-beca-55db83f2cd52 --file=package-lock.json --strict-out-of-sync=false
             # Fails if the report failed and is not a patch, including during releases:
             exit $return_code
           fi
