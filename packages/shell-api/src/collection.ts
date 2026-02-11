@@ -1,4 +1,5 @@
 import type Mongo from './mongo';
+import type { Abortable } from 'events';
 import type { Namespace } from './decorators';
 import {
   addSourceToResults,
@@ -186,11 +187,11 @@ export class Collection<
    */
   async aggregate(
     pipeline: MQLPipeline,
-    options: AggregateOptions & { explain: ExplainVerbosityLike }
+    options: AggregateOptions & { explain: ExplainVerbosityLike } & Abortable
   ): Promise<Document>;
   async aggregate(
     pipeline: MQLPipeline,
-    options?: AggregateOptions
+    options?: AggregateOptions & Abortable
   ): Promise<AggregationCursor>;
   async aggregate(...stages: MQLPipeline): Promise<AggregationCursor>;
   @returnsPromise
@@ -318,7 +319,7 @@ export class Collection<
   @apiVersions([1])
   async countDocuments(
     query?: MQLQuery,
-    options: CountDocumentsOptions = {}
+    options: CountDocumentsOptions & Abortable = {}
   ): Promise<number> {
     this._emitCollectionApiCall('countDocuments', { query, options });
     return this._mongo._serviceProvider.countDocuments(
@@ -475,7 +476,7 @@ export class Collection<
   async find(
     query?: MQLQuery,
     projection?: Document,
-    options: FindOptions & { explain?: ExplainVerbosityLike } = {}
+    options: FindOptions & { explain?: ExplainVerbosityLike } & Abortable = {}
   ): Promise<Cursor> {
     if (projection) {
       options.projection = projection;
@@ -569,7 +570,7 @@ export class Collection<
   async findOne(
     query: MQLQuery = {},
     projection?: Document,
-    options: FindOptions = {}
+    options: FindOptions & Abortable = {}
   ): Promise<MQLDocument | null> {
     if (projection) {
       options.projection = projection;

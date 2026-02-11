@@ -62,6 +62,7 @@ import type {
   AggregateOptions,
 } from '@mongosh/service-provider-core';
 import type { MQLPipeline } from './mql-types';
+import type { Abortable } from 'events';
 
 export type CollectionNamesWithTypes = {
   name: string;
@@ -179,7 +180,7 @@ export class Database<
   // Private helpers to avoid sending telemetry events for internal calls. Public so rs/sh can use them
   public async _runCommand(
     cmd: Document,
-    options: CommandOperationOptions = {}
+    options: CommandOperationOptions & Abortable = {}
   ): Promise<Document> {
     return this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
@@ -194,7 +195,7 @@ export class Database<
   // Private helpers to avoid sending telemetry events for internal calls. Public so rs/sh can use them
   public async _runReadCommand(
     cmd: Document,
-    options: CommandOperationOptions = {}
+    options: CommandOperationOptions & Abortable = {}
   ): Promise<Document> {
     return this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
@@ -209,14 +210,14 @@ export class Database<
 
   public async _runAdminCommand(
     cmd: Document,
-    options: CommandOperationOptions = {}
+    options: CommandOperationOptions & Abortable = {}
   ): Promise<Document> {
     return this.getSiblingDB('admin')._runCommand(cmd, options);
   }
 
   public async _runAdminReadCommand(
     cmd: Document,
-    options: CommandOperationOptions = {}
+    options: CommandOperationOptions & Abortable = {}
   ): Promise<Document> {
     return this.getSiblingDB('admin')._runReadCommand(cmd, options);
   }
@@ -249,7 +250,7 @@ export class Database<
 
   async _listCollections(
     filter: Document,
-    options: ListCollectionsOptions
+    options: ListCollectionsOptions & Abortable
   ): Promise<Document[]> {
     return (
       (await this._mongo._serviceProvider.listCollections(this._name, filter, {
@@ -261,7 +262,7 @@ export class Database<
   }
 
   async _getCollectionNames(
-    options?: ListCollectionsOptions
+    options?: ListCollectionsOptions & Abortable
   ): Promise<string[]> {
     const infos = await this._listCollections(
       {},
@@ -274,7 +275,7 @@ export class Database<
   }
 
   async _getCollectionNamesWithTypes(
-    options?: ListCollectionsOptions
+    options?: ListCollectionsOptions & Abortable
   ): Promise<CollectionNamesWithTypes[]> {
     let collections = await this._listCollections(
       {},
@@ -376,7 +377,7 @@ export class Database<
   @apiVersions([1])
   async getCollectionInfos(
     filter: Document = {},
-    options: ListCollectionsOptions = {}
+    options: ListCollectionsOptions & Abortable = {}
   ): Promise<Document[]> {
     this._emitDatabaseApiCall('getCollectionInfos', { filter, options });
     return await this._listCollections(filter, options);
@@ -393,7 +394,7 @@ export class Database<
   @apiVersions([1])
   async runCommand(
     cmd: string | Document,
-    options?: RunCommandOptions
+    options?: RunCommandOptions & Abortable
   ): Promise<Document> {
     assertArgsDefinedType([cmd], [['string', 'object']], 'Database.runCommand');
     if (typeof cmd === 'string') {
@@ -447,11 +448,11 @@ export class Database<
    */
   async aggregate(
     pipeline: MQLPipeline,
-    options: AggregateOptions & { explain: ExplainVerbosityLike }
+    options: AggregateOptions & { explain: ExplainVerbosityLike } & Abortable
   ): Promise<Document>;
   async aggregate(
     pipeline: MQLPipeline,
-    options?: AggregateOptions
+    options?: AggregateOptions & Abortable
   ): Promise<AggregationCursor>;
   async aggregate(...stages: MQLPipeline): Promise<AggregationCursor>;
   @returnsPromise
