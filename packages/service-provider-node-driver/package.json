@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/service-provider-node-driver",
-  "version": "3.18.1",
+  "version": "5.0.0",
   "description": "MongoDB Shell Server Service Provider Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -50,8 +50,8 @@
     "@mongodb-js/oidc-plugin": "^2.0.7",
     "@mongodb-js/devtools-connect": "^3.14.7",
     "@mongosh/errors": "2.4.6",
-    "@mongosh/service-provider-core": "3.7.1",
-    "@mongosh/types": "^3.14.2",
+    "@mongosh/service-provider-core": "5.0.0",
+    "@mongosh/types": "^5.0.0",
     "gcp-metadata": "^7.0.1",
     "mongodb": "^7.1.0",
     "mongodb-build-info": "^1.9.5",
@@ -71,6 +71,6 @@
     "@types/sinon-chai": "^4.0.0",
     "eslint": "^7.25.0",
     "prettier": "^2.8.8",
-    "@mongosh/testing": "0.0.0"
+    "@mongosh/testing": "2.0.0"
   }
 }
