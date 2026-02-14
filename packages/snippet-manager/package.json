@@ -34,7 +34,7 @@
     "unitTestsOnly": true
   },
   "dependencies": {
-    "@mongodb-js/devtools-proxy-support": "^0.7.4",
+    "@mongodb-js/devtools-proxy-support": "^0.7.5",
     "@mongosh/errors": "2.4.6",
     "@mongosh/shell-api": "^5.0.0",
     "@mongosh/types": "^5.0.0",
