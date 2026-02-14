@@ -94,7 +94,8 @@ const config = {
     '../build/Debug/kerberos.node': 'commonjs2 ../build/Debug/kerberos.node',
     '../build/Release/native_machine_id.node':
       'commonjs2 ../build/Release/native_machine_id.node',
-    '../build/Debug/native_machine_id.node': 'commonjs2 ../build/Debug/native_machine_id.node',
+    '../build/Debug/native_machine_id.node':
+      'commonjs2 ../build/Debug/native_machine_id.node',
   },
 
   externalsPresets: {
