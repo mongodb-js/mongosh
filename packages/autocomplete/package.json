@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/autocomplete",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "MongoDB Shell Autocomplete Package",
   "homepage": "https://github.com/mongodb-js/mongosh",
   "license": "Apache-2.0",
@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "@mongodb-js/mongodb-constants": "^0.20.1",
-    "@mongosh/shell-api": "^5.0.0",
+    "@mongosh/shell-api": "^5.0.1",
     "@mongodb-js/mongodb-ts-autocomplete": "^0.6.5",
     "semver": "^7.5.4"
   }
