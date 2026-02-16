@@ -899,3 +899,32 @@ export function addSourceToResults<T extends { prototype: any }>(
 ): void {
   (constructor as any)[addSourceToResultsSymbol] = true;
 }
+
+/**
+ * A decorator that marks a cursor method as a chainable method, i.e. a method that returns the cursor itself so that calls can be chained.
+ *
+ * This is used for methods like `sort()` and `limit()`, which modify the cursor but still return it, so that calls can be chained like `db.collection.find().sort(...).limit(...)`.
+ */
+export function cursorChainable<
+  This extends { _chains: any[] },
+  Args extends any[],
+  Return
+>(
+  originalFunction: (this: This, ...args: Args) => Return
+): (this: This, ...args: Args) => Return {
+  function wrapper(this: This, ...args: Args): Return {
+    // Push the method name and arguments onto the cursor's chain array
+    this._chains.push({
+      method: originalFunction.name,
+      args: [...args],
+    });
+    // Call the original method and return its result
+    return originalFunction.call(this, ...args);
+  }
+  Object.setPrototypeOf(wrapper, Object.getPrototypeOf(originalFunction));
+  Object.defineProperties(
+    wrapper,
+    Object.getOwnPropertyDescriptors(originalFunction)
+  );
+  return wrapper;
+}

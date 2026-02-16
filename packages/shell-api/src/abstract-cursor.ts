@@ -4,6 +4,7 @@ import {
   returnType,
   ShellApiWithMongoClass,
   returnsPromise,
+  cursorChainable,
 } from './decorators';
 import type Mongo from './mongo';
 import type {
@@ -17,19 +18,41 @@ import { asPrintable } from './enums';
 import { CursorIterationResult } from './result';
 import { iterate } from './helpers';
 
+// TODO: somehow base this off service provider methods?
+export type CursorConstructionOptions = {
+  method: string;
+  args: any[];
+  cursorType: 'Cursor' | 'AggregationCursor' | 'RunCommandCursor';
+};
+
+// TODO: somehow base this off cursor methods?
+export type CursorChainOptions = {
+  method: string;
+  args: any[];
+};
+
 @shellApiClassNoHelp
 export abstract class BaseCursor<
   CursorType extends ServiceProviderBaseCursor
 > extends ShellApiWithMongoClass {
   _mongo: Mongo;
   _cursor: CursorType;
+  readonly _constructionOptions?: CursorConstructionOptions;
+  _chains: CursorChainOptions[];
+
   _transform: ((doc: any) => any) | null = null;
   _blockingWarningDisabled = false;
 
-  constructor(mongo: Mongo, cursor: CursorType) {
+  constructor(
+    mongo: Mongo,
+    cursor: CursorType,
+    constructionOptions?: CursorConstructionOptions
+  ) {
     super();
     this._mongo = mongo;
     this._cursor = cursor;
+    this._constructionOptions = constructionOptions;
+    this._chains = [];
   }
 
   @returnsPromise
@@ -108,11 +131,13 @@ export abstract class BaseCursor<
   }
 
   @returnType('this')
+  @cursorChainable
   pretty(): this {
     return this;
   }
 
   @returnType('this')
+  @cursorChainable
   map(f: (doc: Document) => Document): this {
     if (this._transform === null) {
       this._transform = f;
@@ -132,6 +157,7 @@ export abstract class BaseCursor<
     return result;
   }
 
+  @cursorChainable
   disableBlockWarnings(): this {
     this._blockingWarningDisabled = true;
     return this;
@@ -153,8 +179,12 @@ export abstract class AbstractFiniteCursor<
 > extends BaseCursor<CursorType> {
   _currentIterationResult: CursorIterationResult | null = null;
 
-  constructor(mongo: Mongo, cursor: CursorType) {
-    super(mongo, cursor);
+  constructor(
+    mongo: Mongo,
+    cursor: CursorType,
+    constructionOptions?: CursorConstructionOptions
+  ) {
+    super(mongo, cursor, constructionOptions);
   }
 
   /**
@@ -175,6 +205,7 @@ export abstract class AbstractFiniteCursor<
   }
 
   @returnType('this')
+  @cursorChainable
   override batchSize(size: number): this {
     this._cursor.batchSize(size);
     return this;
@@ -199,6 +230,7 @@ export abstract class AbstractFiniteCursor<
   }
 
   @returnType('this')
+  @cursorChainable
   maxTimeMS(value: number): this {
     this._cursor.maxTimeMS(value);
     return this;

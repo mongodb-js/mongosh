@@ -11,6 +11,7 @@ import {
   serverVersions,
   shellApiClassDefault,
   deprecated,
+  cursorChainable,
 } from './decorators';
 import { ServerVersions, CURSOR_FLAGS } from './enums';
 import type {
@@ -25,13 +26,18 @@ import type {
 } from '@mongosh/service-provider-core';
 import type Mongo from './mongo';
 import { AggregateOrFindCursor } from './aggregate-or-find-cursor';
+import type { CursorConstructionOptions } from './abstract-cursor';
 
 @shellApiClassDefault
 export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCursor> {
   _tailable = false;
 
-  constructor(mongo: Mongo, cursor: ServiceProviderFindCursor) {
-    super(mongo, cursor);
+  constructor(
+    mongo: Mongo,
+    cursor: ServiceProviderFindCursor,
+    constructionOptions?: CursorConstructionOptions
+  ) {
+    super(mongo, cursor, constructionOptions);
   }
 
   /**
@@ -62,6 +68,7 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCur
 
   @returnType('Cursor')
   @serverVersions([ServerVersions.earliest, '3.2.0'])
+  @cursorChainable
   addOption(optionFlagNumber: number): this {
     if (optionFlagNumber === 4) {
       throw new MongoshUnimplementedError(
@@ -86,12 +93,14 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCur
 
   @returnType('Cursor')
   @serverVersions(['4.4.0', ServerVersions.latest])
+  @cursorChainable
   allowDiskUse(allow?: boolean): this {
     this._cursor.allowDiskUse(allow);
     return this;
   }
 
   @returnType('Cursor')
+  @cursorChainable
   allowPartialResults(): this {
     this._addFlag('partial');
     return this;
@@ -99,6 +108,7 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCur
 
   @returnType('Cursor')
   @serverVersions(['3.4.0', ServerVersions.latest])
+  @cursorChainable
   collation(spec: CollationOptions): this {
     this._cursor.collation(spec);
     return this;
@@ -106,6 +116,7 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCur
 
   @returnType('Cursor')
   @serverVersions(['3.2.0', ServerVersions.latest])
+  @cursorChainable
   comment(cmt: string): this {
     this._cursor.comment(cmt);
     return this;
@@ -131,18 +142,21 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCur
   }
 
   @returnType('Cursor')
+  @cursorChainable
   hint(index: string): this {
     this._cursor.hint(index);
     return this;
   }
 
   @returnType('Cursor')
+  @cursorChainable
   limit(value: number): this {
     this._cursor.limit(value);
     return this;
   }
 
   @returnType('Cursor')
+  @cursorChainable
   max(indexBounds: Document): this {
     this._cursor.max(indexBounds);
     return this;
@@ -150,12 +164,14 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCur
 
   @returnType('Cursor')
   @serverVersions(['3.2.0', ServerVersions.latest])
+  @cursorChainable
   maxAwaitTimeMS(value: number): this {
     this._cursor.maxAwaitTimeMS(value);
     return this;
   }
 
   @returnType('Cursor')
+  @cursorChainable
   min(indexBounds: Document): this {
     this._cursor.min(indexBounds);
     return this;
@@ -174,18 +190,21 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCur
   }
 
   @returnType('Cursor')
+  @cursorChainable
   noCursorTimeout(): this {
     this._addFlag('noCursorTimeout');
     return this;
   }
 
   @returnType('Cursor')
+  @cursorChainable
   oplogReplay(): this {
     this._addFlag('oplogReplay');
     return this;
   }
 
   @returnType('Cursor')
+  @cursorChainable
   readPref(
     mode: ReadPreferenceLike,
     tagSet?: TagSet[],
@@ -209,6 +228,7 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCur
 
   @returnType('Cursor')
   @serverVersions(['3.2.0', ServerVersions.latest])
+  @cursorChainable
   returnKey(enabled: boolean): this {
     this._cursor.returnKey(enabled);
     return this;
@@ -222,6 +242,7 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCur
   @returnType('Cursor')
   @serverVersions(['3.2.0', ServerVersions.latest])
   @apiVersions([])
+  @cursorChainable
   tailable(opts = { awaitData: false }): this {
     this._tailable = true;
     this._addFlag('tailable');
@@ -233,6 +254,7 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCur
 
   @deprecated
   @serverVersions([ServerVersions.earliest, '4.0.0'])
+  @cursorChainable
   maxScan(): void {
     throw new MongoshDeprecatedError(
       '`maxScan()` was removed because it was deprecated in MongoDB 4.0'
@@ -241,12 +263,14 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCur
 
   @returnType('Cursor')
   @serverVersions(['3.2.0', ServerVersions.latest])
+  @cursorChainable
   showRecordId(): this {
     this._cursor.showRecordId(true);
     return this;
   }
 
   @returnType('Cursor')
+  @cursorChainable
   readConcern(level: ReadConcernLevel): this {
     this._cursor = this._cursor.withReadConcern({ level });
     return this;
