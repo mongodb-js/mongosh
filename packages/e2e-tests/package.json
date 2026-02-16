@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/e2e-tests",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "private": true,
   "description": "MongoDB Shell E2E Tests Package",
   "homepage": "https://github.com/mongodb-js/mongosh",
@@ -26,12 +26,12 @@
     "node": ">=16.15.0"
   },
   "devDependencies": {
-    "mongodb-log-writer": "^2.4.3",
+    "mongodb-log-writer": "^2.5.6",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
-    "@mongodb-js/oidc-mock-provider": "^0.11.3",
+    "@mongodb-js/oidc-mock-provider": "^0.13.6",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "@mongosh/testing": "2.0.0",
+    "@mongosh/testing": "2.0.1",
     "@types/chai-as-promised": "^8.0.2",
     "@types/node": "^22.15.30",
     "@types/rimraf": "^3.0.0",
@@ -44,7 +44,7 @@
     "node-fetch": "^3.3.2",
     "prettier": "^2.8.8",
     "rimraf": "^3.0.2",
-    "@mongodb-js/oidc-plugin": "^2.0.7",
+    "@mongodb-js/oidc-plugin": "^2.0.8",
     "strip-ansi": "^6.0.0",
     "@mongosh/cli-repl": "2.7.0",
     "@mongosh/service-provider-core": "5.0.0"

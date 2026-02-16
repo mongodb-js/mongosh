@@ -97,7 +97,7 @@
     "node": ">=20.19.3"
   },
   "devDependencies": {
-    "@mongodb-js/monorepo-tools": "^1.1.10",
+    "@mongodb-js/monorepo-tools": "^1.4.5",
     "@pkgjs/nv": "^0.2.2",
     "@types/chai": "^5.2.3",
     "@types/mocha": "^5.2.7",
