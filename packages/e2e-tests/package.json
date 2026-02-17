@@ -48,17 +48,5 @@
     "strip-ansi": "^6.0.0",
     "@mongosh/cli-repl": "2.7.0",
     "@mongosh/service-provider-core": "5.0.0"
-  },
-  "optionalDependencies": {
-    "mongodb-client-encryption": "^7.0.0"
-  },
-  "mongosh": {
-    "ciRequiredOptionalDependencies": {
-      "mongodb-client-encryption": [
-        "darwin",
-        "linux",
-        "win32"
-      ]
-    }
   }
 }
