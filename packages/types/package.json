@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/types",
-  "version": "3.14.2",
+  "version": "5.0.1",
   "description": "Types for mongosh internals",
   "author": "Anna Henningsen <anna.henningsen@mongodb.com>",
   "homepage": "https://github.com/mongodb-js/mongosh/tree/main/packages/types#readme",
@@ -37,7 +37,7 @@
     "unitTestsOnly": true
   },
   "dependencies": {
-    "@mongodb-js/devtools-connect": "^3.14.7"
+    "@mongodb-js/devtools-connect": "^3.14.9"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
