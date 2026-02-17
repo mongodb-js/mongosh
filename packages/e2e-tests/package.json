@@ -50,7 +50,7 @@
     "@mongosh/service-provider-core": "5.0.0"
   },
   "optionalDependencies": {
-    "mongodb-client-encryption": "^6.5.0"
+    "mongodb-client-encryption": "^7.0.0"
   },
   "mongosh": {
     "ciRequiredOptionalDependencies": {

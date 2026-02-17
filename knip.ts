@@ -4,7 +4,7 @@ import fs from "fs";
 // Create an empty file to satisfy the knip rule for async-rewriter2
 fs.writeFileSync(
   "packages/async-rewriter2/src/runtime-support.out.nocov.ts",
-  ""
+  "",
 );
 
 const config: KnipConfig = {
@@ -100,15 +100,6 @@ const config: KnipConfig = {
       ignoreDependencies: [
         // Used by build.sh script.
         "mongodb-crypt-library-version",
-      ],
-    },
-
-    "packages/service-provider-node-driver": {
-      ignoreDependencies: [
-        // Used for MONGODB-AWS auth
-        // See: https://github.com/mongodb-js/mongosh/pull/1149
-        // See: https://jira.mongodb.org/browse/NODE-5005
-        "aws4",
       ],
     },
 
