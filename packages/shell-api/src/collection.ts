@@ -217,13 +217,18 @@ export class Collection<
     this._emitCollectionApiCall('aggregate', { options, pipeline });
     const { aggOptions, dbOptions, explain } = adaptAggregateOptions(options);
 
+    const aggregateOptions = {
+      ...(await this._database._baseOptions()),
+      ...aggOptions,
+    };
+
     const constructionOptions = {
       method: 'aggregate' as const,
       args: [
         this._database._name,
         this._name,
         pipeline,
-        { ...(await this._database._baseOptions()), ...aggOptions },
+        aggregateOptions,
         dbOptions,
       ] as Parameters<ServiceProvider['aggregate']>,
       cursorType: 'AggregationCursor' as const,
@@ -231,9 +236,16 @@ export class Collection<
     const providerCursor = this._mongo._serviceProvider[
       constructionOptions.method
     ](...constructionOptions.args);
-    const cursor = new AggregationCursor(this._mongo, providerCursor, {
-      options: constructionOptions,
-    });
+    const constructionOptionsWithChains = aggregateOptions.session
+      ? undefined
+      : {
+          options: constructionOptions,
+        };
+    const cursor = new AggregationCursor(
+      this._mongo,
+      providerCursor,
+      constructionOptionsWithChains
+    );
 
     if (explain) {
       return await cursor.explain(explain);
@@ -492,6 +504,11 @@ export class Collection<
       options.projection = projection;
     }
 
+    const findOptions = {
+      ...(await this._database._baseOptions()),
+      ...options,
+    };
+
     this._emitCollectionApiCall('find', { query, options });
     const constructionOptions = {
       method: 'find' as const,
@@ -499,16 +516,23 @@ export class Collection<
         this._database._name,
         this._name,
         query,
-        { ...(await this._database._baseOptions()), ...options },
+        findOptions,
       ] as Parameters<ServiceProvider['find']>,
       cursorType: 'Cursor' as const,
     };
     const providerCursor = this._mongo._serviceProvider[
       constructionOptions.method
     ](...constructionOptions.args);
-    const cursor = new Cursor(this._mongo, providerCursor, {
-      options: constructionOptions,
-    });
+    const constructionOptionsWithChains = findOptions.session
+      ? undefined
+      : {
+          options: constructionOptions,
+        };
+    const cursor = new Cursor(
+      this._mongo,
+      providerCursor,
+      constructionOptionsWithChains
+    );
 
     const explain = options.explain;
     if (explain) {

@@ -227,25 +227,33 @@ export class Database<
     cmd: Document,
     options: CommandOperationOptions = {}
   ): Promise<RunCommandCursor> {
+    const runCursorCommandOptions = {
+      ...this._mongo._getExplicitlyRequestedReadPref(),
+      ...(await this._baseOptions()),
+      ...options,
+    };
     const constructionOptions = {
       method: 'runCursorCommand' as const,
       args: [
         this._name,
         adjustRunCommand(cmd, this._instanceState.shellBson),
-        {
-          ...this._mongo._getExplicitlyRequestedReadPref(),
-          ...(await this._baseOptions()),
-          ...options,
-        },
+        runCursorCommandOptions,
       ] as Parameters<ServiceProvider['runCursorCommand']>,
       cursorType: 'RunCommandCursor' as const,
     };
     const providerCursor = this._mongo._serviceProvider[
       constructionOptions.method
     ](...constructionOptions.args);
-    const cursor = new RunCommandCursor(this._mongo, providerCursor, {
-      options: constructionOptions,
-    });
+    const constructionOptionsWithChains = runCursorCommandOptions.session
+      ? undefined
+      : {
+          options: constructionOptions,
+        };
+    const cursor = new RunCommandCursor(
+      this._mongo,
+      providerCursor,
+      constructionOptionsWithChains
+    );
     this._mongo._instanceState.currentCursor = cursor;
     return cursor;
   }
@@ -490,22 +498,28 @@ export class Database<
 
     const { aggOptions, dbOptions, explain } = adaptAggregateOptions(options);
 
+    const aggregateOptions = { ...(await this._baseOptions()), ...aggOptions };
+
     const constructionOptions = {
       method: 'aggregateDb' as const,
-      args: [
-        this._name,
-        pipeline,
-        { ...(await this._baseOptions()), ...aggOptions },
-        dbOptions,
-      ] as Parameters<ServiceProvider['aggregateDb']>,
+      args: [this._name, pipeline, aggregateOptions, dbOptions] as Parameters<
+        ServiceProvider['aggregateDb']
+      >,
       cursorType: 'AggregationCursor' as const,
     };
     const providerCursor = this._mongo._serviceProvider[
       constructionOptions.method
     ](...constructionOptions.args);
-    const cursor = new AggregationCursor(this._mongo, providerCursor, {
-      options: constructionOptions,
-    });
+    const constructionOptionsWithChains = aggregateOptions.session
+      ? undefined
+      : {
+          options: constructionOptions,
+        };
+    const cursor = new AggregationCursor(
+      this._mongo,
+      providerCursor,
+      constructionOptionsWithChains
+    );
 
     if (explain) {
       return await cursor.explain(explain);
