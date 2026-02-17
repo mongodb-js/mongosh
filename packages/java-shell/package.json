@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
+    "@mongosh/cli-repl": "^2.5.10",
     "assert": "^1.5.0",
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.0",
@@ -29,7 +30,8 @@
     "stream-browserify": "^3.0.0",
     "util": "^0.12.5",
     "webpack-merge": "^5.8.0",
-    "@mongosh/testing": "2.0.1"
+    "@mongosh/testing": "2.0.1",
+    "bson": "^7.2.0"
   },
   "license": "SSPL",
   "publishConfig": {

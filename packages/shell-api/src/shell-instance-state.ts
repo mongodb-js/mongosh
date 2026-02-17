@@ -3,6 +3,7 @@ import type {
   AutoEncryptionOptions,
   ConnectionExtraInfo,
   ConnectionInfo,
+  Document,
   ServerApi,
   ServiceProvider,
   ServiceProviderBaseCursor,
