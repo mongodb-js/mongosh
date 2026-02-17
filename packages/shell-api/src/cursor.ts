@@ -26,7 +26,7 @@ import type {
 } from '@mongosh/service-provider-core';
 import type Mongo from './mongo';
 import { AggregateOrFindCursor } from './aggregate-or-find-cursor';
-import type { CursorConstructionOptions } from './abstract-cursor';
+import type { CursorConstructionOptionsWithChains } from './abstract-cursor';
 
 @shellApiClassDefault
 export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCursor> {
@@ -35,9 +35,9 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCur
   constructor(
     mongo: Mongo,
     cursor: ServiceProviderFindCursor,
-    constructionOptions?: CursorConstructionOptions
+    constructionOptionsWithChains?: CursorConstructionOptionsWithChains
   ) {
-    super(mongo, cursor, constructionOptions);
+    super(mongo, cursor, constructionOptionsWithChains);
   }
 
   /**

@@ -243,11 +243,9 @@ export class Database<
     const providerCursor = this._mongo._serviceProvider[
       constructionOptions.method
     ](...constructionOptions.args);
-    const cursor = new RunCommandCursor(
-      this._mongo,
-      providerCursor,
-      constructionOptions
-    );
+    const cursor = new RunCommandCursor(this._mongo, providerCursor, {
+      options: constructionOptions,
+    });
     this._mongo._instanceState.currentCursor = cursor;
     return cursor;
   }
@@ -505,11 +503,9 @@ export class Database<
     const providerCursor = this._mongo._serviceProvider[
       constructionOptions.method
     ](...constructionOptions.args);
-    const cursor = new AggregationCursor(
-      this._mongo,
-      providerCursor,
-      constructionOptions
-    );
+    const cursor = new AggregationCursor(this._mongo, providerCursor, {
+      options: constructionOptions,
+    });
 
     if (explain) {
       return await cursor.explain(explain);

@@ -18,17 +18,20 @@ import { asPrintable } from './enums';
 import { CursorIterationResult } from './result';
 import { iterate } from './helpers';
 
-// TODO: somehow base this off service provider methods?
 export type CursorConstructionOptions = {
   method: string;
   args: any[];
   cursorType: 'Cursor' | 'AggregationCursor' | 'RunCommandCursor';
 };
 
-// TODO: somehow base this off cursor methods?
 export type CursorChainOptions = {
   method: string;
   args: any[];
+};
+
+export type CursorConstructionOptionsWithChains = {
+  options: CursorConstructionOptions;
+  chains?: CursorChainOptions[];
 };
 
 @shellApiClassNoHelp
@@ -46,13 +49,18 @@ export abstract class BaseCursor<
   constructor(
     mongo: Mongo,
     cursor: CursorType,
-    constructionOptions?: CursorConstructionOptions
+    constructionOptionsWithChains?: CursorConstructionOptionsWithChains
   ) {
     super();
     this._mongo = mongo;
     this._cursor = cursor;
-    this._constructionOptions = constructionOptions;
+    this._constructionOptions = constructionOptionsWithChains?.options;
     this._chains = [];
+    if (constructionOptionsWithChains?.chains) {
+      for (const chain of constructionOptionsWithChains.chains) {
+        (this as any)[chain.method](...chain.args);
+      }
+    }
   }
 
   @returnsPromise
@@ -182,9 +190,9 @@ export abstract class AbstractFiniteCursor<
   constructor(
     mongo: Mongo,
     cursor: CursorType,
-    constructionOptions?: CursorConstructionOptions
+    constructionOptionsWithChains?: CursorConstructionOptionsWithChains
   ) {
-    super(mongo, cursor, constructionOptions);
+    super(mongo, cursor, constructionOptionsWithChains);
   }
 
   /**

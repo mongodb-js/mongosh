@@ -14,6 +14,7 @@ import {
 } from './enums';
 import Help from './help';
 import { addHiddenDataProperty } from './helpers';
+import type { CursorConstructionOptionsWithChains } from './abstract-cursor';
 
 const addSourceToResultsSymbol = Symbol.for('@@mongosh.addSourceToResults');
 const resultSource = Symbol.for('@@mongosh.resultSource');
@@ -61,6 +62,11 @@ export interface ShellResult {
    * Optional information about the original data source of the result.
    */
   source?: ShellResultSourceInformation;
+
+  /**
+   * Optional information for Cursor types about how to reconstruct the cursor.
+   */
+  constructionOptions?: CursorConstructionOptionsWithChains;
 }
 
 /**
@@ -161,17 +167,26 @@ export async function toShellResult(rawValue: any): Promise<ShellResult> {
     return toShellResult(await rawValue);
   }
 
+  const type = getShellApiType(rawValue);
+
   const printable =
     typeof rawValue[asPrintable] === 'function'
       ? await rawValue[asPrintable]()
       : rawValue;
+
   const source = rawValue[resultSource] ?? undefined;
 
+  const constructionOptions =
+    type === 'Cursor' && rawValue._constructionOptions
+      ? { options: rawValue._constructionOptions, chains: rawValue._chains }
+      : undefined;
+
   return {
-    type: getShellApiType(rawValue),
-    rawValue: rawValue,
-    printable: printable,
-    source: source,
+    type,
+    rawValue,
+    printable,
+    source,
+    constructionOptions,
   };
 }
 
