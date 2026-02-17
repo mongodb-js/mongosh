@@ -16,7 +16,7 @@ exports.platformToDetails = {
   },
   win32: {
     displayName: 'Windows',
-    runOn: 'windows-vsCurrent-small',
+    runOn: 'windows-2022-small',
     executableOsId: 'win32',
   },
 };
@@ -50,12 +50,12 @@ exports.NODE_VERSIONS = [
     shortName: '20',
     versionSpec: NODE_JS_VERSION_20,
     skipNodeVersionCheck: '',
-    optional: false,
+    optional: true,
   },
   {
     shortName: '24',
     versionSpec: NODE_JS_VERSION_24,
     skipNodeVersionCheck: '',
-    optional: true,
+    optional: false,
   },
 ];

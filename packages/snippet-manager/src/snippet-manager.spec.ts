@@ -1021,7 +1021,7 @@ describe('SnippetManager', function () {
           path.resolve(__dirname, '..', 'test', 'fixtures', 'infinite-sleep'),
         ];
       };
-      const npmPromise = snippetManager.runNpm('ls');
+      const npmPromise = snippetManager.runNpm(['ls']);
       let pid = -1;
       await eventually(async () => {
         pid = +(await fs.readFile(

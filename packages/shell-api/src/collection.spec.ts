@@ -24,6 +24,7 @@ import type {
   ClientSession as ServiceProviderSession,
   Document,
   AnyBulkWriteOperation,
+  ServiceProviderFindCursor,
 } from '@mongosh/service-provider-core';
 import * as bson from 'bson';
 import ShellInstanceState from './shell-instance-state';
@@ -578,6 +579,28 @@ describe('Collection', function () {
         expect((await toShellResult(explained)).printable).to.deep.equal({
           ok: 1,
         });
+      });
+    });
+
+    describe('find', function () {
+      let serviceProviderCursor: StubbedInstance<ServiceProviderFindCursor>;
+
+      beforeEach(function () {
+        serviceProviderCursor = stubInterface<ServiceProviderFindCursor>();
+      });
+
+      it('delegates to explain in the cursor when using the explain option', async function () {
+        const expectedExplainResult = {};
+        serviceProviderCursor.explain.resolves(expectedExplainResult);
+        serviceProvider.find.returns(serviceProviderCursor as any);
+
+        const explainResult = await collection.find({}, {}, { explain: true });
+
+        expect(explainResult).to.deep.equal(expectedExplainResult);
+        expect((await toShellResult(explainResult)).type).to.equal(
+          'ExplainOutput'
+        );
+        expect(serviceProviderCursor.explain).to.have.been.calledOnce;
       });
     });
 

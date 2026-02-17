@@ -601,7 +601,7 @@ describe('e2e', function () {
     it('runs an unterminated function', async function () {
       shell.writeInputLine('function x () {');
       await eventually(() => {
-        shell.assertContainsOutput('...');
+        shell.assertContainsOutput('|');
       });
       shell.assertNoErrors();
     });
@@ -2627,15 +2627,13 @@ describe('e2e', function () {
   });
 
   describe('with incomplete loadBalanced connectivity', function () {
-    it('prints a warning at startup', async function () {
+    it('fails to connect', async function () {
       const shell = startTestShell(this, {
         args: ['mongodb://localhost:1/?loadBalanced=true'],
       });
-      await shell.waitForPrompt();
-      shell.assertContainsOutput(
-        'The server failed to respond to a ping and may be unavailable'
-      );
-      shell.assertContainsOutput('MongoNetworkError');
+      const result = await shell.waitForPromptOrExit();
+      expect(result).to.deep.equal({ state: 'exit', exitCode: 1 });
+      shell.assertContainsOutput(/MongoNetworkError.+ECONNREFUSED/);
     });
   });
 

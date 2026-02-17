@@ -52,7 +52,6 @@
     "@types/es-aggregate-error": "^1.0.2",
     "@types/node-fetch": "^2.6.4",
     "@types/rimraf": "^3.0.0",
-    "@types/tar": "^4.0.4",
     "@types/tar-fs": "^2.0.0",
     "@types/tmp": "^0.2.3",
     "cross-spawn": "^7.0.5",
@@ -79,7 +78,7 @@
     "pkg-up": "^3.1.0",
     "rimraf": "^3.0.2",
     "semver": "^7.5.3",
-    "tar": "^6.1.15",
+    "tar": "^7.5.4",
     "tar-fs": "^2.1.4",
     "tmp-promise": "^3.0.2"
   }

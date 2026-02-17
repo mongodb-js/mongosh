@@ -44,6 +44,10 @@ if ((v8 as any)?.startupSnapshot?.isBuildingSnapshot?.()) {
   require('ipv6-normalize'); // Dependency of devtools-connect via os-dns-native
   require('bindings'); // Used by various native dependencies but not a native dep itself
   require('system-ca'); // Dependency of devtools-proxy-support
+  require('@mongodb-js/socksv5/lib/server'); // Dependency of devtools-proxy-support
+  require('@mongodb-js/socksv5/lib/auth/None'); // Dependency of devtools-proxy-support
+  require('@mongodb-js/socksv5/lib/auth/UserPassword'); // Dependency of devtools-proxy-support
+  require('lru-cache'); // Dependency of devtools-proxy-support
 
   {
     const console = require('console');

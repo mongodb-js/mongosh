@@ -73,6 +73,8 @@ const config: KnipConfig = {
         "ipv6-normalize",
         "bindings",
         "system-ca",
+        "@mongodb-js/socksv5",
+        "lru-cache",
         // Used for monkey-patching our s390x fix
         "@tootallnate/quickjs-emscripten",
       ],

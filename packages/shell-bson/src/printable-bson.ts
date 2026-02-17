@@ -1,3 +1,4 @@
+import type { BSONTypeTag } from 'bson';
 import type { BSON } from './';
 import type {
   InspectOptionsStylized,
@@ -5,10 +6,6 @@ import type {
   InspectOptions,
 } from 'util';
 const inspectCustom = Symbol.for('nodejs.util.inspect.custom');
-type BSONClassKey = BSON[Exclude<
-  keyof BSON,
-  'EJSON' | 'calculateObjectSize'
->]['prototype']['_bsontype'];
 
 let coreUtilInspect: ((obj: any, options: InspectOptions) => string) & {
   defaultOptions: InspectOptions;
@@ -49,7 +46,7 @@ function removeTypedArrayPrefixFromInspectResult(str: string): string {
 // Create a Node.js-util-inspect() style custom inspect function that
 // strips 'new ' from inspect results but otherwise uses the Node.js
 // driver's bson library's inspect functions.
-function makeClasslessInspect<K extends BSONClassKey>(
+function makeClasslessInspect<K extends BSONTypeTag>(
   cls: BSON[K]
 ): CustomInspectFunction {
   const originalInspect = cls.prototype.inspect;
@@ -100,7 +97,7 @@ const makeBinaryVectorInspect = (bsonLibrary: BSON): CustomInspectFunction => {
 
 export const makeBsonStringifiers: (
   bsonLibrary: BSON
-) => Record<BSONClassKey | 'ObjectID', CustomInspectFunction> = (
+) => Record<BSONTypeTag | 'ObjectID', CustomInspectFunction> = (
   bsonLibrary
 ) => {
   const binaryVectorInspect = makeBinaryVectorInspect(bsonLibrary);

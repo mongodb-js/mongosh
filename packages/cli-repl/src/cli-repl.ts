@@ -1025,7 +1025,7 @@ export class CliRepl implements MongoshIOProvider {
     const warnings: string[] = [];
     const RECOMMENDED_GLIBC = '>=2.28.0';
     const RECOMMENDED_OPENSSL = '>=3.0.0';
-    const RECOMMENDED_NODEJS = '>=20.0.0';
+    const RECOMMENDED_NODEJS = '>=24.0.0';
     const semverRangeCheck = (
       semverLikeVersion: string,
       range: string
@@ -1060,7 +1060,7 @@ export class CliRepl implements MongoshIOProvider {
 
     if (!semver.satisfies(process.version, RECOMMENDED_NODEJS)) {
       warnings.push(
-        '  - Using mongosh with Node.js versions lower than 20.0.0 is deprecated, and support may be removed in a future release.'
+        '  - Using mongosh with Node.js versions lower than 24.0.0 is deprecated, and support may be removed in a future release.'
       );
     }
 
