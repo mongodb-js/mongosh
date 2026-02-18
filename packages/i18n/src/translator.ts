@@ -1,5 +1,5 @@
 import { MongoshInternalError } from '@mongosh/errors';
-import type Catalog from './catalog';
+import type { Catalog } from './catalog';
 import de_DE from './locales/de_DE';
 import en_US from './locales/en_US';
 

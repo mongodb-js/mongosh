@@ -1,5 +1,6 @@
 import { getBsonType } from '@mongosh/shell-bson';
 import type { InspectOptions, inspect as _inspect } from 'util';
+import type { Document } from '@mongosh/service-provider-core';
 
 const customInspectSymbol = Symbol.for('nodejs.util.inspect.custom');
 

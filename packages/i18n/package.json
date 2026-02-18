@@ -4,6 +4,15 @@
   "description": "MongoDB Shell i18n Project",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "default": "./lib/index.js",
+      "types": "./lib/index.d.ts"
+    },
+    "./locales": {
+      "default": "./src/locales/index.ts"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/mongodb-js/mongosh.git"

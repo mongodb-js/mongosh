@@ -173,6 +173,7 @@ functions:
           DISTRO_ID: ${distro_id}
           MONOGDB_DRIVER_VERSION_OVERRIDE: ${mongodb_driver_version_override}
           PUPPETEER_SKIP_DOWNLOAD: ${puppeteer_skip_download|true}
+          MONGOSH_INSTALL_WORKSPACE: ${mongosh_install_workspace|}
         script: |
           set -e
           set -x
@@ -1170,6 +1171,9 @@ tasks:
         vars:
           node_js_version: ${node_js_version}
           puppeteer_skip_download: "<% out(usePuppeteer ? "false" : "true") %>"
+          <% if (packageName !== 'node-runtime-worker-thread' && packageName !== 'e2e-tests') /* TODO(MONGOSH-3167): Make it possible to run it there too */ { %>
+          mongosh_install_workspace: "@mongosh/<% out(packageName) %>"
+          <% } %>
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
