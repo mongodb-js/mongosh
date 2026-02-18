@@ -254,7 +254,6 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCur
 
   @deprecated
   @serverVersions([ServerVersions.earliest, '4.0.0'])
-  @cursorChainable
   maxScan(): void {
     throw new MongoshDeprecatedError(
       '`maxScan()` was removed because it was deprecated in MongoDB 4.0'
