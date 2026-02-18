@@ -178,10 +178,9 @@ export async function toShellResult(rawValue: any): Promise<ShellResult> {
 
   // for cursors, if we have the necessary information, we might want to be able
   // to reconstruct the cursor on the other side.
-  const constructionOptions =
-    type === 'Cursor' && rawValue._constructionOptions
-      ? { options: rawValue._constructionOptions, chains: rawValue._chains }
-      : undefined;
+  const constructionOptions = rawValue._constructionOptions
+    ? { options: rawValue._constructionOptions, chains: rawValue._chains }
+    : undefined;
 
   return {
     type,

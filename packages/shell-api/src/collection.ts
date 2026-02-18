@@ -2493,6 +2493,7 @@ export class Collection<
     return await this._database._runCursorCommand(
       {
         checkMetadataConsistency: this._name,
+        ...options,
       },
       {}
     );

@@ -1862,6 +1862,7 @@ export class Database<
 
     return this._runCursorCommand({
       checkMetadataConsistency: 1,
+      ...options,
     });
   }
 }
