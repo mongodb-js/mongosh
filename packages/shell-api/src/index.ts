@@ -39,6 +39,11 @@ import {
 import { Topologies, ServerVersions } from './enums';
 import { InterruptFlag } from './interruptor';
 import { reconstructCursor } from './reconstruct-cursor';
+import {
+  CursorChainOptions,
+  CursorConstructionOptions,
+  CursorConstructionOptionsWithChains,
+} from './abstract-cursor';
 
 export {
   AggregationCursor,
@@ -78,4 +83,7 @@ export {
   ShellPlugin,
   InterruptFlag,
   reconstructCursor,
+  CursorConstructionOptions,
+  CursorChainOptions,
+  CursorConstructionOptionsWithChains,
 };
