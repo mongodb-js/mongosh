@@ -11,8 +11,8 @@ import type {
   ServiceProviderFindCursor,
   ServiceProviderAggregationCursor,
   ServiceProviderRunCommandCursor,
-  CursorChainOptions,
 } from '@mongosh/service-provider-core';
+import type { CursorChainOptions } from './abstract-cursor';
 
 describe('reconstructCursor', function () {
   let mongo: any;
