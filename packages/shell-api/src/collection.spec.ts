@@ -16,15 +16,15 @@ import Mongo from './mongo';
 import { Collection } from './collection';
 import ChangeStreamCursor from './change-stream-cursor';
 import Explainable from './explainable';
-import {
-  type FindCursor as ServiceProviderCursor,
-  type AggregationCursor as ServiceProviderAggregationCursor,
-  type RunCommandCursor as ServiceProviderRunCommandCursor,
-  type ServiceProvider,
-  type ClientSession as ServiceProviderSession,
-  type Document,
-  type AnyBulkWriteOperation,
-  type ServiceProviderFindCursor,
+import type {
+  FindCursor as ServiceProviderCursor,
+  AggregationCursor as ServiceProviderAggregationCursor,
+  RunCommandCursor as ServiceProviderRunCommandCursor,
+  ServiceProvider,
+  ClientSession as ServiceProviderSession,
+  Document,
+  AnyBulkWriteOperation,
+  ServiceProviderFindCursor,
 } from '@mongosh/service-provider-core';
 import * as bson from 'bson';
 import ShellInstanceState from './shell-instance-state';
