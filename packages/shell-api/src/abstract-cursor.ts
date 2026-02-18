@@ -13,16 +13,33 @@ import type {
   ServiceProviderAggregationCursor,
   ServiceProviderRunCommandCursor,
   ServiceProviderBaseCursor,
+  ServiceProvider,
 } from '@mongosh/service-provider-core';
 import { asPrintable } from './enums';
 import { CursorIterationResult } from './result';
 import { iterate } from './helpers';
 
-export type CursorConstructionOptions = {
-  method: string;
-  args: any[];
-  cursorType: 'Cursor' | 'AggregationCursor' | 'RunCommandCursor';
-};
+export type CursorConstructionOptions =
+  | {
+      method: 'find';
+      args: Parameters<ServiceProvider['find']>;
+      cursorType: 'Cursor';
+    }
+  | {
+      method: 'aggregate';
+      args: Parameters<ServiceProvider['aggregate']>;
+      cursorType: 'AggregationCursor';
+    }
+  | {
+      method: 'aggregateDb';
+      args: Parameters<ServiceProvider['aggregateDb']>;
+      cursorType: 'AggregationCursor';
+    }
+  | {
+      method: 'runCursorCommand';
+      args: Parameters<ServiceProvider['runCursorCommand']>;
+      cursorType: 'RunCommandCursor';
+    };
 
 export type CursorChainOptions = {
   method: string;

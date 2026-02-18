@@ -9,7 +9,7 @@ export function reconstructCursor(
   constructionOptionsWithChains: CursorConstructionOptionsWithChains
 ): Cursor | AggregationCursor | RunCommandCursor {
   const { method, args, cursorType } = constructionOptionsWithChains.options;
-  const providerCursor = (mongo._serviceProvider as any)[method](...args);
+  const providerCursor = (mongo._serviceProvider[method] as any)(...args);
 
   const cursor = new { Cursor, AggregationCursor, RunCommandCursor }[
     cursorType

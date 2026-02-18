@@ -12,7 +12,10 @@ import type {
   ServiceProviderAggregationCursor,
   ServiceProviderRunCommandCursor,
 } from '@mongosh/service-provider-core';
-import type { CursorChainOptions } from './abstract-cursor';
+import type {
+  CursorChainOptions,
+  CursorConstructionOptions,
+} from './abstract-cursor';
 
 describe('reconstructCursor', function () {
   let mongo: any;
@@ -39,9 +42,9 @@ describe('reconstructCursor', function () {
       const findStub = sinon.stub().returns(mockFindCursor);
       (serviceProvider as any).find = findStub;
 
-      const options = {
-        method: 'find',
-        args: ['db.collection', { field: 'value' }, {}],
+      const options: CursorConstructionOptions = {
+        method: 'find' as const,
+        args: ['db', 'collection', { field: 'value' }, {}, {}],
         cursorType: 'Cursor' as const,
       };
       const chains: CursorChainOptions[] = [];
@@ -50,7 +53,8 @@ describe('reconstructCursor', function () {
 
       expect(result).to.be.instanceOf(Cursor);
       expect(findStub).to.have.been.calledOnceWith(
-        'db.collection',
+        'db',
+        'collection',
         { field: 'value' },
         {}
       );
@@ -62,9 +66,9 @@ describe('reconstructCursor', function () {
       const findStub = sinon.stub().returns(mockFindCursor);
       (serviceProvider as any).find = findStub;
 
-      const options = {
+      const options: CursorConstructionOptions = {
         method: 'find',
-        args: ['db.collection', {}, {}],
+        args: ['db', 'collection', {}, {}],
         cursorType: 'Cursor' as const,
       };
       const chains = [
@@ -85,9 +89,9 @@ describe('reconstructCursor', function () {
       const findStub = sinon.stub().returns(mockFindCursor);
       (serviceProvider as any).find = findStub;
 
-      const options = {
+      const options: CursorConstructionOptions = {
         method: 'find',
-        args: ['db.collection', {}, {}],
+        args: ['db', 'collection', {}, {}],
         cursorType: 'Cursor' as const,
       };
       const mapFn = (doc: any) => ({ ...doc, mapped: true });
@@ -105,9 +109,9 @@ describe('reconstructCursor', function () {
       const findStub = sinon.stub().returns(mockFindCursor);
       (serviceProvider as any).find = findStub;
 
-      const options = {
+      const options: CursorConstructionOptions = {
         method: 'find',
-        args: ['db.collection', {}, {}],
+        args: ['db', 'collection', {}, {}],
         cursorType: 'Cursor' as const,
       };
       const chains = [
@@ -130,9 +134,9 @@ describe('reconstructCursor', function () {
       const aggregateStub = sinon.stub().returns(mockAggregationCursor);
       (serviceProvider as any).aggregate = aggregateStub;
 
-      const options = {
+      const options: CursorConstructionOptions = {
         method: 'aggregate',
-        args: ['db.collection', [{ $match: { field: 'value' } }], {}],
+        args: ['db', 'collection', [{ $match: { field: 'value' } }], {}],
         cursorType: 'AggregationCursor' as const,
       };
       const chains: CursorChainOptions[] = [];
@@ -141,7 +145,8 @@ describe('reconstructCursor', function () {
 
       expect(result).to.be.instanceOf(AggregationCursor);
       expect(aggregateStub).to.have.been.calledOnceWith(
-        'db.collection',
+        'db',
+        'collection',
         [{ $match: { field: 'value' } }],
         {}
       );
@@ -153,9 +158,9 @@ describe('reconstructCursor', function () {
       const aggregateStub = sinon.stub().returns(mockAggregationCursor);
       (serviceProvider as any).aggregate = aggregateStub;
 
-      const options = {
+      const options: CursorConstructionOptions = {
         method: 'aggregate',
-        args: ['db.collection', [{ $match: {} }], {}],
+        args: ['db', 'collection', [{ $match: {} }], {}],
         cursorType: 'AggregationCursor' as const,
       };
       const chains = [
@@ -175,9 +180,9 @@ describe('reconstructCursor', function () {
       const aggregateStub = sinon.stub().returns(mockAggregationCursor);
       (serviceProvider as any).aggregate = aggregateStub;
 
-      const options = {
+      const options: CursorConstructionOptions = {
         method: 'aggregate',
-        args: ['db.collection', [{ $match: {} }], {}],
+        args: ['db', 'collection', [{ $match: {} }], {}],
         cursorType: 'AggregationCursor' as const,
       };
       const mapFn = (doc: any) => ({ ...doc, aggregated: true });
@@ -197,10 +202,10 @@ describe('reconstructCursor', function () {
       const runCommandWithCheckStub = sinon
         .stub()
         .returns(mockRunCommandCursor);
-      (serviceProvider as any).runCommandWithCheck = runCommandWithCheckStub;
+      (serviceProvider as any).runCursorCommand = runCommandWithCheckStub;
 
-      const options = {
-        method: 'runCommandWithCheck',
+      const options: CursorConstructionOptions = {
+        method: 'runCursorCommand',
         args: ['admin', { listDatabases: 1 }, {}],
         cursorType: 'RunCommandCursor' as const,
       };
@@ -222,7 +227,7 @@ describe('reconstructCursor', function () {
       const runCommandCursorStub = sinon.stub().returns(mockRunCommandCursor);
       (serviceProvider as any).runCursorCommand = runCommandCursorStub;
 
-      const options = {
+      const options: CursorConstructionOptions = {
         method: 'runCursorCommand',
         args: ['test', { find: 'collection' }, {}],
         cursorType: 'RunCommandCursor' as const,
@@ -241,7 +246,7 @@ describe('reconstructCursor', function () {
       const runCommandCursorStub = sinon.stub().returns(mockRunCommandCursor);
       (serviceProvider as any).runCursorCommand = runCommandCursorStub;
 
-      const options = {
+      const options: CursorConstructionOptions = {
         method: 'runCursorCommand',
         args: ['test', { find: 'collection' }, {}],
         cursorType: 'RunCommandCursor' as const,
@@ -262,7 +267,7 @@ describe('reconstructCursor', function () {
       const aggregateDbStub = sinon.stub().returns(mockAggregationCursor);
       (serviceProvider as any).aggregateDb = aggregateDbStub;
 
-      const options = {
+      const options: CursorConstructionOptions = {
         method: 'aggregateDb',
         args: ['testdb', [{ $currentOp: {} }], {}],
         cursorType: 'AggregationCursor' as const,
