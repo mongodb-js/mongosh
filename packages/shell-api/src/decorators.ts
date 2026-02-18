@@ -926,7 +926,9 @@ export function cursorChainable<
   Args extends any[],
   Return
 >(
-  originalFunction: (this: This, ...args: Args) => Return
+  originalFunction: (this: This, ...args: Args) => Return,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  context: ClassMethodDecoratorContext
 ): (this: This, ...args: Args) => Return {
   function wrapper(this: This, ...args: Args): Return {
     // Push the method name and arguments onto the cursor's chain array
