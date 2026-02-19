@@ -66,6 +66,7 @@ export function serializeEvaluationResult({
       type: 'SerializedErrorResult',
       printable: serializeError(printable),
       source,
+      constructionOptions,
     };
   }
 
@@ -91,6 +92,7 @@ export function serializeEvaluationResult({
     printable: {
       origType: type,
       serializedValue: EJSON.serialize(printable),
+      constructionOptions,
     },
   };
 }
@@ -102,7 +104,12 @@ export function deserializeEvaluationResult({
   constructionOptions,
 }: RuntimeEvaluationResult): RuntimeEvaluationResult {
   if (type === 'SerializedErrorResult') {
-    return { type, printable: deserializeError(printable), source };
+    return {
+      type,
+      printable: deserializeError(printable),
+      source,
+      constructionOptions,
+    };
   }
 
   if (type === 'SerializedShellApiResult') {
@@ -110,6 +117,7 @@ export function deserializeEvaluationResult({
       type: printable.origType,
       printable: EJSON.deserialize(printable.serializedValue),
       source,
+      constructionOptions,
     };
   }
 
