@@ -2603,6 +2603,91 @@ describe('Collection', function () {
         });
       });
     });
+
+    describe('return information about constructing the cursor as metadata', function () {
+      let serviceProviderCursor: StubbedInstance<ServiceProviderCursor>;
+      let proxyCursor: ServiceProviderCursor;
+
+      beforeEach(function () {
+        serviceProviderCursor = stubInterface<ServiceProviderCursor>();
+        serviceProviderCursor.limit.returns(serviceProviderCursor);
+        serviceProviderCursor.skip.returns(serviceProviderCursor);
+        serviceProviderCursor.tryNext.resolves({ _id: 'abc' });
+        proxyCursor = new Proxy(serviceProviderCursor, {
+          get: (target, prop): any => {
+            if (prop === 'closed') {
+              return false;
+            }
+            return (target as any)[prop];
+          },
+        });
+      });
+
+      it('works for find()', async function () {
+        serviceProvider.find.returns(proxyCursor);
+        const cursor = (
+          await collection.find(
+            { hasBanana: true },
+            { _id: 0 },
+            { promoteValues: false }
+          )
+        ).limit(10);
+        const result = await toShellResult(cursor);
+        expect(result.constructionOptions).to.deep.equal({
+          options: {
+            method: 'find',
+            cursorType: 'Cursor',
+            args: [
+              'db1',
+              'coll1',
+              { hasBanana: true },
+              { projection: { _id: 0 }, promoteValues: false },
+            ],
+          },
+          chains: [
+            {
+              method: 'limit',
+              args: [10],
+            },
+          ],
+        });
+      });
+
+      it('works for aggregate()', async function () {
+        serviceProvider.aggregate.returns(proxyCursor);
+        const cursor = (
+          await collection.aggregate(
+            [{ $match: { hasBanana: true } }],
+            {
+              promoteValues: false,
+              readConcern: 'primaryPreferred',
+            },
+            {}
+          )
+        ).skip(10);
+        const result = await toShellResult(cursor);
+        expect(result.constructionOptions).to.deep.equal({
+          options: {
+            method: 'aggregate',
+            cursorType: 'AggregationCursor',
+            args: [
+              'db1',
+              'coll1',
+              [{ $match: { hasBanana: true } }],
+              { promoteValues: false },
+              { readConcern: 'primaryPreferred' },
+            ],
+          },
+          chains: [
+            {
+              method: 'skip',
+              args: [10],
+            },
+          ],
+        });
+      });
+    });
+
     describe('watch', function () {
       let fakeSpCursor: any;
       beforeEach(function () {

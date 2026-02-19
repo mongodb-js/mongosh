@@ -68,6 +68,7 @@ import type {
   CheckMetadataConsistencyOptions,
   AggregateOptions,
   SearchIndexDescription,
+  ServiceProvider,
 } from '@mongosh/service-provider-core';
 import type { RunCommandCursor, Database, DatabaseWithSchema } from './index';
 import {
@@ -216,14 +217,35 @@ export class Collection<
     this._emitCollectionApiCall('aggregate', { options, pipeline });
     const { aggOptions, dbOptions, explain } = adaptAggregateOptions(options);
 
-    const providerCursor = this._mongo._serviceProvider.aggregate(
-      this._database._name,
-      this._name,
-      pipeline,
-      { ...(await this._database._baseOptions()), ...aggOptions },
-      dbOptions
+    const aggregateOptions = {
+      ...(await this._database._baseOptions()),
+      ...aggOptions,
+    };
+
+    const constructionOptions = {
+      method: 'aggregate' as const,
+      args: [
+        this._database._name,
+        this._name,
+        pipeline,
+        aggregateOptions,
+        dbOptions,
+      ] as Parameters<ServiceProvider['aggregate']>,
+      cursorType: 'AggregationCursor' as const,
+    };
+    const providerCursor = this._mongo._serviceProvider[
+      constructionOptions.method
+    ](...constructionOptions.args);
+    const constructionOptionsWithChains = aggregateOptions.session
+      ? undefined
+      : {
+          options: constructionOptions,
+        };
+    const cursor = new AggregationCursor(
+      this._mongo,
+      providerCursor,
+      constructionOptionsWithChains
     );
-    const cursor = new AggregationCursor(this._mongo, providerCursor);
 
     if (explain) {
       return await cursor.explain(explain);
@@ -482,15 +504,34 @@ export class Collection<
       options.projection = projection;
     }
 
+    const findOptions = {
+      ...(await this._database._baseOptions()),
+      ...options,
+    };
+
     this._emitCollectionApiCall('find', { query, options });
-    const cursor = new Cursor(
-      this._mongo,
-      this._mongo._serviceProvider.find(
+    const constructionOptions = {
+      method: 'find' as const,
+      args: [
         this._database._name,
         this._name,
         query,
-        { ...(await this._database._baseOptions()), ...options }
-      )
+        findOptions,
+      ] as Parameters<ServiceProvider['find']>,
+      cursorType: 'Cursor' as const,
+    };
+    const providerCursor = this._mongo._serviceProvider[
+      constructionOptions.method
+    ](...constructionOptions.args);
+    const constructionOptionsWithChains = findOptions.session
+      ? undefined
+      : {
+          options: constructionOptions,
+        };
+    const cursor = new Cursor(
+      this._mongo,
+      providerCursor,
+      constructionOptionsWithChains
     );
 
     const explain = options.explain;
@@ -2449,9 +2490,13 @@ export class Collection<
   ): Promise<RunCommandCursor> {
     this._emitCollectionApiCall('checkMetadataConsistency', { options });
 
-    return await this._database._runCursorCommand({
-      checkMetadataConsistency: this._name,
-    });
+    return await this._database._runCursorCommand(
+      {
+        checkMetadataConsistency: this._name,
+        ...options,
+      },
+      {}
+    );
   }
 
   @serverVersions(['6.0.0', ServerVersions.latest])
