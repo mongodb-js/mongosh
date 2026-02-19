@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         runner: [ubuntu, macos, windows]
-        node: [20.x, 22.x, 24.x]
+        node: [24.x, latest]
       fail-fast: false
     runs-on: ${{ matrix.runner }}-latest
     timeout-minutes: 30 # Installing dependencies on windows can take a while
