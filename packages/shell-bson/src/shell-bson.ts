@@ -184,7 +184,8 @@ export function constructShellBson<
         [[undefined, 'string', 'number', 'object']],
         'ObjectId'
       );
-      if (typeof id === 'number') return bson.ObjectId.createFromTime(id);
+      if (typeof id === 'number')
+        return new bson.ObjectId(bson.ObjectId.generate(id));
       return new bson.ObjectId(id);
     },
     pickWithExactKeyMatch(bson.ObjectId, ['prototype', 'cacheHexString', 'generate', 'createFromTime', 'createFromHexString', 'createFromBase64', 'isValid'])),
