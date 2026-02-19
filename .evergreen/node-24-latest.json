@@ -12,10 +12,6 @@
   "end": "2028-04-30T00:00:00.000Z",
   "releaseDate": "2026-02-09T00:00:00.000Z",
   "isLts": true,
-  "isSupported": true,
-  "isMaintenance": false,
-  "isSecurity": false,
-  "modules": "137",
   "files": [
     "aix-ppc64",
     "headers",
