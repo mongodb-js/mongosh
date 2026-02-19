@@ -537,7 +537,12 @@ describe('worker-runtime', function () {
         await evaluate('print("Hi!")');
 
         expect(evalListener.onPrint).to.have.been.calledWith([
-          { printable: 'Hi!', source: undefined, type: null },
+          {
+            printable: 'Hi!',
+            source: undefined,
+            type: null,
+            constructionOptions: undefined,
+          },
         ]);
       });
 
