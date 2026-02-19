@@ -20,6 +20,7 @@
     "test-ci": "rimraf .nyc_output && npm run test-ci-coverage --workspaces --if-present && npm run post-process-nyc",
     "test-ci-nocoverage": "npm run test-ci --workspaces --if-present",
     "test-e2e": "npm run test --workspace @mongosh/e2e-tests",
+    "test-262": "./scripts/run-test262.sh",
     "test-apistrict-ci": "npm run test-apistrict-ci --workspaces --if-present",
     "test-connectivity": "npm run test-connectivity --workspaces --if-present",
     "test-evergreen-expansions": "bash .evergreen/compilation-context-expansions.test.sh",

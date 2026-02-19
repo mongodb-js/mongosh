@@ -1,0 +1,41 @@
+name: tc39/test-262 conformance tests
+
+on:
+  schedule:
+    - cron: "0 3 * * 0"
+  pull_request:
+    paths:
+      - "packages/async-rewriter2/**"
+      - "scripts/run-test262.sh"
+      - "scripts/test-262*"
+
+permissions:
+  contents: read
+
+jobs:
+  run_test_262:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # don't checkout a detached HEAD
+          ref: ${{ github.head_ref }}
+      - uses: actions/setup-node@v6
+        with:
+          check-latest: true
+          node-version: 24.x
+      - name: Download dependencies
+        run: npm ci
+
+      - name: Run Tests
+        run: npm run test-262
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          comment_mode: ${{ (github.event.workflow_run.event == 'pull_request' || github.event_name == 'pull_request') && 'always' || 'off' }}
+          check_name: "tc39/test-262 test results"
+          large_files: true
+          files: |
+            tmp/test262.test.json

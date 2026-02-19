@@ -1,0 +1,58 @@
+const { readFileSync, writeFileSync, existsSync } = require("node:fs");
+
+function readTest262Output(testFile) {
+    if (!existsSync(testFile)) {
+	throw new Error(`Could not find ${testFile}. Did you run 'npx test-262'?`);
+    }
+
+    const outputJson = readFileSync(testFile);
+    return JSON.parse(outputJson);
+}
+
+function generateMochaStats(test262Result) {
+    return {
+	suites: 1,
+	tests: test262Result.length,
+	passes: test262Result.reduce((count, current) => count + (current.result.pass ? 1 : 0), 0),
+	failures: test262Result.reduce((count, current) => count + (current.result.pass ? 0 : 1), 0),
+	pending: 0
+    };
+}
+
+function mapTest262TestToMochaTest(test262) {
+    return {
+	title: test262.attrs.description,
+	fullTitle: test262.attrs.info,
+	file: test262.file,
+	duration: test262.duration,
+	err: {
+	    stdout: "",
+	    stderr: test262.result.message,
+	}
+    };
+}
+
+function parseMochaTests(test262, filter) {
+    return test262.filter(filter).map(mapTest262TestToMochaTest);
+}
+
+function main() {
+    if (process.argv.length < 4) {
+	console.error(`Usage: ${process.argv[0]} ${process.argv[1]} TEST262_OUTPUT_JSON.json OUTPUT_MOCHA_JSON.json`);
+	return 1;
+    }
+    
+    const test262Result = readTest262Output(process.argv[2]);
+    const mochaOutputJson = {
+	stats: generateMochaStats(test262Result),
+	tests: parseMochaTests(test262Result, () => true),
+	passes: parseMochaTests(test262Result, (current) => current.result.pass),
+	failures: parseMochaTests(test262Result, (current) => !current.result.pass),
+	pending: [],
+    };
+
+    writeFileSync(process.argv[3], JSON.stringify(mochaOutputJson, undefined, 2));
+    return 0;
+}
+
+process.exit(main());
