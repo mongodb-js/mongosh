@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/browser-runtime-electron",
-  "version": "5.0.1",
+  "version": "5.1.0",
   "description": "Mongosh browser runtime electron",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -40,15 +40,15 @@
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "@mongosh/service-provider-node-driver": "^5.0.1",
+    "@mongosh/service-provider-node-driver": "^5.0.2",
     "bson": "^7.2.0",
     "eslint": "^7.25.0",
     "prettier": "^2.8.8",
     "rimraf": "^3.0.2"
   },
   "dependencies": {
-    "@mongosh/browser-runtime-core": "^5.0.1",
-    "@mongosh/service-provider-core": "5.0.0",
+    "@mongosh/browser-runtime-core": "^5.1.0",
+    "@mongosh/service-provider-core": "5.0.1",
     "@mongosh/types": "^5.0.1"
   }
 }

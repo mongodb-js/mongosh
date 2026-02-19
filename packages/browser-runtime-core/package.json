@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/browser-runtime-core",
-  "version": "5.0.1",
+  "version": "5.1.0",
   "description": "Mongosh browser runtime core",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -48,9 +48,9 @@
     "rimraf": "^3.0.2"
   },
   "dependencies": {
-    "@mongosh/autocomplete": "^5.0.1",
-    "@mongosh/service-provider-core": "5.0.0",
-    "@mongosh/shell-api": "^5.0.1",
-    "@mongosh/shell-evaluator": "^5.0.1"
+    "@mongosh/autocomplete": "^5.1.0",
+    "@mongosh/service-provider-core": "5.0.1",
+    "@mongosh/shell-api": "^5.1.0",
+    "@mongosh/shell-evaluator": "^5.1.0"
   }
 }
