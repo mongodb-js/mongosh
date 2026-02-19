@@ -65,13 +65,14 @@ export class OpenContextRuntime implements Runtime {
     const evalFn = this.interpreterEnvironment.sloppyEval.bind(
       this.interpreterEnvironment
     );
-    const { type, printable, source } = await this.shellEvaluator.customEval(
-      evalFn,
-      code,
-      this.interpreterEnvironment.getContextObject(),
-      ''
-    );
-    return { type, printable, source };
+    const { type, printable, source, constructionOptions } =
+      await this.shellEvaluator.customEval(
+        evalFn,
+        code,
+        this.interpreterEnvironment.getContextObject(),
+        ''
+      );
+    return { type, printable, source, constructionOptions };
   }
 
   setEvaluationListener(

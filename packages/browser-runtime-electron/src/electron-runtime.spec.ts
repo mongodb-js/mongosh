@@ -10,6 +10,8 @@ import * as bson from 'bson';
 import { ElectronRuntime } from './electron-runtime';
 import { EventEmitter } from 'events';
 import type { RuntimeEvaluationListener } from '@mongosh/browser-runtime-core';
+import { stubInterface } from 'ts-sinon';
+import type { ServiceProviderFindCursor } from '@mongosh/service-provider-core';
 
 describe('Electron runtime', function () {
   let serviceProvider: SinonStubbedInstance<NodeDriverServiceProvider>;
@@ -73,6 +75,21 @@ describe('Electron runtime', function () {
 
     const result = await electronRuntime.evaluate('show collections');
     expect(result.type).to.equal('ShowCollectionsResult');
+  });
+
+  it('can run db.test.find()', async function () {
+    const mockFindCursor = stubInterface<ServiceProviderFindCursor>();
+    const findStub = sinon.stub().returns(mockFindCursor);
+    (serviceProvider as any).find = findStub;
+    const result = await electronRuntime.evaluate('db.test.find().limit(10)');
+    expect(result.constructionOptions).to.deep.equal({
+      options: {
+        cursorType: 'Cursor',
+        method: 'find',
+        args: ['test', 'test', undefined, {}],
+      },
+      chains: [{ method: 'limit', args: [10] }],
+    });
   });
 
   it('allows to use require', async function () {
