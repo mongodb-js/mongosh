@@ -11,6 +11,8 @@ on:
 
 permissions:
   contents: read
+  checks: write # to write a check
+  pull-requests: write # to write a comment
 
 jobs:
   run_test_262:

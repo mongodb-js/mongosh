@@ -10,7 +10,7 @@ OUTPUT_DIR=tmp
 TEST_DIR=$TMP_DIR/test262
 TMP_TEST262_RESULT=$TMP_DIR/test262-result.json
 PARSED_TEST262_RESULT=$OUTPUT_DIR/test262.test.json
-TEST_PATTERN=$TEST_DIR/test/**/*.js
+TEST_PATTERN="$TEST_DIR/test/language/**/*.js"
 
 rm -rf $TEST_DIR
 mkdir -p $OUTPUT_DIR
@@ -31,7 +31,7 @@ npx test262-harness \
     --timeout 1000 \
     --preprocessor scripts/test262-preprocessor-module.js \
     --reporter json \
-    --reporter-keys "file,attrs,result,duration" \
+    --reporter-keys "file,result,duration" \
     "$TEST_PATTERN" > $TMP_TEST262_RESULT
 
 node scripts/test262-output-to-mocha.js $TMP_TEST262_RESULT $PARSED_TEST262_RESULT

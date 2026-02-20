@@ -21,13 +21,13 @@ function generateMochaStats(test262Result) {
 
 function mapTest262TestToMochaTest(test262) {
     return {
-	title: test262.attrs.description,
-	fullTitle: test262.attrs.info,
+	title: test262.file,
+	fullTitle: test262.file,
 	file: test262.file,
 	duration: test262.duration,
 	err: {
-	    stdout: "",
-	    stderr: test262.result.message,
+	    message: test262.result.message,
+	    stack: test262.result.message
 	}
     };
 }
