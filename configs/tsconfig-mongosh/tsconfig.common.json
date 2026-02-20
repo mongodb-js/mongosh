@@ -13,8 +13,8 @@
 
     "declaration": true,
     "removeComments": true,
-    "target": "es2018",
-    "lib": ["es2019"],
+    "target": "es2021",
+    "lib": ["es2021"],
     "module": "nodenext",
     "moduleResolution": "nodenext"
   }
