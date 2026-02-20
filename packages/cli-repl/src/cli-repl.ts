@@ -1169,6 +1169,7 @@ export class CliRepl implements MongoshIOProvider {
   async close(): Promise<void> {
     return (this.closingPromise ??= (async () => {
       markTime(TimingCategories.REPLInstantiation, 'start closing');
+      await this.mongoshRepl.close();
       this.agent?.destroy();
       if (!this.output.destroyed) {
         // Wait for output to be fully flushed before exiting.
