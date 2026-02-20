@@ -30,6 +30,13 @@ export class Editor {
   _lastInputCode: string;
   print: (...args: any[]) => Promise<void>;
 
+  private static signature: TypeSignature = {
+    type: 'function',
+    returnsPromise: true,
+    isDirectShellCommand: true,
+    acceptsRawInput: true,
+  };
+
   constructor({
     input,
     vscodeDir,
@@ -58,12 +65,7 @@ export class Editor {
     wrapperFn.acceptsRawInput = true;
     (instanceState.shellApi as any).edit = instanceState.context.edit =
       wrapperFn;
-    (signatures.ShellApi.attributes as any).edit = {
-      type: 'function',
-      returnsPromise: true,
-      isDirectShellCommand: true,
-      acceptsRawInput: true,
-    } as TypeSignature;
+    (signatures.ShellApi.attributes as any).edit = Editor.signature;
   }
 
   static create(options: EditorOptions): Editor {
