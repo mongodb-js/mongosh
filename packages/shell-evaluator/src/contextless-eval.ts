@@ -8,5 +8,5 @@
 // Putting this function in a separate file ensures that no
 // unintentional references to other variables can be captured.
 export function contextlessEval(code: string): void {
-  return eval(code);
+  eval(code);
 }
