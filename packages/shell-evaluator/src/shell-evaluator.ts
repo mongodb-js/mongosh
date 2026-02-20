@@ -1,3 +1,4 @@
+import { contextlessEval } from './contextless-eval';
 import type { ShellInstanceState } from '@mongosh/shell-api';
 import {
   toShellResult,
@@ -26,8 +27,8 @@ try {
 if (v8?.startupSnapshot?.isBuildingSnapshot?.()) {
   v8.startupSnapshot.addSerializeCallback(() => {
     // Ensure that any lazy loading performed by Babel is part of the snapshot
-    eval(new AsyncWriter().runtimeSupportCode());
-    eval(new AsyncWriter().process('1+1'));
+    contextlessEval(new AsyncWriter().runtimeSupportCode());
+    contextlessEval(new AsyncWriter().process('1+1'));
     hasAlreadyRunGlobalRuntimeSupportEval = true;
   });
 }
@@ -120,7 +121,8 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
       // in which the shell-api package lives and not from the context inside
       // the REPL (i.e. `db.test.find().toArray() instanceof Array` is `false`).
       if (!hasAlreadyRunGlobalRuntimeSupportEval) {
-        eval(supportCode);
+        contextlessEval(supportCode);
+        hasAlreadyRunGlobalRuntimeSupportEval = true;
       }
       this.markTime?.(
         TimingCategories.AsyncRewrite,
