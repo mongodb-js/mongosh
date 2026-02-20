@@ -44,7 +44,7 @@ import {
   type ShellBson,
   constructShellBson,
   type BSON as BSONLibrary,
-  ShellBsonOptions,
+  type ShellBsonOptions,
 } from '@mongosh/shell-bson';
 import { Streams } from './streams';
 import { ShellLog } from './shell-log';
