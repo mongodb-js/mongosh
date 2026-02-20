@@ -5,7 +5,7 @@ import {
 } from '@mongosh/types';
 import v8 from 'v8';
 
-const jsTimingEntries: [string, string, bigint][] = [];
+let jsTimingEntries: [string, string, bigint][] = [];
 
 function linkTimingInterface(): TimingInterface {
   const boxedNode = (process as any).boxednode;
@@ -15,6 +15,7 @@ function linkTimingInterface(): TimingInterface {
     return {
       markTime: boxedNode.markTime,
       getTimingData: boxedNode.getTimingData,
+      resetTimingData: () => undefined,
     };
   }
 
@@ -30,6 +31,9 @@ function linkTimingInterface(): TimingInterface {
         label,
         Number(time - data[0][2]),
       ]);
+    },
+    resetTimingData: () => {
+      jsTimingEntries = [];
     },
   };
 }
@@ -58,6 +62,7 @@ export function summariseTimingData(
 const timing: TimingInterface = linkTimingInterface();
 export const markTime = timing.markTime;
 export const getTimingData = timing.getTimingData;
+export const resetTimingData = timing.resetTimingData;
 
 function installExitHandler() {
   if (process.env.MONGOSH_SHOW_TIMING_DATA) {
