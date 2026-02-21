@@ -894,6 +894,7 @@ class MongoshNodeRepl implements EvaluationListener {
    * @returns true
    */
   async onAsyncSigint(): Promise<boolean> {
+    if (!this._runtimeState) return true; // Nothing left to clean up at this point.
     const { instanceState } = this.runtimeState();
     if (instanceState.interrupted.isSet()) {
       return true;
@@ -934,6 +935,7 @@ class MongoshNodeRepl implements EvaluationListener {
     }
     this.bus.emit('mongosh:interrupt-complete'); // For testing purposes.
 
+    if (!this._runtimeState) return true; // Nothing left to clean up at this point.
     const { repl } = this.runtimeState();
     if (repl) {
       repl.setPrompt(await this.getShellPrompt());
@@ -1146,9 +1148,11 @@ class MongoshNodeRepl implements EvaluationListener {
         await once(rs.repl, 'exit');
       }
       await rs.instanceState.close();
-      await new Promise((resolve) =>
-        this.output.write(this.outputFinishString, resolve)
-      );
+      if (!this.output.writableEnded && !this.output.destroyed) {
+        await new Promise((resolve) =>
+          this.output.write(this.outputFinishString, resolve)
+        );
+      }
     }
   }
 
