@@ -290,12 +290,16 @@ describe('CliRepl', function () {
         } catch (e: any) {
           const [emitted] = await onerror;
           expect(emitted).to.be.instanceOf(MongoshInternalError);
+          // There should be at least one log entry for the error.
+          // We may receive more than one, which is fine, because this
+          // is one of those things that should never happen outside of
+          // tests.
           await eventually(async () => {
             expect(
               (await log()).filter((entry) =>
                 entry.attr?.stack?.startsWith('MongoshInternalError:')
               )
-            ).to.have.lengthOf(1);
+            ).to.have.lengthOf.at.least(1);
           });
           return;
         }

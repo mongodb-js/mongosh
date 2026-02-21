@@ -44,6 +44,7 @@ import {
   type ShellBson,
   constructShellBson,
   type BSON as BSONLibrary,
+  type ShellBsonOptions,
 } from '@mongosh/shell-bson';
 import { Streams } from './streams';
 import { ShellLog } from './shell-log';
@@ -241,41 +242,48 @@ export class ShellInstanceState {
     this.evaluationListener = {};
   }
 
+  // Defined here as a static property so that callbacks defined
+  // inside of it do not capture specific instances of
+  // `ShellInstanceState` as part of their scope chain,
+  // which would lead to memory leaks.
+  private static commonConstructShellBsonProps: Partial<
+    ShellBsonOptions<BSONLibrary, Help>
+  > = {
+    assignMetadata: (target, { help, maxVersion, minVersion, deprecated }) => {
+      target.serverVersions =
+        maxVersion || minVersion
+          ? [
+              minVersion ?? ServerVersions.earliest,
+              maxVersion ?? ServerVersions.latest,
+            ]
+          : ALL_SERVER_VERSIONS;
+      target.platforms = ALL_PLATFORMS;
+      target.topologies = ALL_TOPOLOGIES;
+      if (deprecated) target.deprecated = true;
+
+      if (help) {
+        target.help = (): Help => help;
+        Object.setPrototypeOf(target.help, help);
+      }
+    },
+    constructHelp: (className: string) => {
+      const classHelpKeyPrefix = `shell-api.classes.${className}.help`;
+      const classHelp = {
+        help: `${classHelpKeyPrefix}.description`,
+        example: `${classHelpKeyPrefix}.example`,
+        docs: `${classHelpKeyPrefix}.link`,
+        attr: [],
+      };
+      return new Help(classHelp);
+    },
+  };
+
   private constructShellBson(): ShellBson {
-    return constructShellBson({
+    return constructShellBson<BSONLibrary, Help>({
+      ...ShellInstanceState.commonConstructShellBsonProps,
       bsonLibrary: this.bsonLibrary,
       printWarning: (msg: string) => {
         void this.shellApi.print(`Warning: ${msg}`);
-      },
-      assignMetadata: (
-        target,
-        { help, maxVersion, minVersion, deprecated }
-      ) => {
-        target.serverVersions =
-          maxVersion || minVersion
-            ? [
-                minVersion ?? ServerVersions.earliest,
-                maxVersion ?? ServerVersions.latest,
-              ]
-            : ALL_SERVER_VERSIONS;
-        target.platforms = ALL_PLATFORMS;
-        target.topologies = ALL_TOPOLOGIES;
-        if (deprecated) target.deprecated = true;
-
-        if (help) {
-          target.help = (): Help => help;
-          Object.setPrototypeOf(target.help, help);
-        }
-      },
-      constructHelp: (className: string) => {
-        const classHelpKeyPrefix = `shell-api.classes.${className}.help`;
-        const classHelp = {
-          help: `${classHelpKeyPrefix}.description`,
-          example: `${classHelpKeyPrefix}.example`,
-          docs: `${classHelpKeyPrefix}.link`,
-          attr: [],
-        };
-        return new Help(classHelp);
       },
     });
   }

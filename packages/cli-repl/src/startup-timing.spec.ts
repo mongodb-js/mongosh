@@ -1,6 +1,11 @@
 import { TimingCategories, type TimingCategory } from '@mongosh/types';
-import { summariseTimingData } from './startup-timing';
+import { resetTimingData, summariseTimingData } from './startup-timing';
 import { expect } from 'chai';
+
+// Reset timing data after each test to avoid large
+// amounts of timing entries accumulating and causing
+// the test suite to eventually slow down.
+afterEach(resetTimingData);
 
 describe('startup timing', function () {
   describe('summariseTimingData', function () {
