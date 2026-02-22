@@ -60,9 +60,9 @@ describe('CliRepl GC', function () {
   }
 
   function* listNodesInHeapSnapshot(
-    snapshoString: string
+    snapshotString: string
   ): Iterable<{ type: string; name: string }> {
-    const { snapshot, nodes, strings } = JSON.parse(snapshoString);
+    const { snapshot, nodes, strings } = JSON.parse(snapshotString);
     const { node_fields, node_types } = snapshot.meta;
     for (let i = 0; i < nodes.length; i += node_fields.length) {
       const description: any = {};
