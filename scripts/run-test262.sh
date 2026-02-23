@@ -30,7 +30,7 @@ npm install
 ./make.py
 cd $SELF
 
-for TEST_SUBDIR in $(find $TEST_DIR/test/ -type f -name "*.js" -printf '%h\n' | sort -u | grep -v '^\.$');
+for TEST_SUBDIR in $(find $TEST_DIR/test/language -type f -name "*.js" -printf '%h\n' | sort -u | grep -v '^\.$');
 do
     TEST_FILE=$(echo "${TEST_SUBDIR}.json" | sed 's/\//_/g')
     TEST_PATTERN="$TEST_SUBDIR/*.js"
