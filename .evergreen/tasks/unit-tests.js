@@ -44,7 +44,8 @@ for (let variant of UNIT_TESTS_BUILD_VARIANTS) {
   for (let unitTest of UNIT_TESTS.filter(
     (t) =>
       t.variants.includes(variant.platform) &&
-      (!t.unitTestsOnly || (t.unitTestsOnly && variant.runWithUnitTestsOnly))
+      (!t.unitTestsOnly || variant.runWithUnitTestsOnly) &&
+      !variant.disable
   )) {
     UNIT_TESTS_WITH_BUILD_VARIANTS.push([unitTest, variant]);
   }

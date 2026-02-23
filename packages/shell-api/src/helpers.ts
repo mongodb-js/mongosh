@@ -26,7 +26,7 @@ import type { AutoEncryptionOptions, Long, ObjectId, Timestamp } from 'mongodb';
 import { shellApiType } from './enums';
 import type { AbstractFiniteCursor } from './abstract-cursor';
 import type ChangeStreamCursor from './change-stream-cursor';
-import type { BSON, ShellBson } from '@mongosh/shell-bson';
+import { type BSON, type ShellBson, getBsonType } from '@mongosh/shell-bson';
 import type { MQLPipeline, MQLQuery } from './mql-types';
 import type { InspectOptions } from 'util';
 
@@ -129,7 +129,9 @@ export function assertArgsDefinedType(
     const expectedTypesList: Array<string | undefined> =
       typeof expected === 'string' ? [expected] : expected;
     const isExpectedTypeof = expectedTypesList.includes(typeof arg);
-    const isExpectedBson = expectedTypesList.includes(`bson:${arg?._bsontype}`);
+    const isExpectedBson = expectedTypesList.includes(
+      `bson:${getBsonType(arg)}`
+    );
 
     if (!isExpectedTypeof && !isExpectedBson) {
       const expectedMsg = expectedTypesList
@@ -1081,7 +1083,7 @@ export function processFLEOptions(
   };
 
   const localKey = fleOptions.kmsProviders.local?.key;
-  if (localKey && (localKey as BinaryType)._bsontype === 'Binary') {
+  if (localKey && getBsonType(localKey) === 'Binary') {
     const rawBuff = (localKey as BinaryType).value();
     if (Buffer.isBuffer(rawBuff)) {
       autoEncryption.kmsProviders = {
@@ -1165,7 +1167,7 @@ export function shouldRunAggregationImmediately(
 function isBSONDoubleConvertible(val: any): boolean {
   return (
     (typeof val === 'number' && Number.isInteger(val)) ||
-    val?._bsontype === 'Int32'
+    getBsonType(val) === 'Int32'
   );
 }
 

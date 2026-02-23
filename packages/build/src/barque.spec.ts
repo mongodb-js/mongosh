@@ -333,7 +333,7 @@ describe('Barque', function () {
     });
 
     it('platform is not linux', function () {
-      config.platform = 'macos';
+      config.platform = 'darwin';
       try {
         barque = new Barque(config);
       } catch (e: any) {

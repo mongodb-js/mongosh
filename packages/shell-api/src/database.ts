@@ -11,7 +11,7 @@ import {
   deprecated,
   ShellApiWithMongoClass,
 } from './decorators';
-import { asPrintable, ServerVersions, Topologies } from './enums';
+import { asPrintable, ServerVersions } from './enums';
 import type {
   GenericDatabaseSchema,
   GenericServerSideSchema,
@@ -40,6 +40,7 @@ import {
   type Document,
   type WriteConcern,
   type ListCollectionsOptions,
+  type ServiceProvider,
 } from '@mongosh/service-provider-core';
 import { AggregationCursor, RunCommandCursor, CommandResult } from './index';
 import {
@@ -50,7 +51,7 @@ import {
   MongoshUnimplementedError,
   MongoshInternalError,
 } from '@mongosh/errors';
-import { HIDDEN_COMMANDS } from '@mongosh/history';
+import { shouldRedactCommand } from 'mongodb-redact';
 import type Session from './session';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ShellApiErrors } from './error-codes';
@@ -62,6 +63,7 @@ import type {
   AggregateOptions,
 } from '@mongosh/service-provider-core';
 import type { MQLPipeline } from './mql-types';
+import type { Abortable } from 'events';
 
 export type CollectionNamesWithTypes = {
   name: string;
@@ -179,7 +181,7 @@ export class Database<
   // Private helpers to avoid sending telemetry events for internal calls. Public so rs/sh can use them
   public async _runCommand(
     cmd: Document,
-    options: CommandOperationOptions = {}
+    options: CommandOperationOptions & Abortable = {}
   ): Promise<Document> {
     return this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
@@ -194,7 +196,7 @@ export class Database<
   // Private helpers to avoid sending telemetry events for internal calls. Public so rs/sh can use them
   public async _runReadCommand(
     cmd: Document,
-    options: CommandOperationOptions = {}
+    options: CommandOperationOptions & Abortable = {}
   ): Promise<Document> {
     return this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
@@ -209,14 +211,14 @@ export class Database<
 
   public async _runAdminCommand(
     cmd: Document,
-    options: CommandOperationOptions = {}
+    options: CommandOperationOptions & Abortable = {}
   ): Promise<Document> {
     return this.getSiblingDB('admin')._runCommand(cmd, options);
   }
 
   public async _runAdminReadCommand(
     cmd: Document,
-    options: CommandOperationOptions = {}
+    options: CommandOperationOptions & Abortable = {}
   ): Promise<Document> {
     return this.getSiblingDB('admin')._runReadCommand(cmd, options);
   }
@@ -225,17 +227,33 @@ export class Database<
     cmd: Document,
     options: CommandOperationOptions = {}
   ): Promise<RunCommandCursor> {
-    const providerCursor = this._mongo._serviceProvider.runCursorCommand(
-      this._name,
-      adjustRunCommand(cmd, this._instanceState.shellBson),
-      {
-        ...this._mongo._getExplicitlyRequestedReadPref(),
-        ...(await this._baseOptions()),
-        ...options,
-      }
+    const runCursorCommandOptions = {
+      ...this._mongo._getExplicitlyRequestedReadPref(),
+      ...(await this._baseOptions()),
+      ...options,
+    };
+    const constructionOptions = {
+      method: 'runCursorCommand' as const,
+      args: [
+        this._name,
+        adjustRunCommand(cmd, this._instanceState.shellBson),
+        runCursorCommandOptions,
+      ] as Parameters<ServiceProvider['runCursorCommand']>,
+      cursorType: 'RunCommandCursor' as const,
+    };
+    const providerCursor = this._mongo._serviceProvider[
+      constructionOptions.method
+    ](...constructionOptions.args);
+    const constructionOptionsWithChains = runCursorCommandOptions.session
+      ? undefined
+      : {
+          options: constructionOptions,
+        };
+    const cursor = new RunCommandCursor(
+      this._mongo,
+      providerCursor,
+      constructionOptionsWithChains
     );
-
-    const cursor = new RunCommandCursor(this._mongo, providerCursor);
     this._mongo._instanceState.currentCursor = cursor;
     return cursor;
   }
@@ -249,7 +267,7 @@ export class Database<
 
   async _listCollections(
     filter: Document,
-    options: ListCollectionsOptions
+    options: ListCollectionsOptions & Abortable
   ): Promise<Document[]> {
     return (
       (await this._mongo._serviceProvider.listCollections(this._name, filter, {
@@ -261,7 +279,7 @@ export class Database<
   }
 
   async _getCollectionNames(
-    options?: ListCollectionsOptions
+    options?: ListCollectionsOptions & Abortable
   ): Promise<string[]> {
     const infos = await this._listCollections(
       {},
@@ -274,7 +292,7 @@ export class Database<
   }
 
   async _getCollectionNamesWithTypes(
-    options?: ListCollectionsOptions
+    options?: ListCollectionsOptions & Abortable
   ): Promise<CollectionNamesWithTypes[]> {
     let collections = await this._listCollections(
       {},
@@ -376,7 +394,7 @@ export class Database<
   @apiVersions([1])
   async getCollectionInfos(
     filter: Document = {},
-    options: ListCollectionsOptions = {}
+    options: ListCollectionsOptions & Abortable = {}
   ): Promise<Document[]> {
     this._emitDatabaseApiCall('getCollectionInfos', { filter, options });
     return await this._listCollections(filter, options);
@@ -393,7 +411,7 @@ export class Database<
   @apiVersions([1])
   async runCommand(
     cmd: string | Document,
-    options?: RunCommandOptions
+    options?: RunCommandOptions & Abortable
   ): Promise<Document> {
     assertArgsDefinedType([cmd], [['string', 'object']], 'Database.runCommand');
     if (typeof cmd === 'string') {
@@ -401,8 +419,7 @@ export class Database<
     }
 
     try {
-      const hiddenCommands = new RegExp(HIDDEN_COMMANDS);
-      if (!Object.keys(cmd).some((k) => hiddenCommands.test(k))) {
+      if (!Object.keys(cmd).some((k) => shouldRedactCommand(k))) {
         this._emitDatabaseApiCall('runCommand', { cmd, options });
       }
       return await this._runCommand(cmd, options);
@@ -435,8 +452,7 @@ export class Database<
       cmd = { [cmd]: 1 };
     }
 
-    const hiddenCommands = new RegExp(HIDDEN_COMMANDS);
-    if (!Object.keys(cmd).some((k) => hiddenCommands.test(k))) {
+    if (!Object.keys(cmd).some((k) => shouldRedactCommand(k))) {
       this._emitDatabaseApiCall('adminCommand', { cmd });
     }
     return await this._runAdminCommand(cmd, {});
@@ -449,11 +465,11 @@ export class Database<
    */
   async aggregate(
     pipeline: MQLPipeline,
-    options: AggregateOptions & { explain: ExplainVerbosityLike }
+    options: AggregateOptions & { explain: ExplainVerbosityLike } & Abortable
   ): Promise<Document>;
   async aggregate(
     pipeline: MQLPipeline,
-    options?: AggregateOptions
+    options?: AggregateOptions & Abortable
   ): Promise<AggregationCursor>;
   async aggregate(...stages: MQLPipeline): Promise<AggregationCursor>;
   @returnsPromise
@@ -482,13 +498,28 @@ export class Database<
 
     const { aggOptions, dbOptions, explain } = adaptAggregateOptions(options);
 
-    const providerCursor = this._mongo._serviceProvider.aggregateDb(
-      this._name,
-      pipeline,
-      { ...(await this._baseOptions()), ...aggOptions },
-      dbOptions
+    const aggregateOptions = { ...(await this._baseOptions()), ...aggOptions };
+
+    const constructionOptions = {
+      method: 'aggregateDb' as const,
+      args: [this._name, pipeline, aggregateOptions, dbOptions] as Parameters<
+        ServiceProvider['aggregateDb']
+      >,
+      cursorType: 'AggregationCursor' as const,
+    };
+    const providerCursor = this._mongo._serviceProvider[
+      constructionOptions.method
+    ](...constructionOptions.args);
+    const constructionOptionsWithChains = aggregateOptions.session
+      ? undefined
+      : {
+          options: constructionOptions,
+        };
+    const cursor = new AggregationCursor(
+      this._mongo,
+      providerCursor,
+      constructionOptionsWithChains
     );
-    const cursor = new AggregationCursor(this._mongo, providerCursor);
 
     if (explain) {
       return await cursor.explain(explain);
@@ -1537,7 +1568,7 @@ export class Database<
   }
 
   @returnsPromise
-  @topologies([Topologies.Sharded])
+  @topologies(['Sharded'])
   @apiVersions([1])
   async printShardingStatus(verbose = false): Promise<CommandResult> {
     this._emitDatabaseApiCall('printShardingStatus', { verbose });
@@ -1549,7 +1580,7 @@ export class Database<
   }
 
   @returnsPromise
-  @topologies([Topologies.ReplSet])
+  @topologies(['ReplSet'])
   @apiVersions([])
   async printSecondaryReplicationInfo(): Promise<CommandResult> {
     let startOptimeDate = null;
@@ -1604,7 +1635,7 @@ export class Database<
           if (startOptimeDate) {
             nodeResult.syncedTo = node.optimeDate.toString();
           }
-          const ago = (node.optimeDate - startOptimeDate) / 1000;
+          const ago = (startOptimeDate - node.optimeDate) / 1000;
           const hrs = Math.round(ago / 36) / 100;
           let suffix = '';
           if (primary) {
@@ -1630,7 +1661,7 @@ export class Database<
   }
 
   @returnsPromise
-  @topologies([Topologies.ReplSet])
+  @topologies(['ReplSet'])
   @apiVersions([])
   async getReplicationInfo(): Promise<Document> {
     const localdb = this.getSiblingDB('local');
@@ -1696,7 +1727,7 @@ export class Database<
 
   @returnsPromise
   @apiVersions([])
-  @topologies([Topologies.ReplSet])
+  @topologies(['ReplSet'])
   async printReplicationInfo(): Promise<CommandResult> {
     const result = {} as any;
     let replInfo;
@@ -1742,7 +1773,7 @@ export class Database<
   }
 
   @serverVersions(['3.1.0', ServerVersions.latest])
-  @topologies([Topologies.ReplSet, Topologies.Sharded])
+  @topologies(['ReplSet', 'Sharded'])
   @apiVersions([1])
   @returnsPromise
   async watch(
@@ -1822,7 +1853,7 @@ export class Database<
   }
 
   @serverVersions(['7.0.0', ServerVersions.latest])
-  @topologies([Topologies.Sharded])
+  @topologies(['Sharded'])
   @returnsPromise
   async checkMetadataConsistency(
     options: CheckMetadataConsistencyOptions = {}
@@ -1831,6 +1862,7 @@ export class Database<
 
     return this._runCursorCommand({
       checkMetadataConsistency: 1,
+      ...options,
     });
   }
 }

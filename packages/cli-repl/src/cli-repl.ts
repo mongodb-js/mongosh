@@ -3,7 +3,7 @@ import {
   MongoshRuntimeError,
   MongoshWarning,
 } from '@mongosh/errors';
-import { redactURICredentials } from '@mongosh/history';
+import { redactConnectionString, redact } from 'mongodb-redact';
 import i18n from '@mongosh/i18n';
 import type { AutoEncryptionOptions } from '@mongosh/service-provider-core';
 import { EJSON, ObjectId } from 'bson';
@@ -11,7 +11,6 @@ import { NodeDriverServiceProvider } from '@mongosh/service-provider-node-driver
 import type { CliOptions, DevtoolsConnectOptions } from '@mongosh/arg-parser';
 import { SnippetManager } from '@mongosh/snippet-manager';
 import { Editor } from '@mongosh/editor';
-import { redactSensitiveData } from '@mongosh/history';
 import type { Analytics as SegmentAnalytics } from '@segment/analytics-node';
 import askpassword from 'askpassword';
 import { EventEmitter, once } from 'events';
@@ -54,6 +53,7 @@ import type {
   DevtoolsProxyOptions,
 } from '@mongodb-js/devtools-proxy-support';
 import { useOrCreateAgent } from '@mongodb-js/devtools-proxy-support';
+import { fullDepthInspectOptions } from './format-output';
 
 /**
  * Connecting text key.
@@ -140,6 +140,7 @@ export class CliRepl implements MongoshIOProvider {
   updateNotificationManager: UpdateNotificationManager;
   fetchMongoshUpdateUrlRegardlessOfCiEnvironment = false; // for testing
   cachedGlibcVersion: null | string | undefined = null;
+  exitingForStartupError = false;
 
   private loggingAndTelemetry: MongoshLoggingAndTelemetry | undefined;
 
@@ -211,10 +212,11 @@ export class CliRepl implements MongoshIOProvider {
     if (jsContext === 'auto' || !jsContext) {
       jsContext = willEnterInteractiveMode ? 'repl' : 'plain-vm';
     }
+    const deepInspect = this.cliOptions.deepInspect ?? willEnterInteractiveMode;
 
     this.mongoshRepl = new MongoshNodeRepl({
       ...options,
-      shellCliOptions: { ...this.cliOptions, jsContext, quiet },
+      shellCliOptions: { ...this.cliOptions, jsContext, quiet, deepInspect },
       nodeReplOptions: options.nodeReplOptions ?? {
         terminal: process.env.MONGOSH_FORCE_TERMINAL ? true : undefined,
       },
@@ -306,7 +308,7 @@ export class CliRepl implements MongoshIOProvider {
       'Starting log',
       {
         execPath: process.execPath,
-        envInfo: redactSensitiveData(this.getLoggedEnvironmentVariables()),
+        envInfo: redact(this.getLoggedEnvironmentVariables()),
         ...(await buildInfo()),
       }
     );
@@ -327,6 +329,7 @@ export class CliRepl implements MongoshIOProvider {
     try {
       return await this._start(driverUri, driverOptions);
     } catch (err) {
+      this.exitingForStartupError = true;
       await this.close();
       throw err;
     }
@@ -739,7 +742,12 @@ export class CliRepl implements MongoshIOProvider {
           formattedResult = formatForJSONOutput(e, this.cliOptions.json);
         }
       } else {
-        formattedResult = this.mongoshRepl.writer(lastEvalResult);
+        formattedResult = this.mongoshRepl.writer(
+          lastEvalResult,
+          this.cliOptions.deepInspect !== false
+            ? fullDepthInspectOptions
+            : undefined
+        );
       }
       this.output.write(formattedResult + '\n');
     }
@@ -905,7 +913,7 @@ export class CliRepl implements MongoshIOProvider {
       this.output.write(
         i18n.__(CONNECTING) +
           '\t\t' +
-          this.clr(redactURICredentials(driverUri), 'mongosh:uri') +
+          this.clr(redactConnectionString(driverUri), 'mongosh:uri') +
           '\n'
       );
     }
@@ -1019,7 +1027,7 @@ export class CliRepl implements MongoshIOProvider {
     const warnings: string[] = [];
     const RECOMMENDED_GLIBC = '>=2.28.0';
     const RECOMMENDED_OPENSSL = '>=3.0.0';
-    const RECOMMENDED_NODEJS = '>=20.0.0';
+    const RECOMMENDED_NODEJS = '>=24.0.0';
     const semverRangeCheck = (
       semverLikeVersion: string,
       range: string
@@ -1054,7 +1062,7 @@ export class CliRepl implements MongoshIOProvider {
 
     if (!semver.satisfies(process.version, RECOMMENDED_NODEJS)) {
       warnings.push(
-        '  - Using mongosh with Node.js versions lower than 20.0.0 is deprecated, and support may be removed in a future release.'
+        '  - Using mongosh with Node.js versions lower than 24.0.0 is deprecated, and support may be removed in a future release.'
       );
     }
 
@@ -1163,6 +1171,7 @@ export class CliRepl implements MongoshIOProvider {
   async close(): Promise<void> {
     return (this.closingPromise ??= (async () => {
       markTime(TimingCategories.REPLInstantiation, 'start closing');
+      await this.mongoshRepl.close();
       this.agent?.destroy();
       if (!this.output.destroyed) {
         // Wait for output to be fully flushed before exiting.
@@ -1222,6 +1231,7 @@ export class CliRepl implements MongoshIOProvider {
    */
   async exit(code?: number): Promise<never> {
     await this.close();
+    if (this.exitingForStartupError) return new Promise(() => undefined); // Already exiting in run.ts then
     await this.onExit(code);
     // onExit never returns. If it does, that's a bug.
     const error = new MongoshInternalError('onExit() unexpectedly returned');

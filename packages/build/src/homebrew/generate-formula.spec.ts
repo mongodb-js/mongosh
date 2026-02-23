@@ -1,9 +1,11 @@
-import chai, { expect } from 'chai';
+import * as chai from 'chai';
+import { expect } from 'chai';
 import sinon from 'sinon';
 import type { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { generateUpdatedFormula } from './generate-formula';
+import sinonChai from 'sinon-chai';
 
-chai.use(require('sinon-chai'));
+chai.use(sinonChai);
 
 const VALID_FORMULA = `require "language/node"
 

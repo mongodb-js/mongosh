@@ -1,0 +1,43 @@
+# Knip ignore file - patterns to exclude from analysis
+
+# Build outputs
+**/lib/**
+**/dist/**
+**/build/**
+
+# Coverage and test outputs
+**/coverage/**
+**/.nyc_output/**
+
+# Generated files
+**/tmp/**
+**/.sbom/**
+
+# Test fixtures
+**/test/fixtures/**
+**/test/data/**
+
+# Evergreen CI specific
+.evergreen/**
+
+# Async rewriter3 (Rust/WASM project)
+packages/async-rewriter3/**
+
+# Lock files and dependencies
+**/node_modules/**
+package-lock.json
+npm-shrinkwrap.json
+yarn.lock
+pnpm-lock.yaml
+
+# IDE and editor files
+**/.vscode/**
+**/.idea/**
+**/*.swp
+**/*.swo
+**/*~
+
+# OS files
+**/.DS_Store
+**/Thumbs.db
+

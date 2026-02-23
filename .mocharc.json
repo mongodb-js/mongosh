@@ -1,0 +1,5 @@
+{
+  "spec": ["packages/testing/dummy.spec.ts"],
+  "exclude": ["node_modules/**"],
+  "node-option": ["no-experimental-strip-types=true"]
+}

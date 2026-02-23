@@ -1,4 +1,5 @@
-import chai, { expect } from 'chai';
+import * as chai from 'chai';
+import { expect } from 'chai';
 import sinonChai from 'sinon-chai';
 import sinon from 'sinon';
 import type { StubbedInstance } from 'ts-sinon';
@@ -2982,6 +2983,82 @@ describe('Database', function () {
           { checkMetadataConsistency: 1 },
           {}
         );
+      });
+    });
+
+    describe('return information about constructing the cursor as metadata', function () {
+      let serviceProviderCursor: StubbedInstance<ServiceProviderCursor>;
+      let proxyCursor: ServiceProviderCursor;
+
+      beforeEach(function () {
+        serviceProviderCursor = stubInterface<ServiceProviderCursor>();
+        serviceProviderCursor.skip.returns(serviceProviderCursor);
+        serviceProviderCursor.maxTimeMS.returns(serviceProviderCursor);
+        serviceProviderCursor.tryNext.resolves({ _id: 'abc' });
+        proxyCursor = new Proxy(serviceProviderCursor, {
+          get: (target, prop): any => {
+            if (prop === 'closed') {
+              return false;
+            }
+            return (target as any)[prop];
+          },
+        });
+      });
+
+      it('works for aggregate()', async function () {
+        serviceProvider.aggregateDb.returns(proxyCursor);
+        const cursor = (
+          await database.aggregate(
+            [{ $pipelineStage: { hasBanana: true } }],
+            {
+              promoteValues: false,
+              readConcern: 'primaryPreferred',
+            },
+            {}
+          )
+        ).skip(10);
+        const result = await toShellResult(cursor);
+        expect(result.constructionOptions).to.deep.equal({
+          options: {
+            method: 'aggregateDb',
+            cursorType: 'AggregationCursor',
+            args: [
+              'db1',
+              [{ $pipelineStage: { hasBanana: true } }],
+              { promoteValues: false },
+              { readConcern: 'primaryPreferred' },
+            ],
+          },
+          chains: [
+            {
+              method: 'skip',
+              args: [10],
+            },
+          ],
+        });
+      });
+
+      it('works for checkMetadataConsistency()', async function () {
+        serviceProvider.runCursorCommand.returns(proxyCursor);
+        const cursor = (
+          await database.checkMetadataConsistency({
+            checkIndexes: 1,
+          })
+        ).maxTimeMS(10);
+        const result = await toShellResult(cursor);
+        expect(result.constructionOptions).to.deep.equal({
+          options: {
+            method: 'runCursorCommand',
+            cursorType: 'RunCommandCursor',
+            args: ['db1', { checkMetadataConsistency: 1, checkIndexes: 1 }, {}],
+          },
+          chains: [
+            {
+              method: 'maxTimeMS',
+              args: [10],
+            },
+          ],
+        });
       });
     });
   });

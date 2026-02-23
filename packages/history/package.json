@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/history",
-  "version": "2.4.9",
+  "version": "2.4.13",
   "description": "MongoDB Shell History Package",
   "main": "./lib/index.js",
   "repository": {
@@ -11,14 +11,13 @@
     "unsafe-perm": true
   },
   "scripts": {
-    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register --reporter \"../../configs/mocha-config-mongosh/reporter.ts\" \"./{src,lib}/**/*.spec.ts\"",
+    "test": "mocha",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
     "eslint": "eslint",
     "lint": "npm run eslint . && npm run prettier -- --check .",
-    "check": "npm run lint && npm run depcheck",
-    "depcheck": "depcheck",
+    "check": "npm run lint",
     "compile": "tsc -p tsconfig.json",
     "prepublish": "npm run compile",
     "prettier": "prettier",
@@ -35,16 +34,13 @@
     "unitTestsOnly": true
   },
   "dependencies": {
-    "mongodb-connection-string-url": "^3.0.2",
-    "mongodb-redact": "^1.1.5"
+    "mongodb-redact": "^1.3.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
-    "mongodb-connection-string-url": "^3.0.2",
     "prettier": "^2.8.8"
   }
 }

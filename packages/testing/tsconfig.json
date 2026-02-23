@@ -1,0 +1,17 @@
+{
+  "extends": "@mongodb-js/tsconfig-mongosh/tsconfig.common.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "outDir": "./lib",
+    "declaration": true,
+    "declarationMap": true
+  },
+  "include": [
+    "src/**/*",
+    "src/certificates/**/*",
+    "src/chai.ts",
+    "../browser-repl/testing/enzyme.ts",
+    "../browser-repl/testing/enzyme.ts"
+  ],
+  "exclude": ["lib"]
+}

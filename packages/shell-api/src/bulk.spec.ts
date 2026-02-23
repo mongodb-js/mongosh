@@ -5,7 +5,8 @@ import type {
 } from '@mongosh/service-provider-core';
 import * as bson from 'bson';
 import { fail } from 'assert';
-import chai, { expect } from 'chai';
+import * as chai from 'chai';
+import { expect } from 'chai';
 import sinonChai from 'sinon-chai';
 import type { EventEmitter } from 'events';
 import type { StubbedInstance } from 'ts-sinon';

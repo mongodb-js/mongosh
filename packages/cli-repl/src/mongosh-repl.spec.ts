@@ -12,7 +12,7 @@ import path from 'path';
 import type { Duplex } from 'stream';
 import { PassThrough } from 'stream';
 import type { StubbedInstance } from 'ts-sinon';
-import { stubInterface } from 'ts-sinon';
+import sinon, { stubInterface } from 'ts-sinon';
 import { inspect, promisify } from 'util';
 import {
   expect,
@@ -95,6 +95,7 @@ describe('MongoshNodeRepl', function () {
       },
     });
     sp.runCommandWithCheck.resolves({ ok: 1 });
+    sp.find.resolves(sinon.stub());
 
     if (process.env.USE_NEW_AUTOCOMPLETE !== '0') {
       sp.listCollections.resolves([{ name: 'coll' }]);
@@ -282,7 +283,7 @@ describe('MongoshNodeRepl', function () {
         await waitEval(bus);
       }
       // Three ... because we entered three incomplete lines.
-      expect(output).to.include('... ... ... 987');
+      expect(output).to.include('| | | 987');
       expect(output).not.to.include('Error');
     });
 
@@ -1197,6 +1198,33 @@ describe('MongoshNodeRepl', function () {
         );
       });
     });
+
+    context('pasting code', function () {
+      const pasteStart = '\x1b[200~';
+      const pasteEnd = '\x1b[201~';
+      const moveLeft = '\x1b[1D';
+      const moveRight = '\x1b[C';
+
+      it('can paste code and run it', async function () {
+        input.write(`${pasteStart}12 * 34${pasteEnd}\n`);
+        await waitEval(bus);
+        expect(output).to.include('408');
+      });
+
+      it('can paste code in the middle of a line and run it', async function () {
+        input.write(`56${moveLeft}${pasteStart}12 * 34${pasteEnd}\n`);
+        await waitEval(bus);
+        expect(output).to.include('177152'); // 512 * 346
+      });
+
+      it('can paste code in the middle of multiline input and run it', async function () {
+        input.write(
+          `{\n56${moveLeft}${pasteStart}12 * 34${pasteEnd}${moveRight}\n}\n`
+        );
+        await waitEval(bus);
+        expect(output).to.include('177152'); // 512 * 346
+      });
+    });
   });
 
   context('with somewhat unreachable history file', function () {
@@ -1204,18 +1232,19 @@ describe('MongoshNodeRepl', function () {
     let origReadFile: any;
 
     before(function () {
-      origReadFile = fs.readFile;
-      fs.readFile = (...args: any[]) =>
-        process.nextTick(args[args.length - 1], new Error());
+      origReadFile = fs.promises.readFile;
+      fs.promises.readFile = () => {
+        throw new Error();
+      };
     });
-
     after(function () {
-      fs.readFile = origReadFile;
+      fs.promises.readFile = origReadFile;
     });
 
     it('warns about the unavailable history file support', async function () {
       await mongoshRepl.initialize(serviceProvider);
-      expect(output).to.include('Error processing history file');
+      expect(output).to.include('Error: Could not open history file.');
+      expect(output).to.include('REPL session history will not be persisted.');
     });
   });
 

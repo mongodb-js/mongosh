@@ -26,7 +26,7 @@ import {
 import { ServerVersions, asPrintable } from './enums';
 import type { UpdateResult } from './result';
 import { CommandResult } from './result';
-import { redactURICredentials } from '@mongosh/history';
+import { redactConnectionString } from 'mongodb-redact';
 import type Mongo from './mongo';
 import type AggregationCursor from './aggregation-cursor';
 import type RunCommandCursor from './run-command-cursor';
@@ -53,7 +53,7 @@ export default class Shard<
    * Internal method to determine what is printed for this class.
    */
   [asPrintable](): string {
-    return `Shard class connected to ${redactURICredentials(
+    return `Shard class connected to ${redactConnectionString(
       this._database._mongo._uri
     )} via db ${this._database._name}`;
   }

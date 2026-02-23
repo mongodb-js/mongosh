@@ -14,6 +14,7 @@ import {
 } from './enums';
 import Help from './help';
 import { addHiddenDataProperty } from './helpers';
+import type { CursorConstructionOptionsWithChains } from './abstract-cursor';
 
 const addSourceToResultsSymbol = Symbol.for('@@mongosh.addSourceToResults');
 const resultSource = Symbol.for('@@mongosh.resultSource');
@@ -61,6 +62,11 @@ export interface ShellResult {
    * Optional information about the original data source of the result.
    */
   source?: ShellResultSourceInformation;
+
+  /**
+   * Optional information for Cursor types about how to reconstruct the cursor.
+   */
+  constructionOptions?: CursorConstructionOptionsWithChains;
 }
 
 /**
@@ -161,17 +167,27 @@ export async function toShellResult(rawValue: any): Promise<ShellResult> {
     return toShellResult(await rawValue);
   }
 
+  const type = getShellApiType(rawValue);
+
   const printable =
     typeof rawValue[asPrintable] === 'function'
       ? await rawValue[asPrintable]()
       : rawValue;
+
   const source = rawValue[resultSource] ?? undefined;
 
+  // for cursors, if we have the necessary information, we might want to be able
+  // to reconstruct the cursor on the other side.
+  const constructionOptions = rawValue._constructionOptions
+    ? { options: rawValue._constructionOptions, chains: rawValue._chains }
+    : undefined;
+
   return {
-    type: getShellApiType(rawValue),
-    rawValue: rawValue,
-    printable: printable,
-    source: source,
+    type,
+    rawValue,
+    printable,
+    source,
+    constructionOptions,
   };
 }
 
@@ -898,4 +914,35 @@ export function addSourceToResults<T extends { prototype: any }>(
   context: ClassDecoratorContext
 ): void {
   (constructor as any)[addSourceToResultsSymbol] = true;
+}
+
+/**
+ * A decorator that marks a cursor method as a chainable method, i.e. a method that returns the cursor itself so that calls can be chained.
+ *
+ * This is used for methods like `sort()` and `limit()`, which modify the cursor but still return it, so that calls can be chained like `db.collection.find().sort(...).limit(...)`.
+ */
+export function cursorChainable<
+  This extends { _chains: any[] },
+  Args extends any[],
+  Return
+>(
+  originalFunction: (this: This, ...args: Args) => Return,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  context: ClassMethodDecoratorContext
+): (this: This, ...args: Args) => Return {
+  function wrapper(this: This, ...args: Args): Return {
+    // Push the method name and arguments onto the cursor's chain array
+    this._chains.push({
+      method: originalFunction.name,
+      args: [...args],
+    });
+    // Call the original method and return its result
+    return originalFunction.call(this, ...args);
+  }
+  Object.setPrototypeOf(wrapper, Object.getPrototypeOf(originalFunction));
+  Object.defineProperties(
+    wrapper,
+    Object.getOwnPropertyDescriptors(originalFunction)
+  );
+  return wrapper;
 }

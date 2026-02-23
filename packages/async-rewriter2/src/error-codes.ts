@@ -3,7 +3,7 @@
 /**
  * @mongoshErrors
  */
-enum AsyncRewriterErrors {
+export const AsyncRewriterErrors = {
   /**
    * Signals the use of a Mongosh API call in a place where it is not supported.
    * This occurs inside of constructors and (non-async) generator functions.
@@ -23,7 +23,7 @@ enum AsyncRewriterErrors {
    *
    * **Solution: Do not use calls directly in such functions. If necessary, place these calls in an inner 'async' function.**
    */
-  SyntheticPromiseInAlwaysSyncContext = 'ASYNC-10012',
+  SyntheticPromiseInAlwaysSyncContext: 'ASYNC-10012',
   /**
    * Signals the iteration of a Mongosh API object in a place where it is not supported.
    * This occurs inside of constructors and (non-async) generator functions.
@@ -44,7 +44,5 @@ enum AsyncRewriterErrors {
    *
    * **Solution: Do not use calls directly in such functions. If necessary, place these calls in an inner 'async' function.**
    */
-  SyntheticAsyncIterableInAlwaysSyncContext = 'ASYNC-10013',
-}
-
-export { AsyncRewriterErrors };
+  SyntheticAsyncIterableInAlwaysSyncContext: 'ASYNC-10013',
+} as const;

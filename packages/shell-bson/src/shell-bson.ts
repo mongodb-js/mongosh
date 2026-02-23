@@ -10,6 +10,7 @@ import {
   assignAll,
   pickWithExactKeyMatch,
 } from './helpers';
+import type { Document } from 'bson';
 
 type LongWithoutAccidentallyExposedMethods = Omit<
   typeof Long,
@@ -52,6 +53,9 @@ export interface ShellBsonBase<BSONLib extends BSON = BSON> {
   ) => BSONLib['Binary']['prototype'];
   HexData: (subtype: number, hexstr: string) => BSONLib['Binary']['prototype'];
   UUID: (hexstr?: string) => BSONLib['Binary']['prototype'];
+  LegacyJavaUUID: (hexstr?: string) => BSONLib['Binary']['prototype'];
+  LegacyCSharpUUID: (hexstr?: string) => BSONLib['Binary']['prototype'];
+  LegacyPythonUUID: (hexstr?: string) => BSONLib['Binary']['prototype'];
   MD5: (hexstr: string) => BSONLib['Binary']['prototype'];
   Decimal128: BSONLib['Decimal128'];
   BSONSymbol: BSONLib['BSONSymbol'];
@@ -180,7 +184,8 @@ export function constructShellBson<
         [[undefined, 'string', 'number', 'object']],
         'ObjectId'
       );
-      if (typeof id === 'number') return bson.ObjectId.createFromTime(id);
+      if (typeof id === 'number')
+        return new bson.ObjectId(bson.ObjectId.generate(id));
       return new bson.ObjectId(id);
     },
     pickWithExactKeyMatch(bson.ObjectId, ['prototype', 'cacheHexString', 'generate', 'createFromTime', 'createFromHexString', 'createFromBase64', 'isValid'])),
@@ -337,6 +342,92 @@ export function constructShellBson<
         // (e.g. 01234567-89ab-cdef-0123-456789abcdef).
         const buffer = Buffer.from((hexstr as string).replace(/-/g, ''), 'hex');
         return new bson.Binary(buffer, bson.Binary.SUBTYPE_UUID);
+      },
+      { prototype: bson.Binary.prototype }
+    ),
+
+    LegacyJavaUUID: assignAll(
+      function LegacyJavaUUID(hexstr?: string): BinaryType {
+        if (hexstr === undefined) {
+          // Generate a new UUID and format it.
+          hexstr = new bson.UUID().toHexString();
+        }
+        assertArgsDefinedType([hexstr], ['string'], 'LegacyJavaUUID');
+
+        let hex: string = String.prototype.replace.call(
+          hexstr,
+          /[{}-]/g,
+          () => ''
+        );
+        let msb = String.prototype.substring.call(hex, 0, 16);
+        let lsb = String.prototype.substring.call(hex, 16, 32);
+        msb =
+          String.prototype.substring.call(msb, 14, 16) +
+          String.prototype.substring.call(msb, 12, 14) +
+          String.prototype.substring.call(msb, 10, 12) +
+          String.prototype.substring.call(msb, 8, 10) +
+          String.prototype.substring.call(msb, 6, 8) +
+          String.prototype.substring.call(msb, 4, 6) +
+          String.prototype.substring.call(msb, 2, 4) +
+          String.prototype.substring.call(msb, 0, 2);
+        lsb =
+          String.prototype.substring.call(lsb, 14, 16) +
+          String.prototype.substring.call(lsb, 12, 14) +
+          String.prototype.substring.call(lsb, 10, 12) +
+          String.prototype.substring.call(lsb, 8, 10) +
+          String.prototype.substring.call(lsb, 6, 8) +
+          String.prototype.substring.call(lsb, 4, 6) +
+          String.prototype.substring.call(lsb, 2, 4) +
+          String.prototype.substring.call(lsb, 0, 2);
+        hex = msb + lsb;
+
+        const hexBuffer = Buffer.from(hex, 'hex');
+        return new bson.Binary(hexBuffer, bson.Binary.SUBTYPE_UUID_OLD);
+      },
+      { prototype: bson.Binary.prototype }
+    ),
+    LegacyCSharpUUID: assignAll(
+      function LegacyCSharpUUID(hexstr?: string): BinaryType {
+        if (hexstr === undefined) {
+          // Generate a new UUID and format it.
+          hexstr = new bson.UUID().toHexString();
+        }
+        assertArgsDefinedType([hexstr], ['string'], 'LegacyCSharpUUID');
+
+        let hex: string = String.prototype.replace.call(
+          hexstr,
+          /[{}-]/g,
+          () => ''
+        );
+        const a =
+          String.prototype.substring.call(hex, 6, 8) +
+          String.prototype.substring.call(hex, 4, 6) +
+          String.prototype.substring.call(hex, 2, 4) +
+          String.prototype.substring.call(hex, 0, 2);
+        const b =
+          String.prototype.substring.call(hex, 10, 12) +
+          String.prototype.substring.call(hex, 8, 10);
+        const c =
+          String.prototype.substring.call(hex, 14, 16) +
+          String.prototype.substring.call(hex, 12, 14);
+        const d = String.prototype.substring.call(hex, 16, 32);
+        hex = a + b + c + d;
+
+        const hexBuffer = Buffer.from(hex, 'hex');
+        return new bson.Binary(hexBuffer, bson.Binary.SUBTYPE_UUID_OLD);
+      },
+      { prototype: bson.Binary.prototype }
+    ),
+    LegacyPythonUUID: assignAll(
+      function LegacyPythonUUID(hexstr?: string): BinaryType {
+        if (hexstr === undefined) {
+          hexstr = new bson.UUID().toString();
+        }
+        assertArgsDefinedType([hexstr], ['string'], 'LegacyPythonUUID');
+        // Strip any dashes, as they occur in the standard UUID formatting
+        // (e.g. 01234567-89ab-cdef-0123-456789abcdef).
+        const buffer = Buffer.from(hexstr.replace(/-/g, ''), 'hex');
+        return new bson.Binary(buffer, bson.Binary.SUBTYPE_UUID_OLD);
       },
       { prototype: bson.Binary.prototype }
     ),

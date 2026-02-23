@@ -29,6 +29,7 @@ of mongosh, visit https://www.mongodb.com/try/download/shell.
         --eval [arg]                           Evaluate javascript
         --json[=canonical|relaxed]             Print result of --eval as Extended JSON, including errors
         --retryWrites[=true|false]             Automatically retry write operations upon transient network errors (Default: true)
+        --deep-inspect[=true|false]           Force full depth inspection of server results (default: true if in interactive mode)
 
   Authentication Options:
 
