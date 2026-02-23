@@ -469,10 +469,31 @@ describe('worker-runtime', function () {
   describe('getCompletions', function () {
     const testServer = startSharedTestServer();
 
-    it('should return completions', async function () {
-      const { init, getCompletions } = caller;
+    let exposed: Exposed<unknown> | null;
 
-      await init(await testServer.connectionString());
+    afterEach(function () {
+      if (exposed) {
+        exposed[close]();
+        exposed = null;
+      }
+    });
+
+    it('should return completions', async function () {
+      const db = `completions-${Date.now()}`;
+      await testServer.withClient((client) =>
+        client.db(db).collection('coll1').insertOne({})
+      );
+
+      const { init, getCompletions } = caller;
+      exposed = exposeAll<object>(
+        {
+          getConfig() {
+            return null;
+          },
+        },
+        worker
+      );
+      await init(await testServer.connectionString({}, { pathname: `/${db}` }));
 
       const completions = await getCompletions('db.coll1.f');
 
