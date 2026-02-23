@@ -40,4 +40,4 @@ jobs:
           check_name: "tc39/test-262 test results"
           large_files: true
           files: |
-            tmp/test262.test.json
+            tmp/test262-out/*.json
