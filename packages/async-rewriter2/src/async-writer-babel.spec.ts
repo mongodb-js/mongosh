@@ -28,8 +28,9 @@ describe('AsyncWriter', function () {
     plainMethod = sinon.stub();
     implicitlyAsyncValue = undefined;
 
-    const AsyncRewriterClass = (await import('../../async-rewriter3'))
-      .default as unknown as typeof AsyncWriter;
+    const AsyncRewriterClass = (
+      await import('../../async-rewriter3/dist/index.js')
+    ).default as unknown as typeof AsyncWriter;
 
     asyncWriter = new AsyncRewriterClass();
     await (asyncWriter.process('') as unknown as Promise<unknown>);
