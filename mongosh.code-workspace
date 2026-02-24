@@ -1,0 +1,149 @@
+{
+  "folders": [
+    {
+      "name": "mongosh",
+      "path": "."
+    },
+    {
+      "name": "📦 @mongodb-js/eslint-config-mongosh",
+      "path": "configs/eslint-config-mongosh"
+    },
+    {
+      "name": "📦 @mongodb-js/tsconfig-mongosh",
+      "path": "configs/tsconfig-mongosh"
+    },
+    {
+      "name": "📦 @mongosh/async-rewriter3",
+      "path": "packages/async-rewriter3"
+    },
+    {
+      "name": "📦 @mongosh/docker-build-scripts",
+      "path": "scripts/docker"
+    },
+    {
+      "name": "📦 @mongosh/async-rewriter2",
+      "path": "packages/async-rewriter2"
+    },
+    {
+      "name": "📦 @mongosh/build",
+      "path": "packages/build"
+    },
+    {
+      "name": "📦 @mongosh/errors",
+      "path": "packages/errors"
+    },
+    {
+      "name": "📦 @mongosh/history",
+      "path": "packages/history"
+    },
+    {
+      "name": "📦 @mongosh/js-multiline-to-singleline",
+      "path": "packages/js-multiline-to-singleline"
+    },
+    {
+      "name": "📦 @mongosh/types",
+      "path": "packages/types"
+    },
+    {
+      "name": "📦 @mongosh/i18n",
+      "path": "packages/i18n"
+    },
+    {
+      "name": "📦 @mongosh/logging",
+      "path": "packages/logging"
+    },
+    {
+      "name": "📦 @mongosh/shell-bson",
+      "path": "packages/shell-bson"
+    },
+    {
+      "name": "📦 @mongosh/testing",
+      "path": "packages/testing"
+    },
+    {
+      "name": "📦 @mongosh/arg-parser",
+      "path": "packages/arg-parser"
+    },
+    {
+      "name": "📦 @mongosh/service-provider-core",
+      "path": "packages/service-provider-core"
+    },
+    {
+      "name": "📦 @mongosh/service-provider-node-driver",
+      "path": "packages/service-provider-node-driver"
+    },
+    {
+      "name": "📦 @mongosh/shell-api",
+      "path": "packages/shell-api"
+    },
+    {
+      "name": "📦 @mongosh/autocomplete",
+      "path": "packages/autocomplete"
+    },
+    {
+      "name": "📦 @mongosh/shell-evaluator",
+      "path": "packages/shell-evaluator"
+    },
+    {
+      "name": "📦 @mongosh/snippet-manager",
+      "path": "packages/snippet-manager"
+    },
+    {
+      "name": "📦 @mongosh/browser-runtime-core",
+      "path": "packages/browser-runtime-core"
+    },
+    {
+      "name": "📦 @mongosh/editor",
+      "path": "packages/editor"
+    },
+    {
+      "name": "📦 @mongosh/browser-runtime-electron",
+      "path": "packages/browser-runtime-electron"
+    },
+    {
+      "name": "📦 @mongosh/cli-repl",
+      "path": "packages/cli-repl"
+    },
+    {
+      "name": "📦 @mongosh/e2e-tests",
+      "path": "packages/e2e-tests"
+    },
+    {
+      "name": "📦 @mongosh/java-shell",
+      "path": "packages/java-shell"
+    },
+    {
+      "name": "📦 mongosh",
+      "path": "packages/mongosh"
+    },
+    {
+      "name": "📦 @mongosh/node-runtime-worker-thread",
+      "path": "packages/node-runtime-worker-thread"
+    },
+    {
+      "name": "📦 @mongosh/browser-repl",
+      "path": "packages/browser-repl"
+    },
+    {
+      "name": "📦 @mongosh/connectivity-tests",
+      "path": "packages/connectivity-tests"
+    }
+  ],
+  "settings": {
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "mochaExplorer.configFile": ".mocharc.json",
+    "mochaExplorer.timeout": 60000,
+    "mochaExplorer.files": "",
+    "mochaExplorer.ui": "bdd",
+    "mochaExplorer.esmLoader": false,
+    "mochaExplorer.monkeyPatch": true,
+    "mochaExplorer.autoload": true,
+    "testExplorer.codeLens": true,
+    "testExplorer.gutterDecoration": true
+  },
+  "extensions": {
+    "recommendations": [
+      "hbenl.vscode-mocha-test-adapter"
+    ]
+  }
+}

@@ -9,12 +9,13 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noImplicitReturns": true,
+    "erasableSyntaxOnly": true,
 
     "declaration": true,
     "removeComments": true,
-    "target": "es2018",
-    "lib": ["es2019"],
-    "module": "commonjs",
-    "moduleResolution": "node"
+    "target": "es2021",
+    "lib": ["es2021"],
+    "module": "nodenext",
+    "moduleResolution": "nodenext"
   }
 }

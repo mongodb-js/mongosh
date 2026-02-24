@@ -1,15 +1,15 @@
 import { IframeRuntime } from './iframe-runtime';
-import { expect } from '../../testing/chai';
+import { expect } from '@mongosh/testing';
 import type { ServiceProvider } from '@mongosh/service-provider-core';
-import { bson } from '@mongosh/service-provider-core';
+import * as bson from 'bson';
 
 describe('IframeRuntime', function () {
-  let runtime;
-  let serviceProvider;
+  let runtime: IframeRuntime;
+  let serviceProvider: ServiceProvider;
 
   beforeEach(function () {
     document.body.innerHTML = '';
-    serviceProvider = { bsonLibrary: bson };
+    serviceProvider = { bsonLibrary: bson } as unknown as ServiceProvider;
     runtime = new IframeRuntime(serviceProvider);
   });
 
@@ -21,8 +21,10 @@ describe('IframeRuntime', function () {
 
       const iframe = document.querySelector('iframe');
       expect(iframe).to.exist;
-      expect(iframe.style.display).to.equal('none');
-      expect(iframe.sandbox.value).to.equal('allow-same-origin');
+      expect((iframe as HTMLIFrameElement).style.display).to.equal('none');
+      expect((iframe as HTMLIFrameElement).sandbox.value).to.equal(
+        'allow-same-origin'
+      );
     });
   });
 
@@ -47,7 +49,9 @@ describe('IframeRuntime', function () {
     });
 
     it('does not interfere with other instances', async function () {
-      const other = new IframeRuntime({ bsonLibrary: bson } as ServiceProvider);
+      const other = new IframeRuntime({
+        bsonLibrary: bson,
+      } as unknown as ServiceProvider);
       await runtime.evaluate('x = 1');
       await other.evaluate('x = 2');
 

@@ -61,7 +61,9 @@ describe('MongoshLoggingAndTelemetry', function () {
 
     logger = new MongoLogWriter(logId, `/tmp/${logId}_log`, {
       write(chunk: string, cb: () => void) {
-        logOutput.push(JSON.parse(chunk));
+        if (chunk.trim()) {
+          logOutput.push(JSON.parse(chunk));
+        }
         cb();
       },
       end(cb: () => void) {
@@ -70,8 +72,8 @@ describe('MongoshLoggingAndTelemetry', function () {
     } as Writable);
   });
 
-  afterEach(function () {
-    loggingAndTelemetry.detachLogger();
+  afterEach(async function () {
+    await loggingAndTelemetry.detachLogger();
     logger.destroy();
   });
 
@@ -82,9 +84,9 @@ describe('MongoshLoggingAndTelemetry', function () {
     );
   });
 
-  it('does not throw when attaching and detaching loggers', function () {
+  it('does not throw when attaching and detaching loggers', async function () {
     loggingAndTelemetry.attachLogger(logger);
-    loggingAndTelemetry.detachLogger();
+    await loggingAndTelemetry.detachLogger();
     expect(() => loggingAndTelemetry.attachLogger(logger)).does.not.throw();
   });
 
@@ -308,7 +310,7 @@ describe('MongoshLoggingAndTelemetry', function () {
         .setupTelemetryPromise;
 
       // Flush before it completes
-      loggingAndTelemetry.flush();
+      await loggingAndTelemetry.flush();
 
       // Emit an event that would trigger analytics
       bus.emit('mongosh:new-user', { userId, anonymousId: userId });
@@ -377,7 +379,7 @@ describe('MongoshLoggingAndTelemetry', function () {
     expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.have.lengthOf(0);
 
-    loggingAndTelemetry.detachLogger();
+    await loggingAndTelemetry.detachLogger();
 
     // This event has both analytics and logging
     bus.emit('mongosh:use', { db: '' });
@@ -386,7 +388,7 @@ describe('MongoshLoggingAndTelemetry', function () {
     expect(analyticsOutput).to.have.lengthOf(1);
   });
 
-  it('detaching logger applies to devtools-connect events', function () {
+  it('detaching logger applies to devtools-connect events', async function () {
     loggingAndTelemetry.attachLogger(logger);
 
     bus.emit('devtools-connect:connect-fail-early');
@@ -396,7 +398,7 @@ describe('MongoshLoggingAndTelemetry', function () {
     // No analytics event attached to this
     expect(analyticsOutput).to.have.lengthOf(0);
 
-    loggingAndTelemetry.detachLogger();
+    await loggingAndTelemetry.detachLogger();
     bus.emit('devtools-connect:connect-fail-early');
 
     expect(logOutput).to.have.lengthOf(2);
@@ -423,7 +425,7 @@ describe('MongoshLoggingAndTelemetry', function () {
     await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
     expect(analyticsOutput).to.have.lengthOf(1);
 
-    loggingAndTelemetry.detachLogger();
+    await loggingAndTelemetry.detachLogger();
 
     bus.emit('mongosh:use', { db: '' });
 
@@ -446,7 +448,7 @@ describe('MongoshLoggingAndTelemetry', function () {
 
     expect(analyticsOutput).to.have.lengthOf(1);
 
-    loggingAndTelemetry.detachLogger();
+    await loggingAndTelemetry.detachLogger();
 
     bus.emit('mongosh:use', { db: '' });
 
@@ -1128,6 +1130,54 @@ describe('MongoshLoggingAndTelemetry', function () {
 
     expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.be.empty;
+  });
+
+  it('redacts logging of sensitive commands', async function () {
+    loggingAndTelemetry.attachLogger(logger);
+    await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
+
+    expect(logOutput).to.have.lengthOf(0);
+
+    // Test that sensitive commands are redacted
+    bus.emit('mongosh:evaluate-input', {
+      input: 'db.createUser({user: "admin", pwd: "password", roles: []})',
+    });
+    bus.emit('mongosh:evaluate-input', { input: 'db.auth("user", "pass")' });
+    bus.emit('mongosh:evaluate-input', {
+      input: 'db.updateUser("user", {pwd: "newpass"})',
+    });
+    bus.emit('mongosh:evaluate-input', {
+      input: 'db.changeUserPassword("user", "newpass")',
+    });
+    bus.emit('mongosh:evaluate-input', {
+      input: 'connect("mongodb://user:pass@localhost/")',
+    });
+    bus.emit('mongosh:evaluate-input', {
+      input: 'new Mongo("mongodb://user:pass@localhost/")',
+    });
+
+    // Test that non-sensitive commands are still logged
+    bus.emit('mongosh:evaluate-input', { input: 'db.getUsers()' });
+    bus.emit('mongosh:evaluate-input', { input: 'show dbs' });
+
+    // Should only have logged the non-sensitive commands
+    expect(logOutput).to.have.lengthOf(8);
+    expect(logOutput[0].msg).to.equal('Evaluating input');
+    expect(logOutput[0].attr.input).to.equal('<sensitive command used>');
+    expect(logOutput[1].msg).to.equal('Evaluating input');
+    expect(logOutput[1].attr.input).to.equal('<sensitive command used>');
+    expect(logOutput[2].msg).to.equal('Evaluating input');
+    expect(logOutput[2].attr.input).to.equal('<sensitive command used>');
+    expect(logOutput[3].msg).to.equal('Evaluating input');
+    expect(logOutput[3].attr.input).to.equal('<sensitive command used>');
+    expect(logOutput[4].msg).to.equal('Evaluating input');
+    expect(logOutput[4].attr.input).to.equal('<sensitive command used>');
+    expect(logOutput[5].msg).to.equal('Evaluating input');
+    expect(logOutput[5].attr.input).to.equal('<sensitive command used>');
+    expect(logOutput[6].msg).to.equal('Evaluating input');
+    expect(logOutput[6].attr.input).to.equal('db.getUsers()');
+    expect(logOutput[7].msg).to.equal('Evaluating input');
+    expect(logOutput[7].attr.input).to.equal('show dbs');
   });
 
   it('tracks custom logging events', async function () {

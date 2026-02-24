@@ -1,3 +1,4 @@
+import type { Abortable } from 'events';
 import type { RunCursorCommandOptions } from 'mongodb';
 import type {
   Document,
@@ -45,7 +46,7 @@ export default interface Writable {
   runCommand(
     db: string,
     spec: Document,
-    options: RunCommandOptions,
+    options: RunCommandOptions & Abortable,
     dbOptions?: DbOptions
   ): Promise<Document>;
 
@@ -59,7 +60,7 @@ export default interface Writable {
   runCommandWithCheck(
     db: string,
     spec: Document,
-    options: RunCommandOptions,
+    options: RunCommandOptions & Abortable,
     dbOptions?: DbOptions
   ): Promise<Document>;
 

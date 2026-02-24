@@ -16,7 +16,7 @@ import type {
   ServiceProvider,
   WriteConcern,
 } from '@mongosh/service-provider-core';
-import { bson } from '@mongosh/service-provider-core';
+import * as bson from 'bson';
 import type { DatabaseWithSchema } from './database';
 import { EventEmitter } from 'events';
 import ShellInstanceState from './shell-instance-state';
@@ -30,10 +30,7 @@ import {
   MongoshUnimplementedError,
 } from '@mongosh/errors';
 import { NodeDriverServiceProvider } from '../../service-provider-node-driver';
-import {
-  skipIfServerVersion,
-  startSharedTestServer,
-} from '../../../testing/integration-testing-hooks';
+import { skipIfServerVersion, startSharedTestServer } from '@mongosh/testing';
 import { dummyOptions } from './helpers.spec';
 import { ClientBulkWriteResult } from './result';
 

@@ -2,6 +2,7 @@
   "extends": "@mongodb-js/tsconfig-mongosh/tsconfig.common.json",
   "compilerOptions": {
     "outDir": "./lib",
+    "rootDir": "./src",
     "allowJs": true
   },
   "include": ["src/**/*"],

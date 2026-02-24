@@ -1,0 +1,11 @@
+{
+  "require": [
+    "../../scripts/import-expansions.js",
+    "./tests/register-worker.js",
+    "ts-node/register"
+  ],
+  "timeout": 15000,
+  "reporter": "../../configs/mocha-config-mongosh/reporter.ts",
+  "spec": ["./src/**/*.spec.ts"],
+  "exclude": ["**/node_modules/**"]
+}

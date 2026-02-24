@@ -9,22 +9,23 @@ import {
   validateExplainableVerbosity,
 } from './helpers';
 import { Database, Mongo, ShellInstanceState } from './index';
-import constructShellBson from './shell-bson';
+import { constructShellBson } from '@mongosh/shell-bson';
 import type { ServiceProvider } from '@mongosh/service-provider-core';
-import { bson } from '@mongosh/service-provider-core';
+import * as bson from 'bson';
 import type { DevtoolsConnectOptions } from '../../service-provider-node-driver';
 import { NodeDriverServiceProvider } from '../../service-provider-node-driver'; // avoid cyclic dep just for test
-import { startSharedTestServer } from '../../../testing/integration-testing-hooks';
+import { startSharedTestServer } from '@mongosh/testing';
 import { makeFakeConfigDatabase } from '../test/shard-test-fake-data';
 import sinon from 'ts-sinon';
-import chai, { expect } from 'chai';
+import * as chai from 'chai';
+import { expect } from 'chai';
 import { EventEmitter } from 'events';
 import sinonChai from 'sinon-chai';
 import { stub } from 'sinon';
 chai.use(sinonChai);
 
 const fakeConfigDb = makeFakeConfigDatabase(
-  constructShellBson(bson, sinon.stub())
+  constructShellBson({ bsonLibrary: bson, printWarning: sinon.stub() })
 );
 
 export const dummyOptions: DevtoolsConnectOptions = Object.freeze({

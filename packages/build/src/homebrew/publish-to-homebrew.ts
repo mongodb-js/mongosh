@@ -12,18 +12,20 @@ export type HomebrewPublisherConfig = {
 };
 
 export class HomebrewPublisher {
+  public config: HomebrewPublisherConfig;
   readonly npmPackageSha256: typeof npmPackageSha256Fn;
   readonly generateFormula: typeof generateUpdatedFormulaFn;
   readonly updateHomebrewFork: typeof updateHomebrewForkFn;
 
   constructor(
-    public config: HomebrewPublisherConfig,
+    config: HomebrewPublisherConfig,
     {
       npmPackageSha256 = npmPackageSha256Fn,
       generateFormula = generateUpdatedFormulaFn,
       updateHomebrewFork = updateHomebrewForkFn,
     } = {}
   ) {
+    this.config = config;
     this.npmPackageSha256 = npmPackageSha256;
     this.generateFormula = generateFormula;
     this.updateHomebrewFork = updateHomebrewFork;

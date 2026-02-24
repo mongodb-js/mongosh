@@ -50,7 +50,7 @@ export interface Config {
   notarySigningKeyName?: string;
   notaryAuthToken?: string;
   isCi?: boolean;
-  platform?: string;
+  platform?: NodeJS.Platform;
   execNodeVersion: string;
   packageVariant?: PackageVariant;
   repo: {

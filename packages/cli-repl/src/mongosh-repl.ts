@@ -1,6 +1,6 @@
 import type { CompletionResults } from '@mongosh/autocomplete';
 import { completer, initNewAutocompleter } from '@mongosh/autocomplete';
-import { MongoshInternalError, MongoshWarning } from '@mongosh/errors';
+import { MongoshInternalError } from '@mongosh/errors';
 import { changeHistory } from '@mongosh/history';
 import type {
   AutoEncryptionOptions,
@@ -47,9 +47,10 @@ import type { FormatOptions } from './format-output';
 import { markTime } from './startup-timing';
 import type { Context } from 'vm';
 import { Script, createContext, runInContext } from 'vm';
-import { installPasteSupport } from './repl-paste-support';
+import { fixNode60446, installPasteSupport } from './repl-paste-support';
 import util from 'util';
 import { fixNodeReplCompleterSideEffectHandling } from './node-repl-fix-completer-side-effects';
+import { fixNodeReplHistoryHandler } from './node-repl-fix-history-rewrite-on-error';
 
 declare const __non_webpack_require__: any;
 
@@ -278,6 +279,7 @@ class MongoshNodeRepl implements EvaluationListener {
         onAsyncSigint: this.onAsyncSigint.bind(this),
         ...this.nodeReplOptions,
       });
+      fixNode60446(repl);
       context = repl.context;
     } else {
       // https://nodejs.org/api/repl.html#replbuiltinmodules not represented in TS types
@@ -438,10 +440,11 @@ class MongoshNodeRepl implements EvaluationListener {
       promisify(repl.completer.bind(repl))
     ); // repl.completer is callback-style
 
+    await fixNodeReplHistoryHandler(repl);
     let newMongoshCompleter: (line: string) => Promise<CompletionResults>;
     let oldMongoshCompleter: (line: string) => Promise<CompletionResults>;
 
-    if (process.env.USE_NEW_AUTOCOMPLETE) {
+    if (process.env.USE_NEW_AUTOCOMPLETE !== '0') {
       // we will lazily instantiate the new autocompleter on first use
     } else {
       const autocompleteParams = instanceState.getAutocompleteParameters();
@@ -461,7 +464,7 @@ class MongoshNodeRepl implements EvaluationListener {
           return nodeResults;
         })(),
         (async () => {
-          if (process.env.USE_NEW_AUTOCOMPLETE) {
+          if (process.env.USE_NEW_AUTOCOMPLETE !== '0') {
             if (!newMongoshCompleter) {
               newMongoshCompleter = await initNewAutocompleter(instanceState);
             }
@@ -556,66 +559,53 @@ class MongoshNodeRepl implements EvaluationListener {
 
     markTime(TimingCategories.REPLInstantiation, 'created repl object');
     const historyFile = this.ioProvider.getHistoryFilePath();
-    try {
-      await promisify(repl.setupHistory).call(repl, historyFile);
-      // repl.history is an array of previous commands. We need to hijack the
-      // value we just typed, and shift it off the history array if the info is
-      // sensitive.
-      repl.on('line', () => {
-        if (this.redactHistory !== 'keep') {
-          const history: string[] = (repl as any).history;
-          changeHistory(
-            history,
-            this.redactHistory === 'remove-redact'
-              ? 'redact-sensitive-data'
-              : 'keep-sensitive-data'
-          );
+    await promisify(repl.setupHistory).call(repl, historyFile);
+    // repl.history is an array of previous commands. We need to hijack the
+    // value we just typed, and shift it off the history array if the info is
+    // sensitive.
+    repl.on('line', () => {
+      if (this.redactHistory !== 'keep') {
+        const history: string[] = (repl as any).history;
+        changeHistory(
+          history,
+          this.redactHistory === 'remove-redact'
+            ? 'redact-sensitive-data'
+            : 'keep-sensitive-data'
+        );
+      }
+    });
+    // We also want to group multiline history entries and .editor input into
+    // a single entry per evaluation, so that arrow-up functionality
+    // is more useful.
+    (repl as any).on(asyncRepl.evalFinish, (ev: asyncRepl.EvalFinishEvent) => {
+      if (this.insideAutoCompleteOrGetPrompt) {
+        return; // These are not the evaluations we are looking for.
+      }
+      const history: string[] = (repl as any).history;
+      if (ev.success === false && ev.recoverable) {
+        if (originalHistory === null) {
+          // If this is the first recoverable error we encounter, store the
+          // current history in order to be later able to restore it.
+          // We skip the first entry because it is part of the multiline
+          // input.
+          originalHistory = history.slice(1);
         }
-      });
-      // We also want to group multiline history entries and .editor input into
-      // a single entry per evaluation, so that arrow-up functionality
-      // is more useful.
-      (repl as any).on(
-        asyncRepl.evalFinish,
-        (ev: asyncRepl.EvalFinishEvent) => {
-          if (this.insideAutoCompleteOrGetPrompt) {
-            return; // These are not the evaluations we are looking for.
-          }
-          const history: string[] = (repl as any).history;
-          if (ev.success === false && ev.recoverable) {
-            if (originalHistory === null) {
-              // If this is the first recoverable error we encounter, store the
-              // current history in order to be later able to restore it.
-              // We skip the first entry because it is part of the multiline
-              // input.
-              originalHistory = history.slice(1);
-            }
-          } else if (originalHistory !== null) {
-            // We are seeing the first completion after a recoverable error that
-            // did not result in a recoverable error, i.e. the multiline input
-            // is complete.
-            // Add the current input, with newlines replaced by spaces, to the
-            // front of the history array. We restore the original history, i.e.
-            // any intermediate lines added to the history while we were gathering
-            // the multiline input are replaced at this point.
-            const newHistoryEntry = makeMultilineJSIntoSingleLine(ev.input);
-            if (newHistoryEntry.length > 0) {
-              originalHistory.unshift(newHistoryEntry);
-            }
-            history.splice(0, history.length, ...originalHistory);
-            originalHistory = null;
-          }
+      } else if (originalHistory !== null) {
+        // We are seeing the first completion after a recoverable error that
+        // did not result in a recoverable error, i.e. the multiline input
+        // is complete.
+        // Add the current input, with newlines replaced by spaces, to the
+        // front of the history array. We restore the original history, i.e.
+        // any intermediate lines added to the history while we were gathering
+        // the multiline input are replaced at this point.
+        const newHistoryEntry = makeMultilineJSIntoSingleLine(ev.input);
+        if (newHistoryEntry.length > 0) {
+          originalHistory.unshift(newHistoryEntry);
         }
-      );
-    } catch (err: any) {
-      // repl.setupHistory() only reports failure when something went wrong
-      // *after* the file was already opened for the first time. If the initial
-      // open fails, it will print a warning to the REPL and report success to us.
-      const warn = new MongoshWarning(
-        'Error processing history file: ' + err?.message
-      );
-      this.output.write(this.writer(warn) + '\n');
-    }
+        history.splice(0, history.length, ...originalHistory);
+        originalHistory = null;
+      }
+    });
 
     markTime(TimingCategories.UserConfigLoading, 'set up history file');
 
@@ -904,6 +894,7 @@ class MongoshNodeRepl implements EvaluationListener {
    * @returns true
    */
   async onAsyncSigint(): Promise<boolean> {
+    if (!this._runtimeState) return true; // Nothing left to clean up at this point.
     const { instanceState } = this.runtimeState();
     if (instanceState.interrupted.isSet()) {
       return true;
@@ -944,6 +935,7 @@ class MongoshNodeRepl implements EvaluationListener {
     }
     this.bus.emit('mongosh:interrupt-complete'); // For testing purposes.
 
+    if (!this._runtimeState) return true; // Nothing left to clean up at this point.
     const { repl } = this.runtimeState();
     if (repl) {
       repl.setPrompt(await this.getShellPrompt());
@@ -955,7 +947,7 @@ class MongoshNodeRepl implements EvaluationListener {
   /**
    * Format the result to a string so it can be written to the output stream.
    */
-  writer(result: any): string {
+  writer(result: any, extraFormatOptions?: Partial<FormatOptions>): string {
     // This checks for error instances.
     // The writer gets called immediately by the internal `repl.eval`
     // in case of errors.
@@ -975,7 +967,8 @@ class MongoshNodeRepl implements EvaluationListener {
       this.rawValueToShellResult.get(result) ?? {
         type: null,
         printable: result,
-      }
+      },
+      extraFormatOptions
     );
   }
 
@@ -1155,9 +1148,11 @@ class MongoshNodeRepl implements EvaluationListener {
         await once(rs.repl, 'exit');
       }
       await rs.instanceState.close();
-      await new Promise((resolve) =>
-        this.output.write(this.outputFinishString, resolve)
-      );
+      if (!this.output.writableEnded && !this.output.destroyed) {
+        await new Promise((resolve) =>
+          this.output.write(this.outputFinishString, resolve)
+        );
+      }
     }
   }
 
@@ -1199,8 +1194,24 @@ class MongoshNodeRepl implements EvaluationListener {
     const result = await this.ioProvider.setConfig(key, value);
     if (result === 'success') {
       if (key === 'historyLength' && this._runtimeState) {
-        (this.runtimeState().repl as any).historySize = value;
+        // TODO: We monkey-patch the history size of the historyManager because in Node.js 24+ it got
+        // hidden, but we still need to be able to modify it at runtime.
+        // We will want to fix this upstream, in Node itself.
+        const historyManager = (this.runtimeState().repl as any).historyManager;
+        if (historyManager) {
+          const historyManagerSymbols =
+            Object.getOwnPropertySymbols(historyManager);
+          const kSize = historyManagerSymbols.find((symbol) =>
+            String(symbol).includes('(_kSize)')
+          );
+          if (kSize) {
+            historyManager[kSize] = value;
+          }
+        } else {
+          (this.runtimeState().repl as any).historySize = value;
+        }
       }
+
       if (key === 'inspectCompact') {
         this.inspectCompact = value as number | boolean;
       }

@@ -9,30 +9,30 @@ import type {
   DeleteOptions,
   MapReduceOptions,
   ExplainOptions,
+  ServiceProvider,
 } from '@mongosh/service-provider-core';
 import {
   CommonErrors,
   MongoshInvalidInputError,
   MongoshUnimplementedError,
 } from '@mongosh/errors';
-import crypto from 'crypto';
 import type { Database } from './database';
 import type { Collection } from './collection';
 import type { CursorIterationResult } from './result';
 import { ShellApiErrors } from './error-codes';
-import type {
-  BinaryType,
-  ReplPlatform,
-  bson,
-} from '@mongosh/service-provider-core';
+import type { BinaryType, ReplPlatform } from '@mongosh/service-provider-core';
 import type { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
 import type { AutoEncryptionOptions, Long, ObjectId, Timestamp } from 'mongodb';
 import { shellApiType } from './enums';
 import type { AbstractFiniteCursor } from './abstract-cursor';
 import type ChangeStreamCursor from './change-stream-cursor';
-import type { ShellBson } from './shell-bson';
-import { inspect } from 'util';
+import { type BSON, type ShellBson, getBsonType } from '@mongosh/shell-bson';
 import type { MQLPipeline, MQLQuery } from './mql-types';
+import type { InspectOptions } from 'util';
+
+let coreUtilInspect: ((obj: any, options: InspectOptions) => string) & {
+  defaultOptions: InspectOptions;
+};
 
 /**
  * Helper method to adapt aggregation pipeline options.
@@ -129,7 +129,9 @@ export function assertArgsDefinedType(
     const expectedTypesList: Array<string | undefined> =
       typeof expected === 'string' ? [expected] : expected;
     const isExpectedTypeof = expectedTypesList.includes(typeof arg);
-    const isExpectedBson = expectedTypesList.includes(`bson:${arg?._bsontype}`);
+    const isExpectedBson = expectedTypesList.includes(
+      `bson:${getBsonType(arg)}`
+    );
 
     if (!isExpectedTypeof && !isExpectedBson) {
       const expectedMsg = expectedTypesList
@@ -177,6 +179,35 @@ export function adaptOptions(
   }, additions);
 }
 
+async function computeLegacyHexMD5(
+  sp: ServiceProvider,
+  str: string
+): Promise<string> {
+  const digested = await sp.computeLegacyHexMD5?.(str);
+  if (digested) return digested;
+
+  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+  let crypto: typeof import('crypto');
+  try {
+    // Try to dynamically import crypto so that we don't break plain-JS-runtime builds.
+    // The Web Crypto API does not provide MD5, which is reasonable for a modern API
+    // but means that we cannot use it as a fallback.
+    crypto = require('crypto');
+  } catch {
+    throw new MongoshUnimplementedError(
+      'Legacy password digest algorithms like SCRAM-SHA-1 are not supported by this instance of mongosh',
+      CommonErrors.Deprecated
+    );
+  }
+  // NOTE: this code has raised a code scanning alert about the "use of a broken or weak cryptographic algorithm":
+  // we inherited this code from `mongo`, and we cannot replace MD5 with a different algorithm, since MD5 is part of the SCRAM-SHA-1 protocol,
+  // and the purpose of `passwordDigestor=client` is to improve the security of SCRAM-SHA-1, allowing the creation of new users
+  // without the need to communicate their password to the server.
+  const hash = crypto.createHash('md5');
+  hash.update(str);
+  return hash.digest('hex');
+}
+
 /**
  * Optionally digest password if passwordDigestor field set to 'client'. If it's false,
  * then hash the password.
@@ -185,11 +216,12 @@ export function adaptOptions(
  * @param passwordDigestor
  * @param {Object} command
  */
-export function processDigestPassword(
+export async function processDigestPassword(
   username: string,
   passwordDigestor: 'server' | 'client',
-  command: { pwd: string }
-): { digestPassword?: boolean; pwd?: string } {
+  command: { pwd: string },
+  sp: ServiceProvider
+): Promise<{ digestPassword?: boolean; pwd?: string }> {
   if (passwordDigestor === undefined) {
     return {};
   }
@@ -206,14 +238,10 @@ export function processDigestPassword(
         CommonErrors.InvalidArgument
       );
     }
-    // NOTE: this code has raised a code scanning alert about the "use of a broken or weak cryptographic algorithm":
-    // we inherited this code from `mongo`, and we cannot replace MD5 with a different algorithm, since MD5 is part of the SCRAM-SHA-1 protocol,
-    // and the purpose of `passwordDigestor=client` is to improve the security of SCRAM-SHA-1, allowing the creation of new users
-    // without the need to communicate their password to the server.
-    const hash = crypto.createHash('md5');
-    hash.update(`${username}:mongo:${command.pwd}`);
-    const digested = hash.digest('hex');
-    return { digestPassword: false, pwd: digested };
+    return {
+      digestPassword: false,
+      pwd: await computeLegacyHexMD5(sp, `${username}:mongo:${command.pwd}`),
+    };
   }
   return { digestPassword: true };
 }
@@ -601,6 +629,9 @@ export async function getPrintableShardStatus(
               ];
             }
 
+            collRes.allowMigrations =
+              coll.permitMigrations !== false && coll.allowMigrations !== false;
+
             const chunksRes = [];
             const chunksCollMatch = buildConfigChunksCollectionMatch(coll);
             const chunks = await (
@@ -631,24 +662,35 @@ export async function getPrintableShardStatus(
                   'on shard': chunk.shard,
                   'last modified': chunk.lastmod,
                 } as any;
-                // Displaying a full, multi-line output for each chunk is a bit verbose,
-                // even if there are only a few chunks. Where supported, we use a custom
-                // inspection function to inspect a copy of this object with an unlimited
-                // line break length (i.e. all objects on a single line).
-                Object.defineProperty(
-                  c,
-                  Symbol.for('nodejs.util.inspect.custom'),
-                  {
-                    value: function (depth: number, options: any): string {
-                      return inspect(
-                        { ...this },
-                        { ...options, breakLength: Infinity }
-                      );
-                    },
-                    writable: true,
-                    configurable: true,
-                  }
-                );
+                try {
+                  // eslint-disable-next-line @typescript-eslint/no-var-requires
+                  coreUtilInspect ??= require('util').inspect;
+                } catch {
+                  // No util.inspect available, e.g. in browser builds.
+                }
+                if (coreUtilInspect) {
+                  // Displaying a full, multi-line output for each chunk is a bit verbose,
+                  // even if there are only a few chunks. Where supported, we use a custom
+                  // inspection function to inspect a copy of this object with an unlimited
+                  // line break length (i.e. all objects on a single line).
+                  Object.defineProperty(
+                    c,
+                    Symbol.for('nodejs.util.inspect.custom'),
+                    {
+                      value: function (
+                        depth: number,
+                        options: InspectOptions
+                      ): string {
+                        return coreUtilInspect(
+                          { ...this },
+                          { ...options, breakLength: Infinity }
+                        );
+                      },
+                      writable: true,
+                      configurable: true,
+                    }
+                  );
+                }
                 if (chunk.jumbo) c.jumbo = 'yes';
                 chunksRes.push(c);
               } else if (chunksRes.length === 20 && !verbose) {
@@ -770,9 +812,9 @@ export async function getConfigDB(db: Database): Promise<Database> {
 
 type AnyBsonNumber =
   | number
-  | typeof bson.Long.prototype
-  | typeof bson.Int32.prototype
-  | typeof bson.Double.prototype;
+  | BSON['Long']['prototype']
+  | BSON['Int32']['prototype']
+  | BSON['Double']['prototype'];
 export function coerceToJSNumber(n: AnyBsonNumber): number {
   if (typeof n === 'number') {
     return n;
@@ -837,7 +879,7 @@ export function scaleIndividualShardStatistics(
 }
 
 export function tsToSeconds(
-  x: typeof bson.Timestamp.prototype | number | { valueOf(): number }
+  x: BSON['Timestamp']['prototype'] | number | { valueOf(): number }
 ): number {
   if (typeof x === 'object' && x && 'getHighBits' in x && 'getLowBits' in x) {
     return x.getHighBits(); // extract 't' from { t, i }
@@ -1041,7 +1083,7 @@ export function processFLEOptions(
   };
 
   const localKey = fleOptions.kmsProviders.local?.key;
-  if (localKey && (localKey as BinaryType)._bsontype === 'Binary') {
+  if (localKey && getBsonType(localKey) === 'Binary') {
     const rawBuff = (localKey as BinaryType).value();
     if (Buffer.isBuffer(rawBuff)) {
       autoEncryption.kmsProviders = {
@@ -1125,7 +1167,7 @@ export function shouldRunAggregationImmediately(
 function isBSONDoubleConvertible(val: any): boolean {
   return (
     (typeof val === 'number' && Number.isInteger(val)) ||
-    val?._bsontype === 'Int32'
+    getBsonType(val) === 'Int32'
   );
 }
 
@@ -1224,75 +1266,6 @@ export function getBadge(collections: Document[], index: number): string {
 export function shallowClone<T>(input: T): T {
   if (!input || typeof input !== 'object') return input;
   return Array.isArray(input) ? ([...input] as unknown as T) : { ...input };
-}
-
-// Create a copy of a class so that it's constructible without `new`, i.e.
-// class A {}; B = functionCtor(A);
-// A() // throws
-// B() // does not throw, returns instance of A
-export function functionCtorWithoutProps<
-  T extends Function & { new (...args: any): any }
->(ClassCtor: T): { new (...args: ConstructorParameters<T>): T } {
-  function fnCtor(...args: any[]) {
-    if (new.target) {
-      return Reflect.construct(ClassCtor, args, new.target);
-    }
-    return new ClassCtor(...args);
-  }
-  Object.setPrototypeOf(fnCtor, Object.getPrototypeOf(ClassCtor));
-  const nameDescriptor = Object.getOwnPropertyDescriptor(ClassCtor, 'name');
-  if (nameDescriptor) {
-    Object.defineProperty(fnCtor, 'name', nameDescriptor);
-  }
-  return fnCtor as any;
-}
-
-export function assignAll<T extends {}, U extends {}>(t: T, u: U): T & U;
-export function assignAll<T extends {}, U extends {}, V extends {}>(
-  t: T,
-  u: U,
-  v: V
-): T & U & V;
-export function assignAll<
-  T extends {},
-  U extends {},
-  V extends {},
-  W extends {}
->(t: T, u: U, v: V, w: W): T & U & V & W;
-export function assignAll(target: {}, ...sources: {}[]): any {
-  const newDescriptorList = [];
-  for (const source of sources) {
-    newDescriptorList.push(
-      ...Object.entries(Object.getOwnPropertyDescriptors(source))
-    );
-  }
-  const newDescriptorMap = Object.fromEntries(newDescriptorList);
-  for (const key of Object.getOwnPropertyNames(newDescriptorMap)) {
-    if (Object.getOwnPropertyDescriptor(target, key)?.configurable === false) {
-      // e.g. .prototype can be written to but not re-defined
-      (target as any)[key] = newDescriptorMap[key].value;
-      delete newDescriptorMap[key];
-    }
-  }
-  Object.defineProperties(target, newDescriptorMap);
-
-  return target;
-}
-
-// pick() but account for descriptor properties and ensure that the set of passed
-// keys matches the public properties of O exactly
-export function pickWithExactKeyMatch<
-  K extends string,
-  O extends Record<K, unknown>
->(o: Record<string, never> extends Omit<O, K> ? O : never, keys: K[]): O {
-  return Object.create(
-    Object.getPrototypeOf(o),
-    Object.fromEntries(
-      Object.entries(Object.getOwnPropertyDescriptors(o)).filter(([k]) =>
-        (keys as string[]).includes(k)
-      )
-    )
-  );
 }
 
 // Take a document from config.collections and return a corresponding match filter

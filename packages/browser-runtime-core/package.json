@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/browser-runtime-core",
-  "version": "3.22.0",
+  "version": "5.1.1",
   "description": "Mongosh browser runtime core",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -15,14 +15,13 @@
     "url": "git://github.com/mongodb-js/mongosh.git"
   },
   "scripts": {
-    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\" --reporter \"../../configs/mocha-config-mongosh/reporter.ts\"",
+    "test": "mocha",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
     "eslint": "eslint",
     "lint": "npm run eslint . && npm run prettier -- --check .",
-    "check": "npm run lint && npm run depcheck",
-    "depcheck": "depcheck",
+    "check": "npm run lint",
     "preprepublish": "rimraf ./lib",
     "prepublish": "npm run compile",
     "compile": "tsc -p tsconfig.json",
@@ -41,18 +40,17 @@
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "@mongodb-js/mongodb-ts-autocomplete": "^0.4.7",
-    "@mongosh/types": "^3.14.0",
-    "bson": "^6.10.4",
-    "depcheck": "^1.4.7",
+    "@mongodb-js/mongodb-ts-autocomplete": "^0.6.5",
+    "@mongosh/types": "^5.0.1",
+    "bson": "^7.2.0",
     "eslint": "^7.25.0",
     "prettier": "^2.8.8",
     "rimraf": "^3.0.2"
   },
   "dependencies": {
-    "@mongosh/autocomplete": "^3.22.0",
-    "@mongosh/service-provider-core": "3.5.0",
-    "@mongosh/shell-api": "^3.22.0",
-    "@mongosh/shell-evaluator": "^3.22.0"
+    "@mongosh/autocomplete": "^5.1.0",
+    "@mongosh/service-provider-core": "5.0.1",
+    "@mongosh/shell-api": "^5.1.0",
+    "@mongosh/shell-evaluator": "^5.1.0"
   }
 }

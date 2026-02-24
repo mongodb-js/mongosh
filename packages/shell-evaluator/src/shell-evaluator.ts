@@ -1,3 +1,4 @@
+import { contextlessEval } from './contextless-eval';
 import type { ShellInstanceState } from '@mongosh/shell-api';
 import {
   toShellResult,
@@ -15,7 +16,7 @@ type EvaluationFunction = (
   filename: string
 ) => Promise<any>;
 
-import { HIDDEN_COMMANDS, redactSensitiveData } from '@mongosh/history';
+import { shouldRedactCommand, redact } from 'mongodb-redact';
 import { TimingCategories, type TimingCategory } from '@mongosh/types';
 
 let hasAlreadyRunGlobalRuntimeSupportEval = false;
@@ -31,8 +32,8 @@ try {
 if (v8?.startupSnapshot?.isBuildingSnapshot?.()) {
   v8.startupSnapshot.addSerializeCallback(() => {
     // Ensure that any lazy loading performed by Babel is part of the snapshot
-    eval(new AsyncWriter2().runtimeSupportCode());
-    eval(new AsyncWriter2().process('1+1'));
+    contextlessEval(new AsyncWriter2().runtimeSupportCode());
+    contextlessEval(new AsyncWriter2().process('1+1'));
     hasAlreadyRunGlobalRuntimeSupportEval = true;
   });
 }
@@ -110,10 +111,9 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
     let rewrittenInput = await this.asyncWriter.process(input);
     this.markTime?.(TimingCategories.AsyncRewrite, 'done async rewrite');
 
-    const hiddenCommands = RegExp(HIDDEN_COMMANDS, 'g');
-    if (!hiddenCommands.test(input) && !hiddenCommands.test(rewrittenInput)) {
+    if (!shouldRedactCommand(input) && !shouldRedactCommand(rewrittenInput)) {
       this.instanceState.messageBus.emit('mongosh:evaluate-input', {
-        input: redactSensitiveData(trimmedInput),
+        input: redact(trimmedInput),
       });
     }
 
@@ -130,7 +130,8 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
       // in which the shell-api package lives and not from the context inside
       // the REPL (i.e. `db.test.find().toArray() instanceof Array` is `false`).
       if (!hasAlreadyRunGlobalRuntimeSupportEval) {
-        eval(supportCode);
+        contextlessEval(supportCode);
+        hasAlreadyRunGlobalRuntimeSupportEval = true;
       }
       this.markTime?.(
         TimingCategories.AsyncRewrite,

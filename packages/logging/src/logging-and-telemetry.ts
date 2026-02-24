@@ -1,5 +1,8 @@
-import redactInfo from 'mongodb-redact';
-import { redactURICredentials } from '@mongosh/history';
+import {
+  redact,
+  redactConnectionString,
+  shouldRedactCommand,
+} from 'mongodb-redact';
 import type {
   MongoshBus,
   ApiEventWithArguments,
@@ -126,13 +129,15 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
     this.isSetup = true;
   }
 
-  public flush(): void {
+  public async flush(): Promise<void> {
     // Run any other pending events with the set or dummy log for telemetry purposes.
     this.runAndClearPendingBusEvents();
 
     // Abort setup, which will cause the device ID to be set to 'unknown'
     // and run any remaining telemetry events
     this.telemetrySetupAbort.abort();
+
+    await this.log.flush();
   }
 
   private async setupTelemetry(): Promise<void> {
@@ -177,10 +182,10 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
     this.bus.emit('mongosh:log-initialized');
   }
 
-  public detachLogger() {
+  public async detachLogger(): Promise<void> {
     this.log = LoggingAndTelemetry.dummyLogger;
 
-    this.flush();
+    await this.flush();
   }
 
   private runAndClearPendingBusEvents() {
@@ -324,7 +329,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
 
     onBus('mongosh:connect', (args: ConnectEvent) => {
       const { uri, resolved_hostname, ...argsWithoutUriAndHostname } = args;
-      const connectionUri = uri && redactURICredentials(uri);
+      const connectionUri = uri && redactConnectionString(uri);
       const atlasHostname = {
         atlas_hostname: args.is_atlas ? resolved_hostname : null,
       };
@@ -458,6 +463,17 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
     });
 
     onBus('mongosh:evaluate-input', (args: EvaluateInputEvent) => {
+      if (shouldRedactCommand(args.input)) {
+        this.log.info(
+          'MONGOSH',
+          mongoLogId(1_000_000_007),
+          'repl',
+          'Evaluating input',
+          { input: '<sensitive command used>' }
+        );
+        return;
+      }
+
       this.log.info(
         'MONGOSH',
         mongoLogId(1_000_000_007),
@@ -521,7 +537,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         mongoLogId(1_000_000_011),
         'shell-api',
         'Performed API call',
-        redactInfo(arg)
+        redact(arg)
       );
     });
 
@@ -846,7 +862,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
           mongoLogId(1_000_000_047),
           'editor',
           'Open external editor',
-          redactInfo(ev)
+          redact(ev)
         );
       }
     );
@@ -930,7 +946,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         },
       },
       'mongosh',
-      (uri) => redactURICredentials(uri)
+      (uri) => redactConnectionString(uri)
     );
   }
 }

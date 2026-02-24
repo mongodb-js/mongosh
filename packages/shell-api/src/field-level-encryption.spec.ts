@@ -7,11 +7,10 @@ import type {
   ClientEncryptionDataKeyProvider,
   KMSProviders,
 } from '@mongosh/service-provider-core';
-import { bson } from '@mongosh/service-provider-core';
+import * as bson from 'bson';
 import { expect } from 'chai';
 import { EventEmitter } from 'events';
 import { promises as fs } from 'fs';
-import path from 'path';
 import { Duplex } from 'stream';
 import sinon from 'sinon';
 import type { StubbedInstance } from 'ts-sinon';
@@ -29,11 +28,12 @@ import { ClientEncryption, KeyVault } from './field-level-encryption';
 import Mongo from './mongo';
 import ShellInstanceState from './shell-instance-state';
 import { NodeDriverServiceProvider } from '../../service-provider-node-driver';
-import { startSharedTestServer } from '../../../testing/integration-testing-hooks';
 import {
+  startSharedTestServer,
   makeFakeHTTPConnection,
   fakeAWSHandlers,
-} from '../../../testing/fake-kms';
+  getTestCertificatePath,
+} from '@mongosh/testing';
 import { Collection } from './collection';
 import { dummyOptions } from './helpers.spec';
 import type { IncomingMessage } from 'http';
@@ -83,18 +83,6 @@ const exampleUUID = new bson.Binary(
   Buffer.from('a'.repeat(32), 'hex'),
   4
 ).toUUID();
-
-function getCertPath(filename: string): string {
-  return path.join(
-    __dirname,
-    '..',
-    '..',
-    '..',
-    'testing',
-    'certificates',
-    filename
-  );
-}
 
 describe('Field Level Encryption', function () {
   let sp: StubbedInstance<ServiceProvider>;
@@ -879,9 +867,11 @@ srDVjIT3LsvTqw==`,
         {
           endpoint: 'kmip.example.com:123',
           tlsOptions: {
-            tlsCertificateKeyFile: getCertPath('client.bundle.encrypted.pem'),
+            tlsCertificateKeyFile: getTestCertificatePath(
+              'client.bundle.encrypted.pem'
+            ),
             tlsCertificateKeyFilePassword: 'p4ssw0rd',
-            tlsCAFile: getCertPath('ca.crt'),
+            tlsCAFile: getTestCertificatePath('ca.crt'),
           },
         },
       ],
@@ -949,12 +939,12 @@ srDVjIT3LsvTqw==`,
                     servername: 'kmip.example.com',
                     port: 123,
                     passphrase: 'p4ssw0rd',
-                    ca: await fs.readFile(getCertPath('ca.crt')),
+                    ca: await fs.readFile(getTestCertificatePath('ca.crt')),
                     cert: await fs.readFile(
-                      getCertPath('client.bundle.encrypted.pem')
+                      getTestCertificatePath('client.bundle.encrypted.pem')
                     ),
                     key: await fs.readFile(
-                      getCertPath('client.bundle.encrypted.pem')
+                      getTestCertificatePath('client.bundle.encrypted.pem')
                     ),
                   },
                 },

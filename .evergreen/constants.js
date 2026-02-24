@@ -16,13 +16,13 @@ exports.platformToDetails = {
   },
   win32: {
     displayName: 'Windows',
-    runOn: 'windows-vsCurrent-small',
+    runOn: 'windows-2022-small',
     executableOsId: 'win32',
   },
 };
 
-const NODE_JS_VERSION_20 = require('./node-20-latest.json').version;
-exports.NODE_JS_VERSION_20 = NODE_JS_VERSION_20;
+const NODE_JS_VERSION_24 = require('./node-24-latest.json').version;
+exports.NODE_JS_VERSION_24 = NODE_JS_VERSION_24;
 
 exports.MONGODB_VERSIONS = [
   { shortName: '42xc', versionSpec: '4.2.x' },
@@ -37,15 +37,16 @@ exports.MONGODB_VERSIONS = [
   { shortName: '70xe', versionSpec: '7.0.x-enterprise' },
   { shortName: '80xc', versionSpec: '8.0.x' },
   { shortName: '80xe', versionSpec: '8.0.x-enterprise' },
-  { shortName: '82rc', versionSpec: '8.2.0-rc4' },
-  { shortName: '82rce', versionSpec: '8.2.0-rc4-enterprise' },
+  { shortName: '82xc', versionSpec: '8.2.0' },
+  { shortName: '82xe', versionSpec: '8.2.0-enterprise' },
   { shortName: 'latest', versionSpec: 'latest-alpha-enterprise' },
 ];
 
 exports.NODE_VERSIONS = [
   {
-    shortName: '20',
-    versionSpec: NODE_JS_VERSION_20,
+    shortName: '24',
+    versionSpec: NODE_JS_VERSION_24,
     skipNodeVersionCheck: '',
+    optional: false,
   },
 ];

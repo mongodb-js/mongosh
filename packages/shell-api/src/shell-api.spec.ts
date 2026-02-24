@@ -19,7 +19,7 @@ import type {
   MongoClient,
   Document,
 } from '@mongosh/service-provider-core';
-import { bson } from '@mongosh/service-provider-core';
+import * as bson from 'bson';
 import { EventEmitter } from 'events';
 import type { EvaluationListener } from './shell-instance-state';
 import ShellInstanceState from './shell-instance-state';
@@ -543,6 +543,8 @@ describe('ShellApi', function () {
       bus = new EventEmitter();
       const newSP = stubInterface<ServiceProvider>();
       newSP.initialDb = 'test';
+      newSP.platform = 'CLI';
+      newSP.bsonLibrary = bson;
       serviceProvider = stubInterface<ServiceProvider>({
         getNewConnection: newSP,
       });

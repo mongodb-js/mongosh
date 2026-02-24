@@ -1,4 +1,4 @@
-import { bson } from '@mongosh/service-provider-core';
+import * as bson from 'bson';
 import { expect } from 'chai';
 import { inspect } from './inspect';
 
@@ -63,7 +63,7 @@ describe('inspect', function () {
     it('does not require BSON types to be instances of the current bson library', function () {
       expect(
         inspect({
-          _bsontype: 'ObjectID',
+          [bson.bsonType]: 'ObjectID',
           toHexString() {
             return '0000007b3db627730e26fd0b';
           },
@@ -80,11 +80,11 @@ describe('inspect', function () {
     });
   });
 
-  context('with frozen objects with _bsontype properties', function () {
+  context('with frozen objects with [bsonType] properties', function () {
     expect(() =>
       inspect(
         Object.freeze({
-          _bsontype: 'ObjectID',
+          [bson.bsonType]: 'ObjectID',
           toHexString() {
             return '0000007b3db627730e26fd0b';
           },

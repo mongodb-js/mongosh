@@ -1,12 +1,13 @@
 import type { CustomInspectFunction } from 'util';
 import { inspect as utilInspect } from 'util';
-import { bsonStringifiers } from '@mongosh/service-provider-core';
+import * as bson from 'bson';
+import { makeBsonStringifiers } from '@mongosh/shell-bson';
 
 // At the time of writing, the Compass dist package contains what appear to be
 // 155 different copies of the 'bson' module. It is impractical to attach
 // our inspection methods to each of those copies individually, like we do when
 // we are inside cli-repl.
-// Instead, we look for values with a _bsontype property inside the object graph
+// Instead, we look for values with a [bsonType] property inside the object graph
 // before printing them here, and attach inspection methods to each of them
 // individually.
 // This is not particularly fast, but should work just fine for user-facing
@@ -65,8 +66,9 @@ function attachInspectMethods(obj: any): void {
     attachInspectMethods(value);
   }
 
+  const bsonStringifiers = makeBsonStringifiers(bson);
   // Add obj[util.inspect.custom] if it does not exist and we can provide it.
-  const bsontype = obj._bsontype as keyof typeof bsonStringifiers;
+  const bsontype = obj[bson.bsonType] as keyof typeof bsonStringifiers;
   if (
     bsontype &&
     bsontype in bsonStringifiers &&

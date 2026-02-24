@@ -20,7 +20,7 @@ describe('Runtime independence', function () {
     // for other environments, but which we should still ideally remove in the
     // long run (and definitely not add anything here).
     // Guaranteed bonusly for anyone who removes a package from this list!
-    const allowedNodeBuiltins = ['crypto', 'util', 'events', 'path'];
+    const allowedNodeBuiltins = ['events', 'path'];
     // Our TextDecoder/TextEncoder polyfills require this, unfortunately.
     context.Buffer = Buffer;
 
@@ -55,11 +55,21 @@ describe('Runtime independence', function () {
       absolutePathRequire(entryPoint).exports as typeof import('./');
 
     // Verify that `shellApi` is generally usable.
-    const sp = { platform: 'CLI', close: sinon.spy() };
+    const sp = {
+      platform: 'CLI',
+      close: sinon.spy(),
+      bsonLibrary: absolutePathRequire(require.resolve('bson')).exports,
+      getURI: sinon.stub().returns('mongodb://localhost:27017'),
+      getFleOptions: sinon.stub().returns(undefined),
+    };
     const evaluationListener = { onExit: sinon.spy() };
     const instanceState = new shellApi.ShellInstanceState(sp as any);
     instanceState.setEvaluationListener(evaluationListener);
-    expect(instanceState.initialServiceProvider).to.equal(sp);
+    expect(
+      (instanceState.initialServiceProvider as any)[
+        Symbol.for('@@mongosh.originalServiceProvider')
+      ]
+    ).to.equal(sp);
     const bsonObj = instanceState.shellBson.ISODate(
       '2025-01-09T20:43:51+01:00'
     );

@@ -4,9 +4,8 @@ set -x
 OS_ARCH="$(uname "-m")"
 
 export BASEDIR="$PWD/.evergreen"
-export PATH="$BASEDIR/npm-10/node_modules/.bin:$BASEDIR/node-v$NODE_JS_VERSION-win-x64:/opt/java/jdk16/bin:$PATH"
-
-export MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING="$BASEDIR/../../testing/tests-globalconfig.conf"
+export PATH="$BASEDIR/node-v$NODE_JS_VERSION-win-x64:/opt/java/jdk17/bin:$PATH"
+export MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING="$BASEDIR/../packages/testing/tests-globalconfig.conf"
 
 export IS_MONGOSH_EVERGREEN_CI=1
 export DEBUG="mongodb*,$DEBUG"
@@ -22,6 +21,10 @@ if [ "$OS" != "Windows_NT" ]; then
   source $HOME/.cargo/env
 
   if [ `uname` = Darwin ]; then
+    # the CI macOS machines have an outdated Clang that
+    # cannot build recent Node.js versions, so we use
+    # the LLVM version installed via Homebrew
+    # (both on arm64 and x64)
     echo "Using clang version:"
     (which clang && clang --version)
 
@@ -49,6 +52,7 @@ if [ "$OS" != "Windows_NT" ]; then
     (which g++ && g++ --version)
   fi
 else
+  export NODE_GYP_FORCE_PYTHON="C:\python\Python311\python.exe"
   export PATH="/cygdrive/c/python/Python311/Scripts:/cygdrive/c/python/Python311:/cygdrive/c/Python311/Scripts:/cygdrive/c/Python311:/cygdrive/c/cmake/bin:$PATH"
 fi
 
@@ -71,7 +75,7 @@ fi
 
 # On RHEL hosts, we run as root for some reason
 if [ `uname` = Linux ]; then
-  export npm_config_unsafe_perm=true
+    export npm_config_unsafe_perm=true
 fi
 
 # npm@7 changed the behavior to run install scripts for packages

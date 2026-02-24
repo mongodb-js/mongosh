@@ -6,7 +6,7 @@ import { major as majorVersion } from 'semver';
 import type {
   DownloadCenterConfig,
   PlatformWithPackages,
-} from '@mongodb-js/dl-center/dist/download-center-config';
+} from '@mongodb-js/dl-center';
 import {
   ARTIFACTS_BUCKET,
   JSON_FEED_ARTIFACT_KEY,
@@ -202,6 +202,7 @@ export function getUpdatedDownloadCenterConfig(
     currentVersions[matchingMajorVersionIdx] = versionConfig;
   }
 
+  // NB: download_latest.sh depends on the specific ordering of versions here.
   currentVersions.sort((a, b) => semver.rcompare(a.version, b.version));
 
   return {

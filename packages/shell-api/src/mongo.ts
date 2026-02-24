@@ -49,8 +49,8 @@ import { Database } from './database';
 import type ShellInstanceState from './shell-instance-state';
 import { ClientBulkWriteResult } from './result';
 import { CommandResult } from './result';
-import { redactURICredentials } from '@mongosh/history';
-import { asPrintable, ServerVersions, Topologies } from './enums';
+import { redactConnectionString } from 'mongodb-redact';
+import { asPrintable, ServerVersions } from './enums';
 import Session from './session';
 import type { GenericServerSideSchema, StringKey } from './helpers';
 import {
@@ -66,7 +66,7 @@ import { ShellApiErrors } from './error-codes';
 import type { LogEntry } from './log-entry';
 import { parseAnyLogEntry } from './log-entry';
 import type { CollectionWithSchema } from './collection';
-import type { ShellBson } from './shell-bson';
+import type { BSON, ShellBson } from '@mongosh/shell-bson';
 import type { MQLPipeline } from './mql-types';
 
 /* Utility, inverse of Readonly<T> */
@@ -196,7 +196,7 @@ export default class Mongo<
    * Internal method to determine what is printed for this class.
    */
   [asPrintable](): string {
-    return redactURICredentials(this._uri);
+    return redactConnectionString(this._uri);
   }
 
   /**
@@ -338,7 +338,7 @@ export default class Mongo<
   async _listDatabases(opts: ListDatabasesOptions = {}): Promise<{
     databases: {
       name: string;
-      sizeOnDisk: number | ShellBson['Long'];
+      sizeOnDisk: number | BSON['Long']['prototype'];
       empty: boolean;
     }[];
     ok: 1;
@@ -383,7 +383,7 @@ export default class Mongo<
   async getDBs(options: ListDatabasesOptions = {}): Promise<{
     databases: {
       name: string;
-      sizeOnDisk: number | ShellBson['Long'];
+      sizeOnDisk: number | BSON['Long']['prototype'];
       empty: boolean;
     }[];
     ok: 1;
@@ -748,7 +748,7 @@ export default class Mongo<
     await this._serviceProvider.resetConnectionOptions(options);
   }
 
-  @topologies([Topologies.ReplSet])
+  @topologies(['ReplSet'])
   startSession(options: Document = {}): Session {
     const allTransactionOptions = [
       'readConcern',
@@ -845,7 +845,7 @@ export default class Mongo<
   }
 
   @serverVersions(['3.1.0', ServerVersions.latest])
-  @topologies([Topologies.ReplSet, Topologies.Sharded])
+  @topologies(['ReplSet', 'Sharded'])
   @apiVersions([1])
   @returnsPromise
   async watch(
@@ -859,7 +859,7 @@ export default class Mongo<
     this._emitMongoApiCall('watch', { pipeline, options });
     const cursor = new ChangeStreamCursor(
       this._serviceProvider.watch(pipeline, options),
-      redactURICredentials(this._uri),
+      redactConnectionString(this._uri),
       this
     );
     if (
@@ -902,7 +902,9 @@ export default class Mongo<
   }
 
   @returnsPromise
-  async convertShardKeyToHashed(value: any): Promise<unknown> {
+  async convertShardKeyToHashed(
+    value: any
+  ): Promise<ShellBson['Long']['prototype']> {
     const pipeline = [
       { $limit: 1 },
       { $project: { _id: { $toHashedIndexKey: { $literal: value } } } },

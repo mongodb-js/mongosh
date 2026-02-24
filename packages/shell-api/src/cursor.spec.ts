@@ -11,7 +11,7 @@ import {
   ALL_API_VERSIONS,
   ServerVersions,
 } from './enums';
-import chai from 'chai';
+import * as chai from 'chai';
 import sinonChai from 'sinon-chai';
 import sinon from 'sinon';
 import type { StubbedInstance } from 'ts-sinon';

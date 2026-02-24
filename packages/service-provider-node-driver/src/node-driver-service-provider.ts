@@ -83,6 +83,7 @@ import {
   CommaAndColonSeparatedRecord,
 } from 'mongodb-connection-string-url';
 import { EventEmitter } from 'events';
+import type { Abortable } from 'events';
 import type { CreateEncryptedCollectionOptions } from '@mongosh/service-provider-core';
 import type { DevtoolsConnectionState } from '@mongodb-js/devtools-connect';
 import { isDeepStrictEqual } from 'util';
@@ -93,6 +94,7 @@ import {
   ClientEncryption,
 } from 'mongodb';
 import { connectMongoClient } from '@mongodb-js/devtools-connect';
+import { identifyServerName } from 'mongodb-build-info';
 
 const bsonlib = () => {
   const {
@@ -109,6 +111,7 @@ const bsonlib = () => {
     Decimal128,
     BSONSymbol,
     BSONRegExp,
+    UUID,
     BSON,
   } = driver;
   return {
@@ -126,6 +129,7 @@ const bsonlib = () => {
     BSONSymbol,
     calculateObjectSize: BSON.calculateObjectSize,
     EJSON: BSON.EJSON,
+    UUID,
     BSONRegExp,
   };
 };
@@ -329,22 +333,36 @@ export class NodeDriverServiceProvider
   }
 
   static getVersionInformation(): DependencyVersionInfo {
-    function tryCall<Fn extends () => any>(fn: Fn): ReturnType<Fn> | undefined {
-      try {
-        return fn();
-      } catch {
-        return;
-      }
-    }
+    // The require() calls need to be immediately inside try/catch blocks for webpack
     return {
-      nodeDriverVersion: tryCall(() => require('mongodb/package.json').version),
-      libmongocryptVersion: tryCall(
-        () => ClientEncryption.libmongocryptVersion // getter that actually loads the native addon (!)
-      ),
-      libmongocryptNodeBindingsVersion: tryCall(
-        () => require('mongodb-client-encryption/package.json').version
-      ),
-      kerberosVersion: tryCall(() => require('kerberos/package.json').version),
+      nodeDriverVersion: (() => {
+        try {
+          return require('mongodb/package.json').version;
+        } catch {
+          return undefined;
+        }
+      })(),
+      libmongocryptVersion: (() => {
+        try {
+          return ClientEncryption.libmongocryptVersion; // getter that actually loads the native addon (!)
+        } catch {
+          return undefined;
+        }
+      })(),
+      libmongocryptNodeBindingsVersion: (() => {
+        try {
+          return require('mongodb-client-encryption/package.json').version;
+        } catch {
+          return undefined;
+        }
+      })(),
+      kerberosVersion: (() => {
+        try {
+          return require('kerberos/package.json').version;
+        } catch {
+          return undefined;
+        }
+      })(),
     };
   }
 
@@ -470,27 +488,47 @@ export class NodeDriverServiceProvider
   }
 
   async getConnectionInfo(): Promise<ConnectionInfo> {
-    const [buildInfo = null, atlasVersion = null, fcv = null, atlascliInfo] =
-      await Promise.all([
-        this.runCommandWithCheck(
-          'admin',
-          { buildInfo: 1 },
-          this.baseCmdOptions
-        ).catch(() => {}),
-        this.runCommandWithCheck(
-          'admin',
-          { atlasVersion: 1 },
-          this.baseCmdOptions
-        ).catch(() => {}),
-        this.runCommandWithCheck(
-          'admin',
-          { getParameter: 1, featureCompatibilityVersion: 1 },
-          this.baseCmdOptions
-        ).catch(() => {}),
-        this.countDocuments('admin', 'atlascli', {
-          managedClusterType: 'atlasCliLocalDevCluster',
-        }).catch(() => 0),
-      ]);
+    const buildInfoPromise = this.runCommandWithCheck(
+      'admin',
+      { buildInfo: 1 },
+      this.baseCmdOptions
+    ).catch(() => ({}));
+
+    const [
+      buildInfo,
+      atlasVersion = null,
+      fcv = null,
+      atlascliInfo,
+      serverName,
+    ] = await Promise.all([
+      buildInfoPromise,
+      this.runCommandWithCheck(
+        'admin',
+        { atlasVersion: 1 },
+        this.baseCmdOptions
+      ).catch(() => {}),
+      this.runCommandWithCheck(
+        'admin',
+        { getParameter: 1, featureCompatibilityVersion: 1 },
+        this.baseCmdOptions
+      ).catch(() => {}),
+      this.countDocuments('admin', 'atlascli', {
+        managedClusterType: 'atlasCliLocalDevCluster',
+      }).catch(() => 0),
+      identifyServerName({
+        connectionString: this.uri?.toString() ?? '',
+        adminCommand: (command) => {
+          if (command.buildInfo) {
+            return buildInfoPromise;
+          }
+          return this.runCommandWithCheck(
+            'admin',
+            command,
+            this.baseCmdOptions
+          );
+        },
+      }),
+    ]);
 
     const resolvedHostname = this._getHostnameForConnection(
       this._lastSeenTopology
@@ -502,6 +540,7 @@ export class NodeDriverServiceProvider
       atlasVersion,
       resolvedHostname,
       isLocalAtlas: !!atlascliInfo,
+      serverName,
     });
 
     return {
@@ -591,7 +630,7 @@ export class NodeDriverServiceProvider
     database: string,
     collection: string,
     pipeline: Document[] = [],
-    options: AggregateOptions = {},
+    options: AggregateOptions & Abortable = {},
     dbOptions?: DbOptions
   ): AggregationCursor {
     options = { ...this.baseCmdOptions, ...options };
@@ -621,7 +660,7 @@ export class NodeDriverServiceProvider
   aggregateDb(
     database: string,
     pipeline: Document[] = [],
-    options: AggregateOptions = {},
+    options: AggregateOptions & Abortable = {},
     dbOptions?: DbOptions
   ): AggregationCursor {
     options = { ...this.baseCmdOptions, ...options };
@@ -732,7 +771,7 @@ export class NodeDriverServiceProvider
     database: string,
     collection: string,
     filter: Document = {},
-    options: CountDocumentsOptions = {},
+    options: CountDocumentsOptions & Abortable = {},
     dbOptions?: DbOptions
   ): Promise<number> {
     options = { ...this.baseCmdOptions, ...options };
@@ -852,7 +891,7 @@ export class NodeDriverServiceProvider
     database: string,
     collection: string,
     filter: Document = {},
-    options: FindOptions = {},
+    options: FindOptions & Abortable = {},
     dbOptions?: DbOptions
   ): FindCursor {
     const findOptions: any = { ...this.baseCmdOptions, ...options };
@@ -1047,7 +1086,7 @@ export class NodeDriverServiceProvider
   runCommand(
     database: string,
     spec: Document = {},
-    options: RunCommandOptions = {},
+    options: RunCommandOptions & Abortable = {},
     dbOptions?: DbOptions
   ): Promise<Document> {
     options = { ...this.baseCmdOptions, ...options };
@@ -1068,7 +1107,7 @@ export class NodeDriverServiceProvider
   async runCommandWithCheck(
     database: string,
     spec: Document = {},
-    options: RunCommandOptions = {},
+    options: RunCommandOptions & Abortable = {},
     dbOptions?: DbOptions
   ): Promise<Document> {
     const result = await this.runCommand(database, spec, options, dbOptions);
@@ -1256,7 +1295,7 @@ export class NodeDriverServiceProvider
   async listCollections(
     database: string,
     filter: Document = {},
-    options: ListCollectionsOptions = {},
+    options: ListCollectionsOptions & Abortable = {},
     dbOptions?: DbOptions
   ): Promise<Document[]> {
     options = { ...this.baseCmdOptions, ...options };

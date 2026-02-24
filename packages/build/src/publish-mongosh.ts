@@ -48,18 +48,25 @@ export async function publishMongosh(config: Config, octokit: Octokit) {
 }
 
 export class MongoshPublisher {
+  public config: Config;
+  public barque: Barque;
+  public mongoshGithubRepo: GithubRepo;
+  public packagePublisher: PackagePublisher;
+  public packageBumper: PackageBumper;
+  public homebrewPublisher: HomebrewPublisher;
+
   private readonly getEvergreenArtifactUrl: typeof getArtifactUrlFn;
   private readonly writeBuildInfo: typeof writeBuildInfoFn;
   private readonly createAndPublishDownloadCenterConfig: typeof createAndPublishDownloadCenterConfigFn;
   private readonly shouldDoPublicRelease: typeof shouldDoPublicReleaseFn;
 
   constructor(
-    public config: Config,
-    public barque: Barque,
-    public mongoshGithubRepo: GithubRepo,
-    public packagePublisher: PackagePublisher,
-    public packageBumper: PackageBumper,
-    public homebrewPublisher: HomebrewPublisher,
+    config: Config,
+    barque: Barque,
+    mongoshGithubRepo: GithubRepo,
+    packagePublisher: PackagePublisher,
+    packageBumper: PackageBumper,
+    homebrewPublisher: HomebrewPublisher,
     {
       getEvergreenArtifactUrl = getArtifactUrlFn,
       writeBuildInfo = writeBuildInfoFn,
@@ -67,6 +74,12 @@ export class MongoshPublisher {
       shouldDoPublicRelease = shouldDoPublicReleaseFn,
     } = {}
   ) {
+    this.config = config;
+    this.barque = barque;
+    this.mongoshGithubRepo = mongoshGithubRepo;
+    this.packagePublisher = packagePublisher;
+    this.packageBumper = packageBumper;
+    this.homebrewPublisher = homebrewPublisher;
     this.getEvergreenArtifactUrl = getEvergreenArtifactUrl;
     this.writeBuildInfo = writeBuildInfo;
     this.createAndPublishDownloadCenterConfig =

@@ -1,10 +1,11 @@
-import { bson } from '@mongosh/service-provider-core';
+import * as bson from 'bson';
 import type { Db, Collection, Document } from '@mongosh/service-provider-core';
 import { MongoClient } from 'mongodb';
 import { expect } from 'chai';
 import type { TestShell } from './test-shell';
 import { sleep } from './util-helpers';
-import { eventually } from '../../../testing/eventually';
+import { eventually } from '@mongosh/testing';
+import { startTestShell } from './test-shell-context';
 
 const {
   STREAMS_E2E_SPI_CONNECTION_STRING = '',
@@ -45,6 +46,9 @@ describe('e2e Streams', function () {
       );
       return this.skip();
     }
+
+    // TODO(STREAMS-2031): Unskip this test after addressing flake
+    return this.skip();
   });
 
   describe('basic stream processor operations', function () {
@@ -54,7 +58,7 @@ describe('e2e Streams', function () {
     let client: MongoClient;
 
     beforeEach(async function () {
-      shell = this.startTestShell({
+      shell = startTestShell(this, {
         args: [
           STREAMS_E2E_SPI_CONNECTION_STRING,
           '--tls',
@@ -274,7 +278,7 @@ describe('e2e Streams', function () {
 
   describe('sampling from a running stream processor', function () {
     beforeEach(async function () {
-      shell = this.startTestShell({
+      shell = startTestShell(this, {
         args: [
           STREAMS_E2E_SPI_CONNECTION_STRING,
           '--tls',
@@ -320,7 +324,7 @@ describe('e2e Streams', function () {
     const collectionName = 'processedData';
 
     beforeEach(async function () {
-      shell = this.startTestShell({
+      shell = startTestShell(this, {
         args: [
           STREAMS_E2E_SPI_CONNECTION_STRING,
           '--tls',

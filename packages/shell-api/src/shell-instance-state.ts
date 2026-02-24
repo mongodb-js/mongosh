@@ -3,6 +3,7 @@ import type {
   AutoEncryptionOptions,
   ConnectionExtraInfo,
   ConnectionInfo,
+  Document,
   ServerApi,
   ServiceProvider,
   ServiceProviderBaseCursor,
@@ -17,17 +18,34 @@ import type {
   ShellUserConfig,
 } from '@mongosh/types';
 import { EventEmitter } from 'events';
-import redactInfo from 'mongodb-redact';
+import { redactConnectionString } from 'mongodb-redact';
 import { toIgnore } from './decorators';
-import { Topologies } from './enums';
+import {
+  ALL_PLATFORMS,
+  ALL_SERVER_VERSIONS,
+  ALL_TOPOLOGIES,
+  ServerVersions,
+  type Topologies,
+} from './enums';
 import { ShellApiErrors } from './error-codes';
 import type { ShellResult, DatabaseWithSchema } from './index';
-import { getShellApiType, Mongo, ReplicaSet, Shard, ShellApi } from './index';
+import {
+  getShellApiType,
+  Help,
+  Mongo,
+  ReplicaSet,
+  Shard,
+  ShellApi,
+} from './index';
 import { InterruptFlag } from './interruptor';
 import { TransformMongoErrorPlugin } from './mongo-errors';
 import NoDatabase from './no-db';
-import type { ShellBson } from './shell-bson';
-import constructShellBson from './shell-bson';
+import {
+  type ShellBson,
+  constructShellBson,
+  type BSON as BSONLibrary,
+  type ShellBsonOptions,
+} from '@mongosh/shell-bson';
 import { Streams } from './streams';
 import { ShellLog } from './shell-log';
 
@@ -35,12 +53,14 @@ import type { AutocompletionContext } from '@mongodb-js/mongodb-ts-autocomplete'
 import type { JSONSchema } from 'mongodb-schema';
 import { analyzeDocuments } from 'mongodb-schema';
 import type { BaseCursor } from './abstract-cursor';
+import { deepInspectServiceProviderWrapper } from './deep-inspect/service-provider-wrapper';
 
 /**
  * The subset of CLI options that is relevant for the shell API's behavior itself.
  */
 export interface ShellCliOptions {
   nodb?: boolean;
+  deepInspect?: boolean;
 }
 
 /**
@@ -146,6 +166,7 @@ export class ShellInstanceState {
   public currentDb: DatabaseWithSchema;
   public messageBus: MongoshBus;
   public initialServiceProvider: ServiceProvider; // the initial service provider
+  private bsonLibrary: BSONLibrary;
   private connectionInfoCache: {
     // Caching/lazy-loading functionality for the ServiceProvider's getConnectionInfo()
     // return value. We store the ServiceProvider instance for which we are
@@ -183,18 +204,18 @@ export class ShellInstanceState {
   constructor(
     initialServiceProvider: ServiceProvider,
     messageBus: any = new EventEmitter(),
-    cliOptions: ShellCliOptions = {}
+    cliOptions: ShellCliOptions = {},
+    bsonLibrary: BSONLibrary = initialServiceProvider.bsonLibrary
   ) {
-    this.initialServiceProvider = initialServiceProvider;
+    this.initialServiceProvider =
+      cliOptions.deepInspect === false
+        ? initialServiceProvider
+        : deepInspectServiceProviderWrapper(initialServiceProvider);
+    this.bsonLibrary = bsonLibrary;
     this.messageBus = messageBus;
     this.shellApi = new ShellApi(this);
     this.shellLog = new ShellLog(this);
-    this.shellBson = constructShellBson(
-      initialServiceProvider.bsonLibrary,
-      (msg: string) => {
-        void this.shellApi.print(`Warning: ${msg}`);
-      }
-    );
+    this.shellBson = this.constructShellBson();
     this.mongos = [];
     this.connectionInfoCache = {
       forSp: this.initialServiceProvider,
@@ -206,11 +227,11 @@ export class ShellInstanceState {
         undefined,
         undefined,
         undefined,
-        initialServiceProvider
+        this.initialServiceProvider
       );
       this.mongos.push(mongo);
       this.currentDb = mongo.getDB(
-        initialServiceProvider.initialDb || DEFAULT_DB
+        this.initialServiceProvider.initialDb || DEFAULT_DB
       );
     } else {
       this.currentDb = new NoDatabase() as DatabaseWithSchema;
@@ -219,6 +240,52 @@ export class ShellInstanceState {
     this.context = {};
     this.cliOptions = cliOptions;
     this.evaluationListener = {};
+  }
+
+  // Defined here as a static property so that callbacks defined
+  // inside of it do not capture specific instances of
+  // `ShellInstanceState` as part of their scope chain,
+  // which would lead to memory leaks.
+  private static commonConstructShellBsonProps: Partial<
+    ShellBsonOptions<BSONLibrary, Help>
+  > = {
+    assignMetadata: (target, { help, maxVersion, minVersion, deprecated }) => {
+      target.serverVersions =
+        maxVersion || minVersion
+          ? [
+              minVersion ?? ServerVersions.earliest,
+              maxVersion ?? ServerVersions.latest,
+            ]
+          : ALL_SERVER_VERSIONS;
+      target.platforms = ALL_PLATFORMS;
+      target.topologies = ALL_TOPOLOGIES;
+      if (deprecated) target.deprecated = true;
+
+      if (help) {
+        target.help = (): Help => help;
+        Object.setPrototypeOf(target.help, help);
+      }
+    },
+    constructHelp: (className: string) => {
+      const classHelpKeyPrefix = `shell-api.classes.${className}.help`;
+      const classHelp = {
+        help: `${classHelpKeyPrefix}.description`,
+        example: `${classHelpKeyPrefix}.example`,
+        docs: `${classHelpKeyPrefix}.link`,
+        attr: [],
+      };
+      return new Help(classHelp);
+    },
+  };
+
+  private constructShellBson(): ShellBson {
+    return constructShellBson<BSONLibrary, Help>({
+      ...ShellInstanceState.commonConstructShellBsonProps,
+      bsonLibrary: this.bsonLibrary,
+      printWarning: (msg: string) => {
+        void this.shellApi.print(`Warning: ${msg}`);
+      },
+    });
   }
 
   async fetchConnectionInfo(): Promise<ConnectionInfo | undefined> {
@@ -251,7 +318,7 @@ export class ShellInstanceState {
         api_version: apiVersionInfo?.version,
         api_strict: apiVersionInfo?.strict,
         api_deprecation_errors: apiVersionInfo?.deprecationErrors,
-        uri: redactInfo(connectionInfo?.extraInfo?.uri),
+        uri: redactConnectionString(connectionInfo?.extraInfo?.uri ?? ''),
       });
       return connectionInfo;
     }
@@ -511,16 +578,16 @@ export class ShellInstanceState {
         switch (topologyType) {
           case 'ReplicaSetNoPrimary':
           case 'ReplicaSetWithPrimary':
-            topology = Topologies.ReplSet;
+            topology = 'ReplSet';
             break;
           case 'Sharded':
-            topology = Topologies.Sharded;
+            topology = 'Sharded';
             break;
           case 'LoadBalanced':
-            topology = Topologies.LoadBalanced;
+            topology = 'LoadBalanced';
             break;
           default:
-            topology = Topologies.Standalone;
+            topology = 'Standalone';
             // We're connected to a single server, but that doesn't necessarily
             // mean that that server isn't part of a replset or sharding setup
             // if we're using directConnection=true (which we do by default).
@@ -528,7 +595,7 @@ export class ShellInstanceState {
               const [server] = topologyDescription?.servers.values();
               switch (server.type) {
                 case 'Mongos':
-                  topology = Topologies.Sharded;
+                  topology = 'Sharded';
                   break;
                 case 'PossiblePrimary':
                 case 'RSPrimary':
@@ -536,7 +603,7 @@ export class ShellInstanceState {
                 case 'RSArbiter':
                 case 'RSOther':
                 case 'RSGhost':
-                  topology = Topologies.ReplSet;
+                  topology = 'ReplSet';
                   break;
                 default:
                   // Either Standalone, Unknown, or something so unknown that

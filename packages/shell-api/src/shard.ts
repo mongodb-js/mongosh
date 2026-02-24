@@ -26,7 +26,7 @@ import {
 import { ServerVersions, asPrintable } from './enums';
 import type { UpdateResult } from './result';
 import { CommandResult } from './result';
-import { redactURICredentials } from '@mongosh/history';
+import { redactConnectionString } from 'mongodb-redact';
 import type Mongo from './mongo';
 import type AggregationCursor from './aggregation-cursor';
 import type RunCommandCursor from './run-command-cursor';
@@ -53,7 +53,7 @@ export default class Shard<
    * Internal method to determine what is printed for this class.
    */
   [asPrintable](): string {
-    return `Shard class connected to ${redactURICredentials(
+    return `Shard class connected to ${redactConnectionString(
       this._database._mongo._uri
     )} via db ${this._database._name}`;
   }
@@ -554,6 +554,39 @@ export default class Shard<
         { $set: { noBalance: true } },
         { writeConcern: { w: 'majority', wtimeout: 60000 } }
       )) as UpdateResult;
+  }
+
+  private async _setAllowMigrations(
+    ns: string,
+    allowMigrations: boolean
+  ): Promise<Document> {
+    const apiCall = `${allowMigrations ? 'enable' : 'disable'}Migrations`;
+    assertArgsDefinedType([ns], ['string'], `Shard.${apiCall}`);
+    this._emitShardApiCall(apiCall, { ns });
+
+    const helloResult = await this._database._maybeCachedHello();
+    if (helloResult.msg !== 'isdbgrid') {
+      await this._database._instanceState.printWarning(
+        'MongoshWarning: [SHAPI-10003] You are not connected to a mongos. This command may not work as expected.'
+      );
+    }
+
+    return await this._database._runAdminCommand({
+      setAllowMigrations: ns,
+      allowMigrations,
+    });
+  }
+
+  @returnsPromise
+  @apiVersions([])
+  async enableMigrations(ns: string): Promise<Document> {
+    return await this._setAllowMigrations(ns, true);
+  }
+
+  @returnsPromise
+  @apiVersions([])
+  async disableMigrations(ns: string): Promise<Document> {
+    return await this._setAllowMigrations(ns, false);
   }
 
   @returnsPromise

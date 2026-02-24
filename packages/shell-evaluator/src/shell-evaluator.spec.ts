@@ -1,10 +1,11 @@
-import { expect, use } from 'chai';
+import * as chai from 'chai';
+import { expect } from 'chai';
 import sinon from 'sinon';
-const sinonChai = require('sinon-chai'); // weird with import
-use(sinonChai);
-
+import sinonChai from 'sinon-chai';
 import ShellEvaluator from './index';
 import { EventEmitter } from 'events';
+
+chai.use(sinonChai);
 
 describe('ShellEvaluator', function () {
   let shellEvaluator: ShellEvaluator;

@@ -1,19 +1,24 @@
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import type { TestShell } from './test-shell';
-import { eventually } from '../../../testing/eventually';
 import {
+  eventually,
   startTestServer,
   skipIfApiStrict,
   skipIfServerVersion,
   skipIfCommunityServer,
   downloadCurrentCryptSharedLibrary,
-} from '../../../testing/integration-testing-hooks';
-import { makeFakeHTTPServer, fakeAWSHandlers } from '../../../testing/fake-kms';
+  sortObjectArray,
+} from '@mongosh/testing';
+import {
+  makeFakeHTTPServer,
+  fakeAWSHandlers,
+} from '../../testing/src/fake-kms';
 import { once } from 'events';
 import { serialize } from 'v8';
 import { inspect } from 'util';
 import path from 'path';
+import { startTestShell } from './test-shell-context';
 
 describe('FLE tests', function () {
   const testServer = startTestServer('e2e-fle', {
@@ -25,8 +30,11 @@ describe('FLE tests', function () {
   let kmsServer: ReturnType<typeof makeFakeHTTPServer>;
   let dbname: string;
   let cryptLibrary: string;
+  let cryptLibrary82: string;
 
   before(async function () {
+    this.timeout(120_000); // Downloading the crypt-shared library can take some time
+
     if (process.platform === 'linux') {
       const [major, minor] = (process.report as any)
         .getReport()
@@ -39,7 +47,11 @@ describe('FLE tests', function () {
     kmsServer = makeFakeHTTPServer(fakeAWSHandlers);
     kmsServer.listen(0);
     await once(kmsServer, 'listening');
-    cryptLibrary = await downloadCurrentCryptSharedLibrary();
+    // TODO(MONGOSH-2192): Go back to always testing with latest continuous version.
+    [cryptLibrary, cryptLibrary82] = await Promise.all([
+      downloadCurrentCryptSharedLibrary(),
+      downloadCurrentCryptSharedLibrary('8.2.0'),
+    ]);
   });
   after(function () {
     kmsServer?.close();
@@ -92,7 +104,7 @@ describe('FLE tests', function () {
       const secretAccessKey = '44mjXTk34uMUmORma3w1viIAx4RCUv78bzwDY0R7';
       const sessionToken = 'WXWHMnniSqij0CH27KK7H';
       async function makeTestShell(ctx: Mocha.Context): Promise<TestShell> {
-        const shell = ctx.startTestShell({
+        const shell = startTestShell(ctx, {
           args: [
             `--cryptSharedLibPath=${cryptLibrary}`,
             ...(withEnvVarCredentials
@@ -129,6 +141,7 @@ describe('FLE tests', function () {
           },
           cwd: path.join(__dirname, '..', '..', 'cli-repl', 'test', 'fixtures'),
         });
+        await shell.waitForPrompt();
 
         if (withEnvVarCredentials) {
           // Need to set up the AWS context inside the shell for enabling
@@ -216,7 +229,7 @@ describe('FLE tests', function () {
   }
 
   it('works when the original shell was started with --nodb', async function () {
-    const shell = this.startTestShell({
+    const shell = startTestShell(this, {
       args: ['--nodb'],
     });
     await shell.waitForPrompt();
@@ -247,7 +260,7 @@ describe('FLE tests', function () {
   });
 
   it('works when a schemaMap option has been passed', async function () {
-    const shell = this.startTestShell({
+    const shell = startTestShell(this, {
       args: ['--nodb', `--cryptSharedLibPath=${cryptLibrary}`],
     });
     await shell.waitForPrompt();
@@ -293,7 +306,7 @@ describe('FLE tests', function () {
   });
 
   it('skips automatic encryption when a bypassQueryAnalysis option has been passed', async function () {
-    const shell = this.startTestShell({
+    const shell = startTestShell(this, {
       args: ['--nodb', `--cryptSharedLibPath=${cryptLibrary}`],
     });
     const uri = JSON.stringify(await testServer.connectionString());
@@ -372,7 +385,7 @@ describe('FLE tests', function () {
   });
 
   it('does not allow compactStructuredEncryptionData command when mongo instance configured without auto encryption', async function () {
-    const shell = this.startTestShell({
+    const shell = startTestShell(this, {
       args: [await testServer.connectionString()],
     });
     await shell.waitForPrompt();
@@ -391,7 +404,7 @@ describe('FLE tests', function () {
 
     it('can read existing QEv1 data', async function () {
       const uri = await testServer.connectionString();
-      const shell = this.startTestShell({
+      const shell = startTestShell(this, {
         args: [uri, `--cryptSharedLibPath=${cryptLibrary}`],
       });
       await shell.waitForPrompt();
@@ -502,7 +515,7 @@ describe('FLE tests', function () {
 
     it('allows explicit enryption with bypassQueryAnalysis', async function () {
       // No --cryptSharedLibPath since bypassQueryAnalysis is also a community edition feature
-      const shell = this.startTestShell({ args: ['--nodb'] });
+      const shell = startTestShell(this, { args: ['--nodb'] });
       const uri = JSON.stringify(await testServer.connectionString());
 
       await shell.waitForPrompt();
@@ -564,7 +577,7 @@ describe('FLE tests', function () {
     });
 
     it('drops fle2 collection with all helper collections when encryptedFields options are in listCollections', async function () {
-      const shell = this.startTestShell({
+      const shell = startTestShell(this, {
         args: ['--nodb', `--cryptSharedLibPath=${cryptLibrary}`],
       });
       const uri = JSON.stringify(await testServer.connectionString());
@@ -639,7 +652,7 @@ describe('FLE tests', function () {
     });
 
     it('creates an encrypted collection and generates data encryption keys automatically per encrypted fields', async function () {
-      const shell = this.startTestShell({ args: ['--nodb'] });
+      const shell = startTestShell(this, { args: ['--nodb'] });
       const uri = JSON.stringify(await testServer.connectionString());
       await shell.waitForPrompt();
       await shell.executeLine(
@@ -693,7 +706,7 @@ describe('FLE tests', function () {
     }`;
 
     it('allows compactStructuredEncryptionData command when mongo instance configured with auto encryption', async function () {
-      const shell = this.startTestShell({
+      const shell = startTestShell(this, {
         args: ['--nodb', `--cryptSharedLibPath=${cryptLibrary}`],
       });
       const uri = JSON.stringify(await testServer.connectionString());
@@ -738,7 +751,7 @@ describe('FLE tests', function () {
     });
 
     it('creates an encrypted collection and generates data encryption keys automatically per encrypted fields', async function () {
-      const shell = this.startTestShell({ args: ['--nodb'] });
+      const shell = startTestShell(this, { args: ['--nodb'] });
       const uri = JSON.stringify(await testServer.connectionString());
       await shell.waitForPrompt();
       await shell.executeLine(
@@ -780,7 +793,7 @@ describe('FLE tests', function () {
 
     it('allows explicit range encryption with bypassQueryAnalysis', async function () {
       // No --cryptSharedLibPath since bypassQueryAnalysis is also a community edition feature
-      const shell = this.startTestShell({ args: ['--nodb'] });
+      const shell = startTestShell(this, { args: ['--nodb'] });
       const uri = JSON.stringify(await testServer.connectionString());
 
       await shell.waitForPrompt();
@@ -855,14 +868,7 @@ describe('FLE tests', function () {
     });
 
     it('allows automatic range encryption', async function () {
-      // TODO(MONGOSH-1550): On s390x, we are using the 6.0.x RHEL7 shared library,
-      // which does not support QE rangePreview/range. That's just fine for preview, but
-      // we should switch to the 7.0.x RHEL8 shared library for Range GA.
-      if (process.arch === 's390x') {
-        return this.skip();
-      }
-
-      const shell = this.startTestShell({
+      const shell = startTestShell(this, {
         args: ['--nodb', `--cryptSharedLibPath=${cryptLibrary}`],
       });
       const uri = JSON.stringify(await testServer.connectionString());
@@ -914,11 +920,317 @@ describe('FLE tests', function () {
     });
   });
 
+  context('8.2+', function () {
+    skipIfServerVersion(testServer, '< 8.2');
+
+    context('$lookup support', function () {
+      skipIfCommunityServer(testServer);
+
+      it('allows $lookup with a collection with automatic encryption', async function () {
+        const shell = startTestShell(this, {
+          args: [
+            `--cryptSharedLibPath=${cryptLibrary82}`,
+            await testServer.connectionString(),
+          ],
+        });
+        await shell.waitForPrompt();
+        await shell.executeLine(`{
+      const keyMongo = Mongo(
+        db.getMongo(),
+        {
+          keyVaultNamespace: '${dbname}.__keyVault',
+          kmsProviders: { local: { key: 'A'.repeat(128) } },
+        }
+      );
+
+      const keyVault = keyMongo.getKeyVault();
+
+      const dataKey1 = keyVault.createKey('local');
+      const dataKey2 = keyVault.createKey('local');
+
+      const schemaMap = {
+        ['${dbname}.coll1']: {
+          bsonType: 'object',
+          properties: {
+            phoneNumber: {
+              encrypt: {
+                bsonType: 'string',
+                keyId: [dataKey1],
+                algorithm: 'AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic',
+              },
+            },
+            key: {
+              bsonType: 'string',
+            },
+          },
+        },
+        ['${dbname}.coll2']: {
+          bsonType: 'object',
+          properties: {
+            phoneNumber: {
+              encrypt: {
+                bsonType: 'string',
+                keyId: [dataKey2],
+                algorithm: 'AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic',
+              },
+            },
+            key: {
+              bsonType: 'string',
+            },
+          },
+        },
+      };
+
+      autoMongo = new Mongo(db.getMongo(), {
+        keyVaultNamespace: '${dbname}.__keyVault',
+        kmsProviders: { local: { key: 'A'.repeat(128) } },
+        schemaMap,
+      });
+
+      coll1 = autoMongo.getDB('${dbname}').getCollection('coll1');
+      coll1.insertMany([
+        { phoneNumber: '123-456-7890', key: 'foo' },
+        { phoneNumber: '123-456-7891', key: 'bar' },
+      ]);
+
+      coll2 = autoMongo.getDB('${dbname}').getCollection('coll2');
+      coll2.insertMany([
+        { phoneNumber: '123-456-7892', key: 'baz' },
+        { phoneNumber: '123-456-7893', key: 'foo' },
+      ]);
+      }`);
+        const result = await shell.executeLineWithJSONResult(`(
+        coll1.aggregate([
+          {
+            $lookup: {
+              from: 'coll2',
+              localField: 'key',
+              foreignField: 'key',
+              as: 'lookupMatch',
+            },
+          },
+        ])
+        .map(({ key, lookupMatch }) => ({ key, size: lookupMatch.length }))
+        .toArray())`);
+        expect(result).to.deep.equal([
+          { key: 'foo', size: 1 },
+          { key: 'bar', size: 0 },
+        ]);
+      });
+    });
+
+    for (const mode of ['automatic', 'explicit'] as const)
+      context(
+        `Queryable Encryption Prefix/Suffix/Substring Support ${mode}`,
+        function () {
+          // Substring prefix support is enterprise-only 8.2+
+          skipIfCommunityServer(testServer);
+
+          let shell: TestShell;
+
+          const testCollection = 'qeSubstringTest';
+
+          beforeEach(async function () {
+            shell = startTestShell(this, {
+              args: [
+                `--cryptSharedLibPath=${cryptLibrary82}`,
+                await testServer.connectionString(),
+              ],
+            });
+            await shell.waitForPrompt();
+
+            // Shared setup for all substring search tests - create collection once
+            await shell.executeLine(`{
+        mode = ${JSON.stringify(mode)};
+        opts = {
+          keyVaultNamespace: '${dbname}.__keyVault',
+          kmsProviders: { local: { key: 'A'.repeat(128) } },
+        };
+
+        // Setup explicit encryption client
+        explicitMongo = Mongo(db.getMongo(), { ...opts, bypassQueryAnalysis: true });
+        if (mode === 'automatic') {
+          autoMongo = Mongo(db.getMongo(), { ...opts });
+          coll = autoMongo.getDB('${dbname}').${testCollection};
+        }
+
+        keyId1 = explicitMongo.getKeyVault().createKey('local');
+        keyId2 = explicitMongo.getKeyVault().createKey('local');
+
+        substringOptions = {
+          strMinQueryLength: 2,
+          strMaxQueryLength: 10,
+        };
+        encryptedFieldOptions = {
+          ...substringOptions,
+          caseSensitive: false,
+          diacriticSensitive: false,
+          contention: 4
+        };
+
+        explicitMongo.getClientEncryption().createEncryptedCollection('${dbname}', '${testCollection}', {
+          provider: 'local',
+          createCollectionOptions: {
+            encryptedFields: {
+              fields: [{
+                keyId: keyId1,
+                path: 'substringData',
+                bsonType: 'string',
+                queries: [{
+                  queryType: 'substringPreview',
+                  strMaxLength: 60,
+                  ...encryptedFieldOptions
+                }]
+              }, {
+                keyId: keyId2,
+                path: 'prefixSuffixData',
+                bsonType: 'string',
+                queries: [{
+                  queryType: 'prefixPreview',
+                  ...encryptedFieldOptions
+                }, {
+                  queryType: 'suffixPreview',
+                  ...encryptedFieldOptions
+                }]
+              }]
+            }
+          }
+        });
+
+        ce = explicitMongo.getClientEncryption();
+        ecoll = explicitMongo.getDB('${dbname}').${testCollection};
+
+        explicitOpts = (details) => ({
+          algorithm: 'TextPreview',
+          contentionFactor: 4,
+          textOptions: { caseSensitive: false, diacriticSensitive: false, ...details }
+        });
+        substringOpts = explicitOpts({ substring: { ...substringOptions, strMaxLength: 60 } });
+        prefixSuffixOpts = explicitOpts({ prefix: substringOptions, suffix: substringOptions });
+        methods = {
+          substring: { queryType: 'substringPreview', keyId: keyId1, options: substringOpts },
+          prefix: { queryType: 'prefixPreview', keyId: keyId2, options: prefixSuffixOpts },
+          suffix: { queryType: 'suffixPreview', keyId: keyId2, options: prefixSuffixOpts }
+        }
+        explicitEncrypt = (method, data) => {
+          return ce.encrypt(methods[method].keyId, data, {
+            ...methods[method].options,
+            queryType: methods[method].queryType
+          });
+        };
+      }`);
+          });
+
+          afterEach(function () {
+            shell.kill();
+          });
+
+          it('allows queryable encryption with prefix searches', async function () {
+            // Insert test data for prefix searches
+            await shell.executeLine(`{
+            for (const data of [
+            'admin_user_123.txt',
+            'admin_super_456.pdf',
+            'user_regular_789.pdf',
+            'guest_access_000.txt',
+            'just_user.txt',
+            'admin_explicit_test.pdf'
+          ]) {
+              if (mode === 'automatic') {
+                coll.insertOne({
+                  substringData: data,
+                  prefixSuffixData: data
+                });
+              } else {
+                ecoll.insertOne({
+                  substringData: ce.encrypt(keyId1, data, substringOpts),
+                  prefixSuffixData: ce.encrypt(keyId2, data, prefixSuffixOpts)
+                });
+              }
+            }
+      }`);
+            const automaticEncrypt = (_method: string, data: string) =>
+              JSON.stringify(data);
+            const explicitEncrypt = (method: string, data: string) =>
+              `explicitEncrypt('${method}', ${JSON.stringify(data)})`;
+            const s = sortObjectArray;
+
+            for (const [coll, maybeEncrypt] of mode === 'explicit'
+              ? ([['ecoll', explicitEncrypt]] as const)
+              : ([
+                  ['coll', automaticEncrypt],
+                  ['ecoll', explicitEncrypt],
+                ] as const)) {
+              const prefixResults = await shell.executeLineWithJSONResult(
+                `${coll}.find({$expr: { $and: [{$encStrStartsWith: {prefix: ${maybeEncrypt(
+                  'prefix',
+                  'admin_'
+                )}, input: "$prefixSuffixData"}}] }}, { data: '$prefixSuffixData', _id: 0 }).toArray()`
+              );
+              expect(s(prefixResults)).to.deep.equal(
+                s([
+                  {
+                    data: 'admin_user_123.txt',
+                  },
+                  {
+                    data: 'admin_super_456.pdf',
+                  },
+                  {
+                    data: 'admin_explicit_test.pdf',
+                  },
+                ])
+              );
+
+              const suffixResults = await shell.executeLineWithJSONResult(`
+              ${coll}.find({$expr: { $and: [{$encStrEndsWith: {suffix: ${maybeEncrypt(
+                'suffix',
+                '.pdf'
+              )}, input: "$prefixSuffixData"}}] }}, { data: '$prefixSuffixData', _id: 0 }).toArray()
+            `);
+              expect(s(suffixResults)).to.deep.equal(
+                s([
+                  {
+                    data: 'admin_super_456.pdf',
+                  },
+                  {
+                    data: 'user_regular_789.pdf',
+                  },
+                  {
+                    data: 'admin_explicit_test.pdf',
+                  },
+                ])
+              );
+
+              const substringResults = await shell.executeLineWithJSONResult(`
+              ${coll}.find({$expr: { $and: [{$encStrContains: {substring: ${maybeEncrypt(
+                'substring',
+                'user'
+              )}, input: "$substringData"}}] }}, { data: '$substringData', _id: 0 }).toArray()
+            `);
+              expect(s(substringResults)).to.deep.equal(
+                s([
+                  {
+                    data: 'user_regular_789.pdf',
+                  },
+                  {
+                    data: 'admin_user_123.txt',
+                  },
+                  {
+                    data: 'just_user.txt',
+                  },
+                ])
+              );
+            }
+          });
+        }
+      );
+  });
+
   context('pre-6.0', function () {
     skipIfServerVersion(testServer, '>= 6.0'); // FLE2 available on 6.0+
 
     it('provides a good error message when createCollection fails due to low server version', async function () {
-      const shell = this.startTestShell({
+      const shell = startTestShell(this, {
         args: [
           `--cryptSharedLibPath=${cryptLibrary}`,
           await testServer.connectionString(),
@@ -932,7 +1244,7 @@ describe('FLE tests', function () {
     });
 
     it('provides a good error message when createCollection fails due to low FCV', async function () {
-      const shell = this.startTestShell({
+      const shell = startTestShell(this, {
         args: [
           `--cryptSharedLibPath=${cryptLibrary}`,
           await testServer.connectionString(),
@@ -949,7 +1261,7 @@ describe('FLE tests', function () {
   });
 
   it('performs KeyVault data key management as expected', async function () {
-    const shell = this.startTestShell({
+    const shell = startTestShell(this, {
       args: [
         await testServer.connectionString(),
         `--cryptSharedLibPath=${cryptLibrary}`,

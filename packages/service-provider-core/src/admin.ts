@@ -13,7 +13,7 @@ import type {
   AutoEncryptionOptions,
   Collection,
 } from './all-transport-types';
-import type { bson as BSON, ConnectionExtraInfo } from './index';
+import type { ConnectionExtraInfo, ServiceProvider } from './index';
 import type { ReplPlatform } from './platform';
 import type {
   AWSEncryptionKeyOptions,
@@ -24,6 +24,7 @@ import type {
   ClientEncryption,
   ClientEncryptionOptions,
 } from './all-fle-types';
+import type { BSON } from '@mongosh/shell-bson';
 
 export interface CreateEncryptedCollectionOptions {
   provider: ClientEncryptionDataKeyProvider;
@@ -63,7 +64,13 @@ export default interface Admin {
   /**
    * The BSON package
    */
-  bsonLibrary: typeof BSON;
+  bsonLibrary: BSON;
+
+  /**
+   * Compute a hex MD5 hash from a string. Used for legacy auth mechanisms such as
+   * SCRAM-SHA-1.
+   */
+  computeLegacyHexMD5?(str: string): Promise<string>;
 
   /**
    * list databases.
@@ -83,7 +90,10 @@ export default interface Admin {
    * @param uri
    * @param options
    */
-  getNewConnection(uri: string, options: MongoClientOptions): Promise<any>; // returns the ServiceProvider instance
+  getNewConnection(
+    uri: string,
+    options: MongoClientOptions
+  ): Promise<ServiceProvider>;
 
   /**
    * Return the URI for the current connection, if this ServiceProvider is connected.

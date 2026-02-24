@@ -15,10 +15,10 @@ type NestedRecord =
       [key: string]: NestedRecord;
     };
 
-export default interface Catalog {
+export type Catalog = {
   [packageName: string]:
     | {
         classes: Record<string, ClassHelpItem>;
       }
     | NestedRecord;
-}
+};

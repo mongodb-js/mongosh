@@ -5,7 +5,7 @@ import type {
   ServiceProvider,
   ClientSession as ServiceProviderSession,
 } from '@mongosh/service-provider-core';
-import { bson } from '@mongosh/service-provider-core';
+import * as bson from 'bson';
 import type { StubbedInstance } from 'ts-sinon';
 import { stubInterface } from 'ts-sinon';
 import ShellInstanceState from './shell-instance-state';
@@ -23,7 +23,7 @@ import {
   startTestCluster,
   skipIfServerVersion,
   skipIfApiStrict,
-} from '../../../testing/integration-testing-hooks';
+} from '@mongosh/testing';
 import { ensureMaster, ensureSessionExists } from '../test/helpers';
 import { Database } from './database';
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';

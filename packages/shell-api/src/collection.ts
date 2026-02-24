@@ -1,4 +1,5 @@
 import type Mongo from './mongo';
+import type { Abortable } from 'events';
 import type { Namespace } from './decorators';
 import {
   addSourceToResults,
@@ -11,12 +12,7 @@ import {
   deprecated,
   ShellApiWithMongoClass,
 } from './decorators';
-import {
-  asPrintable,
-  namespaceInfo,
-  ServerVersions,
-  Topologies,
-} from './enums';
+import { asPrintable, namespaceInfo, ServerVersions } from './enums';
 import type {
   FindAndModifyShellOptions,
   FindAndModifyMethodShellOptions,
@@ -72,6 +68,7 @@ import type {
   CheckMetadataConsistencyOptions,
   AggregateOptions,
   SearchIndexDescription,
+  ServiceProvider,
 } from '@mongosh/service-provider-core';
 import type { RunCommandCursor, Database, DatabaseWithSchema } from './index';
 import {
@@ -92,11 +89,11 @@ import {
   MongoshInternalError,
 } from '@mongosh/errors';
 import Bulk from './bulk';
-import { HIDDEN_COMMANDS } from '@mongosh/history';
 import PlanCache from './plan-cache';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ShellApiErrors } from './error-codes';
 import type { MQLDocument, MQLQuery, MQLPipeline } from './mql-types';
+import { shouldRedactCommand } from 'mongodb-redact';
 
 export type CollectionWithSchema<
   M extends GenericServerSideSchema = GenericServerSideSchema,
@@ -191,11 +188,11 @@ export class Collection<
    */
   async aggregate(
     pipeline: MQLPipeline,
-    options: AggregateOptions & { explain: ExplainVerbosityLike }
+    options: AggregateOptions & { explain: ExplainVerbosityLike } & Abortable
   ): Promise<Document>;
   async aggregate(
     pipeline: MQLPipeline,
-    options?: AggregateOptions
+    options?: AggregateOptions & Abortable
   ): Promise<AggregationCursor>;
   async aggregate(...stages: MQLPipeline): Promise<AggregationCursor>;
   @returnsPromise
@@ -220,14 +217,35 @@ export class Collection<
     this._emitCollectionApiCall('aggregate', { options, pipeline });
     const { aggOptions, dbOptions, explain } = adaptAggregateOptions(options);
 
-    const providerCursor = this._mongo._serviceProvider.aggregate(
-      this._database._name,
-      this._name,
-      pipeline,
-      { ...(await this._database._baseOptions()), ...aggOptions },
-      dbOptions
+    const aggregateOptions = {
+      ...(await this._database._baseOptions()),
+      ...aggOptions,
+    };
+
+    const constructionOptions = {
+      method: 'aggregate' as const,
+      args: [
+        this._database._name,
+        this._name,
+        pipeline,
+        aggregateOptions,
+        dbOptions,
+      ] as Parameters<ServiceProvider['aggregate']>,
+      cursorType: 'AggregationCursor' as const,
+    };
+    const providerCursor = this._mongo._serviceProvider[
+      constructionOptions.method
+    ](...constructionOptions.args);
+    const constructionOptionsWithChains = aggregateOptions.session
+      ? undefined
+      : {
+          options: constructionOptions,
+        };
+    const cursor = new AggregationCursor(
+      this._mongo,
+      providerCursor,
+      constructionOptionsWithChains
     );
-    const cursor = new AggregationCursor(this._mongo, providerCursor);
 
     if (explain) {
       return await cursor.explain(explain);
@@ -323,7 +341,7 @@ export class Collection<
   @apiVersions([1])
   async countDocuments(
     query?: MQLQuery,
-    options: CountDocumentsOptions = {}
+    options: CountDocumentsOptions & Abortable = {}
   ): Promise<number> {
     this._emitCollectionApiCall('countDocuments', { query, options });
     return this._mongo._serviceProvider.countDocuments(
@@ -480,22 +498,46 @@ export class Collection<
   async find(
     query?: MQLQuery,
     projection?: Document,
-    options: FindOptions = {}
+    options: FindOptions & { explain?: ExplainVerbosityLike } & Abortable = {}
   ): Promise<Cursor> {
     if (projection) {
       options.projection = projection;
     }
 
+    const findOptions = {
+      ...(await this._database._baseOptions()),
+      ...options,
+    };
+
     this._emitCollectionApiCall('find', { query, options });
-    const cursor = new Cursor(
-      this._mongo,
-      this._mongo._serviceProvider.find(
+    const constructionOptions = {
+      method: 'find' as const,
+      args: [
         this._database._name,
         this._name,
         query,
-        { ...(await this._database._baseOptions()), ...options }
-      )
+        findOptions,
+      ] as Parameters<ServiceProvider['find']>,
+      cursorType: 'Cursor' as const,
+    };
+    const providerCursor = this._mongo._serviceProvider[
+      constructionOptions.method
+    ](...constructionOptions.args);
+    const constructionOptionsWithChains = findOptions.session
+      ? undefined
+      : {
+          options: constructionOptions,
+        };
+    const cursor = new Cursor(
+      this._mongo,
+      providerCursor,
+      constructionOptionsWithChains
     );
+
+    const explain = options.explain;
+    if (explain) {
+      return await cursor.explain(explain);
+    }
 
     this._mongo._instanceState.currentCursor = cursor;
     return cursor;
@@ -525,7 +567,12 @@ export class Collection<
         CommonErrors.InvalidArgument
       );
     }
-    reducedOptions.projection ??= reducedOptions.fields;
+    if (
+      reducedOptions.projection === undefined &&
+      reducedOptions.fields !== undefined
+    ) {
+      reducedOptions.projection ??= reducedOptions.fields;
+    }
     delete (reducedOptions as any).query;
     delete (reducedOptions as any).update;
     delete (reducedOptions as any).fields;
@@ -564,7 +611,7 @@ export class Collection<
   async findOne(
     query: MQLQuery = {},
     projection?: Document,
-    options: FindOptions = {}
+    options: FindOptions & Abortable = {}
   ): Promise<MQLDocument | null> {
     if (projection) {
       options.projection = projection;
@@ -1434,7 +1481,7 @@ export class Collection<
    */
   @returnsPromise
   @deprecated
-  @topologies([Topologies.Standalone])
+  @topologies(['Standalone'])
   @apiVersions([])
   async reIndex(): Promise<Document> {
     this._emitCollectionApiCall('reIndex');
@@ -1620,8 +1667,7 @@ export class Collection<
       }
     }
 
-    const hiddenCommands = new RegExp(HIDDEN_COMMANDS);
-    if (typeof commandName === 'string' && !hiddenCommands.test(commandName)) {
+    if (typeof commandName === 'string' && !shouldRedactCommand(commandName)) {
       this._emitCollectionApiCall('runCommand', { commandName });
     }
     const cmd =
@@ -1691,6 +1737,7 @@ export class Collection<
     let unscaledCollSize = 0;
 
     let nindexes = 0;
+    let timeseriesHasStats = false;
     let timeseriesBucketsNs: string | undefined;
     let timeseriesTotalBucketSize = 0;
 
@@ -1723,14 +1770,17 @@ export class Collection<
           // match across shards.
           result[fieldName] ??= shardStorageStats[fieldName];
         } else if (fieldName === 'timeseries') {
+          timeseriesHasStats = true;
           const shardTimeseriesStats: Document = shardStorageStats[fieldName];
+          if (typeof shardTimeseriesStats.bucketsNs === 'string')
+            timeseriesBucketsNs ??= shardTimeseriesStats.bucketsNs;
+
           for (const [timeseriesStatName, timeseriesStat] of Object.entries(
             shardTimeseriesStats
           )) {
             if (typeof timeseriesStat === 'string') {
-              if (!timeseriesBucketsNs) {
-                timeseriesBucketsNs = timeseriesStat;
-              }
+              // Skip string-valued timeseries fields (other than bucketsNs, which was handled above);
+              // these are metadata-only and are not included in aggregated numeric statistics.
             } else if (timeseriesStatName === 'avgBucketSize') {
               timeseriesTotalBucketSize +=
                 coerceToJSNumber(shardTimeseriesStats.bucketCount) *
@@ -1804,7 +1854,11 @@ export class Collection<
 
     try {
       result.sharded = !!(await config.getCollection('collections').findOne({
-        _id: timeseriesBucketsNs ?? ns,
+        // Currently, for timeseries collections, the sharding catalog entry
+        // always uses the buckets namespace, but that is not a guarantee we
+        // want to rely on, given the move towards hiding the bucket namespace
+        // as an implementation detail more and more.
+        _id: { $in: [timeseriesBucketsNs, ns].filter(Boolean) },
         ...onlyShardedCollectionsInConfigFilter,
       }));
     } catch (e) {
@@ -1825,7 +1879,10 @@ export class Collection<
         result[countField] = count;
       }
     }
-    if (timeseriesBucketsNs && Object.keys(clusterTimeseriesStats).length > 0) {
+    if (
+      (timeseriesHasStats || timeseriesBucketsNs) &&
+      Object.keys(clusterTimeseriesStats).length > 0
+    ) {
       result.timeseries = {
         ...clusterTimeseriesStats,
         // Average across all the shards.
@@ -2091,7 +2148,7 @@ export class Collection<
   }
 
   @returnsPromise
-  @topologies([Topologies.Sharded])
+  @topologies(['Sharded'])
   @apiVersions([])
   async getShardVersion(): Promise<Document> {
     this._emitCollectionApiCall('getShardVersion', {});
@@ -2122,22 +2179,19 @@ export class Collection<
     }
 
     // If the collection info is not found, check if it is timeseries and use the bucket
-    const timeseriesShardStats = collStats.find(
-      (extractedShardStats) =>
-        typeof extractedShardStats.storageStats.timeseries !== 'undefined'
-    );
+    const timeseriesBucketNs = collStats
+      .map(
+        (extractedShardStats) =>
+          extractedShardStats.storageStats?.timeseries?.bucketsNs
+      )
+      .find((bucketsNs) => typeof bucketsNs === 'string');
 
-    if (!timeseriesShardStats) {
+    if (!timeseriesBucketNs) {
       throw new MongoshInvalidInputError(
         `Collection ${this._name} is not sharded`,
         ShellApiErrors.NotConnectedToShardedCluster
       );
     }
-
-    const { storageStats } = timeseriesShardStats;
-
-    const timeseries: Document = storageStats.timeseries;
-    const timeseriesBucketNs: string = timeseries.bucketsNs;
 
     const timeseriesCollectionInfo = await config
       .getCollection('collections')
@@ -2157,7 +2211,7 @@ export class Collection<
   }
 
   @returnsPromise
-  @topologies([Topologies.Sharded])
+  @topologies(['Sharded'])
   @apiVersions([])
   async getShardDistribution(): Promise<
     CommandResult<GetShardDistributionResult>
@@ -2285,7 +2339,7 @@ export class Collection<
   }
 
   @returnsPromise
-  @topologies([Topologies.Sharded])
+  @topologies(['Sharded'])
   @apiVersions([])
   @serverVersions(['8.0.10', ServerVersions.latest])
   async getShardLocation(): Promise<{
@@ -2330,7 +2384,7 @@ export class Collection<
   }
 
   @serverVersions(['3.1.0', ServerVersions.latest])
-  @topologies([Topologies.ReplSet, Topologies.Sharded])
+  @topologies(['ReplSet', 'Sharded'])
   @apiVersions([1])
   @returnsPromise
   async watch(
@@ -2401,7 +2455,7 @@ export class Collection<
 
   @serverVersions(['7.0.0', ServerVersions.latest])
   @returnsPromise
-  @topologies([Topologies.ReplSet, Topologies.Sharded])
+  @topologies(['ReplSet', 'Sharded'])
   @apiVersions([])
   async analyzeShardKey(
     key: Document,
@@ -2418,7 +2472,7 @@ export class Collection<
 
   @serverVersions(['7.0.0', ServerVersions.latest])
   @returnsPromise
-  @topologies([Topologies.ReplSet, Topologies.Sharded])
+  @topologies(['ReplSet', 'Sharded'])
   @apiVersions([])
   async configureQueryAnalyzer(options: Document): Promise<Document> {
     this._emitCollectionApiCall('configureQueryAnalyzer', options);
@@ -2429,16 +2483,20 @@ export class Collection<
   }
 
   @serverVersions(['7.0.0', ServerVersions.latest])
-  @topologies([Topologies.Sharded])
+  @topologies(['Sharded'])
   @returnsPromise
   async checkMetadataConsistency(
     options: CheckMetadataConsistencyOptions = {}
   ): Promise<RunCommandCursor> {
     this._emitCollectionApiCall('checkMetadataConsistency', { options });
 
-    return await this._database._runCursorCommand({
-      checkMetadataConsistency: this._name,
-    });
+    return await this._database._runCursorCommand(
+      {
+        checkMetadataConsistency: this._name,
+        ...options,
+      },
+      {}
+    );
   }
 
   @serverVersions(['6.0.0', ServerVersions.latest])

@@ -1,12 +1,13 @@
 <%
 const { RELEASE_PACKAGE_MATRIX } = require('../config/release-package-matrix')
-const { NODE_JS_VERSION_20 } = require('./constants')
+const { NODE_JS_VERSION_24: NODE_JS_VERSION_TARGET } = require('./constants')
 
 const { UNIT_TESTS_BUILD_VARIANTS } = require('./build-variants/unit-tests-build-variants')
 const { E2E_TESTS_BUILD_VARIANTS } = require('./build-variants/e2e-tests-build-variants')
 const { COMPILE_BUILD_VARIANTS } = require('./build-variants/compile-build-variants')
 
 const { UNIT_TESTS, UNIT_TESTS_WITH_BUILD_VARIANTS } = require('./tasks/unit-tests')
+
 %>
 exec_timeout_secs: 10800
 
@@ -172,6 +173,7 @@ functions:
           DISTRO_ID: ${distro_id}
           MONOGDB_DRIVER_VERSION_OVERRIDE: ${mongodb_driver_version_override}
           PUPPETEER_SKIP_DOWNLOAD: ${puppeteer_skip_download|true}
+          MONGOSH_INSTALL_WORKSPACE: ${mongosh_install_workspace|}
         script: |
           set -e
           set -x
@@ -324,17 +326,19 @@ functions:
         working_dir: src
         shell: bash
         env:
-          NODE_JS_VERSION: ${node_js_version}
           DOCKERHUB_USERNAME: ${dockerhub_username}
           DOCKERHUB_PASSWORD: ${dockerhub_password}
         script: |
           set -e
           {
           source .evergreen/setup-env.sh
-          (cd scripts/docker && docker build -t ubuntu22.04-xvfb -f ubuntu22.04-xvfb.Dockerfile .)
+          # Fetch Node.js version from VS Code's .nvmrc, default to 22.20.0 if unavailable
+          export NODE_VERSION=$(curl -fsSL https://raw.githubusercontent.com/microsoft/vscode/refs/heads/main/.nvmrc | tr -d '[:space:]' || echo "22.20.0")
+          echo "Using Node.js version for VS Code extension tests: $NODE_VERSION"
+          (cd scripts/docker && docker build --build-arg NODE_JS_VERSION="$NODE_VERSION" -t ubuntu24.04-xvfb -f ubuntu24.04-xvfb.Dockerfile .)
           docker run \
-            --rm -v $PWD:/tmp/build ubuntu22.04-xvfb \
-            -c 'cd /tmp/build && ./testing/test-vscode.sh'
+            --rm -v $PWD:/tmp/build ubuntu24.04-xvfb \
+            -c 'cd /tmp/build && ./scripts/test-vscode.sh'
           }
   test_connectivity:
     - command: expansions.write
@@ -855,7 +859,9 @@ functions:
 
           if [[ "${is_patch}" != "true" ]]; then
             # Run `snyk monitor` to keep `main` tracked
-            npx snyk monitor --org=dcd6db53-1532-4e65-beca-55db83f2cd52 --file=package-lock.json
+            # TODO: remove --strict-out-of-sync=false once we update
+            # to a newer npm version in our toolchain
+            npx -y snyk monitor --org=dcd6db53-1532-4e65-beca-55db83f2cd52 --file=package-lock.json --strict-out-of-sync=false
             # Fails if the report failed and is not a patch, including during releases:
             exit $return_code
           fi
@@ -1118,7 +1124,7 @@ tasks:
       - func: checkout
       - func: compile_ts
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
 
   - name: check
     depends_on:
@@ -1128,10 +1134,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
       - func: check
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
 
   - name: check_coverage
     depends_on:
@@ -1144,10 +1150,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
       - func: check_coverage
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
 
   ###
   # UNIT TESTS
@@ -1164,6 +1170,10 @@ tasks:
       - func: install
         vars:
           node_js_version: ${node_js_version}
+          puppeteer_skip_download: "<% out(usePuppeteer ? "false" : "true") %>"
+          <% if (packageName !== 'node-runtime-worker-thread' && packageName !== 'e2e-tests') /* TODO(MONGOSH-3167): Make it possible to run it there too */ { %>
+          mongosh_install_workspace: "@mongosh/<% out(packageName) %>"
+          <% } %>
       - func: test
         vars:
           mongosh_server_test_version: ${mongosh_server_test_version}
@@ -1172,7 +1182,6 @@ tasks:
           mongosh_test_id: "<% out(id) %>"
           mongosh_run_only_in_package: "<% out(packageName) %>"
           task_name: ${task_name}
-          puppeteer_skip_download: "<% out(usePuppeteer ? "false" : "true") %>"
   <% } %>
 
   ###
@@ -1186,10 +1195,9 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
       - func: test_vscode
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           task_name: ${task_name}
   - name: test_connectivity
     tags: ["extra-integration-test", "assigned_to_jira_team_mongosh_mongosh"]
@@ -1200,10 +1208,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
       - func: test_connectivity
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
           task_name: ${task_name}
   - name: test_apistrict
     tags: ["extra-integration-test", "assigned_to_jira_team_mongosh_mongosh"]
@@ -1214,10 +1222,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
       - func: test_apistrict
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
           mongosh_server_test_version: "latest-alpha-enterprise"
           mongosh_test_force_api_strict: "1"
           task_name: ${task_name}
@@ -1230,16 +1238,16 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
       - func: compile_artifact
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
       - func: upload_compiled_artifact
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
       - func: upload_first_party_deps_list
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
 
   - name: generate_license_and_vulnerability_report
     tags: ["extra-integration-test"]
@@ -1250,10 +1258,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
       - func: generate_license_and_vulnerability_report
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
 
   ###
   # E2E TESTS
@@ -1291,7 +1299,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
       - func: download_compiled_artifact
         vars:
           executable_os_id: "linux-x64"
@@ -1315,13 +1323,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
       - func: download_compiled_artifact
         vars:
           executable_os_id: <% out(executableOsId) %>
       - func: test_connectivity
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.<% out(dockerFile) %>"
           task_name: ${task_name}
@@ -1341,7 +1349,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
       - func: download_compiled_artifact
         vars:
           executable_os_id: <% out(executableOsId) %>
@@ -1365,14 +1373,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
       - func: download_compiled_artifact
         vars:
           executable_os_id: <% out(executableOsId) %>
           extra_upload_tag: -<% out(packageVariant) %>-complete
       - func: package_artifact
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
           package_variant: <% out(packageVariant) %>
           executable_os_id: <% out(executableOsId) %>
       - func: put_artifact_url
@@ -1387,14 +1395,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
       - func: get_artifact_url
         vars:
           package_variant: <% out(packageVariant) %>
           signature_tag: unsigned
       - func: sign_artifact
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
           package_variant: <% out(packageVariant) %>
       - func: papertrail_trace
         vars:
@@ -1453,10 +1461,10 @@ tasks:
        case 'docker': { %>
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
       - func: test_artifact_docker
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
           dockerfile: <% out(dockerfile) %>
           task_name: ${task_name}
     <% }; break;
@@ -1480,10 +1488,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
       - func: create_static_analysis_report
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
 
   ###
   # RELEASE TASKS
@@ -1507,10 +1515,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
       - func: release_draft
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
   - name: release_publish_dry_run
     git_tag_only: true
     exec_timeout_secs: 86400
@@ -1520,16 +1528,16 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
       - func: release_publish_download_and_list_artifacts
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
       - func: papertrail_trace
         vars:
           product: "mongosh-draft"
       - func: release_publish_dry_run
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
   - name: release_publish
     tags: ["publish"]
     git_tag_only: true
@@ -1541,16 +1549,16 @@ tasks:
       - func: checkout_writeable
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
       - func: release_publish_download_and_list_artifacts
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
       - func: papertrail_trace
         vars:
           product: "mongosh"
       - func: release_publish
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
 
 # Need to run builds for every possible build variant.
 buildvariants:
@@ -1559,6 +1567,7 @@ buildvariants:
     display_name: "<% out(variant.displayName) %>"
     run_on: <% out(variant.runOn) %>
     tags: <% out(variant.tags) %>
+    disable: <% out(variant.disable) %>
     expansions:
       executable_os_id: <% out(variant.executableOsId) %>
       mongosh_server_test_version: "<% out(variant.mVersion || '') %>"
@@ -1575,7 +1584,7 @@ buildvariants:
     run_on: <% out(variant.runOn) %>
     expansions:
       executable_os_id: "<% out(variant.executableOsId) %>"
-      node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+      node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
       <% if (variant.sharedOpenSsl) { %>
       mongosh_shared_openssl: "<% out(variant.sharedOpenSsl) %>"
       <% } %>
@@ -1589,7 +1598,7 @@ buildvariants:
     tags: <% out([...(variant.tags ?? [])]) %>
     expansions:
       executable_os_id: "<% out(variant.executableOsId) %>"
-      node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+      node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
       mongosh_server_test_version: "<% out(variant.mVersion) %>-enterprise"
       mongosh_test_e2e_force_fips: "<% out(variant.fips ? '1' : '') %>"
     tasks:
@@ -1611,6 +1620,8 @@ buildvariants:
     display_name: "Ubuntu 20.04 x64 (Other Tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
+    expansions:
+      node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
     tasks:
       - name: test_vscode
       - name: test_connectivity
@@ -1650,7 +1661,7 @@ buildvariants:
       <% } } } %>
   - name: verify_windows_artifact
     display_name: "Windows (Signature Verification)"
-    run_on: windows-vsCurrent-small
+    run_on: windows-2022-small
     tasks:
       - name: verify_artifact_win32_x64
       - name: verify_artifact_win32msi_x64
@@ -1719,16 +1730,6 @@ buildvariants:
     tasks:
       - name: pkg_test_ssh_win32_x64
       - name: pkg_test_ssh_win32msi_x64
-  - name: pkg_smoke_tests_macos_1100_x64
-    display_name: "package smoke tests (macos 11.00 x64)"
-    run_on: macos-11
-    tasks:
-      - name: pkg_test_macos_darwin_x64
-  - name: pkg_smoke_tests_macos_1100_arm64
-    display_name: "package smoke tests (macos 11.00 arm64)"
-    run_on: macos-11-arm64
-    tasks:
-      - name: pkg_test_macos_darwin_arm64
   - name: pkg_smoke_tests_macos_1300_arm64
     display_name: "package smoke tests (macos 13.00 arm64)"
     run_on: macos-13-arm64
