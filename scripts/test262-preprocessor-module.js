@@ -7,12 +7,12 @@ module.exports = function (test) {
         test.contents = asyncWriter.process(test.contents);
     } catch (error) {
         test.result = {
-	    stdout: "",
-	    stderr: String(error),
-	    error,
-	};
+            stdout: "",
+            stderr: String(error),
+            error,
+        };
     } finally {
-	test.duration = Date.now() - start;
+        test.duration = Date.now() - start;
     }
 
     return test;

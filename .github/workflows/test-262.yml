@@ -15,7 +15,30 @@ permissions:
   pull-requests: write # to write a comment
 
 jobs:
-  run_test_262:
+  run_test_262_baseline:
+    name: Run baseline
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+      - uses: actions/setup-node@v6
+        with:
+          check-latest: true
+          node-version: 24.x
+      - name: Download dependencies
+        run: npm ci
+
+      - name: Run Tests
+        run: npm run test-262 -- baseline
+
+      - name: Upload baseline results
+        uses: actions/upload-artifact@v6
+        with:
+          name: "baseline"
+          path: tmp/test262-out/main-output.json
+  
+  run_test_262_pr:
     name: Run tests
     runs-on: ubuntu-latest
     steps:
@@ -27,12 +50,49 @@ jobs:
         with:
           check-latest: true
           node-version: 24.x
+      
       - name: Download dependencies
         run: npm ci
 
       - name: Run Tests
-        run: npm run test-262
+        run: npm run test-262 -- current
 
+      - name: Upload current results
+        uses: actions/upload-artifact@v6
+        with:
+          name: "current"
+          path: tmp/test262-out/current-output.json
+  
+  analyse_results:
+    name: Analyse test262 results
+    runs-on: ubuntu-latest
+    needs:
+      - run_test_262_baseline
+      - run_test_262_pr
+    if: ${{ always() }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # don't checkout a detached HEAD
+          ref: ${{ github.head_ref }}
+
+      - uses: actions/setup-node@v6
+        with:
+          check-latest: true
+          node-version: 24.x
+          
+      - name: Download previous results
+        uses: actions/download-artifact@v7
+        with:
+          merge-multiple: true
+          path: "tmp/test262-out/"
+
+      - name: Diff results
+        env:
+          CI: true
+        run: |
+          npm run -s test-262-diff -- tmp/test262-out/baseline-output.json tmp/test262-out/current-output.json tmp/test262.json >> $GITHUB_ENV
+        
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
@@ -40,4 +100,21 @@ jobs:
           check_name: "tc39/test-262 test results"
           large_files: true
           files: |
-            tmp/test262-out/*.json
+            tmp/test262.json
+            
+      - name: Add diff to PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+            owner: context.repo.owner,
+            issue_number: context.issue.number,
+            repo: context.repo.repo,
+            body: `## test262 conformance tests\n\nThere has been **${process.env.new_failures ?? 0} new failures** in commit ${context.sha} compared to the baseline commit (main).`
+            })
+            
+      - name: Upload diff results
+        uses: actions/upload-artifact@v6
+        with:
+          name: "test262-diff"
+          path: tmp/test262.json
