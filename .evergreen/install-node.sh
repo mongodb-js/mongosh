@@ -25,14 +25,15 @@ else
   npm cache clear --force || true # Try to work around `Cannot read property 'pickAlgorithm' of null` errors in CI
 fi
 
-# On Linux CI hosts, the node installation is in a system directory that
-# is not writable by the current user, so we install pnpm to a user-local prefix.
-if [ "$OS" != "Windows_NT" ] && [ "$(uname)" = "Linux" ]; then
-  export npm_config_prefix="$HOME/.local"
-  mkdir -p "$HOME/.local/bin"
-  npm install -g pnpm@latest-10
-else
-  npm install -g pnpm@latest-10
-fi
+# Install pnpm to a user-local prefix to avoid permission issues with system node directories
+export npm_config_prefix="$HOME/.local"
+mkdir -p "$HOME/.local/lib"
+npm install -g pnpm@latest-10
+# npm does not always preserve the execute bit on Python scripts inside bundled
+# tools (e.g. node-gyp's gyp_main.py), which causes native addon builds to fail
+# with "Permission denied" (exit 126). Restore +x on all .py files in pnpm.
+
+chmod -R +x "$HOME/.local/lib/node_modules/pnpm"
+export PATH="$HOME/.local/bin:$PATH"
 
 . "$BASEDIR/setup-env.sh"
