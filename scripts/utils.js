@@ -2,7 +2,7 @@ const { execSync, execFileSync } = require('child_process');
 const readline = require('readline');
 
 function getLatestVersion() {
-  return execSync(`npm view @mongosh/cli-repl .dist-tags.latest`).toString().trim();
+  return execSync(`pnpm view @mongosh/cli-repl .dist-tags.latest`).toString().trim();
 }
 
 function gitClone(repo, dest) {

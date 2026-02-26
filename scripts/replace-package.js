@@ -17,13 +17,13 @@ if (!parsed || !parsed.groups.from || !parsed.groups.to) {
 }
 
 function resolveTag(from, to) {
-  return execSync(`npm dist-tag ls '${from}@${to}' | awk -F ': ' '/^${to}/ {print \$2}'`).toString().trim();
+  return execSync(`pnpm dist-tag ls '${from}@${to}' | awk -F ': ' '/^${to}/ {print \$2}'`).toString().trim();
 }
 
 const { from, to: _to } = parsed.groups;
 
-// npm install doesn't seem to do anything if you're updating a
-// package-lock.json file that already has the dep to a tag like nightly, but it
+// pnpm install doesn't seem to do anything if you're updating a
+// pnpm-lock.yaml file that already has the dep to a tag like nightly, but it
 // does do something if you change it to the exact version.
 const to = _to === 'nightly' ? resolveTag(from, _to) : _to;
 

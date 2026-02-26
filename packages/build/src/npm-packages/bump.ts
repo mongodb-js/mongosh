@@ -76,8 +76,8 @@ export class PackageBumper {
 
     await this.updateShellApiMongoshVersion(version);
 
-    // Update package-lock.json
-    this.spawnSync('npm', ['install', '--package-lock-only'], {
+    // Update pnpm-lock.yaml
+    this.spawnSync('pnpm', ['install', '--lockfile-only'], {
       stdio: 'inherit',
       cwd: monorepoRootPath,
       encoding: 'utf8',
@@ -117,17 +117,35 @@ export class PackageBumper {
 
   /** Bumps auxiliary packages without setting a new version of mongosh. */
   public bumpAuxiliaryPackages() {
-    this.spawnSync('bump-monorepo-packages', [], {
+    // bump-monorepo-packages updates package.json files then calls
+    // `npm install --package-lock-only`, which fails in a pnpm workspace.
+    // All package.json writes happen before that last step, so we ignore the
+    // error and update pnpm-lock.yaml ourselves below.
+    this.spawnSync(
+      'bump-monorepo-packages',
+      [],
+      {
+        stdio: 'inherit',
+        cwd: PROJECT_ROOT,
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          LAST_BUMP_COMMIT_MESSAGE: 'chore(release): bump packages',
+          SKIP_BUMP_PACKAGES: [
+            ...EXCLUDE_RELEASE_PACKAGES,
+            ...MONGOSH_RELEASE_PACKAGES,
+          ].join(','),
+        },
+      },
+      true
+    );
+    this.spawnSync('pnpm', ['install', '--lockfile-only'], {
       stdio: 'inherit',
       cwd: PROJECT_ROOT,
       encoding: 'utf8',
       env: {
         ...process.env,
-        LAST_BUMP_COMMIT_MESSAGE: 'chore(release): bump packages',
-        SKIP_BUMP_PACKAGES: [
-          ...EXCLUDE_RELEASE_PACKAGES,
-          ...MONGOSH_RELEASE_PACKAGES,
-        ].join(','),
+        PUPPETEER_SKIP_DOWNLOAD: 'true',
       },
     });
   }

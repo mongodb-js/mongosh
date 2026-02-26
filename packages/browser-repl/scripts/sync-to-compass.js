@@ -26,7 +26,7 @@ console.log({ packageDir, srcDir, libDir, destDir });
 const compileAndCopy = debounce(
   function () {
     try {
-      child_process.execFileSync('npm', ['run', 'compile'], {
+      child_process.execFileSync('pnpm', ['run', 'compile'], {
         cwd: packageDir,
         encoding: 'utf-8',
       });

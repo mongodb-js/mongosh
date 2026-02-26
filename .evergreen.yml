@@ -13,8 +13,8 @@ post:
     params:
       shell: bash
       script: |
-        mkdir -p npm-logs
-        tar cvzf npm-logs.tgz npm-logs
+        mkdir -p pnpm-logs
+        tar cvzf pnpm-logs.tgz pnpm-logs
 
         if [ -d "src/tmp/mongodb-runner/logs" ]; then
           tar cvzf mongodb-runner-logs.tgz -C src/tmp/mongodb-runner logs
@@ -32,7 +32,7 @@ post:
     params:
       aws_key: ${aws_key}
       aws_secret: ${aws_secret}
-      local_file: npm-logs.tgz
+      local_file: pnpm-logs.tgz
       remote_file: mongosh/binaries/${revision}/${revision_order_id}/npm-logs-${build_variant}-${task_name}-${task_id}.tgz
       bucket: mciuploads
       permissions: private
@@ -126,7 +126,7 @@ functions:
           set -e
           set -x
           .evergreen/install-node.sh
-          .evergreen/install-npm-deps.sh
+          .evergreen/instal-npm-deps.sh
     - command: shell.exec
       params:
         working_dir: src
@@ -135,9 +135,9 @@ functions:
           NODE_JS_VERSION: ${node_js_version}
         script: |
           source .evergreen/setup-env.sh
-          npm run evergreen-release bump
-          npm run compile
-          tar cvzf compiled-ts.tgz packages/*/{lib,dist,package.json} package.json package-lock.json
+          pnpm run evergreen-release bump
+          pnpm run compile
+          tar cvzf compiled-ts.tgz packages/*/{lib,dist,package.json} package.json pnpm-lock.yaml
     - command: s3.put
       params:
         aws_key: ${aws_key}
@@ -168,7 +168,7 @@ functions:
           set -e
           set -x
           .evergreen/install-node.sh
-          .evergreen/install-npm-deps.sh
+          .evergreen/instal-npm-deps.sh
     - command: s3.get
       type: setup
       params:
@@ -195,8 +195,8 @@ functions:
           set -e
           {
           source .evergreen/setup-env.sh
-          npm run evergreen-release bump
-          npm run check-ci
+          pnpm run evergreen-release bump
+          pnpm run check-ci
           }
   test:
     - command: expansions.write
@@ -212,7 +212,7 @@ functions:
           set -e
           {
           source .evergreen/setup-env.sh
-          npm run test-ci
+          pnpm run test-ci
           echo "Archiving current coverage result..."
           tar cvzf nyc-output.tgz .nyc_output
           }
@@ -4647,7 +4647,7 @@ functions:
           set -e
           {
           source .evergreen/setup-env.sh
-          npm run report-coverage-ci
+          pnpm run report-coverage-ci
           echo "Creating coverage tarball..."
           tar cvzf coverage.tgz coverage
           }
@@ -4671,7 +4671,7 @@ functions:
           set -e
           {
           source .evergreen/setup-env.sh
-          npm run check-coverage
+          pnpm run check-coverage
           }
 
   test_vscode:
@@ -4714,7 +4714,7 @@ functions:
           set -e
           {
           source .evergreen/setup-env.sh
-          npm run test-connectivity
+          pnpm run test-connectivity
           }
   test_apistrict:
     - command: expansions.write
@@ -4732,7 +4732,7 @@ functions:
           set -e
           {
           source .evergreen/setup-env.sh
-          npm run test-apistrict-ci
+          pnpm run test-apistrict-ci
           }
 
   ###
@@ -5257,11 +5257,11 @@ functions:
           # validate licenses, we first remove THIRD_PARTY_NOTICES.md, so we are sure
           # that we would only upload the newly generated file in case of success.
           rm THIRD_PARTY_NOTICES.md
-          npm run update-third-party-notices
+          pnpm run update-third-party-notices
 
           # generate vulnerability report
           set +e
-          npm run generate-vulnerability-report
+          pnpm run generate-vulnerability-report
           return_code=$?
           set -e
 
@@ -5270,7 +5270,7 @@ functions:
             export JIRA_BASE_URL="https://jira.mongodb.org"
             export JIRA_PROJECT="MONGOSH"
             export JIRA_VULNERABILITY_BUILD_INFO="- [Evergreen task|$EVERGREEN_TASK_URL]"
-            npm run create-vulnerability-tickets
+            pnpm run create-vulnerability-tickets
           else
             cat .sbom/vulnerability-report.md
           fi
@@ -5279,7 +5279,7 @@ functions:
             # Run `snyk monitor` to keep `main` tracked
             # TODO: remove --strict-out-of-sync=false once we update
             # to a newer npm version in our toolchain
-            npx -y snyk monitor --org=dcd6db53-1532-4e65-beca-55db83f2cd52 --file=package-lock.json --strict-out-of-sync=false
+            pnpm dlx snyk monitor --org=dcd6db53-1532-4e65-beca-55db83f2cd52 --file=pnpm-lock.yaml --strict-out-of-sync=false
             # Fails if the report failed and is not a patch, including during releases:
             exit $return_code
           fi
@@ -5394,7 +5394,7 @@ functions:
           {
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
-          npm run evergreen-release draft
+          pnpm run evergreen-release draft
           git add .
           git commit --no-allow-empty -m "chore(release): bump to prepare for mongosh release"
           }
@@ -5481,7 +5481,7 @@ functions:
         script: |
           set -e
           set -x
-          npx -y mongodb-runner exec -t standalone --version=7.0.x-enterprise -- \
+          pnpm dlx mongodb-runner exec -t standalone --version=7.0.x-enterprise -- \
             sh -c 'MONGOSH_SMOKE_TEST_SERVER="$MONGODB_URI" ./dist/mongosh --perfTests > perf_results.json'
         env:
           DISTRO_ID: ${distro_id}

@@ -136,7 +136,7 @@ functions:
           set -e
           set -x
           .evergreen/install-node.sh
-          .evergreen/install-npm-deps.sh
+          .evergreen/install-pnpm-deps.sh
     - command: shell.exec
       params:
         working_dir: src
@@ -178,7 +178,7 @@ functions:
           set -e
           set -x
           .evergreen/install-node.sh
-          .evergreen/install-npm-deps.sh
+          .evergreen/install-pnpm-deps.sh
     - command: s3.get
       type: setup
       params:
