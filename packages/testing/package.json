@@ -22,9 +22,9 @@
   },
   "scripts": {
     "eslint": "eslint",
-    "lint": "npm run eslint . && npm run prettier -- --check .",
+    "lint": "pnpm run eslint . && pnpm run prettier -- --check .",
     "prettier": "prettier",
-    "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
+    "reformat": "pnpm run prettier -- --write . && pnpm run eslint -- --fix"
   },
   "dependencies": {
     "@mongosh/build": "^3.10.1",

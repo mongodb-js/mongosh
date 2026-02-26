@@ -69,7 +69,7 @@ if (require.main === module) {
     const command = process.argv[2];
     if (!isValidCommand(command)) {
       throw new Error(
-        `USAGE: npm run evergreen-release <${validCommands.join('|')}>`
+        `USAGE: pnpm run evergreen-release <${validCommands.join('|')}>`
       );
     }
 

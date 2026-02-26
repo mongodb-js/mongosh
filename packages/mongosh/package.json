@@ -23,8 +23,8 @@
   "scripts": {
     "test": "exit 0",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
-    "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
-    "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci"
+    "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none pnpm run test",
+    "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none pnpm run test-ci"
   },
   "bugs": {
     "url": "https://github.com/mongodb-js/mongosh/issues"

@@ -26,6 +26,9 @@ jobs:
       PUPPETEER_SKIP_DOWNLOAD: "true"
     steps:
       - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
       - uses: actions/setup-node@v6
         with:
           check-latest: true
@@ -35,4 +38,4 @@ jobs:
         run: ./download_latest.sh
 
       - name: Run smoke tests
-        run: npx -y mongodb-runner -- exec -- sh -c 'env MONGOSH_SMOKE_TEST_SERVER=$MONGODB_URI ./mongosh --smokeTests'
+        run: pnpm dlx mongodb-runner -- exec -- sh -c 'env MONGOSH_SMOKE_TEST_SERVER=$MONGODB_URI ./mongosh --smokeTests'

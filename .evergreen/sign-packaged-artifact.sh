@@ -44,7 +44,7 @@ if [ "$(uname)" == Darwin ]; then
   fi
 
 else
-  npm run evergreen-release sign
+  pnpm run evergreen-release sign
 fi
 
-npm run evergreen-release upload
+pnpm run evergreen-release upload

@@ -76,25 +76,15 @@ if [ `uname` = Linux ]; then
     export npm_config_unsafe_perm=true
 fi
 
-# npm@7 changed the behavior to run install scripts for packages
-# in the background in parallel. While that's a good idea in general,
-# it's problematic for us, because it means that packages that
-# have a diamond dependency on node-addon-api (at least two addons
-# depend on it) won't build properly on Windows, since multiple scripts
-# try to build node-addon-api in the same directory at the same time,
-# which is not something that Windows is laid out to do.
-# --foreground-scripts works around this.
-# Refs: https://docs.npmjs.com/cli/v8/using-npm/scripts#life-cycle-scripts
-export npm_config_foreground_scripts=true
-
+# pnpm runs install scripts sequentially by default, avoiding the npm@7+
+# parallel script execution issue where packages with diamond dependencies
+# on node-addon-api (e.g. multiple addons depending on it) would fail to
+# build on Windows when multiple scripts tried to build node-addon-api
+# in the same directory simultaneously.
 export npm_config_registry=https://registry.npmjs.org/
 export npm_config_loglevel=verbose
-export npm_config_logs_max=10000
-export npm_config_logs_dir="$PWD/../npm-logs"
-mkdir -p "$npm_config_logs_dir"
-if [ "$OS" == "Windows_NT" ]; then
-  export npm_config_logs_dir="$(cygpath -w "$npm_config_logs_dir")"
-fi
+
+mkdir -p "$PWD/../pnpm-logs"
 
 export DOCKER_CONFIG="$BASEDIR/docker-config"
 export PATH="$BASEDIR/docker-config/bin:$PATH"
@@ -110,6 +100,9 @@ echo "Using node version:"
 
 echo "Using npm version:"
 (which npm && npm --version)
+
+echo "Using pnpm version:"
+(which pnpm && pnpm --version)
 
 echo "Using git version:"
 (which git && git --version)

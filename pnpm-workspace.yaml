@@ -1,0 +1,19 @@
+packages:
+  - "configs/*"
+  - "packages/*"
+  - "scripts/docker"
+onlyBuiltDependencies:
+  - core-js-pure
+  - cpu-features
+  - glibc-version
+  - interruptor
+  - kerberos
+  - macos-export-certificate-and-key
+  - mongodb-client-encryption
+  - mongodb-crypt-library-dummy
+  - mongodb-crypt-library-version
+  - native-machine-id
+  - nx
+  - os-dns-native
+  - puppeteer
+  - ssh2

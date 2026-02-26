@@ -10,12 +10,12 @@
 MONGOSH_RUN_ONLY_IN_PACKAGE=${MONGOSH_RUN_ONLY_IN_PACKAGE:-""}
 
 export REPLACE_PACKAGE="mongodb:$DRIVER_TARBALL_PATH"
-npm run replace-package
+pnpm run replace-package
 
-npm run bootstrap -- --no-ci
+pnpm run bootstrap -- --no-ci
 
-npm run compile
+pnpm run compile
 
 if [ -n "$MONGOSH_RUN_ONLY_IN_PACKAGE" ]; then
-	npm run test-ci-nocoverage
+	pnpm run test-ci-nocoverage
 fi

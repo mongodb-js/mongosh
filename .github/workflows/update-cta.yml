@@ -41,14 +41,17 @@ jobs:
       - name: Sts GetCallerIdentity
         run: |
           aws sts get-caller-identity
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
       - uses: actions/setup-node@v6
         with:
           check-latest: true
           node-version: 24.x
       - name: Install Dependencies and Compile
         run: |
-          npm ci
-          npm run compile
+          pnpm install --frozen-lockfile
+          pnpm run compile
 
       - name: Update greeting CTA
         env:
@@ -56,4 +59,4 @@ jobs:
           DOWNLOAD_CENTER_AWS_SECRET: "${{ env.AWS_SECRET_KEY }}"
           DOWNLOAD_CENTER_AWS_SESSION_TOKEN: "${{ env.AWS_SESSION_TOKEN }}"
         run: |
-          npm run update-cta ${{ github.event.inputs.dry-run && '-- --dry-run' || '' }}
+          pnpm run update-cta ${{ github.event.inputs.dry-run && '-- --dry-run' || '' }}

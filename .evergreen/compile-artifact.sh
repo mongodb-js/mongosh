@@ -76,7 +76,7 @@ elif [ -n "$MONGOSH_SHARED_OPENSSL" ]; then
   export LD_LIBRARY_PATH=/opt/devtools/lib:/tmp/m/opt/lib
 fi
 
-npm run evergreen-release compile
+pnpm run evergreen-release compile
 dist/mongosh --version
 dist/mongosh --build-info
 dist/mongosh --build-info | grep -q '"distributionKind": "compiled"'
@@ -97,10 +97,10 @@ if uname -a | grep -q 'Linux.*x86_64'; then
   test $(objdump -d dist/mongosh | grep '\bvmovd\b' | wc -l) -lt 1250
 fi
 
-npm run write-node-js-dep
-npm run create-purls-file
+pnpm run write-node-js-dep
+pnpm run create-purls-file
 cp .sbom/purls.txt dist/.purls.txt
 
 cat dist/.purls.txt
 
-npm run create-dependency-sbom-lists
+pnpm run create-dependency-sbom-lists

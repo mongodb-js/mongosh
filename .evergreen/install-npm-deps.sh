@@ -5,43 +5,40 @@ export BASEDIR="$PWD/.evergreen"
 
 . "$BASEDIR/setup-env.sh"
 
-# Install root directories used by scripts. We should consider moving scripts to separate packages.
-# Also install config workspaces since they're referenced by tsconfig.json files but not automatically linked when workspaces=false is used
-npm ci -w configs/tsconfig-mongosh -w configs/eslint-config-mongosh --include-workspace-root
-
+# Install all dependencies
+pnpm install --frozen-lockfile
 
 echo "MONOGDB_DRIVER_VERSION_OVERRIDE:$MONOGDB_DRIVER_VERSION_OVERRIDE"
 
-npm run mark-ci-required-optional-dependencies
+pnpm run mark-ci-required-optional-dependencies
 
 # if MONOGDB_DRIVER_VERSION_OVERRIDE is set, then we want to replace the package version
 if [[ -n "$MONOGDB_DRIVER_VERSION_OVERRIDE" ]]; then
   export REPLACE_PACKAGE="mongodb:$MONOGDB_DRIVER_VERSION_OVERRIDE"
-  npm run replace-package
+  pnpm run replace-package
   # force because of issues with peer deps and semver pre-releases,
-  # install rather than ci because `npm ci` can only install packages when your
-  # package.json and package-lock.json or npm-shrinkwrap.json are in sync.
+  # install rather than frozen-lockfile because the package.json has changed.
   # NOTE: this won't work on some more exotic platforms because not every dep
   # can be installed on them. That's why we only run on linux x64 platforms when
   # we set MONOGDB_DRIVER_VERSION_OVERRIDE=nightly in CI
-  npm i --verbose --force
+  pnpm install --force
 fi
 
 # install again, this time with all the optional deps. If
 # mongodb-client-encryption failed to install (it can't install on some
 # platforms), then install again ignoring scripts so that the package installs
-# along with its types, but npm wouldn't try and compile the addon
+# along with its types, but pnpm wouldn't try and compile the addon
 if [[ -n "$MONGOSH_INSTALL_WORKSPACE" ]]; then
   # Check if the workspace or root actually depends on mongodb-client-encryption
-  if npm ls --workspace "$MONGOSH_INSTALL_WORKSPACE" --depth=1 mongodb-client-encryption > /dev/null 2>&1; then
+  if pnpm ls --filter "$MONGOSH_INSTALL_WORKSPACE" --depth 1 mongodb-client-encryption > /dev/null 2>&1; then
     echo "Workspace or root depends on mongodb-client-encryption, retrying install with optional deps..."
-    (npm ci -w "$MONGOSH_INSTALL_WORKSPACE" --include-workspace-root && test -e node_modules/mongodb-client-encryption) || npm ci -w "$MONGOSH_INSTALL_WORKSPACE" --include-workspace-root --ignore-scripts
+    (pnpm install && test -e node_modules/mongodb-client-encryption) || pnpm install --ignore-scripts
   else
-    npm ci -w "$MONGOSH_INSTALL_WORKSPACE" --include-workspace-root
+    pnpm install
   fi
 else
-  (npm ci && test -e node_modules/mongodb-client-encryption) || npm ci --ignore-scripts
+  (pnpm install && test -e node_modules/mongodb-client-encryption) || pnpm install --ignore-scripts
 fi
 
-echo "npm packages after installation"
-npm ls || true
+echo "pnpm packages after installation"
+pnpm ls || true

@@ -2,7 +2,7 @@
 set -e
 set -x
 
-npm run evergreen-release download-crypt-shared-library
+pnpm run evergreen-release download-crypt-shared-library
 
 ls -lhA dist
 echo "pkg:generic/mongo_crypt_shared@$(cat dist/.mongosh_crypt_*.version)" >> dist/.purls.txt

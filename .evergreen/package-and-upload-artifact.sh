@@ -20,16 +20,16 @@ if [ "$(uname)" == Linux ]; then
     -e ARTIFACT_URL_EXTRA_TAG \
     -e ARTIFACT_URL_FILE="/tmp/build/artifact-url.txt" \
     --rm -v $PWD:/tmp/build --network host rocky8-package \
-    -c 'cd /tmp/build && npm run evergreen-release package && npm run evergreen-release upload'
+    -c 'cd /tmp/build && pnpm run evergreen-release package && pnpm run evergreen-release upload'
 else
-  npm run evergreen-release package
+  pnpm run evergreen-release package
   ls -lh dist/
 
   if [ "$OS" == "Windows_NT" ]; then
     # Fix absolute path before handing over to node
     export ARTIFACT_URL_FILE="$(cygpath -w "$ARTIFACT_URL_FILE")"
   fi
-  npm run evergreen-release upload
+  pnpm run evergreen-release upload
 fi
 
 cp -v $PWD/artifact-url.txt $PWD/../artifact-url.txt

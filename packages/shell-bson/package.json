@@ -17,17 +17,17 @@
     "url": "git+https://github.com/mongodb-js/mongosh.git"
   },
   "scripts": {
-    "check": "npm run lint",
+    "check": "pnpm run lint",
     "compile": "tsc -p tsconfig.json",
     "eslint": "eslint",
-    "lint": "npm run eslint . && npm run prettier -- --check .",
-    "prepublish": "npm run compile",
+    "lint": "pnpm run eslint . && pnpm run prettier -- --check .",
+    "prepublish": "pnpm run compile",
     "test": "mocha",
-    "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
-    "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
-    "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
+    "test-ci": "node ../../scripts/run-if-package-requested.js pnpm test",
+    "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none pnpm run test",
+    "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none pnpm run test-ci",
     "prettier": "prettier",
-    "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
+    "reformat": "pnpm run prettier -- --write . && pnpm run eslint -- --fix"
   },
   "bugs": {
     "url": "https://github.com/mongodb-js/mongosh/issues"

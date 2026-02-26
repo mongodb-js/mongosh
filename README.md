@@ -128,12 +128,13 @@ curl -fsSL https://raw.githubusercontent.com/mongodb-js/mongosh/refs/heads/main/
 ### Requirements
 
 - Node.js v20.x
+- pnpm
 
 ### Install
 
 ```shell
-npm run bootstrap
-npm run compile-cli
+pnpm run bootstrap
+pnpm run compile-cli
 ```
 
 ### Running Tests
@@ -141,25 +142,25 @@ npm run compile-cli
 Run all tests (this may take some time):
 
 ```shell
-npm test
+pnpm test
 ```
 
 Run tests from a specific package:
 
 ```shell
-npm -w @mongosh/cli-repl run test
+pnpm --filter @mongosh/cli-repl run test
 ```
 
 To test against a specific version, the `MONGOSH_SERVER_TEST_VERSION`
 environment variable can be set to a semver string specifying a server version,
-e.g. `MONGOSH_SERVER_TEST_VERSION='>= 7.0.0-rc0' npm -w @mongosh/cli-repl run test`.
+e.g. `MONGOSH_SERVER_TEST_VERSION='>= 7.0.0-rc0' pnpm --filter @mongosh/cli-repl run test`.
 
 ### Starting the CLI
 
-Via npm:
+Via pnpm:
 
 ```shell
-npm run start <... connection string, CLI args, etc.>
+pnpm run start <... connection string, CLI args, etc.>
 ```
 
 This will compile all Typescript dependencies of the CLI package first.
@@ -168,7 +169,7 @@ Alternatively you can also run start inside the `cli-repl` package, if you're
 sure everything else is compiled:
 
 ```shell
-npm run -w @mongosh/cli-repl start <... connection string, CLI args, etc.>
+pnpm --filter @mongosh/cli-repl run start <... connection string, CLI args, etc.>
 ```
 
 ### Compiling
@@ -176,19 +177,19 @@ npm run -w @mongosh/cli-repl start <... connection string, CLI args, etc.>
 Compile all Typescript:
 
 ```shell
-npm run compile
+pnpm run compile
 ```
 
 Compile just the CLI ands its dependencies:
 
 ```shell
-npm run compile-cli
+pnpm run compile-cli
 ```
 
 Compile the standalone executable (this may take some time):
 
 ```shell
-npm run compile-exec
+pnpm run compile-exec
 ```
 
 Relevant environment variables for compiling are:
@@ -201,8 +202,8 @@ Relevant environment variables for compiling are:
 Compile a specific package, e.g. the `.deb` for Debian:
 
 ```shell
-npm run compile-exec
-npm run evergreen-release package -- --build-variant=deb-x64
+pnpm run compile-exec
+pnpm run evergreen-release package -- --build-variant=deb-x64
 ```
 
 Compilation and packaging output is written to `dist/`.

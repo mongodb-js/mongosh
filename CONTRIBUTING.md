@@ -9,7 +9,7 @@ MongoDB welcomes community contributions! If you’re interested in making a con
 1. Create a branch with a name that briefly describes your feature
 1. Implement your feature or bug fix
 1. Add new test cases that verify your bug fix or make sure no one
-   unintentionally breaks your feature in the future and run them with `npm test`
+   unintentionally breaks your feature in the future and run them with `pnpm test`
    - You can use `it.only()` instead of `it()` in mocha tests to run only a subset of tests.
      This can be helpful, because running the full test suite likely takes some time.
 1. Add comments around your new code that explain what's happening

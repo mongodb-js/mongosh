@@ -22,22 +22,22 @@
     "url": "git://github.com/mongodb-js/mongosh.git"
   },
   "scripts": {
-    "compile": "tsc -p tsconfig.json && npm run api-generate",
+    "compile": "tsc -p tsconfig.json && pnpm run api-generate",
     "api-generate": "api-extractor run && ts-node scripts/api-postprocess.ts",
-    "pretest": "npm run compile",
+    "pretest": "pnpm run compile",
     "eslint": "eslint",
-    "lint": "npm run eslint . && npm run prettier -- --check .",
-    "check": "npm run lint",
+    "lint": "pnpm run eslint . && pnpm run prettier -- --check .",
+    "check": "pnpm run lint",
     "report-missing-help": "ts-node scripts/report-missing-help.ts",
     "report-supported-api": "ts-node scripts/report-supported-api.ts",
     "test": "mocha",
-    "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
-    "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
-    "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
-    "test-apistrict-ci": "cross-env MONGOSH_TEST_FORCE_API_STRICT=1 npm run test-ci",
-    "prepublish": "npm run compile",
+    "test-ci": "node ../../scripts/run-if-package-requested.js pnpm test",
+    "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none pnpm run test",
+    "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none pnpm run test-ci",
+    "test-apistrict-ci": "cross-env MONGOSH_TEST_FORCE_API_STRICT=1 pnpm run test-ci",
+    "prepublish": "pnpm run compile",
     "prettier": "prettier",
-    "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
+    "reformat": "pnpm run prettier -- --write . && pnpm run eslint -- --fix"
   },
   "license": "Apache-2.0",
   "publishConfig": {

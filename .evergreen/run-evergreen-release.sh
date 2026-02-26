@@ -5,4 +5,4 @@ echo "//registry.npmjs.org/:_authToken=${devtoolsbot_npm_token}" >.npmrc
 set -x
 export NODE_JS_VERSION=${node_js_version}
 source .evergreen/setup-env.sh
-npm run evergreen-release $@
+pnpm run evergreen-release $@

@@ -15,13 +15,13 @@
     "prettier": "^2.7.1"
   },
   "scripts": {
-    "check": "npm run lint",
+    "check": "pnpm run lint",
     "lint": "prettier --check .",
     "reformat": "prettier --write .",
     "test": "echo \"no tests\"",
-    "test-ci": "npm run test",
-    "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
-    "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci"
+    "test-ci": "pnpm run test",
+    "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none pnpm run test",
+    "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none pnpm run test-ci"
   },
   "repository": {
     "type": "git",

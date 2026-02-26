@@ -36,6 +36,9 @@ jobs:
           fetch-depth: "0"
           token: ${{ steps.app-token.outputs.token }}
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
       - uses: actions/setup-node@v6
         with:
           check-latest: true
@@ -43,37 +46,37 @@ jobs:
 
       - name: Install Dependencies and Compile
         run: |
-          npm ci
-          npm run compile
+          pnpm install --frozen-lockfile
+          pnpm run compile
 
       - name: Update THIRD_PARTY_NOTICES.md
         run: |
-          npm run update-third-party-notices
+          pnpm run update-third-party-notices
           git add THIRD_PARTY_NOTICES.md
 
       - name: Update AUTHORS
         run: |
-          npm run update-authors
+          pnpm run update-authors
           git add AUTHORS \*/AUTHORS
 
       - name: Generate Error Documentation
         run: |
-          npm run generate-error-overview
+          pnpm run generate-error-overview
           git add packages/errors/generated
 
       - name: Regenerate Evergreen Config
         run: |
-          npm run update-evergreen-config
+          pnpm run update-evergreen-config
           git add .evergreen.yml
 
       - name: Update Security Test Summary
         run: |
-          npm run update-security-test-summary
+          pnpm run update-security-test-summary
           git add docs/security-test-summary.md
 
       - name: Regenerate CLI usage text in README files
         run: |
-          npm run update-cli-usage-text packages/*/*.md *.md
+          pnpm run update-cli-usage-text packages/*/*.md *.md
           git add packages/*/*.md *.md
 
       - name: Commit and push

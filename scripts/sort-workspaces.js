@@ -17,7 +17,7 @@ async function main() {
   const monorepoRoot = path.resolve(__dirname, "..");
 
   // Get sorted packages from lerna
-  const { stdout } = await exec("npx -y lerna ls --all --toposort --json");
+  const { stdout } = await exec("pnpm dlx lerna ls --all --toposort --json");
   const packages = JSON.parse(stdout);
 
   // Update package.json

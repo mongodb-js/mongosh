@@ -14,4 +14,4 @@ if [ "$OS" == "Windows_NT" ]; then
 fi
 
 echo "$MONGOSH_TEST_EXECUTABLE_PATH"
-npm run test-e2e
+pnpm run test-e2e

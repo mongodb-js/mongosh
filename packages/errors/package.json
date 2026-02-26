@@ -19,16 +19,16 @@
   "scripts": {
     "test": "mocha",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
-    "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
-    "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
+    "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none pnpm run test",
+    "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none pnpm run test-ci",
     "eslint": "eslint",
-    "lint": "npm run eslint . && npm run prettier -- --check .",
-    "check": "npm run lint",
+    "lint": "pnpm run eslint . && pnpm run prettier -- --check .",
+    "check": "pnpm run lint",
     "compile": "tsc -p tsconfig.json",
-    "prepublish": "npm run compile",
-    "generate-error-overview": "ts-node scripts/extract-errors.ts .. generated/error-overview.md generated/error-overview.rst && npm run reformat",
+    "prepublish": "pnpm run compile",
+    "generate-error-overview": "ts-node scripts/extract-errors.ts .. generated/error-overview.md generated/error-overview.rst && pnpm run reformat",
     "prettier": "prettier",
-    "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
+    "reformat": "pnpm run prettier -- --write . && pnpm run eslint -- --fix"
   },
   "mongosh": {
     "unitTestsOnly": true

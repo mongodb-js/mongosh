@@ -59,7 +59,7 @@ fi
 
 # The script in `mongodb-js/mongodb-client-encryption` will download or build the libmongocrypt version specified in
 # mongodb-client-encryption's package.json at "mongodb:libmongocrypt"
-npm run install:libmongocrypt -- --skip-bindings ${IS_WINDOWS:+--build}
+pnpm run install:libmongocrypt -- --skip-bindings ${IS_WINDOWS:+--build}
 
 # The "deps" directory will be populated
 # Structure:
