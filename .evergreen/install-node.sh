@@ -25,6 +25,7 @@ else
   npm cache clear --force || true # Try to work around `Cannot read property 'pickAlgorithm' of null` errors in CI
 fi
 
+npm install --global corepack@latest
 corepack enable pnpm
 
 . "$BASEDIR/setup-env.sh"
