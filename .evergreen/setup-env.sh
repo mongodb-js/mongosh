@@ -74,6 +74,8 @@ fi
 # On RHEL hosts, we run as root for some reason
 if [ `uname` = Linux ]; then
     export npm_config_unsafe_perm=true
+    # pnpm is installed to $HOME/.local/bin when the system node prefix is not writable
+    export PATH="$HOME/.local/bin:$PATH"
 fi
 
 # pnpm runs install scripts sequentially by default, avoiding the npm@7+

@@ -29,9 +29,8 @@ fi
 # is not writable by the current user, so we install pnpm to a user-local prefix.
 if [ "$OS" != "Windows_NT" ] && [ "$(uname)" = "Linux" ]; then
   export npm_config_prefix="$HOME/.local"
-  mkdir -p "$HOME/.local/lib"
+  mkdir -p "$HOME/.local/bin"
   npm install -g pnpm@latest-10
-  export PATH="$HOME/.local/bin:$PATH"
 else
   npm install -g pnpm@latest-10
 fi
