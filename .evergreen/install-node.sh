@@ -25,6 +25,15 @@ else
   npm cache clear --force || true # Try to work around `Cannot read property 'pickAlgorithm' of null` errors in CI
 fi
 
-curl -fsSL https://get.pnpm.io/install.sh | sh -
+# On Linux CI hosts, the node installation is in a system directory that
+# is not writable by the current user, so we install pnpm to a user-local prefix.
+if [ "$OS" != "Windows_NT" ] && [ "$(uname)" = "Linux" ]; then
+  export npm_config_prefix="$HOME/.local"
+  mkdir -p "$HOME/.local/lib"
+  npm install -g pnpm@latest-10
+  export PATH="$HOME/.local/bin:$PATH"
+else
+  npm install -g pnpm@latest-10
+fi
 
 . "$BASEDIR/setup-env.sh"
