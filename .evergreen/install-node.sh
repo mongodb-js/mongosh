@@ -25,6 +25,6 @@ else
   npm cache clear --force || true # Try to work around `Cannot read property 'pickAlgorithm' of null` errors in CI
 fi
 
-npm install -g pnpm@latest-10
+curl -fsSL https://get.pnpm.io/install.sh | sh -
 
 . "$BASEDIR/setup-env.sh"
