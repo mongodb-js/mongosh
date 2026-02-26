@@ -23,7 +23,7 @@
   },
   "scripts": {
     "test": "mocha",
-    "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
+    "test-ci": "node ../../scripts/run-if-package-requested.js pnpm test",
     "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none pnpm run test",
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none pnpm run test-ci",
     "eslint": "eslint",
