@@ -23,7 +23,8 @@ done
 # Add other required packages
 overrides="$overrides\"mongodb\":\"file:$mongosh_root_dir/node_modules/mongodb\","
 overrides="$overrides\"@mongodb-js/devtools-connect\":\"file:$mongosh_root_dir/node_modules/@mongodb-js/devtools-connect\","
-overrides="$overrides\"@mongodb-js/devtools-proxy-support\":\"file:$mongosh_root_dir/node_modules/@mongodb-js/devtools-proxy-support\""
+overrides="$overrides\"@mongodb-js/devtools-proxy-support\":\"file:$mongosh_root_dir/node_modules/@mongodb-js/devtools-proxy-support\","
+overrides="$overrides\"@mongodb-js/compass-components\":\"file:$mongosh_root_dir/node_modules/@mongodb-js/compass-components\""
 overrides="$overrides}"
 
 # Add pnpm overrides to package.json
