@@ -13,6 +13,10 @@
       "path": "configs/tsconfig-mongosh"
     },
     {
+      "name": "📦 @mongosh/async-rewriter3",
+      "path": "packages/async-rewriter3"
+    },
+    {
       "name": "📦 @mongosh/docker-build-scripts",
       "path": "scripts/docker"
     },

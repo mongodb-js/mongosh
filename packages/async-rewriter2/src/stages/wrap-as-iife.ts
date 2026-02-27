@@ -81,7 +81,8 @@ export default ({
                   return;
                 // Copy variable names.
                 this.variables.push((decl.id as babel.types.Identifier).name);
-                if (decl.init) {
+                // TODO: Figure out what to do about VoidPatterns
+                if (decl.init && decl.id.type !== 'VoidPattern') {
                   // If there is an initializer for this variable, turn it into
                   // an assignment expression, then assign that assignment
                   // expression to a dummy variable so that the completion record

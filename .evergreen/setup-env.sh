@@ -18,7 +18,9 @@ fi
 echo "TERM variable is set to '${TERM:-}'"
 
 if [ "$OS" != "Windows_NT" ]; then
-    if [ `uname` = Darwin ]; then
+  source $HOME/.cargo/env
+
+  if [ `uname` = Darwin ]; then
     # the CI macOS machines have an outdated Clang that
     # cannot build recent Node.js versions, so we use
     # the LLVM version installed via Homebrew
