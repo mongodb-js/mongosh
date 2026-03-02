@@ -56,6 +56,7 @@ export function getReposAndArch(packageVariant: PackageVariant): {
           'debian10',
           'debian11',
           'debian12',
+          'debian13',
         ]),
         arch: getDebArchName(getArch(packageVariant)),
       };
@@ -66,6 +67,7 @@ export function getReposAndArch(packageVariant: PackageVariant): {
             'rhel70',
             'rhel80',
             'rhel90',
+            'rhel10',
             'amazon1',
             'amazon2',
             'amazon2023',
@@ -80,6 +82,7 @@ export function getReposAndArch(packageVariant: PackageVariant): {
           ppas: getSupportedServersForPPAs([
             'rhel80',
             'rhel90',
+            'rhel10',
             'amazon2',
             'amazon2023',
           ]),
@@ -327,12 +330,16 @@ export class Barque {
         return `${base}/apt/debian/dists/bullseye/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
       case 'debian12':
         return `${base}/apt/debian/dists/bookworm/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
+      case 'debian13':
+        return `${base}/apt/debian/dists/trixie/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
       case 'rhel70':
         return `${base}/yum/redhat/7/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'rhel80':
         return `${base}/yum/redhat/8/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'rhel90':
         return `${base}/yum/redhat/9/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
+      case 'rhel10':
+        return `${base}/yum/redhat/10/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'amazon1':
         return `${base}/yum/amazon/2013.03/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'amazon2':
