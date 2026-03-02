@@ -22,9 +22,11 @@ export type PPARepository =
   | 'debian10'
   | 'debian11'
   | 'debian12'
+  | 'debian13'
   | 'rhel70'
   | 'rhel80'
   | 'rhel90'
+  | 'rhel10'
   | 'amazon1'
   | 'amazon2'
   | 'amazon2023'
@@ -42,9 +44,11 @@ export const SERVER_WITH_PPAS: Record<
     'debian10',
     'debian11',
     'debian12',
+    'debian13',
     'rhel70',
     'rhel80',
     'rhel90',
+    'rhel10',
     'suse12',
     'suse15',
     'ubuntu1804',
@@ -58,9 +62,11 @@ export const SERVER_WITH_PPAS: Record<
     'debian10',
     'debian11',
     'debian12',
+    'debian13',
     'rhel70',
     'rhel80',
     'rhel90',
+    'rhel10',
     'suse12',
     'suse15',
     'ubuntu1804',
@@ -74,9 +80,11 @@ export const SERVER_WITH_PPAS: Record<
     'debian10',
     'debian11',
     'debian12',
+    'debian13',
     'rhel70',
     'rhel80',
     'rhel90',
+    'rhel10',
     'suse12',
     'suse15',
     'ubuntu1804',
@@ -90,9 +98,11 @@ export const SERVER_WITH_PPAS: Record<
     'debian10',
     'debian11',
     'debian12',
+    'debian13',
     'rhel70',
     'rhel80',
     'rhel90',
+    'rhel10',
     'suse12',
     'suse15',
     'ubuntu1804',
@@ -102,8 +112,10 @@ export const SERVER_WITH_PPAS: Record<
   '8.0.0': [
     'amazon2023',
     'debian12',
+    'debian13',
     'rhel80',
     'rhel90',
+    'rhel10',
     'suse15',
     'ubuntu2004',
     'ubuntu2204',
@@ -112,8 +124,10 @@ export const SERVER_WITH_PPAS: Record<
   '8.2.0': [
     'amazon2023',
     'debian12',
+    'debian13',
     'rhel80',
     'rhel90',
+    'rhel10',
     'suse15',
     'ubuntu2004',
     'ubuntu2204',
