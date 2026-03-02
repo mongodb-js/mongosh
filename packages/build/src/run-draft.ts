@@ -47,7 +47,6 @@ export async function runDraft(
   );
   await fs.mkdir(tmpDir, { recursive: true });
 
-  packageBumper.bumpAuxiliaryPackages();
   await packageBumper.bumpMongoshReleasePackages(draftReleaseVersion);
 
   for await (const variant of ALL_PACKAGE_VARIANTS) {

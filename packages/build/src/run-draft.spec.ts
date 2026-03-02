@@ -83,6 +83,10 @@ describe('draft', function () {
         );
       });
 
+      it('does not bump auxiliary packages (to avoid SBOM version mismatch)', function () {
+        expect(packageBumper.bumpAuxiliaryPackages).not.to.have.been.called;
+      });
+
       it('downloads existing artifacts from evergreen', function () {
         expect(downloadArtifactFromEvergreen).to.have.been.callCount(
           ALL_PACKAGE_VARIANTS.length * 2 // artifacts + signatures
