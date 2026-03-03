@@ -58,11 +58,6 @@ export function adaptAggregateOptions(
   if ('explain' in aggOptions) {
     explain = validateExplainableVerbosity(aggOptions.explain);
     delete aggOptions.explain;
-    aggOptions.session ??= {
-      inTransaction() {
-        return true;
-      },
-    } as any; // MONGOSH-1002, SERVER-28678
   }
 
   return { aggOptions, explain };

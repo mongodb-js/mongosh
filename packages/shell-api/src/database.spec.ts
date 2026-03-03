@@ -456,7 +456,7 @@ describe('Database', function () {
         ).to.equal(expectedError);
       });
 
-      it('pass readConcern and writeConcern as dbOption', async function () {
+      it('pass readConcern and writeConcern as a regular option', async function () {
         await database.aggregate([], {
           otherOption: true,
           readConcern: { level: 'majority' },
@@ -466,8 +466,11 @@ describe('Database', function () {
         expect(serviceProvider.aggregateDb).to.have.been.calledWith(
           database._name,
           [],
-          { otherOption: true },
-          { readConcern: { level: 'majority' }, w: 1 }
+          {
+            otherOption: true,
+            readConcern: { level: 'majority' },
+            writeConcern: { w: 1 },
+          }
         );
       });
 
@@ -3025,8 +3028,7 @@ describe('Database', function () {
             args: [
               'db1',
               [{ $pipelineStage: { hasBanana: true } }],
-              { promoteValues: false },
-              { readConcern: 'primaryPreferred' },
+              { promoteValues: false, readConcern: 'primaryPreferred' },
             ],
           },
           chains: [
