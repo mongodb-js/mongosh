@@ -5,8 +5,14 @@ export BASEDIR="$PWD/.evergreen"
 
 . "$BASEDIR/setup-env.sh"
 
-npm ci --verbose
+# Install root directories used by scripts. We should consider moving scripts to separate packages.
+# Also install config workspaces since they're referenced by tsconfig.json files but not automatically linked when workspaces=false is used
+npm ci -w configs/tsconfig-mongosh -w configs/eslint-config-mongosh --include-workspace-root
+
+
 echo "MONOGDB_DRIVER_VERSION_OVERRIDE:$MONOGDB_DRIVER_VERSION_OVERRIDE"
+
+npm run mark-ci-required-optional-dependencies
 
 # if MONOGDB_DRIVER_VERSION_OVERRIDE is set, then we want to replace the package version
 if [[ -n "$MONOGDB_DRIVER_VERSION_OVERRIDE" ]]; then
@@ -21,14 +27,21 @@ if [[ -n "$MONOGDB_DRIVER_VERSION_OVERRIDE" ]]; then
   npm i --verbose --force
 fi
 
-# if we rewrote this script in javascript using just builtin node modules we could skip the npm ci above
-npm run mark-ci-required-optional-dependencies
-
 # install again, this time with all the optional deps. If
 # mongodb-client-encryption failed to install (it can't install on some
 # platforms), then install again ignoring scripts so that the package installs
 # along with its types, but npm wouldn't try and compile the addon
-(npm ci && test -e node_modules/mongodb-client-encryption) || npm ci --ignore-scripts
+if [[ -n "$MONGOSH_INSTALL_WORKSPACE" ]]; then
+  # Check if the workspace or root actually depends on mongodb-client-encryption
+  if npm ls --workspace "$MONGOSH_INSTALL_WORKSPACE" --depth=1 mongodb-client-encryption > /dev/null 2>&1; then
+    echo "Workspace or root depends on mongodb-client-encryption, retrying install with optional deps..."
+    (npm ci -w "$MONGOSH_INSTALL_WORKSPACE" --include-workspace-root && test -e node_modules/mongodb-client-encryption) || npm ci -w "$MONGOSH_INSTALL_WORKSPACE" --include-workspace-root --ignore-scripts
+  else
+    npm ci -w "$MONGOSH_INSTALL_WORKSPACE" --include-workspace-root
+  fi
+else
+  (npm ci && test -e node_modules/mongodb-client-encryption) || npm ci --ignore-scripts
+fi
 
 echo "npm packages after installation"
 npm ls || true

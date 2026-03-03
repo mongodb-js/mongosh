@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/js-multiline-to-singleline",
-  "version": "2.4.12",
+  "version": "2.4.13",
   "description": "Make multiline JS into a single line",
   "main": "./lib/index.js",
   "repository": {
@@ -41,7 +41,7 @@
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "@types/babel__core": "^7.1.18",
+    "@types/babel__core": "^7.20.5",
     "eslint": "^7.25.0",
     "prettier": "^2.8.8"
   }

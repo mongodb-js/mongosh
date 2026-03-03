@@ -5,7 +5,7 @@ export type ContextValue = any;
 
 export type RuntimeEvaluationResult = Pick<
   ShellResult,
-  'type' | 'printable' | 'source'
+  'type' | 'printable' | 'source' | 'constructionOptions'
 >;
 
 export interface RuntimeEvaluationListener extends EvaluationListener {

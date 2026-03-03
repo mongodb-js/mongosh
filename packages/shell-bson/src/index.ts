@@ -1,3 +1,7 @@
-export type * from './bson-export';
-export { constructShellBson, type ShellBson } from './shell-bson';
+export * from './bson-export';
+export {
+  constructShellBson,
+  type ShellBson,
+  type ShellBsonOptions,
+} from './shell-bson';
 export { makePrintableBson, makeBsonStringifiers } from './printable-bson';

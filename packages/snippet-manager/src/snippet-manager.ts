@@ -13,7 +13,7 @@ import { Console } from 'console';
 import { promises as fs } from 'fs';
 import stream, { PassThrough } from 'stream';
 import { once } from 'events';
-import tar from 'tar';
+import * as tar from 'tar';
 import zlib from 'zlib';
 import bson from 'bson';
 import { z } from 'zod';
@@ -23,6 +23,8 @@ import type {
   Response,
 } from '@mongodb-js/devtools-proxy-support';
 import { createFetch } from '@mongodb-js/devtools-proxy-support';
+import { spawn } from 'cross-spawn';
+
 const pipeline = promisify(stream.pipeline);
 const brotliCompress = promisify(zlib.brotliCompress);
 const brotliDecompress = promisify(zlib.brotliDecompress);
@@ -129,6 +131,35 @@ export class SnippetManager implements ShellPlugin {
   inflightFetchIndexPromise: Promise<SnippetIndexFile[]> | null = null;
   fetch: (url: string) => Promise<Response>;
 
+  // Hold a weak reference here so that the `signature`
+  // that we install on the global signature list does not
+  // keep the entire SnippetManager instance (and through it,
+  // the REPL context) alive indefinitely.
+  // This is fine in practice, because no autocompletion takes
+  // place without a SnippetManager held alive by the REPL anyway.
+  private static instance: WeakRef<SnippetManager>;
+  private static signature: TypeSignature = {
+    type: 'function',
+    returnsPromise: true,
+    isDirectShellCommand: true,
+    shellCommandCompleter: async (
+      params: unknown,
+      args: string[]
+      // eslint-disable-next-line @typescript-eslint/require-await
+    ): Promise<string[] | undefined> => {
+      const instance = this.instance.deref();
+      return instance && completeSnippetsCommand(args, instance.snippets);
+    },
+    newShellCommandCompleter: async (
+      context: unknown,
+      args: string[]
+      // eslint-disable-next-line @typescript-eslint/require-await
+    ): Promise<string[] | undefined> => {
+      const instance = this.instance.deref();
+      return instance && completeSnippetsCommand(args, instance.snippets);
+    },
+  };
+
   constructor({
     installdir,
     instanceState,
@@ -164,25 +195,8 @@ export class SnippetManager implements ShellPlugin {
     wrapperFn.returnsPromise = true;
     (instanceState.shellApi as any).snippet = instanceState.context.snippet =
       wrapperFn;
-    (signatures.ShellApi.attributes as any).snippet = {
-      type: 'function',
-      returnsPromise: true,
-      isDirectShellCommand: true,
-      shellCommandCompleter: async (
-        params: unknown,
-        args: string[]
-        // eslint-disable-next-line @typescript-eslint/require-await
-      ): Promise<string[] | undefined> => {
-        return completeSnippetsCommand(args, this.snippets);
-      },
-      newShellCommandCompleter: async (
-        context: unknown,
-        args: string[]
-        // eslint-disable-next-line @typescript-eslint/require-await
-      ): Promise<string[] | undefined> => {
-        return completeSnippetsCommand(args, this.snippets);
-      },
-    } as TypeSignature;
+    (signatures.ShellApi.attributes as any).snippet = SnippetManager.signature;
+    SnippetManager.instance = new WeakRef(this);
     instanceState.registerPlugin(this);
 
     this.messageBus.emit('mongosh-snippets:loaded', { installdir });
@@ -447,28 +461,32 @@ export class SnippetManager implements ShellPlugin {
     return result;
   }
 
-  async runNpm(...npmArgs: string[]): Promise<string> {
+  /** If lenient is true we will return the stdout either way, even if the process fails.
+   * This is important for commands like `npm outdated` that might exit with a non-zero
+   *	status but the output is still useful.
+   **/
+  async runNpm(npmArgs: string[], lenient = false): Promise<string> {
     await this.editPackageJSON(() => {}); // Ensure package.json exists.
-    return await this.execFile([
-      ...(await this.ensureSetup()),
-      '--no-package-lock',
-      '--ignore-scripts',
-      '--loglevel=notice',
-      `--registry=${await this.registryBaseUrl()}`,
-      ...npmArgs,
-    ]);
+    return await this.execFile(
+      [
+        ...(await this.ensureSetup()),
+        '--no-package-lock',
+        '--ignore-scripts',
+        '--loglevel=notice',
+        `--registry=${await this.registryBaseUrl()}`,
+        ...npmArgs,
+      ],
+      lenient
+    );
   }
 
-  async execFile([cmd, ...args]: string[]) {
+  async execFile([cmd, ...args]: string[], lenient = false) {
     const { interrupted } = this._instanceState;
     this.messageBus.emit('mongosh-snippets:spawn-child', {
       args: [cmd, ...args],
     });
     interrupted.checkpoint();
 
-    // 'child_process' is not supported in startup snapshots yet.
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const spawn = require('cross-spawn');
     const proc = spawn(cmd, args, {
       cwd: this.installdir,
       env: { ...process.env, MONGOSH_RUN_NODE_SCRIPT: '1' },
@@ -496,7 +514,11 @@ export class SnippetManager implements ShellPlugin {
       ]);
       // Allow exit code 1 if stderr is empty, i.e. no error occurred, because
       // that is how commands like `npm outdated` report their result.
-      if (exitCode === 0 || (exitCode === 1 && stderr === '' && stdout)) {
+      if (
+        lenient ||
+        exitCode === 0 ||
+        (exitCode === 1 && stderr === '' && stdout)
+      ) {
         return stdout;
       }
       throw new Error(
@@ -578,9 +600,9 @@ export class SnippetManager implements ShellPlugin {
       case 'ls': {
         let output;
         if (args[0] === 'ls') {
-          output = await this.runNpm('ls', '--depth=0');
+          output = await this.runNpm(['ls', '--depth=0'], true);
         } else {
-          output = await this.runNpm(args[0]);
+          output = await this.runNpm([args[0]], true);
         }
 
         const firstLineEnd = output.indexOf('\n');
@@ -634,7 +656,7 @@ export class SnippetManager implements ShellPlugin {
       return name + (args[0] === 'install' ? `@${installSpec ?? '*'}` : '');
     });
     await this.print(`Running ${args[0]}...`);
-    await this.runNpm(args[0], '--save', ...npmArguments);
+    await this.runNpm([args[0], '--save', ...npmArguments]);
     if (args[0] === 'install' && snippetDescs.length > 0) {
       this._instanceState.interrupted.checkpoint();
       const loadNow = await evaluationListener.onPrompt?.(

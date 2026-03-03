@@ -15,6 +15,7 @@ import type {
   EJSON,
   UUID,
   BSONRegExp,
+  BSONTypeTag,
 } from 'bson';
 export type {
   ObjectId,
@@ -33,7 +34,13 @@ export type {
   UUID,
   BSONRegExp,
   calculateObjectSize,
+  BSONTypeTag,
 };
+import { bsonType } from 'bson';
+export { bsonType };
+export function getBsonType(value: any): BSONTypeTag | undefined {
+  return value?.[bsonType];
+}
 export type BSON = {
   ObjectId: typeof ObjectId;
   DBRef: typeof DBRef;

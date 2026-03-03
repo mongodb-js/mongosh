@@ -1,6 +1,5 @@
-import fs from 'fs';
-import path from 'path';
-import { signatures } from '../../shell-api/src/index';
+import { signatures } from './index';
+import { en_US, type Catalog } from '@mongosh/i18n/locales';
 
 const IGNORED_TYPES = [
   'unknown',
@@ -19,29 +18,18 @@ const IGNORED_ATTRIBUTES = [
   'ChangeStreamCursor.pretty',
 ];
 
-const localesDir = path.resolve(__dirname, 'locales');
-
-const localeFiles = fs
-  .readdirSync(localesDir)
-  .filter((filename) => {
-    return /^[a-z]{2,3}_[A-Z]{2,3}\.ts$/.exec(filename);
-  })
-  .filter((filename) => {
-    // skip german for now
-    return filename.includes('en');
-  });
-
 const typeNames = Object.keys(signatures).filter(
   (typeName) => !IGNORED_TYPES.includes(typeName)
 );
 
-localeFiles.forEach((localeFile) => {
-  const locale = require(path.join(localesDir, localeFile)).default;
-  const localeName = localeFile.replace('.ts', '');
-
-  describe(`${localeName}`, function () {
-    typeNames.forEach((typeName) => {
-      const typeHelp = locale['shell-api'].classes[typeName];
+for (const [localeName, locale] of [
+  ['en_US', en_US],
+  // Skip German for now
+  //   ['de_DE', de_DE],
+] as [string, Catalog][]) {
+  describe(`i18n with ${localeName} locale`, function () {
+    for (const typeName of typeNames) {
+      const typeHelp = (locale['shell-api'] as any).classes[typeName];
 
       it(`has translations for ${typeName} type`, function () {
         if (!typeHelp) {
@@ -60,7 +48,7 @@ localeFiles.forEach((localeFile) => {
           !IGNORED_ATTRIBUTES.includes(`${typeName}.${attributeName}`)
       );
 
-      attributeNames.forEach((attributeName) => {
+      for (const attributeName of attributeNames) {
         it(`has translations for ${typeName}.${attributeName} attribute`, function () {
           const attributeHelp =
             typeHelp.help.attributes && typeHelp.help.attributes[attributeName];
@@ -74,7 +62,7 @@ localeFiles.forEach((localeFile) => {
             );
           }
         });
-      });
-    });
+      }
+    }
   });
-});
+}
