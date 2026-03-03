@@ -24,8 +24,38 @@ require('../../../../service-provider-core'); // Ensure TextEncoder polyfill is 
 const ShellApi = require('../../../../shell-api/');
 const ShellEvaluator = require('../../../../shell-evaluator/').default;
 
+function handleAggregateOptions(aggregateFunc) {
+    return function(db, coll, pipeline, options, dbOptions) {
+        options ||= {};
+        dbOptions ||= {};
+        for (const key of ['writeConcern', 'readConcern', 'readPreference']) {
+            if (key in options) {
+                dbOptions[key] = options[key];
+                delete options[key];
+            }
+        }
+        return aggregateFunc(db, coll, pipeline, options, dbOptions);
+    }
+}
+
+function handleAggregateDbOptions(aggregateFunc) {
+    return function(db, pipeline, options, dbOptions) {
+        options ||= {};
+        dbOptions ||= {};
+        for (const key of ['writeConcern', 'readConcern', 'readPreference']) {
+            if (key in options) {
+                dbOptions[key] = options[key];
+                delete options[key];
+            }
+        }
+        return aggregateFunc(db, pipeline, options, dbOptions);
+    }
+}
+
 class ShellInstanceState extends ShellApi.ShellInstanceState {
     constructor(sp, bus, cliOptions) {
+        sp.aggregate = handleAggregateOptions(sp.aggregate.bind(sp));
+        sp.aggregateDb = handleAggregateDbOptions(sp.aggregateDb.bind(sp));
         super(sp, bus, cliOptions, require('bson'));
     }
 }
