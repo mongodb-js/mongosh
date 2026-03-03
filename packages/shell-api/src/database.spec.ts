@@ -3029,6 +3029,7 @@ describe('Database', function () {
               'db1',
               [{ $pipelineStage: { hasBanana: true } }],
               { promoteValues: false, readConcern: 'primaryPreferred' },
+              undefined,
             ],
           },
           chains: [

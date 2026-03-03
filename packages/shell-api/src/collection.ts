@@ -229,6 +229,7 @@ export class Collection<
         this._name,
         pipeline,
         aggregateOptions,
+        undefined, // consistent number of arguments for java-shell
       ] as Parameters<ServiceProvider['aggregate']>,
       cursorType: 'AggregationCursor' as const,
     };

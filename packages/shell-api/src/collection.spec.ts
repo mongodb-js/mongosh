@@ -2678,6 +2678,7 @@ describe('Collection', function () {
               'coll1',
               [{ $match: { hasBanana: true } }],
               { promoteValues: false, readConcern: 'primaryPreferred' },
+              undefined,
             ],
           },
           chains: [

@@ -502,9 +502,12 @@ export class Database<
 
     const constructionOptions = {
       method: 'aggregateDb' as const,
-      args: [this._name, pipeline, aggregateOptions] as Parameters<
-        ServiceProvider['aggregateDb']
-      >,
+      args: [
+        this._name,
+        pipeline,
+        aggregateOptions,
+        undefined, // consistent number of arguments for java-shell
+      ] as Parameters<ServiceProvider['aggregateDb']>,
       cursorType: 'AggregationCursor' as const,
     };
     const providerCursor = this._mongo._serviceProvider[
