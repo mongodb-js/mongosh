@@ -152,6 +152,7 @@ describe('Collection', function () {
       serviceProvider = stubInterface<ServiceProvider>();
       serviceProvider.runCommand.resolves({ ok: 1 });
       serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
+      serviceProvider.hasUnifiedAggregateOptions?.returns(true);
       serviceProvider.initialDb = 'test';
       serviceProvider.bsonLibrary = bson;
       instanceState = new ShellInstanceState(serviceProvider, bus);

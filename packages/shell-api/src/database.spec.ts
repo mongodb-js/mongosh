@@ -149,6 +149,7 @@ describe('Database', function () {
       serviceProvider.bsonLibrary = bson;
       serviceProvider.runCommand.resolves({ ok: 1 });
       serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
+      serviceProvider.hasUnifiedAggregateOptions?.returns(true);
       instanceState = new ShellInstanceState(serviceProvider, bus);
       mongo = new Mongo(
         instanceState,

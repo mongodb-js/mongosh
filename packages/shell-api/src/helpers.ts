@@ -1,6 +1,5 @@
 /* eslint no-use-before-define: 0 */
 import type {
-  DbOptions,
   Document,
   ExplainVerbosityLike,
   FindOneAndDeleteOptions,
@@ -55,7 +54,7 @@ export function adaptAggregateOptions(
   dbOptions?: Document;
 } {
   const aggOptions = { ...options };
-  const dbOptions: Document = {};
+  let dbOptions: Document | undefined;
 
   let explain;
   if ('explain' in aggOptions) {
@@ -70,13 +69,14 @@ export function adaptAggregateOptions(
       'readPreference',
     ] as const) {
       if (key in aggOptions) {
+        dbOptions ??= {};
         dbOptions[key] = aggOptions[key];
         delete aggOptions[key];
       }
     }
   }
 
-  return { aggOptions, explain };
+  return { aggOptions, explain, dbOptions };
 }
 
 export function validateExplainableVerbosity(
