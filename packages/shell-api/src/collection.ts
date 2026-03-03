@@ -215,7 +215,10 @@ export class Collection<
       );
     }
     this._emitCollectionApiCall('aggregate', { options, pipeline });
-    const { aggOptions, explain } = adaptAggregateOptions(options);
+    const { aggOptions, explain, dbOptions } = adaptAggregateOptions(
+      options,
+      !!this._mongo._serviceProvider.hasUnifiedAggregateOptions?.()
+    );
 
     const aggregateOptions = {
       ...(await this._database._baseOptions()),

@@ -47,17 +47,33 @@ let coreUtilInspect: ((obj: any, options: InspectOptions) => string) & {
  * @param options
  */
 export function adaptAggregateOptions(
-  options: AggregateOptions & { explain?: ExplainVerbosityLike } = {}
+  options: AggregateOptions & { explain?: ExplainVerbosityLike } = {},
+  hasUnifiedAggregateOptions = true
 ): {
   aggOptions: Document;
   explain?: ExplainVerbosityLike & string;
+  dbOptions?: Document;
 } {
   const aggOptions = { ...options };
+  const dbOptions: Document = {};
 
   let explain;
   if ('explain' in aggOptions) {
     explain = validateExplainableVerbosity(aggOptions.explain);
     delete aggOptions.explain;
+  }
+
+  if (!hasUnifiedAggregateOptions) {
+    for (const key of [
+      'writeConcern',
+      'readConcern',
+      'readPreference',
+    ] as const) {
+      if (key in aggOptions) {
+        dbOptions[key] = aggOptions[key];
+        delete aggOptions[key];
+      }
+    }
   }
 
   return { aggOptions, explain };

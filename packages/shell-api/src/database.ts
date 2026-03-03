@@ -496,18 +496,18 @@ export class Database<
 
     this._emitDatabaseApiCall('aggregate', { options, pipeline });
 
-    const { aggOptions, explain } = adaptAggregateOptions(options);
+    const { aggOptions, explain, dbOptions } = adaptAggregateOptions(
+      options,
+      !!this._mongo._serviceProvider.hasUnifiedAggregateOptions?.()
+    );
 
     const aggregateOptions = { ...(await this._baseOptions()), ...aggOptions };
 
     const constructionOptions = {
       method: 'aggregateDb' as const,
-      args: [
-        this._name,
-        pipeline,
-        aggregateOptions,
-        undefined, // consistent number of arguments for java-shell
-      ] as Parameters<ServiceProvider['aggregateDb']>,
+      args: [this._name, pipeline, aggregateOptions, dbOptions] as Parameters<
+        ServiceProvider['aggregateDb']
+      >,
       cursorType: 'AggregationCursor' as const,
     };
     const providerCursor = this._mongo._serviceProvider[
