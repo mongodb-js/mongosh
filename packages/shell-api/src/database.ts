@@ -476,7 +476,7 @@ export class Database<
   @returnType('AggregationCursor')
   @apiVersions([1])
   async aggregate(...args: unknown[]): Promise<AggregationCursor | Document> {
-    let options: AggregateOptions;
+    let options: AggregateOptions & { explain?: ExplainVerbosityLike };
     let pipeline: MQLPipeline;
     if (args.length === 0 || Array.isArray(args[0])) {
       options = args[1] || {};
@@ -496,7 +496,10 @@ export class Database<
 
     this._emitDatabaseApiCall('aggregate', { options, pipeline });
 
-    const { aggOptions, dbOptions, explain } = adaptAggregateOptions(options);
+    const { aggOptions, explain, dbOptions } = adaptAggregateOptions(
+      options,
+      !!this._mongo._serviceProvider.hasUnifiedAggregateOptions?.()
+    );
 
     const aggregateOptions = { ...(await this._baseOptions()), ...aggOptions };
 

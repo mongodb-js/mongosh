@@ -607,6 +607,10 @@ export class NodeDriverServiceProvider
     return this.getDBCache();
   }
 
+  hasUnifiedAggregateOptions(): boolean {
+    return true;
+  }
+
   /**
    * Run an aggregation pipeline.
    *
