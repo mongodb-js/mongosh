@@ -222,7 +222,7 @@ Package|Version|License
 **[detect-libc](#75227d1b1c09630ea361abee4d27101e350832bbeab9640a013c82662408b467)**|2.0.1|Apache-2.0
 **[dset](#f51cb933ffb40a4dfeed4e6c3f7e6299cf7d05c42528b3fccc5bc7cab310914c)**|3.1.4|MIT
 **[dunder-proto](#390fd69f2035b583e461890d5b0a3230f4adb33b042e6f0d1472dd911bc1de98)**|1.0.1|MIT
-**[editorconfig](#5d11fbb599a741b68e0df122e2068b939694534afa08c629595c22fb8aa70bb7)**|1.0.4|MIT
+**[editorconfig](#bb8328e1b8971956fcecdf086fe80ad6bb2c0d9018f4c5840ea6863543dfd151)**|1.0.7|MIT
 **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**|1.1.1|MIT
 **[electron-to-chromium](#749f765a0977e8a258d18bce124eced4e846c13568409d73099ffffc496a6491)**|1.5.286|ISC
 **[emoji-regex](#6b77e9d1a0f8537b3cf15d399dc71744061711bd101c61ca7f74324e5a66ebdc)**|8.0.0|MIT
@@ -354,7 +354,7 @@ Package|Version|License
 **[mime-db](#4f88fcddeb8de9fdedcbb3e2497dbf09ef2b2f4011c8737c093169df36869deb)**|1.54.0|MIT
 **[mime-types](#d3f6b61aada9a3c3ec5532a5dcbcc1ef5b8d0cbff594adb68716f614377ffd77)**|3.0.2|MIT
 **[mimic-response](#3a8c7e8eed886630dd878b11cbb7ef72840b3bab1f8d4251956ca4f9fa40925f)**|3.1.0|MIT
-**[minimatch](#a24e851afb332c98f897b23a4f024ff71e6c55d357e5fd10a6de1fc90e00f46b)**|9.0.1|ISC
+**[minimatch](#beb2bef4b974d5ddbbb300e73e50db04067431f44476c4842cab782f3577c73e)**|9.0.9|ISC
 **[minimist](#8162d302efd0533ce00fc8a52dd6703dbb4205435af84e72b7694c608a729de4)**|1.2.8|MIT
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
 **[mongodb-build-info](#072a485ce651997e66b97b522fce57ad957256d3fae4c7c7179933ee22c75ecd)**|1.9.6|Apache-2.0
@@ -23956,8 +23956,8 @@ License files:
       
 
 
-<a id="5d11fbb599a741b68e0df122e2068b939694534afa08c629595c22fb8aa70bb7"></a>
-### [editorconfig](https://www.npmjs.com/package/editorconfig) (version 1.0.4)
+<a id="bb8328e1b8971956fcecdf086fe80ad6bb2c0d9018f4c5840ea6863543dfd151"></a>
+### [editorconfig](https://www.npmjs.com/package/editorconfig) (version 1.0.7)
 License tags: MIT
 
 License files:
@@ -29065,8 +29065,8 @@ License files:
       
 
 
-<a id="a24e851afb332c98f897b23a4f024ff71e6c55d357e5fd10a6de1fc90e00f46b"></a>
-### [minimatch](https://www.npmjs.com/package/minimatch) (version 9.0.1)
+<a id="beb2bef4b974d5ddbbb300e73e50db04067431f44476c4842cab782f3577c73e"></a>
+### [minimatch](https://www.npmjs.com/package/minimatch) (version 9.0.9)
 License tags: ISC
 
 License files:
