@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Wed Mar 04 2026.
+This document was automatically generated on Thu Mar 05 2026.
 
 ## List of dependencies
 
@@ -69,7 +69,6 @@ Package|Version|License
 **[@babel/template](#70eb0d4b4e94ec9e48721d54604bb5bf6b68c355267277200baae8a9ef07b72f)**|7.27.0|MIT
 **[@babel/traverse](#ea49e770eac5209a0e4836cf7d16e903ddd5387aefe67455778f984782a9d5ee)**|7.27.0|MIT
 **[@babel/types](#3f9534182611fb6b137e56e3b1b5dfebd7f40b5e1ef0121b0751be6d7e18ae00)**|7.27.0|MIT
-**[@isaacs/fs-minipass](#e298238290176ef140cd179ac13befbbe0db95d3b7cb458c074d43740e206522)**|4.0.1|ISC
 **[@jridgewell/gen-mapping](#1e660067f4d1364dc830c372517d8ec92eddc9af7eaa6b1e698d478b286abafa)**|0.1.1|MIT
 **[@jridgewell/gen-mapping](#25a8188ec7d87cf1b9baf2470bad1f75a22f246ca0fca732933d26fd488ef5d2)**|0.3.5|MIT
 **[@jridgewell/resolve-uri](#f356bc3bb9c04f5fe4e387a4eea4e74125aae03bb50f846d956d7d986d200f50)**|3.1.0|MIT
@@ -188,7 +187,6 @@ Package|Version|License
 **[caniuse-lite](#181790f69639b7d84b2ead92dc579151d6f1f0beff6b0c9186d68d9259bcf4cd)**|1.0.30001768|CC-BY-4.0
 **[chalk](#c1619ad3bd43ce54cc7a4702c368501fd4fb4fa629077ba610f81d81bcd3f5f1)**|4.1.2|MIT
 **[chownr](#0550527b7b5e20ea58d882e34eadff9ea25b5cb64ff4beffa1ca8f2e6ff9cdf1)**|1.1.4|ISC
-**[chownr](#833f419be73da0c49a0e76a21c14643978fa322085371cc9adec92ce3afd85d1)**|3.0.0|BlueOak-1.0.0
 **[cli-table](#7fb35fe68b59a077feef5608b5ee4713adbaa83c57d201480259a275f0c2de80)**|0.3.11|MIT
 **[cliui](#4546c8b3643627bee58bb3e38d8c0740c26d957ecb817a1cde707428725c7efd)**|8.0.1|ISC
 **[clone](#1212d68ae6811596ccdc8d31040c17ecba52dde7b2faeeb92edcc68d36cf4372)**|2.1.2|MIT
@@ -358,8 +356,6 @@ Package|Version|License
 **[mimic-response](#3a8c7e8eed886630dd878b11cbb7ef72840b3bab1f8d4251956ca4f9fa40925f)**|3.1.0|MIT
 **[minimatch](#a24e851afb332c98f897b23a4f024ff71e6c55d357e5fd10a6de1fc90e00f46b)**|9.0.1|ISC
 **[minimist](#8162d302efd0533ce00fc8a52dd6703dbb4205435af84e72b7694c608a729de4)**|1.2.8|MIT
-**[minipass](#64557a4d1a957fa17a1619163ebd758b0f5a17798dca3d46e923d88a1e653471)**|7.1.2|ISC
-**[minizlib](#9d2296e811f3f6d934eaebbf7ddbb45009e3a251171f11c42d76186d2f998878)**|3.1.0|MIT
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
 **[mongodb-build-info](#072a485ce651997e66b97b522fce57ad957256d3fae4c7c7179933ee22c75ecd)**|1.9.6|Apache-2.0
 **[mongodb-client-encryption](#f24794d804800d6c453e41a022153224598e9e9c89b0cf7a097419d8e9df3a2e)**|7.0.0|Apache-2.0
@@ -469,7 +465,7 @@ Package|Version|License
 **[system-ca](#37546d95936426fb53ac75c628cd4ab062b360fd5e95279a3b8a26f57afd66fe)**|3.0.0|Apache-2.0
 **[tar-fs](#907e1fea910142adbe6c4af5f6279670d17eff5a61dd89c7c7487b4a1257f35a)**|2.1.4|MIT
 **[tar-stream](#0dc8f500e45626ff1f83a8b3bb9d4dbae5ce9f2df7fc81b5eca6af1af2e85d27)**|2.2.0|MIT
-**[tar](#afe50de14d8bbe23fc166f930a8d60a9da832ebe0a209e6c068c3faf42d7de2f)**|7.5.8|BlueOak-1.0.0
+**[tar](#6ffc9d772176ef72bcff021006bdbff6b6c46baede903e8b11acdea858beeab7)**|7.5.10|BlueOak-1.0.0
 **[text-table](#408475075eb207dd5ae8858365d5b39a25bebe2b757601c43164cec36f315b23)**|0.2.0|MIT
 **[toidentifier](#2067d1f99d35f28c8384d3e9762282f3c2ded0041392af855caf28ba2209bd2a)**|1.0.1|MIT
 **[tr46](#a94418e116fb43931c49abb9cd596d6814a55956c3d0d11b7e225592b9977197)**|0.0.3|MIT
@@ -506,7 +502,6 @@ Package|Version|License
 **[wsl-utils](#3c6cb23f48b28398188bbe0a6b73ab9fa96d0ba5322f8f68b056cfc22a3f1f7a)**|0.1.0|MIT
 **[y18n](#1dd471a41f77455fc624d6d6ba14ef1b741362d6c36295d66fa1474d3fc2e27d)**|5.0.8|ISC
 **[yallist](#63b110ffd18712146937e9f182800c6f2b5783e76d1659a0bd4b457789b0df07)**|3.1.1|ISC
-**[yallist](#4a8b5707001b2845384e2d4c2f14242ec0753d95d7c347a294bace7a9784891d)**|5.0.0|BlueOak-1.0.0
 **[yargs-parser](#d114360895423d9e902d0d2591b959ed4b0c309f8cec3e7b22fb6ed5502d1c19)**|20.2.9|ISC
 **[yargs-parser](#617a7401008b7639df8cebae61c9c009bf04ca762c652da0975da4533bf33690)**|21.1.1|ISC
 **[yargs](#3f627b435d9e054beeefeac523a8b24e69406e6881905ede430915e78fb878c8)**|17.7.2|MIT
@@ -7984,31 +7979,6 @@ License files:
       LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
       OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
       WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-
-<a id="e298238290176ef140cd179ac13befbbe0db95d3b7cb458c074d43740e206522"></a>
-### [@isaacs/fs-minipass](https://www.npmjs.com/package/@isaacs/fs-minipass) (version 4.0.1)
-License tags: ISC
-
-License files:
-* LICENSE:
-
-      The ISC License
-      
-      Copyright (c) Isaac Z. Schlueter and Contributors
-      
-      Permission to use, copy, modify, and/or distribute this software for any
-      purpose with or without fee is hereby granted, provided that the above
-      copyright notice and this permission notice appear in all copies.
-      
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-      IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
       
 
 
@@ -22895,79 +22865,6 @@ License files:
       
 
 
-<a id="833f419be73da0c49a0e76a21c14643978fa322085371cc9adec92ce3afd85d1"></a>
-### [chownr](https://www.npmjs.com/package/chownr) (version 3.0.0)
-License tags: BlueOak-1.0.0
-
-License files:
-* LICENSE.md:
-
-      All packages under `src/` are licensed according to the terms in
-      their respective `LICENSE` or `LICENSE.md` files.
-      
-      The remainder of this project is licensed under the Blue Oak
-      Model License, as follows:
-      
-      -----
-      
-      # Blue Oak Model License
-      
-      Version 1.0.0
-      
-      ## Purpose
-      
-      This license gives everyone as much permission to work with
-      this software as possible, while protecting contributors
-      from liability.
-      
-      ## Acceptance
-      
-      In order to receive this license, you must agree to its
-      rules.  The rules of this license are both obligations
-      under that agreement and conditions to your license.
-      You must not do anything with this software that triggers
-      a rule that you cannot or will not follow.
-      
-      ## Copyright
-      
-      Each contributor licenses you to do everything with this
-      software that would otherwise infringe that contributor's
-      copyright in it.
-      
-      ## Notices
-      
-      You must ensure that everyone who gets a copy of
-      any part of this software from you, with or without
-      changes, also gets the text of this license or a link to
-      <https://blueoakcouncil.org/license/1.0.0>.
-      
-      ## Excuse
-      
-      If anyone notifies you in writing that you have not
-      complied with [Notices](#notices), you can keep your
-      license by taking all practical steps to comply within 30
-      days after the notice.  If you do not do so, your license
-      ends immediately.
-      
-      ## Patent
-      
-      Each contributor licenses you to do everything with this
-      software that would otherwise infringe any patent claims
-      they can license or become able to license.
-      
-      ## Reliability
-      
-      No contributor can revoke this license.
-      
-      ## No Liability
-      
-      ***As far as the law allows, this software comes as is,
-      without any warranty or condition, and no contributor
-      will be liable to anyone for any damages related to this
-      software or this license, under any kind of legal claim.***
-      
-
-
 <a id="7fb35fe68b59a077feef5608b5ee4713adbaa83c57d201480259a275f0c2de80"></a>
 ### [cli-table](https://www.npmjs.com/package/cli-table) (version 0.3.11)
 License tags: MIT
@@ -29221,67 +29118,6 @@ License files:
       
 
 
-<a id="64557a4d1a957fa17a1619163ebd758b0f5a17798dca3d46e923d88a1e653471"></a>
-### [minipass](https://www.npmjs.com/package/minipass) (version 7.1.2)
-License tags: ISC
-
-License files:
-* LICENSE:
-
-      The ISC License
-      
-      Copyright (c) 2017-2023 npm, Inc., Isaac Z. Schlueter, and Contributors
-      
-      Permission to use, copy, modify, and/or distribute this software for any
-      purpose with or without fee is hereby granted, provided that the above
-      copyright notice and this permission notice appear in all copies.
-      
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-      IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-      
-
-
-<a id="9d2296e811f3f6d934eaebbf7ddbb45009e3a251171f11c42d76186d2f998878"></a>
-### [minizlib](https://www.npmjs.com/package/minizlib) (version 3.1.0)
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      Minizlib was created by Isaac Z. Schlueter.
-      It is a derivative work of the Node.js project.
-      
-      """
-      Copyright (c) 2017-2023 Isaac Z. Schlueter and Contributors
-      Copyright (c) 2017-2023 Node.js contributors. All rights reserved.
-      Copyright (c) 2017-2023 Joyent, Inc. and other Node contributors. All rights reserved.
-      
-      Permission is hereby granted, free of charge, to any person obtaining a
-      copy of this software and associated documentation files (the "Software"),
-      to deal in the Software without restriction, including without limitation
-      the rights to use, copy, modify, merge, publish, distribute, sublicense,
-      and/or sell copies of the Software, and to permit persons to whom the
-      Software is furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-      OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-      IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-      CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-      TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-      SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      """
-      
-
-
 <a id="e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c"></a>
 ### [mkdirp-classic](https://www.npmjs.com/package/mkdirp-classic) (version 0.5.3)
 License tags: MIT
@@ -34657,8 +34493,8 @@ License files:
       THE SOFTWARE.
 
 
-<a id="afe50de14d8bbe23fc166f930a8d60a9da832ebe0a209e6c068c3faf42d7de2f"></a>
-### [tar](https://www.npmjs.com/package/tar) (version 7.5.8)
+<a id="6ffc9d772176ef72bcff021006bdbff6b6c46baede903e8b11acdea858beeab7"></a>
+### [tar](https://www.npmjs.com/package/tar) (version 7.5.10)
 License tags: BlueOak-1.0.0
 
 License files:
@@ -35832,79 +35668,6 @@ License files:
       WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
       ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
       IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-      
-
-
-<a id="4a8b5707001b2845384e2d4c2f14242ec0753d95d7c347a294bace7a9784891d"></a>
-### [yallist](https://www.npmjs.com/package/yallist) (version 5.0.0)
-License tags: BlueOak-1.0.0
-
-License files:
-* LICENSE.md:
-
-      All packages under `src/` are licensed according to the terms in
-      their respective `LICENSE` or `LICENSE.md` files.
-      
-      The remainder of this project is licensed under the Blue Oak
-      Model License, as follows:
-      
-      -----
-      
-      # Blue Oak Model License
-      
-      Version 1.0.0
-      
-      ## Purpose
-      
-      This license gives everyone as much permission to work with
-      this software as possible, while protecting contributors
-      from liability.
-      
-      ## Acceptance
-      
-      In order to receive this license, you must agree to its
-      rules.  The rules of this license are both obligations
-      under that agreement and conditions to your license.
-      You must not do anything with this software that triggers
-      a rule that you cannot or will not follow.
-      
-      ## Copyright
-      
-      Each contributor licenses you to do everything with this
-      software that would otherwise infringe that contributor's
-      copyright in it.
-      
-      ## Notices
-      
-      You must ensure that everyone who gets a copy of
-      any part of this software from you, with or without
-      changes, also gets the text of this license or a link to
-      <https://blueoakcouncil.org/license/1.0.0>.
-      
-      ## Excuse
-      
-      If anyone notifies you in writing that you have not
-      complied with [Notices](#notices), you can keep your
-      license by taking all practical steps to comply within 30
-      days after the notice.  If you do not do so, your license
-      ends immediately.
-      
-      ## Patent
-      
-      Each contributor licenses you to do everything with this
-      software that would otherwise infringe any patent claims
-      they can license or become able to license.
-      
-      ## Reliability
-      
-      No contributor can revoke this license.
-      
-      ## No Liability
-      
-      ***As far as the law allows, this software comes as is,
-      without any warranty or condition, and no contributor
-      will be liable to anyone for any damages related to this
-      software or this license, under any kind of legal claim.***
       
 
 
