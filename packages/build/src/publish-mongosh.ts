@@ -122,7 +122,6 @@ export class MongoshPublisher {
       latestDraftTag.name
     );
 
-    this.packageBumper.bumpAuxiliaryPackages();
     await this.packageBumper.bumpMongoshReleasePackages(releaseVersion);
     this.packageBumper.commitBumpedPackages();
 
