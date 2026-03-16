@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Sun Mar 15 2026.
+This document was automatically generated on Mon Mar 16 2026.
 
 ## List of dependencies
 
@@ -465,7 +465,7 @@ Package|Version|License
 **[system-ca](#37546d95936426fb53ac75c628cd4ab062b360fd5e95279a3b8a26f57afd66fe)**|3.0.0|Apache-2.0
 **[tar-fs](#907e1fea910142adbe6c4af5f6279670d17eff5a61dd89c7c7487b4a1257f35a)**|2.1.4|MIT
 **[tar-stream](#0dc8f500e45626ff1f83a8b3bb9d4dbae5ce9f2df7fc81b5eca6af1af2e85d27)**|2.2.0|MIT
-**[tar](#6ffc9d772176ef72bcff021006bdbff6b6c46baede903e8b11acdea858beeab7)**|7.5.10|BlueOak-1.0.0
+**[tar](#7dc1dfb247c78df2a1faa1399c1021656a63fbaa1a2982278e18786a7cdc5f8c)**|7.5.11|BlueOak-1.0.0
 **[text-table](#408475075eb207dd5ae8858365d5b39a25bebe2b757601c43164cec36f315b23)**|0.2.0|MIT
 **[toidentifier](#2067d1f99d35f28c8384d3e9762282f3c2ded0041392af855caf28ba2209bd2a)**|1.0.1|MIT
 **[tr46](#a94418e116fb43931c49abb9cd596d6814a55956c3d0d11b7e225592b9977197)**|0.0.3|MIT
@@ -34493,8 +34493,8 @@ License files:
       THE SOFTWARE.
 
 
-<a id="6ffc9d772176ef72bcff021006bdbff6b6c46baede903e8b11acdea858beeab7"></a>
-### [tar](https://www.npmjs.com/package/tar) (version 7.5.10)
+<a id="7dc1dfb247c78df2a1faa1399c1021656a63fbaa1a2982278e18786a7cdc5f8c"></a>
+### [tar](https://www.npmjs.com/package/tar) (version 7.5.11)
 License tags: BlueOak-1.0.0
 
 License files:
