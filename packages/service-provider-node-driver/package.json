@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/service-provider-node-driver",
-  "version": "5.0.4",
+  "version": "5.0.6",
   "description": "MongoDB Shell Server Service Provider Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -71,6 +71,6 @@
     "@types/sinon-chai": "^4.0.0",
     "eslint": "^7.25.0",
     "prettier": "^2.8.8",
-    "@mongosh/testing": "2.0.3"
+    "@mongosh/testing": "2.0.5"
   }
 }
