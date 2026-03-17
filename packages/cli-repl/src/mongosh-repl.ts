@@ -281,6 +281,16 @@ class MongoshNodeRepl implements EvaluationListener {
       });
       fixNode60446(repl);
       context = repl.context;
+      // As of https://github.com/nodejs/node/commit/a9da9ffc04c923f383a0aa220123687909dd2263,
+      // the Node.js REPL implementation uses AsyncLocalStorage rather than
+      // the `domain` module to track async context. As a consequence,
+      // the entire REPL and all associated properties are printed for
+      // objects like timers that explicitly keep this async state;
+      // this can be hundreds of lines of output.
+      // Therefore, we shortcut this output by adding a custom inspect function.
+      (repl as any)[util.inspect.custom] = () => {
+        return this.clr('[mongosh REPL Server]', 'magenta');
+      };
     } else {
       // https://nodejs.org/api/repl.html#replbuiltinmodules not represented in TS types
       // repl is not supported in startup snapshots yet
@@ -444,7 +454,7 @@ class MongoshNodeRepl implements EvaluationListener {
     let newMongoshCompleter: (line: string) => Promise<CompletionResults>;
     let oldMongoshCompleter: (line: string) => Promise<CompletionResults>;
 
-    if (process.env.USE_NEW_AUTOCOMPLETE) {
+    if (process.env.USE_NEW_AUTOCOMPLETE !== '0') {
       // we will lazily instantiate the new autocompleter on first use
     } else {
       const autocompleteParams = instanceState.getAutocompleteParameters();
@@ -464,7 +474,7 @@ class MongoshNodeRepl implements EvaluationListener {
           return nodeResults;
         })(),
         (async () => {
-          if (process.env.USE_NEW_AUTOCOMPLETE) {
+          if (process.env.USE_NEW_AUTOCOMPLETE !== '0') {
             if (!newMongoshCompleter) {
               newMongoshCompleter = await initNewAutocompleter(instanceState);
             }
@@ -894,6 +904,7 @@ class MongoshNodeRepl implements EvaluationListener {
    * @returns true
    */
   async onAsyncSigint(): Promise<boolean> {
+    if (!this._runtimeState) return true; // Nothing left to clean up at this point.
     const { instanceState } = this.runtimeState();
     if (instanceState.interrupted.isSet()) {
       return true;
@@ -934,6 +945,7 @@ class MongoshNodeRepl implements EvaluationListener {
     }
     this.bus.emit('mongosh:interrupt-complete'); // For testing purposes.
 
+    if (!this._runtimeState) return true; // Nothing left to clean up at this point.
     const { repl } = this.runtimeState();
     if (repl) {
       repl.setPrompt(await this.getShellPrompt());
@@ -1146,9 +1158,11 @@ class MongoshNodeRepl implements EvaluationListener {
         await once(rs.repl, 'exit');
       }
       await rs.instanceState.close();
-      await new Promise((resolve) =>
-        this.output.write(this.outputFinishString, resolve)
-      );
+      if (!this.output.writableEnded && !this.output.destroyed) {
+        await new Promise((resolve) =>
+          this.output.write(this.outputFinishString, resolve)
+        );
+      }
     }
   }
 

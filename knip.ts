@@ -4,7 +4,7 @@ import fs from "fs";
 // Create an empty file to satisfy the knip rule for async-rewriter2
 fs.writeFileSync(
   "packages/async-rewriter2/src/runtime-support.out.nocov.ts",
-  ""
+  "",
 );
 
 const config: KnipConfig = {
@@ -45,6 +45,11 @@ const config: KnipConfig = {
       ignoreBinaries: [
         // Lerna is listed as an optional dependency.
         "lerna",
+      ],
+      ignoreDependencies: [
+        // Shared lint and build-related dependencies
+        "@mongodb-js/eslint-config-mongosh",
+        "@mongodb-js/tsconfig-mongosh",
       ],
     },
 
@@ -98,15 +103,6 @@ const config: KnipConfig = {
       ],
     },
 
-    "packages/service-provider-node-driver": {
-      ignoreDependencies: [
-        // Used for MONGODB-AWS auth
-        // See: https://github.com/mongodb-js/mongosh/pull/1149
-        // See: https://jira.mongodb.org/browse/NODE-5005
-        "aws4",
-      ],
-    },
-
     "packages/node-runtime-worker-thread": {
       ignoreDependencies: [
         // Used in worker thread context
@@ -144,11 +140,12 @@ const config: KnipConfig = {
       project: ["src/main/js/**/*"],
       ignoreDependencies: [
         // Used in webpack and build scripts
-        "bson",
         "tr46",
         "assert",
         "buffer",
         "util",
+        // Needed to run tests
+        "@mongosh/cli-repl",
       ],
     },
 

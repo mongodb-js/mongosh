@@ -1,3 +1,4 @@
+import type { Abortable } from 'events';
 import type {
   Document,
   AggregateOptions,
@@ -51,7 +52,7 @@ export default interface Readable {
     database: string,
     collection: string,
     pipeline: Document[],
-    options?: AggregateOptions,
+    options?: AggregateOptions & Abortable,
     dbOptions?: DbOptions
   ): ServiceProviderAggregationCursor;
 
@@ -68,9 +69,16 @@ export default interface Readable {
   aggregateDb(
     database: string,
     pipeline: Document[],
-    options?: AggregateOptions,
+    options?: AggregateOptions & Abortable,
     dbOptions?: DbOptions
   ): ServiceProviderAggregationCursor;
+
+  /**
+   * Set if options like readPrefence, readConcern, writeConcern can be
+   * set on AggregateOptions or need to be set as part of DbOptions.
+   * (True for the Node.js driver, false for the Java driver)
+   */
+  hasUnifiedAggregateOptions?(): boolean;
 
   /**
    * Returns the count of documents that would match a find() query for the
@@ -109,7 +117,7 @@ export default interface Readable {
     database: string,
     collection: string,
     filter?: Document,
-    options?: CountDocumentsOptions,
+    options?: CountDocumentsOptions & Abortable,
     dbOptions?: DbOptions
   ): Promise<number>;
 
@@ -166,7 +174,7 @@ export default interface Readable {
     database: string,
     collection: string,
     filter?: Document,
-    options?: FindOptions,
+    options?: FindOptions & Abortable,
     dbOptions?: DbOptions
   ): ServiceProviderFindCursor;
 
@@ -206,7 +214,7 @@ export default interface Readable {
   listCollections(
     database: string,
     filter?: Document,
-    options?: ListCollectionsOptions,
+    options?: ListCollectionsOptions & Abortable,
     dbOptions?: DbOptions
   ): Promise<Document[]>;
 

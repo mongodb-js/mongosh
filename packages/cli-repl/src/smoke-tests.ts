@@ -7,6 +7,7 @@ import { baseBuildInfo, buildInfo } from './build-info';
 import escapeRegexp from 'escape-string-regexp';
 import path from 'path';
 import os from 'os';
+import { spawn } from 'child_process';
 
 export interface SelfTestOptions {
   smokeTestServer: string | undefined;
@@ -431,12 +432,13 @@ async function runSmokeTest({
   printSuccessResults?: boolean;
 }): Promise<{ durationSeconds: number }> {
   const startTime = process.hrtime.bigint();
-  // 'child_process' is not supported in startup snapshots yet.
-  // eslint-disable-next-line
-  const { spawn } = require('child_process') as typeof import('child_process');
   const proc = spawn(executable, [...args], {
     stdio: 'pipe',
     env: { ...process.env, ...env },
+  });
+  proc.stdin.on('error', (e: unknown) => {
+    // squash write errors
+    console.warn('error writing to stdin of smoke test process, ignoring', e);
   });
   let stdout = '';
   let stderr = '';

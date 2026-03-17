@@ -3,6 +3,7 @@ import {
   returnType,
   returnsPromise,
   apiVersions,
+  cursorChainable,
 } from './decorators';
 import type {
   Document,
@@ -20,18 +21,21 @@ export abstract class AggregateOrFindCursor<
     | ServiceProviderFindCursor
 > extends AbstractFiniteCursor<CursorType> {
   @returnType('this')
+  @cursorChainable
   projection(spec: Document): this {
     this._cursor.project(spec);
     return this;
   }
 
   @returnType('this')
+  @cursorChainable
   skip(value: number): this {
     this._cursor.skip(value);
     return this;
   }
 
   @returnType('this')
+  @cursorChainable
   sort(spec: Document): this {
     this._cursor.sort(spec);
     return this;

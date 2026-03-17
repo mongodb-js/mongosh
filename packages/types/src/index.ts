@@ -687,4 +687,5 @@ export type TimingCategory =
 export type TimingInterface = {
   markTime: (category: TimingCategory, label: string) => void;
   getTimingData: () => [string, string, number][];
+  resetTimingData: () => void;
 };

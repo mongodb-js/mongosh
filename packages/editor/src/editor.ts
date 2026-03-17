@@ -7,7 +7,7 @@ import { makeMultilineJSIntoSingleLine } from '@mongosh/js-multiline-to-singleli
 import type { ShellInstanceState, TypeSignature } from '@mongosh/shell-api';
 import { signatures } from '@mongosh/shell-api';
 import type { ShellResult } from '@mongosh/shell-evaluator';
-
+import { spawn } from 'child_process';
 import type { MongoshBus } from '@mongosh/types';
 
 const beautify = require('js-beautify').js;
@@ -29,6 +29,13 @@ export class Editor {
   _lastContent: string;
   _lastInputCode: string;
   print: (...args: any[]) => Promise<void>;
+
+  private static signature: TypeSignature = {
+    type: 'function',
+    returnsPromise: true,
+    isDirectShellCommand: true,
+    acceptsRawInput: true,
+  };
 
   constructor({
     input,
@@ -58,12 +65,7 @@ export class Editor {
     wrapperFn.acceptsRawInput = true;
     (instanceState.shellApi as any).edit = instanceState.context.edit =
       wrapperFn;
-    (signatures.ShellApi.attributes as any).edit = {
-      type: 'function',
-      returnsPromise: true,
-      isDirectShellCommand: true,
-      acceptsRawInput: true,
-    } as TypeSignature;
+    (signatures.ShellApi.attributes as any).edit = Editor.signature;
   }
 
   static create(options: EditorOptions): Editor {
@@ -235,10 +237,6 @@ export class Editor {
       code,
     });
 
-    // 'child_process' is not supported in startup snapshots yet.
-    const { spawn } =
-      // eslint-disable-next-line
-      require('child_process') as typeof import('child_process');
     const proc = spawn(editor, [path.basename(tmpDoc)], {
       stdio: 'inherit',
       cwd: path.dirname(tmpDoc),

@@ -23,6 +23,8 @@ import type {
   Response,
 } from '@mongodb-js/devtools-proxy-support';
 import { createFetch } from '@mongodb-js/devtools-proxy-support';
+import { spawn } from 'cross-spawn';
+
 const pipeline = promisify(stream.pipeline);
 const brotliCompress = promisify(zlib.brotliCompress);
 const brotliDecompress = promisify(zlib.brotliDecompress);
@@ -129,6 +131,35 @@ export class SnippetManager implements ShellPlugin {
   inflightFetchIndexPromise: Promise<SnippetIndexFile[]> | null = null;
   fetch: (url: string) => Promise<Response>;
 
+  // Hold a weak reference here so that the `signature`
+  // that we install on the global signature list does not
+  // keep the entire SnippetManager instance (and through it,
+  // the REPL context) alive indefinitely.
+  // This is fine in practice, because no autocompletion takes
+  // place without a SnippetManager held alive by the REPL anyway.
+  private static instance: WeakRef<SnippetManager>;
+  private static signature: TypeSignature = {
+    type: 'function',
+    returnsPromise: true,
+    isDirectShellCommand: true,
+    shellCommandCompleter: async (
+      params: unknown,
+      args: string[]
+      // eslint-disable-next-line @typescript-eslint/require-await
+    ): Promise<string[] | undefined> => {
+      const instance = this.instance.deref();
+      return instance && completeSnippetsCommand(args, instance.snippets);
+    },
+    newShellCommandCompleter: async (
+      context: unknown,
+      args: string[]
+      // eslint-disable-next-line @typescript-eslint/require-await
+    ): Promise<string[] | undefined> => {
+      const instance = this.instance.deref();
+      return instance && completeSnippetsCommand(args, instance.snippets);
+    },
+  };
+
   constructor({
     installdir,
     instanceState,
@@ -164,25 +195,8 @@ export class SnippetManager implements ShellPlugin {
     wrapperFn.returnsPromise = true;
     (instanceState.shellApi as any).snippet = instanceState.context.snippet =
       wrapperFn;
-    (signatures.ShellApi.attributes as any).snippet = {
-      type: 'function',
-      returnsPromise: true,
-      isDirectShellCommand: true,
-      shellCommandCompleter: async (
-        params: unknown,
-        args: string[]
-        // eslint-disable-next-line @typescript-eslint/require-await
-      ): Promise<string[] | undefined> => {
-        return completeSnippetsCommand(args, this.snippets);
-      },
-      newShellCommandCompleter: async (
-        context: unknown,
-        args: string[]
-        // eslint-disable-next-line @typescript-eslint/require-await
-      ): Promise<string[] | undefined> => {
-        return completeSnippetsCommand(args, this.snippets);
-      },
-    } as TypeSignature;
+    (signatures.ShellApi.attributes as any).snippet = SnippetManager.signature;
+    SnippetManager.instance = new WeakRef(this);
     instanceState.registerPlugin(this);
 
     this.messageBus.emit('mongosh-snippets:loaded', { installdir });
@@ -473,9 +487,6 @@ export class SnippetManager implements ShellPlugin {
     });
     interrupted.checkpoint();
 
-    // 'child_process' is not supported in startup snapshots yet.
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const spawn = require('cross-spawn');
     const proc = spawn(cmd, args, {
       cwd: this.installdir,
       env: { ...process.env, MONGOSH_RUN_NODE_SCRIPT: '1' },
