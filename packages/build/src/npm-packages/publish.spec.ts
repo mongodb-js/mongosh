@@ -5,9 +5,11 @@ import sinon from 'sinon';
 import { PackagePublisher } from './publish';
 import { MONGOSH_RELEASE_PACKAGES } from './constants';
 import type { PackagePublisherConfig } from './types';
+import type { generateShrinkwrapForReleasePackages } from './generate-shrinkwrap';
 
 describe('PackagePublisher', function () {
   let spawnSync: SinonStub;
+  let generateShrinkwrapStub: SinonStub;
   let listNpmPackages: SinonStub;
   let existsTag: SinonStub;
   let testPublisher: PackagePublisher;
@@ -49,7 +51,13 @@ describe('PackagePublisher', function () {
     spawnSync = sinon.stub();
     spawnSync.returns(undefined);
 
-    testPublisher = new PackagePublisher(config, { spawnSync });
+    generateShrinkwrapStub = sinon.stub().resolves();
+
+    testPublisher = new PackagePublisher(config, {
+      spawnSync,
+      generateShrinkwrapForReleasePackages:
+        generateShrinkwrapStub as unknown as typeof generateShrinkwrapForReleasePackages,
+    });
 
     listNpmPackages = sinon.stub(testPublisher, 'listNpmPackages');
     listNpmPackages.returns(allReleasablePackages);
@@ -67,8 +75,8 @@ describe('PackagePublisher', function () {
       setupTestPublisher({ isDryRun: false, useAuxiliaryPackagesOnly: false });
     });
 
-    it('calls lerna to publish packages for a real version', function () {
-      testPublisher.publishToNpm();
+    it('calls lerna to publish packages for a real version', async function () {
+      await testPublisher.publishToNpm();
 
       expect(spawnSync).to.have.been.calledWith(
         lernaBin,

@@ -149,7 +149,7 @@ export class MongoshPublisher {
     // ensures the segment api key to be present in the published packages
     await this.writeBuildInfo(config, 'packaged');
 
-    this.packagePublisher.publishToNpm();
+    await this.packagePublisher.publishToNpm();
 
     await this.homebrewPublisher.publish();
 
