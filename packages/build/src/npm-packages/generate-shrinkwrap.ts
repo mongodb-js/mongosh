@@ -34,8 +34,14 @@ export async function generateShrinkwrap(
   );
 
   try {
-    // Copy package.json to temp directory
-    await fs.writeFile(path.join(tmpDir, 'package.json'), packageJsonContent);
+    // Copy package.json to temp directory, stripping devDependencies since
+    // Homebrew (and other consumers) only install production dependencies,
+    // and devDependencies can cause peer dependency conflicts during resolution.
+    const { devDependencies, ...prodPackageJson } = packageJson;
+    await fs.writeFile(
+      path.join(tmpDir, 'package.json'),
+      JSON.stringify(prodPackageJson, null, 2)
+    );
 
     // Run npm install --package-lock-only to generate a package-lock.json
     // with resolved dependency versions
