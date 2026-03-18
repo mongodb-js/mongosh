@@ -91,6 +91,12 @@ describe('PackagePublisher', function () {
         ],
         sinon.match.any
       );
+
+      expect(generateShrinkwrapStub).to.have.been.calledOnce;
+      expect(generateShrinkwrapStub).to.have.been.calledWithMatch(
+        sinon.match.string,
+        sinon.match({ spawnSync })
+      );
     });
   });
 

@@ -44,10 +44,13 @@ export class PackagePublisher {
     this.spawnSync(LERNA_BIN, ['run', 'prepublish', '--sort'], commandOptions);
 
     // Generate npm-shrinkwrap.json for release packages so that consumers
-    // (e.g. Homebrew) install exact tested dependency versions.
-    await this.generateShrinkwrapForReleasePackages(PROJECT_ROOT, {
-      spawnSync: this.spawnSync,
-    });
+    // (e.g. Homebrew) get dependency versions locked at release time.
+    // Skip this when only auxiliary packages are being published.
+    if (!this.config.useAuxiliaryPackagesOnly) {
+      await this.generateShrinkwrapForReleasePackages(PROJECT_ROOT, {
+        spawnSync: this.spawnSync,
+      });
+    }
 
     // Lerna requires a clean repository for a publish from-package
     // we use git update-index --assume-unchanged on files we know have been bumped
