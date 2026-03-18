@@ -37,6 +37,7 @@ export async function generateShrinkwrap(
     // Copy package.json to temp directory, stripping devDependencies since
     // Homebrew (and other consumers) only install production dependencies,
     // and devDependencies can cause peer dependency conflicts during resolution.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { devDependencies, ...prodPackageJson } = packageJson;
     await fs.writeFile(
       path.join(tmpDir, 'package.json'),
