@@ -19,6 +19,9 @@ export class PackagePublisher {
     {
       spawnSync = spawnSyncFn,
       generateShrinkwrapForReleasePackages = generateShrinkwrapForReleasePackagesFn,
+    }: {
+      spawnSync?: typeof spawnSyncFn;
+      generateShrinkwrapForReleasePackages?: typeof generateShrinkwrapForReleasePackagesFn;
     } = {}
   ) {
     this.config = config;
@@ -47,9 +50,7 @@ export class PackagePublisher {
     // (e.g. Homebrew) get dependency versions locked at release time.
     // Skip this when only auxiliary packages are being published.
     if (!this.config.useAuxiliaryPackagesOnly) {
-      await this.generateShrinkwrapForReleasePackages(PROJECT_ROOT, {
-        spawnSync: this.spawnSync,
-      });
+      await this.generateShrinkwrapForReleasePackages(PROJECT_ROOT);
     }
 
     // Lerna requires a clean repository for a publish from-package

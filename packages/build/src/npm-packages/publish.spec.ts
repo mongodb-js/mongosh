@@ -94,8 +94,7 @@ describe('PackagePublisher', function () {
 
       expect(generateShrinkwrapStub).to.have.been.calledOnce;
       expect(generateShrinkwrapStub).to.have.been.calledWithMatch(
-        sinon.match.string,
-        sinon.match({ spawnSync })
+        sinon.match.string
       );
     });
   });
