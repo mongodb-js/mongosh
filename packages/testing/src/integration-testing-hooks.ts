@@ -10,6 +10,7 @@ import type { LogEntry, MongoClusterOptions } from 'mongodb-runner';
 import { MongoCluster } from 'mongodb-runner';
 import { ConnectionString } from 'mongodb-connection-string-url';
 import { downloadCryptLibrary } from '@mongosh/build';
+import { ServerLogsChecker } from '@mongodb-js/mongodb-server-log-checker';
 
 const execFile = promisify(child_process.execFile);
 
@@ -148,8 +149,7 @@ export class MongoRunnerSetup extends MongodSetup {
   _id: string;
   _opts: Partial<MongoClusterOptions>;
   _cluster: MongoCluster | undefined;
-  _warnings: LogEntry[] = [];
-  _warningFilters: ((e: LogEntry) => boolean)[] = [];
+  _logsChecker: ServerLogsChecker | undefined;
 
   constructor(id: string, opts: Partial<MongoClusterOptions> = {}) {
     super();
@@ -175,24 +175,8 @@ export class MongoRunnerSetup extends MongodSetup {
       version: version,
       ...this._opts,
     });
-
+    this._logsChecker = new ServerLogsChecker(this._cluster);
     this._setConnectionString(this._cluster.connectionString);
-
-    // Setup logging
-    const ignoreCtx = new Set<string>();
-    this._cluster.on('mongoLog', (_server, entry) => {
-      // Ignore events coming from internal clients (e.g. replset clients)
-      if (entry.id === 51800 && entry.attr?.doc?.driver?.name === 'MongoDB Internal Client' && entry.context.startsWith('conn')) {
-        ignoreCtx.add(entry.context);
-      }
-      if (ignoreCtx.has(entry.context)) return;
-
-      if (['W', 'E', 'F'].includes(entry.severity) && !this._warningFilters.some(f => f(entry))) {
-        this._warnings.push(entry);
-      }
-    });
-    for (const filter of MongoRunnerSetup.defaultAllowedWarnings)
-      this.allowWarning(filter);
   }
 
   async stop(): Promise<void> {
@@ -201,71 +185,21 @@ export class MongoRunnerSetup extends MongodSetup {
   }
 
   get warnings(): LogEntry[] {
-    return [...this._warnings];
+    return [...(this._logsChecker?.warnings ?? [])];
   }
 
   noServerWarningsCheckpoint(): void {
-    const warnings = this.warnings;
-    this._warnings = [];
-    if (warnings.length > 0) {
-      throw new Error(`Unexpected MongoDB server log warnings found: ${JSON.stringify(warnings, null, 2)}`);
-    }
+    this._logsChecker?.noServerWarningsCheckpoint();
   }
 
   allowWarning(filter: number | ((entry: LogEntry) => boolean)): () => void {
-    if (typeof filter === 'number') {
-      const id = filter;
-      filter = entry => entry.id === id;
-    }
-    this._warningFilters.push(filter);
-    return () => {
-      this._warningFilters = this._warningFilters.filter(f => f !== filter);
-    };
+    return (
+      this._logsChecker?.allowWarning(filter) ??
+      (() => {
+        /* no-op */
+      })
+    );
   }
-
-  static defaultAllowedWarnings = [
-    4615610, // "Failed to check socket connectivity", generic disconnect error
-    7012500, // "Failed to refresh query analysis configurations", normal sharding behavior
-    4906901, // "Arbiters are not supported in quarterly binary versions"
-    6100702, // "Failed to get last stable recovery timestamp due to lock acquire timeout. Note this is expected if shutdown is in progress."
-    20525, // "Failed to gather storage statistics for slow operation"
-    22120, // "Access control is not enabled for the database"
-    22140, // "This server is bound to localhost"
-    22178, // "transparent_hugepage/enabled is 'always'"
-    5123300, // "vm.max_map_count is too low"
-    551190, // "Server certificate has no compatible Subject Alternative Name",
-    20526, // "Failed to gather storage statistics for slow operation"
-    22668, // "Unable to ping distributed locks"
-    21764, // "Unable to forward progress" REPL
-    (l: LogEntry) => {
-      // "Use of deprecated server parameter name" (FTDC)
-     return (l.id === 636300 || l.id === 23803) && l.context === 'ftdc'
-    },
-    (l: LogEntry) => l.component === 'STORAGE', // Outside of mongosh's control
-    (l: LogEntry) => l.context === 'BackgroundSync', // Outside of mongosh's control
-    (l: LogEntry) => {
-      // "Aggregate command executor error", we get this a lot for things like
-      // $collStats which internally tries to open collections that may or may not exist
-      return l.id === 23799 && ['NamespaceNotFound', 'ShardNotFound'].includes(l.attr?.error?.codeName);
-    },
-    (l: LogEntry) => {
-      // "getMore command executor error" can happen under normal circumstances
-      // for client errors
-      return l.id === 20478 && l.attr?.error?.codeName === 'ClientDisconnect';
-    },
-    (l: LogEntry) => {
-      // "$jsonSchema validator does not allow '_id' field" warning
-      // incorrectly issued for the implicit schema of config.settings
-      // https://github.com/mongodb/mongo/blob/0c265adbde984c981946f804279693078e0b9f8a/src/mongo/db/global_catalog/ddl/sharding_catalog_manager.cpp#L558-L559
-      // https://github.com/mongodb/mongo/blob/0c265adbde984c981946f804279693078e0b9f8a/src/mongo/s/balancer_configuration.cpp#L122-L143
-      return l.id === 3216000 && ['ReplWriterWorker', 'OplogApplier'].some(match => l.context.includes(match));
-    },
-    (l: LogEntry) => {
-      // "Deprecated operation requested" for OP_QUERY which drivers may
-      // still send in limited situations until NODE-6287 is done
-      return l.id === 5578800 && l.attr?.op === 'query';
-    },
-  ];
 }
 
 async function getInstalledMongodVersion(): Promise<string> {
@@ -328,7 +262,9 @@ let sharedSetup: MongoRunnerSetup | null = null;
  * @export
  * @returns {MongodSetup} - Object with information about the started server.
  */
-export function startSharedTestServer(): (MongodSetup & Partial<MongoRunnerSetup>) | MongoRunnerSetup {
+export function startSharedTestServer():
+  | (MongodSetup & Partial<MongoRunnerSetup>)
+  | MongoRunnerSetup {
   if (!installedGlobalAfterHook) {
     throw new Error(
       'Trying to start shared test server, but no global after hook was available at module load time'
@@ -378,7 +314,7 @@ export function startTestCluster(
     await Promise.all(servers.map((server: MongodSetup) => server.start()));
   });
 
-  afterEach(function() {
+  afterEach(function () {
     for (const server of servers) {
       server.noServerWarningsCheckpoint();
     }
