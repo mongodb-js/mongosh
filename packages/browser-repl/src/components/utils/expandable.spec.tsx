@@ -1,7 +1,7 @@
 import React from 'react';
 import sinon from 'sinon';
 import { Icon } from '@mongodb-js/compass-components';
-import { expect } from '../../../testing/chai';
+import { expect } from '@mongosh/testing';
 import { mount } from '../../../testing/enzyme';
 import { Expandable } from './expandable';
 

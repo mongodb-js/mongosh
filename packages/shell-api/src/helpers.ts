@@ -1,6 +1,5 @@
 /* eslint no-use-before-define: 0 */
 import type {
-  DbOptions,
   Document,
   ExplainVerbosityLike,
   FindOneAndDeleteOptions,
@@ -22,11 +21,17 @@ import type { CursorIterationResult } from './result';
 import { ShellApiErrors } from './error-codes';
 import type { BinaryType, ReplPlatform } from '@mongosh/service-provider-core';
 import type { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
-import type { AutoEncryptionOptions, Long, ObjectId, Timestamp } from 'mongodb';
+import type {
+  AggregateOptions,
+  AutoEncryptionOptions,
+  Long,
+  ObjectId,
+  Timestamp,
+} from 'mongodb';
 import { shellApiType } from './enums';
 import type { AbstractFiniteCursor } from './abstract-cursor';
 import type ChangeStreamCursor from './change-stream-cursor';
-import type { BSON, ShellBson } from '@mongosh/shell-bson';
+import { type BSON, type ShellBson, getBsonType } from '@mongosh/shell-bson';
 import type { MQLPipeline, MQLQuery } from './mql-types';
 import type { InspectOptions } from 'util';
 
@@ -40,32 +45,38 @@ let coreUtilInspect: ((obj: any, options: InspectOptions) => string) & {
  *
  * @param options
  */
-export function adaptAggregateOptions(options: any = {}): {
+export function adaptAggregateOptions(
+  options: AggregateOptions & { explain?: ExplainVerbosityLike } = {},
+  hasUnifiedAggregateOptions = true
+): {
   aggOptions: Document;
-  dbOptions: DbOptions;
   explain?: ExplainVerbosityLike & string;
+  dbOptions?: Document;
 } {
   const aggOptions = { ...options };
+  let dbOptions: Document | undefined;
 
-  const dbOptions: DbOptions = {};
   let explain;
-
-  if ('readConcern' in aggOptions) {
-    dbOptions.readConcern = options.readConcern;
-    delete aggOptions.readConcern;
-  }
-
-  if ('writeConcern' in aggOptions) {
-    Object.assign(dbOptions, options.writeConcern);
-    delete aggOptions.writeConcern;
-  }
-
   if ('explain' in aggOptions) {
     explain = validateExplainableVerbosity(aggOptions.explain);
     delete aggOptions.explain;
   }
 
-  return { aggOptions, dbOptions, explain };
+  if (!hasUnifiedAggregateOptions) {
+    for (const key of [
+      'writeConcern',
+      'readConcern',
+      'readPreference',
+    ] as const) {
+      if (key in aggOptions) {
+        dbOptions ??= {};
+        dbOptions[key] = aggOptions[key];
+        delete aggOptions[key];
+      }
+    }
+  }
+
+  return { aggOptions, explain, dbOptions };
 }
 
 export function validateExplainableVerbosity(
@@ -129,7 +140,9 @@ export function assertArgsDefinedType(
     const expectedTypesList: Array<string | undefined> =
       typeof expected === 'string' ? [expected] : expected;
     const isExpectedTypeof = expectedTypesList.includes(typeof arg);
-    const isExpectedBson = expectedTypesList.includes(`bson:${arg?._bsontype}`);
+    const isExpectedBson = expectedTypesList.includes(
+      `bson:${getBsonType(arg)}`
+    );
 
     if (!isExpectedTypeof && !isExpectedBson) {
       const expectedMsg = expectedTypesList
@@ -1081,7 +1094,7 @@ export function processFLEOptions(
   };
 
   const localKey = fleOptions.kmsProviders.local?.key;
-  if (localKey && (localKey as BinaryType)._bsontype === 'Binary') {
+  if (localKey && getBsonType(localKey) === 'Binary') {
     const rawBuff = (localKey as BinaryType).value();
     if (Buffer.isBuffer(rawBuff)) {
       autoEncryption.kmsProviders = {
@@ -1165,7 +1178,7 @@ export function shouldRunAggregationImmediately(
 function isBSONDoubleConvertible(val: any): boolean {
   return (
     (typeof val === 'number' && Number.isInteger(val)) ||
-    val?._bsontype === 'Int32'
+    getBsonType(val) === 'Int32'
   );
 }
 

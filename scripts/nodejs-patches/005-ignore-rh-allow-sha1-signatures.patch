@@ -1,0 +1,15 @@
+diff --git a/deps/openssl/openssl/crypto/evp/evp_cnf.c b/deps/openssl/openssl/crypto/evp/evp_cnf.c
+index 184bab933ca..b4b95b1f6af 100644
+--- a/deps/openssl/openssl/crypto/evp/evp_cnf.c
++++ b/deps/openssl/openssl/crypto/evp/evp_cnf.c
+@@ -57,7 +57,9 @@ static int alg_module_init(CONF_IMODULE *md, const CONF *cnf)
+                 ERR_raise(ERR_LIB_EVP, EVP_R_SET_DEFAULT_PROPERTY_FAILURE);
+                 return 0;
+             }
+-        } else {
++        } else if (strcmp(oval->name, "rh-allow-sha1-signatures") == 0) {
++            /* allow and then ignore this option */
++         } else {
+             ERR_raise_data(ERR_LIB_EVP, EVP_R_UNKNOWN_OPTION,
+                 "name=%s, value=%s", oval->name, oval->value);
+             return 0;

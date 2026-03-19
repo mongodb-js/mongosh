@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import type { MongoshBus } from '@mongosh/types';
-import { startSharedTestServer } from '../../../testing/integration-testing-hooks';
+import { startSharedTestServer } from '@mongosh/testing';
 import { WorkerRuntime } from '../dist/index';
 
 import type { DevtoolsConnectOptions } from '@mongosh/service-provider-node-driver';
@@ -132,8 +132,13 @@ describe('WorkerRuntime', function () {
     const testServer = startSharedTestServer();
 
     it('should return completions', async function () {
+      const db = `completions-${Date.now()}`;
+      await testServer.withClient((client) =>
+        client.db(db).collection('coll1').insertOne({})
+      );
+
       runtime = new WorkerRuntime(
-        await testServer.connectionString(),
+        await testServer.connectionString({}, { pathname: `/${db}` }),
         dummyOptions
       );
       const completions = await runtime.getCompletions('db.coll1.f');

@@ -1,5 +1,5 @@
 /* eslint-disable filename-rules/match */
-import type Catalog from '../catalog';
+import type { Catalog } from '../catalog';
 
 /**
  * US english translations.

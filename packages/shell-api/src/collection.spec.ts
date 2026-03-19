@@ -24,6 +24,7 @@ import type {
   ClientSession as ServiceProviderSession,
   Document,
   AnyBulkWriteOperation,
+  ServiceProviderFindCursor,
 } from '@mongosh/service-provider-core';
 import * as bson from 'bson';
 import ShellInstanceState from './shell-instance-state';
@@ -151,6 +152,7 @@ describe('Collection', function () {
       serviceProvider = stubInterface<ServiceProvider>();
       serviceProvider.runCommand.resolves({ ok: 1 });
       serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
+      serviceProvider.hasUnifiedAggregateOptions?.returns(true);
       serviceProvider.initialDb = 'test';
       serviceProvider.bsonLibrary = bson;
       instanceState = new ShellInstanceState(serviceProvider, bus);
@@ -251,7 +253,7 @@ describe('Collection', function () {
         ).to.equal(expectedError);
       });
 
-      it('pass readConcern and writeConcern as dbOption', async function () {
+      it('pass readConcern and writeConcern as a regular option', async function () {
         await collection.aggregate([], {
           otherOption: true,
           readConcern: { level: 'majority' },
@@ -262,8 +264,11 @@ describe('Collection', function () {
           collection._database._name,
           collection._name,
           [],
-          { otherOption: true },
-          { readConcern: { level: 'majority' }, w: 1 }
+          {
+            otherOption: true,
+            readConcern: { level: 'majority' },
+            writeConcern: { w: 1 },
+          }
         );
       });
 
@@ -578,6 +583,28 @@ describe('Collection', function () {
         expect((await toShellResult(explained)).printable).to.deep.equal({
           ok: 1,
         });
+      });
+    });
+
+    describe('find', function () {
+      let serviceProviderCursor: StubbedInstance<ServiceProviderFindCursor>;
+
+      beforeEach(function () {
+        serviceProviderCursor = stubInterface<ServiceProviderFindCursor>();
+      });
+
+      it('delegates to explain in the cursor when using the explain option', async function () {
+        const expectedExplainResult = {};
+        serviceProviderCursor.explain.resolves(expectedExplainResult);
+        serviceProvider.find.returns(serviceProviderCursor as any);
+
+        const explainResult = await collection.find({}, {}, { explain: true });
+
+        expect(explainResult).to.deep.equal(expectedExplainResult);
+        expect((await toShellResult(explainResult)).type).to.equal(
+          'ExplainOutput'
+        );
+        expect(serviceProviderCursor.explain).to.have.been.calledOnce;
       });
     });
 
@@ -2580,6 +2607,91 @@ describe('Collection', function () {
         });
       });
     });
+
+    describe('return information about constructing the cursor as metadata', function () {
+      let serviceProviderCursor: StubbedInstance<ServiceProviderCursor>;
+      let proxyCursor: ServiceProviderCursor;
+
+      beforeEach(function () {
+        serviceProviderCursor = stubInterface<ServiceProviderCursor>();
+        serviceProviderCursor.limit.returns(serviceProviderCursor);
+        serviceProviderCursor.skip.returns(serviceProviderCursor);
+        serviceProviderCursor.tryNext.resolves({ _id: 'abc' });
+        proxyCursor = new Proxy(serviceProviderCursor, {
+          get: (target, prop): any => {
+            if (prop === 'closed') {
+              return false;
+            }
+            return (target as any)[prop];
+          },
+        });
+      });
+
+      it('works for find()', async function () {
+        serviceProvider.find.returns(proxyCursor);
+        const cursor = (
+          await collection.find(
+            { hasBanana: true },
+            { _id: 0 },
+            { promoteValues: false }
+          )
+        ).limit(10);
+        const result = await toShellResult(cursor);
+        expect(result.constructionOptions).to.deep.equal({
+          options: {
+            method: 'find',
+            cursorType: 'Cursor',
+            args: [
+              'db1',
+              'coll1',
+              { hasBanana: true },
+              { projection: { _id: 0 }, promoteValues: false },
+            ],
+          },
+          chains: [
+            {
+              method: 'limit',
+              args: [10],
+            },
+          ],
+        });
+      });
+
+      it('works for aggregate()', async function () {
+        serviceProvider.aggregate.returns(proxyCursor);
+        const cursor = (
+          await collection.aggregate(
+            [{ $match: { hasBanana: true } }],
+            {
+              promoteValues: false,
+              readConcern: 'primaryPreferred',
+            },
+            {}
+          )
+        ).skip(10);
+        const result = await toShellResult(cursor);
+        expect(result.constructionOptions).to.deep.equal({
+          options: {
+            method: 'aggregate',
+            cursorType: 'AggregationCursor',
+            args: [
+              'db1',
+              'coll1',
+              [{ $match: { hasBanana: true } }],
+              { promoteValues: false, readConcern: 'primaryPreferred' },
+              undefined,
+            ],
+          },
+          chains: [
+            {
+              method: 'skip',
+              args: [10],
+            },
+          ],
+        });
+      });
+    });
+
     describe('watch', function () {
       let fakeSpCursor: any;
       beforeEach(function () {

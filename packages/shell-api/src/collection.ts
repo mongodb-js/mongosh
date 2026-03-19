@@ -1,4 +1,5 @@
 import type Mongo from './mongo';
+import type { Abortable } from 'events';
 import type { Namespace } from './decorators';
 import {
   addSourceToResults,
@@ -67,6 +68,7 @@ import type {
   CheckMetadataConsistencyOptions,
   AggregateOptions,
   SearchIndexDescription,
+  ServiceProvider,
 } from '@mongosh/service-provider-core';
 import type { RunCommandCursor, Database, DatabaseWithSchema } from './index';
 import {
@@ -186,18 +188,18 @@ export class Collection<
    */
   async aggregate(
     pipeline: MQLPipeline,
-    options: AggregateOptions & { explain: ExplainVerbosityLike }
+    options: AggregateOptions & { explain: ExplainVerbosityLike } & Abortable
   ): Promise<Document>;
   async aggregate(
     pipeline: MQLPipeline,
-    options?: AggregateOptions
+    options?: AggregateOptions & Abortable
   ): Promise<AggregationCursor>;
   async aggregate(...stages: MQLPipeline): Promise<AggregationCursor>;
   @returnsPromise
   @returnType('AggregationCursor')
   @apiVersions([1])
   async aggregate(...args: unknown[]): Promise<AggregationCursor | Document> {
-    let options: AggregateOptions;
+    let options: AggregateOptions & { explain?: ExplainVerbosityLike };
     let pipeline: MQLPipeline;
     if (args.length === 0 || Array.isArray(args[0])) {
       options = args[1] || {};
@@ -213,16 +215,40 @@ export class Collection<
       );
     }
     this._emitCollectionApiCall('aggregate', { options, pipeline });
-    const { aggOptions, dbOptions, explain } = adaptAggregateOptions(options);
-
-    const providerCursor = this._mongo._serviceProvider.aggregate(
-      this._database._name,
-      this._name,
-      pipeline,
-      { ...(await this._database._baseOptions()), ...aggOptions },
-      dbOptions
+    const { aggOptions, explain, dbOptions } = adaptAggregateOptions(
+      options,
+      !!this._mongo._serviceProvider.hasUnifiedAggregateOptions?.()
     );
-    const cursor = new AggregationCursor(this._mongo, providerCursor);
+
+    const aggregateOptions = {
+      ...(await this._database._baseOptions()),
+      ...aggOptions,
+    };
+
+    const constructionOptions = {
+      method: 'aggregate' as const,
+      args: [
+        this._database._name,
+        this._name,
+        pipeline,
+        aggregateOptions,
+        dbOptions,
+      ] as Parameters<ServiceProvider['aggregate']>,
+      cursorType: 'AggregationCursor' as const,
+    };
+    const providerCursor = this._mongo._serviceProvider[
+      constructionOptions.method
+    ](...constructionOptions.args);
+    const constructionOptionsWithChains = aggregateOptions.session
+      ? undefined
+      : {
+          options: constructionOptions,
+        };
+    const cursor = new AggregationCursor(
+      this._mongo,
+      providerCursor,
+      constructionOptionsWithChains
+    );
 
     if (explain) {
       return await cursor.explain(explain);
@@ -318,7 +344,7 @@ export class Collection<
   @apiVersions([1])
   async countDocuments(
     query?: MQLQuery,
-    options: CountDocumentsOptions = {}
+    options: CountDocumentsOptions & Abortable = {}
   ): Promise<number> {
     this._emitCollectionApiCall('countDocuments', { query, options });
     return this._mongo._serviceProvider.countDocuments(
@@ -475,22 +501,46 @@ export class Collection<
   async find(
     query?: MQLQuery,
     projection?: Document,
-    options: FindOptions = {}
+    options: FindOptions & { explain?: ExplainVerbosityLike } & Abortable = {}
   ): Promise<Cursor> {
     if (projection) {
       options.projection = projection;
     }
 
+    const findOptions = {
+      ...(await this._database._baseOptions()),
+      ...options,
+    };
+
     this._emitCollectionApiCall('find', { query, options });
-    const cursor = new Cursor(
-      this._mongo,
-      this._mongo._serviceProvider.find(
+    const constructionOptions = {
+      method: 'find' as const,
+      args: [
         this._database._name,
         this._name,
         query,
-        { ...(await this._database._baseOptions()), ...options }
-      )
+        findOptions,
+      ] as Parameters<ServiceProvider['find']>,
+      cursorType: 'Cursor' as const,
+    };
+    const providerCursor = this._mongo._serviceProvider[
+      constructionOptions.method
+    ](...constructionOptions.args);
+    const constructionOptionsWithChains = findOptions.session
+      ? undefined
+      : {
+          options: constructionOptions,
+        };
+    const cursor = new Cursor(
+      this._mongo,
+      providerCursor,
+      constructionOptionsWithChains
     );
+
+    const explain = options.explain;
+    if (explain) {
+      return await cursor.explain(explain);
+    }
 
     this._mongo._instanceState.currentCursor = cursor;
     return cursor;
@@ -564,7 +614,7 @@ export class Collection<
   async findOne(
     query: MQLQuery = {},
     projection?: Document,
-    options: FindOptions = {}
+    options: FindOptions & Abortable = {}
   ): Promise<MQLDocument | null> {
     if (projection) {
       options.projection = projection;
@@ -1690,6 +1740,7 @@ export class Collection<
     let unscaledCollSize = 0;
 
     let nindexes = 0;
+    let timeseriesHasStats = false;
     let timeseriesBucketsNs: string | undefined;
     let timeseriesTotalBucketSize = 0;
 
@@ -1722,14 +1773,17 @@ export class Collection<
           // match across shards.
           result[fieldName] ??= shardStorageStats[fieldName];
         } else if (fieldName === 'timeseries') {
+          timeseriesHasStats = true;
           const shardTimeseriesStats: Document = shardStorageStats[fieldName];
+          if (typeof shardTimeseriesStats.bucketsNs === 'string')
+            timeseriesBucketsNs ??= shardTimeseriesStats.bucketsNs;
+
           for (const [timeseriesStatName, timeseriesStat] of Object.entries(
             shardTimeseriesStats
           )) {
             if (typeof timeseriesStat === 'string') {
-              if (!timeseriesBucketsNs) {
-                timeseriesBucketsNs = timeseriesStat;
-              }
+              // Skip string-valued timeseries fields (other than bucketsNs, which was handled above);
+              // these are metadata-only and are not included in aggregated numeric statistics.
             } else if (timeseriesStatName === 'avgBucketSize') {
               timeseriesTotalBucketSize +=
                 coerceToJSNumber(shardTimeseriesStats.bucketCount) *
@@ -1803,7 +1857,11 @@ export class Collection<
 
     try {
       result.sharded = !!(await config.getCollection('collections').findOne({
-        _id: timeseriesBucketsNs ?? ns,
+        // Currently, for timeseries collections, the sharding catalog entry
+        // always uses the buckets namespace, but that is not a guarantee we
+        // want to rely on, given the move towards hiding the bucket namespace
+        // as an implementation detail more and more.
+        _id: { $in: [timeseriesBucketsNs, ns].filter(Boolean) },
         ...onlyShardedCollectionsInConfigFilter,
       }));
     } catch (e) {
@@ -1824,7 +1882,10 @@ export class Collection<
         result[countField] = count;
       }
     }
-    if (timeseriesBucketsNs && Object.keys(clusterTimeseriesStats).length > 0) {
+    if (
+      (timeseriesHasStats || timeseriesBucketsNs) &&
+      Object.keys(clusterTimeseriesStats).length > 0
+    ) {
       result.timeseries = {
         ...clusterTimeseriesStats,
         // Average across all the shards.
@@ -2121,22 +2182,19 @@ export class Collection<
     }
 
     // If the collection info is not found, check if it is timeseries and use the bucket
-    const timeseriesShardStats = collStats.find(
-      (extractedShardStats) =>
-        typeof extractedShardStats.storageStats.timeseries !== 'undefined'
-    );
+    const timeseriesBucketNs = collStats
+      .map(
+        (extractedShardStats) =>
+          extractedShardStats.storageStats?.timeseries?.bucketsNs
+      )
+      .find((bucketsNs) => typeof bucketsNs === 'string');
 
-    if (!timeseriesShardStats) {
+    if (!timeseriesBucketNs) {
       throw new MongoshInvalidInputError(
         `Collection ${this._name} is not sharded`,
         ShellApiErrors.NotConnectedToShardedCluster
       );
     }
-
-    const { storageStats } = timeseriesShardStats;
-
-    const timeseries: Document = storageStats.timeseries;
-    const timeseriesBucketNs: string = timeseries.bucketsNs;
 
     const timeseriesCollectionInfo = await config
       .getCollection('collections')
@@ -2435,9 +2493,13 @@ export class Collection<
   ): Promise<RunCommandCursor> {
     this._emitCollectionApiCall('checkMetadataConsistency', { options });
 
-    return await this._database._runCursorCommand({
-      checkMetadataConsistency: this._name,
-    });
+    return await this._database._runCursorCommand(
+      {
+        checkMetadataConsistency: this._name,
+        ...options,
+      },
+      {}
+    );
   }
 
   @serverVersions(['6.0.0', ServerVersions.latest])

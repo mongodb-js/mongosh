@@ -100,7 +100,7 @@ export default class Explainable extends ShellApiWithMongoClass {
   async find(
     query?: MQLQuery,
     projection?: Document,
-    options: FindOptions = {}
+    options: FindOptions & { explain?: ExplainVerbosityLike } = {}
   ): Promise<ExplainableCursor> {
     this._emitExplainableApiCall('find', { query, projection });
 

@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/arg-parser",
-  "version": "3.22.2",
+  "version": "5.0.2",
   "description": "MongoDB Shell CLI Argument List Parser Package",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -28,8 +28,7 @@
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
     "eslint": "eslint",
     "lint": "npm run eslint . && npm run prettier -- --check .",
-    "check": "npm run lint && npm run depcheck",
-    "depcheck": "depcheck",
+    "check": "npm run lint",
     "compile": "tsc -p tsconfig.json",
     "prepublish": "npm run compile",
     "prettier": "prettier",
@@ -46,20 +45,22 @@
     "unitTestsOnly": true
   },
   "dependencies": {
-    "@mongosh/errors": "2.4.4",
-    "@mongosh/i18n": "^2.19.0",
-    "mongodb-connection-string-url": "^3.0.2",
+    "@mongosh/errors": "2.4.6",
+    "@mongosh/i18n": "^2.20.2",
+    "mongodb-connection-string-url": "^7.0.1",
     "yargs-parser": "^20.2.4"
   },
+  "peerDependencies": {
+    "zod": "^3.25.76"
+  },
   "devDependencies": {
-    "@mongodb-js/devtools-connect": "^3.9.4",
+    "@mongodb-js/devtools-connect": "^3.14.9",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@types/yargs-parser": "^21.0.3",
-    "depcheck": "^1.4.7",
     "eslint": "^7.25.0",
-    "mongodb": "^6.19.0",
+    "mongodb": "^7.1.0",
     "prettier": "^2.8.8"
   }
 }

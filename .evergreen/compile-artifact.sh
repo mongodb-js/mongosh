@@ -23,10 +23,10 @@ export TMP=/tmp/m
 export TMPDIR=/tmp/m
 
 if [ $(uname) = Darwin ]; then
-  # match what Node.js 20 does on their own builder machines
-  export CFLAGS='-mmacosx-version-min=10.15'
-  export CXXFLAGS='-mmacosx-version-min=10.15'
-  export MACOSX_DEPLOYMENT_TARGET=10.15
+  # match what Node.js 24 does on their own builder machines
+  export CFLAGS='-mmacosx-version-min=13.5'
+  export CXXFLAGS='-mmacosx-version-min=13.5'
+  export MACOSX_DEPLOYMENT_TARGET=13.5
 fi
 
 # The CI machines we have for Windows and x64 macOS are not

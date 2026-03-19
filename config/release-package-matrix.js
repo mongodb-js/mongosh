@@ -1,6 +1,6 @@
 'use strict';
 
-const rhel81AndAbove = ['rhel81', 'rhel82', 'rhel83', 'rhel90'];
+const rhel81AndAbove = ['rhel81', 'rhel82', 'rhel83', 'rhel90', 'rhel10'];
 const rhel80AndAbove = ['rhel80', ...rhel81AndAbove];
 const rhel72AndAbove = ['rhel72', ...rhel80AndAbove];
 const al2AndAbove = ['amazon2', 'amazon2023', ...rhel81AndAbove];
@@ -22,6 +22,7 @@ const ubuntu1804AndAboveAndDebBased = [
   'debian10',
   'debian11',
   'debian12',
+  'debian13',
 ];
 const allLinux = [
   ...rhel70AndAboveAndRpmBased,
@@ -45,7 +46,7 @@ const publicDescriptions = {
 };
 
 const krbConnTestsOpenSSL11 = ['rocky8', 'ubuntu2004'];
-const krbConnTestsOpenSSL3 = ['node20', 'rocky9', 'ubuntu2204'];
+const krbConnTestsOpenSSL3 = ['node20', 'rocky9', 'rocky10', 'ubuntu2204'];
 
 exports.RELEASE_PACKAGE_MATRIX = [
   {
@@ -109,6 +110,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
           'debian10-deb',
           'debian11-deb',
           'debian12-deb',
+          'debian13-deb',
         ],
         serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased],
       },
@@ -124,6 +126,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
           'amazonlinux2023-rpm',
           'rocky8-rpm',
           'rocky9-rpm',
+          'rocky10-rpm',
           'fedora34-rpm',
           'suse12-rpm',
           'suse15-rpm',
@@ -199,6 +202,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
           'ubuntu22.04-deb',
           'ubuntu22.04-fips-deb',
           'debian12-deb',
+          'debian13-deb',
         ],
         serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased],
       },
@@ -212,6 +216,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
           'rocky8-epel-rpm',
           'rocky9-rpm',
           'rocky9-fips-rpm',
+          'rocky10-rpm',
           'amazonlinux2023-rpm',
         ],
         serverLikeTargetList: [...rhel70AndAboveAndRpmBased],
@@ -251,6 +256,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
           'debian10-deb',
           'debian11-deb',
           'debian12-deb',
+          'debian13-deb',
         ],
         serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased],
       },
@@ -263,6 +269,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
         smokeTestDockerfiles: [
           'rocky8-rpm',
           'rocky9-rpm',
+          'rocky10-rpm',
           'fedora34-rpm',
           'amazonlinux2-rpm',
           'amazonlinux2023-rpm',
@@ -336,6 +343,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
           'ubuntu22.04-deb',
           'ubuntu22.04-fips-deb',
           'debian12-deb',
+          'debian13-deb',
         ],
         serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased],
       },
@@ -349,6 +357,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
           'rocky8-epel-rpm',
           'rocky9-rpm',
           'rocky9-fips-rpm',
+          'rocky10-rpm',
           'amazonlinux2023-rpm',
         ],
         serverLikeTargetList: [...al2AndAbove],

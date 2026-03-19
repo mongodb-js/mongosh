@@ -140,6 +140,7 @@ export class CliRepl implements MongoshIOProvider {
   updateNotificationManager: UpdateNotificationManager;
   fetchMongoshUpdateUrlRegardlessOfCiEnvironment = false; // for testing
   cachedGlibcVersion: null | string | undefined = null;
+  exitingForStartupError = false;
 
   private loggingAndTelemetry: MongoshLoggingAndTelemetry | undefined;
 
@@ -328,6 +329,7 @@ export class CliRepl implements MongoshIOProvider {
     try {
       return await this._start(driverUri, driverOptions);
     } catch (err) {
+      this.exitingForStartupError = true;
       await this.close();
       throw err;
     }
@@ -1025,7 +1027,7 @@ export class CliRepl implements MongoshIOProvider {
     const warnings: string[] = [];
     const RECOMMENDED_GLIBC = '>=2.28.0';
     const RECOMMENDED_OPENSSL = '>=3.0.0';
-    const RECOMMENDED_NODEJS = '>=20.0.0';
+    const RECOMMENDED_NODEJS = '>=24.0.0';
     const semverRangeCheck = (
       semverLikeVersion: string,
       range: string
@@ -1060,7 +1062,7 @@ export class CliRepl implements MongoshIOProvider {
 
     if (!semver.satisfies(process.version, RECOMMENDED_NODEJS)) {
       warnings.push(
-        '  - Using mongosh with Node.js versions lower than 20.0.0 is deprecated, and support may be removed in a future release.'
+        '  - Using mongosh with Node.js versions lower than 24.0.0 is deprecated, and support may be removed in a future release.'
       );
     }
 
@@ -1169,6 +1171,7 @@ export class CliRepl implements MongoshIOProvider {
   async close(): Promise<void> {
     return (this.closingPromise ??= (async () => {
       markTime(TimingCategories.REPLInstantiation, 'start closing');
+      await this.mongoshRepl.close();
       this.agent?.destroy();
       if (!this.output.destroyed) {
         // Wait for output to be fully flushed before exiting.
@@ -1228,6 +1231,7 @@ export class CliRepl implements MongoshIOProvider {
    */
   async exit(code?: number): Promise<never> {
     await this.close();
+    if (this.exitingForStartupError) return new Promise(() => undefined); // Already exiting in run.ts then
     await this.onExit(code);
     // onExit never returns. If it does, that's a bug.
     const error = new MongoshInternalError('onExit() unexpectedly returned');

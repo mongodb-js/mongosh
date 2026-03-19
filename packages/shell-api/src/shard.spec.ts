@@ -28,7 +28,7 @@ import {
   startTestCluster,
   skipIfServerVersion,
   skipIfApiStrict,
-} from '../../../testing/integration-testing-hooks';
+} from '@mongosh/testing';
 import type { DatabaseWithSchema } from './database';
 import { Database } from './database';
 import { inspect } from 'util';

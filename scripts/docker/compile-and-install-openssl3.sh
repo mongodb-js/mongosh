@@ -21,7 +21,7 @@ fi
 mkdir -p /tmp/build
 pushd /tmp/build
 # Download and unpack OpenSSL
-curl -sSfLO https://www.openssl.org/source/openssl-3.0.5.tar.gz
+curl -sSfLO https://www.openssl.org/source/openssl-3.6.0.tar.gz
 
 tar xvzf openssl-*.tar.gz
 rm -f openssl-*.tar.gz

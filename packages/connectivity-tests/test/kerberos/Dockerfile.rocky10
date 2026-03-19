@@ -1,0 +1,8 @@
+FROM docker.io/rockylinux/rockylinux:10
+RUN yum repolist
+RUN yum install -y krb5-workstation krb5-libs
+
+COPY krb5.conf /etc/krb5.conf
+COPY kerberos-run.sh /tmp/kerberos-run.sh
+
+CMD [ "/tmp/kerberos-run.sh" ]

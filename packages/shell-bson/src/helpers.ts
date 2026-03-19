@@ -1,4 +1,5 @@
 import { MongoshInvalidInputError, CommonErrors } from '@mongosh/errors';
+import { getBsonType } from './bson-export';
 
 // Create a copy of a class so that it's constructible without `new`, i.e.
 // class A {}; B = functionCtor(A);
@@ -105,7 +106,9 @@ export function assertArgsDefinedType(
     const expectedTypesList: Array<string | undefined> =
       typeof expected === 'string' ? [expected] : expected;
     const isExpectedTypeof = expectedTypesList.includes(typeof arg);
-    const isExpectedBson = expectedTypesList.includes(`bson:${arg?._bsontype}`);
+    const isExpectedBson = expectedTypesList.includes(
+      `bson:${getBsonType(arg)}`
+    );
 
     if (!isExpectedTypeof && !isExpectedBson) {
       const expectedMsg = expectedTypesList

@@ -33,10 +33,6 @@
       "path": "packages/history"
     },
     {
-      "name": "📦 @mongosh/java-shell",
-      "path": "packages/java-shell"
-    },
-    {
       "name": "📦 @mongosh/js-multiline-to-singleline",
       "path": "packages/js-multiline-to-singleline"
     },
@@ -55,6 +51,10 @@
     {
       "name": "📦 @mongosh/shell-bson",
       "path": "packages/shell-bson"
+    },
+    {
+      "name": "📦 @mongosh/testing",
+      "path": "packages/testing"
     },
     {
       "name": "📦 @mongosh/arg-parser",
@@ -103,6 +103,10 @@
     {
       "name": "📦 @mongosh/e2e-tests",
       "path": "packages/e2e-tests"
+    },
+    {
+      "name": "📦 @mongosh/java-shell",
+      "path": "packages/java-shell"
     },
     {
       "name": "📦 mongosh",

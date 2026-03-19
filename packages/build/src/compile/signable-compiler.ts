@@ -113,10 +113,26 @@ export class SignableCompiler {
       ),
       requireRegexp: /\bmongocrypt\.node$/,
     };
+    const krbPath = await findModulePath(
+      'service-provider-node-driver',
+      'kerberos'
+    );
     const kerberosAddon = {
-      path: await findModulePath('service-provider-node-driver', 'kerberos'),
+      path: krbPath,
       requireRegexp: /\bkerberos\.node$/,
     };
+    const krbPatchTarget = path.join(
+      krbPath,
+      'src',
+      'unix',
+      'kerberos_unix.cc'
+    );
+    await fs.writeFile(
+      krbPatchTarget,
+      (
+        await fs.readFile(krbPatchTarget, { encoding: 'utf8' })
+      ).replace(/^gss_OID_desc/gm, 'static gss_OID_desc')
+    );
     const osDnsAddon = {
       path: await findModulePath(
         'service-provider-node-driver',

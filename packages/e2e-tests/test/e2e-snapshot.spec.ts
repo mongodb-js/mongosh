@@ -1,8 +1,6 @@
-import {
-  skipIfApiStrict,
-  startSharedTestServer,
-} from '../../../testing/integration-testing-hooks';
+import { skipIfApiStrict, startSharedTestServer } from '@mongosh/testing';
 import { expect } from 'chai';
+import { startTestShell } from './test-shell-context';
 
 const setDifference = <T>(a: T[], b: T[]) => a.filter((e) => !b.includes(e));
 const expectIsSubset = <T>(a: T[], b: T[]) =>
@@ -56,7 +54,7 @@ describe('e2e snapshot support', function () {
       ] = (
         await Promise.all(
           argLists.map((args) =>
-            this.startTestShell({ args }).waitForCleanOutput()
+            startTestShell(this, { args }).waitForCleanOutput()
           )
         )
       ).map((output) =>

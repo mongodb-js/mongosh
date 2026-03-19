@@ -14,7 +14,7 @@ fi
 
 if [ x"$ARTIFACT_URL" = x"" ]; then
   SHA=`git rev-parse origin/main`
-  VERSION=`git show ${SHA}:../../lerna.json | grep version | cut -d ":" -f 2 | cut -d '"' -f 2`
+  VERSION=`git show ${SHA}:../../packages/mongosh/package.json | grep '"version"' | cut -d ":" -f 2 | cut -d '"' -f 2`
   case "$1" in
     *deb)       FILENAME="mongodb-mongosh_${VERSION}_amd64.deb";;
     suse*)      FILENAME="mongodb-mongosh-${VERSION}.suse12.x86_64.rpm";;

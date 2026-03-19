@@ -1,5 +1,5 @@
 import React from 'react';
-import { expect } from '../../../testing/chai';
+import { expect } from '@mongosh/testing';
 import { render, mount } from '../../../testing/enzyme';
 
 import { ErrorOutput } from './error-output';

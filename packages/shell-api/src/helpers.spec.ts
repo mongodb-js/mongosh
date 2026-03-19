@@ -14,7 +14,7 @@ import type { ServiceProvider } from '@mongosh/service-provider-core';
 import * as bson from 'bson';
 import type { DevtoolsConnectOptions } from '../../service-provider-node-driver';
 import { NodeDriverServiceProvider } from '../../service-provider-node-driver'; // avoid cyclic dep just for test
-import { startSharedTestServer } from '../../../testing/integration-testing-hooks';
+import { startSharedTestServer } from '@mongosh/testing';
 import { makeFakeConfigDatabase } from '../test/shard-test-fake-data';
 import sinon from 'ts-sinon';
 import * as chai from 'chai';

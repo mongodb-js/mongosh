@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import path from 'path';
 import { promises as fs } from 'fs';
-import { eventually } from '../../../testing/eventually';
+import { eventually } from '@mongosh/testing';
 import { TestShell } from './test-shell';
-import { ensureTestShellAfterHook } from './test-shell-context';
+import { ensureTestShellAfterHook, startTestShell } from './test-shell-context';
 import {
   useTmpdir,
   fakeExternalEditor,
@@ -22,7 +22,7 @@ describe('external editor e2e', function () {
     homedir = homeInfo.homedir;
     env = homeInfo.env;
 
-    shell = this.startTestShell({
+    shell = startTestShell(this, {
       args: ['--nodb'],
       forceTerminal: true,
       env,

@@ -1,12 +1,8 @@
 {
-  "include": [
-    "packages/*/src/**",
-    "scripts/*/src/**",
-    "configs/*/src/**"
-  ],
+  "include": ["packages/*/src/**", "scripts/*/src/**", "configs/*/src/**"],
   "exclude": [
     "test",
-    "testing",
+    "packages/testing",
     "config",
     "**/*.d.ts",
     "**/*.spec.{ts,js,tsx,jsx,cjs,mjs}",

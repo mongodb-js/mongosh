@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import sinon from 'sinon';
 import { render, screen, waitFor, configure } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { expect } from '../../testing/chai';
+import { expect } from '@mongosh/testing';
 
 import { Shell } from './shell';
 import type { ShellOutputEntry } from './shell-output-line';

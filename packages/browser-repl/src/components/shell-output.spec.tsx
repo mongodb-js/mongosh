@@ -1,5 +1,5 @@
 import React from 'react';
-import { expect } from '../../testing/chai';
+import { expect } from '@mongosh/testing';
 import { shallow } from '../../testing/enzyme';
 
 import type { ShellOutputEntry } from './shell-output-line';

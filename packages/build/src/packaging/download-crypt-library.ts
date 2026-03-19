@@ -47,7 +47,12 @@ export async function downloadCryptLibrary(
   }
 
   const { downloadedBinDir: libdir, version } =
-    await downloadMongoDbWithVersionInfo(cryptTmpTargetDir, versionSpec, opts);
+    await downloadMongoDbWithVersionInfo({
+      directory: cryptTmpTargetDir,
+      version: versionSpec,
+      downloadOptions: opts,
+      useLockfile: false,
+    });
   const cryptLibrary = path.join(
     libdir,
     (await fs.readdir(libdir)).find((filename) =>

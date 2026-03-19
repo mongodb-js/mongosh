@@ -1,5 +1,5 @@
 import React from 'react';
-import { expect } from '../../../testing/chai';
+import { expect } from '@mongosh/testing';
 import type { ShallowWrapper } from '../../../testing/enzyme';
 import { shallow } from '../../../testing/enzyme';
 
