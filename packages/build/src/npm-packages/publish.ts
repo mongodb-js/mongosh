@@ -7,30 +7,20 @@ import {
 import { spawnSync as spawnSyncFn } from '../helpers/spawn-sync';
 import { type SpawnSyncOptionsWithStringEncoding } from 'child_process';
 import type { LernaPackageDescription, PackagePublisherConfig } from './types';
-import { generateShrinkwrapForReleasePackages as generateShrinkwrapForReleasePackagesFn } from './generate-shrinkwrap';
 
 export class PackagePublisher {
   readonly config: PackagePublisherConfig;
   private readonly spawnSync: typeof spawnSyncFn;
-  private readonly generateShrinkwrapForReleasePackages: typeof generateShrinkwrapForReleasePackagesFn;
 
   constructor(
     config: PackagePublisherConfig,
-    {
-      spawnSync = spawnSyncFn,
-      generateShrinkwrapForReleasePackages = generateShrinkwrapForReleasePackagesFn,
-    }: {
-      spawnSync?: typeof spawnSyncFn;
-      generateShrinkwrapForReleasePackages?: typeof generateShrinkwrapForReleasePackagesFn;
-    } = {}
+    { spawnSync = spawnSyncFn } = {}
   ) {
     this.config = config;
     this.spawnSync = spawnSync;
-    this.generateShrinkwrapForReleasePackages =
-      generateShrinkwrapForReleasePackages;
   }
 
-  public async publishToNpm(): Promise<void> {
+  public publishToNpm(): void {
     const commandOptions: SpawnSyncOptionsWithStringEncoding = {
       stdio: 'inherit',
       cwd: PROJECT_ROOT,
@@ -45,13 +35,6 @@ export class PackagePublisher {
     // during the publish step, causing build errors. This ensures all packages are topologically
     // compiled beforehand.
     this.spawnSync(LERNA_BIN, ['run', 'prepublish', '--sort'], commandOptions);
-
-    // Generate npm-shrinkwrap.json for release packages so that consumers
-    // (e.g. Homebrew) get dependency versions locked at release time.
-    // Skip this when only auxiliary packages are being published.
-    if (!this.config.useAuxiliaryPackagesOnly) {
-      await this.generateShrinkwrapForReleasePackages(PROJECT_ROOT);
-    }
 
     // Lerna requires a clean repository for a publish from-package
     // we use git update-index --assume-unchanged on files we know have been bumped
