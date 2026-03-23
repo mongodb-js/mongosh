@@ -27,6 +27,7 @@
     "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
   },
   "dependencies": {
+    "@mongodb-js/mongodb-server-log-checker": "^0.2.1",
     "@mongosh/build": "^3.10.5",
     "duplexpair": "^1.0.2",
     "mongodb": "^7.1.0",

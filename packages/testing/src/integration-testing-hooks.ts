@@ -6,9 +6,11 @@ import path from 'path';
 import semver from 'semver';
 import { promisify } from 'util';
 import which from 'which';
-import { MongoCluster, type MongoClusterOptions } from 'mongodb-runner';
+import type { LogEntry, MongoClusterOptions } from 'mongodb-runner';
+import { MongoCluster } from 'mongodb-runner';
 import { ConnectionString } from 'mongodb-connection-string-url';
 import { downloadCryptLibrary } from '@mongosh/build';
+import { ServerLogsChecker } from '@mongodb-js/mongodb-server-log-checker';
 
 const execFile = promisify(child_process.execFile);
 
@@ -147,6 +149,7 @@ export class MongoRunnerSetup extends MongodSetup {
   _id: string;
   _opts: Partial<MongoClusterOptions>;
   _cluster: MongoCluster | undefined;
+  _logsChecker: ServerLogsChecker | undefined;
 
   constructor(id: string, opts: Partial<MongoClusterOptions> = {}) {
     super();
@@ -172,13 +175,30 @@ export class MongoRunnerSetup extends MongodSetup {
       version: version,
       ...this._opts,
     });
-
+    this._logsChecker = new ServerLogsChecker(this._cluster);
     this._setConnectionString(this._cluster.connectionString);
   }
 
   async stop(): Promise<void> {
     await this._cluster?.close();
     this._cluster = undefined;
+  }
+
+  get warnings(): LogEntry[] {
+    return [...(this._logsChecker?.warnings ?? [])];
+  }
+
+  noServerWarningsCheckpoint(): void {
+    this._logsChecker?.noServerWarningsCheckpoint();
+  }
+
+  allowWarning(filter: number | ((entry: LogEntry) => boolean)): () => void {
+    return (
+      this._logsChecker?.allowWarning(filter) ??
+      (() => {
+        /* no-op */
+      })
+    );
   }
 }
 
@@ -214,7 +234,7 @@ export async function downloadCurrentCryptSharedLibrary(
 export function startTestServer(
   id: string,
   args: Partial<MongoClusterOptions> = {}
-): MongodSetup {
+): MongoRunnerSetup {
   const server = new MongoRunnerSetup(id, args);
   before(async function () {
     this.timeout(120_000); // Include potential mongod download time.
@@ -230,7 +250,7 @@ export function startTestServer(
 }
 
 let installedGlobalAfterHook = false;
-let sharedSetup: MongodSetup | null = null;
+let sharedSetup: MongoRunnerSetup | null = null;
 /**
  * Starts or reuse an existing shared local server managed by this process.
  *
@@ -242,7 +262,9 @@ let sharedSetup: MongodSetup | null = null;
  * @export
  * @returns {MongodSetup} - Object with information about the started server.
  */
-export function startSharedTestServer(): MongodSetup {
+export function startSharedTestServer():
+  | (MongodSetup & Partial<MongoRunnerSetup>)
+  | MongoRunnerSetup {
   if (!installedGlobalAfterHook) {
     throw new Error(
       'Trying to start shared test server, but no global after hook was available at module load time'
@@ -258,6 +280,10 @@ export function startSharedTestServer(): MongodSetup {
   before(async function () {
     this.timeout(120_000); // Include potential mongod download time.
     await server.start();
+  });
+
+  afterEach(function () {
+    server.noServerWarningsCheckpoint();
   });
 
   // NOTE: no after hook here, cause the shared server is only
@@ -280,12 +306,18 @@ if ('after' in globalThis) {
 export function startTestCluster(
   id: string,
   ...argLists: Partial<MongoClusterOptions>[]
-): MongodSetup[] {
+): MongoRunnerSetup[] {
   const servers = argLists.map((args) => new MongoRunnerSetup(id, args));
 
   before(async function () {
     this.timeout(90_000 + 30_000 * servers.length);
     await Promise.all(servers.map((server: MongodSetup) => server.start()));
+  });
+
+  afterEach(function () {
+    for (const server of servers) {
+      server.noServerWarningsCheckpoint();
+    }
   });
 
   after(async function () {

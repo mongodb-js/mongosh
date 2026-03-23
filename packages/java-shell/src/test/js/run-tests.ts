@@ -9,6 +9,9 @@ describe('java-shell tests', function() {
   const packageRoot = path.resolve(__dirname, '..', '..', '..') + '/';
 
   before(async function () {
+    // We don't have a way to allow warnings for individual tests here
+    testServer.allowWarning?.(() => true);
+
     process.env.JAVA_SHELL_MONGOSH_TEST_URI = (await testServer.connectionString()).replace(/\/$/, '');
 
     const connectionString = await testServer.connectionString();
