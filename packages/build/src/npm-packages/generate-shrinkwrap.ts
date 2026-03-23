@@ -1,7 +1,23 @@
 import path from 'path';
 import { promises as fs } from 'fs';
-import { execFileSync } from 'child_process';
 import os from 'os';
+import { spawnSync } from '../helpers/spawn-sync';
+import { MONGOSH_RELEASE_PACKAGES } from './constants';
+
+/** Represents an entry in the lockfile v3 `packages` map. */
+interface LockfilePackageEntry {
+  version?: string;
+  resolved?: string;
+  integrity?: string;
+  dev?: boolean;
+  link?: boolean;
+  license?: string;
+  engines?: Record<string, string>;
+  bin?: Record<string, string>;
+  dependencies?: Record<string, string>;
+  optionalDependencies?: Record<string, string>;
+  [key: string]: unknown;
+}
 
 /**
  * Generates an npm-shrinkwrap.json file for a given package directory by
@@ -72,15 +88,11 @@ export async function generateShrinkwrap(
     );
 
     // Let npm prune the lockfile to only the reachable dependencies
-    execFileSync(
-      'npm',
-      ['install', '--package-lock-only', '--ignore-scripts'],
-      {
-        cwd: tmpDir,
-        stdio: 'pipe',
-        encoding: 'utf8',
-      }
-    );
+    spawnSync('npm', ['install', '--package-lock-only', '--ignore-scripts'], {
+      cwd: tmpDir,
+      stdio: 'pipe',
+      encoding: 'utf8',
+    });
 
     // Read the pruned lockfile and post-process it
     const prunedContent = await fs.readFile(
@@ -90,14 +102,13 @@ export async function generateShrinkwrap(
     const pruned = JSON.parse(prunedContent);
 
     // Post-process: remove dev entries, workspace paths, and convert links
-    const cleanedPackages: Record<string, Record<string, unknown>> = {
-      '': pruned.packages[''],
+    const packages = pruned.packages as Record<string, LockfilePackageEntry>;
+    const cleanedPackages: Record<string, LockfilePackageEntry> = {
+      '': packages[''],
     };
     let depCount = 0;
 
-    for (const [key, entry] of Object.entries<Record<string, unknown>>(
-      pruned.packages
-    )) {
+    for (const [key, entry] of Object.entries(packages)) {
       if (key === '') continue;
 
       // Skip dev-only entries
@@ -108,12 +119,9 @@ export async function generateShrinkwrap(
 
       // Convert workspace links to registry-compatible entries
       if (entry.link && entry.resolved) {
-        const workspacePath = entry.resolved as string;
-        const workspaceEntry = pruned.packages[workspacePath] as
-          | Record<string, unknown>
-          | undefined;
+        const workspaceEntry = packages[entry.resolved];
         if (workspaceEntry) {
-          const converted: Record<string, unknown> = {
+          const converted: LockfilePackageEntry = {
             version: workspaceEntry.version,
           };
           if (workspaceEntry.license)
@@ -164,12 +172,9 @@ export async function generateShrinkwrap(
 export async function generateShrinkwrapForReleasePackages(
   projectRoot: string
 ): Promise<void> {
-  const packageDirs = [
-    path.join(projectRoot, 'packages', 'cli-repl'),
-    path.join(projectRoot, 'packages', 'mongosh'),
-  ];
-
-  for (const packageDir of packageDirs) {
+  for (const packageName of MONGOSH_RELEASE_PACKAGES) {
+    const dirName = packageName.replace(/^@mongosh\//, '');
+    const packageDir = path.join(projectRoot, 'packages', dirName);
     await generateShrinkwrap(packageDir, projectRoot);
   }
 }
