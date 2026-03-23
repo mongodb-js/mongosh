@@ -26,6 +26,5 @@ mongocryptd.pid
 .sbom
 .nvm
 snapshot.blob
-npm-shrinkwrap.json
 .logs/*
 !.logs/empty.xml
