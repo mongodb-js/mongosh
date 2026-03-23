@@ -1,12 +1,15 @@
-import { expect } from 'chai';
+import chai, { expect } from 'chai';
 import type { SinonStub } from 'sinon';
 import sinon from 'sinon';
+import sinonChai from 'sinon-chai';
 import { promises as fs } from 'fs';
 import {
   generateShrinkwrap,
   generateShrinkwrapForReleasePackages,
 } from './generate-shrinkwrap';
 import * as spawnSyncModule from '../helpers/spawn-sync';
+
+chai.use(sinonChai);
 
 describe('generate-shrinkwrap', function () {
   let fsReadFile: SinonStub;
@@ -52,6 +55,8 @@ describe('generate-shrinkwrap', function () {
         license: 'Apache-2.0',
         engines: { node: '>=16' },
         dependencies: { 'dep-b': '^2.0.0' },
+        peerDependencies: { bson: '^6.0.0' },
+        peerDependenciesMeta: { bson: { optional: true } },
       },
       'configs/tsconfig': { version: '1.0.0' },
     },
@@ -122,6 +127,8 @@ describe('generate-shrinkwrap', function () {
         license: 'Apache-2.0',
         engines: { node: '>=16' },
         dependencies: { 'dep-b': '^2.0.0' },
+        peerDependencies: { bson: '^6.0.0' },
+        peerDependenciesMeta: { bson: { optional: true } },
       });
     });
 

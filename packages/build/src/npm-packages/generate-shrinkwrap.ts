@@ -118,22 +118,13 @@ export async function generateShrinkwrap(
       if (!key.startsWith('node_modules/')) continue;
 
       // Convert workspace links to registry-compatible entries
+      // Copy all fields from the workspace path entry (version, license,
+      // dependencies, peerDependencies, engines, bin, etc.) so we preserve
+      // the same metadata/semantics as npm's lockfile entries.
       if (entry.link && entry.resolved) {
         const workspaceEntry = packages[entry.resolved];
         if (workspaceEntry) {
-          const converted: LockfilePackageEntry = {
-            version: workspaceEntry.version,
-          };
-          if (workspaceEntry.license)
-            converted.license = workspaceEntry.license;
-          if (workspaceEntry.engines)
-            converted.engines = workspaceEntry.engines;
-          if (workspaceEntry.bin) converted.bin = workspaceEntry.bin;
-          if (workspaceEntry.dependencies)
-            converted.dependencies = workspaceEntry.dependencies;
-          if (workspaceEntry.optionalDependencies)
-            converted.optionalDependencies =
-              workspaceEntry.optionalDependencies;
+          const { ...converted } = workspaceEntry;
           cleanedPackages[key] = converted;
           depCount++;
           continue;
