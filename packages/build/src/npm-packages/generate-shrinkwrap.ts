@@ -124,7 +124,10 @@ export async function generateShrinkwrap(
       if (entry.link && entry.resolved) {
         const workspaceEntry = packages[entry.resolved];
         if (workspaceEntry) {
-          const { ...converted } = workspaceEntry;
+          // Skip dev-only workspace packages (the link entry itself may not
+          // be marked dev, but the resolved workspace path entry can be).
+          if (workspaceEntry.dev) continue;
+          const { dev: _dev, link: _link, ...converted } = workspaceEntry;
           cleanedPackages[key] = converted;
           depCount++;
           continue;
