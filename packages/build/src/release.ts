@@ -101,7 +101,7 @@ export async function release(
     await runDownloadAndListArtifacts(config);
   } else if (command === 'publish') {
     if (config.useAuxiliaryPackagesOnly) {
-      await publishAuxiliaryPackages(config);
+      publishAuxiliaryPackages(config);
     } else {
       await publishMongosh(config, octokit);
     }
