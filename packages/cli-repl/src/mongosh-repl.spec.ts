@@ -1700,6 +1700,21 @@ describe('MongoshNodeRepl', function () {
         expect(stripAnsi(output)).to.not.include('brew upgrade');
       });
     });
+
+    context('when moreRecentMongoshVersion is null', function () {
+      beforeEach(async function () {
+        mongoshRepl = new MongoshNodeRepl(mongoshReplOptions);
+        await mongoshRepl.initialize(serviceProvider, {
+          moreRecentMongoshVersion: null,
+          isHomebrew: true,
+        });
+      });
+
+      it('does not show any update notification', function () {
+        expect(stripAnsi(output)).to.not.include('is available');
+        expect(stripAnsi(output)).to.not.include('brew upgrade');
+      });
+    });
   });
 
   context('loadExternalCode()', function () {
