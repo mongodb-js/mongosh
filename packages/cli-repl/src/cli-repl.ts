@@ -478,6 +478,7 @@ export class CliRepl implements MongoshIOProvider {
         moreRecentMongoshVersion: await this.getMoreRecentMongoshVersion(),
         currentVersionCTA:
           await this.updateNotificationManager.getGreetingCTAForCurrentVersion(),
+        isHomebrew: (await buildInfo()).installationMethod === 'homebrew',
       }
     );
     markTime(TimingCategories.REPLInstantiation, 'initialized mongosh repl');
