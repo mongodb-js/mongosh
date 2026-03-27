@@ -71,7 +71,7 @@ export function baseBuildInfo(): Omit<
     opensslVersion: process.versions.openssl,
     sharedOpenssl: !!process.config.variables.node_shared_openssl,
     // Runtime arch can differ e.g. because x64 binaries can run
-    // on M1 cpus
+    // on Apple Silicon cpus
     runtimeArch: getSystemArch(),
     // Runtime platform can differ e.g. because homebrew on macOS uses
     // npm packages published from Linux
