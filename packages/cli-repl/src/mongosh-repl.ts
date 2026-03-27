@@ -128,6 +128,7 @@ type MongoshRuntimeState = {
 type GreetingDetails = {
   moreRecentMongoshVersion?: string | null;
   currentVersionCTA?: { text: string; style?: StyleDefinition }[];
+  isHomebrew?: boolean;
 };
 
 /* Utility, inverse of Readonly<T> */
@@ -680,13 +681,23 @@ class MongoshNodeRepl implements EvaluationListener {
       'mongosh:section-header'
     )}:\t\t${version}\n`;
     if (greeting?.moreRecentMongoshVersion) {
-      text += `mongosh ${this.clr(
-        greeting.moreRecentMongoshVersion,
-        'bold'
-      )} is available for download: ${this.clr(
-        'https://www.mongodb.com/try/download/shell',
-        'mongosh:uri'
-      )}\n`;
+      if (greeting?.isHomebrew) {
+        text += `mongosh ${this.clr(
+          greeting.moreRecentMongoshVersion,
+          'bold'
+        )} is available, run ${this.clr(
+          'brew upgrade mongosh',
+          'mongosh:uri'
+        )} to update\n`;
+      } else {
+        text += `mongosh ${this.clr(
+          greeting.moreRecentMongoshVersion,
+          'bold'
+        )} is available for download: ${this.clr(
+          'https://www.mongodb.com/try/download/shell',
+          'mongosh:uri'
+        )}\n`;
+      }
     }
 
     if (greeting?.currentVersionCTA) {
