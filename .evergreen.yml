@@ -1,3 +1,4 @@
+
 exec_timeout_secs: 10800
 
 pre:
@@ -62,6 +63,7 @@ post:
   - command: attach.xunit_results
     params:
       file: src/.logs/*.xml
+
 
 # Functions are any command that can be run.
 #
@@ -4883,8 +4885,7 @@ functions:
         silent: true
         shell: bash
         working_dir: src
-        include_expansions_in_env:
-          [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN]
+        include_expansions_in_env: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN]
         script: |
           set -e
           # use AWS CLI to get the Kondukto API token from AWS Secrets Manager
@@ -5516,7 +5517,7 @@ functions:
 
           echo "Response Body: $response_body"
           echo "HTTP Status: $http_status"
-
+          
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
 #
@@ -6198,7 +6199,7 @@ tasks:
   # E.g. test_m60xc_n20 stands for mongod 6.0.x, community edition, Node.js 20
   ###
   - name: test_arg_parser
-    tags: ["assigned_to_jira_team_mongosh_mongosh", "unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -6218,7 +6219,7 @@ tasks:
           mongosh_run_only_in_package: "arg-parser"
           task_name: ${task_name}
   - name: test_async_rewriter2
-    tags: ["assigned_to_jira_team_mongosh_mongosh", "unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -6238,7 +6239,7 @@ tasks:
           mongosh_run_only_in_package: "async-rewriter2"
           task_name: ${task_name}
   - name: test_autocomplete
-    tags: ["assigned_to_jira_team_mongosh_mongosh", "unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -6258,7 +6259,7 @@ tasks:
           mongosh_run_only_in_package: "autocomplete"
           task_name: ${task_name}
   - name: test_browser_repl
-    tags: ["assigned_to_jira_team_mongosh_mongosh", "unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -6278,7 +6279,7 @@ tasks:
           mongosh_run_only_in_package: "browser-repl"
           task_name: ${task_name}
   - name: test_browser_runtime_core
-    tags: ["assigned_to_jira_team_mongosh_mongosh", "unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -6298,7 +6299,7 @@ tasks:
           mongosh_run_only_in_package: "browser-runtime-core"
           task_name: ${task_name}
   - name: test_browser_runtime_electron
-    tags: ["assigned_to_jira_team_mongosh_mongosh", "unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -6318,7 +6319,7 @@ tasks:
           mongosh_run_only_in_package: "browser-runtime-electron"
           task_name: ${task_name}
   - name: test_build
-    tags: ["assigned_to_jira_team_mongosh_mongosh", "unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -6338,7 +6339,7 @@ tasks:
           mongosh_run_only_in_package: "build"
           task_name: ${task_name}
   - name: test_cli_repl
-    tags: ["assigned_to_jira_team_mongosh_mongosh", "unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -6358,7 +6359,7 @@ tasks:
           mongosh_run_only_in_package: "cli-repl"
           task_name: ${task_name}
   - name: test_connectivity_tests
-    tags: ["assigned_to_jira_team_mongosh_mongosh", "unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -6378,7 +6379,7 @@ tasks:
           mongosh_run_only_in_package: "connectivity-tests"
           task_name: ${task_name}
   - name: test_e2e_tests
-    tags: ["assigned_to_jira_team_mongosh_mongosh", "unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -6397,7 +6398,7 @@ tasks:
           mongosh_run_only_in_package: "e2e-tests"
           task_name: ${task_name}
   - name: test_editor
-    tags: ["assigned_to_jira_team_mongosh_mongosh", "unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -6417,7 +6418,7 @@ tasks:
           mongosh_run_only_in_package: "editor"
           task_name: ${task_name}
   - name: test_errors
-    tags: ["assigned_to_jira_team_mongosh_mongosh", "unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -6437,7 +6438,7 @@ tasks:
           mongosh_run_only_in_package: "errors"
           task_name: ${task_name}
   - name: test_history
-    tags: ["assigned_to_jira_team_mongosh_mongosh", "unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -6457,7 +6458,7 @@ tasks:
           mongosh_run_only_in_package: "history"
           task_name: ${task_name}
   - name: test_i18n
-    tags: ["assigned_to_jira_team_mongosh_mongosh", "unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -6477,7 +6478,7 @@ tasks:
           mongosh_run_only_in_package: "i18n"
           task_name: ${task_name}
   - name: test_java_shell
-    tags: ["assigned_to_jira_team_mongosh_mongosh", "unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -6497,7 +6498,7 @@ tasks:
           mongosh_run_only_in_package: "java-shell"
           task_name: ${task_name}
   - name: test_js_multiline_to_singleline
-    tags: ["assigned_to_jira_team_mongosh_mongosh", "unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -6517,7 +6518,7 @@ tasks:
           mongosh_run_only_in_package: "js-multiline-to-singleline"
           task_name: ${task_name}
   - name: test_logging
-    tags: ["assigned_to_jira_team_mongosh_mongosh", "unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -6537,7 +6538,7 @@ tasks:
           mongosh_run_only_in_package: "logging"
           task_name: ${task_name}
   - name: test_mongosh
-    tags: ["assigned_to_jira_team_mongosh_mongosh", "unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -6557,7 +6558,7 @@ tasks:
           mongosh_run_only_in_package: "mongosh"
           task_name: ${task_name}
   - name: test_node_runtime_worker_thread
-    tags: ["assigned_to_jira_team_mongosh_mongosh", "unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -6576,7 +6577,7 @@ tasks:
           mongosh_run_only_in_package: "node-runtime-worker-thread"
           task_name: ${task_name}
   - name: test_service_provider_core
-    tags: ["assigned_to_jira_team_mongosh_mongosh", "unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -6596,7 +6597,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-core"
           task_name: ${task_name}
   - name: test_service_provider_node_driver
-    tags: ["assigned_to_jira_team_mongosh_mongosh", "unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -6616,7 +6617,7 @@ tasks:
           mongosh_run_only_in_package: "service-provider-node-driver"
           task_name: ${task_name}
   - name: test_shell_api
-    tags: ["assigned_to_jira_team_mongosh_mongosh", "unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -6636,7 +6637,7 @@ tasks:
           mongosh_run_only_in_package: "shell-api"
           task_name: ${task_name}
   - name: test_shell_bson
-    tags: ["assigned_to_jira_team_mongosh_mongosh", "unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -6656,7 +6657,7 @@ tasks:
           mongosh_run_only_in_package: "shell-bson"
           task_name: ${task_name}
   - name: test_shell_evaluator
-    tags: ["assigned_to_jira_team_mongosh_mongosh", "unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -6676,7 +6677,7 @@ tasks:
           mongosh_run_only_in_package: "shell-evaluator"
           task_name: ${task_name}
   - name: test_snippet_manager
-    tags: ["assigned_to_jira_team_mongosh_mongosh", "unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -6696,7 +6697,7 @@ tasks:
           mongosh_run_only_in_package: "snippet-manager"
           task_name: ${task_name}
   - name: test_testing
-    tags: ["assigned_to_jira_team_mongosh_mongosh", "unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -6716,7 +6717,7 @@ tasks:
           mongosh_run_only_in_package: "testing"
           task_name: ${task_name}
   - name: test_types
-    tags: ["assigned_to_jira_team_mongosh_mongosh", "unit-test"]
+    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -11558,7 +11559,7 @@ buildvariants:
     disable: false
     expansions:
       executable_os_id: darwin-arm64
-      mongosh_server_test_version: "8.2.0"
+      mongosh_server_test_version: "8.3.0-rc3"
       node_js_version: "24.14.1"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -11593,7 +11594,7 @@ buildvariants:
     disable: false
     expansions:
       executable_os_id: darwin-arm64
-      mongosh_server_test_version: "8.2.0-enterprise"
+      mongosh_server_test_version: "8.3.0-rc3-enterprise"
       node_js_version: "24.14.1"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -12083,7 +12084,7 @@ buildvariants:
     disable: false
     expansions:
       executable_os_id: darwin-arm64
-      mongosh_server_test_version: "8.2.0"
+      mongosh_server_test_version: "8.3.0-rc3"
       node_js_version: "24.14.1"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -12118,7 +12119,7 @@ buildvariants:
     disable: false
     expansions:
       executable_os_id: darwin-arm64
-      mongosh_server_test_version: "8.2.0-enterprise"
+      mongosh_server_test_version: "8.3.0-rc3-enterprise"
       node_js_version: "24.14.1"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -12149,7 +12150,7 @@ buildvariants:
   - name: tests_linux-mlatest_n24
     display_name: "Ubuntu 20.04 x64 mlatest n24 (Unit tests)"
     run_on: ubuntu2004-small
-    tags: ["nightly-driver", "mlatest"]
+    tags: ["nightly-driver","mlatest"]
     disable: false
     expansions:
       executable_os_id: darwin-arm64
@@ -12630,7 +12631,7 @@ buildvariants:
     disable: false
     expansions:
       executable_os_id: win32
-      mongosh_server_test_version: "8.2.0"
+      mongosh_server_test_version: "8.3.0-rc3"
       node_js_version: "24.14.1"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -12664,7 +12665,7 @@ buildvariants:
     disable: false
     expansions:
       executable_os_id: win32
-      mongosh_server_test_version: "8.2.0-enterprise"
+      mongosh_server_test_version: "8.3.0-rc3-enterprise"
       node_js_version: "24.14.1"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -13206,14 +13207,14 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_arm64_openssl3
-  - name: e2e_tests_ubuntu2404_arm64_small_openssl3_m830-alpha6
-    display_name: "Ubuntu 24.04 arm64 830-alpha6 openssl3 (E2E tests)"
+  - name: e2e_tests_ubuntu2404_arm64_small_openssl3_m830-rc3
+    display_name: "Ubuntu 24.04 arm64 830-rc3 openssl3 (E2E tests)"
     run_on: ubuntu2404-arm64-small
     tags: []
     expansions:
       executable_os_id: "linux-arm64-openssl3"
       node_js_version: "24.14.1"
-      mongosh_server_test_version: "8.2.x-enterprise"
+      mongosh_server_test_version: "8.3.0-rc3-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_arm64_openssl3
@@ -13239,14 +13240,14 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_arm64
-  - name: e2e_tests_amazon2023.0_arm64_small_m830-alpha6
-    display_name: "Amazon Linux 2023 arm64 830-alpha6 (E2E tests)"
+  - name: e2e_tests_amazon2023.0_arm64_small_m830-rc3
+    display_name: "Amazon Linux 2023 arm64 830-rc3 (E2E tests)"
     run_on: amazon2023.0-arm64-small
     tags: []
     expansions:
       executable_os_id: "linux-arm64"
       node_js_version: "24.14.1"
-      mongosh_server_test_version: "8.2.x-enterprise"
+      mongosh_server_test_version: "8.3.0-rc3-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_arm64
@@ -13327,14 +13328,14 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_ppc64le
-  - name: e2e_tests_rhel9_power_small_m830-alpha6
-    display_name: "RHEL 9 PPC 830-alpha6 (E2E tests)"
+  - name: e2e_tests_rhel9_power_small_m830-rc3
+    display_name: "RHEL 9 PPC 830-rc3 (E2E tests)"
     run_on: rhel9-power-small
     tags: []
     expansions:
       executable_os_id: "linux-ppc64le"
       node_js_version: "24.14.1"
-      mongosh_server_test_version: "8.2.x-enterprise"
+      mongosh_server_test_version: "8.3.0-rc3-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_ppc64le
@@ -13371,14 +13372,14 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_s390x
-  - name: e2e_tests_rhel9_zseries_small_m830-alpha6
-    display_name: "RHEL 9 s390x 830-alpha6 (E2E tests)"
+  - name: e2e_tests_rhel9_zseries_small_m830-rc3
+    display_name: "RHEL 9 s390x 830-rc3 (E2E tests)"
     run_on: rhel9-zseries-small
     tags: []
     expansions:
       executable_os_id: "linux-s390x"
       node_js_version: "24.14.1"
-      mongosh_server_test_version: "8.2.x-enterprise"
+      mongosh_server_test_version: "8.3.0-rc3-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_s390x
@@ -13437,14 +13438,14 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_darwin_arm64
-  - name: e2e_tests_macos_14_arm64_m830-alpha6
-    display_name: "MacOS 14 arm64 830-alpha6 (E2E tests)"
+  - name: e2e_tests_macos_14_arm64_m830-rc3
+    display_name: "MacOS 14 arm64 830-rc3 (E2E tests)"
     run_on: macos-14-arm64
     tags: []
     expansions:
       executable_os_id: "darwin-arm64"
       node_js_version: "24.14.1"
-      mongosh_server_test_version: "8.2.x-enterprise"
+      mongosh_server_test_version: "8.3.0-rc3-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_darwin_arm64
@@ -13509,14 +13510,14 @@ buildvariants:
       - name: e2e_tests_win32
       - name: package_artifact_win32_x64
       - name: package_artifact_win32msi_x64
-  - name: e2e_tests_windows_2022_latest_small_m830-alpha6
-    display_name: "Windows VS 2022 830-alpha6 (E2E tests)"
+  - name: e2e_tests_windows_2022_latest_small_m830-rc3
+    display_name: "Windows VS 2022 830-rc3 (E2E tests)"
     run_on: windows-2022-latest-small
     tags: []
     expansions:
       executable_os_id: "win32"
       node_js_version: "24.14.1"
-      mongosh_server_test_version: "8.2.x-enterprise"
+      mongosh_server_test_version: "8.3.0-rc3-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_win32
