@@ -31,7 +31,7 @@ const allLinux = [
 
 const publicDescriptions = {
   darwin_x64: 'MacOS x64 (11.0+)',
-  darwin_arm64: 'MacOS M1 (11.0+)',
+  darwin_arm64: 'MacOS Apple Silicon (11.0+)',
   linux_x64: 'Linux x64',
   linux_arm64: 'Linux arm64',
   debian_x64: 'Debian (10+) / Ubuntu (18.04+) x64',

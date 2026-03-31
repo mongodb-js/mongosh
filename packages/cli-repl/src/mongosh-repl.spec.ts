@@ -1630,6 +1630,93 @@ describe('MongoshNodeRepl', function () {
     });
   });
 
+  context('update notification', function () {
+    context(
+      'when a newer version is available and not installed via homebrew',
+      function () {
+        beforeEach(async function () {
+          mongoshRepl = new MongoshNodeRepl(mongoshReplOptions);
+          await mongoshRepl.initialize(serviceProvider, {
+            moreRecentMongoshVersion: '99.0.0',
+          });
+        });
+
+        it('shows the download center link', function () {
+          expect(stripAnsi(output)).to.include(
+            'mongosh 99.0.0 is available for download: https://www.mongodb.com/try/download/shell'
+          );
+          expect(stripAnsi(output)).to.not.include('brew upgrade');
+        });
+      }
+    );
+
+    context(
+      'when a newer version is available and installed via homebrew',
+      function () {
+        beforeEach(async function () {
+          mongoshRepl = new MongoshNodeRepl(mongoshReplOptions);
+          await mongoshRepl.initialize(serviceProvider, {
+            moreRecentMongoshVersion: '99.0.0',
+            isHomebrew: true,
+          });
+        });
+
+        it('shows the brew upgrade command', function () {
+          expect(stripAnsi(output)).to.include(
+            'mongosh 99.0.0 is available, run brew upgrade mongosh to update'
+          );
+          expect(stripAnsi(output)).to.not.include(
+            'https://www.mongodb.com/try/download/shell'
+          );
+        });
+      }
+    );
+
+    context('when isHomebrew is false', function () {
+      beforeEach(async function () {
+        mongoshRepl = new MongoshNodeRepl(mongoshReplOptions);
+        await mongoshRepl.initialize(serviceProvider, {
+          moreRecentMongoshVersion: '99.0.0',
+          isHomebrew: false,
+        });
+      });
+
+      it('shows the download center link', function () {
+        expect(stripAnsi(output)).to.include(
+          'mongosh 99.0.0 is available for download: https://www.mongodb.com/try/download/shell'
+        );
+        expect(stripAnsi(output)).to.not.include('brew upgrade');
+      });
+    });
+
+    context('when no newer version is available', function () {
+      beforeEach(async function () {
+        mongoshRepl = new MongoshNodeRepl(mongoshReplOptions);
+        await mongoshRepl.initialize(serviceProvider, {});
+      });
+
+      it('does not show any update notification', function () {
+        expect(stripAnsi(output)).to.not.include('is available');
+        expect(stripAnsi(output)).to.not.include('brew upgrade');
+      });
+    });
+
+    context('when moreRecentMongoshVersion is null', function () {
+      beforeEach(async function () {
+        mongoshRepl = new MongoshNodeRepl(mongoshReplOptions);
+        await mongoshRepl.initialize(serviceProvider, {
+          moreRecentMongoshVersion: null,
+          isHomebrew: true,
+        });
+      });
+
+      it('does not show any update notification', function () {
+        expect(stripAnsi(output)).to.not.include('is available');
+        expect(stripAnsi(output)).to.not.include('brew upgrade');
+      });
+    });
+  });
+
   context('loadExternalCode()', function () {
     beforeEach(async function () {
       await mongoshRepl.initialize(serviceProvider);

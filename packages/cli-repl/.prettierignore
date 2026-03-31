@@ -4,3 +4,4 @@
 **/test/fixtures
 **/*.nocov*
 **/*.wxs
+**/npm-shrinkwrap.json
