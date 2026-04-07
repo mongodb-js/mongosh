@@ -47,8 +47,6 @@ export interface Config {
   injectedJsonFeedFile?: string;
   githubToken?: string;
   segmentKey?: string;
-  notarySigningKeyName?: string;
-  notaryAuthToken?: string;
   isCi?: boolean;
   platform?: NodeJS.Platform;
   execNodeVersion: string;
