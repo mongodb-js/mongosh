@@ -111,7 +111,6 @@ export class Barque {
     SupportedServerVersion,
     {
       notaryKeyName: string;
-      notaryToken: string;
     }
   >;
   private downloadedCuratorPromise: Promise<string> | undefined;
@@ -127,31 +126,24 @@ export class Barque {
     this.serverVersionNotaryKeys = {
       '4.4.0': {
         notaryKeyName: 'server-4.4',
-        notaryToken: process.env.SIGNING_AUTH_TOKEN_44 ?? '',
       },
       '5.0.0': {
         notaryKeyName: 'server-5.0',
-        notaryToken: process.env.SIGNING_AUTH_TOKEN_50 ?? '',
       },
       '6.0.0': {
         notaryKeyName: 'server-6.0',
-        notaryToken: process.env.SIGNING_AUTH_TOKEN_60 ?? '',
       },
       '7.0.0': {
         notaryKeyName: 'server-7.0',
-        notaryToken: process.env.SIGNING_AUTH_TOKEN_70 ?? '',
       },
       '8.0.0': {
         notaryKeyName: 'server-8.0',
-        notaryToken: process.env.SIGNING_AUTH_TOKEN_80 ?? '',
       },
       '8.2.0': {
         notaryKeyName: 'server-8.2',
-        notaryToken: process.env.SIGNING_AUTH_TOKEN_82 ?? '',
       },
       '8.3.0': {
         notaryKeyName: 'server-8.3',
-        notaryToken: process.env.SIGNING_AUTH_TOKEN_83 ?? '',
       },
     };
   }
@@ -270,8 +262,6 @@ export class Barque {
                       env: {
                         NOTARY_KEY_NAME:
                           this.serverVersionNotaryKeys[version].notaryKeyName,
-                        NOTARY_TOKEN:
-                          this.serverVersionNotaryKeys[version].notaryToken,
                         BARQUE_API_KEY: process.env.BARQUE_API_KEY,
                         BARQUE_USERNAME: process.env.BARQUE_USERNAME,
                       },
