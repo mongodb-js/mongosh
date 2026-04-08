@@ -5,7 +5,23 @@ import * as chai from 'chai';
 import { expect } from 'chai';
 import sinonChai from 'sinon-chai';
 import sinon from 'sinon';
-import { EJSON, ObjectId } from 'bson';
+import {
+  Binary,
+  BSONRegExp,
+  BSONSymbol,
+  Code,
+  DBRef,
+  Decimal128,
+  Double,
+  EJSON,
+  Int32,
+  Long,
+  MaxKey,
+  MinKey,
+  ObjectId,
+  Timestamp,
+  UUID,
+} from 'bson';
 import { startSharedTestServer } from '@mongosh/testing';
 import type { Caller, Exposed } from './rpc';
 import { cancel, close, createCaller, exposeAll } from './rpc';
@@ -29,6 +45,53 @@ const workerThreadModule = path.resolve(
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+// We can't user Buffer.from for the binary data creation
+// as it is not supported, so we use Uint8Array.from
+// and Binary.createFromBase64.
+const allBsonTypesDocString = `{
+  _id: new ObjectId('642d766b7300158b1f22e972'),
+  double: new Double(1.2), // Double, 1, double
+  primitiveDouble: 1.2,
+  doubleThatIsAlsoAnInteger: new Double(1), // Double, 1, double
+  string: 'Hello, world!', // String, 2, string
+  object: { key: 'value' }, // Object, 3, object
+  array: [1, 2, 3], // Array, 4, array
+  binData: new Binary(Uint8Array.from([1, 2, 3])), // Binary data, 5, binData
+  // Undefined, 6, undefined (deprecated)
+  objectId: new ObjectId('642d766c7300158b1f22e975'), // ObjectId, 7, objectId
+  boolean: true, // Boolean, 8, boolean
+  date: new Date('2023-04-05T13:25:08.445Z'), // Date, 9, date
+  null: null, // Null, 10, null
+  regex: new BSONRegExp('pattern', 'i'), // Regular Expression, 11, regex
+  // DBPointer, 12, dbPointer (deprecated)
+  javascript: new Code('function() {}'), // JavaScript, 13, javascript
+  symbol: new BSONSymbol('symbol'), // Symbol, 14, symbol (deprecated)
+  javascriptWithScope: new Code('function() {}', { foo: 1, bar: 'a' }), // JavaScript code with scope 15 "javascriptWithScope" Deprecated in MongoDB 4.4.
+  int: new Int32(12345), // 32-bit integer, 16, "int"
+  primitiveInt: 12345,
+  timestamp: new Timestamp(new Long('7218556297505931265')), // Timestamp, 17, timestamp
+  long: new Long('123456789123456789'), // 64-bit integer, 18, long
+  decimal: new Decimal128(
+    Uint8Array.from([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16])
+  ), // Decimal128, 19, decimal
+  minKey: new MinKey(), // Min key, -1, minKey
+  maxKey: new MaxKey(), // Max key, 127, maxKey
+
+  binaries: {
+    generic: new Binary(Uint8Array.from([1, 2, 3]), 0), // 0
+    functionData: Binary.createFromBase64('//8=', 1), // 1
+    binaryOld: Binary.createFromBase64('//8=', 2), // 2
+    uuidOld: Binary.createFromBase64('c//SZESzTGmQ6OfR38A11A==', 3), // 3
+    uuid: new UUID('AAAAAAAA-AAAA-4AAA-AAAA-AAAAAAAAAAAA'), // 4
+    md5: Binary.createFromBase64('c//SZESzTGmQ6OfR38A11A==', 5), // 5
+    encrypted: Binary.createFromBase64('c//SZESzTGmQ6OfR38A11A==', 6), // 6
+    compressedTimeSeries: Binary.createFromBase64('CQCKW/8XjAEAAIfx//////////H/////////AQAAAAAAAABfAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAHAAAAAAAAAA4AAAAAAAAAAA==', 7), // 7
+    custom: Binary.createFromBase64('//8=', 128) // 128
+  },
+
+  dbRef: new DBRef('namespace', new ObjectId('642d76b4b7ebfab15d3c4a78')) // not actually a separate type, just a convention
+}`;
 
 describe('worker-runtime', function () {
   let worker: any;
@@ -302,6 +365,92 @@ describe('worker-runtime', function () {
           ],
           'DeleteResult',
           { acknowledged: true, deletedCount: 1 },
+        ],
+        [
+          [
+            `use ${db}`,
+            `db.coll.insertOne(${allBsonTypesDocString})`,
+            'db.coll.find({ _id: ObjectId("642d766b7300158b1f22e972") })',
+          ],
+          'Cursor',
+          ({ printable }: RuntimeEvaluationResult) => {
+            const allBsonTypesDoc = EJSON.deserialize(
+              EJSON.serialize(
+                {
+                  _id: new ObjectId('642d766b7300158b1f22e972'),
+                  double: new Double(1.2),
+                  primitiveDouble: 1.2,
+                  doubleThatIsAlsoAnInteger: new Double(1),
+                  string: 'Hello, world!',
+                  object: { key: 'value' },
+                  array: [1, 2, 3],
+                  binData: new Binary(Uint8Array.from([1, 2, 3])),
+                  objectId: new ObjectId('642d766c7300158b1f22e975'),
+                  boolean: true,
+                  date: new Date('2023-04-05T13:25:08.445Z'),
+                  null: null,
+                  regex: new BSONRegExp('pattern', 'i'),
+                  javascript: new Code('function() {}'),
+                  symbol: new BSONSymbol('symbol'),
+                  javascriptWithScope: new Code('function() {}', {
+                    foo: 1,
+                    bar: 'a',
+                  }),
+                  int: new Int32(12345),
+                  primitiveInt: 12345,
+                  timestamp: new Timestamp(new Long('7218556297505931265')),
+                  long: new Long('123456789123456789'),
+                  decimal: new Decimal128(
+                    Uint8Array.from([
+                      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+                    ])
+                  ),
+                  minKey: new MinKey(),
+                  maxKey: new MaxKey(),
+
+                  binaries: {
+                    generic: new Binary(Uint8Array.from([1, 2, 3]), 0),
+                    functionData: Binary.createFromBase64('//8=', 1),
+                    binaryOld: Binary.createFromBase64('//8=', 2),
+                    uuidOld: Binary.createFromBase64(
+                      'c//SZESzTGmQ6OfR38A11A==',
+                      3
+                    ),
+                    uuid: new UUID('AAAAAAAA-AAAA-4AAA-AAAA-AAAAAAAAAAAA'),
+                    md5: Binary.createFromBase64('c//SZESzTGmQ6OfR38A11A==', 5),
+                    encrypted: Binary.createFromBase64(
+                      'c//SZESzTGmQ6OfR38A11A==',
+                      6
+                    ),
+                    compressedTimeSeries: Binary.createFromBase64(
+                      'CQCKW/8XjAEAAIfx//////////H/////////AQAAAAAAAABfAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAHAAAAAAAAAA4AAAAAAAAAAA==',
+                      7
+                    ),
+                    custom: Binary.createFromBase64('//8=', 128),
+                  },
+
+                  dbRef: new DBRef(
+                    'namespace',
+                    new ObjectId('642d76b4b7ebfab15d3c4a78')
+                  ),
+                },
+                { relaxed: false }
+              ),
+              { relaxed: false }
+            );
+
+            // We print primitive doubles and ints without canonical formatting,
+            // like the cli repl.
+            allBsonTypesDoc.double = 1.2;
+            allBsonTypesDoc.primitiveDouble = 1.2;
+            allBsonTypesDoc.doubleThatIsAlsoAnInteger = 1;
+            allBsonTypesDoc.int = 12345;
+            allBsonTypesDoc.primitiveInt = 12345;
+            allBsonTypesDoc.array = [1, 2, 3];
+            allBsonTypesDoc.symbol = 'symbol';
+
+            expect(printable.documents[0]).to.deep.equal(allBsonTypesDoc);
+          },
         ],
         [
           [`use ${db}`, 'db.coll.bulkWrite([{ insertOne: { d: "d" } }])'],
@@ -591,56 +740,8 @@ describe('worker-runtime', function () {
 
         exposed = exposeAll(evalListener, worker);
 
-        // We can't user Buffer.from for the binary data creation
-        // as it is not supported, so we use Uint8Array.from
-        // and Binary.createFromBase64.
-        const bsonAllTypesCreatorString = `
-{
-  _id: new ObjectId('642d766b7300158b1f22e972'),
-  double: new Double(1.2), // Double, 1, double
-  primitiveDouble: 1.2,
-  doubleThatIsAlsoAnInteger: new Double(1), // Double, 1, double
-  string: 'Hello, world!', // String, 2, string
-  object: { key: 'value' }, // Object, 3, object
-  array: [1, 2, 3], // Array, 4, array
-  binData: new Binary(Uint8Array.from([1, 2, 3])), // Binary data, 5, binData
-  // Undefined, 6, undefined (deprecated)
-  objectId: new ObjectId('642d766c7300158b1f22e975'), // ObjectId, 7, objectId
-  boolean: true, // Boolean, 8, boolean
-  date: new Date('2023-04-05T13:25:08.445Z'), // Date, 9, date
-  null: null, // Null, 10, null
-  regex: new BSONRegExp('pattern', 'i'), // Regular Expression, 11, regex
-  // DBPointer, 12, dbPointer (deprecated)
-  javascript: new Code('function() {}'), // JavaScript, 13, javascript
-  symbol: new BSONSymbol('symbol'), // Symbol, 14, symbol (deprecated)
-  javascriptWithScope: new Code('function() {}', { foo: 1, bar: 'a' }), // JavaScript code with scope 15 "javascriptWithScope" Deprecated in MongoDB 4.4.
-  int: new Int32(12345), // 32-bit integer, 16, "int"
-  primitiveInt: 12345,
-  timestamp: new Timestamp(new Long('7218556297505931265')), // Timestamp, 17, timestamp
-  long: new Long('123456789123456789'), // 64-bit integer, 18, long
-  decimal: new Decimal128(
-    Uint8Array.from([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16])
-  ), // Decimal128, 19, decimal
-  minKey: new MinKey(), // Min key, -1, minKey
-  maxKey: new MaxKey(), // Max key, 127, maxKey
-
-  binaries: {
-    generic: new Binary(Uint8Array.from([1, 2, 3]), 0), // 0
-    functionData: Binary.createFromBase64('//8=', 1), // 1
-    binaryOld: Binary.createFromBase64('//8=', 2), // 2
-    uuidOld: Binary.createFromBase64('c//SZESzTGmQ6OfR38A11A==', 3), // 3
-    uuid: new UUID('AAAAAAAA-AAAA-4AAA-AAAA-AAAAAAAAAAAA'), // 4
-    md5: Binary.createFromBase64('c//SZESzTGmQ6OfR38A11A==', 5), // 5
-    encrypted: Binary.createFromBase64('c//SZESzTGmQ6OfR38A11A==', 6), // 6
-    compressedTimeSeries: Binary.createFromBase64('CQCKW/8XjAEAAIfx//////////H/////////AQAAAAAAAABfAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAHAAAAAAAAAA4AAAAAAAAAAA==', 7), // 7
-    custom: Binary.createFromBase64('//8=', 128) // 128
-  },
-
-  dbRef: new DBRef('namespace', new ObjectId('642d76b4b7ebfab15d3c4a78')) // not actually a separate type, just a convention
-}`;
-
         await init('mongodb://nodb/', dummyOptions, { nodb: true });
-        await evaluate(`print(${bsonAllTypesCreatorString})`);
+        await evaluate(`print(${allBsonTypesDocString})`);
 
         expect(evalListener.onPrint).to.have.been.calledWith([
           {
