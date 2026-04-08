@@ -2,6 +2,7 @@ import { inspect } from 'util';
 import { EJSON } from 'bson';
 import type { RuntimeEvaluationResult } from '@mongosh/browser-runtime-core';
 import type { DevtoolsConnectOptions } from '@mongosh/service-provider-node-driver';
+import { getBsonType } from '@mongosh/shell-bson';
 
 function isPrimitive(
   val: any
@@ -108,11 +109,12 @@ export function serializeEvaluationResult({
  */
 function relaxSafeNumericTypes(value: any): any {
   if (value === null || typeof value !== 'object') return value;
-  if (value._bsontype === 'Int32' || value._bsontype === 'Double') {
+  const bsonType = getBsonType(value);
+  if (bsonType === 'Int32' || bsonType === 'Double') {
     return value.valueOf();
   }
   // Don't recurse into other BSON types (Long, ObjectId, Binary, etc.)
-  if (value._bsontype) return value;
+  if (bsonType) return value;
   if (Array.isArray(value)) {
     for (let i = 0; i < value.length; i++) {
       value[i] = relaxSafeNumericTypes(value[i]);

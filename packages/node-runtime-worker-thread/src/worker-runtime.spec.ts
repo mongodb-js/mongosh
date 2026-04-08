@@ -598,6 +598,7 @@ describe('worker-runtime', function () {
 {
   _id: new ObjectId('642d766b7300158b1f22e972'),
   double: new Double(1.2), // Double, 1, double
+  primitiveDouble: 1.2,
   doubleThatIsAlsoAnInteger: new Double(1), // Double, 1, double
   string: 'Hello, world!', // String, 2, string
   object: { key: 'value' }, // Object, 3, object
@@ -614,6 +615,7 @@ describe('worker-runtime', function () {
   symbol: new BSONSymbol('symbol'), // Symbol, 14, symbol (deprecated)
   javascriptWithScope: new Code('function() {}', { foo: 1, bar: 'a' }), // JavaScript code with scope 15 "javascriptWithScope" Deprecated in MongoDB 4.4.
   int: new Int32(12345), // 32-bit integer, 16, "int"
+  primitiveInt: 12345,
   timestamp: new Timestamp(new Long('7218556297505931265')), // Timestamp, 17, timestamp
   long: new Long('123456789123456789'), // 64-bit integer, 18, long
   decimal: new Decimal128(
@@ -645,6 +647,7 @@ describe('worker-runtime', function () {
             printable: `{
   _id: ObjectId('642d766b7300158b1f22e972'),
   double: Double(1.2),
+  primitiveDouble: 1.2,
   doubleThatIsAlsoAnInteger: Double(1),
   string: 'Hello, world!',
   object: { key: 'value' },
@@ -659,6 +662,7 @@ describe('worker-runtime', function () {
   symbol: BSONSymbol('symbol'),
   javascriptWithScope: Code('function() {}', { foo: 1, bar: 'a' }),
   int: Int32(12345),
+  primitiveInt: 12345,
   timestamp: Timestamp({ t: 1680701109, i: 1 }),
   long: Long('123456789123456789'),
   decimal: Decimal128('5.477284286264328586719275128128001E-4088'),
