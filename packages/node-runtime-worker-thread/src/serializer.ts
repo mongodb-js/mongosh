@@ -91,10 +91,38 @@ export function serializeEvaluationResult({
     type: 'SerializedShellApiResult',
     printable: {
       origType: type,
-      serializedValue: EJSON.serialize(printable),
+      serializedValue: EJSON.serialize(printable, {
+        relaxed: false,
+      }),
       constructionOptions,
     },
   };
+}
+
+/**
+ * After we EJSON.deserialize, Int32 and Double values come
+ * back as BSON objects. We want to show them as regular numbers,
+ * similar to the cli repl, so we relax them back to numbers.
+ * Things like Long values we want as BSON objects since they can exceed
+ * Number.MAX_SAFE_INTEGER and would lose precision as numbers.
+ */
+function relaxSafeNumericTypes(value: any): any {
+  if (value === null || typeof value !== 'object') return value;
+  if (value._bsontype === 'Int32' || value._bsontype === 'Double') {
+    return value.valueOf();
+  }
+  // Don't recurse into other BSON types (Long, ObjectId, Binary, etc.)
+  if (value._bsontype) return value;
+  if (Array.isArray(value)) {
+    for (let i = 0; i < value.length; i++) {
+      value[i] = relaxSafeNumericTypes(value[i]);
+    }
+    return value;
+  }
+  for (const key of Object.keys(value)) {
+    value[key] = relaxSafeNumericTypes(value[key]);
+  }
+  return value;
 }
 
 export function deserializeEvaluationResult({
@@ -115,7 +143,9 @@ export function deserializeEvaluationResult({
   if (type === 'SerializedShellApiResult') {
     return {
       type: printable.origType,
-      printable: EJSON.deserialize(printable.serializedValue),
+      printable: relaxSafeNumericTypes(
+        EJSON.deserialize(printable.serializedValue, { relaxed: false })
+      ),
       source,
       constructionOptions,
     };
