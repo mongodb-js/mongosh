@@ -109,8 +109,6 @@ module.exports = {
   platform: os.platform(),
   execNodeVersion: process.env.NODE_JS_VERSION || `^${process.version.slice(1)}`,
   packageVariant: PACKAGE_VARIANT,
-  notarySigningKeyName: process.env.NOTARY_SIGNING_KEY_NAME,
-  notaryAuthToken: process.env.NOTARY_AUTH_TOKEN,
   repo: {
     owner: 'mongodb-js',
     repo: 'mongosh'

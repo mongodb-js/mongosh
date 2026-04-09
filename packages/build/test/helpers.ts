@@ -56,8 +56,6 @@ export const dummyConfig: Config = Object.freeze({
   downloadCenterAwsSessionTokenArtifacts: 'downloadCenterAwsSessionToken',
   githubToken: 'githubToken',
   segmentKey: 'segmentKey',
-  notarySigningKeyName: 'notarySigningKey',
-  notaryAuthToken: 'notaryAuthToken',
   isCi: true,
   platform: 'linux',
   repo: {
