@@ -46,7 +46,7 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// We can't user Buffer.from for the binary data creation
+// We can't use Buffer.from for the binary data creation
 // as it is not supported, so we use Uint8Array.from
 // and Binary.createFromBase64.
 const allBsonTypesDocString = `{
