@@ -13207,14 +13207,14 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_arm64_openssl3
-  - name: e2e_tests_ubuntu2404_arm64_small_openssl3_m830-rc3
-    display_name: "Ubuntu 24.04 arm64 830-rc3 openssl3 (E2E tests)"
+  - name: e2e_tests_ubuntu2404_arm64_small_openssl3_m830-rc5
+    display_name: "Ubuntu 24.04 arm64 830-rc5 openssl3 (E2E tests)"
     run_on: ubuntu2404-arm64-small
     tags: []
     expansions:
       executable_os_id: "linux-arm64-openssl3"
       node_js_version: "24.14.1"
-      mongosh_server_test_version: "8.3.0-rc3-enterprise"
+      mongosh_server_test_version: "8.3.0-rc5-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_arm64_openssl3
@@ -13240,14 +13240,14 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_arm64
-  - name: e2e_tests_amazon2023.0_arm64_small_m830-rc3
-    display_name: "Amazon Linux 2023 arm64 830-rc3 (E2E tests)"
+  - name: e2e_tests_amazon2023.0_arm64_small_m830-rc5
+    display_name: "Amazon Linux 2023 arm64 830-rc5 (E2E tests)"
     run_on: amazon2023.0-arm64-small
     tags: []
     expansions:
       executable_os_id: "linux-arm64"
       node_js_version: "24.14.1"
-      mongosh_server_test_version: "8.3.0-rc3-enterprise"
+      mongosh_server_test_version: "8.3.0-rc5-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_arm64
@@ -13328,14 +13328,14 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_ppc64le
-  - name: e2e_tests_rhel9_power_small_m830-rc3
-    display_name: "RHEL 9 PPC 830-rc3 (E2E tests)"
+  - name: e2e_tests_rhel9_power_small_m830-rc5
+    display_name: "RHEL 9 PPC 830-rc5 (E2E tests)"
     run_on: rhel9-power-small
     tags: []
     expansions:
       executable_os_id: "linux-ppc64le"
       node_js_version: "24.14.1"
-      mongosh_server_test_version: "8.3.0-rc3-enterprise"
+      mongosh_server_test_version: "8.3.0-rc5-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_ppc64le
@@ -13372,14 +13372,14 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_s390x
-  - name: e2e_tests_rhel9_zseries_small_m830-rc3
-    display_name: "RHEL 9 s390x 830-rc3 (E2E tests)"
+  - name: e2e_tests_rhel9_zseries_small_m830-rc5
+    display_name: "RHEL 9 s390x 830-rc5 (E2E tests)"
     run_on: rhel9-zseries-small
     tags: []
     expansions:
       executable_os_id: "linux-s390x"
       node_js_version: "24.14.1"
-      mongosh_server_test_version: "8.3.0-rc3-enterprise"
+      mongosh_server_test_version: "8.3.0-rc5-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_s390x
@@ -13405,14 +13405,14 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_darwin_arm64
-  - name: e2e_tests_macos_15_arm64_gui_m82x
-    display_name: "MacOS 15 Sequoia (arm64) 82x (E2E tests)"
+  - name: e2e_tests_macos_15_arm64_gui_m83x
+    display_name: "MacOS 15 Sequoia (arm64) 83x (E2E tests)"
     run_on: macos-15-arm64-gui
     tags: []
     expansions:
       executable_os_id: "darwin-arm64"
       node_js_version: "24.14.1"
-      mongosh_server_test_version: "8.2.x-enterprise"
+      mongosh_server_test_version: "8.3.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_darwin_arm64
@@ -13438,14 +13438,14 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_darwin_arm64
-  - name: e2e_tests_macos_14_arm64_m830-rc3
-    display_name: "MacOS 14 arm64 830-rc3 (E2E tests)"
+  - name: e2e_tests_macos_14_arm64_m830-rc5
+    display_name: "MacOS 14 arm64 830-rc5 (E2E tests)"
     run_on: macos-14-arm64
     tags: []
     expansions:
       executable_os_id: "darwin-arm64"
       node_js_version: "24.14.1"
-      mongosh_server_test_version: "8.3.0-rc3-enterprise"
+      mongosh_server_test_version: "8.3.0-rc5-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_darwin_arm64
@@ -13486,14 +13486,14 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_win32
-  - name: e2e_tests_windows_vsCurrent_small_m82x
-    display_name: "Windows VS pre-2022 82x (E2E tests)"
+  - name: e2e_tests_windows_vsCurrent_small_m83x
+    display_name: "Windows VS pre-2022 83x (E2E tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
       executable_os_id: "win32"
       node_js_version: "24.14.1"
-      mongosh_server_test_version: "8.2.x-enterprise"
+      mongosh_server_test_version: "8.3.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_win32
@@ -13510,14 +13510,14 @@ buildvariants:
       - name: e2e_tests_win32
       - name: package_artifact_win32_x64
       - name: package_artifact_win32msi_x64
-  - name: e2e_tests_windows_2022_latest_small_m830-rc3
-    display_name: "Windows VS 2022 830-rc3 (E2E tests)"
+  - name: e2e_tests_windows_2022_latest_small_m830-rc5
+    display_name: "Windows VS 2022 830-rc5 (E2E tests)"
     run_on: windows-2022-latest-small
     tags: []
     expansions:
       executable_os_id: "win32"
       node_js_version: "24.14.1"
-      mongosh_server_test_version: "8.3.0-rc3-enterprise"
+      mongosh_server_test_version: "8.3.0-rc5-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_win32
