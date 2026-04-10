@@ -390,7 +390,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     displayName: 'MacOS 15 Sequoia (arm64)',
     runOn: 'macos-15-arm64-gui',
     executableOsId: 'darwin-arm64',
-    mVersion: '8.3.x',
+    mVersion: '8.2.x',
   },
   {
     displayName: 'MacOS 14 x64',
@@ -440,7 +440,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     displayName: 'Windows VS pre-2022',
     runOn: 'windows-vsCurrent-small',
     executableOsId: 'win32',
-    mVersion: '8.3.x',
+    mVersion: '8.2.x',
   },
   {
     displayName: 'Windows VS 2022',
