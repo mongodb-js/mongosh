@@ -55,7 +55,7 @@
   },
   "dependencies": {
     "@mongosh/shell-bson": "3.0.3",
-    "interruptor": "^1.0.2",
+    "interruptor": "^2.0.0",
     "system-ca": "^3.0.0"
   }
 }

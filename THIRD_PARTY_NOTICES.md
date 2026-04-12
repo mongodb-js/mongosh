@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Tue Apr 07 2026.
+This document was automatically generated on Sun Apr 12 2026.
 
 ## List of dependencies
 
@@ -396,7 +396,7 @@ Package|Version|License
 **[parseurl](#c3fdd1b6fb725cb30e8fed82cf929953b46129d347d8404a4a51b633389fbae8)**|1.3.3|MIT
 **[path-expression-matcher](#cdb3851dc27d642c2929e021571345b5e735d6a2e98cd17ba1936935dee8239c)**|1.2.0|MIT
 **[path-key](#e1a2a032096ace66b422351e00b11b0229e42e4b49c2146f439f8fe442218451)**|3.1.1|MIT
-**[path-to-regexp](#168d56c99792c464d579835a0fcb9209cb9bd6108a54802e4ada6084b8e20b86)**|8.3.0|MIT
+**[path-to-regexp](#2a588a3a53f84c38deb7694bd8fb3618c6659f5afb52a74c90024a3b71732994)**|8.4.0|MIT
 **[picocolors](#7c5f372425355293c448d7405cb3b0a1fe19402bd0298caae8e341077624f0b7)**|1.1.1|ISC
 **[possible-typed-array-names](#5ba4283f5512abd5d57e79c0a75acb3818d98d169df979afb01ad6867cefd312)**|1.0.0|MIT
 **[prebuild-install](#034b3dd1336ef871b8a3739cb1647e8750e3bf21d4ecc9bbfb45525b798ddf20)**|7.1.3|MIT
@@ -31491,8 +31491,8 @@ License files:
       
 
 
-<a id="168d56c99792c464d579835a0fcb9209cb9bd6108a54802e4ada6084b8e20b86"></a>
-### [path-to-regexp](https://www.npmjs.com/package/path-to-regexp) (version 8.3.0)
+<a id="2a588a3a53f84c38deb7694bd8fb3618c6659f5afb52a74c90024a3b71732994"></a>
+### [path-to-regexp](https://www.npmjs.com/package/path-to-regexp) (version 8.4.0)
 License tags: MIT
 
 License files:
