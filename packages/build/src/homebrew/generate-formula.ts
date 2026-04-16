@@ -12,7 +12,7 @@ async function getFormulaFromRepositoryWithRetry(
   remainingRetries = 3
 ) {
   try {
-    return await homebrewCore.getFileContent('Formula/m/mongosh.rb', 'master');
+    return await homebrewCore.getFileContent('Formula/m/mongosh.rb', 'main');
   } catch (error: any) {
     if (error.message.includes('EPIPE') && remainingRetries > 0) {
       console.error(error);
