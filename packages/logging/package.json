@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/logging",
-  "version": "5.0.3",
+  "version": "5.0.4",
   "description": "MongoDB Shell Logging Utilities Package",
   "homepage": "https://github.com/mongodb-js/mongosh",
   "license": "Apache-2.0",
@@ -32,7 +32,7 @@
     "eslint": "^7.25.0",
     "prettier": "^2.8.8",
     "sinon": "^19.0.4",
-    "@mongosh/errors": "2.4.6"
+    "@mongosh/errors": "2.4.7"
   },
   "scripts": {
     "test": "mocha",
