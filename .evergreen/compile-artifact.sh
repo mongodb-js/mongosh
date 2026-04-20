@@ -39,7 +39,7 @@ elif uname -a | grep -q 'Darwin.*x86_64'; then
 elif [ -n "$MONGOSH_SHARED_OPENSSL" ]; then
   pushd /tmp/m
   if [ "$MONGOSH_SHARED_OPENSSL" == "openssl11" ]; then
-    curl -sSfLO https://www.openssl.org/source/old/1.1.1/openssl-1.1.1o.tar.gz
+    curl -sSfLO https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1o/openssl-1.1.1o.tar.gz
     MONGOSH_OPENSSL_LIBNAME=:libcrypto.so.1.1,:libssl.so.1.1
   elif [ "$MONGOSH_SHARED_OPENSSL" == "openssl3" ]; then
     curl -sSfLO https://www.openssl.org/source/old/3.0/openssl-3.0.5.tar.gz
