@@ -762,7 +762,9 @@ describe('NodeDriverServiceProvider [integration]', function () {
         expect(indexes).to.have.lengthOf(1);
         expect({
           ...indexes[0],
+          // These fields were added in later versions and may not always be present.
           expireAfterSeconds: indexes[0].expireAfterSeconds ?? 0,
+          collation: indexes[0].collation ?? { locale: 'simple' },
         }).to.deep.equal({
           key: { _id: 1 },
           name: '_id_',
@@ -770,6 +772,7 @@ describe('NodeDriverServiceProvider [integration]', function () {
           clustered: true,
           unique: true,
           expireAfterSeconds: 0,
+          collation: { locale: 'simple' },
         });
       });
     });
