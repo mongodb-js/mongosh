@@ -759,14 +759,17 @@ describe('NodeDriverServiceProvider [integration]', function () {
 
         const indexes = await serviceProvider.getIndexes(dbName, 'coll1');
 
-        expect(indexes).to.deep.contain({
-          key: {
-            _id: 1,
-          },
+        expect(indexes).to.have.lengthOf(1);
+        expect({
+          ...indexes[0],
+          expireAfterSeconds: indexes[0].expireAfterSeconds ?? 0,
+        }).to.deep.equal({
+          key: { _id: 1 },
           name: '_id_',
           v: 2,
           clustered: true,
           unique: true,
+          expireAfterSeconds: 0,
         });
       });
     });
