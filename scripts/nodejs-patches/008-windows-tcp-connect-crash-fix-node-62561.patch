@@ -1,0 +1,479 @@
+diff --git a/deps/uv/docs/src/tcp.rst b/deps/uv/docs/src/tcp.rst
+index f9b203c41997d9..a17ccba5bc7e58 100644
+--- a/deps/uv/docs/src/tcp.rst
++++ b/deps/uv/docs/src/tcp.rst
+@@ -91,6 +91,35 @@ API
+
+     .. versionchanged:: 1.49.0 If `delay` is less than 1 then ``UV_EINVAL``` is returned.
+
++.. c:function:: int uv_tcp_keepalive_ex(uv_tcp_t* handle, int on, unsigned int idle, unsigned int intvl, unsigned int cnt)
++
++    Enable / disable TCP keep-alive with all socket options: `TCP_KEEPIDLE`, `TCP_KEEPINTVL` and `TCP_KEEPCNT`.
++    `idle` is the value for `TCP_KEEPIDLE`, `intvl` is the value for `TCP_KEEPINTVL`,
++    `cnt` is the value for `TCP_KEEPCNT`, ignored when `on` is zero.
++
++    With TCP keep-alive enabled, `idle` is the time (in seconds) the connection needs to remain idle before
++    TCP starts sending keep-alive probes. `intvl` is the time (in seconds) between individual keep-alive probes.
++    TCP will drop the connection after sending `cnt` probes without getting any replies from the peer, then the
++    handle is destroyed with a ``UV_ETIMEDOUT`` error passed to the corresponding callback.
++
++    If one of `idle`, `intvl`, or `cnt` is less than 1, ``UV_EINVAL`` is returned.
++
++    .. versionchanged:: 1.52.0 added support of setting `TCP_KEEPINTVL` and `TCP_KEEPCNT` socket options.
++
++    .. note::
++        Ensure that the socket options are supported by the underlying operating system.
++        Currently supported platforms:
++          - AIX
++          - DragonFlyBSD
++          - FreeBSD
++          - HP-UX
++          - illumos
++          - Linux
++          - macOS
++          - NetBSD
++          - Solaris
++          - Windows
++
+ .. c:function:: int uv_tcp_simultaneous_accepts(uv_tcp_t* handle, int enable)
+
+     Enable / disable simultaneous asynchronous accept requests that are
+diff --git a/deps/uv/include/uv.h b/deps/uv/include/uv.h
+index bdd3d792cb667d..da06345557bb6c 100644
+--- a/deps/uv/include/uv.h
++++ b/deps/uv/include/uv.h
+@@ -602,6 +602,11 @@ UV_EXTERN int uv_tcp_nodelay(uv_tcp_t* handle, int enable);
+ UV_EXTERN int uv_tcp_keepalive(uv_tcp_t* handle,
+                                int enable,
+                                unsigned int delay);
++UV_EXTERN int uv_tcp_keepalive_ex(uv_tcp_t* handle,
++                                  int on,
++                                  unsigned int idle,
++                                  unsigned int intvl,
++                                  unsigned int cnt);
+ UV_EXTERN int uv_tcp_simultaneous_accepts(uv_tcp_t* handle, int enable);
+
+ enum uv_tcp_flags {
+diff --git a/deps/uv/src/unix/internal.h b/deps/uv/src/unix/internal.h
+index 08a490b0a0b56c..80fe41f8ef6236 100644
+--- a/deps/uv/src/unix/internal.h
++++ b/deps/uv/src/unix/internal.h
+@@ -359,7 +359,11 @@ int uv__slurp(const char* filename, char* buf, size_t len);
+ /* tcp */
+ int uv__tcp_listen(uv_tcp_t* tcp, int backlog, uv_connection_cb cb);
+ int uv__tcp_nodelay(int fd, int on);
+-int uv__tcp_keepalive(int fd, int on, unsigned int delay);
++int uv__tcp_keepalive(int fd,
++                      int on,
++                      unsigned int idle,
++                      unsigned int intvl,
++                      unsigned int cnt);
+
+ /* tty */
+ void uv__tty_close(uv_tty_t* handle);
+diff --git a/deps/uv/src/unix/stream.c b/deps/uv/src/unix/stream.c
+index d9e564016295fc..08a18314b1ec4e 100644
+--- a/deps/uv/src/unix/stream.c
++++ b/deps/uv/src/unix/stream.c
+@@ -416,7 +416,7 @@ int uv__stream_open(uv_stream_t* stream, int fd, int flags) {
+
+     /* TODO Use delay the user passed in. */
+     if ((stream->flags & UV_HANDLE_TCP_KEEPALIVE) &&
+-        uv__tcp_keepalive(fd, 1, 60)) {
++        uv__tcp_keepalive(fd, 1, 60, 1, 10)) {
+       return UV__ERR(errno);
+     }
+   }
+diff --git a/deps/uv/src/unix/tcp.c b/deps/uv/src/unix/tcp.c
+index 95c82d7f721843..aa81c16d6a95fc 100644
+--- a/deps/uv/src/unix/tcp.c
++++ b/deps/uv/src/unix/tcp.c
+@@ -465,22 +465,18 @@ int uv__tcp_nodelay(int fd, int on) {
+ #else
+ #define UV_KEEPALIVE_FACTOR(x)
+ #endif
+-int uv__tcp_keepalive(int fd, int on, unsigned int delay) {
+-  int idle;
+-  int intvl;
+-  int cnt;
+-
+-  (void) &idle;
+-  (void) &intvl;
+-  (void) &cnt;
+-
++int uv__tcp_keepalive(int fd,
++                      int on,
++                      unsigned int idle,
++                      unsigned int intvl,
++                      unsigned int cnt) {
+   if (setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, &on, sizeof(on)))
+     return UV__ERR(errno);
+
+   if (!on)
+     return 0;
+
+-  if (delay < 1)
++  if (idle < 1 || intvl < 1 || cnt < 1)
+     return UV_EINVAL;
+
+ #ifdef __sun
+@@ -506,13 +502,16 @@ int uv__tcp_keepalive(int fd, int on, unsigned int delay) {
+    * The TCP connection will be aborted after certain amount of probes, which is set by TCP_KEEPCNT, without receiving response.
+    */
+
+-  idle = delay;
+-  /* Kernel expects at least 10 seconds. */
++  /* Kernel expects at least 10 seconds for TCP_KEEPIDLE and TCP_KEEPINTVL. */
+   if (idle < 10)
+     idle = 10;
+-  /* Kernel expects at most 10 days. */
++  if (intvl < 10)
++    intvl = 10;
++  /* Kernel expects at most 10 days for TCP_KEEPIDLE and TCP_KEEPINTVL. */
+   if (idle > 10*24*60*60)
+     idle = 10*24*60*60;
++  if (intvl > 10*24*60*60)
++    intvl = 10*24*60*60;
+
+   UV_KEEPALIVE_FACTOR(idle);
+
+@@ -522,12 +521,10 @@ int uv__tcp_keepalive(int fd, int on, unsigned int delay) {
+   if (setsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, &idle, sizeof(idle)))
+     return UV__ERR(errno);
+
+-  intvl = 10; /* required at least 10 seconds */
+   UV_KEEPALIVE_FACTOR(intvl);
+   if (setsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, &intvl, sizeof(intvl)))
+     return UV__ERR(errno);
+
+-  cnt = 1; /* 1 retry, ensure (TCP_KEEPINTVL * TCP_KEEPCNT) is 10 seconds */
+   if (setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &cnt, sizeof(cnt)))
+     return UV__ERR(errno);
+ #else
+@@ -539,7 +536,7 @@ int uv__tcp_keepalive(int fd, int on, unsigned int delay) {
+
+   /* Note that the consequent probes will not be sent at equal intervals on Solaris,
+    * but will be sent using the exponential backoff algorithm. */
+-  int time_to_abort = 10; /* 10 seconds */
++  unsigned int time_to_abort = intvl * cnt;
+   UV_KEEPALIVE_FACTOR(time_to_abort);
+   if (setsockopt(fd, IPPROTO_TCP, TCP_KEEPALIVE_ABORT_THRESHOLD, &time_to_abort, sizeof(time_to_abort)))
+     return UV__ERR(errno);
+@@ -547,7 +544,6 @@ int uv__tcp_keepalive(int fd, int on, unsigned int delay) {
+
+ #else  /* !defined(__sun) */
+
+-  idle = delay;
+   UV_KEEPALIVE_FACTOR(idle);
+ #ifdef TCP_KEEPIDLE
+   if (setsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, &idle, sizeof(idle)))
+@@ -559,14 +555,12 @@ int uv__tcp_keepalive(int fd, int on, unsigned int delay) {
+ #endif
+
+ #ifdef TCP_KEEPINTVL
+-  intvl = 1;  /* 1 second; same as default on Win32 */
+   UV_KEEPALIVE_FACTOR(intvl);
+   if (setsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, &intvl, sizeof(intvl)))
+     return UV__ERR(errno);
+ #endif
+
+ #ifdef TCP_KEEPCNT
+-  cnt = 10;  /* 10 retries; same as hardcoded on Win32 */
+   if (setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &cnt, sizeof(cnt)))
+     return UV__ERR(errno);
+ #endif
+@@ -594,11 +588,20 @@ int uv_tcp_nodelay(uv_tcp_t* handle, int on) {
+ }
+
+
+-int uv_tcp_keepalive(uv_tcp_t* handle, int on, unsigned int delay) {
++int uv_tcp_keepalive(uv_tcp_t* handle, int on, unsigned int idle) {
++  return uv_tcp_keepalive_ex(handle, on, idle, 1, 10);
++}
++
++
++int uv_tcp_keepalive_ex(uv_tcp_t* handle,
++                        int on,
++                        unsigned int idle,
++                        unsigned int intvl,
++                        unsigned int cnt) {
+   int err;
+
+   if (uv__stream_fd(handle) != -1) {
+-    err =uv__tcp_keepalive(uv__stream_fd(handle), on, delay);
++    err = uv__tcp_keepalive(uv__stream_fd(handle), on, idle, intvl, cnt);
+     if (err)
+       return err;
+   }
+@@ -608,7 +611,7 @@ int uv_tcp_keepalive(uv_tcp_t* handle, int on, unsigned int delay) {
+   else
+     handle->flags &= ~UV_HANDLE_TCP_KEEPALIVE;
+
+-  /* TODO Store delay if uv__stream_fd(handle) == -1 but don't want to enlarge
++  /* TODO Store idle if uv__stream_fd(handle) == -1 but don't want to enlarge
+    *      uv_tcp_t with an int that's almost never used...
+    */
+
+diff --git a/deps/uv/src/win/tcp.c b/deps/uv/src/win/tcp.c
+index c452c12e8f06f1..8d6d5bef17fce0 100644
+--- a/deps/uv/src/win/tcp.c
++++ b/deps/uv/src/win/tcp.c
+@@ -49,29 +49,101 @@ static int uv__tcp_nodelay(uv_tcp_t* handle, SOCKET socket, int enable) {
+ }
+
+
+-static int uv__tcp_keepalive(uv_tcp_t* handle, SOCKET socket, int enable, unsigned int delay) {
++/*
++ * Check if Windows version is 10.0.16299 (Windows 10, version 1709) or later.
++ */
++static int minimal_windows10_version1709(void) {
++  OSVERSIONINFOW os_info;
++  if (!pRtlGetVersion)
++    return 0;
++  os_info.dwOSVersionInfoSize = sizeof(os_info);
++  os_info.szCSDVersion[0] = L'\0';
++  pRtlGetVersion(&os_info);
++  if (os_info.dwMajorVersion < 10)
++    return 0;
++  if (os_info.dwMajorVersion > 10)
++    return 1;
++  if (os_info.dwMinorVersion > 0)
++    return 1;
++  return os_info.dwBuildNumber >= 16299;
++}
++
++
++static int uv__tcp_keepalive(uv_tcp_t* handle,
++                             SOCKET socket,
++                             int on,
++                             unsigned int idle,
++                             unsigned int intvl,
++                             unsigned int cnt) {
+   if (setsockopt(socket,
+                  SOL_SOCKET,
+                  SO_KEEPALIVE,
+-                 (const char*)&enable,
+-                 sizeof enable) == -1) {
++                 (const char*)&on,
++                 sizeof on) == -1) {
+     return WSAGetLastError();
+   }
+
+-  if (!enable)
++  if (!on)
+     return 0;
+
+-  if (delay < 1)
++  if (idle < 1 || intvl < 1 || cnt < 1)
+     return UV_EINVAL;
+
+-  if (setsockopt(socket,
+-                 IPPROTO_TCP,
+-                 TCP_KEEPALIVE,
+-                 (const char*)&delay,
+-                 sizeof delay) == -1) {
+-    return WSAGetLastError();
++  /* Windows 10, version 1709 (build 10.0.16299) and later require second units
++   * for TCP keepalive options. */
++  if (minimal_windows10_version1709()) {
++    if (setsockopt(socket,
++                   IPPROTO_TCP,
++                   TCP_KEEPIDLE,
++                   (const char*)&idle,
++                   sizeof idle) == -1) {
++      return WSAGetLastError();
++    }
++
++    if (setsockopt(socket,
++                   IPPROTO_TCP,
++                   TCP_KEEPINTVL,
++                   (const char*)&intvl,
++                   sizeof intvl) == -1) {
++      return WSAGetLastError();
++    }
++
++    if (setsockopt(socket,
++                   IPPROTO_TCP,
++                   TCP_KEEPCNT,
++                   (const char*)&cnt,
++                   sizeof cnt) == -1) {
++      return WSAGetLastError();
++    }
++
++    return 0;
+   }
+
++  /* For those versions prior to Windows 10 version 1709,
++   * we fall back to SIO_KEEPALIVE_VALS that expects millisecond units.
++   * The SIO_KEEPALIVE_VALS IOCTL is supported on Windows 2000
++   * and later versions of the operating system. */
++  struct tcp_keepalive keepalive;
++  keepalive.onoff = on;
++  keepalive.keepalivetime = idle * 1000;
++  keepalive.keepaliveinterval = intvl * 1000;
++  /* On Windows Vista and later, the number of keep-alive probes
++   * (data retransmissions) is set to 10 and cannot be changed.
++   * On Windows Server 2003, Windows XP, and Windows 2000, the default setting
++   * for number of keep-alive probes is 5 and cannot be changed programmatically.
++   */
++  DWORD dummy;
++  if (WSAIoctl(socket,
++               SIO_KEEPALIVE_VALS,
++               (LPVOID) &keepalive,
++               sizeof keepalive,
++               NULL,
++               0,
++               &dummy,
++               NULL,
++               NULL) == -1)
++    return WSAGetLastError();
++
+   return 0;
+ }
+
+@@ -132,7 +204,7 @@ static int uv__tcp_set_socket(uv_loop_t* loop,
+
+   /* TODO: Use stored delay. */
+   if (handle->flags & UV_HANDLE_TCP_KEEPALIVE) {
+-    err = uv__tcp_keepalive(handle, socket, 1, 60);
++    err = uv__tcp_keepalive(handle, socket, 1, 60, 1, 10);
+     if (err)
+       return err;
+   }
+@@ -749,20 +821,6 @@ static int uv__is_loopback(const struct sockaddr_storage* storage) {
+   return 0;
+ }
+
+-// Check if Windows version is 10.0.16299 or later
+-static int uv__is_fast_loopback_fail_supported(void) {
+-  OSVERSIONINFOW os_info;
+-  if (!pRtlGetVersion)
+-    return 0;
+-  pRtlGetVersion(&os_info);
+-  if (os_info.dwMajorVersion < 10)
+-    return 0;
+-  if (os_info.dwMajorVersion > 10)
+-    return 1;
+-  if (os_info.dwMinorVersion > 0)
+-    return 1;
+-  return os_info.dwBuildNumber >= 16299;
+-}
+
+ static int uv__tcp_try_connect(uv_connect_t* req,
+                               uv_tcp_t* handle,
+@@ -809,7 +867,7 @@ static int uv__tcp_try_connect(uv_connect_t* req,
+    * is not reachable, instead of waiting for 2s. We do not care if this fails.
+    * This only works on Windows version 10.0.16299 and later.
+    */
+-  if (uv__is_fast_loopback_fail_supported() && uv__is_loopback(&converted)) {
++  if (minimal_windows10_version1709() && uv__is_loopback(&converted)) {
+     memset(&retransmit_ioctl, 0, sizeof(retransmit_ioctl));
+     retransmit_ioctl.Rtt = TCP_INITIAL_RTO_NO_SYN_RETRANSMISSIONS;
+     retransmit_ioctl.MaxSynRetransmissions = TCP_INITIAL_RTO_NO_SYN_RETRANSMISSIONS;
+@@ -1335,22 +1393,30 @@ int uv_tcp_nodelay(uv_tcp_t* handle, int enable) {
+ }
+
+
+-int uv_tcp_keepalive(uv_tcp_t* handle, int enable, unsigned int delay) {
++int uv_tcp_keepalive(uv_tcp_t* handle, int on, unsigned int idle) {
++  return uv_tcp_keepalive_ex(handle, on, idle, 1, 10);
++}
++
++int uv_tcp_keepalive_ex(uv_tcp_t* handle,
++                        int on,
++                        unsigned int idle,
++                        unsigned int intvl,
++                        unsigned int cnt) {
+   int err;
+
+   if (handle->socket != INVALID_SOCKET) {
+-    err = uv__tcp_keepalive(handle, handle->socket, enable, delay);
++    err = uv__tcp_keepalive(handle, handle->socket, on, idle, intvl, cnt);
+     if (err)
+       return uv_translate_sys_error(err);
+   }
+
+-  if (enable) {
++  if (on) {
+     handle->flags |= UV_HANDLE_TCP_KEEPALIVE;
+   } else {
+     handle->flags &= ~UV_HANDLE_TCP_KEEPALIVE;
+   }
+
+-  /* TODO: Store delay if handle->socket isn't created yet. */
++  /* TODO: Store idle if handle->socket isn't created yet. */
+
+   return 0;
+ }
+diff --git a/deps/uv/src/win/winsock.h b/deps/uv/src/win/winsock.h
+index bb3808a35c27e6..e14b8b515a9935 100644
+--- a/deps/uv/src/win/winsock.h
++++ b/deps/uv/src/win/winsock.h
+@@ -38,10 +38,6 @@
+ # define SO_UPDATE_CONNECT_CONTEXT 0x7010
+ #endif
+
+-#ifndef TCP_KEEPALIVE
+-# define TCP_KEEPALIVE 3
+-#endif
+-
+ #ifndef IPV6_V6ONLY
+ # define IPV6_V6ONLY 27
+ #endif
+@@ -62,6 +58,30 @@
+ # define MCAST_LEAVE_SOURCE_GROUP 46
+ #endif
+
++#ifndef SIO_KEEPALIVE_VALS
++#define SIO_KEEPALIVE_VALS    _WSAIOW(IOC_VENDOR,4)
++struct tcp_keepalive {
++  u_long onoff;
++  u_long keepalivetime;
++  u_long keepaliveinterval;
++};
++#endif
++
++/*
++ * TCP keepalive definitions on MinGW are located in <netinet/tcp.h>.
++ */
++#ifndef TCP_KEEPIDLE
++#define TCP_KEEPIDLE 0x03 /* start keepalives after this period */
++#endif
++
++#ifndef TCP_KEEPINTVL
++#define TCP_KEEPINTVL 0x11 /* interval between keepalives */
++#endif
++
++#ifndef TCP_KEEPCNT
++#define TCP_KEEPCNT 0x10 /* number of keepalives before death */
++#endif
++
+ /*
+  * TDI defines that are only in the DDK.
+  * We only need receive flags so far.
+diff --git a/deps/uv/test/test-tcp-flags.c b/deps/uv/test/test-tcp-flags.c
+index 16218a27f0a3a8..04a238b2c4cd49 100644
+--- a/deps/uv/test/test-tcp-flags.c
++++ b/deps/uv/test/test-tcp-flags.c
+@@ -49,6 +49,21 @@ TEST_IMPL(tcp_flags) {
+   r = uv_tcp_keepalive(&handle, 1, 0);
+   ASSERT_EQ(r, UV_EINVAL);
+
++  r = uv_tcp_keepalive_ex(&handle, 1, 60, 60, 60);
++  ASSERT_OK(r);
++
++  r = uv_tcp_keepalive_ex(&handle, 0, 0, 0, 0);
++  ASSERT_OK(r);
++
++  r = uv_tcp_keepalive_ex(&handle, 1, 0, 10, 10);
++  ASSERT_EQ(r, UV_EINVAL);
++
++  r = uv_tcp_keepalive_ex(&handle, 1, 10, 0, 10);
++  ASSERT_EQ(r, UV_EINVAL);
++
++  r = uv_tcp_keepalive_ex(&handle, 1, 10, 10, 0);
++  ASSERT_EQ(r, UV_EINVAL);
++
+   uv_close((uv_handle_t*)&handle, NULL);
+
+   r = uv_run(loop, UV_RUN_DEFAULT);
