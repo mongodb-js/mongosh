@@ -545,11 +545,17 @@ export class CliRepl implements MongoshIOProvider {
       throw err;
     }
     markTime(TimingCategories.DriverSetup, 'completed SP setup');
-    const info = await buildInfo();
-    const { installationMethod } = info;
-    const [moreRecentMongoshVersion, currentVersionCTA] = await Promise.all([
+    const buildInfoPromise = buildInfo();
+    const [
+      moreRecentMongoshVersion,
+      currentVersionCTA,
+      { installationMethod },
+    ] = await Promise.all([
       this.getMoreRecentMongoshVersion(),
-      this.updateNotificationManager.getGreetingCTAForCurrentVersion(info),
+      buildInfoPromise.then((info) =>
+        this.updateNotificationManager.getGreetingCTAForCurrentVersion(info)
+      ),
+      buildInfoPromise,
     ]);
     const initialized = await this.mongoshRepl.initialize(
       initialServiceProvider,
