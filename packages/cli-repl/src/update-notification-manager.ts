@@ -2,12 +2,40 @@ import semver from 'semver';
 import { promises as fs } from 'fs';
 import type { RequestInit, Response } from '@mongodb-js/devtools-proxy-support';
 import type { StyleDefinition } from './clr';
+import type { BuildInfo } from './build-info';
+
+// Subset of buildInfo() fields a CTA may filter on. Values are matched against
+// the running shell's buildInfo: a string is exact equality, an array is any-of,
+// and booleans match boolean fields like `sharedOpenssl`. Absent keys mean
+// "don't constrain this field".
+type BuildInfoMatch = {
+  [K in keyof BuildInfo]?: BuildInfo[K] extends boolean
+    ? boolean
+    : string | string[];
+};
 
 interface GreetingCTADetails {
+  match?: BuildInfoMatch;
   chunks: {
     text: string;
     style?: StyleDefinition;
   }[];
+}
+
+function ctaMatchesBuildInfo(
+  match: BuildInfoMatch | undefined,
+  buildInfo: BuildInfo | undefined
+): boolean {
+  if (!match || !buildInfo) return true;
+  for (const [field, want] of Object.entries(match)) {
+    const got = (buildInfo as unknown as Record<string, unknown>)[field];
+    if (Array.isArray(want)) {
+      if (!want.includes(got as string)) return false;
+    } else if (want !== got) {
+      return false;
+    }
+  }
+  return true;
 }
 
 export interface MongoshVersionsContents {
@@ -63,7 +91,7 @@ export class UpdateNotificationManager {
     return this.latestKnownMongoshVersion;
   }
 
-  async getGreetingCTAForCurrentVersion(): Promise<
+  async getGreetingCTAForCurrentVersion(buildInfo?: BuildInfo): Promise<
     | {
         text: string;
         style?: StyleDefinition;
@@ -76,7 +104,11 @@ export class UpdateNotificationManager {
       /* already handled in fetchUpdateMetadata() */
     }
 
-    return this.currentVersionGreetingCTA?.chunks;
+    const cta = this.currentVersionGreetingCTA;
+    if (!cta) return undefined;
+    if (cta.match && !ctaMatchesBuildInfo(cta.match, buildInfo))
+      return undefined;
+    return cta.chunks;
   }
 
   // Fetch update metadata, taking into account a local cache and an external

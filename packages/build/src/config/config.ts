@@ -10,6 +10,11 @@ interface ManPageConfig {
 
 // This needs to match the interface in cli-repl/update-notification-manager.ts
 export interface GreetingCTADetails {
+  // Optional filter on buildInfo() fields. When set, the CTA is only shown to
+  // shells whose buildInfo matches every key (string = exact, array = any-of,
+  // boolean for boolean fields). When omitted, the CTA targets the version key
+  // alone (current behavior).
+  match?: { [field: string]: string | string[] | boolean };
   chunks: {
     text: string;
     // This is actually cli-repl/clr.ts/StyleDefinition, but we can't import it here.

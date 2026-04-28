@@ -25,6 +25,20 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+                "match": {
+                    "type": "object",
+                    "description": "Optional filter on buildInfo() fields. The CTA is only shown when every listed field matches the running shell's buildInfo. String values match exactly, arrays match any-of, booleans apply to boolean fields like sharedOpenssl.",
+                    "additionalProperties": {
+                        "oneOf": [
+                            { "type": "string" },
+                            { "type": "boolean" },
+                            {
+                                "type": "array",
+                                "items": { "type": "string" }
+                            }
+                        ]
+                    }
+                },
                 "chunks": {
                     "description": "The chunks that make up the CTA. They will be combined sequentially with no additional spacing added.",
                     "items": {

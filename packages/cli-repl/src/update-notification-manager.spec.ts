@@ -9,7 +9,27 @@ import path from 'path';
 import { UpdateNotificationManager } from './update-notification-manager';
 import type { MongoshVersionsContents } from './update-notification-manager';
 import { createFetch } from '@mongodb-js/devtools-proxy-support';
+import type { BuildInfo } from './build-info';
 import sinon from 'sinon';
+
+const buildInfoFixture = (overrides: Partial<BuildInfo> = {}): BuildInfo => ({
+  version: '1.0.0',
+  nodeVersion: 'v22.3.0',
+  distributionKind: 'packaged',
+  installationMethod: 'other',
+  runtimeArch: 'arm64',
+  runtimePlatform: 'darwin',
+  buildArch: 'arm64',
+  buildPlatform: 'darwin',
+  buildTarget: 'darwin-arm64',
+  buildTime: null,
+  gitVersion: null,
+  opensslVersion: '3.0.0',
+  sharedOpenssl: false,
+  runtimeGlibcVersion: 'N/A',
+  deps: {} as BuildInfo['deps'],
+  ...overrides,
+});
 
 describe('UpdateNotificationManager', function () {
   let httpServer: HTTPServer;
@@ -193,5 +213,126 @@ describe('UpdateNotificationManager', function () {
       'https://downloads.mongodb.com/mongosh/1.1.0/'
     );
     expect(cta![1]?.style).to.equal('mongosh:uri');
+  });
+
+  it('returns the CTA when match passes against buildInfo', async function () {
+    const response: MongoshVersionsContents = {
+      cta: {
+        match: { installationMethod: 'homebrew' },
+        chunks: [{ text: 'Run `brew upgrade mongosh`' }],
+      },
+      versions: [],
+    };
+    reqHandler.callsFake((req, res) => {
+      res.end(JSON.stringify(response));
+    });
+
+    const manager = new UpdateNotificationManager();
+    await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
+
+    const cta = await manager.getGreetingCTAForCurrentVersion(
+      buildInfoFixture({ installationMethod: 'homebrew' })
+    );
+    expect(cta?.[0]?.text).to.equal('Run `brew upgrade mongosh`');
+  });
+
+  it('filters out the CTA when match fails against buildInfo', async function () {
+    const response: MongoshVersionsContents = {
+      cta: {
+        match: { installationMethod: 'homebrew' },
+        chunks: [{ text: 'Run `brew upgrade mongosh`' }],
+      },
+      versions: [],
+    };
+    reqHandler.callsFake((req, res) => {
+      res.end(JSON.stringify(response));
+    });
+
+    const manager = new UpdateNotificationManager();
+    await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
+
+    const cta = await manager.getGreetingCTAForCurrentVersion(
+      buildInfoFixture({ installationMethod: 'npx' })
+    );
+    expect(cta).to.be.undefined;
+  });
+
+  it('treats array match values as any-of', async function () {
+    const response: MongoshVersionsContents = {
+      cta: {
+        match: { nodeVersion: ['v22.3.0', 'v22.4.0'] },
+        chunks: [{ text: 'Heads-up: Node REPL autocomplete bug' }],
+      },
+      versions: [],
+    };
+    reqHandler.callsFake((req, res) => {
+      res.end(JSON.stringify(response));
+    });
+
+    const manager = new UpdateNotificationManager();
+    await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
+
+    expect(
+      await manager.getGreetingCTAForCurrentVersion(
+        buildInfoFixture({ nodeVersion: 'v22.4.0' })
+      )
+    ).to.not.be.undefined;
+    expect(
+      await manager.getGreetingCTAForCurrentVersion(
+        buildInfoFixture({ nodeVersion: 'v22.5.0' })
+      )
+    ).to.be.undefined;
+  });
+
+  it('AND-combines multiple match keys', async function () {
+    const response: MongoshVersionsContents = {
+      cta: {
+        match: { installationMethod: 'homebrew', runtimePlatform: 'darwin' },
+        chunks: [{ text: 'macOS homebrew users' }],
+      },
+      versions: [],
+    };
+    reqHandler.callsFake((req, res) => {
+      res.end(JSON.stringify(response));
+    });
+
+    const manager = new UpdateNotificationManager();
+    await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
+
+    expect(
+      await manager.getGreetingCTAForCurrentVersion(
+        buildInfoFixture({
+          installationMethod: 'homebrew',
+          runtimePlatform: 'darwin',
+        })
+      )
+    ).to.not.be.undefined;
+    expect(
+      await manager.getGreetingCTAForCurrentVersion(
+        buildInfoFixture({
+          installationMethod: 'homebrew',
+          runtimePlatform: 'linux',
+        })
+      )
+    ).to.be.undefined;
+  });
+
+  it('returns the CTA unfiltered when buildInfo is not provided', async function () {
+    const response: MongoshVersionsContents = {
+      cta: {
+        match: { installationMethod: 'homebrew' },
+        chunks: [{ text: 'Run `brew upgrade mongosh`' }],
+      },
+      versions: [],
+    };
+    reqHandler.callsFake((req, res) => {
+      res.end(JSON.stringify(response));
+    });
+
+    const manager = new UpdateNotificationManager();
+    await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
+
+    const cta = await manager.getGreetingCTAForCurrentVersion();
+    expect(cta?.[0]?.text).to.equal('Run `brew upgrade mongosh`');
   });
 });
