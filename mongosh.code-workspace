@@ -135,7 +135,27 @@
     "mochaExplorer.monkeyPatch": true,
     "mochaExplorer.autoload": true,
     "testExplorer.codeLens": true,
-    "testExplorer.gutterDecoration": true
+    "testExplorer.gutterDecoration": true,
+    "workbench.colorCustomizations": {
+      "activityBar.activeBackground": "#408996",
+      "activityBar.background": "#408996",
+      "activityBar.foreground": "#e7e7e7",
+      "activityBar.inactiveForeground": "#e7e7e799",
+      "activityBarBadge.background": "#703066",
+      "activityBarBadge.foreground": "#e7e7e7",
+      "commandCenter.border": "#e7e7e799",
+      "sash.hoverBorder": "#408996",
+      "statusBar.background": "#316872",
+      "statusBar.foreground": "#e7e7e7",
+      "statusBarItem.hoverBackground": "#408996",
+      "statusBarItem.remoteBackground": "#316872",
+      "statusBarItem.remoteForeground": "#e7e7e7",
+      "titleBar.activeBackground": "#316872",
+      "titleBar.activeForeground": "#e7e7e7",
+      "titleBar.inactiveBackground": "#31687299",
+      "titleBar.inactiveForeground": "#e7e7e799"
+    },
+    "peacock.color": "#316872"
   },
   "extensions": {
     "recommendations": [

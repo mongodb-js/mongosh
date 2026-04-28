@@ -1,0 +1,33 @@
+diff --git a/configure.py b/configure.py
+index ee08264e91..d48bfe1979 100755
+--- a/configure.py
++++ b/configure.py
+@@ -10,7 +10,7 @@ import re
+ import shlex
+ import subprocess
+ import shutil
+-import bz2
++#import bz2
+ import io
+ from pathlib import Path
+ 
+@@ -1853,12 +1853,18 @@ def configure_intl(o):
+       shutil.rmtree(icu_tmp_path)
+     icu_tmp_path.mkdir()
+     icu_data_path = icu_tmp_path / icu_data_file_l
+-    with icu_data_path.open(mode='wb') as outf:
++    if os.name == 'nt':
++      print('Decompressing icu data using python bz2')
++      import bz2
++      with icu_data_path.open(mode='wb') as outf:
+         inf = bz2.BZ2File(compressed_data, 'rb')
+         try:
+           shutil.copyfileobj(inf, outf)
+         finally:
+           inf.close()
++    else:
++      print('Decompressing icu data using bzip2 -d')
++      subprocess.run(["sh", "-c", "bzip2 -d < '%s' > '%s'" % (compressed_data, icu_data_path)]).check_returncode()
+     # Now, proceed..
+ 
+   # relative to dep..

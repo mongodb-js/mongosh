@@ -6820,6 +6820,9 @@ tasks:
   # E2E TESTS
   ###
   # Tests reuse the same compilation build variant, so we create those variations based on this.
+  # Compile variants pinned to a non-default Node.js (e.g. nightly) get their
+  # own task definition further down so the experimental run doesn't carry the
+  # release-blocking ".e2e-test" / ".compile-artifact" tags.
   - name: e2e_tests_linux_x64
     tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
@@ -7067,6 +7070,47 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: win32
+      - func: run_e2e_tests
+        vars:
+          node_js_version: ${node_js_version}
+          mongosh_server_test_version: ${mongosh_server_test_version}
+          mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
+
+  ###
+  # NODE.JS NIGHTLY EARLY-WARNING TASKS
+  # Compile mongosh against the latest Node.js nightly and run the e2e suite
+  # against the resulting artifact. Tagged "node-nightly-test" so the
+  # experimental run is excluded from the release_draft dependency set.
+  ###
+  - name: compile_artifact_linux_x64_node_nightly
+    tags: ["node-nightly-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_compile
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: ${node_js_version}
+      - func: compile_artifact
+        vars:
+          node_js_version: ${node_js_version}
+      - func: upload_compiled_artifact
+        vars:
+          node_js_version: ${node_js_version}
+  - name: e2e_tests_linux_x64_node_nightly
+    tags: ["node-nightly-test", "assigned_to_jira_team_mongosh_mongosh"]
+    depends_on:
+      - name: compile_artifact_linux_x64_node_nightly
+        variant: build_linux_x64_node_nightly
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: ${node_js_version}
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-node-nightly
       - func: run_e2e_tests
         vars:
           node_js_version: ${node_js_version}
@@ -12844,6 +12888,14 @@ buildvariants:
       node_js_version: "24.15.0"
     tasks:
       - name: compile_artifact
+  - name: build_linux_x64_node_nightly
+    display_name: "RHEL 8.0 x64 Node.js nightly (Build)"
+    run_on: rhel80-build
+    expansions:
+      executable_os_id: "linux-x64-node-nightly"
+      node_js_version: "nightly"
+    tasks:
+      - name: compile_artifact_linux_x64_node_nightly
   - name: e2e_tests_rhel70_small_m70x
     display_name: "RHEL 7.0 x64 70x (E2E tests)"
     run_on: rhel70-small
@@ -13521,6 +13573,17 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_win32
+  - name: e2e_tests_linux_x64_node_nightly
+    display_name: "Ubuntu 20.04 x64 Node.js nightly (E2E tests)"
+    run_on: ubuntu2004-small
+    tags: ["node-nightly-test"]
+    expansions:
+      executable_os_id: "linux-x64-node-nightly"
+      node_js_version: "24.15.0"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests_linux_x64_node_nightly
 
   - name: linux_compile
     display_name: "Ubuntu 20.04 x64 (Compile and Check)"

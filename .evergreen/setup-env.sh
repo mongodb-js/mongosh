@@ -4,6 +4,43 @@ set -x
 OS_ARCH="$(uname "-m")"
 
 export BASEDIR="$PWD/.evergreen"
+
+# When NODE_JS_VERSION=nightly, install the latest Node.js nightly via nvm
+# (pointed at the nightly download mirror) and pin to its concrete version
+# string for the remainder of this task. The first invocation in a task does
+# the install; subsequent invocations read $RESOLVED_NIGHTLY_FILE so install +
+# compile commands agree on the same version.
+#
+# scripts/import-expansions.js (loaded by every evergreen-release run via
+# ts-node) re-applies the YAML expansions on top of the process env, which
+# would clobber NODE_JS_VERSION back to "nightly". It honors a *_OVERRIDE
+# suffix though, so we also export NODE_JS_VERSION_OVERRIDE.
+RESOLVED_NIGHTLY_FILE="$BASEDIR/.resolved-nightly-node-version"
+if [ "$NODE_JS_VERSION" = "nightly" ]; then
+  export NVM_DIR="$BASEDIR/.nvm"
+  if [ ! -s "$NVM_DIR/nvm.sh" ]; then
+    mkdir -p "$NVM_DIR"
+    curl -sSfL -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+  fi
+  set +x # nvm is very verbose
+  # shellcheck disable=SC1091
+  . "$NVM_DIR/nvm.sh"
+  if [ -s "$RESOLVED_NIGHTLY_FILE" ]; then
+    NODE_JS_VERSION=$(cat "$RESOLVED_NIGHTLY_FILE")
+  else
+    NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly \
+      nvm install --no-progress node
+    NODE_JS_VERSION=$(nvm version node | sed 's/^v//')
+    echo "$NODE_JS_VERSION" > "$RESOLVED_NIGHTLY_FILE"
+  fi
+  nvm use "v$NODE_JS_VERSION"
+  set -x
+  export PATH="$NVM_BIN:$PATH"
+  export NODE_JS_VERSION
+  export NODE_JS_VERSION_OVERRIDE="$NODE_JS_VERSION"
+  export USE_NIGHTLY_NODE=1
+fi
+
 export PATH="$BASEDIR/node-v$NODE_JS_VERSION-win-x64:/opt/java/jdk17/bin:$PATH"
 export MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING="$BASEDIR/../packages/testing/tests-globalconfig.conf"
 
@@ -56,7 +93,13 @@ fi
 
 NODE_JS_MAJOR_VERSION=$(echo "$NODE_JS_VERSION" | awk -F . '{print $1}')
 if echo "$NODE_JS_MAJOR_VERSION" | grep -q '^[0-9]*$'; then
-  export PATH="/opt/devtools/node$NODE_JS_MAJOR_VERSION/bin:$PATH"
+  if [ -n "$USE_NIGHTLY_NODE" ]; then
+    # The Linux branch above prepended /opt/devtools/bin (which ships its own
+    # `node`), so re-prepend the nvm-installed nightly bin to make sure it wins.
+    export PATH="$NVM_BIN:$PATH"
+  else
+    export PATH="/opt/devtools/node$NODE_JS_MAJOR_VERSION/bin:$PATH"
+  fi
   echo "Detected Node.js version (requested v${NODE_JS_MAJOR_VERSION}.x):"
   node -v
   node -v | grep -q "^v$NODE_JS_MAJOR_VERSION"

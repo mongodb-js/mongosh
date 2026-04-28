@@ -458,6 +458,14 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     executableOsId: 'win32',
     mVersion: '8.3.0-rc5',
   },
+  {
+    displayName: 'Ubuntu 20.04 x64 Node.js nightly',
+    runOn: 'ubuntu2004-small',
+    id: 'linux_x64_node_nightly',
+    executableOsId: 'linux-x64-node-nightly',
+    mVersion: 'stable',
+    tags: ['node-nightly-test'],
+  },
 ]
   .filter(({ disabled }) => disabled !== true)
   .map((buildVariant) => {

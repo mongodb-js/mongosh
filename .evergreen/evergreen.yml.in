@@ -1267,7 +1267,11 @@ tasks:
   # E2E TESTS
   ###
   # Tests reuse the same compilation build variant, so we create those variations based on this.
+  # Compile variants pinned to a non-default Node.js (e.g. nightly) get their
+  # own task definition further down so the experimental run doesn't carry the
+  # release-blocking ".e2e-test" / ".compile-artifact" tags.
   <% for (const compileBuildVariant of COMPILE_BUILD_VARIANTS) {
+    if (compileBuildVariant.nodeJsVersion) continue;
     const platformName = compileBuildVariant.name.replace('build_', '');
     const executableOsId = platformName == 'darwin' ? 'darwin-x64' : platformName.replaceAll('_', '-');
     %>
@@ -1275,6 +1279,53 @@ tasks:
     tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
       - name: compile_artifact
+        variant: <% out(compileBuildVariant.name) %>
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: ${node_js_version}
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: <% out(executableOsId) %>
+      - func: run_e2e_tests
+        vars:
+          node_js_version: ${node_js_version}
+          mongosh_server_test_version: ${mongosh_server_test_version}
+          mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
+  <% } %>
+
+  ###
+  # NODE.JS NIGHTLY EARLY-WARNING TASKS
+  # Compile mongosh against the latest Node.js nightly and run the e2e suite
+  # against the resulting artifact. Tagged "node-nightly-test" so the
+  # experimental run is excluded from the release_draft dependency set.
+  ###
+  <% for (const compileBuildVariant of COMPILE_BUILD_VARIANTS) {
+       if (!compileBuildVariant.nodeJsVersion) continue;
+       const platformName = compileBuildVariant.name.replace('build_', '');
+       const executableOsId = platformName.replaceAll('_', '-');
+  %>
+  - name: compile_artifact_<% out(platformName) %>
+    tags: ["node-nightly-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_compile
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: ${node_js_version}
+      - func: compile_artifact
+        vars:
+          node_js_version: ${node_js_version}
+      - func: upload_compiled_artifact
+        vars:
+          node_js_version: ${node_js_version}
+  - name: e2e_tests_<% out(platformName) %>
+    tags: ["node-nightly-test", "assigned_to_jira_team_mongosh_mongosh"]
+    depends_on:
+      - name: compile_artifact_<% out(platformName) %>
         variant: <% out(compileBuildVariant.name) %>
     commands:
       - func: checkout
@@ -1578,18 +1629,24 @@ buildvariants:
       - name: test_<% out(test.id) %>
       <% } %>
   <% } %>
-  <% for (const variant of COMPILE_BUILD_VARIANTS) { %>
+  <% for (const variant of COMPILE_BUILD_VARIANTS) {
+       const platformName = variant.name.replace('build_', '');
+  %>
   - name: <% out(variant.name) %>
     display_name: "<% out(variant.displayName) %>"
     run_on: <% out(variant.runOn) %>
     expansions:
       executable_os_id: "<% out(variant.executableOsId) %>"
-      node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
+      node_js_version: "<% out(variant.nodeJsVersion ?? NODE_JS_VERSION_TARGET) %>"
       <% if (variant.sharedOpenSsl) { %>
       mongosh_shared_openssl: "<% out(variant.sharedOpenSsl) %>"
       <% } %>
     tasks:
+      <% if (variant.nodeJsVersion) { %>
+      - name: compile_artifact_<% out(platformName) %>
+      <% } else { %>
       - name: compile_artifact
+      <% } %>
   <% } %>
   <% for (const variant of E2E_TESTS_BUILD_VARIANTS) { %>
   - name: <% out(variant.name) %>

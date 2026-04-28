@@ -83,6 +83,13 @@ exports.COMPILE_BUILD_VARIANTS = [
     runOn: 'windows-2022-latest-small',
     executableOsId: 'win32',
   },
+  {
+    id: 'linux_x64_node_nightly',
+    displayName: 'RHEL 8.0 x64 Node.js nightly',
+    runOn: 'rhel80-build',
+    executableOsId: 'linux-x64-node-nightly',
+    nodeJsVersion: 'nightly',
+  },
 ].map((buildVariant) => {
   const { displayName, sharedOpenSsl, id, executableOsId } = buildVariant;
   const formattedDisplayName = [displayName, sharedOpenSsl, '(Build)']
