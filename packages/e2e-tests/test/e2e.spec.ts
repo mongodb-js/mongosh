@@ -63,6 +63,15 @@ describe('e2e', function () {
 
   describe('--build-info', function () {
     it('shows build info in JSON format', async function () {
+      // TODO(MONGOSH-2969): Under Node.js nightlies the glibc-version
+      // native addon's dlsym for `gnu_get_libc_version` returns null on
+      // some builders (e.g. ubuntu2004), so mongosh reports
+      // runtimeGlibcVersion = "N/A" while Node.js's process.report still
+      // sees the host's glibc. Investigate the addon's loader behavior
+      // under the nightly's prebuilt binary and re-enable.
+      if (process.version.includes('-nightly')) {
+        return this.skip();
+      }
       const shell = startTestShell(this, { args: ['--build-info'] });
       await shell.waitForSuccessfulExit();
 
@@ -772,6 +781,14 @@ describe('e2e', function () {
     });
 
     it('sets device ID for telemetry', async function () {
+      // TODO(MONGOSH-2969): Under Node.js nightlies the native-machine-id
+      // addon throws on some builders (e.g. ubuntu2004), so mongosh's
+      // telemetry deviceId falls back to the literal string "unknown".
+      // Pairs with the glibc-version skip in --build-info above; both
+      // point at the same loader/dlsym behavior under the nightly binary.
+      if (process.version.includes('-nightly')) {
+        return this.skip();
+      }
       const deviceId = (
         await shell.executeLine(
           'db._mongo._instanceState.evaluationListener.ioProvider.loggingAndTelemetry.deviceId'
