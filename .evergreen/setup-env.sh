@@ -80,22 +80,6 @@ if [ "$OS" != "Windows_NT" ]; then
     export CXX=g++
     export PYTHON="/opt/devtools/bin/python3"
 
-    # Node.js v26+ requires GCC >= 13.2 (C++20). /opt/devtools ships gcc 12.4
-    # so for nightly we source the newest gcc-toolset that's available on the
-    # host; this covers RHEL 8 which carries them under /opt/rh/.
-    if [ -n "$USE_NIGHTLY_NODE" ]; then
-      for gcc_toolset in /opt/rh/gcc-toolset-15/enable \
-                         /opt/rh/gcc-toolset-14/enable \
-                         /opt/rh/gcc-toolset-13/enable; do
-        if [ -f "$gcc_toolset" ]; then
-          echo "Activating $gcc_toolset for nightly Node.js build"
-          # shellcheck disable=SC1090
-          . "$gcc_toolset"
-          break
-        fi
-      done
-    fi
-
     echo "Using gcc version:"
     (which gcc && gcc --version)
 

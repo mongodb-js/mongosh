@@ -85,8 +85,11 @@ exports.COMPILE_BUILD_VARIANTS = [
   },
   {
     id: 'linux_x64_node_nightly',
-    displayName: 'RHEL 8.0 x64 Node.js nightly',
-    runOn: 'rhel80-build',
+    // Node.js v26+ needs GCC >= 13.2 (per BUILDING.md); rhel80-build ships
+    // GCC 12.4. RHEL 10 ships a new-enough toolchain by default, so the
+    // nightly variant builds there instead of going through gcc-toolset.
+    displayName: 'RHEL 10 x64 Node.js nightly',
+    runOn: 'rhel10.0-large',
     executableOsId: 'linux-x64-node-nightly',
     nodeJsVersion: 'nightly',
   },

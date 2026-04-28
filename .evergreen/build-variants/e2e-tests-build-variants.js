@@ -459,8 +459,10 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     mVersion: '8.3.0-rc5',
   },
   {
-    displayName: 'Ubuntu 20.04 x64 Node.js nightly',
-    runOn: 'ubuntu2004-small',
+    // Compiled on rhel10.0-large so the artifact links against newer glibc;
+    // run e2e on a host with at least matching glibc to avoid loader errors.
+    displayName: 'RHEL 10 x64 Node.js nightly',
+    runOn: 'rhel10.0-small',
     id: 'linux_x64_node_nightly',
     executableOsId: 'linux-x64-node-nightly',
     mVersion: 'stable',

@@ -12889,8 +12889,8 @@ buildvariants:
     tasks:
       - name: compile_artifact
   - name: build_linux_x64_node_nightly
-    display_name: "RHEL 8.0 x64 Node.js nightly (Build)"
-    run_on: rhel80-build
+    display_name: "RHEL 10 x64 Node.js nightly (Build)"
+    run_on: rhel10.0-large
     expansions:
       executable_os_id: "linux-x64-node-nightly"
       node_js_version: "nightly"
@@ -13574,8 +13574,8 @@ buildvariants:
     tasks:
       - name: e2e_tests_win32
   - name: e2e_tests_linux_x64_node_nightly
-    display_name: "Ubuntu 20.04 x64 Node.js nightly (E2E tests)"
-    run_on: ubuntu2004-small
+    display_name: "RHEL 10 x64 Node.js nightly (E2E tests)"
+    run_on: rhel10.0-small
     tags: ["node-nightly-test"]
     expansions:
       executable_os_id: "linux-x64-node-nightly"
