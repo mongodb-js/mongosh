@@ -1358,6 +1358,14 @@ describe('e2e', function () {
         });
 
         it('runs scripts in the right environment', async function () {
+          // TODO(MONGOSH-2969): Node.js nightlies (v26+) report
+          // executionAsyncId() === 0 inside the REPL context, where stable
+          // Node returns > 1. Investigate whether this is an intentional
+          // async_hooks change in V8/Node or whether the REPL setup needs
+          // adjustment, and re-enable once classified.
+          if (process.version.includes('-nightly')) {
+            return this.skip();
+          }
           const script = `(async() => {
           await ${/* ensure asyncness */ 0};
           return {
@@ -2313,6 +2321,13 @@ describe('e2e', function () {
         });
 
         it('shows an update notification if a newer version is available', async function () {
+          // TODO(MONGOSH-2969): the update notification doesn't surface in
+          // the captured shell output on Node.js nightlies — needs a closer
+          // look at how the update-fetch interacts with the local httpServer
+          // fixture under the nightly's HTTP/fetch implementation.
+          if (process.version.includes('-nightly')) {
+            return this.skip();
+          }
           {
             const shell = await startNodbTestShellAndWaitForPrompt(
               this,
