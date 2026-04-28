@@ -5,7 +5,6 @@ export type CompileBuildVariant = {
   executableOsId: string;
   id?: string;
   sharedOpenSsl?: string;
-  nodeJsVersion?: string;
 };
 
 export const COMPILE_BUILD_VARIANTS: CompileBuildVariant[];

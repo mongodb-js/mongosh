@@ -4,25 +4,10 @@ import pkgUp from 'pkg-up';
 import path from 'path';
 import childProcess from 'child_process';
 import { once } from 'events';
-import semver from 'semver';
 import type { PackageInformation } from '../packaging/package';
 import { compileJSFileAsBinary } from 'boxednode';
 
-function nodeMajorFromRange(range: string): number {
-  // boxednode accepts both concrete versions like "26.0.0-nightly20260428..."
-  // and semver ranges like "^24.0.0", so try coerce first and fall back to
-  // minVersion for ranges.
-  const major = semver.coerce(range)?.major ?? semver.minVersion(range)?.major;
-  if (typeof major !== 'number') {
-    throw new Error(`Cannot parse Node.js major version from "${range}"`);
-  }
-  return major;
-}
-
-async function preCompileHook(
-  nodeSourceTree: string,
-  nodeVersionRange: string
-) {
+async function preCompileHook(nodeSourceTree: string) {
   const fleAddonVersion = require(path.join(
     await findModulePath(
       'service-provider-node-driver',
@@ -57,11 +42,6 @@ async function preCompileHook(
     throw new Error(`pre-compile hook failed with code ${code}`);
   }
 
-  // Patches live under scripts/nodejs-patches/v<major>/ so each Node.js major
-  // line can carry its own copy. Most patches are stable across versions, but
-  // ones touching deps/v8/* drift as V8 source moves (e.g. 006-no-memfd_create
-  // had to be refreshed for v26 because wasm-objects.cc shifted lines).
-  const major = nodeMajorFromRange(nodeVersionRange);
   const patchDirectory = path.resolve(
     __dirname,
     '..',
@@ -69,8 +49,7 @@ async function preCompileHook(
     '..',
     '..',
     'scripts',
-    'nodejs-patches',
-    `v${major}`
+    'nodejs-patches'
   );
   // Sort all entries in the directory so that they are applied
   // in order 001-(...).patch, 002-(...).patch, etc. Only .patch files are
@@ -235,8 +214,7 @@ export class SignableCompiler {
         .concat(winCAAddon ? [winCAAddon] : [])
         .concat(winConsoleProcessListAddon ? [winConsoleProcessListAddon] : [])
         .concat(macKeychainAddon ? [macKeychainAddon] : []),
-      preCompileHook: (nodeSourceTree: string) =>
-        preCompileHook(nodeSourceTree, this.nodeVersionRange),
+      preCompileHook,
       executableMetadata: this.executableMetadata,
       // Node.js startup snapshots are an experimental feature of Node.js.
       // useCodeCache: true,

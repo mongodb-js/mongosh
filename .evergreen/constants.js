@@ -24,11 +24,6 @@ exports.platformToDetails = {
 const NODE_JS_VERSION_24 = require('./node-24-latest.json').version;
 exports.NODE_JS_VERSION_24 = NODE_JS_VERSION_24;
 
-// Sentinel string for the latest Node.js nightly. Resolved to a concrete
-// version (e.g. "25.0.0-nightly20260427xxxxxxxxxx") at runtime by setup-env.sh
-// so we don't have to refresh a checked-in JSON file every day.
-exports.NODE_JS_VERSION_NIGHTLY = 'nightly';
-
 exports.MONGODB_VERSIONS = [
   { shortName: '42xc', versionSpec: '4.2.x' },
   { shortName: '42xe', versionSpec: '4.2.x-enterprise' },
