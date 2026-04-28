@@ -4,14 +4,18 @@ import type { RequestInit, Response } from '@mongodb-js/devtools-proxy-support';
 import type { StyleDefinition } from './clr';
 import type { BuildInfo } from './build-info';
 
-// Subset of buildInfo() fields a CTA may filter on. Values are matched against
-// the running shell's buildInfo: a string is exact equality, an array is any-of,
-// and booleans match boolean fields like `sharedOpenssl`. Absent keys mean
-// "don't constrain this field".
+// Subset of buildInfo() fields a CTA may filter on: only string/boolean fields
+// are matchable. Values are exact equality, an array (any-of), or boolean for
+// boolean fields like `sharedOpenssl`. Absent keys mean "don't constrain this
+// field". A `match`-gated CTA is hidden when buildInfo is unavailable.
+type MatchableBuildInfoKey = {
+  [K in keyof BuildInfo]-?: BuildInfo[K] extends string | boolean ? K : never;
+}[keyof BuildInfo];
+
 type BuildInfoMatch = {
-  [K in keyof BuildInfo]?: BuildInfo[K] extends boolean
+  [K in MatchableBuildInfoKey]?: BuildInfo[K] extends boolean
     ? boolean
-    : string | string[];
+    : BuildInfo[K] | BuildInfo[K][];
 };
 
 interface GreetingCTADetails {
@@ -26,11 +30,12 @@ function ctaMatchesBuildInfo(
   match: BuildInfoMatch | undefined,
   buildInfo: BuildInfo | undefined
 ): boolean {
-  if (!match || !buildInfo) return true;
+  if (!match) return true;
+  if (!buildInfo) return false;
   for (const [field, want] of Object.entries(match)) {
     const got = (buildInfo as unknown as Record<string, unknown>)[field];
     if (Array.isArray(want)) {
-      if (!want.includes(got as string)) return false;
+      if (!(want as unknown[]).includes(got)) return false;
     } else if (want !== got) {
       return false;
     }

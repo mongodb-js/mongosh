@@ -317,7 +317,7 @@ describe('UpdateNotificationManager', function () {
     ).to.be.undefined;
   });
 
-  it('returns the CTA unfiltered when buildInfo is not provided', async function () {
+  it('hides a match-gated CTA when buildInfo is not provided', async function () {
     const response: MongoshVersionsContents = {
       cta: {
         match: { installationMethod: 'homebrew' },
@@ -332,7 +332,22 @@ describe('UpdateNotificationManager', function () {
     const manager = new UpdateNotificationManager();
     await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
 
+    expect(await manager.getGreetingCTAForCurrentVersion()).to.be.undefined;
+  });
+
+  it('returns a CTA without match when buildInfo is not provided', async function () {
+    const response: MongoshVersionsContents = {
+      cta: { chunks: [{ text: 'Vote for your favorite feature!' }] },
+      versions: [],
+    };
+    reqHandler.callsFake((req, res) => {
+      res.end(JSON.stringify(response));
+    });
+
+    const manager = new UpdateNotificationManager();
+    await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
+
     const cta = await manager.getGreetingCTAForCurrentVersion();
-    expect(cta?.[0]?.text).to.equal('Run `brew upgrade mongosh`');
+    expect(cta?.[0]?.text).to.equal('Vote for your favorite feature!');
   });
 });
