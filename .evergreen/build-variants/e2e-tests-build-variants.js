@@ -467,6 +467,10 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     executableOsId: 'linux-x64-node-nightly',
     mVersion: 'stable',
     tags: ['node-nightly-test'],
+    // TODO(MONGOSH-2969): re-enable in lockstep with the matching compile
+    // variant once Node.js v26 nightlies build cleanly. See the comment on
+    // the build_linux_x64_node_nightly entry for the underlying V8 issue.
+    disabled: true,
   },
 ]
   .filter(({ disabled }) => disabled !== true)

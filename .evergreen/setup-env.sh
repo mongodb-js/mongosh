@@ -80,11 +80,22 @@ if [ "$OS" != "Windows_NT" ]; then
     export CXX=g++
     export PYTHON="/opt/devtools/bin/python3"
 
+    # /opt/devtools/bin/gcc is pinned at 12.4 for reproducible stable builds.
+    # Node.js v26+ needs GCC >= 13.2 (C++20 in V8 turboshaft), so for the
+    # nightly variant prefer the host's system compiler — RHEL 10 ships
+    # gcc 14.2 / clang 19.1 stock, both new enough.
+    if [ -n "$USE_NIGHTLY_NODE" ] && [ -x /usr/bin/gcc ]; then
+      export CC=/usr/bin/gcc
+      export CXX=/usr/bin/g++
+    fi
+
     echo "Using gcc version:"
     (which gcc && gcc --version)
+    "$CC" --version | head -1
 
     echo "Using g++ version:"
     (which g++ && g++ --version)
+    "$CXX" --version | head -1
   fi
 else
   export NODE_GYP_FORCE_PYTHON="C:\python\Python311\python.exe"
