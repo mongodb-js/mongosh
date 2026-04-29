@@ -10,8 +10,6 @@ import { setupLoggingAndTelemetry } from '.';
 import type { LoggingAndTelemetry } from './logging-and-telemetry';
 import sinon from 'sinon';
 import type { MongoshLoggingAndTelemetryArguments } from './types';
-import { getDeviceId } from '@mongodb-js/device-id';
-import { getMachineId } from 'native-machine-id';
 
 describe('MongoshLoggingAndTelemetry', function () {
   let logOutput: any[];
@@ -247,22 +245,15 @@ describe('MongoshLoggingAndTelemetry', function () {
     });
 
     it('automatically sets up device ID for telemetry', async function () {
-      const abortController = new AbortController();
-      const deviceIdPromise = getDeviceId({
-        getMachineId: () => getMachineId({ raw: true }),
-        abortSignal: abortController.signal,
-      });
       const loggingAndTelemetry = setupLoggingAndTelemetry({
         ...testLoggingArguments,
         bus,
-        deviceId: deviceIdPromise,
+        deviceId: Promise.resolve('device_id_value'),
       });
 
       loggingAndTelemetry.attachLogger(logger);
 
       bus.emit('mongosh:new-user', { userId, anonymousId: userId });
-
-      const deviceId = await deviceIdPromise;
 
       await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
 
@@ -272,7 +263,7 @@ describe('MongoshLoggingAndTelemetry', function () {
           {
             anonymousId: userId,
             traits: {
-              device_id: deviceId,
+              device_id: 'device_id_value',
               platform: process.platform,
               arch: process.arch,
               session_id: logId,
