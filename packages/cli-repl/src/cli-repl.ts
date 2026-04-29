@@ -227,7 +227,7 @@ export class CliRepl implements MongoshIOProvider {
               this.forceDisableTelemetry ||
               !(await this.getConfig('enableTelemetry'))
             ) {
-              return 'unknown';
+              return 'disabled';
             }
             return await this.getDeviceId();
           })(),
