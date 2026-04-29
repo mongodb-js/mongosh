@@ -57,6 +57,11 @@
       ],
       "glibc-version": [
         "linux"
+      ],
+      "native-machine-id": [
+        "linux",
+        "darwin",
+        "win32"
       ]
     }
   },
@@ -64,6 +69,7 @@
     "@mongodb-js/devtools-proxy-support": "^0.7.5",
     "@mongosh/arg-parser": "^5.0.3",
     "@mongosh/autocomplete": "^5.1.7",
+    "@mongodb-js/device-id": "^0.4.6",
     "@mongosh/editor": "^5.1.7",
     "@mongosh/errors": "^2.4.7",
     "@mongosh/history": "^2.4.13",
@@ -118,6 +124,7 @@
     "glibc-version": "^1.0.1",
     "macos-export-certificate-and-key": "^2.0.1",
     "mongodb-crypt-library-version": "^2.0.1",
+    "native-machine-id": "^0.3.6",
     "win-export-certificate-and-key": "^3.0.2"
   }
 }
