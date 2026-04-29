@@ -15,6 +15,7 @@ import path from 'path';
 import { promises as fs, createReadStream } from 'fs';
 import Nanobus from 'nanobus';
 import { eventually } from '@mongosh/testing';
+import { createFetch } from '@mongodb-js/devtools-proxy-support';
 chai.use(sinonChai);
 
 describe('SnippetManager', function () {
@@ -302,9 +303,11 @@ describe('SnippetManager', function () {
     interrupted.checkpoint.returns();
 
     const messageBus = new Nanobus('mongosh-snippet-test');
+    const fetch = createFetch({});
     makeSnippetManager = () =>
       new SnippetManager({
         installdir,
+        fetch,
         instanceState: {
           context: contextObject,
           shellApi: contextObject,

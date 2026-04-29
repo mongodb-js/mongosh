@@ -17,12 +17,7 @@ import * as tar from 'tar';
 import zlib from 'zlib';
 import bson from 'bson';
 import { z } from 'zod';
-import type {
-  AgentWithInitialize,
-  DevtoolsProxyOptions,
-  Response,
-} from '@mongodb-js/devtools-proxy-support';
-import { createFetch } from '@mongodb-js/devtools-proxy-support';
+import type { Response } from '@mongodb-js/devtools-proxy-support';
 import { spawn } from 'cross-spawn';
 
 const pipeline = promisify(stream.pipeline);
@@ -33,7 +28,7 @@ export interface SnippetOptions {
   installdir: string;
   instanceState: ShellInstanceState;
   skipInitialIndexLoad?: boolean;
-  proxyOptions?: DevtoolsProxyOptions | AgentWithInitialize;
+  fetch: (url: string) => Promise<Response>;
 }
 
 interface NpmMetaDataResponse {
@@ -164,7 +159,7 @@ export class SnippetManager implements ShellPlugin {
     installdir,
     instanceState,
     skipInitialIndexLoad,
-    proxyOptions = {},
+    fetch,
   }: SnippetOptions) {
     const { load, config, print, require } = instanceState.context;
     this._instanceState = instanceState;
@@ -178,7 +173,7 @@ export class SnippetManager implements ShellPlugin {
     this.installdir = installdir;
     this.repos = null;
     this.npmArgv = [];
-    this.fetch = createFetch(proxyOptions);
+    this.fetch = fetch;
 
     if (!skipInitialIndexLoad) {
       this.prepareIndex().catch(() => {});

@@ -17,8 +17,8 @@ export type MongoshLoggingAndTelemetryArguments = {
     [key: string]: unknown;
   };
   mongoshVersion: string;
-  /** Machine-specific ID; gets set automatically when omitted */
-  deviceId?: string | undefined;
+  /** Machine-specific ID */
+  deviceId: Promise<string> | string;
 };
 
 export type MongoshTrackingProperties = {

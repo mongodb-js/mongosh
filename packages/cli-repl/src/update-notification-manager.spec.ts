@@ -8,6 +8,7 @@ import os from 'os';
 import path from 'path';
 import { UpdateNotificationManager } from './update-notification-manager';
 import type { MongoshVersionsContents } from './update-notification-manager';
+import { createFetch } from '@mongodb-js/devtools-proxy-support';
 import sinon from 'sinon';
 
 describe('UpdateNotificationManager', function () {
@@ -16,6 +17,7 @@ describe('UpdateNotificationManager', function () {
   let tmpdir: string;
   let filename: string;
   let reqHandler: sinon.SinonStub<Parameters<RequestListener>, void>;
+  const fetch = createFetch({});
 
   beforeEach(async function () {
     reqHandler = sinon.stub<Parameters<RequestListener>, void>();
@@ -41,7 +43,7 @@ describe('UpdateNotificationManager', function () {
   });
 
   it('fetches and stores information about the current release', async function () {
-    const manager = new UpdateNotificationManager();
+    const manager = new UpdateNotificationManager({ fetch });
     await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.2.3');
     expect(await manager.getLatestVersionIfMoreRecent('')).to.equal(null);
     expect(reqHandler).to.have.been.calledOnce;
@@ -55,14 +57,14 @@ describe('UpdateNotificationManager', function () {
   });
 
   it('uses existing data if some has been fetched recently', async function () {
-    const manager = new UpdateNotificationManager();
+    const manager = new UpdateNotificationManager({ fetch });
     await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.2.3');
     await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.2.3');
     expect(reqHandler).to.have.been.calledOnce;
   });
 
   it('does not re-use existing data if the updateURL value has changed', async function () {
-    const manager = new UpdateNotificationManager();
+    const manager = new UpdateNotificationManager({ fetch });
     await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.2.3');
     await manager.fetchUpdateMetadata(
       httpServerUrl + '/?foo=bar',
@@ -85,7 +87,7 @@ describe('UpdateNotificationManager', function () {
       res.setHeader('ETag', etag);
       res.end('{}');
     });
-    const manager = new UpdateNotificationManager();
+    const manager = new UpdateNotificationManager({ fetch });
     await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.2.3');
     await fs.writeFile(
       filename,
@@ -111,7 +113,7 @@ describe('UpdateNotificationManager', function () {
         })
       );
     });
-    const manager = new UpdateNotificationManager();
+    const manager = new UpdateNotificationManager({ fetch });
     await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.2.3');
     expect(await manager.getLatestVersionIfMoreRecent('')).to.equal('1.1.0');
     expect(await manager.getLatestVersionIfMoreRecent('1.0.0')).to.equal(
@@ -141,7 +143,7 @@ describe('UpdateNotificationManager', function () {
       res.end(JSON.stringify(response));
     });
 
-    const manager = new UpdateNotificationManager();
+    const manager = new UpdateNotificationManager({ fetch });
     await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
 
     const cta = await manager.getGreetingCTAForCurrentVersion();
@@ -179,7 +181,7 @@ describe('UpdateNotificationManager', function () {
       res.end(JSON.stringify(response));
     });
 
-    const manager = new UpdateNotificationManager();
+    const manager = new UpdateNotificationManager({ fetch });
     await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
 
     const cta = await manager.getGreetingCTAForCurrentVersion();

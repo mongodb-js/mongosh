@@ -34,7 +34,6 @@
     "unitTestsOnly": true
   },
   "dependencies": {
-    "@mongodb-js/devtools-proxy-support": "^0.7.5",
     "@mongosh/errors": "2.4.7",
     "@mongosh/shell-api": "^5.1.7",
     "@mongosh/types": "^5.0.3",
@@ -45,6 +44,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@mongodb-js/devtools-proxy-support": "^0.7.5",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",

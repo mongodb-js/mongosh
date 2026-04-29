@@ -38,15 +38,17 @@ describe('MongoshLoggingAndTelemetry', function () {
 
   let loggingAndTelemetry: MongoshLoggingAndTelemetry;
 
-  const testLoggingArguments: Omit<MongoshLoggingAndTelemetryArguments, 'bus'> =
-    {
-      analytics,
-      userTraits: {
-        platform: process.platform,
-        arch: process.arch,
-      },
-      mongoshVersion: '1.0.0',
-    };
+  const testLoggingArguments: Omit<
+    MongoshLoggingAndTelemetryArguments,
+    'bus' | 'deviceId'
+  > = {
+    analytics,
+    userTraits: {
+      platform: process.platform,
+      arch: process.arch,
+    },
+    mongoshVersion: '1.0.0',
+  };
 
   beforeEach(function () {
     logOutput = [];
@@ -217,16 +219,11 @@ describe('MongoshLoggingAndTelemetry', function () {
       sinon.restore();
     });
 
-    it('uses device ID "unknown" and logs error if it fails to resolve it', async function () {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      sinon
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        .stub(require('native-machine-id'), 'getMachineId')
-        .rejects(new Error('Test'));
+    it('uses device ID "unknown" when deviceId resolves to "unknown"', async function () {
       const loggingAndTelemetry = setupLoggingAndTelemetry({
         ...testLoggingArguments,
         bus,
-        deviceId: undefined,
+        deviceId: Promise.resolve('unknown'),
       });
       loggingAndTelemetry.attachLogger(logger);
       await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
@@ -247,30 +244,25 @@ describe('MongoshLoggingAndTelemetry', function () {
           },
         ],
       ]);
-      expect(logOutput[0]).contains({
-        c: 'MONGOSH',
-        id: 1000000006,
-        ctx: 'telemetry',
-        msg: 'Error: Test',
-      });
     });
 
     it('automatically sets up device ID for telemetry', async function () {
       const abortController = new AbortController();
+      const deviceIdPromise = getDeviceId({
+        getMachineId: () => getMachineId({ raw: true }),
+        abortSignal: abortController.signal,
+      });
       const loggingAndTelemetry = setupLoggingAndTelemetry({
         ...testLoggingArguments,
         bus,
-        deviceId: undefined,
+        deviceId: deviceIdPromise,
       });
 
       loggingAndTelemetry.attachLogger(logger);
 
       bus.emit('mongosh:new-user', { userId, anonymousId: userId });
 
-      const deviceId = await getDeviceId({
-        getMachineId: () => getMachineId({ raw: true }),
-        abortSignal: abortController.signal,
-      });
+      const deviceId = await deviceIdPromise;
 
       await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
 
@@ -291,17 +283,15 @@ describe('MongoshLoggingAndTelemetry', function () {
     });
 
     it('resolves device ID setup when flushed', async function () {
+      let resolveDeviceId: (value: string) => void = () => {};
+      const deviceIdPromise = new Promise<string>((resolve) => {
+        resolveDeviceId = resolve;
+      });
       const loggingAndTelemetry = setupLoggingAndTelemetry({
         ...testLoggingArguments,
         bus,
-        deviceId: undefined,
+        deviceId: deviceIdPromise,
       });
-      sinon
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        .stub(require('native-machine-id'), 'getMachineId')
-        .resolves(
-          new Promise((resolve) => setTimeout(resolve, 10_000).unref())
-        );
 
       loggingAndTelemetry.attachLogger(logger);
 
@@ -314,6 +304,9 @@ describe('MongoshLoggingAndTelemetry', function () {
 
       // Emit an event that would trigger analytics
       bus.emit('mongosh:new-user', { userId, anonymousId: userId });
+
+      // Resolve deviceId to 'unknown' (simulating external abort handling)
+      resolveDeviceId('unknown');
 
       await setupPromise;
 
@@ -335,20 +328,15 @@ describe('MongoshLoggingAndTelemetry', function () {
     });
 
     it('only delays analytic outputs, not logging', async function () {
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      let resolveTelemetry: (value: unknown) => void = () => {};
-      const delayedTelemetry = new Promise((resolve) => {
-        resolveTelemetry = (value) => resolve(value);
+      let resolveDeviceId: (value: string) => void = () => {};
+      const deviceIdPromise = new Promise<string>((resolve) => {
+        resolveDeviceId = resolve;
       });
-      sinon
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        .stub(require('native-machine-id'), 'getMachineId')
-        .resolves(delayedTelemetry);
 
       const loggingAndTelemetry = setupLoggingAndTelemetry({
         ...testLoggingArguments,
         bus,
-        deviceId: undefined,
+        deviceId: deviceIdPromise,
       }) as LoggingAndTelemetry;
 
       loggingAndTelemetry.attachLogger(logger);
@@ -359,16 +347,13 @@ describe('MongoshLoggingAndTelemetry', function () {
       expect(logOutput).to.have.lengthOf(1);
       expect(analyticsOutput).to.have.lengthOf(0);
 
-      resolveTelemetry('1234');
+      resolveDeviceId('test-resolved-device-id');
       await loggingAndTelemetry.setupTelemetryPromise;
 
       expect(logOutput).to.have.lengthOf(1);
       expect(analyticsOutput).to.have.lengthOf(1);
 
-      // Hash created from machine ID 1234
-      expect(loggingAndTelemetry['deviceId']).equals(
-        '8c9f929608f0ef13bfd5a290e0233f283e2cc25ffefc2ad8d9ef0650eb224a52'
-      );
+      expect(loggingAndTelemetry['deviceId']).equals('test-resolved-device-id');
     });
   });
 
