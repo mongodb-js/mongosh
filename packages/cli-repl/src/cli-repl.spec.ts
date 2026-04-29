@@ -1075,7 +1075,7 @@ describe('CliRepl', function () {
           expect(fetchingUpdateMetadataCalls).to.equal(0);
         });
 
-        it.only('does attempt to load information about new releases in --no-quiet mode', async function () {
+        it('does attempt to load information about new releases in --no-quiet mode', async function () {
           cliReplOptions.shellCliOptions.eval = ['1+1'];
           cliReplOptions.shellCliOptions.quiet = false;
           cliRepl = new CliRepl(cliReplOptions);
@@ -1097,7 +1097,7 @@ describe('CliRepl', function () {
           );
         });
 
-        it.only('does not send device id when telemetry is disabled', async function () {
+        it('does not send device id when telemetry is disabled', async function () {
           cliReplOptions.shellCliOptions.eval = ['1+1'];
           cliReplOptions.shellCliOptions.quiet = false;
           cliRepl = new CliRepl(cliReplOptions);
