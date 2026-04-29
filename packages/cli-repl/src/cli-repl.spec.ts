@@ -1116,7 +1116,7 @@ describe('CliRepl', function () {
           expect(fetchingUpdateMetadataCalls).to.equal(1);
           const [req] = await requestPromise;
           expect(req.headers['user-agent']).to.match(
-            /^mongosh\/\d+\.\d+\.\d+;.+; unknown$/
+            /^mongosh\/\d+\.\d+\.\d+;.+; disabled$/
           );
         });
       });
