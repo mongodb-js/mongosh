@@ -56,7 +56,6 @@ import type {
   MongoshLoggingAndTelemetryArguments,
   MongoshTrackingProperties,
 } from './types';
-import { getDeviceId } from '@mongodb-js/device-id';
 
 export function setupLoggingAndTelemetry(
   props: MongoshLoggingAndTelemetryArguments
@@ -94,7 +93,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
   private isBufferingBusEvents = false;
   private isBufferingTelemetryEvents = false;
 
-  private deviceId: string | undefined;
+  private deviceId: string | Promise<string>;
 
   /** @internal Used for awaiting the telemetry setup in tests. */
   public setupTelemetryPromise: Promise<void> = Promise.resolve();
@@ -141,26 +140,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
   }
 
   private async setupTelemetry(): Promise<void> {
-    if (!this.deviceId) {
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const getMachineId = require('native-machine-id').getMachineId;
-        this.deviceId = await getDeviceId({
-          getMachineId: () => getMachineId({ raw: true }),
-          onError: (reason, error) => {
-            if (reason === 'abort') {
-              return;
-            }
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            this.bus.emit('mongosh:error', error, 'telemetry');
-          },
-          abortSignal: this.telemetrySetupAbort.signal,
-        });
-      } catch (error) {
-        this.deviceId = 'unknown';
-        this.bus.emit('mongosh:error', error as Error, 'telemetry');
-      }
-    }
+    this.deviceId = await this.deviceId;
 
     this.runAndClearPendingTelemetryEvents();
   }
@@ -247,7 +227,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
 
     const getUserTraits = (): AnalyticsIdentifyMessage['traits'] => ({
       ...this.userTraits,
-      device_id: this.deviceId ?? 'unknown',
+      device_id: typeof this.deviceId === 'string' ? this.deviceId : 'unknown',
       session_id: this.log.logId,
     });
 

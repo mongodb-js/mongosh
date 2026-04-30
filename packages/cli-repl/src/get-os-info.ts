@@ -1,6 +1,15 @@
 import * as os from 'os';
 import { promises as fs } from 'fs';
 
+export interface OsInfo {
+  os_type: string;
+  os_version: string;
+  os_release: string;
+  os_arch: string;
+  os_linux_dist?: string;
+  os_linux_release?: string;
+}
+
 export async function getLinuxOsRelease() {
   if (process.platform !== 'linux') {
     return {};
@@ -34,6 +43,7 @@ export async function getOsInfo() {
   return {
     os_type: os.type(),
     os_version: os.version(),
+    os_release: os.release(),
     os_arch: os.arch(),
     ...(await getLinuxOsRelease()),
   };

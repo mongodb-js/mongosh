@@ -1,12 +1,6 @@
 import semver from 'semver';
 import { promises as fs } from 'fs';
-import type {
-  AgentWithInitialize,
-  DevtoolsProxyOptions,
-  RequestInit,
-  Response,
-} from '@mongodb-js/devtools-proxy-support';
-import { createFetch } from '@mongodb-js/devtools-proxy-support';
+import type { RequestInit, Response } from '@mongodb-js/devtools-proxy-support';
 import type { StyleDefinition } from './clr';
 
 interface GreetingCTADetails {
@@ -44,11 +38,11 @@ export class UpdateNotificationManager {
   private fetch: (url: string, init: RequestInit) => Promise<Response>;
 
   constructor({
-    proxyOptions = {},
+    fetch,
   }: {
-    proxyOptions?: DevtoolsProxyOptions | AgentWithInitialize;
-  } = {}) {
-    this.fetch = createFetch(proxyOptions);
+    fetch: (url: string, init: RequestInit) => Promise<Response>;
+  }) {
+    this.fetch = fetch;
   }
 
   async getLatestVersionIfMoreRecent(

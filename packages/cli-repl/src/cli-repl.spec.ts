@@ -2,7 +2,11 @@ import { MongoshInternalError } from '@mongosh/errors';
 import { EJSON, ObjectId } from 'bson';
 import { once } from 'events';
 import { promises as fs } from 'fs';
-import type { Server as HTTPServer } from 'http';
+import type {
+  Server as HTTPServer,
+  IncomingMessage,
+  ServerResponse,
+} from 'http';
 import http, { createServer as createHTTPServer } from 'http';
 import path from 'path';
 import type { Duplex } from 'stream';
@@ -1082,10 +1086,38 @@ describe('CliRepl', function () {
             'mongosh:fetching-update-metadata',
             () => fetchingUpdateMetadataCalls++
           );
-          const requestPromise = once(httpServer, 'request');
+          const requestPromise = once(httpServer, 'request') as Promise<
+            [IncomingMessage, ServerResponse]
+          >;
           await startWithExpectedImmediateExit(cliRepl, '');
           expect(fetchingUpdateMetadataCalls).to.equal(1);
-          await requestPromise;
+          const [req] = await requestPromise;
+          expect(req.headers['user-agent']).to.match(
+            /^mongosh\/\d+\.\d+\.\d+;.+; [a-f0-9]{64}$/
+          );
+        });
+
+        it('does not send device id when telemetry is disabled', async function () {
+          cliReplOptions.shellCliOptions.eval = ['1+1'];
+          cliReplOptions.shellCliOptions.quiet = false;
+          cliRepl = new CliRepl(cliReplOptions);
+          cliRepl.fetchMongoshUpdateUrlRegardlessOfCiEnvironment = true;
+          cliRepl.config.updateURL = httpServerUrl;
+          cliRepl.config.enableTelemetry = false;
+          let fetchingUpdateMetadataCalls = 0;
+          cliRepl.bus.on(
+            'mongosh:fetching-update-metadata',
+            () => fetchingUpdateMetadataCalls++
+          );
+          const requestPromise = once(httpServer, 'request') as Promise<
+            [IncomingMessage, ServerResponse]
+          >;
+          await startWithExpectedImmediateExit(cliRepl, '');
+          expect(fetchingUpdateMetadataCalls).to.equal(1);
+          const [req] = await requestPromise;
+          expect(req.headers['user-agent']).to.match(
+            /^mongosh\/\d+\.\d+\.\d+;.+; disabled$/
+          );
         });
       });
     });
