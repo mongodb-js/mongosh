@@ -27,7 +27,6 @@
             "properties": {
                 "match": {
                     "type": "string",
-                    "format": "regex",
                     "description": "Optional regular expression tested against an env-like serialization of buildInfo() (one `key=value` per line, nested fields flattened as `parent.child=value`). The CTA is only shown when the regex matches. Hidden when buildInfo is unavailable."
                 },
                 "chunks": {
