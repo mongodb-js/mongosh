@@ -63,7 +63,7 @@ describe('e2e', function () {
 
   describe('--build-info', function () {
     it('shows build info in JSON format', async function () {
-      // TODO(MONGOSH-2969): Under Node.js nightlies the glibc-version
+      // TODO(MONGOSH-3334): Under Node.js nightlies the glibc-version
       // native addon's dlsym for `gnu_get_libc_version` returns null on
       // some builders (e.g. ubuntu2004), so mongosh reports
       // runtimeGlibcVersion = "N/A" while Node.js's process.report still
@@ -781,7 +781,7 @@ describe('e2e', function () {
     });
 
     it('sets device ID for telemetry', async function () {
-      // TODO(MONGOSH-2969): Under Node.js nightlies the native-machine-id
+      // TODO(MONGOSH-3334): Under Node.js nightlies the native-machine-id
       // addon throws on some builders (e.g. ubuntu2004), so mongosh's
       // telemetry deviceId falls back to the literal string "unknown".
       // Pairs with the glibc-version skip in --build-info above; both
@@ -1375,14 +1375,6 @@ describe('e2e', function () {
         });
 
         it('runs scripts in the right environment', async function () {
-          // TODO(MONGOSH-2969): Node.js nightlies (v26+) report
-          // executionAsyncId() === 0 inside the REPL context, where stable
-          // Node returns > 1. Investigate whether this is an intentional
-          // async_hooks change in V8/Node or whether the REPL setup needs
-          // adjustment, and re-enable once classified.
-          if (process.version.includes('-nightly')) {
-            return this.skip();
-          }
           const script = `(async() => {
           await ${/* ensure asyncness */ 0};
           return {
@@ -1402,19 +1394,19 @@ describe('e2e', function () {
           });
           await shell.waitForSuccessfulExit();
 
-          // Check that:
-          //  - the script runs in the expected environment
-          //  - async promise tracking is enabled if and only if we are running in REPL mode
-          // The latter is particularly important because the performance benefits of
-          // avoiding REPL mode mostly stem from the lack of async promise tracking.
+          // Check that the script runs in the expected environment.
+          // We used to also assert executionAsyncId > 1 in REPL mode as a
+          // proxy for "async promise tracking is enabled" — that was an
+          // observable side effect of REPL loading the `domain` module.
+          // nodejs/node#61227 removed REPL's domain dependency, so on Node
+          // v26+ both modes report executionAsyncId === 0 and the proxy no
+          // longer distinguishes them.
           const result = EJSON.parse(shell.output);
           expect(result.usingPlainVMContext).to.deep.equal(
             !jsContextFlags.includes('--jsContext=repl')
           );
           if (result.usingPlainVMContext) {
             expect(result.executionAsyncId).to.equal(0);
-          } else {
-            expect(result.executionAsyncId).to.be.greaterThan(1);
           }
           shell.assertNoErrors();
         });
@@ -2338,7 +2330,7 @@ describe('e2e', function () {
         });
 
         it('shows an update notification if a newer version is available', async function () {
-          // TODO(MONGOSH-2969): the update notification doesn't surface in
+          // TODO(MONGOSH-3335): the update notification doesn't surface in
           // the captured shell output on Node.js nightlies — needs a closer
           // look at how the update-fetch interacts with the local httpServer
           // fixture under the nightly's HTTP/fetch implementation.
