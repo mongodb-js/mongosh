@@ -4,4 +4,4 @@
  **/
 
 /** Current mongosh cli-repl version. */
-export const MONGOSH_VERSION = '2.8.2';
+export const MONGOSH_VERSION = '2.8.3';

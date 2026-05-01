@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/cli-repl",
-  "version": "2.8.2",
+  "version": "2.8.3",
   "description": "MongoDB Shell CLI REPL Package",
   "homepage": "https://github.com/mongodb-js/mongosh",
   "author": "Compass Team <compass@mongodb.com>",
@@ -68,19 +68,19 @@
   "dependencies": {
     "@mongodb-js/devtools-proxy-support": "^0.7.5",
     "@mongosh/arg-parser": "^5.0.3",
-    "@mongosh/autocomplete": "^5.1.7",
+    "@mongosh/autocomplete": "^5.1.9",
     "@mongodb-js/device-id": "^0.4.6",
-    "@mongosh/editor": "^5.1.7",
+    "@mongosh/editor": "^5.1.9",
     "@mongosh/errors": "^2.4.7",
     "@mongosh/history": "^2.4.13",
     "@mongosh/i18n": "^2.20.3",
     "@mongosh/js-multiline-to-singleline": "^2.4.13",
-    "@mongosh/logging": "^5.0.4",
+    "@mongosh/logging": "^5.0.6",
     "@mongosh/service-provider-core": "^5.0.4",
-    "@mongosh/service-provider-node-driver": "^5.0.9",
-    "@mongosh/shell-api": "^5.1.7",
-    "@mongosh/shell-evaluator": "^5.1.7",
-    "@mongosh/snippet-manager": "^5.1.7",
+    "@mongosh/service-provider-node-driver": "^5.0.11",
+    "@mongosh/shell-api": "^5.1.9",
+    "@mongosh/shell-evaluator": "^5.1.9",
+    "@mongosh/snippet-manager": "^5.1.9",
     "@mongosh/types": "^5.0.3",
     "@segment/analytics-node": "^1.3.0",
     "ansi-escape-sequences": "^5.1.2",
@@ -98,7 +98,8 @@
     "semver": "^7.5.4",
     "strip-ansi": "^6.0.0",
     "text-table": "^0.2.0",
-    "glibc-version": "^1.0.1"
+    "glibc-version": "^1.0.1",
+    "native-machine-id": "^0.3.6"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
@@ -117,7 +118,7 @@
     "mongodb-crypt-library-dummy": "^1.0.2",
     "prettier": "^2.8.8",
     "webpack-merge": "^5.8.0",
-    "@mongosh/testing": "2.0.8"
+    "@mongosh/testing": "2.0.10"
   },
   "optionalDependencies": {
     "get-console-process-list": "^1.0.5",
