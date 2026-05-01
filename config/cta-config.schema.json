@@ -26,18 +26,9 @@
             "additionalProperties": false,
             "properties": {
                 "match": {
-                    "type": "object",
-                    "description": "Optional filter on buildInfo() fields. The CTA is only shown when every listed field matches the running shell's buildInfo. String values match exactly, arrays match any-of, booleans apply to boolean fields like sharedOpenssl.",
-                    "additionalProperties": {
-                        "oneOf": [
-                            { "type": "string" },
-                            { "type": "boolean" },
-                            {
-                                "type": "array",
-                                "items": { "type": "string" }
-                            }
-                        ]
-                    }
+                    "type": "string",
+                    "format": "regex",
+                    "description": "Optional regular expression tested against an env-like serialization of buildInfo() (one `key=value` per line, nested fields flattened as `parent.child=value`). The CTA is only shown when the regex matches. Hidden when buildInfo is unavailable."
                 },
                 "chunks": {
                     "description": "The chunks that make up the CTA. They will be combined sequentially with no additional spacing added.",

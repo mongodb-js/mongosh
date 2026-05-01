@@ -4,43 +4,45 @@ import type { RequestInit, Response } from '@mongodb-js/devtools-proxy-support';
 import type { StyleDefinition } from './clr';
 import type { BuildInfo } from './build-info';
 
-// Subset of buildInfo() fields a CTA may filter on: only string/boolean fields
-// are matchable. Values are exact equality, an array (any-of), or boolean for
-// boolean fields like `sharedOpenssl`. Absent keys mean "don't constrain this
-// field". A `match`-gated CTA is hidden when buildInfo is unavailable.
-type MatchableBuildInfoKey = {
-  [K in keyof BuildInfo]-?: BuildInfo[K] extends string | boolean ? K : never;
-}[keyof BuildInfo];
-
-type BuildInfoMatch = {
-  [K in MatchableBuildInfoKey]?: BuildInfo[K] extends boolean
-    ? boolean
-    : BuildInfo[K] | BuildInfo[K][];
-};
-
+// `match` is a regular expression tested against an env-like serialization of
+// buildInfo() (one `key=value` per line, nested objects flattened as
+// `parent.child=value`). A `match`-gated CTA is hidden when buildInfo is
+// unavailable or when the regex fails to compile.
 interface GreetingCTADetails {
-  match?: BuildInfoMatch;
+  match?: string;
   chunks: {
     text: string;
     style?: StyleDefinition;
   }[];
 }
 
+function serializeBuildInfo(buildInfo: BuildInfo): string {
+  const lines: string[] = [];
+  for (const [key, value] of Object.entries(buildInfo)) {
+    if (!value) continue;
+    if (typeof value === 'object') {
+      for (const [nestedKey, nestedValue] of Object.entries(value)) {
+        if (nestedValue === null || nestedValue === undefined) continue;
+        lines.push(`${key}.${nestedKey}=${String(nestedValue)}`);
+      }
+    } else {
+      lines.push(`${key}=${String(value)}`);
+    }
+  }
+  return lines.join('\n');
+}
+
 function ctaMatchesBuildInfo(
-  match: BuildInfoMatch | undefined,
+  match: string | undefined,
   buildInfo: BuildInfo | undefined
 ): boolean {
   if (!match) return true;
   if (!buildInfo) return false;
-  for (const [field, want] of Object.entries(match)) {
-    const got = (buildInfo as unknown as Record<string, unknown>)[field];
-    if (Array.isArray(want)) {
-      if (!(want as unknown[]).includes(got)) return false;
-    } else if (want !== got) {
-      return false;
-    }
+  try {
+    return new RegExp(match, 'm').test(serializeBuildInfo(buildInfo));
+  } catch {
+    return false;
   }
-  return true;
 }
 
 export interface MongoshVersionsContents {

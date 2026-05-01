@@ -218,7 +218,7 @@ describe('UpdateNotificationManager', function () {
   it('returns the CTA when match passes against buildInfo', async function () {
     const response: MongoshVersionsContents = {
       cta: {
-        match: { installationMethod: 'homebrew' },
+        match: '^installationMethod=homebrew$',
         chunks: [{ text: 'Run `brew upgrade mongosh`' }],
       },
       versions: [],
@@ -239,7 +239,7 @@ describe('UpdateNotificationManager', function () {
   it('filters out the CTA when match fails against buildInfo', async function () {
     const response: MongoshVersionsContents = {
       cta: {
-        match: { installationMethod: 'homebrew' },
+        match: '^installationMethod=homebrew$',
         chunks: [{ text: 'Run `brew upgrade mongosh`' }],
       },
       versions: [],
@@ -257,10 +257,10 @@ describe('UpdateNotificationManager', function () {
     expect(cta).to.be.undefined;
   });
 
-  it('treats array match values as any-of', async function () {
+  it('supports alternation in the match regex', async function () {
     const response: MongoshVersionsContents = {
       cta: {
-        match: { nodeVersion: ['v22.3.0', 'v22.4.0'] },
+        match: '^nodeVersion=v22\\.(3|4)\\.0$',
         chunks: [{ text: 'Heads-up: Node REPL autocomplete bug' }],
       },
       versions: [],
@@ -284,10 +284,11 @@ describe('UpdateNotificationManager', function () {
     ).to.be.undefined;
   });
 
-  it('AND-combines multiple match keys', async function () {
+  it('combines multiple constraints via lookahead', async function () {
     const response: MongoshVersionsContents = {
       cta: {
-        match: { installationMethod: 'homebrew', runtimePlatform: 'darwin' },
+        match:
+          '(?=[\\s\\S]*^installationMethod=homebrew$)(?=[\\s\\S]*^runtimePlatform=darwin$)',
         chunks: [{ text: 'macOS homebrew users' }],
       },
       versions: [],
@@ -317,10 +318,37 @@ describe('UpdateNotificationManager', function () {
     ).to.be.undefined;
   });
 
+  it('matches against a boolean field', async function () {
+    const response: MongoshVersionsContents = {
+      cta: {
+        match: '^sharedOpenssl=true$',
+        chunks: [{ text: 'Linked against system OpenSSL' }],
+      },
+      versions: [],
+    };
+    reqHandler.callsFake((req, res) => {
+      res.end(JSON.stringify(response));
+    });
+
+    const manager = new UpdateNotificationManager();
+    await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
+
+    expect(
+      await manager.getGreetingCTAForCurrentVersion(
+        buildInfoFixture({ sharedOpenssl: true })
+      )
+    ).to.not.be.undefined;
+    expect(
+      await manager.getGreetingCTAForCurrentVersion(
+        buildInfoFixture({ sharedOpenssl: false })
+      )
+    ).to.be.undefined;
+  });
+
   it('hides a match-gated CTA when buildInfo is not provided', async function () {
     const response: MongoshVersionsContents = {
       cta: {
-        match: { installationMethod: 'homebrew' },
+        match: '^installationMethod=homebrew$',
         chunks: [{ text: 'Run `brew upgrade mongosh`' }],
       },
       versions: [],
