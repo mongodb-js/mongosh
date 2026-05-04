@@ -16,15 +16,12 @@ interface GreetingCTADetails {
   }[];
 }
 
-function serializeBuildInfo(buildInfo: BuildInfo): string {
+function serializeBuildInfo(buildInfo: Record<string, unknown>): string {
   const lines: string[] = [];
   for (const [key, value] of Object.entries(buildInfo)) {
-    if (!value) continue;
-    if (typeof value === 'object') {
-      for (const [nestedKey, nestedValue] of Object.entries(value)) {
-        if (nestedValue === null || nestedValue === undefined) continue;
-        lines.push(`${key}.${nestedKey}=${String(nestedValue)}`);
-      }
+    if (typeof value === 'object' && value !== null) {
+      for (const line of serializeBuildInfo(value))
+        lines.push(`${key}.${line}`);
     } else {
       lines.push(`${key}=${String(value)}`);
     }
