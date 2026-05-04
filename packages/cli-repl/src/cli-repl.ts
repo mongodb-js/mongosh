@@ -253,6 +253,8 @@ export class CliRepl implements MongoshIOProvider {
       };
     this.updateNotificationManager = new UpdateNotificationManager({
       fetch: this.fetch({ includeDeviceId: true }),
+      onInvalidMatchPattern: (err) =>
+        this.bus.emit('mongosh:error', err as Error, 'cta'),
     });
 
     // We can't really do anything meaningful if the output stream is broken or

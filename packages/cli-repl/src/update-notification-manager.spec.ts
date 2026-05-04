@@ -378,4 +378,33 @@ describe('UpdateNotificationManager', function () {
     const cta = await manager.getGreetingCTAForCurrentVersion();
     expect(cta?.[0]?.text).to.equal('Vote for your favorite feature!');
   });
+
+  it('calls onInvalidMatchPattern when the match pattern is an invalid regex', async function () {
+    const response: MongoshVersionsContents = {
+      cta: {
+        match: '[',
+        chunks: [{ text: 'Run `brew upgrade mongosh`' }],
+      },
+      versions: [],
+    };
+    reqHandler.callsFake((req, res) => {
+      res.end(JSON.stringify(response));
+    });
+
+    const onInvalidMatchPattern = sinon.stub();
+    const manager = new UpdateNotificationManager({
+      fetch,
+      onInvalidMatchPattern,
+    });
+    await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
+
+    const cta = await manager.getGreetingCTAForCurrentVersion(
+      buildInfoFixture()
+    );
+    expect(cta).to.be.undefined;
+    expect(onInvalidMatchPattern).to.have.been.calledOnce;
+    expect(onInvalidMatchPattern.firstCall.args[0]).to.be.instanceOf(
+      SyntaxError
+    );
+  });
 });

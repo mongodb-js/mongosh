@@ -20,7 +20,7 @@ function serializeBuildInfo(buildInfo: Record<string, unknown>): string {
   const lines: string[] = [];
   for (const [key, value] of Object.entries(buildInfo)) {
     if (typeof value === 'object' && value !== null) {
-      for (const line of serializeBuildInfo(value))
+      for (const line of serializeBuildInfo(value as Record<string, unknown>))
         lines.push(`${key}.${line}`);
     } else {
       lines.push(`${key}=${String(value)}`);
@@ -31,13 +31,17 @@ function serializeBuildInfo(buildInfo: Record<string, unknown>): string {
 
 function ctaMatchesBuildInfo(
   match: string | undefined,
-  buildInfo: BuildInfo | undefined
+  buildInfo: BuildInfo | undefined,
+  onInvalidMatchPattern: (err: unknown) => void
 ): boolean {
   if (!match) return true;
   if (!buildInfo) return false;
   try {
-    return new RegExp(match, 'm').test(serializeBuildInfo(buildInfo));
-  } catch {
+    return new RegExp(match, 'm').test(
+      serializeBuildInfo(buildInfo as unknown as Record<string, unknown>)
+    );
+  } catch (err) {
+    onInvalidMatchPattern(err);
     return false;
   }
 }
@@ -68,13 +72,21 @@ export class UpdateNotificationManager {
   private localFilesystemFetchInProgress: Promise<unknown> | undefined =
     undefined;
   private fetch: (url: string, init: RequestInit) => Promise<Response>;
+  private onInvalidMatchPattern: (err: unknown) => void;
 
   constructor({
     fetch,
+    onInvalidMatchPattern,
   }: {
-    fetch: (url: string, init: RequestInit) => Promise<Response>;
-  }) {
-    this.fetch = fetch;
+    fetch?: (url: string, init: RequestInit) => Promise<Response>;
+    onInvalidMatchPattern?: (err: unknown) => void;
+  } = {}) {
+    this.fetch =
+      fetch ??
+      (async () => {
+        throw new Error('no fetch provided');
+      });
+    this.onInvalidMatchPattern = onInvalidMatchPattern ?? (() => {});
   }
 
   async getLatestVersionIfMoreRecent(
@@ -110,7 +122,7 @@ export class UpdateNotificationManager {
 
     const cta = this.currentVersionGreetingCTA;
     if (!cta) return undefined;
-    if (cta.match && !ctaMatchesBuildInfo(cta.match, buildInfo))
+    if (!ctaMatchesBuildInfo(cta.match, buildInfo, this.onInvalidMatchPattern))
       return undefined;
     return cta.chunks;
   }
