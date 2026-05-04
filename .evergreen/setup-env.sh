@@ -4,6 +4,38 @@ set -x
 OS_ARCH="$(uname "-m")"
 
 export BASEDIR="$PWD/.evergreen"
+
+# When NODE_JS_VERSION=nightly, download the latest Node.js nightly tarball
+# directly from https://nodejs.org/download/nightly/ and pin to its concrete
+# version string for the remainder of this task. The first invocation in a
+# task downloads; subsequent invocations read $RESOLVED_NIGHTLY_FILE so
+# install + compile commands agree on the same version.
+#
+# scripts/import-expansions.js (loaded by every evergreen-release run via
+# ts-node) re-applies the YAML expansions on top of the process env, which
+# would clobber NODE_JS_VERSION back to "nightly". It honors a *_OVERRIDE
+# suffix though, so we also export NODE_JS_VERSION_OVERRIDE.
+RESOLVED_NIGHTLY_FILE="$BASEDIR/.resolved-nightly-node-version"
+NIGHTLY_NODE_DIR="$BASEDIR/node-nightly"
+if [ "$NODE_JS_VERSION" = "nightly" ]; then
+  if [ -s "$RESOLVED_NIGHTLY_FILE" ]; then
+    NODE_JS_VERSION=$(cat "$RESOLVED_NIGHTLY_FILE")
+  else
+    NODE_JS_VERSION=$(curl -sSfL https://nodejs.org/download/nightly/index.json \
+      | python3 -c 'import sys,json; print(json.load(sys.stdin)[0]["version"].lstrip("v"))')
+    echo "$NODE_JS_VERSION" > "$RESOLVED_NIGHTLY_FILE"
+  fi
+  if [ ! -x "$NIGHTLY_NODE_DIR/bin/node" ]; then
+    mkdir -p "$NIGHTLY_NODE_DIR"
+    curl -sSfL "https://nodejs.org/download/nightly/v$NODE_JS_VERSION/node-v$NODE_JS_VERSION-linux-x64.tar.xz" \
+      | tar -xJ --strip-components=1 -C "$NIGHTLY_NODE_DIR"
+  fi
+  export PATH="$NIGHTLY_NODE_DIR/bin:$PATH"
+  export NODE_JS_VERSION
+  export NODE_JS_VERSION_OVERRIDE="$NODE_JS_VERSION"
+  export USE_NIGHTLY_NODE=1
+fi
+
 export PATH="$BASEDIR/node-v$NODE_JS_VERSION-win-x64:/opt/java/jdk17/bin:$PATH"
 export MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING="$BASEDIR/../packages/testing/tests-globalconfig.conf"
 
@@ -45,9 +77,11 @@ if [ "$OS" != "Windows_NT" ]; then
 
     echo "Using gcc version:"
     (which gcc && gcc --version)
+    "$CC" --version | head -1
 
     echo "Using g++ version:"
     (which g++ && g++ --version)
+    "$CXX" --version | head -1
   fi
 else
   export NODE_GYP_FORCE_PYTHON="C:\python\Python311\python.exe"
@@ -56,7 +90,13 @@ fi
 
 NODE_JS_MAJOR_VERSION=$(echo "$NODE_JS_VERSION" | awk -F . '{print $1}')
 if echo "$NODE_JS_MAJOR_VERSION" | grep -q '^[0-9]*$'; then
-  export PATH="/opt/devtools/node$NODE_JS_MAJOR_VERSION/bin:$PATH"
+  if [ -n "$USE_NIGHTLY_NODE" ]; then
+    # The Linux branch above prepended /opt/devtools/bin (which ships its own
+    # `node`), so re-prepend the downloaded nightly bin to make sure it wins.
+    export PATH="$NIGHTLY_NODE_DIR/bin:$PATH"
+  else
+    export PATH="/opt/devtools/node$NODE_JS_MAJOR_VERSION/bin:$PATH"
+  fi
   echo "Detected Node.js version (requested v${NODE_JS_MAJOR_VERSION}.x):"
   node -v
   node -v | grep -q "^v$NODE_JS_MAJOR_VERSION"

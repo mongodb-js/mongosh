@@ -1229,6 +1229,35 @@ tasks:
           mongosh_server_test_version: "latest-alpha-enterprise"
           mongosh_test_force_api_strict: "1"
           task_name: ${task_name}
+
+  ###
+  # NODE.JS NIGHTLY EARLY-WARNING TASK
+  #
+  # Runs the e2e suite against the *source* mongosh (no boxednode compile)
+  # using a prebuilt Node.js nightly binary fetched via nvm. We rely on
+  # Node.js's official nightly builders for the V8 toolchain — our job is
+  # only to verify that mongosh's source + native addons work on the next
+  # upcoming Node.js release. Tagged "node-nightly-test" so it does not
+  # gate releases via the .e2e-test / .compile-artifact dependency chains.
+  ###
+  - name: test_e2e_node_nightly
+    tags: ["node-nightly-test", "assigned_to_jira_team_mongosh_mongosh"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_compile
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: ${node_js_version}
+      - func: test
+        vars:
+          node_js_version: ${node_js_version}
+          mongosh_server_test_version: ${mongosh_server_test_version}
+          mongosh_skip_node_version_check: "1"
+          mongosh_test_id: e2e_tests_node_nightly
+          mongosh_run_only_in_package: e2e-tests
+          task_name: ${task_name}
   - name: compile_artifact
     tags: ["compile-artifact"]
     depends_on:
@@ -1626,6 +1655,15 @@ buildvariants:
       - name: test_vscode
       - name: test_connectivity
       - name: test_apistrict
+  - name: linux_node_nightly
+    display_name: "Ubuntu 20.04 x64 (Node.js nightly e2e)"
+    run_on: ubuntu2004-small
+    tags: ["node-nightly-test"]
+    expansions:
+      node_js_version: "nightly"
+      mongosh_server_test_version: "stable-enterprise"
+    tasks:
+      - name: test_e2e_node_nightly
   - name: linux_coverage
     display_name: "Ubuntu 20.04 x64 (Coverage and Static Analysis Check)"
     run_on: ubuntu2004-small

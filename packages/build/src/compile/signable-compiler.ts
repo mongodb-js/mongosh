@@ -52,8 +52,11 @@ async function preCompileHook(nodeSourceTree: string) {
     'nodejs-patches'
   );
   // Sort all entries in the directory so that they are applied
-  // in order 001-(...).patch, 002-(...).patch, etc.
-  const patchFiles = (await fs.readdir(patchDirectory)).sort();
+  // in order 001-(...).patch, 002-(...).patch, etc. Only .patch files are
+  // applied so README/disabled drafts can sit alongside in the same directory.
+  const patchFiles = (await fs.readdir(patchDirectory))
+    .filter((entry) => entry.endsWith('.patch'))
+    .sort();
   for (const entry of patchFiles) {
     const patchFile = path.resolve(patchDirectory, entry);
     console.warn(`Applying patch from ${patchFile}...`);

@@ -1142,7 +1142,14 @@ export class CliRepl implements MongoshIOProvider {
       );
     }
 
-    if (!semver.satisfies(process.version, RECOMMENDED_NODEJS)) {
+    // includePrerelease so that running on a Node.js nightly / RC / beta
+    // (e.g. v26.0.0-nightly20260428...) doesn't get a spurious "lower than
+    // 24.0.0" warning — semver.satisfies excludes prereleases by default.
+    if (
+      !semver.satisfies(process.version, RECOMMENDED_NODEJS, {
+        includePrerelease: true,
+      })
+    ) {
       warnings.push(
         '  - Using mongosh with Node.js versions lower than 24.0.0 is deprecated, and support may be removed in a future release.'
       );
