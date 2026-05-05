@@ -227,7 +227,7 @@ describe('UpdateNotificationManager', function () {
       res.end(JSON.stringify(response));
     });
 
-    const manager = new UpdateNotificationManager();
+    const manager = new UpdateNotificationManager({ fetch });
     await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
 
     const cta = await manager.getGreetingCTAForCurrentVersion(
@@ -248,7 +248,7 @@ describe('UpdateNotificationManager', function () {
       res.end(JSON.stringify(response));
     });
 
-    const manager = new UpdateNotificationManager();
+    const manager = new UpdateNotificationManager({ fetch });
     await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
 
     const cta = await manager.getGreetingCTAForCurrentVersion(
@@ -269,7 +269,7 @@ describe('UpdateNotificationManager', function () {
       res.end(JSON.stringify(response));
     });
 
-    const manager = new UpdateNotificationManager();
+    const manager = new UpdateNotificationManager({ fetch });
     await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
 
     expect(
@@ -297,7 +297,7 @@ describe('UpdateNotificationManager', function () {
       res.end(JSON.stringify(response));
     });
 
-    const manager = new UpdateNotificationManager();
+    const manager = new UpdateNotificationManager({ fetch });
     await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
 
     expect(
@@ -330,7 +330,7 @@ describe('UpdateNotificationManager', function () {
       res.end(JSON.stringify(response));
     });
 
-    const manager = new UpdateNotificationManager();
+    const manager = new UpdateNotificationManager({ fetch });
     await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
 
     expect(
@@ -357,7 +357,7 @@ describe('UpdateNotificationManager', function () {
       res.end(JSON.stringify(response));
     });
 
-    const manager = new UpdateNotificationManager();
+    const manager = new UpdateNotificationManager({ fetch });
     await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
 
     expect(await manager.getGreetingCTAForCurrentVersion()).to.be.undefined;
@@ -372,7 +372,7 @@ describe('UpdateNotificationManager', function () {
       res.end(JSON.stringify(response));
     });
 
-    const manager = new UpdateNotificationManager();
+    const manager = new UpdateNotificationManager({ fetch });
     await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
 
     const cta = await manager.getGreetingCTAForCurrentVersion();
