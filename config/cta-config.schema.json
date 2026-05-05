@@ -25,6 +25,10 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+                "match": {
+                    "type": "string",
+                    "description": "Optional regular expression tested against an env-like serialization of buildInfo() (one `key=value` per line, nested fields flattened as `parent.child=value`). The CTA is only shown when the regex matches. Hidden when buildInfo is unavailable."
+                },
                 "chunks": {
                     "description": "The chunks that make up the CTA. They will be combined sequentially with no additional spacing added.",
                     "items": {

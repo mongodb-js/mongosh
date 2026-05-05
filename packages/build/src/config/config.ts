@@ -10,6 +10,11 @@ interface ManPageConfig {
 
 // This needs to match the interface in cli-repl/update-notification-manager.ts
 export interface GreetingCTADetails {
+  // Optional regular expression tested against an env-like serialization of
+  // buildInfo() (one `key=value` per line, nested fields flattened as
+  // `parent.child=value`). The CTA is only shown when the regex matches.
+  // When omitted, the CTA targets the version key alone.
+  match?: string;
   chunks: {
     text: string;
     // This is actually cli-repl/clr.ts/StyleDefinition, but we can't import it here.
