@@ -253,6 +253,8 @@ export class CliRepl implements MongoshIOProvider {
       };
     this.updateNotificationManager = new UpdateNotificationManager({
       fetch: this.fetch({ includeDeviceId: true }),
+      onInvalidMatchPattern: (err) =>
+        this.bus.emit('mongosh:error', err as Error, 'cta'),
     });
 
     // We can't really do anything meaningful if the output stream is broken or
@@ -545,14 +547,17 @@ export class CliRepl implements MongoshIOProvider {
       throw err;
     }
     markTime(TimingCategories.DriverSetup, 'completed SP setup');
+    const buildInfoPromise = buildInfo();
     const [
       moreRecentMongoshVersion,
       currentVersionCTA,
       { installationMethod },
     ] = await Promise.all([
       this.getMoreRecentMongoshVersion(),
-      this.updateNotificationManager.getGreetingCTAForCurrentVersion(),
-      buildInfo(),
+      buildInfoPromise.then((info) =>
+        this.updateNotificationManager.getGreetingCTAForCurrentVersion(info)
+      ),
+      buildInfoPromise,
     ]);
     const initialized = await this.mongoshRepl.initialize(
       initialServiceProvider,
