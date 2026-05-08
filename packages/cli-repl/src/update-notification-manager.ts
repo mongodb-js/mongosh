@@ -82,10 +82,7 @@ export class UpdateNotificationManager {
     onInvalidMatchPattern?: (err: unknown) => void;
   } = {}) {
     this.fetch =
-      fetch ??
-      (async () => {
-        throw new Error('no fetch provided');
-      });
+      fetch ?? (() => Promise.reject(new Error('no fetch provided')));
     this.onInvalidMatchPattern = onInvalidMatchPattern ?? (() => {});
   }
 
