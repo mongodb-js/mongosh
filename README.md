@@ -127,7 +127,7 @@ curl -fsSL https://raw.githubusercontent.com/mongodb-js/mongosh/refs/heads/main/
 
 ### Requirements
 
-- Node.js v20.x
+- Node.js v24.x
 
 ### Install
 
