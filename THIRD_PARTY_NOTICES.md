@@ -406,7 +406,7 @@ Package|Version|License
 **[proxy-addr](#7b128e3d41d39ecb1a405a490a53ae86f70ef45f01079333ed3ca49939f5fba8)**|2.0.7|MIT
 **[pump](#147f1bd3a6380306e696f0574feda0b1490121a1d12e4500e91ffb6e888ffa3a)**|3.0.0|MIT
 **[punycode](#3fe331f5536b72438f24d644ea9804b5e462f791a4c72a6d94f37193af1086aa)**|2.3.1|MIT
-**[qs](#5e96cbe2a075584852ede49714237b437609b10166457b4752116bfae15bed0c)**|6.14.2|BSD-3-Clause
+**[qs](#f41e0645d0326d5fc38df1637f08773501ebf70badfc22df95ffb8f2c5fe27e2)**|6.15.2|BSD-3-Clause
 **[range-parser](#e973789240fef3c00f359e6acc8570dd769b70ee8b29fdcb679897fa2d696bff)**|1.2.1|MIT
 **[raw-body](#6c791d6d9ec7a011e573514432e037b3a1a50a921c494c45b57d79af7f2a3d7b)**|3.0.2|MIT
 **[rc](#0dd705bd5862b4c60ed88e6b4a6f5ece23c627c97f6928233d32aefdd463c3f7)**|1.2.8|(BSD-2-Clause OR MIT OR Apache-2.0)
@@ -31788,8 +31788,8 @@ License files:
       
 
 
-<a id="5e96cbe2a075584852ede49714237b437609b10166457b4752116bfae15bed0c"></a>
-### [qs](https://www.npmjs.com/package/qs) (version 6.14.2)
+<a id="f41e0645d0326d5fc38df1637f08773501ebf70badfc22df95ffb8f2c5fe27e2"></a>
+### [qs](https://www.npmjs.com/package/qs) (version 6.15.2)
 License tags: BSD-3-Clause
 
 License files:
