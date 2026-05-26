@@ -1,0 +1,3 @@
+lib/
+local-test.js
+src/runtime-support.out.nocov.ts

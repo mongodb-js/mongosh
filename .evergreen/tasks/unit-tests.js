@@ -18,23 +18,26 @@ const MONGOSH_PACKAGES = fs
   )
   .map((d) => ({
     name: d.name,
-    ...(JSON.parse(
+    packageJson: JSON.parse(
       fs.readFileSync(
         path.join(pathToPackages, d.name, 'package.json'),
         'utf-8'
       )
-    ).mongosh || {}),
+    ) || {},
   }));
 
 for (const packageInfo of MONGOSH_PACKAGES) {
-  const id = `${packageInfo.name.replace(/-/g, '_')}`;
+  if (!packageInfo.packageJson.scripts['test-ci']) continue;
 
-  const variants = packageInfo.variants ?? PLATFORMS;
+  const id = `${packageInfo.name.replace(/-/g, '_')}`;
+  const mongoshPackageInfo = packageInfo.packageJson.mongosh ?? {};
+
+  const variants = mongoshPackageInfo.variants ?? PLATFORMS;
   UNIT_TESTS.push({
     id,
     packageName: packageInfo.name,
-    unitTestsOnly: packageInfo.unitTestsOnly || false,
-    usePuppeteer: packageInfo.usePuppeteer || false,
+    unitTestsOnly: mongoshPackageInfo.unitTestsOnly || false,
+    usePuppeteer: mongoshPackageInfo.usePuppeteer || false,
     variants,
   });
 }

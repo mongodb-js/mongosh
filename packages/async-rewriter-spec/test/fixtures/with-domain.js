@@ -1,7 +1,9 @@
 'use strict';
-const { default: AsyncWriter } = require('../../');
 const domain = require('domain');
 const vm = require('vm');
+const fs = require('fs');
+
+const asyncRewriterRuntimeSupportCode = fs.readFileSync(process.env.ASYNC_REWRITER_RUNTIME_SUPPORT_CODE, 'utf8');
 
 // This script should not enter an infinite loop. In the past, it did on
 // Node.js < 14.15.2, because domains use Array.prototype.every when being
@@ -10,8 +12,7 @@ const vm = require('vm');
 // entered, and so on.
 
 const d = domain.create();
-const aw = new AsyncWriter();
 d.run(() => {
-  vm.runInThisContext(aw.runtimeSupportCode());
+  vm.runInThisContext(asyncRewriterRuntimeSupportCode);
   return vm.runInThisContext('(async() => 42)()');
 });
