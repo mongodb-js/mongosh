@@ -564,20 +564,6 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-darwin-n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-darwin-n24-testing.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/nyc-output-darwin-n24-types.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n24-types.tgz
         bucket: mciuploads
@@ -676,20 +662,6 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_darwin-m60xc_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m60xc_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_darwin-m60xc_n24-testing.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_darwin-m60xe_n24-async_rewriter3.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m60xe_n24-async_rewriter3.tgz
         bucket: mciuploads
@@ -770,20 +742,6 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_darwin-m60xe_n24-shell_api.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_darwin-m60xe_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m60xe_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_darwin-m60xe_n24-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -872,20 +830,6 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_darwin-m70xc_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m70xc_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_darwin-m70xc_n24-testing.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_darwin-m70xe_n24-async_rewriter3.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m70xe_n24-async_rewriter3.tgz
         bucket: mciuploads
@@ -966,20 +910,6 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_darwin-m70xe_n24-shell_api.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_darwin-m70xe_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m70xe_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_darwin-m70xe_n24-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -1068,20 +998,6 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_darwin-m80xc_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m80xc_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_darwin-m80xc_n24-testing.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_darwin-m80xe_n24-async_rewriter3.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m80xe_n24-async_rewriter3.tgz
         bucket: mciuploads
@@ -1162,20 +1078,6 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_darwin-m80xe_n24-shell_api.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_darwin-m80xe_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m80xe_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_darwin-m80xe_n24-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -1264,20 +1166,6 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_darwin-m83xc_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m83xc_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_darwin-m83xc_n24-testing.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_darwin-m83xe_n24-async_rewriter3.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m83xe_n24-async_rewriter3.tgz
         bucket: mciuploads
@@ -1362,20 +1250,6 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_darwin-m83xe_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m83xe_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_darwin-m83xe_n24-testing.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_darwin-mlatest_n24-async_rewriter3.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-mlatest_n24-async_rewriter3.tgz
         bucket: mciuploads
@@ -1456,20 +1330,6 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_darwin-mlatest_n24-shell_api.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_darwin-mlatest_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-mlatest_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_darwin-mlatest_n24-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -1796,20 +1656,6 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux-n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-linux-n24-testing.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/nyc-output-linux-n24-types.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n24-types.tgz
         bucket: mciuploads
@@ -1922,20 +1768,6 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m42xc_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m42xc_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_linux-m42xc_n24-testing.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_linux-m44xc_n24-async_rewriter3.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m44xc_n24-async_rewriter3.tgz
         bucket: mciuploads
@@ -2030,20 +1862,6 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_linux-m44xc_n24-shell_api.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m44xc_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m44xc_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_linux-m44xc_n24-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -2146,20 +1964,6 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m44xe_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m44xe_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_linux-m44xe_n24-testing.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_linux-m50xc_n24-async_rewriter3.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m50xc_n24-async_rewriter3.tgz
         bucket: mciuploads
@@ -2254,20 +2058,6 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_linux-m50xc_n24-shell_api.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m50xc_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m50xc_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_linux-m50xc_n24-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -2370,20 +2160,6 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m50xe_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m50xe_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_linux-m50xe_n24-testing.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_linux-m60xc_n24-async_rewriter3.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m60xc_n24-async_rewriter3.tgz
         bucket: mciuploads
@@ -2478,20 +2254,6 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_linux-m60xc_n24-shell_api.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m60xc_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m60xc_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_linux-m60xc_n24-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -2594,20 +2356,6 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m60xe_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m60xe_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_linux-m60xe_n24-testing.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_linux-m70xc_n24-async_rewriter3.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m70xc_n24-async_rewriter3.tgz
         bucket: mciuploads
@@ -2702,20 +2450,6 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_linux-m70xc_n24-shell_api.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m70xc_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m70xc_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_linux-m70xc_n24-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -2818,20 +2552,6 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m70xe_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m70xe_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_linux-m70xe_n24-testing.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_linux-m80xc_n24-async_rewriter3.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m80xc_n24-async_rewriter3.tgz
         bucket: mciuploads
@@ -2926,20 +2646,6 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_linux-m80xc_n24-shell_api.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m80xc_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m80xc_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_linux-m80xc_n24-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -3042,20 +2748,6 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m80xe_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m80xe_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_linux-m80xe_n24-testing.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_linux-m83xc_n24-async_rewriter3.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m83xc_n24-async_rewriter3.tgz
         bucket: mciuploads
@@ -3150,20 +2842,6 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_linux-m83xc_n24-shell_api.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m83xc_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m83xc_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_linux-m83xc_n24-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -3266,20 +2944,6 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m83xe_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m83xe_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_linux-m83xe_n24-testing.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_linux-mlatest_n24-async_rewriter3.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-mlatest_n24-async_rewriter3.tgz
         bucket: mciuploads
@@ -3374,20 +3038,6 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_linux-mlatest_n24-shell_api.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-mlatest_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-mlatest_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_linux-mlatest_n24-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -3700,20 +3350,6 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-win32-n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-win32-n24-testing.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/nyc-output-win32-n24-types.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-n24-types.tgz
         bucket: mciuploads
@@ -3812,20 +3448,6 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m42xc_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m42xc_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_win32-m42xc_n24-testing.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_win32-m42xe_n24-async_rewriter3.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m42xe_n24-async_rewriter3.tgz
         bucket: mciuploads
@@ -3906,20 +3528,6 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_win32-m42xe_n24-shell_api.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m42xe_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m42xe_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_win32-m42xe_n24-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -4008,20 +3616,6 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m44xc_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m44xc_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_win32-m44xc_n24-testing.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_win32-m44xe_n24-async_rewriter3.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m44xe_n24-async_rewriter3.tgz
         bucket: mciuploads
@@ -4102,20 +3696,6 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_win32-m44xe_n24-shell_api.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m44xe_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m44xe_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_win32-m44xe_n24-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -4204,20 +3784,6 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m50xc_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m50xc_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_win32-m50xc_n24-testing.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_win32-m50xe_n24-async_rewriter3.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m50xe_n24-async_rewriter3.tgz
         bucket: mciuploads
@@ -4298,20 +3864,6 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_win32-m50xe_n24-shell_api.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m50xe_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m50xe_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_win32-m50xe_n24-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -4400,20 +3952,6 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m60xc_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m60xc_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_win32-m60xc_n24-testing.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_win32-m60xe_n24-async_rewriter3.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m60xe_n24-async_rewriter3.tgz
         bucket: mciuploads
@@ -4494,20 +4032,6 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_win32-m60xe_n24-shell_api.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m60xe_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m60xe_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_win32-m60xe_n24-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -4596,20 +4120,6 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m70xc_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m70xc_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_win32-m70xc_n24-testing.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_win32-m70xe_n24-async_rewriter3.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m70xe_n24-async_rewriter3.tgz
         bucket: mciuploads
@@ -4690,20 +4200,6 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_win32-m70xe_n24-shell_api.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m70xe_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m70xe_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_win32-m70xe_n24-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -4792,20 +4288,6 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m80xc_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m80xc_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_win32-m80xc_n24-testing.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_win32-m80xe_n24-async_rewriter3.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m80xe_n24-async_rewriter3.tgz
         bucket: mciuploads
@@ -4886,20 +4368,6 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_win32-m80xe_n24-shell_api.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m80xe_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m80xe_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_win32-m80xe_n24-testing.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -4988,20 +4456,6 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m83xc_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m83xc_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_win32-m83xc_n24-testing.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_win32-m83xe_n24-async_rewriter3.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m83xe_n24-async_rewriter3.tgz
         bucket: mciuploads
@@ -5086,20 +4540,6 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m83xe_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m83xe_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_win32-m83xe_n24-testing.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_win32-mlatest_n24-async_rewriter3.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-mlatest_n24-async_rewriter3.tgz
         bucket: mciuploads
@@ -5180,20 +4620,6 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_win32-mlatest_n24-shell_api.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-mlatest_n24-testing.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-mlatest_n24-testing.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_win32-mlatest_n24-testing.tgz
     - command: shell.exec
       params:
         working_dir: src
@@ -6179,8 +5605,6 @@ tasks:
         variant: darwin-n24
       - name: test_snippet_manager
         variant: darwin-n24
-      - name: test_testing
-        variant: darwin-n24
       - name: test_types
         variant: darwin-n24
       - name: test_async_rewriter3
@@ -6195,8 +5619,6 @@ tasks:
         variant: tests_darwin-m60xc_n24
       - name: test_shell_api
         variant: tests_darwin-m60xc_n24
-      - name: test_testing
-        variant: tests_darwin-m60xc_n24
       - name: test_async_rewriter3
         variant: tests_darwin-m60xe_n24
       - name: test_cli_repl
@@ -6208,8 +5630,6 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_darwin-m60xe_n24
       - name: test_shell_api
-        variant: tests_darwin-m60xe_n24
-      - name: test_testing
         variant: tests_darwin-m60xe_n24
       - name: test_async_rewriter3
         variant: tests_darwin-m70xc_n24
@@ -6223,8 +5643,6 @@ tasks:
         variant: tests_darwin-m70xc_n24
       - name: test_shell_api
         variant: tests_darwin-m70xc_n24
-      - name: test_testing
-        variant: tests_darwin-m70xc_n24
       - name: test_async_rewriter3
         variant: tests_darwin-m70xe_n24
       - name: test_cli_repl
@@ -6236,8 +5654,6 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_darwin-m70xe_n24
       - name: test_shell_api
-        variant: tests_darwin-m70xe_n24
-      - name: test_testing
         variant: tests_darwin-m70xe_n24
       - name: test_async_rewriter3
         variant: tests_darwin-m80xc_n24
@@ -6251,8 +5667,6 @@ tasks:
         variant: tests_darwin-m80xc_n24
       - name: test_shell_api
         variant: tests_darwin-m80xc_n24
-      - name: test_testing
-        variant: tests_darwin-m80xc_n24
       - name: test_async_rewriter3
         variant: tests_darwin-m80xe_n24
       - name: test_cli_repl
@@ -6265,8 +5679,6 @@ tasks:
         variant: tests_darwin-m80xe_n24
       - name: test_shell_api
         variant: tests_darwin-m80xe_n24
-      - name: test_testing
-        variant: tests_darwin-m80xe_n24
       - name: test_async_rewriter3
         variant: tests_darwin-m83xc_n24
       - name: test_cli_repl
@@ -6278,8 +5690,6 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_darwin-m83xc_n24
       - name: test_shell_api
-        variant: tests_darwin-m83xc_n24
-      - name: test_testing
         variant: tests_darwin-m83xc_n24
       - name: test_async_rewriter3
         variant: tests_darwin-m83xe_n24
@@ -6292,8 +5702,6 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_darwin-m83xe_n24
       - name: test_shell_api
-        variant: tests_darwin-m83xe_n24
-      - name: test_testing
         variant: tests_darwin-m83xe_n24
       - name: test_async_rewriter3
         variant: tests_darwin-mlatest_n24
@@ -6306,8 +5714,6 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_darwin-mlatest_n24
       - name: test_shell_api
-        variant: tests_darwin-mlatest_n24
-      - name: test_testing
         variant: tests_darwin-mlatest_n24
       - name: test_arg_parser
         variant: linux-n24
@@ -6355,8 +5761,6 @@ tasks:
         variant: linux-n24
       - name: test_snippet_manager
         variant: linux-n24
-      - name: test_testing
-        variant: linux-n24
       - name: test_types
         variant: linux-n24
       - name: test_async_rewriter3
@@ -6373,8 +5777,6 @@ tasks:
         variant: tests_linux-m42xc_n24
       - name: test_shell_api
         variant: tests_linux-m42xc_n24
-      - name: test_testing
-        variant: tests_linux-m42xc_n24
       - name: test_async_rewriter3
         variant: tests_linux-m44xc_n24
       - name: test_cli_repl
@@ -6388,8 +5790,6 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_linux-m44xc_n24
       - name: test_shell_api
-        variant: tests_linux-m44xc_n24
-      - name: test_testing
         variant: tests_linux-m44xc_n24
       - name: test_async_rewriter3
         variant: tests_linux-m44xe_n24
@@ -6405,8 +5805,6 @@ tasks:
         variant: tests_linux-m44xe_n24
       - name: test_shell_api
         variant: tests_linux-m44xe_n24
-      - name: test_testing
-        variant: tests_linux-m44xe_n24
       - name: test_async_rewriter3
         variant: tests_linux-m50xc_n24
       - name: test_cli_repl
@@ -6420,8 +5818,6 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_linux-m50xc_n24
       - name: test_shell_api
-        variant: tests_linux-m50xc_n24
-      - name: test_testing
         variant: tests_linux-m50xc_n24
       - name: test_async_rewriter3
         variant: tests_linux-m50xe_n24
@@ -6437,8 +5833,6 @@ tasks:
         variant: tests_linux-m50xe_n24
       - name: test_shell_api
         variant: tests_linux-m50xe_n24
-      - name: test_testing
-        variant: tests_linux-m50xe_n24
       - name: test_async_rewriter3
         variant: tests_linux-m60xc_n24
       - name: test_cli_repl
@@ -6452,8 +5846,6 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_linux-m60xc_n24
       - name: test_shell_api
-        variant: tests_linux-m60xc_n24
-      - name: test_testing
         variant: tests_linux-m60xc_n24
       - name: test_async_rewriter3
         variant: tests_linux-m60xe_n24
@@ -6469,8 +5861,6 @@ tasks:
         variant: tests_linux-m60xe_n24
       - name: test_shell_api
         variant: tests_linux-m60xe_n24
-      - name: test_testing
-        variant: tests_linux-m60xe_n24
       - name: test_async_rewriter3
         variant: tests_linux-m70xc_n24
       - name: test_cli_repl
@@ -6484,8 +5874,6 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_linux-m70xc_n24
       - name: test_shell_api
-        variant: tests_linux-m70xc_n24
-      - name: test_testing
         variant: tests_linux-m70xc_n24
       - name: test_async_rewriter3
         variant: tests_linux-m70xe_n24
@@ -6500,8 +5888,6 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_linux-m70xe_n24
       - name: test_shell_api
-        variant: tests_linux-m70xe_n24
-      - name: test_testing
         variant: tests_linux-m70xe_n24
       - name: test_async_rewriter3
         variant: tests_linux-m80xc_n24
@@ -6516,8 +5902,6 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_linux-m80xc_n24
       - name: test_shell_api
-        variant: tests_linux-m80xc_n24
-      - name: test_testing
         variant: tests_linux-m80xc_n24
       - name: test_async_rewriter3
         variant: tests_linux-m80xe_n24
@@ -6532,8 +5916,6 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_linux-m80xe_n24
       - name: test_shell_api
-        variant: tests_linux-m80xe_n24
-      - name: test_testing
         variant: tests_linux-m80xe_n24
       - name: test_async_rewriter3
         variant: tests_linux-m83xc_n24
@@ -6548,8 +5930,6 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_linux-m83xc_n24
       - name: test_shell_api
-        variant: tests_linux-m83xc_n24
-      - name: test_testing
         variant: tests_linux-m83xc_n24
       - name: test_async_rewriter3
         variant: tests_linux-m83xe_n24
@@ -6564,8 +5944,6 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_linux-m83xe_n24
       - name: test_shell_api
-        variant: tests_linux-m83xe_n24
-      - name: test_testing
         variant: tests_linux-m83xe_n24
       - name: test_async_rewriter3
         variant: tests_linux-mlatest_n24
@@ -6580,8 +5958,6 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_linux-mlatest_n24
       - name: test_shell_api
-        variant: tests_linux-mlatest_n24
-      - name: test_testing
         variant: tests_linux-mlatest_n24
       - name: test_arg_parser
         variant: win32-n24
@@ -6627,8 +6003,6 @@ tasks:
         variant: win32-n24
       - name: test_snippet_manager
         variant: win32-n24
-      - name: test_testing
-        variant: win32-n24
       - name: test_types
         variant: win32-n24
       - name: test_async_rewriter3
@@ -6643,8 +6017,6 @@ tasks:
         variant: tests_win32-m42xc_n24
       - name: test_shell_api
         variant: tests_win32-m42xc_n24
-      - name: test_testing
-        variant: tests_win32-m42xc_n24
       - name: test_async_rewriter3
         variant: tests_win32-m42xe_n24
       - name: test_cli_repl
@@ -6656,8 +6028,6 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_win32-m42xe_n24
       - name: test_shell_api
-        variant: tests_win32-m42xe_n24
-      - name: test_testing
         variant: tests_win32-m42xe_n24
       - name: test_async_rewriter3
         variant: tests_win32-m44xc_n24
@@ -6671,8 +6041,6 @@ tasks:
         variant: tests_win32-m44xc_n24
       - name: test_shell_api
         variant: tests_win32-m44xc_n24
-      - name: test_testing
-        variant: tests_win32-m44xc_n24
       - name: test_async_rewriter3
         variant: tests_win32-m44xe_n24
       - name: test_cli_repl
@@ -6684,8 +6052,6 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_win32-m44xe_n24
       - name: test_shell_api
-        variant: tests_win32-m44xe_n24
-      - name: test_testing
         variant: tests_win32-m44xe_n24
       - name: test_async_rewriter3
         variant: tests_win32-m50xc_n24
@@ -6699,8 +6065,6 @@ tasks:
         variant: tests_win32-m50xc_n24
       - name: test_shell_api
         variant: tests_win32-m50xc_n24
-      - name: test_testing
-        variant: tests_win32-m50xc_n24
       - name: test_async_rewriter3
         variant: tests_win32-m50xe_n24
       - name: test_cli_repl
@@ -6713,8 +6077,6 @@ tasks:
         variant: tests_win32-m50xe_n24
       - name: test_shell_api
         variant: tests_win32-m50xe_n24
-      - name: test_testing
-        variant: tests_win32-m50xe_n24
       - name: test_async_rewriter3
         variant: tests_win32-m60xc_n24
       - name: test_cli_repl
@@ -6726,8 +6088,6 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_win32-m60xc_n24
       - name: test_shell_api
-        variant: tests_win32-m60xc_n24
-      - name: test_testing
         variant: tests_win32-m60xc_n24
       - name: test_async_rewriter3
         variant: tests_win32-m60xe_n24
@@ -6740,8 +6100,6 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_win32-m60xe_n24
       - name: test_shell_api
-        variant: tests_win32-m60xe_n24
-      - name: test_testing
         variant: tests_win32-m60xe_n24
       - name: test_async_rewriter3
         variant: tests_win32-m70xc_n24
@@ -6754,8 +6112,6 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_win32-m70xc_n24
       - name: test_shell_api
-        variant: tests_win32-m70xc_n24
-      - name: test_testing
         variant: tests_win32-m70xc_n24
       - name: test_async_rewriter3
         variant: tests_win32-m70xe_n24
@@ -6768,8 +6124,6 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_win32-m70xe_n24
       - name: test_shell_api
-        variant: tests_win32-m70xe_n24
-      - name: test_testing
         variant: tests_win32-m70xe_n24
       - name: test_async_rewriter3
         variant: tests_win32-m80xc_n24
@@ -6782,8 +6136,6 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_win32-m80xc_n24
       - name: test_shell_api
-        variant: tests_win32-m80xc_n24
-      - name: test_testing
         variant: tests_win32-m80xc_n24
       - name: test_async_rewriter3
         variant: tests_win32-m80xe_n24
@@ -6796,8 +6148,6 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_win32-m80xe_n24
       - name: test_shell_api
-        variant: tests_win32-m80xe_n24
-      - name: test_testing
         variant: tests_win32-m80xe_n24
       - name: test_async_rewriter3
         variant: tests_win32-m83xc_n24
@@ -6810,8 +6160,6 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_win32-m83xc_n24
       - name: test_shell_api
-        variant: tests_win32-m83xc_n24
-      - name: test_testing
         variant: tests_win32-m83xc_n24
       - name: test_async_rewriter3
         variant: tests_win32-m83xe_n24
@@ -6824,8 +6172,6 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_win32-m83xe_n24
       - name: test_shell_api
-        variant: tests_win32-m83xe_n24
-      - name: test_testing
         variant: tests_win32-m83xe_n24
       - name: test_async_rewriter3
         variant: tests_win32-mlatest_n24
@@ -6838,8 +6184,6 @@ tasks:
       - name: test_service_provider_node_driver
         variant: tests_win32-mlatest_n24
       - name: test_shell_api
-        variant: tests_win32-mlatest_n24
-      - name: test_testing
         variant: tests_win32-mlatest_n24
     commands:
       - func: checkout
@@ -7371,26 +6715,6 @@ tasks:
           mongosh_skip_node_version_check: ${mongosh_skip_node_version_check}
           mongosh_test_id: "snippet_manager"
           mongosh_run_only_in_package: "snippet-manager"
-          task_name: ${task_name}
-  - name: test_testing
-    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
-    depends_on:
-      - name: compile_ts
-        variant: linux_compile
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: ${node_js_version}
-          puppeteer_skip_download: "true"
-          mongosh_install_workspace: "@mongosh/testing"
-      - func: test
-        vars:
-          mongosh_server_test_version: ${mongosh_server_test_version}
-          node_js_version: ${node_js_version}
-          mongosh_skip_node_version_check: ${mongosh_skip_node_version_check}
-          mongosh_test_id: "testing"
-          mongosh_run_only_in_package: "testing"
           task_name: ${task_name}
   - name: test_types
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
@@ -12046,7 +11370,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_darwin-m60xc_n24
     display_name: "MacOS 14 arm64 m60xc n24 (Unit tests)"
@@ -12082,7 +11405,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_darwin-m60xe_n24
     display_name: "MacOS 14 arm64 m60xe n24 (Unit tests)"
@@ -12118,7 +11440,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_darwin-m70xc_n24
     display_name: "MacOS 14 arm64 m70xc n24 (Unit tests)"
@@ -12154,7 +11475,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_darwin-m70xe_n24
     display_name: "MacOS 14 arm64 m70xe n24 (Unit tests)"
@@ -12190,7 +11510,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_darwin-m80xc_n24
     display_name: "MacOS 14 arm64 m80xc n24 (Unit tests)"
@@ -12226,7 +11545,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_darwin-m80xe_n24
     display_name: "MacOS 14 arm64 m80xe n24 (Unit tests)"
@@ -12262,7 +11580,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_darwin-m83xc_n24
     display_name: "MacOS 14 arm64 m83xc n24 (Unit tests)"
@@ -12298,7 +11615,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_darwin-m83xe_n24
     display_name: "MacOS 14 arm64 m83xe n24 (Unit tests)"
@@ -12334,7 +11650,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_darwin-mlatest_n24
     display_name: "MacOS 14 arm64 mlatest n24 (Unit tests)"
@@ -12370,7 +11685,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: linux-n24
     display_name: "Ubuntu 20.04 x64 n24 (Unit tests)"
@@ -12406,7 +11720,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_linux-m42xc_n24
     display_name: "Ubuntu 20.04 x64 m42xc n24 (Unit tests)"
@@ -12442,7 +11755,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_linux-m44xc_n24
     display_name: "Ubuntu 20.04 x64 m44xc n24 (Unit tests)"
@@ -12478,7 +11790,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_linux-m44xe_n24
     display_name: "Ubuntu 20.04 x64 m44xe n24 (Unit tests)"
@@ -12514,7 +11825,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_linux-m50xc_n24
     display_name: "Ubuntu 20.04 x64 m50xc n24 (Unit tests)"
@@ -12550,7 +11860,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_linux-m50xe_n24
     display_name: "Ubuntu 20.04 x64 m50xe n24 (Unit tests)"
@@ -12586,7 +11895,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_linux-m60xc_n24
     display_name: "Ubuntu 20.04 x64 m60xc n24 (Unit tests)"
@@ -12622,7 +11930,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_linux-m60xe_n24
     display_name: "Ubuntu 20.04 x64 m60xe n24 (Unit tests)"
@@ -12658,7 +11965,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_linux-m70xc_n24
     display_name: "Ubuntu 20.04 x64 m70xc n24 (Unit tests)"
@@ -12694,7 +12000,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_linux-m70xe_n24
     display_name: "Ubuntu 20.04 x64 m70xe n24 (Unit tests)"
@@ -12730,7 +12035,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_linux-m80xc_n24
     display_name: "Ubuntu 20.04 x64 m80xc n24 (Unit tests)"
@@ -12766,7 +12070,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_linux-m80xe_n24
     display_name: "Ubuntu 20.04 x64 m80xe n24 (Unit tests)"
@@ -12802,7 +12105,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_linux-m83xc_n24
     display_name: "Ubuntu 20.04 x64 m83xc n24 (Unit tests)"
@@ -12838,7 +12140,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_linux-m83xe_n24
     display_name: "Ubuntu 20.04 x64 m83xe n24 (Unit tests)"
@@ -12874,7 +12175,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_linux-mlatest_n24
     display_name: "Ubuntu 20.04 x64 mlatest n24 (Unit tests)"
@@ -12910,7 +12210,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: win32-n24
     display_name: "Windows n24 (Unit tests)"
@@ -12945,7 +12244,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_win32-m42xc_n24
     display_name: "Windows m42xc n24 (Unit tests)"
@@ -12980,7 +12278,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_win32-m42xe_n24
     display_name: "Windows m42xe n24 (Unit tests)"
@@ -13015,7 +12312,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_win32-m44xc_n24
     display_name: "Windows m44xc n24 (Unit tests)"
@@ -13050,7 +12346,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_win32-m44xe_n24
     display_name: "Windows m44xe n24 (Unit tests)"
@@ -13085,7 +12380,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_win32-m50xc_n24
     display_name: "Windows m50xc n24 (Unit tests)"
@@ -13120,7 +12414,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_win32-m50xe_n24
     display_name: "Windows m50xe n24 (Unit tests)"
@@ -13155,7 +12448,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_win32-m60xc_n24
     display_name: "Windows m60xc n24 (Unit tests)"
@@ -13190,7 +12482,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_win32-m60xe_n24
     display_name: "Windows m60xe n24 (Unit tests)"
@@ -13225,7 +12516,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_win32-m70xc_n24
     display_name: "Windows m70xc n24 (Unit tests)"
@@ -13260,7 +12550,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_win32-m70xe_n24
     display_name: "Windows m70xe n24 (Unit tests)"
@@ -13295,7 +12584,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_win32-m80xc_n24
     display_name: "Windows m80xc n24 (Unit tests)"
@@ -13330,7 +12618,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_win32-m80xe_n24
     display_name: "Windows m80xe n24 (Unit tests)"
@@ -13365,7 +12652,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_win32-m83xc_n24
     display_name: "Windows m83xc n24 (Unit tests)"
@@ -13400,7 +12686,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_win32-m83xe_n24
     display_name: "Windows m83xe n24 (Unit tests)"
@@ -13435,7 +12720,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: tests_win32-mlatest_n24
     display_name: "Windows mlatest n24 (Unit tests)"
@@ -13470,7 +12754,6 @@ buildvariants:
       - name: test_shell_bson
       - name: test_shell_evaluator
       - name: test_snippet_manager
-      - name: test_testing
       - name: test_types
   - name: build_linux_x64
     display_name: "RHEL 7.0 x64 (Build)"

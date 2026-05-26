@@ -21,8 +21,8 @@
       "path": "scripts/docker"
     },
     {
-      "name": "📦 @mongosh/async-rewriter2",
-      "path": "packages/async-rewriter2"
+      "name": "📦 @mongosh/async-rewriter-spec",
+      "path": "packages/async-rewriter-spec"
     },
     {
       "name": "📦 @mongosh/build",
@@ -43,6 +43,10 @@
     {
       "name": "📦 @mongosh/types",
       "path": "packages/types"
+    },
+    {
+      "name": "📦 @mongosh/async-rewriter2",
+      "path": "packages/async-rewriter2"
     },
     {
       "name": "📦 @mongosh/i18n",

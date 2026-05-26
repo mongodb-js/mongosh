@@ -162,7 +162,6 @@ const config: KnipConfig = {
       entry: [
         "src/index.ts!",
         "bin/*.js!",
-        "test/fixtures/**/*",
         "scripts/*.js",
         "benchmark/index.ts",
       ],
@@ -170,6 +169,13 @@ const config: KnipConfig = {
         // Used by make-runtime-support.js
         "src/runtime-support.nocov.js",
       ],
+    },
+
+    "packages/async-rewriter-spec": {
+      entry: [
+        "src/index.ts",
+        "test/fixtures/**/*",
+      ]
     },
 
     "packages/snippet-manager": {
