@@ -44,16 +44,22 @@ import {
 } from '@mongosh/types';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { getOsInfo } from './get-os-info';
+import { getOsInfo, type OsInfo } from './get-os-info';
 import { UpdateNotificationManager } from './update-notification-manager';
 import { getTimingData, markTime, summariseTimingData } from './startup-timing';
 import type { IdPInfo } from 'mongodb';
 import type {
   AgentWithInitialize,
   DevtoolsProxyOptions,
+  RequestInit,
+  Response,
 } from '@mongodb-js/devtools-proxy-support';
-import { useOrCreateAgent } from '@mongodb-js/devtools-proxy-support';
+import {
+  createFetch,
+  useOrCreateAgent,
+} from '@mongodb-js/devtools-proxy-support';
 import { fullDepthInspectOptions } from './format-output';
+import { getDeviceIdForMongosh } from './device-id';
 
 /**
  * Connecting text key.
@@ -137,10 +143,17 @@ export class CliRepl implements MongoshIOProvider {
     useEnvironmentVariableProxies: true,
   };
   agent: AgentWithInitialize | undefined;
+  fetch: ({
+    includeDeviceId,
+  }: {
+    includeDeviceId: boolean;
+  }) => (url: string, init?: RequestInit) => Promise<Response>;
   updateNotificationManager: UpdateNotificationManager;
   fetchMongoshUpdateUrlRegardlessOfCiEnvironment = false; // for testing
-  cachedGlibcVersion: null | string | undefined = null;
   exitingForStartupError = false;
+  deviceId: Promise<string> | string | undefined = undefined;
+  osInfo: Promise<OsInfo> | OsInfo | undefined = undefined;
+  closeAbortController = new AbortController();
 
   private loggingAndTelemetry: MongoshLoggingAndTelemetry | undefined;
 
@@ -194,8 +207,54 @@ export class CliRepl implements MongoshIOProvider {
       });
 
     this.agent = useOrCreateAgent(this.proxyOptions);
+    const baseFetch = createFetch(this.agent ?? {});
+    const { version }: { version: string } = require('../package.json');
+    this.fetch =
+      ({ includeDeviceId }) =>
+      async (url, init) => {
+        const [
+          { os_type, os_release, os_arch, os_linux_dist, os_linux_release },
+          deviceId,
+        ] = await Promise.all([
+          this.getOsInfo(),
+          (async () => {
+            // TODO: There should be a single way used throughout this class
+            // to check whether telemetry is enabled or not, instead of directly checking
+            // config values in some places and passing an `enabled` flag to
+            // `setTelemetryEnabled` in others.
+            if (
+              !includeDeviceId ||
+              this.forceDisableTelemetry ||
+              !(await this.getConfig('enableTelemetry'))
+            ) {
+              return 'disabled';
+            }
+            return await this.getDeviceId();
+          })(),
+        ]);
+        const userAgentTags = [
+          `mongosh/${version}`,
+          os_type,
+          os_release,
+          os_arch,
+          os_linux_dist ?? '',
+          os_linux_release ?? '',
+          deviceId,
+        ]
+          .map((s) => s.replace(/[^a-zA-Z0-9./_-]/g, '_'))
+          .join('; ');
+        return baseFetch(url, {
+          ...init,
+          headers: {
+            ...init?.headers,
+            'User-Agent': userAgentTags,
+          },
+        });
+      };
     this.updateNotificationManager = new UpdateNotificationManager({
-      proxyOptions: this.agent,
+      fetch: this.fetch({ includeDeviceId: true }),
+      onInvalidMatchPattern: (err) =>
+        this.bus.emit('mongosh:error', err as Error, 'cta'),
     });
 
     // We can't really do anything meaningful if the output stream is broken or
@@ -335,6 +394,18 @@ export class CliRepl implements MongoshIOProvider {
     }
   }
 
+  private getDeviceId(): Promise<string> | string {
+    return (this.deviceId ??= (async () =>
+      (this.deviceId = await getDeviceIdForMongosh({
+        bus: this.bus,
+        signal: this.closeAbortController.signal,
+      })))());
+  }
+
+  private getOsInfo(): Promise<OsInfo> | OsInfo {
+    return (this.osInfo ??= (async () => (this.osInfo = await getOsInfo()))());
+  }
+
   private async _start(
     driverUri: string,
     driverOptions: DevtoolsConnectOptions
@@ -343,6 +414,9 @@ export class CliRepl implements MongoshIOProvider {
     const { version }: { version: string } = require('../package.json');
     await this.verifyNodeVersion();
     markTime(TimingCategories.REPLInstantiation, 'verified node version');
+
+    void this.getDeviceId(); // Populate in parallel
+    void this.getOsInfo();
 
     this.isContainerizedEnvironment =
       await this.getIsContainerizedEnvironment();
@@ -398,9 +472,10 @@ export class CliRepl implements MongoshIOProvider {
         platform: process.platform,
         arch: process.arch,
         is_containerized: this.isContainerizedEnvironment,
-        ...(await getOsInfo()),
+        ...(await this.getOsInfo()),
       },
       mongoshVersion: version,
+      deviceId: this.getDeviceId(),
     });
 
     markTime(TimingCategories.Telemetry, 'completed telemetry setup');
@@ -472,12 +547,24 @@ export class CliRepl implements MongoshIOProvider {
       throw err;
     }
     markTime(TimingCategories.DriverSetup, 'completed SP setup');
+    const buildInfoPromise = buildInfo();
+    const [
+      moreRecentMongoshVersion,
+      currentVersionCTA,
+      { installationMethod },
+    ] = await Promise.all([
+      this.getMoreRecentMongoshVersion(),
+      buildInfoPromise.then((info) =>
+        this.updateNotificationManager.getGreetingCTAForCurrentVersion(info)
+      ),
+      buildInfoPromise,
+    ]);
     const initialized = await this.mongoshRepl.initialize(
       initialServiceProvider,
       {
-        moreRecentMongoshVersion: await this.getMoreRecentMongoshVersion(),
-        currentVersionCTA:
-          await this.updateNotificationManager.getGreetingCTAForCurrentVersion(),
+        moreRecentMongoshVersion,
+        currentVersionCTA,
+        isHomebrew: installationMethod === 'homebrew',
       }
     );
     markTime(TimingCategories.REPLInstantiation, 'initialized mongosh repl');
@@ -507,7 +594,7 @@ export class CliRepl implements MongoshIOProvider {
         installdir: this.shellHomeDirectory.roamingPath('snippets'),
         instanceState: this.mongoshRepl.runtimeState().instanceState,
         skipInitialIndexLoad: !willEnterInteractiveMode,
-        proxyOptions: this.agent,
+        fetch: this.fetch({ includeDeviceId: false }),
       });
     }
 
@@ -1060,7 +1147,14 @@ export class CliRepl implements MongoshIOProvider {
       );
     }
 
-    if (!semver.satisfies(process.version, RECOMMENDED_NODEJS)) {
+    // includePrerelease so that running on a Node.js nightly / RC / beta
+    // (e.g. v26.0.0-nightly20260428...) doesn't get a spurious "lower than
+    // 24.0.0" warning — semver.satisfies excludes prereleases by default.
+    if (
+      !semver.satisfies(process.version, RECOMMENDED_NODEJS, {
+        includePrerelease: true,
+      })
+    ) {
       warnings.push(
         '  - Using mongosh with Node.js versions lower than 24.0.0 is deprecated, and support may be removed in a future release.'
       );
@@ -1170,6 +1264,7 @@ export class CliRepl implements MongoshIOProvider {
    */
   async close(): Promise<void> {
     return (this.closingPromise ??= (async () => {
+      this.closeAbortController.abort();
       markTime(TimingCategories.REPLInstantiation, 'start closing');
       await this.mongoshRepl.close();
       this.agent?.destroy();

@@ -20,15 +20,15 @@ export async function updateHomebrewFork(
   const formulaPath = 'Formula/m/mongosh.rb';
 
   const { content: currentContent, blobSha } =
-    await params.homebrewCore.getFileContent(formulaPath, 'master');
+    await params.homebrewCore.getFileContent(formulaPath, 'main');
   if (currentContent === params.homebrewFormula) {
     return undefined;
   }
 
-  const homebrewMaster = await params.homebrewCore.getBranchDetails('master');
+  const homebrewMain = await params.homebrewCore.getBranchDetails('main');
   await params.homebrewCoreFork.createBranch(
     branchName,
-    homebrewMaster.object.sha
+    homebrewMain.object.sha
   );
 
   const committedUpdate = await params.homebrewCoreFork.commitFileUpdate(

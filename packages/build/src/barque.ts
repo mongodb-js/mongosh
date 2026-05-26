@@ -56,6 +56,7 @@ export function getReposAndArch(packageVariant: PackageVariant): {
           'debian10',
           'debian11',
           'debian12',
+          'debian13',
         ]),
         arch: getDebArchName(getArch(packageVariant)),
       };
@@ -66,6 +67,7 @@ export function getReposAndArch(packageVariant: PackageVariant): {
             'rhel70',
             'rhel80',
             'rhel90',
+            'rhel10',
             'amazon1',
             'amazon2',
             'amazon2023',
@@ -80,6 +82,7 @@ export function getReposAndArch(packageVariant: PackageVariant): {
           ppas: getSupportedServersForPPAs([
             'rhel80',
             'rhel90',
+            'rhel10',
             'amazon2',
             'amazon2023',
           ]),
@@ -108,7 +111,6 @@ export class Barque {
     SupportedServerVersion,
     {
       notaryKeyName: string;
-      notaryToken: string;
     }
   >;
   private downloadedCuratorPromise: Promise<string> | undefined;
@@ -124,27 +126,24 @@ export class Barque {
     this.serverVersionNotaryKeys = {
       '4.4.0': {
         notaryKeyName: 'server-4.4',
-        notaryToken: process.env.SIGNING_AUTH_TOKEN_44 ?? '',
       },
       '5.0.0': {
         notaryKeyName: 'server-5.0',
-        notaryToken: process.env.SIGNING_AUTH_TOKEN_50 ?? '',
       },
       '6.0.0': {
         notaryKeyName: 'server-6.0',
-        notaryToken: process.env.SIGNING_AUTH_TOKEN_60 ?? '',
       },
       '7.0.0': {
         notaryKeyName: 'server-7.0',
-        notaryToken: process.env.SIGNING_AUTH_TOKEN_70 ?? '',
       },
       '8.0.0': {
         notaryKeyName: 'server-8.0',
-        notaryToken: process.env.SIGNING_AUTH_TOKEN_80 ?? '',
       },
       '8.2.0': {
         notaryKeyName: 'server-8.2',
-        notaryToken: process.env.SIGNING_AUTH_TOKEN_82 ?? '',
+      },
+      '8.3.0': {
+        notaryKeyName: 'server-8.3',
       },
     };
   }
@@ -263,8 +262,6 @@ export class Barque {
                       env: {
                         NOTARY_KEY_NAME:
                           this.serverVersionNotaryKeys[version].notaryKeyName,
-                        NOTARY_TOKEN:
-                          this.serverVersionNotaryKeys[version].notaryToken,
                         BARQUE_API_KEY: process.env.BARQUE_API_KEY,
                         BARQUE_USERNAME: process.env.BARQUE_USERNAME,
                       },
@@ -327,12 +324,16 @@ export class Barque {
         return `${base}/apt/debian/dists/bullseye/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
       case 'debian12':
         return `${base}/apt/debian/dists/bookworm/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
+      case 'debian13':
+        return `${base}/apt/debian/dists/trixie/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
       case 'rhel70':
         return `${base}/yum/redhat/7/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'rhel80':
         return `${base}/yum/redhat/8/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'rhel90':
         return `${base}/yum/redhat/9/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
+      case 'rhel10':
+        return `${base}/yum/redhat/10/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'amazon1':
         return `${base}/yum/amazon/2013.03/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'amazon2':

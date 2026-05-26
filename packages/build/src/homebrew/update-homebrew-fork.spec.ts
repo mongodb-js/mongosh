@@ -38,9 +38,9 @@ describe('Homebrew update-homebrew-fork', function () {
     });
     getBranchDetails
       .rejects()
-      .withArgs('master')
+      .withArgs('main')
       .resolves({
-        ref: 'refs/head/master',
+        ref: 'refs/head/main',
         object: {
           sha: 'upstreamSha',
         },

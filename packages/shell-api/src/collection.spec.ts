@@ -152,6 +152,7 @@ describe('Collection', function () {
       serviceProvider = stubInterface<ServiceProvider>();
       serviceProvider.runCommand.resolves({ ok: 1 });
       serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
+      serviceProvider.hasUnifiedAggregateOptions?.returns(true);
       serviceProvider.initialDb = 'test';
       serviceProvider.bsonLibrary = bson;
       instanceState = new ShellInstanceState(serviceProvider, bus);
@@ -252,7 +253,7 @@ describe('Collection', function () {
         ).to.equal(expectedError);
       });
 
-      it('pass readConcern and writeConcern as dbOption', async function () {
+      it('pass readConcern and writeConcern as a regular option', async function () {
         await collection.aggregate([], {
           otherOption: true,
           readConcern: { level: 'majority' },
@@ -263,8 +264,11 @@ describe('Collection', function () {
           collection._database._name,
           collection._name,
           [],
-          { otherOption: true },
-          { readConcern: { level: 'majority' }, w: 1 }
+          {
+            otherOption: true,
+            readConcern: { level: 'majority' },
+            writeConcern: { w: 1 },
+          }
         );
       });
 
@@ -2674,8 +2678,8 @@ describe('Collection', function () {
               'db1',
               'coll1',
               [{ $match: { hasBanana: true } }],
-              { promoteValues: false },
-              { readConcern: 'primaryPreferred' },
+              { promoteValues: false, readConcern: 'primaryPreferred' },
+              undefined,
             ],
           },
           chains: [

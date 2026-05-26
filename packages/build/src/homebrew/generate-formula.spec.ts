@@ -42,7 +42,7 @@ describe('Homebrew generate-formula', function () {
 
   beforeEach(function () {
     getFileContent = sinon.stub();
-    getFileContent.withArgs('Formula/m/mongosh.rb', 'master').resolves({
+    getFileContent.withArgs('Formula/m/mongosh.rb', 'main').resolves({
       blobSha: 'blobSha',
       content: VALID_FORMULA,
     });

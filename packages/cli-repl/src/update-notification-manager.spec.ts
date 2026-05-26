@@ -8,7 +8,28 @@ import os from 'os';
 import path from 'path';
 import { UpdateNotificationManager } from './update-notification-manager';
 import type { MongoshVersionsContents } from './update-notification-manager';
+import { createFetch } from '@mongodb-js/devtools-proxy-support';
+import type { BuildInfo } from './build-info';
 import sinon from 'sinon';
+
+const buildInfoFixture = (overrides: Partial<BuildInfo> = {}): BuildInfo => ({
+  version: '1.0.0',
+  nodeVersion: 'v22.3.0',
+  distributionKind: 'packaged',
+  installationMethod: 'other',
+  runtimeArch: 'arm64',
+  runtimePlatform: 'darwin',
+  buildArch: 'arm64',
+  buildPlatform: 'darwin',
+  buildTarget: 'darwin-arm64',
+  buildTime: null,
+  gitVersion: null,
+  opensslVersion: '3.0.0',
+  sharedOpenssl: false,
+  runtimeGlibcVersion: 'N/A',
+  deps: {} as BuildInfo['deps'],
+  ...overrides,
+});
 
 describe('UpdateNotificationManager', function () {
   let httpServer: HTTPServer;
@@ -16,6 +37,7 @@ describe('UpdateNotificationManager', function () {
   let tmpdir: string;
   let filename: string;
   let reqHandler: sinon.SinonStub<Parameters<RequestListener>, void>;
+  const fetch = createFetch({});
 
   beforeEach(async function () {
     reqHandler = sinon.stub<Parameters<RequestListener>, void>();
@@ -41,7 +63,7 @@ describe('UpdateNotificationManager', function () {
   });
 
   it('fetches and stores information about the current release', async function () {
-    const manager = new UpdateNotificationManager();
+    const manager = new UpdateNotificationManager({ fetch });
     await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.2.3');
     expect(await manager.getLatestVersionIfMoreRecent('')).to.equal(null);
     expect(reqHandler).to.have.been.calledOnce;
@@ -55,14 +77,14 @@ describe('UpdateNotificationManager', function () {
   });
 
   it('uses existing data if some has been fetched recently', async function () {
-    const manager = new UpdateNotificationManager();
+    const manager = new UpdateNotificationManager({ fetch });
     await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.2.3');
     await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.2.3');
     expect(reqHandler).to.have.been.calledOnce;
   });
 
   it('does not re-use existing data if the updateURL value has changed', async function () {
-    const manager = new UpdateNotificationManager();
+    const manager = new UpdateNotificationManager({ fetch });
     await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.2.3');
     await manager.fetchUpdateMetadata(
       httpServerUrl + '/?foo=bar',
@@ -85,7 +107,7 @@ describe('UpdateNotificationManager', function () {
       res.setHeader('ETag', etag);
       res.end('{}');
     });
-    const manager = new UpdateNotificationManager();
+    const manager = new UpdateNotificationManager({ fetch });
     await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.2.3');
     await fs.writeFile(
       filename,
@@ -111,7 +133,7 @@ describe('UpdateNotificationManager', function () {
         })
       );
     });
-    const manager = new UpdateNotificationManager();
+    const manager = new UpdateNotificationManager({ fetch });
     await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.2.3');
     expect(await manager.getLatestVersionIfMoreRecent('')).to.equal('1.1.0');
     expect(await manager.getLatestVersionIfMoreRecent('1.0.0')).to.equal(
@@ -141,7 +163,7 @@ describe('UpdateNotificationManager', function () {
       res.end(JSON.stringify(response));
     });
 
-    const manager = new UpdateNotificationManager();
+    const manager = new UpdateNotificationManager({ fetch });
     await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
 
     const cta = await manager.getGreetingCTAForCurrentVersion();
@@ -179,7 +201,7 @@ describe('UpdateNotificationManager', function () {
       res.end(JSON.stringify(response));
     });
 
-    const manager = new UpdateNotificationManager();
+    const manager = new UpdateNotificationManager({ fetch });
     await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
 
     const cta = await manager.getGreetingCTAForCurrentVersion();
@@ -191,5 +213,198 @@ describe('UpdateNotificationManager', function () {
       'https://downloads.mongodb.com/mongosh/1.1.0/'
     );
     expect(cta![1]?.style).to.equal('mongosh:uri');
+  });
+
+  it('returns the CTA when match passes against buildInfo', async function () {
+    const response: MongoshVersionsContents = {
+      cta: {
+        match: '^installationMethod=homebrew$',
+        chunks: [{ text: 'Run `brew upgrade mongosh`' }],
+      },
+      versions: [],
+    };
+    reqHandler.callsFake((req, res) => {
+      res.end(JSON.stringify(response));
+    });
+
+    const manager = new UpdateNotificationManager({ fetch });
+    await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
+
+    const cta = await manager.getGreetingCTAForCurrentVersion(
+      buildInfoFixture({ installationMethod: 'homebrew' })
+    );
+    expect(cta?.[0]?.text).to.equal('Run `brew upgrade mongosh`');
+  });
+
+  it('filters out the CTA when match fails against buildInfo', async function () {
+    const response: MongoshVersionsContents = {
+      cta: {
+        match: '^installationMethod=homebrew$',
+        chunks: [{ text: 'Run `brew upgrade mongosh`' }],
+      },
+      versions: [],
+    };
+    reqHandler.callsFake((req, res) => {
+      res.end(JSON.stringify(response));
+    });
+
+    const manager = new UpdateNotificationManager({ fetch });
+    await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
+
+    const cta = await manager.getGreetingCTAForCurrentVersion(
+      buildInfoFixture({ installationMethod: 'npx' })
+    );
+    expect(cta).to.be.undefined;
+  });
+
+  it('supports alternation in the match regex', async function () {
+    const response: MongoshVersionsContents = {
+      cta: {
+        match: '^nodeVersion=v22\\.(3|4)\\.0$',
+        chunks: [{ text: 'Heads-up: Node REPL autocomplete bug' }],
+      },
+      versions: [],
+    };
+    reqHandler.callsFake((req, res) => {
+      res.end(JSON.stringify(response));
+    });
+
+    const manager = new UpdateNotificationManager({ fetch });
+    await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
+
+    expect(
+      await manager.getGreetingCTAForCurrentVersion(
+        buildInfoFixture({ nodeVersion: 'v22.4.0' })
+      )
+    ).to.not.be.undefined;
+    expect(
+      await manager.getGreetingCTAForCurrentVersion(
+        buildInfoFixture({ nodeVersion: 'v22.5.0' })
+      )
+    ).to.be.undefined;
+  });
+
+  it('combines multiple constraints via lookahead', async function () {
+    const response: MongoshVersionsContents = {
+      cta: {
+        match:
+          '(?=[\\s\\S]*^installationMethod=homebrew$)(?=[\\s\\S]*^runtimePlatform=darwin$)',
+        chunks: [{ text: 'macOS homebrew users' }],
+      },
+      versions: [],
+    };
+    reqHandler.callsFake((req, res) => {
+      res.end(JSON.stringify(response));
+    });
+
+    const manager = new UpdateNotificationManager({ fetch });
+    await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
+
+    expect(
+      await manager.getGreetingCTAForCurrentVersion(
+        buildInfoFixture({
+          installationMethod: 'homebrew',
+          runtimePlatform: 'darwin',
+        })
+      )
+    ).to.not.be.undefined;
+    expect(
+      await manager.getGreetingCTAForCurrentVersion(
+        buildInfoFixture({
+          installationMethod: 'homebrew',
+          runtimePlatform: 'linux',
+        })
+      )
+    ).to.be.undefined;
+  });
+
+  it('matches against a boolean field', async function () {
+    const response: MongoshVersionsContents = {
+      cta: {
+        match: '^sharedOpenssl=true$',
+        chunks: [{ text: 'Linked against system OpenSSL' }],
+      },
+      versions: [],
+    };
+    reqHandler.callsFake((req, res) => {
+      res.end(JSON.stringify(response));
+    });
+
+    const manager = new UpdateNotificationManager({ fetch });
+    await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
+
+    expect(
+      await manager.getGreetingCTAForCurrentVersion(
+        buildInfoFixture({ sharedOpenssl: true })
+      )
+    ).to.not.be.undefined;
+    expect(
+      await manager.getGreetingCTAForCurrentVersion(
+        buildInfoFixture({ sharedOpenssl: false })
+      )
+    ).to.be.undefined;
+  });
+
+  it('hides a match-gated CTA when buildInfo is not provided', async function () {
+    const response: MongoshVersionsContents = {
+      cta: {
+        match: '^installationMethod=homebrew$',
+        chunks: [{ text: 'Run `brew upgrade mongosh`' }],
+      },
+      versions: [],
+    };
+    reqHandler.callsFake((req, res) => {
+      res.end(JSON.stringify(response));
+    });
+
+    const manager = new UpdateNotificationManager({ fetch });
+    await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
+
+    expect(await manager.getGreetingCTAForCurrentVersion()).to.be.undefined;
+  });
+
+  it('returns a CTA without match when buildInfo is not provided', async function () {
+    const response: MongoshVersionsContents = {
+      cta: { chunks: [{ text: 'Vote for your favorite feature!' }] },
+      versions: [],
+    };
+    reqHandler.callsFake((req, res) => {
+      res.end(JSON.stringify(response));
+    });
+
+    const manager = new UpdateNotificationManager({ fetch });
+    await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
+
+    const cta = await manager.getGreetingCTAForCurrentVersion();
+    expect(cta?.[0]?.text).to.equal('Vote for your favorite feature!');
+  });
+
+  it('calls onInvalidMatchPattern when the match pattern is an invalid regex', async function () {
+    const response: MongoshVersionsContents = {
+      cta: {
+        match: '[',
+        chunks: [{ text: 'Run `brew upgrade mongosh`' }],
+      },
+      versions: [],
+    };
+    reqHandler.callsFake((req, res) => {
+      res.end(JSON.stringify(response));
+    });
+
+    const onInvalidMatchPattern = sinon.stub();
+    const manager = new UpdateNotificationManager({
+      fetch,
+      onInvalidMatchPattern,
+    });
+    await manager.fetchUpdateMetadata(httpServerUrl, filename, '1.0.0');
+
+    const cta = await manager.getGreetingCTAForCurrentVersion(
+      buildInfoFixture()
+    );
+    expect(cta).to.be.undefined;
+    expect(onInvalidMatchPattern).to.have.been.calledOnce;
+    expect(onInvalidMatchPattern.firstCall.args[0]).to.be.instanceOf(
+      SyntaxError
+    );
   });
 });

@@ -1,17 +1,9 @@
-let fipsError: Error | undefined;
-function enableFipsIfRequested() {
-  if (process.argv.includes('--tlsFIPSMode')) {
-    // FIPS mode should be enabled before we run any other code, including any dependencies.
-    // We still wrap this into a function so we can also call it immediately after
-    // entering the snapshot main function.
-    try {
-      require('crypto').setFips(1);
-    } catch (err: any) {
-      fipsError ??= err;
-    }
-  }
-}
-enableFipsIfRequested();
+// This import must remain first -- it enables FIPS mode at startup before any other code runs.
+// (Despite being an `import`, it also calls `enableFipsIfRequested()` once).
+import {
+  fipsError as startupFipsError,
+  enableFipsIfRequested,
+} from './enable-fips';
 
 import { markTime } from './startup-timing';
 import { CliRepl } from './cli-repl';
@@ -97,6 +89,7 @@ async function main() {
     const { version } = require('../package.json');
 
     if (options.tlsFIPSMode) {
+      let fipsError = startupFipsError;
       if (!fipsError && !crypto.getFips()) {
         // We can end up here if somebody used an unsual spelling of
         // --tlsFIPSMode that our arg parser recognizes, but not the

@@ -74,6 +74,13 @@ export default interface Readable {
   ): ServiceProviderAggregationCursor;
 
   /**
+   * Set if options like readPrefence, readConcern, writeConcern can be
+   * set on AggregateOptions or need to be set as part of DbOptions.
+   * (True for the Node.js driver, false for the Java driver)
+   */
+  hasUnifiedAggregateOptions?(): boolean;
+
+  /**
    * Returns the count of documents that would match a find() query for the
    * collection or view. The db.collection.count() method does not perform the
    * find() operation but instead counts and returns the number of results

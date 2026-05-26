@@ -1,19 +1,49 @@
 import semver from 'semver';
 import { promises as fs } from 'fs';
-import type {
-  AgentWithInitialize,
-  DevtoolsProxyOptions,
-  RequestInit,
-  Response,
-} from '@mongodb-js/devtools-proxy-support';
-import { createFetch } from '@mongodb-js/devtools-proxy-support';
+import type { RequestInit, Response } from '@mongodb-js/devtools-proxy-support';
 import type { StyleDefinition } from './clr';
+import type { BuildInfo } from './build-info';
 
+// `match` is a regular expression tested against an env-like serialization of
+// buildInfo() (one `key=value` per line, nested objects flattened as
+// `parent.child=value`). A `match`-gated CTA is hidden when buildInfo is
+// unavailable or when the regex fails to compile.
 interface GreetingCTADetails {
+  match?: string;
   chunks: {
     text: string;
     style?: StyleDefinition;
   }[];
+}
+
+function serializeBuildInfo(buildInfo: Record<string, unknown>): string {
+  const lines: string[] = [];
+  for (const [key, value] of Object.entries(buildInfo)) {
+    if (typeof value === 'object' && value !== null) {
+      for (const line of serializeBuildInfo(value as Record<string, unknown>))
+        lines.push(`${key}.${line}`);
+    } else {
+      lines.push(`${key}=${String(value)}`);
+    }
+  }
+  return lines.join('\n');
+}
+
+function ctaMatchesBuildInfo(
+  match: string | undefined,
+  buildInfo: BuildInfo | undefined,
+  onInvalidMatchPattern: (err: unknown) => void
+): boolean {
+  if (!match) return true;
+  if (!buildInfo) return false;
+  try {
+    return new RegExp(match, 'm').test(
+      serializeBuildInfo(buildInfo as unknown as Record<string, unknown>)
+    );
+  } catch (err) {
+    onInvalidMatchPattern(err);
+    return false;
+  }
 }
 
 export interface MongoshVersionsContents {
@@ -42,13 +72,18 @@ export class UpdateNotificationManager {
   private localFilesystemFetchInProgress: Promise<unknown> | undefined =
     undefined;
   private fetch: (url: string, init: RequestInit) => Promise<Response>;
+  private onInvalidMatchPattern: (err: unknown) => void;
 
   constructor({
-    proxyOptions = {},
+    fetch,
+    onInvalidMatchPattern,
   }: {
-    proxyOptions?: DevtoolsProxyOptions | AgentWithInitialize;
+    fetch?: (url: string, init: RequestInit) => Promise<Response>;
+    onInvalidMatchPattern?: (err: unknown) => void;
   } = {}) {
-    this.fetch = createFetch(proxyOptions);
+    this.fetch =
+      fetch ?? (() => Promise.reject(new Error('no fetch provided')));
+    this.onInvalidMatchPattern = onInvalidMatchPattern ?? (() => {});
   }
 
   async getLatestVersionIfMoreRecent(
@@ -69,7 +104,7 @@ export class UpdateNotificationManager {
     return this.latestKnownMongoshVersion;
   }
 
-  async getGreetingCTAForCurrentVersion(): Promise<
+  async getGreetingCTAForCurrentVersion(buildInfo?: BuildInfo): Promise<
     | {
         text: string;
         style?: StyleDefinition;
@@ -82,7 +117,11 @@ export class UpdateNotificationManager {
       /* already handled in fetchUpdateMetadata() */
     }
 
-    return this.currentVersionGreetingCTA?.chunks;
+    const cta = this.currentVersionGreetingCTA;
+    if (!cta) return undefined;
+    if (!ctaMatchesBuildInfo(cta.match, buildInfo, this.onInvalidMatchPattern))
+      return undefined;
+    return cta.chunks;
   }
 
   // Fetch update metadata, taking into account a local cache and an external

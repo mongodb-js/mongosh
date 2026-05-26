@@ -263,7 +263,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     runOn: 'ubuntu2404-arm64-small',
     sharedOpenSsl: 'openssl3',
     executableOsId: 'linux-arm64-openssl3',
-    mVersion: '8.2.x',
+    mVersion: '8.3.0-rc5',
   },
   {
     displayName: 'Amazon Linux 2 arm64',
@@ -281,7 +281,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     displayName: 'Amazon Linux 2023 arm64',
     runOn: 'amazon2023.0-arm64-small',
     executableOsId: 'linux-arm64',
-    mVersion: '8.2.x',
+    mVersion: '8.3.0-rc5',
   },
   {
     displayName: 'RHEL 8.2 arm64',
@@ -348,7 +348,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     displayName: 'RHEL 9 PPC',
     runOn: 'rhel9-power-small',
     executableOsId: 'linux-ppc64le',
-    mVersion: '8.2.x',
+    mVersion: '8.3.0-rc5',
   },
   {
     displayName: 'RHEL 7 s390x',
@@ -372,7 +372,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     displayName: 'RHEL 9 s390x',
     runOn: 'rhel9-zseries-small',
     executableOsId: 'linux-s390x',
-    mVersion: '8.2.x',
+    mVersion: '8.3.0-rc5',
   },
   {
     displayName: 'MacOS 15 Sequoia (amd64)',
@@ -408,7 +408,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     displayName: 'MacOS 14 arm64',
     runOn: 'macos-14-arm64',
     executableOsId: 'darwin-arm64',
-    mVersion: '8.2.x',
+    mVersion: '8.3.0-rc5',
   },
   {
     displayName: 'MacOS Big Sur',
@@ -434,13 +434,13 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     displayName: 'Windows VS pre-2022',
     runOn: 'windows-vsCurrent-small',
     executableOsId: 'win32',
-    mVersion: 'stable'
+    mVersion: 'stable',
   },
   {
     displayName: 'Windows VS pre-2022',
     runOn: 'windows-vsCurrent-small',
     executableOsId: 'win32',
-    mVersion: '8.2.x'
+    mVersion: '8.2.x',
   },
   {
     displayName: 'Windows VS 2022',
@@ -456,46 +456,53 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     displayName: 'Windows VS 2022',
     runOn: 'windows-2022-latest-small',
     executableOsId: 'win32',
-    mVersion: '8.2.x'
+    mVersion: '8.3.0-rc5',
   },
-].filter(({ disabled }) => disabled !== true)
- .map((buildVariant) => {
-  const { displayName, fips, sharedOpenSsl, mVersion, runOn, executableOsId } =
-    buildVariant;
-  let id = (buildVariant.id ?? runOn ?? executableOsId).replaceAll('-', '_');
+]
+  .filter(({ disabled }) => disabled !== true)
+  .map((buildVariant) => {
+    const {
+      displayName,
+      fips,
+      sharedOpenSsl,
+      mVersion,
+      runOn,
+      executableOsId,
+    } = buildVariant;
+    let id = (buildVariant.id ?? runOn ?? executableOsId).replaceAll('-', '_');
 
-  const name = [
-    'e2e_tests',
-    id,
-    sharedOpenSsl,
-    mVersion != 'stable' ? `m${mVersion.replaceAll('.', '')}` : undefined,
-    fips,
-  ]
-    .filter((text) => text)
-    .join('_');
+    const name = [
+      'e2e_tests',
+      id,
+      sharedOpenSsl,
+      mVersion != 'stable' ? `m${mVersion.replaceAll('.', '')}` : undefined,
+      fips,
+    ]
+      .filter((text) => text)
+      .join('_');
 
-  const formattedDisplayName = [
-    displayName,
-    mVersion != 'stable' ? mVersion.replaceAll('.', '') : undefined,
-    sharedOpenSsl,
-    fips ? 'FIPS' : undefined,
-    '(E2E tests)',
-  ]
-    .filter((text) => text)
-    .join(' ');
+    const formattedDisplayName = [
+      displayName,
+      mVersion != 'stable' ? mVersion.replaceAll('.', '') : undefined,
+      sharedOpenSsl,
+      fips ? 'FIPS' : undefined,
+      '(E2E tests)',
+    ]
+      .filter((text) => text)
+      .join(' ');
 
-  let compileBuildVariant = COMPILE_BUILD_VARIANTS.find(
-    (pkg) => pkg.executableOsId == executableOsId
-  )?.name;
+    let compileBuildVariant = COMPILE_BUILD_VARIANTS.find(
+      (pkg) => pkg.executableOsId == executableOsId
+    )?.name;
 
-  if (!compileBuildVariant)
-    throw new Error(`Compile build variant not found for ${executableOsId}`);
+    if (!compileBuildVariant)
+      throw new Error(`Compile build variant not found for ${executableOsId}`);
 
-  return {
-    ...buildVariant,
-    id,
-    displayName: formattedDisplayName,
-    name,
-    compileBuildVariant,
-  };
-});
+    return {
+      ...buildVariant,
+      id,
+      displayName: formattedDisplayName,
+      name,
+      compileBuildVariant,
+    };
+  });

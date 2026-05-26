@@ -13,7 +13,7 @@
         {
           "arch": "arm64",
           "os": "darwin",
-          "name": "MacOS M1 (11.0+)",
+          "name": "MacOS Apple Silicon (11.0+)",
           "download_link": "https://downloads.mongodb.com/compass/mongosh-1.10.6-darwin-arm64.zip"
         },
         {
@@ -175,7 +175,7 @@
         {
           "arch": "arm64",
           "os": "darwin",
-          "name": "MacOS M1 (11.0+)",
+          "name": "MacOS Apple Silicon (11.0+)",
           "download_link": "https://downloads.mongodb.com/compass/mongosh-2.0.0-darwin-arm64.zip"
         },
         {

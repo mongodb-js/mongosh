@@ -128,6 +128,7 @@ type MongoshRuntimeState = {
 type GreetingDetails = {
   moreRecentMongoshVersion?: string | null;
   currentVersionCTA?: { text: string; style?: StyleDefinition }[];
+  isHomebrew?: boolean;
 };
 
 /* Utility, inverse of Readonly<T> */
@@ -281,6 +282,16 @@ class MongoshNodeRepl implements EvaluationListener {
       });
       fixNode60446(repl);
       context = repl.context;
+      // As of https://github.com/nodejs/node/commit/a9da9ffc04c923f383a0aa220123687909dd2263,
+      // the Node.js REPL implementation uses AsyncLocalStorage rather than
+      // the `domain` module to track async context. As a consequence,
+      // the entire REPL and all associated properties are printed for
+      // objects like timers that explicitly keep this async state;
+      // this can be hundreds of lines of output.
+      // Therefore, we shortcut this output by adding a custom inspect function.
+      (repl as any)[util.inspect.custom] = () => {
+        return this.clr('[mongosh REPL Server]', 'magenta');
+      };
     } else {
       // https://nodejs.org/api/repl.html#replbuiltinmodules not represented in TS types
       // repl is not supported in startup snapshots yet
@@ -670,13 +681,23 @@ class MongoshNodeRepl implements EvaluationListener {
       'mongosh:section-header'
     )}:\t\t${version}\n`;
     if (greeting?.moreRecentMongoshVersion) {
-      text += `mongosh ${this.clr(
-        greeting.moreRecentMongoshVersion,
-        'bold'
-      )} is available for download: ${this.clr(
-        'https://www.mongodb.com/try/download/shell',
-        'mongosh:uri'
-      )}\n`;
+      if (greeting?.isHomebrew) {
+        text += `mongosh ${this.clr(
+          greeting.moreRecentMongoshVersion,
+          'bold'
+        )} is available, run ${this.clr(
+          'brew upgrade mongosh',
+          'mongosh:uri'
+        )} to update\n`;
+      } else {
+        text += `mongosh ${this.clr(
+          greeting.moreRecentMongoshVersion,
+          'bold'
+        )} is available for download: ${this.clr(
+          'https://www.mongodb.com/try/download/shell',
+          'mongosh:uri'
+        )}\n`;
+      }
     }
 
     if (greeting?.currentVersionCTA) {

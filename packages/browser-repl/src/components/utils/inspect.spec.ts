@@ -40,6 +40,16 @@ describe('inspect', function () {
       );
     });
 
+    it('inspects Int32', function () {
+      expect(inspect(new bson.Int32(123456789))).to.equal('Int32(123456789)');
+    });
+
+    it('inspects NumberLong', function () {
+      expect(inspect(new bson.Long('123456789123456789'))).to.equal(
+        'Long("123456789123456789")'
+      );
+    });
+
     it('inspects UUID', function () {
       expect(
         inspect(bson.Binary.createFromBase64('YWJjZGVmZ2hpa2xtbm9wcQ==', 4))
