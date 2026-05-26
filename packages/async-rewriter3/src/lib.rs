@@ -267,12 +267,8 @@ fn collect_insertions(
 
     // Helpers to get the parent node and its kind (~ full node information)/type.
     let get_parent = |node: &AstNode| ast_nodes.parent_node(node.id());
-    let get_parent_kind = |node: &AstNode| get_parent(node).map(|p| p.kind());
-    let get_parent_type = |node: &AstNode| {
-        get_parent_kind(node)
-            .map(|p| p.ty())
-            .unwrap_or(AstType::Program)
-    };
+    let get_parent_kind = |node: &AstNode| get_parent(node).kind();
+    let get_parent_type = |node: &AstNode| get_parent_kind(node).ty();
 
     // Helpers to get the source text of a given node.
     let get_source = |node: &dyn GetSpan| {
@@ -340,7 +336,7 @@ fn collect_insertions(
     if let AstKind::VariableDeclaration(as_var_decl) = node.kind() {
         // For top-level variables, we extract the variable names to the outermost scope
         // and comment out the declarator, i.e. `let foo = 42;` -> `var foo; ... /* let */ (foo = 42);`
-        if get_parent_type(node) != AstType::ForStatementInit && !function_parent.is_some() {
+        if get_parent_type(node) != AstType::ForStatement && !function_parent.is_some() {
             let decl_span = Span::new(
                 as_var_decl.span().start,
                 as_var_decl
@@ -375,7 +371,7 @@ fn collect_insertions(
     }
     if let AstKind::ExpressionStatement(as_expr_stmt) = node.kind() {
         if !(get_parent_type(node) == AstType::FunctionBody
-            && get_parent_type(get_parent(node).unwrap()) == AstType::ArrowFunctionExpression)
+            && get_parent_type(get_parent(node)) == AstType::ArrowFunctionExpression)
         {
             let expr_span = as_expr_stmt.expression.span();
             // Add semicolons to ensure that expression statements are treated properly.
@@ -442,13 +438,13 @@ fn collect_insertions(
             wrap_expr_span = Some(span); // Wrap optional chaining expressions that aren't callees.
         }
     }
-    if let AstKind::MemberExpression(_) = node.kind() {
+    if matches!(node.kind(), AstKind::ComputedMemberExpression(_) | AstKind::StaticMemberExpression(_) | AstKind::PrivateFieldExpression(_)) {
         if parent_node_type != AstType::CallExpression {
             wrap_expr_span = Some(span); // Wrap member expressions that aren't callees.
         }
     }
 
-    if let Some(AstKind::UnaryExpression(unary_parent)) = get_parent_kind(node) {
+    if let AstKind::UnaryExpression(unary_parent) = get_parent_kind(node) {
         if is_identifier && unary_parent.operator == UnaryOperator::Typeof {
             is_named_typeof_rhs = true;
         }
@@ -460,15 +456,27 @@ fn collect_insertions(
     // (e.g. assignment targets, including "weird" assignments like the init part
     // of a for loop statements) or do not need to (e.g. for already
     // `await`-ed expressions).
-    if parent_node_type == AstType::ForStatementInit
-        || parent_node_type == AstType::AssignmentTarget
-        || parent_node_type == AstType::SimpleAssignmentTarget
-        || parent_node_type == AstType::AssignmentTargetPattern
-        || parent_node_type == AstType::AssignmentTargetWithDefault
-        || parent_node_type == AstType::AwaitExpression
-        || parent_node_type == AstType::FormalParameter
     {
-        wrap_expr_span = None;
+        let is_assignment_lhs = if let AstKind::AssignmentExpression(assign) = get_parent_kind(node) {
+            node.span() == assign.left.span()
+        } else {
+            false
+        };
+        let is_for_init = if let AstKind::ForStatement(for_stmt) = get_parent_kind(node) {
+            for_stmt.init.as_ref().map_or(false, |init| node.span() == init.span())
+        } else {
+            false
+        };
+        if is_for_init
+            || is_assignment_lhs
+            || parent_node_type == AstType::ArrayAssignmentTarget
+            || parent_node_type == AstType::ObjectAssignmentTarget
+            || parent_node_type == AstType::AssignmentTargetWithDefault
+            || parent_node_type == AstType::AwaitExpression
+            || parent_node_type == AstType::FormalParameter
+        {
+            wrap_expr_span = None;
+        }
     }
 
     if is_named_typeof_rhs {
@@ -478,7 +486,7 @@ fn collect_insertions(
         // So we transform `typeof foo` into
         // `(typeof foo === 'undefined' ? 'undefined' : typeof (shouldAwait(foo) ? await foo : foo))`.
         insertions.push_pair(Insertion::pair(
-            get_parent_kind(node).unwrap(),
+            get_parent_kind(node),
             format!(
                 "(typeof {original} === 'undefined' ? 'undefined' : ",
                 original = get_source(node)
@@ -544,11 +552,7 @@ pub fn async_rewrite(input: &str, debug_level: DebugLevel) -> Result<String, Str
     for directive in &semantic_ret
         .semantic
         .nodes()
-        .root_node()
-        .unwrap()
-        .kind()
-        .as_program()
-        .unwrap()
+        .program()
         .directives
     {
         insertions.push_back(Insertion::new(
