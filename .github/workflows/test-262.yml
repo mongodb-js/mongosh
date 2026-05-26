@@ -36,8 +36,8 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: "baseline"
-          path: tmp/test262-out/main-output.json
-  
+          path: tmp/test262-out/baseline-output.json
+
   run_test_262_pr:
     name: Run tests
     runs-on: ubuntu-latest
@@ -50,7 +50,7 @@ jobs:
         with:
           check-latest: true
           node-version: 24.x
-      
+
       - name: Download dependencies
         run: npm ci
 
@@ -62,7 +62,7 @@ jobs:
         with:
           name: "current"
           path: tmp/test262-out/current-output.json
-  
+
   analyse_results:
     name: Analyse test262 results
     runs-on: ubuntu-latest
@@ -80,7 +80,7 @@ jobs:
         with:
           check-latest: true
           node-version: 24.x
-          
+
       - name: Download previous results
         uses: actions/download-artifact@v7
         with:
@@ -92,7 +92,7 @@ jobs:
           CI: true
         run: |
           npm run -s test-262-diff -- tmp/test262-out/baseline-output.json tmp/test262-out/current-output.json tmp/test262.json >> $GITHUB_ENV
-        
+
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
@@ -101,7 +101,7 @@ jobs:
           large_files: true
           files: |
             tmp/test262.json
-            
+
       - name: Add diff to PR
         uses: actions/github-script@v7
         with:
@@ -112,7 +112,7 @@ jobs:
             repo: context.repo.repo,
             body: `## test262 conformance tests\n\nThere has been **${process.env.new_failures ?? 0} new failures** in commit ${context.sha} compared to the baseline commit (main).`
             })
-            
+
       - name: Upload diff results
         uses: actions/upload-artifact@v6
         with:
