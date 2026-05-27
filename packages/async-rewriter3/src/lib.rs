@@ -3,7 +3,6 @@ use oxc_ast::{
     ast::{
         BindingPattern, ClassType, Expression, FunctionBody, IdentifierReference,
         ParenthesizedExpression, UnaryOperator, VariableDeclarationKind,
-        VariableDeclarator,
     },
     AstKind, AstType,
 };
@@ -471,38 +470,38 @@ fn limit_string_length(input: &str, max_length: usize) -> String {
     format!("{} ... {}", prefix, suffix)
 }
 
-fn extract_binding_names(pattern: &BindingPattern, out: &mut Vec<String>) {
+fn extract_binding_names_impl(pattern: &BindingPattern, out: &mut Vec<String>) {
     match pattern {
         BindingPattern::BindingIdentifier(id) => {
             out.push(id.name.to_string());
         }
         BindingPattern::ObjectPattern(obj) => {
             for prop in &obj.properties {
-                extract_binding_names(&prop.value, out);
+                extract_binding_names_impl(&prop.value, out);
             }
             if let Some(rest) = obj.rest.as_ref() {
-                extract_binding_names(&rest.argument, out);
+                extract_binding_names_impl(&rest.argument, out);
             }
         }
         BindingPattern::ArrayPattern(arr) => {
             for elem in &arr.elements {
                 if let Some(elem) = elem {
-                    extract_binding_names(elem, out);
+                    extract_binding_names_impl(elem, out);
                 }
             }
             if let Some(rest) = arr.rest.as_ref() {
-                extract_binding_names(&rest.argument, out);
+                extract_binding_names_impl(&rest.argument, out);
             }
         }
         BindingPattern::AssignmentPattern(p) => {
-            extract_binding_names(&p.left, out);
+            extract_binding_names_impl(&p.left, out);
         }
     }
 }
 
-fn declarator_names(decl: &VariableDeclarator) -> Vec<String> {
+fn extract_binding_names(pattern: &BindingPattern) -> Vec<String> {
     let mut out = Vec::new();
-    extract_binding_names(&decl.id, &mut out);
+    extract_binding_names_impl(pattern, &mut out);
     out
 }
 
@@ -821,7 +820,7 @@ fn collect_insertions(
 
             insertions.push_pair(Insertion::pair(decl_span, "/*", "*/"));
             for decl in &as_var_decl.declarations {
-                for name in declarator_names(decl) {
+                for name in extract_binding_names(&decl.id) {
                     insertions.add_variable(name);
                 }
             }
@@ -1500,7 +1499,7 @@ pub fn async_rewrite(input: &str, debug_level: DebugLevel) -> Result<String, Str
                 {
                     for decl in &vd.declarations {
                         let mut names = Vec::new();
-                        extract_binding_names(&decl.id, &mut names);
+                        extract_binding_names_impl(&decl.id, &mut names);
                         for name in names {
                             if !seen_names.insert(name.clone()) {
                                 duplicate = Some(name);
