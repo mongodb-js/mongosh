@@ -1,5 +1,7 @@
 'use strict';
 const v8 = require('v8');
+const fs = require('fs');
+const path = require('path');
 if (typeof __webpack_require__ !== 'undefined') {
   __webpack_require__.v = async(exports, wasmModuleId, wasmModuleHash, importsObj) => {
     const bytes = Buffer.from(ExtraAssets[`${wasmModuleHash}.module.wasm`], 'base64');
@@ -20,6 +22,32 @@ if (v8.startupSnapshot?.isBuildingSnapshot?.()) {
 }
 let syncImport;
 
+// Read the runtime support source synchronously. This is needed for the
+// runtimeSupportCode() polyfills (Array.prototype.forEach, etc.) and the
+// Function.prototype.toString patch.
+let runtimeSupportSource;
+try {
+  runtimeSupportSource = fs.readFileSync(path.join(__dirname, 'runtime-support.nocov.js'), 'utf8');
+} catch (_err) {
+  runtimeSupportSource = '';
+}
+
+// The unprocessed prelude that gets prepended to the runtime support source.
+// This declares MongoshAsyncWriterError. It needs to be wrapped via processSync
+// before being returned to the user (so that it ends up at the global scope
+// like the other declarations).
+const RUNTIME_SUPPORT_PRELUDE = `
+class MongoshAsyncWriterError extends Error {
+  constructor(message, codeIdentifier) {
+    const code = ({ SyntheticPromiseInAlwaysSyncContext: 'ASYNC-10012', SyntheticAsyncIterableInAlwaysSyncContext: 'ASYNC-10013' })[codeIdentifier];
+    super('[' + code + '] ' + message);
+    this.code = code;
+  }
+}
+`;
+
+let cachedRuntimeSupportCode;
+
 module.exports = class AsyncWriter {
   async process(code) {
     if (!importPromise) {
@@ -29,7 +57,7 @@ module.exports = class AsyncWriter {
           '');
     }
     const { async_rewrite, DebugLevel } = await importPromise;
-    return async_rewrite(code, DebugLevel[process.env.MONGOSH_ASYNC_REWRITER3_DEBUG_LEVEL] ?? DebugLevel.TypesOnly);
+    return wrapErrors(() => async_rewrite(code, DebugLevel[process.env.MONGOSH_ASYNC_REWRITER3_DEBUG_LEVEL] ?? DebugLevel.None));
   }
   processSync(code) {
     if (!syncImport) {
@@ -39,9 +67,32 @@ module.exports = class AsyncWriter {
           '');
     }
     const { async_rewrite, DebugLevel } = syncImport;
-    return async_rewrite(code, DebugLevel[process.env.MONGOSH_ASYNC_REWRITER3_DEBUG_LEVEL] ?? DebugLevel.TypesOnly);
+    return wrapErrors(() => async_rewrite(code, DebugLevel[process.env.MONGOSH_ASYNC_REWRITER3_DEBUG_LEVEL] ?? DebugLevel.None));
   }
   runtimeSupportCode() {
-    return '';
+    if (cachedRuntimeSupportCode !== undefined) {
+      return cachedRuntimeSupportCode;
+    }
+    if (!syncImport) {
+      throw new Error('WASM import not defined for runtime support code generation');
+    }
+    cachedRuntimeSupportCode = this.processSync(
+      RUNTIME_SUPPORT_PRELUDE + runtimeSupportSource
+    );
+    return cachedRuntimeSupportCode;
   }
 };
+
+function wrapErrors(fn) {
+  try {
+    return fn();
+  } catch (err) {
+    // wasm-bindgen throws plain strings/JsValues. Convert to a SyntaxError
+    // for parse errors so that callers can use `expect(...).to.throw(SyntaxError)`.
+    const msg = typeof err === 'string' ? err : (err?.message ?? String(err));
+    if (msg.startsWith('SyntaxError:') || msg.startsWith('Parse errors:') || /unexpected|expected|invalid|escape/i.test(msg)) {
+      throw new SyntaxError(msg.replace(/^SyntaxError:\s*/, ''));
+    }
+    throw err;
+  }
+}
