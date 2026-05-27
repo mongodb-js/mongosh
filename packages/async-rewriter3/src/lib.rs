@@ -1,3 +1,4 @@
+use core::slice;
 use oxc_allocator::Allocator;
 use oxc_ast::{
     ast::{
@@ -11,7 +12,6 @@ use oxc_parser::{ParseOptions, Parser};
 use oxc_semantic::{AstNode, Semantic, SemanticBuilder};
 use oxc_span::GetSpan;
 use oxc_span::{SourceType, Span};
-use core::slice;
 use std::{borrow::Cow, cmp::Ordering, collections::VecDeque};
 use wasm_bindgen::prelude::*;
 
@@ -345,7 +345,13 @@ fn make_async_fn_insertions(span: impl GetSpan) -> (Insertion, Insertion) {
     )
 }
 
-fn add_fn_insertions(insertions: &mut InsertionList, body: &FunctionBody, has_block_body: bool, kind: FnTransformKind, marker: String) {
+fn add_fn_insertions(
+    insertions: &mut InsertionList,
+    body: &FunctionBody,
+    has_block_body: bool,
+    kind: FnTransformKind,
+    marker: String,
+) {
     let span = body.span();
     // Ensure that the function body is a block statement. Is a no-op for non-arrow
     // functions, but changes behavior of expression-returning arrow functions.
@@ -563,7 +569,18 @@ fn percent_encode_for_marker(s: &str) -> String {
     for byte in s.bytes() {
         match byte {
             // RFC 3986 unreserved characters
-            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' | b'!' | b'*' | b'\'' | b'(' | b')' => {
+            b'A'..=b'Z'
+            | b'a'..=b'z'
+            | b'0'..=b'9'
+            | b'-'
+            | b'_'
+            | b'.'
+            | b'~'
+            | b'!'
+            | b'*'
+            | b'\''
+            | b'('
+            | b')' => {
                 result.push(byte as char);
             }
             _ => {
@@ -678,7 +695,8 @@ fn collect_insertions(
         // Detect if this is an ObjectProperty method (not a declaration).
         let is_object_method = matches!(parent_kind, AstKind::ObjectProperty(_));
 
-        let is_declaration = is_decl && !is_class_method && !is_object_method && function_parent_kind.is_none();
+        let is_declaration =
+            is_decl && !is_class_method && !is_object_method && function_parent_kind.is_none();
 
         // Determine the FnTransformKind for this function itself.
         let mut is_constructor = false;
@@ -834,15 +852,12 @@ fn collect_insertions(
                 .map(|d| d.span().end)
                 .max()
                 .unwrap();
-            let any_destructuring = as_var_decl.declarations.iter().any(|d| {
-                !matches!(d.id, BindingPattern::BindingIdentifier(_))
-            });
+            let any_destructuring = as_var_decl
+                .declarations
+                .iter()
+                .any(|d| !matches!(d.id, BindingPattern::BindingIdentifier(_)));
             if any_destructuring {
-                insertions.push_pair(Insertion::pair(
-                    Span::new(decl_span.end, max_end),
-                    "(",
-                    ")",
-                ));
+                insertions.push_pair(Insertion::pair(Span::new(decl_span.end, max_end), "(", ")"));
             }
         }
         return Ok(insertions);
@@ -851,7 +866,10 @@ fn collect_insertions(
         // We add semicolons to ensure that expression statements are treated properly.
         let parent_kind = get_parent_kind(node);
         let parent_is_arrow_body = matches!(parent_kind, AstKind::FunctionBody(_))
-            && matches!(get_parent_kind(get_parent(node)), AstKind::ArrowFunctionExpression(_));
+            && matches!(
+                get_parent_kind(get_parent(node)),
+                AstKind::ArrowFunctionExpression(_)
+            );
         // For single-statement control-flow bodies, we wrap with `{...}` instead of
         // adding loose semicolons, because something like `if (x) foo(); else bar();`
         // can't be rewritten to `if (x) foo();; else bar();` (the extra `;` breaks the
@@ -1012,11 +1030,7 @@ fn collect_insertions(
                                     "/*",
                                     false,
                                 ));
-                                insertions.push_back(Insertion::new(
-                                    pattern_span.end,
-                                    "*/",
-                                    true,
-                                ));
+                                insertions.push_back(Insertion::new(pattern_span.end, "*/", true));
                                 let body_start = handler.body.span().start;
                                 let body_end = handler.body.span().end;
                                 insertions.push_back(Insertion::new(
@@ -1113,18 +1127,14 @@ fn collect_insertions(
                         } else {
                             // Destructuring with finally: rewrite param.
                             let pattern_span = param.pattern.span();
-                            let pattern_source = &source
-                                [(pattern_span.start as usize)..(pattern_span.end as usize)];
+                            let pattern_source =
+                                &source[(pattern_span.start as usize)..(pattern_span.end as usize)];
                             insertions.push_back(Insertion::new(
                                 pattern_span.start,
                                 format!("_err{}/*", unique),
                                 false,
                             ));
-                            insertions.push_back(Insertion::new(
-                                pattern_span.end,
-                                "*/",
-                                true,
-                            ));
+                            insertions.push_back(Insertion::new(pattern_span.end, "*/", true));
                             let body_start = handler.body.span().start;
                             let body_end = handler.body.span().end;
                             insertions.push_back(Insertion::new(
@@ -1216,8 +1226,7 @@ fn collect_insertions(
                 // demangler then converts back to the original).
                 let unique = span.start.to_string();
                 let right_span = for_of.right.span();
-                let right_source = &source
-                    [(right_span.start as usize)..(right_span.end as usize)];
+                let right_source = &source[(right_span.start as usize)..(right_span.end as usize)];
                 let right_source_marker = js_string_literal_for_demangling(right_source);
                 let body_span = for_of.body.span();
                 let left_span = for_of.left.span();
@@ -1268,7 +1277,11 @@ fn collect_insertions(
                 // Also encode the source marker as a marker that the post-processor can pick up.
                 insertions.push_back(Insertion::new(
                     span.start,
-                    format!("\u{1}FOSM{u}={src}\u{2}", u = unique, src = right_source_marker),
+                    format!(
+                        "\u{1}FOSM{u}={src}\u{2}",
+                        u = unique,
+                        src = right_source_marker
+                    ),
                     false,
                 ));
                 // Note: actual restructuring happens in post-processing.
@@ -1296,7 +1309,10 @@ fn collect_insertions(
             }
         }
         // Shorthand property of object pattern (destructuring): skip.
-        if matches!(parent_node_type, AstType::BindingProperty | AstType::AssignmentTargetPropertyIdentifier) {
+        if matches!(
+            parent_node_type,
+            AstType::BindingProperty | AstType::AssignmentTargetPropertyIdentifier
+        ) {
             return Ok(insertions);
         }
         is_identifier = true;
@@ -1477,7 +1493,9 @@ pub fn async_rewrite(input: &str, debug_level: DebugLevel) -> Result<String, Str
     fail_if_nonempty_oxc_diagnostics(&parsed.errors)?;
     assert!(!parsed.panicked);
 
-    let semantic_ret = SemanticBuilder::new().with_check_syntax_error(true).build(allocator.alloc(parsed.program));
+    let semantic_ret = SemanticBuilder::new()
+        .with_check_syntax_error(true)
+        .build(allocator.alloc(parsed.program));
     fail_if_nonempty_oxc_diagnostics(&semantic_ret.errors)?;
 
     // Detect duplicate top-level let/const/class declarations.
@@ -1654,11 +1672,7 @@ fn post_process_for_of(input: String) -> String {
         let (id, after_fofs) = extract_marker_id(&current, start_marker_pos, "FOFS");
         let Some(id) = id else {
             // Malformed - just remove the marker and continue.
-            current = current.replacen(
-                &format!("\u{1}FOFS{}\u{2}", "x"),
-                "",
-                1,
-            );
+            current = current.replacen(&format!("\u{1}FOFS{}\u{2}", "x"), "", 1);
             continue;
         };
 
@@ -1666,10 +1680,7 @@ fn post_process_for_of(input: String) -> String {
         let end_marker_text = format!("\u{1}FOFE{}\u{2}", id);
         let Some(end_marker_pos) = current[after_fofs..].find(&end_marker_text) else {
             // No matching end - remove this start and continue.
-            current.replace_range(
-                start_marker_pos..after_fofs,
-                "",
-            );
+            current.replace_range(start_marker_pos..after_fofs, "");
             continue;
         };
         let end_marker_pos = after_fofs + end_marker_pos;
@@ -1680,9 +1691,21 @@ fn post_process_for_of(input: String) -> String {
         let src_marker = extract_marker_with_value(&current, &sm_prefix);
 
         // Extract LEFT, RIGHT, BODY content.
-        let left = extract_between(&current, &format!("\u{1}FOLS{}\u{2}", id), &format!("\u{1}FOLE{}\u{2}", id));
-        let right = extract_between(&current, &format!("\u{1}FORS{}\u{2}", id), &format!("\u{1}FORE{}\u{2}", id));
-        let body = extract_between(&current, &format!("\u{1}FOBS{}\u{2}", id), &format!("\u{1}FOBE{}\u{2}", id));
+        let left = extract_between(
+            &current,
+            &format!("\u{1}FOLS{}\u{2}", id),
+            &format!("\u{1}FOLE{}\u{2}", id),
+        );
+        let right = extract_between(
+            &current,
+            &format!("\u{1}FORS{}\u{2}", id),
+            &format!("\u{1}FORE{}\u{2}", id),
+        );
+        let body = extract_between(
+            &current,
+            &format!("\u{1}FOBS{}\u{2}", id),
+            &format!("\u{1}FOBE{}\u{2}", id),
+        );
 
         let (left, right, body) = match (left, right, body) {
             (Some(l), Some(r), Some(b)) => (l, r, b),
