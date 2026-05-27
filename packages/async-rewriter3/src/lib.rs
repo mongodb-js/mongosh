@@ -7,6 +7,7 @@ use oxc_ast::{
     },
     AstKind, AstType,
 };
+use oxc_diagnostics::OxcDiagnostic;
 use oxc_parser::{ParseOptions, Parser};
 use oxc_semantic::{AstNode, Semantic, SemanticBuilder};
 use oxc_span::GetSpan;
@@ -622,107 +623,6 @@ fn plain_js_string_literal(s: &str) -> String {
     }
     result.push('"');
     result
-}
-
-/// Quick check for common strict-mode-only syntax errors that the lenient
-/// CommonJS-mode parser doesn't catch. Returns a description of the violation
-/// if found, or None if the source appears strict-mode compatible.
-fn check_strict_mode_violations(source: &str) -> Option<String> {
-    // Look for octal escape sequences inside string literals: `\NNN` where N is 0-9.
-    // We do a simple state-machine scan of the source code.
-    #[derive(PartialEq)]
-    enum State {
-        Code,
-        InSingleQuote,
-        InDoubleQuote,
-        InTemplate,
-        InLineComment,
-        InBlockComment,
-    }
-    let bytes = source.as_bytes();
-    let mut state = State::Code;
-    let mut i = 0;
-    while i < bytes.len() {
-        let b = bytes[i];
-        match state {
-            State::Code => {
-                if b == b'\'' {
-                    state = State::InSingleQuote;
-                } else if b == b'"' {
-                    state = State::InDoubleQuote;
-                } else if b == b'`' {
-                    state = State::InTemplate;
-                } else if b == b'/' && i + 1 < bytes.len() {
-                    if bytes[i + 1] == b'/' {
-                        state = State::InLineComment;
-                        i += 1;
-                    } else if bytes[i + 1] == b'*' {
-                        state = State::InBlockComment;
-                        i += 1;
-                    }
-                }
-                i += 1;
-            }
-            State::InSingleQuote | State::InDoubleQuote => {
-                let quote = if state == State::InSingleQuote { b'\'' } else { b'"' };
-                if b == b'\\' && i + 1 < bytes.len() {
-                    let next = bytes[i + 1];
-                    // Octal escape: \NNN where N is octal digit (0-7)
-                    // \0 alone (followed by non-digit) is allowed in strict mode.
-                    if (next >= b'1' && next <= b'7')
-                        || (next == b'0'
-                            && i + 2 < bytes.len()
-                            && bytes[i + 2] >= b'0'
-                            && bytes[i + 2] <= b'9')
-                    {
-                        return Some(
-                            "Octal escape sequences are not allowed in strict mode".to_string(),
-                        );
-                    }
-                    // \8 and \9 are also disallowed in strict mode.
-                    if next == b'8' || next == b'9' {
-                        return Some(
-                            "\\8 and \\9 are not allowed in strict mode".to_string(),
-                        );
-                    }
-                    i += 2;
-                    continue;
-                }
-                if b == quote {
-                    state = State::Code;
-                }
-                i += 1;
-            }
-            State::InTemplate => {
-                if b == b'\\' && i + 1 < bytes.len() {
-                    i += 2;
-                    continue;
-                }
-                if b == b'`' {
-                    state = State::Code;
-                }
-                // Template literals can also contain ${...} but we don't strictly
-                // handle that here; it's enough for our purposes since octal escapes
-                // aren't allowed in template literals anyway.
-                i += 1;
-            }
-            State::InLineComment => {
-                if b == b'\n' {
-                    state = State::Code;
-                }
-                i += 1;
-            }
-            State::InBlockComment => {
-                if b == b'*' && i + 1 < bytes.len() && bytes[i + 1] == b'/' {
-                    state = State::Code;
-                    i += 2;
-                    continue;
-                }
-                i += 1;
-            }
-        }
-    }
-    None
 }
 
 /// Collect all insertions for a given node.
@@ -1549,6 +1449,20 @@ fn collect_insertions(
     return Ok(insertions);
 }
 
+fn fail_if_nonempty_oxc_diagnostics(diagnostics: &[OxcDiagnostic]) -> Result<(), String> {
+    if diagnostics.len() == 0 {
+        Ok(())
+    } else {
+        Err(format!(
+            "SyntaxError: {:?}",
+            diagnostics
+                .iter()
+                .map(|e| &e.message)
+                .collect::<Vec<&Cow<'static, str>>>()
+        ))
+    }
+}
+
 /// Async-rewrite the input JS source code `str` and return the rewritten source code.
 #[wasm_bindgen]
 pub fn async_rewrite(input: &str, debug_level: DebugLevel) -> Result<String, String> {
@@ -1561,32 +1475,11 @@ pub fn async_rewrite(input: &str, debug_level: DebugLevel) -> Result<String, Str
             ..ParseOptions::default()
         })
         .parse();
-    if parsed.errors.len() > 0 {
-        return Err(format!(
-            "SyntaxError: {:?}",
-            parsed
-                .errors
-                .iter()
-                .map(|e| &e.message)
-                .collect::<Vec<&Cow<'static, str>>>()
-        ));
-    }
+    fail_if_nonempty_oxc_diagnostics(&parsed.errors)?;
     assert!(!parsed.panicked);
 
-    // If there's a "use strict" directive, do strict-mode checks that the lenient
-    // script-mode parser doesn't catch. In particular, octal escape sequences in
-    // string literals are not allowed in strict mode.
-    let has_strict_directive = parsed
-        .program
-        .directives
-        .iter()
-        .any(|d| d.directive.as_str() == "use strict");
-    if has_strict_directive {
-        if let Some(err) = check_strict_mode_violations(input) {
-            return Err(format!("SyntaxError: {}", err));
-        }
-    }
-    let semantic_ret = SemanticBuilder::new().build(allocator.alloc(parsed.program));
+    let semantic_ret = SemanticBuilder::new().with_check_syntax_error(true).build(allocator.alloc(parsed.program));
+    fail_if_nonempty_oxc_diagnostics(&semantic_ret.errors)?;
 
     // Detect duplicate top-level let/const/class declarations.
     // JavaScript normally throws "X has already been declared" for these at parse time,

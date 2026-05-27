@@ -13,6 +13,7 @@ path = "src/main.rs"
 [dependencies]
 oxc_allocator = "0.133.0"
 oxc_ast = "0.133.0"
+oxc_diagnostics = "0.133.0"
 oxc_parser = "0.133.0"
 oxc_semantic = "0.133.0"
 oxc_span = "0.133.0"
