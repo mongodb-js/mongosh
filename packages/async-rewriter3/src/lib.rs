@@ -2,11 +2,9 @@ use core::slice;
 use const_format::formatcp;
 use oxc_allocator::Allocator;
 use oxc_ast::{
-    ast::{
-        BindingPattern, ClassType, Expression, FunctionBody, IdentifierReference,
-        ParenthesizedExpression, UnaryOperator, VariableDeclarationKind,
-    },
-    AstKind, AstType,
+    AstKind, AstType, ast::{
+        BindingPattern, ClassType, Expression, Function, FunctionBody, IdentifierReference, ParenthesizedExpression, UnaryOperator, VariableDeclarationKind
+    }
 };
 use oxc_diagnostics::OxcDiagnostic;
 use oxc_parser::{ParseOptions, Parser};
@@ -375,6 +373,26 @@ fn get_identifier_reference<'a>(node: &AstNode<'a>) -> Option<&'a IdentifierRefe
     }
 }
 
+fn function_kind<'a>(f: &'a Function,
+    semantic: &'a Semantic<'a>) -> FnTransformKind {
+    let ast_nodes = semantic.nodes();
+    let mut is_constructor = false;
+    let func_node_id = f.node_id.get();
+    let parent_of_fn = ast_nodes.parent_node(func_node_id);
+    if let AstKind::MethodDefinition(md) = parent_of_fn.kind() {
+        if matches!(md.kind, oxc_ast::ast::MethodDefinitionKind::Constructor) {
+            is_constructor = true;
+        }
+    }
+    if f.r#async {
+        FnTransformKind::AlreadyAsync
+    } else if f.generator || is_constructor {
+        FnTransformKind::SyncOnly
+    } else {
+        FnTransformKind::AsyncWrap
+    }
+}
+
 /// Walks up the ancestors to find the nearest function-like context, and returns
 /// what transformation kind that function uses. Class constructors and non-async
 /// generator functions both count as "sync-only" contexts that can't await.
@@ -386,22 +404,7 @@ fn enclosing_function_kind<'a>(
     for ancestor in ast_nodes.ancestor_kinds(node.id()).skip(1) {
         match ancestor {
             AstKind::Function(f) => {
-                let mut is_constructor = false;
-                let func_node_id = f.node_id.get();
-                let parent_of_fn = ast_nodes.parent_node(func_node_id);
-                if let AstKind::MethodDefinition(md) = parent_of_fn.kind() {
-                    if matches!(md.kind, oxc_ast::ast::MethodDefinitionKind::Constructor) {
-                        is_constructor = true;
-                    }
-                }
-                let kind = if f.r#async {
-                    FnTransformKind::AlreadyAsync
-                } else if f.generator || is_constructor {
-                    FnTransformKind::SyncOnly
-                } else {
-                    FnTransformKind::AsyncWrap
-                };
-                return Some(kind);
+                return Some(function_kind(f, semantic));
             }
             AstKind::ArrowFunctionExpression(f) => {
                 let kind = if f.r#async {
@@ -602,12 +605,6 @@ fn collect_insertions(
         // Hoisting transformation only applies to declarations at the program scope or
         // inside blocks that are not nested in functions.
         let parent_kind = get_parent_kind(node);
-        let is_decl = matches!(parent_kind, AstKind::Program(_))
-            || matches!(parent_kind, AstKind::BlockStatement(_))
-            || matches!(parent_kind, AstKind::IfStatement(_))
-            || matches!(parent_kind, AstKind::LabeledStatement(_))
-            || matches!(parent_kind, AstKind::ExportDefaultDeclaration(_))
-            || matches!(parent_kind, AstKind::ExportNamedDeclaration(_));
 
         // Detect if this Function is a class method (key, value), in which case
         // it is not a declaration in our sense.
@@ -616,24 +613,10 @@ fn collect_insertions(
         let is_object_method = matches!(parent_kind, AstKind::ObjectProperty(_));
 
         let is_declaration =
-            is_decl && !is_class_method && !is_object_method && function_parent_kind.is_none();
+            !is_class_method && !is_object_method && function_parent_kind.is_none();
 
         // Determine the FnTransformKind for this function itself.
-        let mut is_constructor = false;
-        if is_class_method {
-            if let AstKind::MethodDefinition(md) = parent_kind {
-                if matches!(md.kind, oxc_ast::ast::MethodDefinitionKind::Constructor) {
-                    is_constructor = true;
-                }
-            }
-        }
-        let kind = if as_fn.r#async {
-            FnTransformKind::AlreadyAsync
-        } else if as_fn.generator || is_constructor {
-            FnTransformKind::SyncOnly
-        } else {
-            FnTransformKind::AsyncWrap
-        };
+        let kind = function_kind(as_fn,&semantic);
 
         if is_declaration {
             match &as_fn.id {
@@ -654,12 +637,7 @@ fn collect_insertions(
                     } else {
                         // Block-scoped function: emit marker around the declaration and
                         // the assignment, so that both move to the top of the IIFE.
-                        insertions.push_back(Insertion::new(span.start, HOIST_FN_START, false));
-                        // Push HOIST_FN_END BEFORE the rename pair so its reverse-ordering
-                        // sort places it AFTER the rename close (in output position),
-                        // ensuring the rename close (`;_cr = f = f__;`) is captured inside
-                        // the hoist region.
-                        insertions.push_back(Insertion::new(span.end, HOIST_FN_END, true));
+                        insertions.push_pair(Insertion::pair(span, HOIST_FN_START, HOIST_FN_END));
                         insertions.push_pair(Insertion::pair(
                             Span::new(name.span().end, span.end),
                             "__",
