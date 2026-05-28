@@ -22,6 +22,3 @@ wasm-bindgen = "0.2.122"
 
 [profile.release]
 lto = true
-
-[package.metadata.wasm-pack.profile.release]
-wasm-opt = false

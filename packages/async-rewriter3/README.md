@@ -13,7 +13,7 @@ that AST.
 
 The transpiler:
 
-1. Parses the input source code using [`oxc`](https://oxc-project.github.io/).
+1. Parses the input source code using [`oxc`](https://github.com/oxc-project/oxc/).
 2. Walks the AST and, for each node, generates a list of `Insertion` records:
    each insertion specifies an offset into the original source and a string
    to insert at that offset.
@@ -21,14 +21,10 @@ The transpiler:
    same offset).
 4. Generates the output by concatenating slices of the original source and the
    inserted strings.
-5. Runs a post-processing pass to relocate hoisted function declarations and
-   to restructure `for-of` loops into a shape that produces friendlier error
-   messages.
+5. Runs a post-processing pass to relocate hoisted function declarations.
 
-Compared to AST manipulation + code generation, this approach has the benefit
-that the output retains most of the original source character-for-character,
-which makes line/column numbers in error messages largely intact and avoids
-introducing unrelated formatting changes.
+Compared to AST manipulation + code generation, this approach is significantly
+faster.
 
 ## Feature parity
 
