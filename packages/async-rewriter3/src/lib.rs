@@ -1164,75 +1164,45 @@ fn collect_insertions(
             // the for-of expansion.
             let is_sync_only = matches!(function_parent_kind, Some(FnTransformKind::SyncOnly));
             if !is_sync_only {
-                // We emit markers around the for-of pieces (LEFT, RIGHT, BODY) so a
-                // post-processing step can extract the AST-transformed text for each
-                // and rebuild the for-of into a structure where the helper setup
-                // happens BEFORE the for-of. That way, the for-of's right operand is
-                // a simple `(SRC_MARKER, _it)` comma expression and V8's "X is not
-                // iterable" error message will show the source code (which our error
-                // demangler then converts back to the original).
-                let unique = span.start.to_string();
+                let unique = span.start;
                 let right_span = for_of.right.span();
                 let right_source = &source[(right_span.start as usize)..(right_span.end as usize)];
                 let right_source_marker = js_string_literal_for_demangling(right_source);
                 let body_span = for_of.body.span();
-                let left_span = for_of.left.span();
 
-                // Push markers FIRST so they wrap the AST-transformed content for each part.
-                // The id is encoded in the markers and a fixed-length "marker" string
-                // makes them easy to find in the post-processing step.
-                insertions.push_back(Insertion::new(
-                    span.start,
-                    format!("\u{1}FOFS{}\u{2}", unique),
-                    false,
-                ));
-                insertions.push_back(Insertion::new(
-                    span.end,
-                    format!("\u{1}FOFE{}\u{2}", unique),
-                    true,
-                ));
-                insertions.push_back(Insertion::new(
-                    left_span.start,
-                    format!("\u{1}FOLS{}\u{2}", unique),
-                    false,
-                ));
-                insertions.push_back(Insertion::new(
-                    left_span.end,
-                    format!("\u{1}FOLE{}\u{2}", unique),
-                    true,
-                ));
-                insertions.push_back(Insertion::new(
-                    right_span.start,
-                    format!("\u{1}FORS{}\u{2}", unique),
-                    false,
-                ));
-                insertions.push_back(Insertion::new(
-                    right_span.end,
-                    format!("\u{1}FORE{}\u{2}", unique),
-                    true,
-                ));
-                insertions.push_back(Insertion::new(
-                    body_span.start,
-                    format!("\u{1}FOBS{}\u{2}", unique),
-                    false,
-                ));
-                insertions.push_back(Insertion::new(
-                    body_span.end,
-                    format!("\u{1}FOBE{}\u{2}", unique),
-                    true,
-                ));
-                // Also encode the source marker as a marker that the post-processor can pick up.
-                insertions.push_back(Insertion::new(
-                    span.start,
+                insertions.push_pair(Insertion::pair(
+                    span,
+                    format!("{{
+                    let _ii{u}, _isai{u}, _it{u};
+                    try {{ ", u = unique),
                     format!(
-                        "\u{1}FOSM{u}={src}\u{2}",
-                        u = unique,
-                        src = right_source_marker
+                        " }} finally {{ _isai{u} && await _it{u}.syncReturn(); }} }}",
+                        u = unique
                     ),
-                    false,
                 ));
-                // Note: actual restructuring happens in post-processing.
-                let _ = right_source;
+                insertions.push_pair(Insertion::pair(
+                    right_span,
+                    format!(
+                        "({src}, (_ii{u} = {adaptor}(",
+                        src = right_source_marker,
+                        u = unique,
+                        adaptor = ADAPT_ASYNC_ITERABLE_TO_SYNC_ITERABLE_TEMPLATE
+                    ),
+                    format!(
+                        // (a, (b, (c, d))) instead of (a, b, c, d) is necessary for error
+                        // message demangling to work
+                        "), (_isai{u} = _ii{u}.isSyntheticAsyncIterable, (_it{u} = _ii{u}.iterable, (_isai{u} && await _it{u}.expectNext(), _it{u})))))",
+                        u = unique
+                    ),
+                ));
+                insertions.push_pair(Insertion::pair(
+                    body_span,
+                    " try { ",
+                    format!(
+                        " }} finally {{ _isai{u} && await _it{u}.expectNext(); }}",
+                        u = unique
+                    ),
+                ));
             }
         }
         return Ok(insertions);
@@ -1585,199 +1555,8 @@ pub fn async_rewrite(input: &str, debug_level: DebugLevel) -> Result<String, Str
 
     // Post-process: move hoisted function declarations to the HOIST_TARGET position.
     let result = post_process_hoists(result);
-    // Post-process: restructure for-of statements.
-    let result = post_process_for_of(result);
 
     Ok(result)
-}
-
-/// Restructure for-of statements that were marked with `\u{1}FOFS...FOFE\u{2}`
-/// markers. The post-process extracts the LEFT/RIGHT/BODY parts (with their
-/// AST-transformed text) and rebuilds the for-of into a structure where the
-/// helper setup happens BEFORE the for-of (so V8's "X is not iterable" error
-/// includes the source representation, which our demangler can then
-/// transform back to the original).
-fn post_process_for_of(input: String) -> String {
-    // Find all marker positions. We do a single pass.
-    // For each for-of (identified by unique id), find:
-    //  - FOFS<id> ... FOFE<id> bounds
-    //  - FOLS<id> ... FOLE<id> (LEFT content)
-    //  - FORS<id> ... FORE<id> (RIGHT content)
-    //  - FOBS<id> ... FOBE<id> (BODY content)
-    //  - FOSM<id>=... (source marker for RIGHT)
-    if !input.contains("\u{1}FOFS") {
-        return input;
-    }
-
-    // Iteratively process the innermost for-of first (to handle nesting).
-    let mut current = input;
-    loop {
-        let Some(start_marker_pos) = find_innermost_fofs(&current) else {
-            break;
-        };
-        // Extract the id from the marker.
-        let (id, after_fofs) = extract_marker_id(&current, start_marker_pos, "FOFS");
-        let Some(id) = id else {
-            // Malformed - just remove the marker and continue.
-            current = current.replacen(&format!("\u{1}FOFS{}\u{2}", "x"), "", 1);
-            continue;
-        };
-
-        // Find the matching FOFE marker.
-        let end_marker_text = format!("\u{1}FOFE{}\u{2}", id);
-        let Some(end_marker_pos) = current[after_fofs..].find(&end_marker_text) else {
-            // No matching end - remove this start and continue.
-            current.replace_range(start_marker_pos..after_fofs, "");
-            continue;
-        };
-        let end_marker_pos = after_fofs + end_marker_pos;
-        let end_marker_end = end_marker_pos + end_marker_text.len();
-
-        // Extract source marker (FOSM<id>=<lit>).
-        let sm_prefix = format!("\u{1}FOSM{}=", id);
-        let src_marker = extract_marker_with_value(&current, &sm_prefix);
-
-        // Extract LEFT, RIGHT, BODY content.
-        let left = extract_between(
-            &current,
-            &format!("\u{1}FOLS{}\u{2}", id),
-            &format!("\u{1}FOLE{}\u{2}", id),
-        );
-        let right = extract_between(
-            &current,
-            &format!("\u{1}FORS{}\u{2}", id),
-            &format!("\u{1}FORE{}\u{2}", id),
-        );
-        let body = extract_between(
-            &current,
-            &format!("\u{1}FOBS{}\u{2}", id),
-            &format!("\u{1}FOBE{}\u{2}", id),
-        );
-
-        let (left, right, body) = match (left, right, body) {
-            (Some(l), Some(r), Some(b)) => (l, r, b),
-            _ => {
-                // Couldn't extract; remove the FOFS marker and skip to avoid infinite loop.
-                current.replace_range(start_marker_pos..after_fofs, "");
-                continue;
-            }
-        };
-        let src_marker = src_marker.unwrap_or_else(|| "\"<unknown>\"".to_string());
-
-        // Build the new for-of structure.
-        let u = &id;
-        let replacement = format!(
-            "{{ let _ii{u}, _isai{u}, _it{u}; \
-             _ii{u} = {ADAPT_ASYNC_ITERABLE_TO_SYNC_ITERABLE_TEMPLATE}({right}); \
-             _isai{u} = _ii{u}.isSyntheticAsyncIterable; \
-             _it{u} = _ii{u}.iterable; \
-             if (_isai{u}) await _it{u}.expectNext(); \
-             try {{ \
-               for ({left} of ({src}, _it{u})) {{ \
-                 try {{ {body} }} finally {{ _isai{u} && await _it{u}.expectNext(); }} \
-               }} \
-             }} finally {{ _isai{u} && await _it{u}.syncReturn(); }} \
-             }}",
-            u = u,
-            right = right.trim(),
-            left = left.trim(),
-            body = body.trim(),
-            src = src_marker.trim(),
-        );
-
-        // Replace the range from start_marker_pos to end_marker_end with the new structure.
-        current.replace_range(start_marker_pos..end_marker_end, &replacement);
-    }
-
-    // Clean up any leftover markers that didn't get processed (shouldn't happen but just in case).
-    strip_all_for_of_markers(current)
-}
-
-fn strip_all_for_of_markers(s: String) -> String {
-    // Strip any \u{1}FO*\u{2} markers that remain.
-    let mut result = String::with_capacity(s.len());
-    let mut i = 0;
-    let bytes = s.as_bytes();
-    while i < bytes.len() {
-        if bytes[i] == 0x01 {
-            // Find matching 0x02.
-            if let Some(end_rel) = s[i + 1..].find('\u{2}') {
-                // Check that the marker starts with "FO" or "HFS"/"HFE" (we don't strip those).
-                let marker_body = &s[i + 1..i + 1 + end_rel];
-                if marker_body.starts_with("FO") {
-                    i = i + 1 + end_rel + 1;
-                    continue;
-                }
-            }
-        }
-        let ch_end = next_char_boundary(&s, i);
-        result.push_str(&s[i..ch_end]);
-        i = ch_end;
-    }
-    result
-}
-
-/// Find the position of an innermost FOFS marker (one that doesn't enclose another).
-fn find_innermost_fofs(input: &str) -> Option<usize> {
-    // Innermost = the one with no FOFS between it and its matching FOFE.
-    // Easier: find a FOFS where the next FO marker we see after it is FOFE (not another FOFS).
-    // Simpler still: find the LAST FOFS that comes before any FOFE.
-    // Or: find a FOFS<id> such that there's no other FOFS between it and FOFE<id>.
-    // For simplicity, scan and find a FOFS that has its FOFE BEFORE any other FOFS.
-    let mut search_start = 0;
-    while let Some(rel) = input[search_start..].find("\u{1}FOFS") {
-        let pos = search_start + rel;
-        // Get the id.
-        let after = pos + "\u{1}FOFS".len();
-        let id_end = input[after..].find('\u{2}')?;
-        let id = &input[after..after + id_end];
-        let fofe = format!("\u{1}FOFE{}\u{2}", id);
-        let after_id = after + id_end + 1;
-        // Find next FOFS or this FOFE in the remaining text.
-        let next_fofs = input[after_id..].find("\u{1}FOFS").map(|x| after_id + x);
-        let this_fofe = input[after_id..].find(&fofe).map(|x| after_id + x);
-        match (next_fofs, this_fofe) {
-            (None, Some(_)) => return Some(pos),
-            (Some(nf), Some(tf)) if tf < nf => return Some(pos),
-            _ => {
-                // There's a nested for-of before this one's end; check next.
-                search_start = after_id;
-            }
-        }
-    }
-    None
-}
-
-/// Extract the id following a marker prefix. Returns (id, position_after_marker_end).
-fn extract_marker_id(input: &str, pos: usize, prefix: &str) -> (Option<String>, usize) {
-    let marker_start = format!("\u{1}{}", prefix);
-    if !input[pos..].starts_with(&marker_start) {
-        return (None, pos);
-    }
-    let after = pos + marker_start.len();
-    let Some(end_rel) = input[after..].find('\u{2}') else {
-        return (None, pos);
-    };
-    let id = input[after..after + end_rel].to_string();
-    (Some(id), after + end_rel + 1)
-}
-
-/// Extract the text between an open marker and a close marker. Removes the markers
-/// from the input (modifies in place via String replace).
-fn extract_between(input: &str, open: &str, close: &str) -> Option<String> {
-    let open_pos = input.find(open)?;
-    let after_open = open_pos + open.len();
-    let close_pos_rel = input[after_open..].find(close)?;
-    let close_pos = after_open + close_pos_rel;
-    Some(input[after_open..close_pos].to_string())
-}
-
-/// Extract a marker that has the form `\u{1}FOSM<id>=<value>\u{2}`. Returns the value.
-fn extract_marker_with_value(input: &str, prefix: &str) -> Option<String> {
-    let pos = input.find(prefix)?;
-    let after = pos + prefix.len();
-    let end_rel = input[after..].find('\u{2}')?;
-    Some(input[after..after + end_rel].to_string())
 }
 
 /// Find HOIST_FN_START..HOIST_FN_END spans and move them to the HOIST_TARGET position.
