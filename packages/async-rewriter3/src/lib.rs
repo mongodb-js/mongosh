@@ -13,6 +13,7 @@ use oxc_parser::{ParseOptions, Parser};
 use oxc_semantic::{AstNode, Semantic, SemanticBuilder};
 use oxc_span::GetSpan;
 use oxc_span::{SourceType, Span};
+use urlencoding::encode;
 use std::{borrow::Cow, cmp::Ordering, collections::VecDeque};
 use wasm_bindgen::prelude::*;
 
@@ -301,21 +302,24 @@ fn add_fn_insertions(
     body: &FunctionBody,
     has_block_body: bool,
     kind: FnTransformKind,
-    marker: String,
+    original_source: &str,
 ) {
     let span = body.span();
     // Ensure that the function body is a block statement. Is a no-op for non-arrow
     // functions, but changes behavior of expression-returning arrow functions.
     insertions.push_pair(Insertion::pair(span, "{", "}"));
+    // Add original-source marker for Function.prototype.toString support.
     // Insert the original-source marker AFTER `{` and BEFORE the inner wrapper.
-    // Using non-reverse insertion at body.span.start so it goes before everything else
-    // pushed later at the same offset.
-    insertions.push_back(Insertion::new(span.start, marker, false));
-    match kind {
-        FnTransformKind::AsyncWrap => insertions.push_pair(make_fn_insertions(span)),
-        FnTransformKind::AlreadyAsync => insertions.push_pair(make_async_fn_insertions(span)),
-        FnTransformKind::SyncOnly => insertions.push_pair(make_sync_only_fn_insertions(span)),
-    }
+    let original_source_marker = format!(
+        "\"<async_rewriter>{}</>\";",
+        encode(&original_source)
+    );
+    insertions.push_back(Insertion::new(span.start, original_source_marker, false));
+    insertions.push_pair(match kind {
+        FnTransformKind::AsyncWrap => make_fn_insertions(span),
+        FnTransformKind::AlreadyAsync => make_async_fn_insertions(span),
+        FnTransformKind::SyncOnly => make_sync_only_fn_insertions(span),
+    });
     if !has_block_body {
         // This is an expression-returning arrow function without a body,
         // so we need to add an explicit `return` statement.
@@ -346,6 +350,7 @@ enum FnTransformKind {
 
 /// Utility for `get_identifier_reference`. Given a parenthesized expression,
 /// return the identifier reference it wraps, if it does.
+/// (e.g. `((foo))` -> `foo`)
 fn get_identifier_reference_from_parenthesized_expression<'a>(
     node: &'a ParenthesizedExpression<'a>,
 ) -> Option<&'a IdentifierReference<'a>> {
@@ -415,16 +420,19 @@ fn enclosing_function_kind<'a>(
     None
 }
 
-fn limit_string_length(input: &str, max_length: usize) -> String {
+fn limit_string_length(input: &str, max_length: usize) -> Cow<'_, str> {
+    if input.len() <= max_length {
+        return input.into();
+    }
     let chars: Vec<char> = input.chars().collect();
     if chars.len() <= max_length {
-        return input.to_string();
+        return input.into();
     }
     let prefix_len = ((max_length - 5) as f64 * 0.7).floor() as usize;
     let suffix_len = max_length - 5 - prefix_len;
     let prefix: String = chars[..prefix_len].iter().collect();
     let suffix: String = chars[chars.len() - suffix_len..].iter().collect();
-    format!("{} ... {}", prefix, suffix)
+    format!("{} ... {}", prefix, suffix).into()
 }
 
 fn extract_binding_names_impl(pattern: &BindingPattern, out: &mut Vec<String>) {
@@ -513,33 +521,22 @@ fn is_in_assignment_target_position<'a>(node: &AstNode<'a>, semantic: &'a Semant
     false
 }
 
-/// Build a JS-string-literal-safe representation of the original source for
-/// passing to `<async_rewriter>` marker.
-fn percent_encode_for_marker(s: &str) -> String {
-    let mut result = String::with_capacity(s.len() * 3);
-    for byte in s.bytes() {
-        match byte {
-            // RFC 3986 unreserved characters
-            b'A'..=b'Z'
-            | b'a'..=b'z'
-            | b'0'..=b'9'
-            | b'-'
-            | b'_'
-            | b'.'
-            | b'~'
-            | b'!'
-            | b'*'
-            | b'\''
-            | b'('
-            | b')' => {
-                result.push(byte as char);
+fn add_escaped_js_string_contents(source: &str, into: &mut String) {
+    for c in source.chars() {
+        match c {
+            '"' => into.push_str("\\\""),
+            '\\' => into.push_str("\\\\"),
+            '\n' => into.push_str("\\n"),
+            '\r' => into.push_str("\\r"),
+            '\t' => into.push_str("\\t"),
+            '\u{08}' => into.push_str("\\b"),
+            '\u{0C}' => into.push_str("\\f"),
+            '\0'..='\u{1F}' | '\u{7F}'..='\u{9F}' => {
+                into.push_str(&format!("\\u{:04x}", c as u32));
             }
-            _ => {
-                result.push_str(&format!("%{:02X}", byte));
-            }
+            _ => into.push(c),
         }
     }
-    result
 }
 
 /// Encode a string for use as a JS string literal source-text (for the demangler).
@@ -549,21 +546,7 @@ fn js_string_literal_for_demangling(s: &str) -> String {
     let mut result = String::with_capacity(limited.len() + 4);
     result.push('"');
     result.push('\u{FEFF}');
-    for c in limited.chars() {
-        match c {
-            '"' => result.push_str("\\\""),
-            '\\' => result.push_str("\\\\"),
-            '\n' => result.push_str("\\n"),
-            '\r' => result.push_str("\\r"),
-            '\t' => result.push_str("\\t"),
-            '\u{08}' => result.push_str("\\b"),
-            '\u{0C}' => result.push_str("\\f"),
-            '\0'..='\u{1F}' | '\u{7F}'..='\u{9F}' => {
-                result.push_str(&format!("\\u{:04x}", c as u32));
-            }
-            _ => result.push(c),
-        }
-    }
+    add_escaped_js_string_contents(&limited, &mut result);
     result.push('\u{FEFF}');
     result.push('"');
     result
@@ -573,21 +556,7 @@ fn js_string_literal_for_demangling(s: &str) -> String {
 fn plain_js_string_literal(s: &str) -> String {
     let mut result = String::with_capacity(s.len() + 2);
     result.push('"');
-    for c in s.chars() {
-        match c {
-            '"' => result.push_str("\\\""),
-            '\\' => result.push_str("\\\\"),
-            '\n' => result.push_str("\\n"),
-            '\r' => result.push_str("\\r"),
-            '\t' => result.push_str("\\t"),
-            '\u{08}' => result.push_str("\\b"),
-            '\u{0C}' => result.push_str("\\f"),
-            '\0'..='\u{1F}' | '\u{7F}'..='\u{9F}' => {
-                result.push_str(&format!("\\u{:04x}", c as u32));
-            }
-            _ => result.push(c),
-        }
-    }
+    add_escaped_js_string_contents(&s, &mut result);
     result.push('"');
     result
 }
@@ -612,7 +581,7 @@ fn collect_insertions(
     // Helpers to get the source text of a given node.
     let get_source = |node: &dyn GetSpan| {
         let Span { start, end, .. } = node.span();
-        return source[(start as usize)..(end as usize)].to_string();
+        return &source[(start as usize)..(end as usize)];
     };
 
     let span = node.span();
@@ -718,13 +687,8 @@ fn collect_insertions(
         } else {
             span
         };
-        let original = source[(marker_span.start as usize)..(marker_span.end as usize)].to_string();
-        let marker = format!(
-            "\"<async_rewriter>{}</>\";",
-            percent_encode_for_marker(&original)
-        );
         // Apply async wrapping or other inner-function transformations.
-        add_fn_insertions(&mut insertions, body, true, kind, marker);
+        add_fn_insertions(&mut insertions, body, true, kind, get_source(&marker_span));
         return Ok(insertions);
     }
     if let AstKind::ArrowFunctionExpression(as_fn) = node.kind() {
@@ -734,13 +698,7 @@ fn collect_insertions(
         } else {
             FnTransformKind::AsyncWrap
         };
-        // Add original-source marker for Function.prototype.toString support.
-        let original = get_source(&span);
-        let marker = format!(
-            "\"<async_rewriter>{}</>\";",
-            percent_encode_for_marker(&original)
-        );
-        add_fn_insertions(&mut insertions, body, !as_fn.expression, kind, marker);
+        add_fn_insertions(&mut insertions, body, !as_fn.expression, kind, get_source(&span));
         return Ok(insertions);
     }
     if let AstKind::Class(as_class) = node.kind() {
