@@ -1,4 +1,5 @@
 use core::slice;
+use const_format::formatcp;
 use oxc_allocator::Allocator;
 use oxc_ast::{
     ast::{
@@ -62,11 +63,11 @@ impl Insertion {
         node: impl GetSpan,
         open: impl Into<Cow<'static, str>>,
         close: impl Into<Cow<'static, str>>,
-    ) -> (Insertion, Insertion) {
+    ) -> [Insertion; 2] {
         let span = node.span();
         let open_insertion = Insertion::new(span.start, open, false);
         let close_insertion = Insertion::new(span.end, close, true);
-        (open_insertion, close_insertion)
+        [open_insertion, close_insertion]
     }
 
     pub fn len(&self) -> usize {
@@ -102,9 +103,14 @@ impl InsertionList {
         self.list.push_back(insertion);
     }
 
-    fn push_pair(&mut self, insertions: (Insertion, Insertion)) {
-        self.push_back(insertions.0);
-        self.push_back(insertions.1);
+    fn push_pair(&mut self, insertions: impl IntoIterator<Item = Insertion>) {
+        self.push_many(insertions);
+    }
+
+    fn push_many(&mut self, insertions: impl IntoIterator<Item = Insertion>) {
+        for insertion in insertions {
+            self.list.push_back(insertion);
+        }
     }
 
     fn pop_back(&mut self) {
@@ -137,211 +143,156 @@ impl InsertionList {
     }
 }
 
-/// Insertions for the inner async function tracking helpers and try/catch wrapper.
-/// This is shared between the outer IIFE and every transformed function.
-fn make_fn_insertions(span: impl GetSpan) -> (Insertion, Insertion) {
-    Insertion::pair(
-        span,
-        r#"
-    ;const _syntheticPromise = __SymbolFor('@@mongosh.syntheticPromise');
-    const _syntheticAsyncIterable = __SymbolFor('@@mongosh.syntheticAsyncIterable');
+const SYNTHETIC_PROMISE_IDENTIFIER: &str = "__sp";
+const SYNTHETIC_ASYNC_ITERABLE_IDENTIFIER: &str = "__sai";
+const DEMANGLE_ERROR_IDENTIFIER: &str = "__de";
+const IS_SYNTHETIC_PROMISE_IDENTIFIER: &str = "__isp";
+const ADAPT_ASYNC_ITERABLE_TO_SYNC_ITERABLE_TEMPLATE: &str = "__aaitsi";
 
-    function _markSyntheticPromise(p) {
-        return Object.defineProperty(p, _syntheticPromise, {
-            value: true,
-        });
-    }
+const ALL_FN_PREAMBLE: &str = formatcp!(r#"
+    ;const {SYNTHETIC_PROMISE_IDENTIFIER} = __SymbolFor('@@mongosh.syntheticPromise');
+    const {SYNTHETIC_ASYNC_ITERABLE_IDENTIFIER} = __SymbolFor('@@mongosh.syntheticAsyncIterable');
 
-    function _isp(p) {
-        return p && p[_syntheticPromise];
-    }
+    function {DEMANGLE_ERROR_IDENTIFIER}(err) {{
+        if (Object.prototype.toString.call(err) === '[object Error]' &&
+            typeof err.message === 'string' &&
+            err.message.includes('\ufeff')) {{
+            err.message = err.message.replace(/\(\s*"\ufeff(.+?)\ufeff"\s*,(?:[^\(]|\([^)]*\))*\)/g, function(m, o) {{ return o; }});
+        }}
+        return err;
+    }}"#);
+const POTENTIALLY_ASYNC_FN_PREAMBLE: &str = formatcp!(r#"
+    function {IS_SYNTHETIC_PROMISE_IDENTIFIER}(p) {{
+        return p && p[{SYNTHETIC_PROMISE_IDENTIFIER}];
+    }}
 
-    function _ansp(p, s, i) {
-        if (p && p[_syntheticPromise]) {
-            throw new MongoshAsyncWriterError(
-                'Result of expression "' + s + '" cannot be used in this context',
-                'SyntheticPromiseInAlwaysSyncContext');
-        }
-        if (i && p && p[_syntheticAsyncIterable]) {
-            throw new MongoshAsyncWriterError(
-                'Result of expression "' + s + '" cannot be iterated in this context',
-                'SyntheticAsyncIterableInAlwaysSyncContext');
-        }
-        return p;
-    }
-
-    function _aaitsi(original) {
-        if (!original || !original[_syntheticAsyncIterable]) {
-            return { iterable: original, isSyntheticAsyncIterable: false };
-        }
+    function {ADAPT_ASYNC_ITERABLE_TO_SYNC_ITERABLE_TEMPLATE}(original) {{
+        if (!original || !original[{SYNTHETIC_ASYNC_ITERABLE_IDENTIFIER}]) {{
+            return {{ iterable: original, isSyntheticAsyncIterable: false }};
+        }}
         const originalIterator = original[Symbol.asyncIterator]();
         let next;
         let returned;
-        return {
+        return {{
             isSyntheticAsyncIterable: true,
-            iterable: {
-                [Symbol.iterator]() { return this; },
-                next() {
+            iterable: {{
+                [Symbol.iterator]() {{ return this; }},
+                next() {{
                     let _next = next;
                     next = undefined;
                     return _next;
-                },
-                return(value) {
-                    returned = { value };
-                    return { value, done: true };
-                },
-                async expectNext() {
+                }},
+                return(value) {{
+                    returned = {{ value }};
+                    return {{ value, done: true }};
+                }},
+                async expectNext() {{
                     next ??= await originalIterator.next();
-                },
-                async syncReturn() {
-                    if (returned) {
+                }},
+                async syncReturn() {{
+                    if (returned) {{
                         await originalIterator.return(returned.value);
-                    }
-                }
-            }
-        };
-    }
+                    }}
+                }}
+            }}
+        }};
+    }}"#);
 
-    function _de(err) {
-        if (Object.prototype.toString.call(err) === '[object Error]' &&
-            typeof err.message === 'string' &&
-            err.message.includes('\ufeff')) {
-            err.message = err.message.replace(/\(\s*"\ufeff(.+?)\ufeff"\s*,(?:[^\(]|\([^)]*\))*\)/g, function(m, o) { return o; });
-        }
-        return err;
-    }
+/// Insertions for the inner async function tracking helpers and try/catch wrapper.
+/// This is shared between the outer IIFE and every transformed function.
+fn make_fn_insertions(span: impl GetSpan) -> [Insertion; 2] {
+    Insertion::pair(
+        span,
+        formatcp!(r#"
+    {ALL_FN_PREAMBLE}
+    {POTENTIALLY_ASYNC_FN_PREAMBLE}
+    function _markSyntheticPromise(p) {{
+        return Object.defineProperty(p, {SYNTHETIC_PROMISE_IDENTIFIER}, {{
+            value: true,
+        }});
+    }}
+
+    function _ansp(p, s, i) {{
+        if (p && p[{SYNTHETIC_PROMISE_IDENTIFIER}]) {{
+            throw new MongoshAsyncWriterError(
+                'Result of expression "' + s + '" cannot be used in this context',
+                'SyntheticPromiseInAlwaysSyncContext');
+        }}
+        if (i && p && p[{SYNTHETIC_ASYNC_ITERABLE_IDENTIFIER}]) {{
+            throw new MongoshAsyncWriterError(
+                'Result of expression "' + s + '" cannot be iterated in this context',
+                'SyntheticAsyncIterableInAlwaysSyncContext');
+        }}
+        return p;
+    }}
 
     let _functionState = 'sync', _synchronousReturnValue, _ex;
 
-    const _asynchronousReturnValue = (async () => {
-    try {"#,
-        r#"
-    } catch (err) {
-        err = _de(err);
-        if (_functionState === 'sync') {
+    const _asynchronousReturnValue = (async () => {{
+    try {{"#),
+        formatcp!(r#"
+    }} catch (err) {{
+        err = {DEMANGLE_ERROR_IDENTIFIER}(err);
+        if (_functionState === 'sync') {{
             /* Forward synchronous exceptions. */
             _synchronousReturnValue = err;
             _functionState = 'threw';
-        } else {
+        }} else {{
             throw err;
-        }
-    } finally {
-        if (_functionState !== 'threw') {
+        }}
+    }} finally {{
+        if (_functionState !== 'threw') {{
             _functionState = 'returned';
-        }
-    }
+        }}
+    }}
 
-    })();
+    }})();
 
-    if (_functionState === 'returned') {
+    if (_functionState === 'returned') {{
         return _synchronousReturnValue;
-    } else if (_functionState === 'threw') {
+    }} else if (_functionState === 'threw') {{
         throw _synchronousReturnValue;
-    }
+    }}
 
     _functionState = 'async';
     return _markSyntheticPromise(_asynchronousReturnValue);
     "#,
-    )
+    ))
 }
 
 /// Insertions for sync-only contexts (class constructors, non-async generators).
 /// Just adds an _ansp helper and re-throws errors to allow demangling.
-fn make_sync_only_fn_insertions(span: impl GetSpan) -> (Insertion, Insertion) {
+fn make_sync_only_fn_insertions(span: impl GetSpan) -> [Insertion; 2] {
     Insertion::pair(
         span,
-        r#"
-    ;const _syntheticPromise = __SymbolFor('@@mongosh.syntheticPromise');
-    const _syntheticAsyncIterable = __SymbolFor('@@mongosh.syntheticAsyncIterable');
-    function _ansp(p, s, i) {
-        if (p && p[_syntheticPromise]) {
-            throw new MongoshAsyncWriterError(
-                'Result of expression "' + s + '" cannot be used in this context',
-                'SyntheticPromiseInAlwaysSyncContext');
-        }
-        if (i && p && p[_syntheticAsyncIterable]) {
-            throw new MongoshAsyncWriterError(
-                'Result of expression "' + s + '" cannot be iterated in this context',
-                'SyntheticAsyncIterableInAlwaysSyncContext');
-        }
-        return p;
-    }
-    function _de(err) {
-        if (Object.prototype.toString.call(err) === '[object Error]' &&
-            typeof err.message === 'string' &&
-            err.message.includes('\ufeff')) {
-            err.message = err.message.replace(/\(\s*"\ufeff(.+?)\ufeff"\s*,(?:[^\(]|\([^)]*\))*\)/g, function(m, o) { return o; });
-        }
-        return err;
-    }
-    try {
-    "#,
-        r#"
-    } catch (err) {
-        throw _de(err);
-    }
-    "#,
+        formatcp!(r#"
+    {ALL_FN_PREAMBLE}
+    try {{
+    "#),
+        formatcp!(r#"
+    }} catch (err) {{
+        throw {DEMANGLE_ERROR_IDENTIFIER}(err);
+    }}
+    "#),
     )
 }
 
 /// Insertions for an async (but not sync-rewriter-wrapped) function body.
 /// Provides the helpers and runs the body inside try/catch for error demangling.
-fn make_async_fn_insertions(span: impl GetSpan) -> (Insertion, Insertion) {
+fn make_async_fn_insertions(span: impl GetSpan) -> [Insertion; 2] {
     Insertion::pair(
         span,
-        r#"
-    ;const _syntheticPromise = __SymbolFor('@@mongosh.syntheticPromise');
-    const _syntheticAsyncIterable = __SymbolFor('@@mongosh.syntheticAsyncIterable');
-    function _isp(p) {
-        return p && p[_syntheticPromise];
-    }
-    function _aaitsi(original) {
-        if (!original || !original[_syntheticAsyncIterable]) {
-            return { iterable: original, isSyntheticAsyncIterable: false };
-        }
-        const originalIterator = original[Symbol.asyncIterator]();
-        let next;
-        let returned;
-        return {
-            isSyntheticAsyncIterable: true,
-            iterable: {
-                [Symbol.iterator]() { return this; },
-                next() {
-                    let _next = next;
-                    next = undefined;
-                    return _next;
-                },
-                return(value) {
-                    returned = { value };
-                    return { value, done: true };
-                },
-                async expectNext() {
-                    next ??= await originalIterator.next();
-                },
-                async syncReturn() {
-                    if (returned) {
-                        await originalIterator.return(returned.value);
-                    }
-                }
-            }
-        };
-    }
-    function _de(err) {
-        if (Object.prototype.toString.call(err) === '[object Error]' &&
-            typeof err.message === 'string' &&
-            err.message.includes('\ufeff')) {
-            err.message = err.message.replace(/\(\s*"\ufeff(.+?)\ufeff"\s*,(?:[^\(]|\([^)]*\))*\)/g, function(m, o) { return o; });
-        }
-        return err;
-    }
+        formatcp!(r#"
+    {ALL_FN_PREAMBLE}
+    {POTENTIALLY_ASYNC_FN_PREAMBLE}
     let _ex;
-    try {
-    "#,
-        r#"
-    } catch (err) {
-        throw _de(err);
-    }
-    "#,
+    try {{
+    "#),
+        formatcp!(r#"
+    }} catch (err) {{
+        throw {DEMANGLE_ERROR_IDENTIFIER}(err);
+    }}
+    "#),
     )
 }
 
@@ -1025,12 +976,8 @@ fn collect_insertions(
                                     true,
                                 ));
                                 // Comment out the original pattern source:
-                                insertions.push_back(Insertion::new(
-                                    pattern_span.start,
-                                    "/*",
-                                    false,
-                                ));
-                                insertions.push_back(Insertion::new(pattern_span.end, "*/", true));
+                                // XXX: Handle comments inside patterns
+                                insertions.push_pair(Insertion::pair(pattern_span, "/*", "*/"));
                                 let body_start = handler.body.span().start;
                                 let body_end = handler.body.span().end;
                                 insertions.push_back(Insertion::new(
@@ -1201,7 +1148,7 @@ fn collect_insertions(
                 // We add a high "ordering" by emitting after — relying on insertion order.
                 insertions.push_back(Insertion::new(
                     body_start + 1,
-                    format!(" {n} = _de({n});", n = id.name.as_str()),
+                    format!(" {n} = {DEMANGLE_ERROR_IDENTIFIER}({n});", n = id.name.as_str()),
                     false,
                 ));
             }
@@ -1456,7 +1403,7 @@ fn collect_insertions(
             insertions.push_pair(Insertion::pair(
                 s,
                 format!("({}, _ex = ", src_lit),
-                ", _isp(_ex) ? await _ex : _ex)",
+                formatcp!(", {IS_SYNTHETIC_PROMISE_IDENTIFIER}(_ex) ? await _ex : _ex)"),
             ));
         }
     }
@@ -1721,7 +1668,7 @@ fn post_process_for_of(input: String) -> String {
         let u = &id;
         let replacement = format!(
             "{{ let _ii{u}, _isai{u}, _it{u}; \
-             _ii{u} = _aaitsi({right}); \
+             _ii{u} = {ADAPT_ASYNC_ITERABLE_TO_SYNC_ITERABLE_TEMPLATE}({right}); \
              _isai{u} = _ii{u}.isSyntheticAsyncIterable; \
              _it{u} = _ii{u}.iterable; \
              if (_isai{u}) await _it{u}.expectNext(); \

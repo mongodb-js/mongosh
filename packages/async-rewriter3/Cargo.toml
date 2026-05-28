@@ -11,6 +11,7 @@ name = "async-rewriter3"
 path = "src/main.rs"
 
 [dependencies]
+const_format = "0.2.36"
 oxc_allocator = "0.133.0"
 oxc_ast = "0.133.0"
 oxc_diagnostics = "0.133.0"
