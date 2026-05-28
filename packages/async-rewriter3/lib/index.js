@@ -2,6 +2,8 @@
 const v8 = require('v8');
 const fs = require('fs');
 const path = require('path');
+const compiledRuntimeSupport = require('../../async-rewriter2/lib/runtime-support.out.nocov.js').default;
+
 if (typeof __webpack_require__ !== 'undefined') {
   __webpack_require__.v = async(exports, wasmModuleId, wasmModuleHash, importsObj) => {
     const bytes = Buffer.from(ExtraAssets[`${wasmModuleHash}.module.wasm`], 'base64');
@@ -21,16 +23,6 @@ if (v8.startupSnapshot?.isBuildingSnapshot?.()) {
   importPromise.then(exports => syncImport = exports);
 }
 let syncImport;
-
-// Read the runtime support source synchronously. This is needed for the
-// runtimeSupportCode() polyfills (Array.prototype.forEach, etc.) and the
-// Function.prototype.toString patch.
-let runtimeSupportSource;
-try {
-  runtimeSupportSource = fs.readFileSync(path.join(__dirname, 'runtime-support.nocov.js'), 'utf8');
-} catch (_err) {
-  runtimeSupportSource = '';
-}
 
 // The unprocessed prelude that gets prepended to the runtime support source.
 // This declares MongoshAsyncWriterError. It needs to be wrapped via processSync
@@ -70,16 +62,7 @@ module.exports = class AsyncWriter {
     return wrapErrors(() => async_rewrite(code, DebugLevel[process.env.MONGOSH_ASYNC_REWRITER3_DEBUG_LEVEL] ?? DebugLevel.None));
   }
   runtimeSupportCode() {
-    if (cachedRuntimeSupportCode !== undefined) {
-      return cachedRuntimeSupportCode;
-    }
-    if (!syncImport) {
-      throw new Error('WASM import not defined for runtime support code generation');
-    }
-    cachedRuntimeSupportCode = this.processSync(
-      RUNTIME_SUPPORT_PRELUDE + runtimeSupportSource
-    );
-    return cachedRuntimeSupportCode;
+    return compiledRuntimeSupport;
   }
 };
 
