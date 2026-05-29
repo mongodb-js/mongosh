@@ -807,288 +807,65 @@ fn collect_insertions(
     if let AstKind::TryStatement(try_stmt) = node.kind() {
         // We transform the try/catch/finally so that exceptions marked with
         // Symbol.for('@@mongosh.uncatchable') are not caught.
+
+        // Use the offset as a "unique" suffix to avoid collisions with user variables.
+        let unique = span.start;
         let has_finally = try_stmt.finalizer.is_some();
-        let block_span = try_stmt.block.span();
-        let try_keyword_end = block_span.start; // approx — we'll insert before the block
 
-        let handler = try_stmt.handler.as_ref();
-        let _ = try_keyword_end;
-        // Plan:
-        // - If there's no catch, synthesize a catch (err) { throw err; } around the body
-        //   so we can insert the uncatchable-check.
-        // - If there's a catch with no param, generate a param.
-        // - If there's a catch with a destructuring pattern, generate a variable to hold the
-        //   raw exception and then destructure it.
-        // - With finally, also track an _isCatchable variable.
+        if has_finally {
+            insertions.push_pair(Insertion::pair(span,
+            format!("{{ let __skipFinally_{unique} = false;"), "}"));
+        }
 
-        // Generate a unique-ish suffix based on span to avoid collisions between nested try/catch.
-        let unique = format!("__{}", span.start);
-        let isc = format!("_isCatchable{}", unique);
-
-        // Generate the new structure by emitting before/after segments around the original
-        // block, handler, and finalizer.
-
-        if !has_finally {
-            // Simple case: try { block } catch (orig_param) { /* check uncatchable */ original-body }
-            // Without finally we don't need to track _isCatchable.
-
-            if let Some(handler) = handler {
-                // If handler has no param, or has a destructuring param, normalize.
-                let err_name = format!("_err{}", unique);
-                let (catch_open, after_open_brace) = match &handler.param {
-                    None => {
-                        // No param. We can't add a param to existing catch without complex transform.
-                        // Insert err_name as param.
-                        // We need to inject `err_name` between `catch` and `{`.
-                        // The handler span is `catch ... { body }`. We replace `catch` keyword head.
-                        // We'll insert before handler.body.span().start.
-                        // Find the offset of `{` in the handler.
-                        // The handler.span starts at `catch`. handler.body.span.start is `{`.
-                        // We insert `(err_name)` before the body.
-                        // But that's not valid syntax for a catch — need `catch (err) {}`.
-                        // Insert before handler.body.span.start: `(_errN) `
-                        let body_start = handler.body.span().start;
-                        insertions.push_back(Insertion::new(
-                            body_start,
-                            format!(" (_err{}) ", unique),
-                            false,
-                        ));
-                        // After the `{` of body, insert the uncatchable check open.
-                        let inner = body_start + 1;
-                        insertions.push_back(Insertion::new(
-                            inner,
-                            format!(
-                                "if (!{e} || !{e}[__SymbolFor('@@mongosh.uncatchable')]) {{ ",
-                                e = err_name
-                            ),
-                            false,
-                        ));
-                        // Before `}` of body, close the if and add else throw.
-                        let body_end = handler.body.span().end;
-                        insertions.push_back(Insertion::new(
-                            body_end - 1,
-                            format!(" }} else throw _err{};", unique),
-                            true,
-                        ));
-                        (String::new(), String::new())
-                    }
-                    Some(param) => {
-                        match &param.pattern {
-                            BindingPattern::BindingIdentifier(id) => {
-                                // Classic catch(err) { ... }: just inject uncatchable check around body.
-                                let body_start = handler.body.span().start;
-                                let body_end = handler.body.span().end;
-                                let err_id = id.name.as_str();
-                                insertions.push_back(Insertion::new(
-                                    body_start + 1,
-                                    format!(
-                                        "if (!{e} || !{e}[__SymbolFor('@@mongosh.uncatchable')]) {{ ",
-                                        e = err_id
-                                    ),
-                                    false,
-                                ));
-                                insertions.push_back(Insertion::new(
-                                    body_end - 1,
-                                    format!(" }} else throw {};", err_id),
-                                    true,
-                                ));
-                                (String::new(), String::new())
-                            }
-                            _ => {
-                                // Destructuring catch — wrap pattern.
-                                // catch ({a, b}) { body } -> catch (_errN) { if (!check) { let {a,b} = _errN; body } else throw _errN }
-                                let pattern_span = param.pattern.span();
-                                let pattern_source = &source
-                                    [(pattern_span.start as usize)..(pattern_span.end as usize)];
-                                // Replace the pattern with err_name.
-                                insertions.push_back(Insertion::new(
-                                    pattern_span.start,
-                                    format!("_err{}", unique),
-                                    false,
-                                ));
-                                insertions.push_back(Insertion::new(
-                                    pattern_span.end,
-                                    "".to_string(),
-                                    true,
-                                ));
-                                // Comment out the original pattern source:
-                                // XXX: Handle comments inside patterns
-                                insertions.push_pair(Insertion::pair(pattern_span, "/*", "*/"));
-                                let body_start = handler.body.span().start;
-                                let body_end = handler.body.span().end;
-                                insertions.push_back(Insertion::new(
-                                    body_start + 1,
-                                    format!(
-                                        "if (!_err{u} || !_err{u}[__SymbolFor('@@mongosh.uncatchable')]) {{ let {pat} = _err{u}; ",
-                                        u = unique,
-                                        pat = pattern_source
-                                    ),
-                                    false,
-                                ));
-                                insertions.push_back(Insertion::new(
-                                    body_end - 1,
-                                    format!(" }} else throw _err{};", unique),
-                                    true,
-                                ));
-                                (String::new(), String::new())
-                            }
-                        }
-                    }
-                };
-                let _ = (catch_open, after_open_brace);
-            } else {
-                // try { block } without catch and without finally would not be syntactically valid,
-                // but JS does allow `try { ... } finally { ... }`. If we reach here, both handler
-                // and finalizer are None, which is invalid; just skip.
-            }
+        let handler_body_start: u32;
+        if let Some(handler) = &try_stmt.handler {
+            handler_body_start = handler.body.span.start;
+            let after_catch_token = handler.span.start + ("catch".len() as u32);
+            insertions.push_pair(Insertion::pair(Span::new(after_catch_token, handler.body.span.end),
+            format!("(__err_{unique}) {{"),
+            "}"));
         } else {
-            // With finalizer.
-            // Strategy: wrap the entire try statement with a let _isCatchable = true; block,
-            // and inject _isCatchable tracking into the catch handler.
-
-            // Insert before the try statement: `let _isCatchable_N = true; `
-            insertions.push_back(Insertion::new(
-                span.start,
-                format!("let {} = true;", isc),
-                false,
-            ));
-
-            if let Some(handler) = handler {
-                let inner_err = format!("_innerErr{}", unique);
-                match &handler.param {
-                    None => {
-                        let body_start = handler.body.span().start;
-                        let body_end = handler.body.span().end;
-                        insertions.push_back(Insertion::new(
-                            body_start,
-                            format!(" (_err{}) ", unique),
-                            false,
-                        ));
-                        insertions.push_back(Insertion::new(
-                            body_start + 1,
-                            format!(
-                                "{isc} = (!_err{u} || !_err{u}[__SymbolFor('@@mongosh.uncatchable')]); if ({isc}) {{ try {{ ",
-                                isc = isc, u = unique
-                            ),
-                            false,
-                        ));
-                        insertions.push_back(Insertion::new(
-                            body_end - 1,
-                            format!(
-                                " }} catch ({ie}) {{ {isc} = (!{ie} || !{ie}[__SymbolFor('@@mongosh.uncatchable')]); throw {ie}; }} }} else throw _err{u};",
-                                ie = inner_err,
-                                isc = isc,
-                                u = unique
-                            ),
-                            true,
-                        ));
-                    }
-                    Some(param) => {
-                        if let BindingPattern::BindingIdentifier(id) = &param.pattern {
-                            let err_id = id.name.as_str();
-                            let body_start = handler.body.span().start;
-                            let body_end = handler.body.span().end;
-                            insertions.push_back(Insertion::new(
-                                body_start + 1,
-                                format!(
-                                    "{isc} = (!{e} || !{e}[__SymbolFor('@@mongosh.uncatchable')]); if ({isc}) {{ try {{ ",
-                                    isc = isc,
-                                    e = err_id
-                                ),
-                                false,
-                            ));
-                            insertions.push_back(Insertion::new(
-                                body_end - 1,
-                                format!(
-                                    " }} catch ({ie}) {{ {isc} = (!{ie} || !{ie}[__SymbolFor('@@mongosh.uncatchable')]); throw {ie}; }} }} else throw {e};",
-                                    ie = inner_err,
-                                    isc = isc,
-                                    e = err_id
-                                ),
-                                true,
-                            ));
-                        } else {
-                            // Destructuring with finally: rewrite param.
-                            let pattern_span = param.pattern.span();
-                            let pattern_source =
-                                &source[(pattern_span.start as usize)..(pattern_span.end as usize)];
-                            insertions.push_back(Insertion::new(
-                                pattern_span.start,
-                                format!("_err{}/*", unique),
-                                false,
-                            ));
-                            insertions.push_back(Insertion::new(pattern_span.end, "*/", true));
-                            let body_start = handler.body.span().start;
-                            let body_end = handler.body.span().end;
-                            insertions.push_back(Insertion::new(
-                                body_start + 1,
-                                format!(
-                                    "{isc} = (!_err{u} || !_err{u}[__SymbolFor('@@mongosh.uncatchable')]); if ({isc}) {{ let {pat} = _err{u}; try {{ ",
-                                    isc = isc,
-                                    u = unique,
-                                    pat = pattern_source
-                                ),
-                                false,
-                            ));
-                            insertions.push_back(Insertion::new(
-                                body_end - 1,
-                                format!(
-                                    " }} catch ({ie}) {{ {isc} = (!{ie} || !{ie}[__SymbolFor('@@mongosh.uncatchable')]); throw {ie}; }} }} else throw _err{u};",
-                                    ie = inner_err,
-                                    isc = isc,
-                                    u = unique
-                                ),
-                                true,
-                            ));
-                        }
-                    }
-                }
-            } else {
-                // No handler but has finalizer. Synthesize one.
-                // We need to insert ` catch (_errN) { _isCatchable_N = (!_errN || !_errN[...]); throw _errN; } `
-                // between the block and the finally.
-                let block_end = block_span.end;
-                insertions.push_back(Insertion::new(
-                    block_end,
-                    format!(
-                        " catch (_err{u}) {{ {isc} = (!_err{u} || !_err{u}[__SymbolFor('@@mongosh.uncatchable')]); throw _err{u}; }} ",
-                        u = unique,
-                        isc = isc
-                    ),
-                    false,
-                ));
-            }
-
-            // Wrap finally body with `if (_isCatchable) { ... }`.
-            if let Some(finalizer) = try_stmt.finalizer.as_ref() {
-                let fb_start = finalizer.span().start;
-                let fb_end = finalizer.span().end;
-                insertions.push_back(Insertion::new(
-                    fb_start + 1,
-                    format!("if ({}) {{ ", isc),
-                    false,
-                ));
-                insertions.push_back(Insertion::new(fb_end - 1, " }", true));
-            }
+            insertions.push_back(Insertion::new(try_stmt.block.span.end + 1, format!("catch (__err_{unique})"), false));
+            handler_body_start = try_stmt.block.span.end + 1;
         }
-        return Ok(insertions);
-    }
 
-    // === Handle CatchClause for error demangling ===
-    if let AstKind::CatchClause(catch_clause) = node.kind() {
-        // We add a `param = _de(param)` at the top of the catch body when the catch has a simple identifier param.
-        if let Some(param) = &catch_clause.param {
-            if let BindingPattern::BindingIdentifier(id) = &param.pattern {
-                let body_start = catch_clause.body.span().start;
-                // Inject after the uncatchable check open. We use body_start + 1 (after `{`).
-                // We add a high "ordering" by emitting after — relying on insertion order.
-                insertions.push_back(Insertion::new(
-                    body_start + 1,
-                    format!(" {n} = {DEMANGLE_ERROR_IDENTIFIER}({n});", n = id.name.as_str()),
-                    false,
+        // catch ({a, b}) { body } -> catch (_errN) { if (check) throw _errN; let {a, b} = _errN; { body } }
+        insertions.push_back(Insertion::new(handler_body_start,
+            format!("
+        {{
+            if (__err_{unique} && __err_{unique}[__SymbolFor('@@mongosh.uncatchable')]) {{
+                {comment_open_if_not_has_finally}__skipFinally_{unique} = true;{comment_close_if_not_has_finally}
+                    throw __err_{unique};
+            }}
+        }}
+            ", comment_open_if_not_has_finally = if has_finally { "" } else { "/*" },
+            comment_close_if_not_has_finally = if has_finally { "" } else { "*/" }),
+            false));
+
+        if let Some(param) = try_stmt.handler.as_ref().and_then(|h| h.param.as_ref()) {
+            // the 0) oddness is to account for the parentheses in `catch (foo)`
+            insertions.push_pair(Insertion::pair(param.span,
+                "0);let ",
+                format!(" = {DEMANGLE_ERROR_IDENTIFIER}(__err_{unique}")));
+        }
+
+        if has_finally {
+            if let Some(handler) = &try_stmt.handler {
+                insertions.push_pair(Insertion::pair(
+                    handler.body.span,
+                    "try {",
+                    format!("}} catch (__err2_{unique}) {{
+                        __skipFinally_{unique} ||= !!(__err2_{unique} && __err2_{unique}[__SymbolFor('@@mongosh.uncatchable')]);
+                        throw __err2_{unique};
+                    }}")
                 ));
             }
+
+            insertions.push_pair(Insertion::pair(try_stmt.finalizer.as_ref().unwrap().span(),
+        format!("{{ if (!__skipFinally_{unique}) {{ "),
+    "} }"));
         }
+
         return Ok(insertions);
     }
 
@@ -1436,7 +1213,7 @@ pub fn async_rewrite(input: &str, debug_level: DebugLevel) -> Result<String, Str
     // Wrap the original source in a function so that we can make shared assumptions.
     insertions.push_pair(Insertion::pair(
         input_span,
-        ";(() => { const __SymbolFor = Symbol.for; var MongoshAsyncWriterError; if (typeof globalThis.MongoshAsyncWriterError === 'undefined') { MongoshAsyncWriterError = class extends Error { constructor(message, codeIdentifier) { const codes = {SyntheticPromiseInAlwaysSyncContext:'ASYNC-10012',SyntheticAsyncIterableInAlwaysSyncContext:'ASYNC-10013'}; const code = codes[codeIdentifier]; super('[' + code + '] ' + message); this.code = code; } }; } else { MongoshAsyncWriterError = globalThis.MongoshAsyncWriterError; }",
+        ";(() => { const __SymbolFor = Symbol.for;",
         "})()",
     ));
     insertions.push_pair(make_fn_insertions(input_span));
