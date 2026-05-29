@@ -32,6 +32,8 @@
     "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci"
   },
   "devDependencies": {
+    "@mongosh/async-rewriter2": "^2.4.15",
+    "@mongosh/async-rewriter-spec": "^1.0.0",
     "@wasm-tool/wasm-pack-plugin": "^1.7.0",
     "wasm-pack": "^0.15.0",
     "webpack-merge": "^5.8.0"
