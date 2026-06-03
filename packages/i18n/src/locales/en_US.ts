@@ -2310,6 +2310,12 @@ const translations: Catalog = {
               description:
                 'Advances the clusterTime for a Session to the provided clusterTime.',
             },
+            bulkWrite: {
+              link: 'https://mongodb.com/docs/manual/reference/method/Mongo.bulkWrite',
+              description:
+                'Performs multiple write operations across databases and collections with controls for order of execution, using this session.',
+              example: 'session.bulkWrite(operations, options)',
+            },
           },
         },
       },

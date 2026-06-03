@@ -1,10 +1,12 @@
 import { expect } from 'chai';
 import Session from './session';
 import type {
+  AnyClientBulkWriteModel,
   Document,
   ServiceProvider,
   ClientSession as ServiceProviderSession,
 } from '@mongosh/service-provider-core';
+import { ClientBulkWriteResult } from './result';
 import * as bson from 'bson';
 import type { StubbedInstance } from 'ts-sinon';
 import { stubInterface } from 'ts-sinon';
@@ -175,6 +177,48 @@ describe('Session', function () {
       serviceProviderSession.withTransaction.resolves();
       await session.withTransaction(() => {});
       expect(serviceProviderSession.withTransaction).to.have.been.calledOnce;
+    });
+    describe('bulkWrite', function () {
+      const bulkWriteResult = {
+        acknowledged: true,
+        insertedCount: 1,
+        upsertedCount: 0,
+        matchedCount: 0,
+        modifiedCount: 0,
+        deletedCount: 0,
+        insertResults: undefined,
+        updateResults: undefined,
+        deleteResults: undefined,
+      };
+      beforeEach(function () {
+        serviceProvider.clientBulkWrite.resolves(bulkWriteResult);
+      });
+      it('calls Mongo.bulkWrite with the session injected into options', async function () {
+        const models: AnyClientBulkWriteModel<Document>[] = [
+          { name: 'insertOne', namespace: 'db.coll', document: { a: 1 } },
+        ];
+        const result = await session.bulkWrite(models);
+        expect(
+          serviceProvider.clientBulkWrite
+        ).to.have.been.calledOnceWithExactly(models, {
+          session: serviceProviderSession,
+        });
+        expect(result).to.deep.equal(
+          new ClientBulkWriteResult(bulkWriteResult)
+        );
+      });
+      it('merges additional options with the session', async function () {
+        const models: AnyClientBulkWriteModel<Document>[] = [
+          { name: 'insertOne', namespace: 'db.coll', document: { a: 1 } },
+        ];
+        await session.bulkWrite(models, { ordered: false });
+        expect(
+          serviceProvider.clientBulkWrite
+        ).to.have.been.calledOnceWithExactly(models, {
+          ordered: false,
+          session: serviceProviderSession,
+        });
+      });
     });
   });
   describe('integration', function () {
@@ -442,6 +486,49 @@ describe('Session', function () {
           .catch((err) => ({ err }));
         expect(err.message).to.equal('fails');
         expect((await testColl.findOne({ value: 'test' }))?.count).to.equal(0);
+      });
+    });
+    describe('bulkWrite', function () {
+      skipIfServerVersion(srv0, '< 8.0');
+      it('performs a multi-namespace bulkWrite with the session', async function () {
+        session = mongo.startSession();
+        const result = await session.bulkWrite([
+          {
+            name: 'insertOne',
+            namespace: `${databaseName}.authors`,
+            document: { name: 'King' },
+          },
+          {
+            name: 'insertOne',
+            namespace: `${databaseName}.books`,
+            document: { title: 'The Shining' },
+          },
+        ]);
+        expect(result.insertedCount).to.equal(2);
+        expect(
+          await mongo
+            .getDB(databaseName)
+            .getCollection('authors')
+            .countDocuments()
+        ).to.equal(1);
+      });
+      it('performs a bulkWrite within a transaction', async function () {
+        session = mongo.startSession();
+        session.startTransaction();
+        await session.bulkWrite([
+          {
+            name: 'insertOne',
+            namespace: `${databaseName}.authors`,
+            document: { name: 'King' },
+          },
+        ]);
+        await session.commitTransaction();
+        expect(
+          await mongo
+            .getDB(databaseName)
+            .getCollection('authors')
+            .countDocuments()
+        ).to.equal(1);
       });
     });
     describe('after resetting connection will error with expired session', function () {
