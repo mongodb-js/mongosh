@@ -1,18 +1,24 @@
 import {
   classPlatforms,
   returnsPromise,
+  serverVersions,
+  apiVersions,
   shellApiClassDefault,
   ShellApiWithMongoClass,
 } from './decorators';
 import type {
+  AnyClientBulkWriteModel,
+  ClientBulkWriteOptions,
   ClientSessionOptions,
   ClientSession,
+  Document,
   TransactionOptions,
   ClusterTime,
   TimestampType,
   ServerSessionId,
 } from '@mongosh/service-provider-core';
-import { asPrintable } from './enums';
+import { type ClientBulkWriteResult } from './result';
+import { asPrintable, ServerVersions } from './enums';
 import type Mongo from './mongo';
 import type { DatabaseWithSchema } from './database';
 import { Database } from './database';
@@ -123,5 +129,18 @@ export default class Session<
     // The driver doesn't automatically ensure that fn is an async
     // function/convert its return type to a Promise, so we do that here.
     return await this._session.withTransaction(async () => await fn(), options);
+  }
+
+  @returnsPromise
+  @serverVersions(['8.0.0', ServerVersions.latest])
+  @apiVersions([1])
+  async bulkWrite(
+    models: AnyClientBulkWriteModel<Document>[],
+    options: ClientBulkWriteOptions = {}
+  ): Promise<ClientBulkWriteResult> {
+    return this._mongo.bulkWrite(models, {
+      ...options,
+      session: this._session,
+    });
   }
 }
