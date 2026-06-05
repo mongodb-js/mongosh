@@ -42,10 +42,10 @@ import { MongoLogWriter } from 'mongodb-log-writer';
 import { mongoLogId } from 'mongodb-log-writer';
 import type {
   AnalyticsIdentifyMessage,
-  AnalyticsTrackMessage,
   MongoshAnalytics,
   MongoshAnalyticsIdentity,
 } from './analytics-helpers';
+import type { MongoshTelemetryEvent } from './telemetry-events';
 import type { ConnectEventMap } from '@mongodb-js/devtools-connect';
 import { hookLogger } from '@mongodb-js/devtools-connect';
 import { MultiSet, toSnakeCase } from './helpers';
@@ -244,21 +244,14 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       };
     };
 
-    const track = (
-      message: Pick<AnalyticsTrackMessage, 'event' | 'timestamp'> & {
-        properties?: Omit<
-          AnalyticsTrackMessage['properties'],
-          keyof MongoshTrackingProperties
-        >;
-      }
-    ): void => {
+    const track = (event: MongoshTelemetryEvent): void => {
       const callback = () =>
         this.analytics.track({
           ...getTelemetryUserIdentity(),
-          ...message,
+          event: event.name,
           properties: {
             ...getTrackingProperties(),
-            ...message.properties,
+            ...(event as { properties?: Record<string, unknown> }).properties,
           },
         });
 
@@ -311,7 +304,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       const { uri, resolved_hostname, ...argsWithoutUriAndHostname } = args;
       const connectionUri = uri && redactConnectionString(uri);
       const atlasHostname = {
-        atlas_hostname: args.is_atlas ? resolved_hostname : null,
+        atlas_hostname: args.is_atlas ? resolved_hostname ?? null : null,
       };
       const properties = {
         ...argsWithoutUriAndHostname,
@@ -332,7 +325,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       );
 
       track({
-        event: 'New Connection',
+        name: 'New Connection',
         properties,
       });
     });
@@ -347,7 +340,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
 
       const normalizedTimings = Object.fromEntries(normalizedTimingsArray);
       track({
-        event: 'Startup Time',
+        name: 'Startup Time',
         properties: {
           is_interactive: args.isInteractive,
           js_context: args.jsContext,
@@ -410,7 +403,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
 
       if (error.name.includes('Mongosh')) {
         track({
-          event: 'Error',
+          name: 'Error',
           properties: {
             name: mongoshError.name,
             code: mongoshError.code,
@@ -473,7 +466,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       );
 
       track({
-        event: 'Use',
+        name: 'Use',
       });
     });
 
@@ -487,7 +480,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       );
 
       track({
-        event: 'Show',
+        name: 'Show',
         properties: {
           method: args.method,
         },
@@ -530,17 +523,20 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         args
       );
 
-      track({
-        event: this.busEventState.hasStartedMongoshRepl
-          ? 'Script Loaded'
-          : 'Script Loaded CLI',
-        properties: {
-          nested: args.nested,
-          ...(this.busEventState.hasStartedMongoshRepl
-            ? {}
-            : { shell: this.busEventState.usesShellOption }),
-        },
-      });
+      if (this.busEventState.hasStartedMongoshRepl) {
+        track({
+          name: 'Script Loaded',
+          properties: { nested: args.nested },
+        });
+      } else {
+        track({
+          name: 'Script Loaded CLI',
+          properties: {
+            nested: args.nested,
+            shell: this.busEventState.usesShellOption,
+          },
+        });
+      }
     });
 
     onBus('mongosh:eval-cli-script', () => {
@@ -552,7 +548,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       );
 
       track({
-        event: 'Script Evaluated',
+        name: 'Script Evaluated',
         properties: {
           shell: this.busEventState.usesShellOption,
         },
@@ -568,7 +564,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       );
 
       track({
-        event: 'Mongoshrc Loaded',
+        name: 'Mongoshrc Loaded',
       });
     });
 
@@ -581,7 +577,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       );
 
       track({
-        event: 'Mongorc Warning',
+        name: 'Mongorc Warning',
       });
     });
 
@@ -747,7 +743,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
 
       if (ev.args[0] === 'install') {
         track({
-          event: 'Snippet Install',
+          name: 'Snippet Install',
         });
       }
     });
@@ -801,7 +797,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         );
 
         track({
-          event: 'Deprecated Method',
+          name: 'Deprecated Method',
           properties: {
             ...entry,
           },
@@ -809,7 +805,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       }
       for (const [entry, count] of apiCalls) {
         track({
-          event: 'API Call',
+          name: 'API Call',
           properties: {
             ...entry,
             count,
