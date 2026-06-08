@@ -431,12 +431,6 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     ],
   },
   {
-    // The windows-vsCurrent-small host runs a pre-Windows-2022 OS that cannot
-    // load current mongod (>= 8.3 exits immediately with 0xC0000139
-    // STATUS_ENTRYPOINT_NOT_FOUND -- a system DLL on that image is too old).
-    // So we test it against the newest server version that does run there,
-    // following the same pattern as the RHEL7 e2e tests only running the 7.0
-    // server. (Windows 2022 covers current/stable mongod below.)
     displayName: 'Windows VS pre-2022',
     runOn: 'windows-vsCurrent-small',
     executableOsId: 'win32',
