@@ -28,3 +28,4 @@ mongocryptd.pid
 snapshot.blob
 .logs/*
 !.logs/empty.xml
+.claude/
