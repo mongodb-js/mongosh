@@ -228,7 +228,8 @@ export class TestShell {
     await eventually(
       () => {
         const output = this._output.slice(start);
-        const lines = output.split('\n');
+        // Split on both \n and \r so that spinner output does not prevent prompt detection
+        const lines = output.split(/[\n\r]/);
         const found = !!lines
           .filter((l) => (opts.promptPattern ?? PROMPT_PATTERN).test(l)) // a line that is the prompt must at least match the pattern
           .find((l) => {
