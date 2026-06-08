@@ -1025,7 +1025,7 @@ describe('FLE tests', function () {
         function () {
           // Substring prefix support is enterprise-only 8.2+
           skipIfCommunityServer(testServer);
-          // TODO(MONGOSH-XXXX): Update to latest driver CSFLE
+          // TODO(MONGOSH-3403): Update to latest driver CSFLE
           skipIfServerVersion(testServer, '>= 8.3');
 
           let shell: TestShell;
