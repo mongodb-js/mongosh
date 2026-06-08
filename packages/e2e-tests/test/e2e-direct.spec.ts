@@ -61,22 +61,41 @@ describe('e2e direct connection', function () {
           args: [await rs0.connectionString()],
         });
         await shell.waitForPrompt();
+        // rs.initiate() triggers a topology change; mongosh updates its prompt after
+        // detecting the new replica-set topology, which can take > 10 s on slow CI.
         await shell.executeLine(
-          `rs.initiate(${JSON.stringify(replSetConfig)})`
+          `rs.initiate(${JSON.stringify(replSetConfig)})`,
+          { timeout: 30_000 }
         );
         shell.assertContainsOutput('ok: 1');
-        await eventually(async () => {
-          await shell.executeLine('db.isMaster()');
-          shell.assertContainsOutput('ismaster: true');
-          shell.assertContainsOutput(`me: '${await rs0.hostport()}'`);
-          shell.assertContainsOutput(`setName: '${replSetId}'`);
-        });
-
-        await shell.executeLine('use admin');
-        await shell.executeLine(
-          "db.createUser({ user: 'anna', pwd: 'pwd', roles: [] })"
+        // Wait until rs0 is writable primary and the driver has updated its
+        // topology. We use db.hello() (always fresh) and include the write
+        // operations inside eventually() so that a brief leadership re-election
+        // doesn't cause NotWritablePrimary errors on the subsequent writes.
+        let userCreated = false;
+        await eventually(
+          async () => {
+            const helloResult = await shell.executeLine('db.hello()');
+            expect(helloResult).to.contain('isWritablePrimary: true');
+            expect(helloResult).to.contain(`me: '${await rs0.hostport()}'`);
+            expect(helloResult).to.contain(`setName: '${replSetId}'`);
+            if (!userCreated) {
+              await shell.executeLine('use admin');
+              const createUserResult = await shell.executeLine(
+                "db.createUser({ user: 'anna', pwd: 'pwd', roles: [] })"
+              );
+              // Allow "already exists" in case a prior retry created the user
+              if (
+                !createUserResult.includes('ok: 1') &&
+                !createUserResult.includes('already exists')
+              ) {
+                throw new Error(`createUser failed: ${createUserResult}`);
+              }
+              userCreated = true;
+            }
+          },
+          { timeout: 30_000 }
         );
-        shell.assertContainsOutput('ok: 1');
 
         dbname = `test-${Date.now()}-${(Math.random() * 100000) | 0}`;
         await shell.executeLine(`use ${dbname}`);
