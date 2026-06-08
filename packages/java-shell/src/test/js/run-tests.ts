@@ -1,7 +1,7 @@
 import { spawn } from 'child_process';
 import path from 'path';
 import { once } from 'events';
-import { startSharedTestServer } from '@mongosh/testing';
+import { startSharedTestServer, skipIfServerVersion } from '@mongosh/testing';
 
 describe('java-shell tests', function() {
   this.timeout(1_000_000);
@@ -24,6 +24,8 @@ describe('java-shell tests', function() {
     await once(mongosh, 'exit');
   });
 
+  // TODO(MONGOSH-3307): Java shell GraalVM tests fail on mlatest (>= 8.3).
+  skipIfServerVersion(testServer, '>= 8.3');
   it('passes the JavaShell tests', async function() {
     const opts = { stdio: 'inherit', cwd: packageRoot, shell: true } as const;
     let proc;
