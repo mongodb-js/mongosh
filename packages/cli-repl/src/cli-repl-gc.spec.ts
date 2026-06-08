@@ -37,19 +37,6 @@ describe('CliRepl GC', function () {
     const obj = cliRepl.mongoshRepl.runtimeState().context.a;
 
     await cliRepl.close();
-    {
-      // Working around https://github.com/nodejs/node/pull/61895
-      const removableProcessNewListener = process
-        .listeners('newListener' as any)
-        .find((listener) =>
-          listener.toString().includes('ERR_INVALID_REPL_INPUT')
-        );
-      if (removableProcessNewListener)
-        process.removeListener(
-          'newListener',
-          removableProcessNewListener as any
-        );
-    }
 
     // cliRepl.close() will kick off async cleanup like closing the
     // repl history file handle, but we do not get a notification
@@ -93,7 +80,30 @@ describe('CliRepl GC', function () {
     }
   }
 
+  // nodejs/node#61895 ("repl: keep reference count for
+  // process.on('newListener')", Node >= 24.16.0) makes the REPL's process
+  // 'newListener' handler a module-level function that captures nothing and is
+  // removed on close. Before that fix the handler closed over the REPLServer and
+  // was never removed, so a closed REPL -- together with its vm context and
+  // anything created inside it -- stayed reachable from `process`. That is a
+  // Node bug, not a mongosh one, so on Node versions predating the fix we cannot
+  // assert that REPL objects become collectible. (Some CI hosts still provide an
+  // earlier v24.x.)
+  function nodeReplReleasesContextOnClose(): boolean {
+    const [major, minor] = process.versions.node.split('.').map(Number);
+    if (major === 24) return minor >= 16;
+    return major > 24;
+  }
+
   it('objects from inside a REPL can be garbage collected', async function () {
+    this.timeout(120_000);
+    if (!nodeReplReleasesContextOnClose()) {
+      // See nodeReplReleasesContextOnClose(): this Node version leaks the REPL
+      // (and its vm context) via an unremoved process 'newListener' handler, so
+      // the assertion below cannot hold. Skip rather than mask the Node bug.
+      return this.skip();
+    }
+
     const objHolder: { obj: any } = {
       obj: await createTaggedObjectFromInsideRepl(),
     };
