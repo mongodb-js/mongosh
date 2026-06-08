@@ -3071,7 +3071,7 @@ describe('Shell API (integration)', function () {
       });
     });
 
-    // TODO(MONGOSH-XXXX): In 8.3+ the server no longer reliably kills $where ops for a given maxTimeMS
+    // TODO(MONGOSH-3283): In 8.3+ the server no longer reliably kills $where ops for a given maxTimeMS
     skipIfServerVersion(testServer, '>= 8.3');
     it('config changes affect maxTimeMS', async function () {
       await shellApi.config.set('maxTimeMS', 100);

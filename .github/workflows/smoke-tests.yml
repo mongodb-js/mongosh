@@ -16,7 +16,7 @@ jobs:
         runner: [ubuntu, macos, windows]
         node: [24.x, latest]
         exclude:
-          # TODO(MONGOSH-XXXX): node-gyp 11.x / Node.js 26 injects LLVM ThinLTO linker flags (opt:lldltojobs=2) that MSVC link.exe rejects with LNK1117.
+          # TODO(MONGOSH-3404): node-gyp 11.x / Node.js 26 injects LLVM ThinLTO linker flags (opt:lldltojobs=2) that MSVC link.exe rejects with LNK1117.
           - runner: windows
             node: latest
       fail-fast: false

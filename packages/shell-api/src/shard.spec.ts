@@ -3402,7 +3402,7 @@ describe('Shard', function () {
           });
         });
 
-        // TODO(MONGOSH-XXXX): In 8.3+ the server returns the user-visible collection name as bucketsNs rather than the internal system.buckets name.
+        // TODO(MONGOSH-3283): In 8.3+ the server returns the user-visible collection name as bucketsNs rather than the internal system.buckets name.
         it('returns the collection stats', async function () {
           const result = await db
             .getCollection(timeseriesCollectionName)
