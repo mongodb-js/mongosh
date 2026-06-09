@@ -68,31 +68,27 @@ describe('e2e direct connection', function () {
           { timeout: 30_000 }
         );
         shell.assertContainsOutput('ok: 1');
-        // Wait until rs0 is writable primary and the driver has updated its
-        // topology. We use db.hello() (always fresh) and include the write
-        // operations inside eventually() so that a brief leadership re-election
-        // doesn't cause NotWritablePrimary errors on the subsequent writes.
-        let userCreated = false;
+        // Wait until rs0 reports itself as writable primary (and the shell's
+        // driver has caught up to the new topology) before issuing writes.
         await eventually(
           async () => {
             const helloResult = await shell.executeLine('db.hello()');
             expect(helloResult).to.contain('isWritablePrimary: true');
             expect(helloResult).to.contain(`me: '${await rs0.hostport()}'`);
             expect(helloResult).to.contain(`setName: '${replSetId}'`);
-            if (!userCreated) {
-              await shell.executeLine('use admin');
-              const createUserResult = await shell.executeLine(
-                "db.createUser({ user: 'anna', pwd: 'pwd', roles: [] })"
-              );
-              // Allow "already exists" in case a prior retry created the user
-              if (
-                !createUserResult.includes('ok: 1') &&
-                !createUserResult.includes('already exists')
-              ) {
-                throw new Error(`createUser failed: ${createUserResult}`);
-              }
-              userCreated = true;
-            }
+          },
+          { timeout: 30_000 }
+        );
+        await shell.executeLine('use admin');
+        // A leadership change right after initiation can still make the first
+        // write throw NotWritablePrimary, so retry createUser itself. A retry
+        // after a partial success is harmless ("already exists").
+        await eventually(
+          async () => {
+            const createUserResult = await shell.executeLine(
+              "db.createUser({ user: 'anna', pwd: 'pwd', roles: [] })"
+            );
+            expect(createUserResult).to.match(/ok: 1|already exists/);
           },
           { timeout: 30_000 }
         );
