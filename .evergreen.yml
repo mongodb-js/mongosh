@@ -4117,7 +4117,7 @@ functions:
           echo "Using Node.js version for VS Code extension tests: $NODE_VERSION"
           (cd scripts/docker && docker build --build-arg NODE_JS_VERSION="$NODE_VERSION" -t ubuntu24.04-xvfb -f ubuntu24.04-xvfb.Dockerfile .)
           # increase /dev/shm size for GUI process is some general advice from the web
-          bash .evergreen/retry-with-backoff.sh docker run \
+          docker run \
             --shm-size=2g --rm -v $PWD:/tmp/build ubuntu24.04-xvfb \
             -c 'cd /tmp/build && ./scripts/test-vscode.sh'
           }
