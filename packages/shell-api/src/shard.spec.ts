@@ -3402,7 +3402,10 @@ describe('Shard', function () {
           });
         });
 
-        // TODO(MONGOSH-3283): In 8.3+ the server returns the user-visible collection name as bucketsNs rather than the internal system.buckets name.
+        // 8.3+ reports the user-visible namespace in `bucketsNs` instead of the
+        // internal `system.buckets.` name; the assertions below accept either.
+        // TODO(MONGOSH-3283): drop the old `system.buckets.` form here once
+        // pre-8.3 servers are no longer part of the test matrix.
         it('returns the collection stats', async function () {
           const result = await db
             .getCollection(timeseriesCollectionName)
