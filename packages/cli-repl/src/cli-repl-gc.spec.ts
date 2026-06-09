@@ -81,29 +81,13 @@ describe('CliRepl GC', function () {
   }
 
   /**
-   * nodejs/node#61895 - repl: keep reference count for process.on('newListener').
-   * Fixed in Node.js >= 24.16.0
-   *
-   * Makes the REPL's process 'newListener' handler a module-level function
-   * that captures nothing and is removed on close.
-   *
-   * Before that fix the handler closed over the REPLServer and was never removed, so a closed REPL
-   * together with its vm context and anything created inside it stayed reachable from `process`.
-   *
-   * That is a Node.js bug, not a mongosh one, so on Node versions predating the fix we cannot
-   * assert that REPL objects become collectible. (Some CI hosts still provide an earlier v24.x.)
+   * Relies on nodejs/node#61895 (Node.js >= 24.16.0): the REPL's process
+   * 'newListener' handler no longer keeps a closed REPL instance -- and its vm
+   * context, and anything created inside it -- reachable from `process`. CI runs
+   * a Node.js version that includes the fix, so the object is collectible.
    */
-  function nodeReplReleasesContextOnClose(): boolean {
-    const [major, minor] = process.versions.node.split('.').map(Number);
-    if (major === 24) return minor >= 16;
-    return major > 24;
-  }
-
   it('objects from inside a REPL can be garbage collected', async function () {
     this.timeout(120_000);
-    if (!nodeReplReleasesContextOnClose()) {
-      return this.skip();
-    }
 
     const objHolder: { obj: any } = {
       obj: await createTaggedObjectFromInsideRepl(),
