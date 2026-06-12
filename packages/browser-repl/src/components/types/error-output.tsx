@@ -101,6 +101,18 @@ export class ErrorOutput extends Component<ErrorOutputProps> {
     return undefined;
   }
 
+  formatErrorViolations(): JSX.Element | undefined {
+    if (this.props.value.violations) {
+      return (
+        <div>
+          Violations:
+          <SimpleTypeOutput value={this.props.value.violations} />
+        </div>
+      );
+    }
+    return undefined;
+  }
+
   renderExpanded(toggle: () => void): JSX.Element {
     return (
       <div>
@@ -109,6 +121,7 @@ export class ErrorOutput extends Component<ErrorOutputProps> {
           {this.formatErrorBugReportInfo()}
           {this.formatErrorInfo()}
           {this.formatErrorResult()}
+          {this.formatErrorViolations()}
           <pre className={errInfoCss}>{this.formatStack()}</pre>
         </div>
       </div>
