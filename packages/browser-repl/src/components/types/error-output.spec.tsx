@@ -120,6 +120,8 @@ describe('ErrorOutput', function () {
 
       expect(wrapper.text()).to.contain('Violations:');
       expect(wrapper.text()).to.contain('namespace');
+      expect(wrapper.text()).to.contain('db.coll');
+      expect(wrapper.text()).to.contain("'x'");
     });
   });
 });
