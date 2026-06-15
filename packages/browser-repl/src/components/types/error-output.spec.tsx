@@ -110,5 +110,16 @@ describe('ErrorOutput', function () {
     at Object.runInThisContext (vm.js:303:10)
     at ...`);
     });
+
+    it('renders violations when expanded', function () {
+      const error = new Error('Validation failed.') as any;
+      error.violations = [{ namespace: 'db.coll', properties: ['x', 'y'] }];
+
+      const wrapper = mount(<ErrorOutput value={error} />);
+      wrapper.find('svg').simulate('click');
+
+      expect(wrapper.text()).to.contain('Violations:');
+      expect(wrapper.text()).to.contain('namespace');
+    });
   });
 });
