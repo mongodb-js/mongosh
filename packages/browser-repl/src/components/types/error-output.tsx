@@ -101,6 +101,47 @@ export class ErrorOutput extends Component<ErrorOutputProps> {
     return undefined;
   }
 
+  formatErrorWriteErrors(): JSX.Element | undefined {
+    if (this.props.value.writeErrors) {
+      return (
+        <div>
+          Write Errors:
+          <SimpleTypeOutput value={this.props.value.writeErrors} />
+        </div>
+      );
+    }
+    return undefined;
+  }
+
+  formatErrorViolations(): JSX.Element | undefined {
+    if (this.props.value.violations) {
+      return (
+        <div>
+          Violations:
+          <SimpleTypeOutput value={this.props.value.violations} />
+        </div>
+      );
+    }
+    return undefined;
+  }
+
+  formatErrorCause(): JSX.Element | undefined {
+    const { cause } = this.props.value;
+    if (!cause) {
+      return undefined;
+    }
+    return (
+      <div>
+        Caused by:
+        {Object.prototype.toString.call(cause) === '[object Error]' ? (
+          <ErrorOutput value={cause} />
+        ) : (
+          <SimpleTypeOutput value={cause} />
+        )}
+      </div>
+    );
+  }
+
   renderExpanded(toggle: () => void): JSX.Element {
     return (
       <div>
@@ -109,6 +150,9 @@ export class ErrorOutput extends Component<ErrorOutputProps> {
           {this.formatErrorBugReportInfo()}
           {this.formatErrorInfo()}
           {this.formatErrorResult()}
+          {this.formatErrorWriteErrors()}
+          {this.formatErrorViolations()}
+          {this.formatErrorCause()}
           <pre className={errInfoCss}>{this.formatStack()}</pre>
         </div>
       </div>

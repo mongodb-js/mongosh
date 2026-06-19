@@ -17,6 +17,7 @@ import { IframeRuntime } from './iframe-runtime';
 import { Shell } from './index';
 import type { ShellOutputEntry } from './components/shell-output-line';
 import type { ConnectionInfo } from '@mongosh/service-provider-core';
+import * as bson from 'bson';
 
 injectGlobal({
   body: {
@@ -89,6 +90,8 @@ const delay = (msecs = 0): Promise<void> =>
   });
 
 class DemoServiceProvider {
+  bsonLibrary = bson;
+
   async buildInfo(): Promise<object> {
     await delay();
     return {
