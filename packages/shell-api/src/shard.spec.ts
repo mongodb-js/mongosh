@@ -3402,6 +3402,10 @@ describe('Shard', function () {
           });
         });
 
+        // 8.3+ reports the user-visible namespace in `bucketsNs` instead of the
+        // internal `system.buckets.` name; the assertions below accept either.
+        // TODO(MONGOSH-3283): drop the old `system.buckets.` form here once
+        // pre-8.3 servers are no longer part of the test matrix.
         it('returns the collection stats', async function () {
           const result = await db
             .getCollection(timeseriesCollectionName)
@@ -3413,15 +3417,17 @@ describe('Shard', function () {
           for (const shard of Object.values(result.shards) as any) {
             expect(shard.totalSize).to.be.a('number');
             expect(shard.indexDetails).to.equal(undefined);
-            expect(shard.timeseries.bucketsNs).to.equal(
-              `${dbName}.system.buckets.${timeseriesCollectionName}`
-            );
+            expect(shard.timeseries.bucketsNs).to.be.oneOf([
+              `${dbName}.system.buckets.${timeseriesCollectionName}`,
+              `${dbName}.${timeseriesCollectionName}`,
+            ]);
             expect(shard.timeseries.numBucketUpdates).to.equal(0);
             expect(typeof result.timeseries.bucketCount).to.equal('number');
           }
-          expect(result.timeseries.bucketsNs).to.equal(
-            `${dbName}.system.buckets.${timeseriesCollectionName}`
-          );
+          expect(result.timeseries.bucketsNs).to.be.oneOf([
+            `${dbName}.system.buckets.${timeseriesCollectionName}`,
+            `${dbName}.${timeseriesCollectionName}`,
+          ]);
           expect(result.timeseries.bucketCount).to.equal(1);
           expect(result.timeseries.numBucketInserts).to.equal(1);
         });

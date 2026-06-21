@@ -12,6 +12,15 @@ rm -rf "$test_root_dir" && mkdir -p "$test_root_dir"
 cd "$test_root_dir"
 git clone --depth=10 https://github.com/mongodb-js/vscode.git
 cd vscode
+# Pin the VS Code test runtime to the 'stable' build instead of 'insiders',
+# due to a recent change where copilot is crashing the process despite all tests passing.
+sed -i -E "s/['\"]insiders['\"]/'stable'/g" src/test/runTest.ts src/test/e2e/helpers.ts
+for vscode_version_file in src/test/runTest.ts src/test/e2e/helpers.ts; do
+  if grep -q "['\"]insiders['\"]" "$vscode_version_file"; then
+    echo "ERROR: failed to pin $vscode_version_file to the stable VS Code build (did upstream change?)" >&2
+    exit 1
+  fi
+done
 # Build overrides object for all local mongosh packages
 overrides="{"
 for pkg_dir in "$mongosh_root_dir"/packages/*/; do

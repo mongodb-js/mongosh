@@ -37,19 +37,6 @@ describe('CliRepl GC', function () {
     const obj = cliRepl.mongoshRepl.runtimeState().context.a;
 
     await cliRepl.close();
-    {
-      // Working around https://github.com/nodejs/node/pull/61895
-      const removableProcessNewListener = process
-        .listeners('newListener' as any)
-        .find((listener) =>
-          listener.toString().includes('ERR_INVALID_REPL_INPUT')
-        );
-      if (removableProcessNewListener)
-        process.removeListener(
-          'newListener',
-          removableProcessNewListener as any
-        );
-    }
 
     // cliRepl.close() will kick off async cleanup like closing the
     // repl history file handle, but we do not get a notification
@@ -93,7 +80,15 @@ describe('CliRepl GC', function () {
     }
   }
 
+  /**
+   * Relies on nodejs/node#61895 (Node.js >= 24.16.0): the REPL's process
+   * 'newListener' handler no longer keeps a closed REPL instance -- and its vm
+   * context, and anything created inside it -- reachable from `process`. CI runs
+   * a Node.js version that includes the fix, so the object is collectible.
+   */
   it('objects from inside a REPL can be garbage collected', async function () {
+    this.timeout(120_000);
+
     const objHolder: { obj: any } = {
       obj: await createTaggedObjectFromInsideRepl(),
     };

@@ -61,22 +61,37 @@ describe('e2e direct connection', function () {
           args: [await rs0.connectionString()],
         });
         await shell.waitForPrompt();
+        // rs.initiate() can take a while to return on slow CI; give it a larger
+        // timeout than executeLine's default as a safety margin.
         await shell.executeLine(
-          `rs.initiate(${JSON.stringify(replSetConfig)})`
+          `rs.initiate(${JSON.stringify(replSetConfig)})`,
+          { timeout: 30_000 }
         );
         shell.assertContainsOutput('ok: 1');
-        await eventually(async () => {
-          await shell.executeLine('db.isMaster()');
-          shell.assertContainsOutput('ismaster: true');
-          shell.assertContainsOutput(`me: '${await rs0.hostport()}'`);
-          shell.assertContainsOutput(`setName: '${replSetId}'`);
-        });
-
+        // Wait until rs0 reports itself as writable primary (and the shell's
+        // driver has caught up to the new topology) before issuing writes.
+        await eventually(
+          async () => {
+            const helloResult = await shell.executeLine('db.hello()');
+            expect(helloResult).to.contain('isWritablePrimary: true');
+            expect(helloResult).to.contain(`me: '${await rs0.hostport()}'`);
+            expect(helloResult).to.contain(`setName: '${replSetId}'`);
+          },
+          { timeout: 30_000 }
+        );
         await shell.executeLine('use admin');
-        await shell.executeLine(
-          "db.createUser({ user: 'anna', pwd: 'pwd', roles: [] })"
+        // A leadership change right after initiation can still make the first
+        // write throw NotWritablePrimary, so retry createUser itself. A retry
+        // after a partial success is harmless ("already exists").
+        await eventually(
+          async () => {
+            const createUserResult = await shell.executeLine(
+              "db.createUser({ user: 'anna', pwd: 'pwd', roles: [] })"
+            );
+            expect(createUserResult).to.match(/ok: 1|already exists/);
+          },
+          { timeout: 30_000 }
         );
-        shell.assertContainsOutput('ok: 1');
 
         dbname = `test-${Date.now()}-${(Math.random() * 100000) | 0}`;
         await shell.executeLine(`use ${dbname}`);

@@ -96,8 +96,34 @@ if echo "$NODE_JS_MAJOR_VERSION" | grep -q '^[0-9]*$'; then
     export PATH="$NIGHTLY_NODE_DIR/bin:$PATH"
   else
     export PATH="/opt/devtools/node$NODE_JS_MAJOR_VERSION/bin:$PATH"
+    # The devtools image only tracks the Node.js *major* version, so it can lag
+    # the exact version pinned in node-<major>-latest.json (e.g. it ships
+    # 24.14.0 while we pin 24.16.0). On Linux, download and prefer the pinned
+    # build when it differs so CI runs exactly $NODE_JS_VERSION. (macOS installs
+    # it via nvm and Windows via InstallNode.ps1 already.) Falls back to the
+    # devtools node if the download fails, so a transient hiccup is not fatal.
+    if [ "$(uname)" = Linux ] && [ "$(node -v)" != "v$NODE_JS_VERSION" ]; then
+      case "$OS_ARCH" in
+        x86_64) pinned_node_arch=x64 ;;
+        aarch64 | arm64) pinned_node_arch=arm64 ;;
+        ppc64le) pinned_node_arch=ppc64le ;;
+        s390x) pinned_node_arch=s390x ;;
+        *) pinned_node_arch= ;;
+      esac
+      pinned_node_dir="$BASEDIR/node-v$NODE_JS_VERSION"
+      if [ -n "$pinned_node_arch" ] && [ ! -x "$pinned_node_dir/bin/node" ]; then
+        echo "devtools node is $(node -v); downloading pinned v$NODE_JS_VERSION ($pinned_node_arch)"
+        mkdir -p "$pinned_node_dir"
+        if ! curl -sSfL "https://nodejs.org/dist/v$NODE_JS_VERSION/node-v$NODE_JS_VERSION-linux-$pinned_node_arch.tar.xz" \
+            | tar -xJ --strip-components=1 -C "$pinned_node_dir"; then
+          echo "WARNING: failed to fetch pinned Node.js v$NODE_JS_VERSION; falling back to devtools $(node -v)"
+          rm -rf "$pinned_node_dir"
+        fi
+      fi
+      [ -x "$pinned_node_dir/bin/node" ] && export PATH="$pinned_node_dir/bin:$PATH"
+    fi
   fi
-  echo "Detected Node.js version (requested v${NODE_JS_MAJOR_VERSION}.x):"
+  echo "Detected Node.js version (requested v${NODE_JS_VERSION}):"
   node -v
   node -v | grep -q "^v$NODE_JS_MAJOR_VERSION"
 else

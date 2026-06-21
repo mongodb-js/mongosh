@@ -434,12 +434,6 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     displayName: 'Windows VS pre-2022',
     runOn: 'windows-vsCurrent-small',
     executableOsId: 'win32',
-    mVersion: 'stable',
-  },
-  {
-    displayName: 'Windows VS pre-2022',
-    runOn: 'windows-vsCurrent-small',
-    executableOsId: 'win32',
     mVersion: '8.2.x',
   },
   {

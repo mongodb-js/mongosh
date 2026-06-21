@@ -22,6 +22,10 @@ jobs:
       npm_config_loglevel: verbose
       npm_config_foreground_scripts: "true"
       PUPPETEER_SKIP_DOWNLOAD: "true"
+      # node-gyp 11.x injects LLVM ThinLTO linker flags (opt:lldltojobs=2) that
+      # MSVC link.exe rejects with LNK1117 when building native addons on
+      # Node.js 26; disabling LTO sidesteps it (Windows + Node.js latest only).
+      GYP_DEFINES: ${{ (matrix.runner == 'windows' && matrix.node == 'latest') && 'enable_lto=false' || '' }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v6

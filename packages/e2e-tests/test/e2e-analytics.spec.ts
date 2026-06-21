@@ -37,7 +37,11 @@ describe('e2e Analytics Node', function () {
       args: [await rs0.connectionString()],
     });
     await shell.waitForPrompt();
-    await shell.executeLine(`rs.initiate(${JSON.stringify(rsConfig)})`);
+    // rs.initiate() triggers a topology change; mongosh updates its prompt after
+    // detecting the new replica-set topology, which can take > 10 s on slow CI.
+    await shell.executeLine(`rs.initiate(${JSON.stringify(rsConfig)})`, {
+      timeout: 30_000,
+    });
     shell.assertContainsOutput('ok: 1');
     await eventually(
       async () => {

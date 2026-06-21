@@ -2304,6 +2304,8 @@ describe('CliRepl', function () {
 
       context('for server >= 4.1', function () {
         skipIfServerVersion(testServer, '< 4.1');
+        // TODO(MONGOSH-3283): In 8.3+ the server no longer reliably kills $where ops via killOp so these tests hang until the 10s eventually() timeout.
+        skipIfServerVersion(testServer, '>= 8.3');
 
         it('terminates operations on the server side', async function () {
           if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
