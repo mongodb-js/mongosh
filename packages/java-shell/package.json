@@ -31,7 +31,7 @@
     "util": "^0.12.5",
     "webpack-merge": "^5.8.0",
     "@mongosh/testing": "2.0.10",
-    "bson": "^7.2.0"
+    "bson": "^7.3.0"
   },
   "license": "SSPL",
   "publishConfig": {
