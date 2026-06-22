@@ -986,6 +986,8 @@ describe('Shell BSON', function () {
         delete bsonProperties.BSON_BINARY_SUBTYPE_DEFAULT; // private
         delete bsonProperties.createPk; // @internal
         delete bsonProperties.getInc; // private
+        delete (bsonProperties as any).PROCESS_UNIQUE; // @internal
+        delete (bsonProperties as any).resetState; // @internal
         delete bsonProperties.is; // private
         delete bsonProperties._fromString; // private
         delete bsonProperties.validateHexString; // private
