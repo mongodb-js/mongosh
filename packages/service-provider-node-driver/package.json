@@ -53,7 +53,7 @@
     "@mongosh/service-provider-core": "5.0.4",
     "@mongosh/types": "^5.0.3",
     "gcp-metadata": "^7.0.1",
-    "mongodb": "^7.1.0",
+    "mongodb": "^7.3.0",
     "mongodb-build-info": "^1.9.6",
     "mongodb-connection-string-url": "^7.0.1",
     "socks": "^2.8.3",
