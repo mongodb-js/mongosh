@@ -86,7 +86,11 @@ export default ({
                   // an assignment expression, then assign that assignment
                   // expression to a dummy variable so that the completion record
                   // computation is unaffected.
-                  const expr = t.assignmentExpression('=', decl.id, decl.init);
+                  const expr = t.assignmentExpression(
+                    '=',
+                    decl.id as babel.types.LVal,
+                    decl.init
+                  );
                   asAssignments.push(
                     t.variableDeclaration('const', [
                       t.variableDeclarator(
