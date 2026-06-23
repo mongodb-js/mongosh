@@ -4,6 +4,7 @@ globalThis.process = globalThis.process || {};
 globalThis.Buffer = globalThis.Buffer || require('buffer').Buffer;
 process.env = process.env || {};
 process.cwd = process.cwd || (() => '/');
+process.getBuiltinModule = process.getBuiltinModule || (() => null);
 globalThis.btoa = globalThis.btoa || (data => Buffer.from(data, 'latin1').toString('base64'));
 globalThis.atob = globalThis.atob || (data => Buffer.from(data, 'base64').toString('latin1'));
 
