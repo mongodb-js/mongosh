@@ -171,7 +171,7 @@ Package|Version|License
 **[body-parser](#d7490fc67d710c27059fb0a86e6577555d3fe8ee074b92adb53a633dbc05d385)**|2.2.1|MIT
 **[bowser](#7e460d0286b39487b80f23af29982a9014c20f7f25403c57b17994658645b78c)**|2.14.1|MIT
 **[browserslist](#cfc692fe3baf990d1b809ccf9a9885899c2f934c61ec4ef24b790a0d56bb000c)**|4.28.1|MIT
-**[bson](#a3a364829d55c90b5dd8133a198aa1164a86ef4642f89d4fff608b98f37f02e4)**|7.2.0|Apache-2.0
+**[bson](#e9405550f3c2651d95e5094911c3bd93e2d5c979398f4aa367dfef7d0d4a8886)**|7.3.0|Apache-2.0
 **[buffer-from](#d08b5e69ef91add4f03dac1707f36962c172cf6cccaf6f9ff2ca502a5210d287)**|1.1.2|MIT
 **[buffer](#409d076f160d0351818531a7c09f5e2928335b83e3f0070a7f3e2685553efa6a)**|5.7.1|MIT
 **[buffer](#d57501d0d9fdd3c1bec12d2258e7609aae021266bb59cc2c13bc21b28448aa41)**|6.0.3|MIT
@@ -21306,8 +21306,8 @@ License files:
       
 
 
-<a id="a3a364829d55c90b5dd8133a198aa1164a86ef4642f89d4fff608b98f37f02e4"></a>
-### [bson](https://www.npmjs.com/package/bson) (version 7.2.0)
+<a id="e9405550f3c2651d95e5094911c3bd93e2d5c979398f4aa367dfef7d0d4a8886"></a>
+### [bson](https://www.npmjs.com/package/bson) (version 7.3.0)
 License tags: Apache-2.0
 
 License files:

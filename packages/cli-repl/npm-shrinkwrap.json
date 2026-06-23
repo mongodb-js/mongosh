@@ -29,7 +29,7 @@
         "ansi-escape-sequences": "^5.1.2",
         "askcharacter": "^2.0.4",
         "askpassword": "^2.0.2",
-        "bson": "^7.2.0",
+        "bson": "^7.3.0",
         "escape-string-regexp": "^4.0.0",
         "is-recoverable-error": "^1.0.3",
         "js-yaml": "^4.1.1",
@@ -1770,7 +1770,7 @@
         "@mongosh/shell-api": "^5.1.9",
         "@mongosh/shell-evaluator": "^5.1.9",
         "@mongosh/types": "^5.0.3",
-        "bson": "^7.2.0",
+        "bson": "^7.3.0",
         "js-beautify": "^1.15.1"
       },
       "devDependencies": {
@@ -1890,7 +1890,7 @@
       "dependencies": {
         "@mongosh/errors": "2.4.7",
         "@mongosh/shell-bson": "3.0.4",
-        "bson": "^7.2.0",
+        "bson": "^7.3.0",
         "mongodb": "^7.1.0",
         "mongodb-build-info": "^1.9.5",
         "mongodb-connection-string-url": "^7.0.1"
@@ -1964,7 +1964,7 @@
         "@mongosh/testing": "2.0.10",
         "@mongosh/types": "^5.0.3",
         "@types/babel__core": "^7.20.5",
-        "bson": "^7.2.0",
+        "bson": "^7.3.0",
         "eslint": "^7.25.0",
         "mongodb": "^7.1.0",
         "prettier": "^2.8.8",
@@ -1985,7 +1985,7 @@
         "@mongodb-js/eslint-config-mongosh": "^1.0.0",
         "@mongodb-js/prettier-config-devtools": "^1.0.1",
         "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-        "bson": "^7.2.0",
+        "bson": "^7.3.0",
         "eslint": "^7.25.0",
         "prettier": "^2.8.8"
       },
@@ -2026,7 +2026,7 @@
         "@mongosh/errors": "2.4.7",
         "@mongosh/shell-api": "^5.1.9",
         "@mongosh/types": "^5.0.3",
-        "bson": "^7.2.0",
+        "bson": "^7.3.0",
         "cross-spawn": "^7.0.5",
         "escape-string-regexp": "^4.0.0",
         "tar": "^7.5.11",
@@ -3371,9 +3371,9 @@
       }
     },
     "node_modules/bson": {
-      "version": "7.2.0",
-      "resolved": "https://registry.npmjs.org/bson/-/bson-7.2.0.tgz",
-      "integrity": "sha512-YCEo7KjMlbNlyHhz7zAZNDpIpQbd+wOEHJYezv0nMYTn4x31eIUM2yomNNubclAt63dObUzKHWsBLJ9QcZNSnQ==",
+      "version": "7.3.0",
+      "resolved": "https://registry.npmjs.org/bson/-/bson-7.3.0.tgz",
+      "integrity": "sha512-WmjjMEwFwZHmGnAb7wn90MhkiT+mTm4x/rLj7dvAPWfwnVWDXhLun2e+UM88MJoDGW624yzZglVX/zTBy9ZZMw==",
       "license": "Apache-2.0",
       "engines": {
         "node": ">=20.19.0"
