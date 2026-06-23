@@ -86,7 +86,7 @@
     "ansi-escape-sequences": "^5.1.2",
     "askcharacter": "^2.0.4",
     "askpassword": "^2.0.2",
-    "bson": "^7.2.0",
+    "bson": "^7.3.0",
     "escape-string-regexp": "^4.0.0",
     "is-recoverable-error": "^1.0.3",
     "js-yaml": "^4.1.1",
