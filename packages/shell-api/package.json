@@ -71,7 +71,7 @@
     "mongodb": "^7.3.0",
     "prettier": "^2.8.8",
     "semver": "^7.5.3",
-    "@babel/core": "^7.26.10",
+    "@babel/core": "^8.0.0",
     "@babel/types": "^7.26.10",
     "@types/babel__core": "^7.20.5"
   }
