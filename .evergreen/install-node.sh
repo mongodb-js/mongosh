@@ -7,6 +7,9 @@ if [ "$OS" == "Windows_NT" ]; then
   powershell "$(cygpath -w "$BASEDIR")"/InstallNode.ps1
   . "$BASEDIR/setup-env.sh"
 else
+  echo "Setting up Rust"
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh /dev/stdin -y
+
   if [ `uname` = Darwin ]; then
     export NVM_DIR="$BASEDIR/.nvm"
     mkdir -p "${NVM_DIR}"

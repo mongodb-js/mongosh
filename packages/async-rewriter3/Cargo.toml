@@ -1,0 +1,25 @@
+[package]
+name = "async-rewriter3"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib", "staticlib"]
+
+[[bin]]
+name = "async-rewriter3"
+path = "src/main.rs"
+
+[dependencies]
+const_format = "0.2.36"
+oxc_allocator = "0.133.0"
+oxc_ast = "0.133.0"
+oxc_diagnostics = "0.133.0"
+oxc_parser = "0.133.0"
+oxc_semantic = "0.133.0"
+oxc_span = "0.133.0"
+urlencoding = "2.1.3"
+wasm-bindgen = "0.2.122"
+
+[profile.release]
+lto = true

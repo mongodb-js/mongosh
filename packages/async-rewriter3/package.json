@@ -1,0 +1,42 @@
+{
+  "name": "@mongosh/async-rewriter3",
+  "version": "1.0.0",
+  "description": "MongoDB Shell Async Rewriter Package",
+  "homepage": "https://github.com/mongodb-js/mongosh",
+  "license": "Apache-2.0",
+  "main": "dist/index.js",
+  "types": "index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/mongosh"
+  },
+  "engines": {
+    "node": ">=14.15.1"
+  },
+  "scripts": {
+    "prebuild-addon": "cargo build --release",
+    "build-addon": "node-gyp rebuild",
+    "install": "npm run build-addon",
+    "compile": "npm run webpack-build",
+    "prewebpack": "rm -rf dist pkg",
+    "webpack": "webpack",
+    "postwebpack": "rm -f dist/*.html && node scripts/webpack-include-wasm.js",
+    "webpack-build": "npm run webpack -- --mode production",
+    "webpack-build-dev": "npm run webpack -- --mode development",
+    "test": "mocha --experimental-vm-modules",
+    "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
+    "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
+    "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci"
+  },
+  "devDependencies": {
+    "@mongosh/async-rewriter2": "^2.4.15",
+    "@mongosh/async-rewriter-spec": "^1.0.0",
+    "@wasm-tool/wasm-pack-plugin": "^1.7.0",
+    "wasm-pack": "^0.15.0",
+    "webpack-merge": "^5.8.0"
+  },
+  "gypfile": true
+}

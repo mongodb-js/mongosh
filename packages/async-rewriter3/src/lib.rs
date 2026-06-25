@@ -1,0 +1,1360 @@
+use core::slice;
+use const_format::formatcp;
+use oxc_allocator::Allocator;
+use oxc_ast::{
+    AstKind, AstType, ast::{
+        BindingPattern, ClassType, Expression, Function, FunctionBody, IdentifierReference, ParenthesizedExpression, UnaryOperator, VariableDeclarationKind
+    }
+};
+use oxc_diagnostics::OxcDiagnostic;
+use oxc_parser::{ParseOptions, Parser};
+use oxc_semantic::{AstNode, Semantic, SemanticBuilder};
+use oxc_span::GetSpan;
+use oxc_span::{SourceType, Span};
+use urlencoding::encode;
+use std::{borrow::Cow, cmp::Ordering, collections::VecDeque};
+use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Eq)]
+pub enum DebugLevel {
+    None,
+    TypesOnly,
+    Verbose,
+}
+
+/// Internal markers used in transformations. These are stripped out / processed
+/// during the final string-generation phase.
+const HOIST_FN_START: &str = "\u{0001}HFS\u{0002}";
+const HOIST_FN_END: &str = "\u{0001}HFE\u{0002}";
+const HOIST_TARGET: &str = "\u{0001}HT\u{0002}";
+
+/// Represents a single piece of text we want to insert into the original JS source.
+#[derive(Debug)]
+struct Insertion {
+    /// The offset in the original source where this insertion should be made.
+    offset: u32,
+    /// The text to insert. Can be a static string or an owned string (from e.g. String).
+    text: Cow<'static, str>,
+    /// Not created by callers. This is used to keep track of the original insertion order
+    /// into an `InsertionList` for sorting the list.
+    original_ordering: Option<u32>,
+    /// `true` for closing insertions that should be inserted in reverse order.
+    /// (Consider that nodes in the AST are traversed in DFS order, so insertions from a
+    /// child node come after the parent's insertions but, in the case of 'closing' insertions,
+    /// should be added later.)
+    reverse: bool,
+}
+
+impl Insertion {
+    /// Creates a new insertion.
+    pub fn new(offset: u32, text: impl Into<Cow<'static, str>>, reverse: bool) -> Insertion {
+        Insertion {
+            offset,
+            text: text.into(),
+            original_ordering: None,
+            reverse,
+        }
+    }
+
+    /// Utility to create a pair of insertions for matching opening and closing tags.
+    pub fn pair(
+        node: impl GetSpan,
+        open: impl Into<Cow<'static, str>>,
+        close: impl Into<Cow<'static, str>>,
+    ) -> [Insertion; 2] {
+        let span = node.span();
+        let open_insertion = Insertion::new(span.start, open, false);
+        let close_insertion = Insertion::new(span.end, close, true);
+        [open_insertion, close_insertion]
+    }
+
+    pub fn len(&self) -> usize {
+        self.text.len()
+    }
+}
+
+/// Keep track of all insertions we want to make in the original source.
+struct InsertionList {
+    /// The list of insertions to make.
+    list: VecDeque<Insertion>,
+    /// The list of variables we need to declare at the start of the source code
+    /// (e.g. definitions we want to pull into the global scope despite wrapping
+    /// the original source code in an IIFE).
+    vars: Vec<String>,
+}
+
+#[allow(dead_code)]
+impl InsertionList {
+    pub const fn new() -> InsertionList {
+        InsertionList {
+            list: VecDeque::new(),
+            vars: Vec::new(),
+        }
+    }
+
+    fn append(&mut self, other: &mut Self) {
+        self.list.append(&mut other.list);
+        self.vars.append(&mut other.vars);
+    }
+
+    fn push_back(&mut self, insertion: Insertion) {
+        self.list.push_back(insertion);
+    }
+
+    fn push_pair(&mut self, insertions: impl IntoIterator<Item = Insertion>) {
+        self.push_many(insertions);
+    }
+
+    fn push_many(&mut self, insertions: impl IntoIterator<Item = Insertion>) {
+        for insertion in insertions {
+            self.list.push_back(insertion);
+        }
+    }
+
+    fn pop_back(&mut self) {
+        self.list.pop_back();
+    }
+
+    fn add_variable(&mut self, variable: String) {
+        self.vars.push(variable);
+    }
+
+    fn sort(&mut self) {
+        let mut i = 0;
+        for insertion in &mut self.list {
+            insertion.original_ordering = Some(i);
+            i += 1;
+        }
+        self.list.make_contiguous().sort_by(|a, b| {
+            if a.offset != b.offset {
+                a.offset.cmp(&b.offset)
+            } else if a.reverse && b.reverse {
+                b.original_ordering.cmp(&a.original_ordering)
+            } else if !a.reverse && !b.reverse {
+                a.original_ordering.cmp(&b.original_ordering)
+            } else if a.reverse {
+                Ordering::Less
+            } else {
+                Ordering::Greater
+            }
+        });
+    }
+}
+
+const SYNTHETIC_PROMISE_IDENTIFIER: &str = "__sp";
+const SYNTHETIC_ASYNC_ITERABLE_IDENTIFIER: &str = "__sai";
+const DEMANGLE_ERROR_IDENTIFIER: &str = "__de";
+const IS_SYNTHETIC_PROMISE_IDENTIFIER: &str = "__isp";
+const ADAPT_ASYNC_ITERABLE_TO_SYNC_ITERABLE_TEMPLATE: &str = "__aaitsi";
+
+const ALL_FN_PREAMBLE: &str = formatcp!(r#"
+    ;const {SYNTHETIC_PROMISE_IDENTIFIER} = __SymbolFor('@@mongosh.syntheticPromise');
+    const {SYNTHETIC_ASYNC_ITERABLE_IDENTIFIER} = __SymbolFor('@@mongosh.syntheticAsyncIterable');
+
+    function {DEMANGLE_ERROR_IDENTIFIER}(err) {{
+        if (Object.prototype.toString.call(err) === '[object Error]' &&
+            typeof err.message === 'string' &&
+            err.message.includes('\ufeff')) {{
+            err.message = err.message.replace(/\(\s*"\ufeff(.+?)\ufeff"\s*,(?:[^\(]|\([^)]*\))*\)/g, function(m, o) {{ return o; }});
+        }}
+        return err;
+    }}"#);
+const POTENTIALLY_ASYNC_FN_PREAMBLE: &str = formatcp!(r#"
+    function {IS_SYNTHETIC_PROMISE_IDENTIFIER}(p) {{
+        return p && p[{SYNTHETIC_PROMISE_IDENTIFIER}];
+    }}
+
+    function {ADAPT_ASYNC_ITERABLE_TO_SYNC_ITERABLE_TEMPLATE}(original) {{
+        if (!original || !original[{SYNTHETIC_ASYNC_ITERABLE_IDENTIFIER}]) {{
+            return {{ iterable: original, isSyntheticAsyncIterable: false }};
+        }}
+        const originalIterator = original[Symbol.asyncIterator]();
+        let next;
+        let returned;
+        return {{
+            isSyntheticAsyncIterable: true,
+            iterable: {{
+                [Symbol.iterator]() {{ return this; }},
+                next() {{
+                    let _next = next;
+                    next = undefined;
+                    return _next;
+                }},
+                return(value) {{
+                    returned = {{ value }};
+                    return {{ value, done: true }};
+                }},
+                async expectNext() {{
+                    next ??= await originalIterator.next();
+                }},
+                async syncReturn() {{
+                    if (returned) {{
+                        await originalIterator.return(returned.value);
+                    }}
+                }}
+            }}
+        }};
+    }}"#);
+
+/// Insertions for the inner async function tracking helpers and try/catch wrapper.
+/// This is shared between the outer IIFE and every transformed function.
+fn make_fn_insertions(span: impl GetSpan) -> [Insertion; 2] {
+    Insertion::pair(
+        span,
+        formatcp!(r#"
+    {ALL_FN_PREAMBLE}
+    {POTENTIALLY_ASYNC_FN_PREAMBLE}
+    function _markSyntheticPromise(p) {{
+        return Object.defineProperty(p, {SYNTHETIC_PROMISE_IDENTIFIER}, {{
+            value: true,
+        }});
+    }}
+
+    function _ansp(p, s, i) {{
+        if (p && p[{SYNTHETIC_PROMISE_IDENTIFIER}]) {{
+            throw new MongoshAsyncWriterError(
+                'Result of expression "' + s + '" cannot be used in this context',
+                'SyntheticPromiseInAlwaysSyncContext');
+        }}
+        if (i && p && p[{SYNTHETIC_ASYNC_ITERABLE_IDENTIFIER}]) {{
+            throw new MongoshAsyncWriterError(
+                'Result of expression "' + s + '" cannot be iterated in this context',
+                'SyntheticAsyncIterableInAlwaysSyncContext');
+        }}
+        return p;
+    }}
+
+    let _functionState = 'sync', _synchronousReturnValue, _ex;
+
+    const _asynchronousReturnValue = (async () => {{
+    try {{"#),
+        formatcp!(r#"
+    }} catch (err) {{
+        err = {DEMANGLE_ERROR_IDENTIFIER}(err);
+        if (_functionState === 'sync') {{
+            /* Forward synchronous exceptions. */
+            _synchronousReturnValue = err;
+            _functionState = 'threw';
+        }} else {{
+            throw err;
+        }}
+    }} finally {{
+        if (_functionState !== 'threw') {{
+            _functionState = 'returned';
+        }}
+    }}
+
+    }})();
+
+    if (_functionState === 'returned') {{
+        return _synchronousReturnValue;
+    }} else if (_functionState === 'threw') {{
+        throw _synchronousReturnValue;
+    }}
+
+    _functionState = 'async';
+    return _markSyntheticPromise(_asynchronousReturnValue);
+    "#,
+    ))
+}
+
+/// Insertions for sync-only contexts (class constructors, non-async generators).
+/// Just adds an _ansp helper and re-throws errors to allow demangling.
+fn make_sync_only_fn_insertions(span: impl GetSpan) -> [Insertion; 2] {
+    Insertion::pair(
+        span,
+        formatcp!(r#"
+    {ALL_FN_PREAMBLE}
+    try {{
+    "#),
+        formatcp!(r#"
+    }} catch (err) {{
+        throw {DEMANGLE_ERROR_IDENTIFIER}(err);
+    }}
+    "#),
+    )
+}
+
+/// Insertions for an async (but not sync-rewriter-wrapped) function body.
+/// Provides the helpers and runs the body inside try/catch for error demangling.
+fn make_async_fn_insertions(span: impl GetSpan) -> [Insertion; 2] {
+    Insertion::pair(
+        span,
+        formatcp!(r#"
+    {ALL_FN_PREAMBLE}
+    {POTENTIALLY_ASYNC_FN_PREAMBLE}
+    let _ex;
+    try {{
+    "#),
+        formatcp!(r#"
+    }} catch (err) {{
+        throw {DEMANGLE_ERROR_IDENTIFIER}(err);
+    }}
+    "#),
+    )
+}
+
+fn add_fn_insertions(
+    insertions: &mut InsertionList,
+    body: &FunctionBody,
+    has_block_body: bool,
+    kind: FnTransformKind,
+    original_source: &str,
+) {
+    let span = body.span();
+    // Ensure that the function body is a block statement. Is a no-op for non-arrow
+    // functions, but changes behavior of expression-returning arrow functions.
+    insertions.push_pair(Insertion::pair(span, "{", "}"));
+    // Add original-source marker for Function.prototype.toString support.
+    // Insert the original-source marker AFTER `{` and BEFORE the inner wrapper.
+    let original_source_marker = format!(
+        "\"<async_rewriter>{}</>\";",
+        encode(&original_source)
+    );
+    insertions.push_back(Insertion::new(span.start, original_source_marker, false));
+    insertions.push_pair(match kind {
+        FnTransformKind::AsyncWrap => make_fn_insertions(span),
+        FnTransformKind::AlreadyAsync => make_async_fn_insertions(span),
+        FnTransformKind::SyncOnly => make_sync_only_fn_insertions(span),
+    });
+    if !has_block_body {
+        // This is an expression-returning arrow function without a body,
+        // so we need to add an explicit `return` statement.
+        match kind {
+            FnTransformKind::AsyncWrap => {
+                insertions.push_pair(Insertion::pair(
+                    span,
+                    "return (_synchronousReturnValue = (",
+                    "), _functionState === 'async' ? _synchronousReturnValue : null);",
+                ));
+            }
+            _ => {
+                insertions.push_pair(Insertion::pair(span, "return (", ");"));
+            }
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+enum FnTransformKind {
+    /// Non-async function -> wrap in async IIFE with sync/async tracking
+    AsyncWrap,
+    /// Already-async function -> just demangle errors
+    AlreadyAsync,
+    /// Sync-only context (constructor, non-async generator) -> never await, throw on synthetic promise/iterable
+    SyncOnly,
+}
+
+/// Utility for `get_identifier_reference`. Given a parenthesized expression,
+/// return the identifier reference it wraps, if it does.
+/// (e.g. `((foo))` -> `foo`)
+fn get_identifier_reference_from_parenthesized_expression<'a>(
+    node: &'a ParenthesizedExpression<'a>,
+) -> Option<&'a IdentifierReference<'a>> {
+    match node.expression {
+        Expression::Identifier(ref expr) => Some(expr),
+        Expression::ParenthesizedExpression(ref expr) => {
+            get_identifier_reference_from_parenthesized_expression(expr)
+        }
+        _ => None,
+    }
+}
+
+/// Return the identifier reference of a node, if it is an identifier reference or a
+/// parenthesized expression wrapping one (e.g. `foo` or `(foo)`).
+fn get_identifier_reference<'a>(node: &AstNode<'a>) -> Option<&'a IdentifierReference<'a>> {
+    if let AstKind::IdentifierReference(expr) = node.kind() {
+        Some(expr)
+    } else if let AstKind::ParenthesizedExpression(expr) = node.kind() {
+        get_identifier_reference_from_parenthesized_expression(expr)
+    } else {
+        None
+    }
+}
+
+fn function_kind<'a>(f: &'a Function,
+    semantic: &'a Semantic<'a>) -> FnTransformKind {
+    let ast_nodes = semantic.nodes();
+    let mut is_constructor = false;
+    let func_node_id = f.node_id.get();
+    let parent_of_fn = ast_nodes.parent_node(func_node_id);
+    if let AstKind::MethodDefinition(md) = parent_of_fn.kind() {
+        if matches!(md.kind, oxc_ast::ast::MethodDefinitionKind::Constructor) {
+            is_constructor = true;
+        }
+    }
+    if f.r#async {
+        FnTransformKind::AlreadyAsync
+    } else if f.generator || is_constructor {
+        FnTransformKind::SyncOnly
+    } else {
+        FnTransformKind::AsyncWrap
+    }
+}
+
+/// Walks up the ancestors to find the nearest function-like context, and returns
+/// what transformation kind that function uses. Class constructors and non-async
+/// generator functions both count as "sync-only" contexts that can't await.
+fn enclosing_function_kind<'a>(
+    node: &AstNode<'a>,
+    semantic: &'a Semantic<'a>,
+) -> Option<FnTransformKind> {
+    let ast_nodes = semantic.nodes();
+    for ancestor in ast_nodes.ancestor_kinds(node.id()).skip(1) {
+        match ancestor {
+            AstKind::Function(f) => {
+                return Some(function_kind(f, semantic));
+            }
+            AstKind::ArrowFunctionExpression(f) => {
+                let kind = if f.r#async {
+                    FnTransformKind::AlreadyAsync
+                } else {
+                    FnTransformKind::AsyncWrap
+                };
+                return Some(kind);
+            }
+            AstKind::StaticBlock(_) => {
+                return Some(FnTransformKind::AsyncWrap);
+            }
+            _ => {}
+        }
+    }
+    None
+}
+
+fn limit_string_length(input: &str, max_length: usize) -> Cow<'_, str> {
+    if input.len() <= max_length {
+        return input.into();
+    }
+    let chars: Vec<char> = input.chars().collect();
+    if chars.len() <= max_length {
+        return input.into();
+    }
+    let prefix_len = ((max_length - 5) as f64 * 0.7).floor() as usize;
+    let suffix_len = max_length - 5 - prefix_len;
+    let prefix: String = chars[..prefix_len].iter().collect();
+    let suffix: String = chars[chars.len() - suffix_len..].iter().collect();
+    format!("{} ... {}", prefix, suffix).into()
+}
+
+fn extract_binding_names_impl(pattern: &BindingPattern, out: &mut Vec<String>) {
+    match pattern {
+        BindingPattern::BindingIdentifier(id) => {
+            out.push(id.name.to_string());
+        }
+        BindingPattern::ObjectPattern(obj) => {
+            for prop in &obj.properties {
+                extract_binding_names_impl(&prop.value, out);
+            }
+            if let Some(rest) = obj.rest.as_ref() {
+                extract_binding_names_impl(&rest.argument, out);
+            }
+        }
+        BindingPattern::ArrayPattern(arr) => {
+            for elem in &arr.elements {
+                if let Some(elem) = elem {
+                    extract_binding_names_impl(elem, out);
+                }
+            }
+            if let Some(rest) = arr.rest.as_ref() {
+                extract_binding_names_impl(&rest.argument, out);
+            }
+        }
+        BindingPattern::AssignmentPattern(p) => {
+            extract_binding_names_impl(&p.left, out);
+        }
+    }
+}
+
+fn extract_binding_names(pattern: &BindingPattern) -> Vec<String> {
+    let mut out = Vec::new();
+    extract_binding_names_impl(pattern, &mut out);
+    out
+}
+
+/// Check if a node sits in an "assignment target" position where the expression
+/// cannot be wrapped.
+fn is_in_assignment_target_position<'a>(node: &AstNode<'a>, semantic: &'a Semantic<'a>) -> bool {
+    let ast_nodes = semantic.nodes();
+    let parent = ast_nodes.parent_node(node.id());
+    let parent_type = parent.kind().ty();
+
+    if matches!(
+        parent_type,
+        AstType::ArrayAssignmentTarget
+            | AstType::ObjectAssignmentTarget
+            | AstType::AssignmentTargetWithDefault
+            | AstType::AssignmentTargetPropertyIdentifier
+            | AstType::AssignmentTargetPropertyProperty
+            | AstType::AssignmentTargetRest
+            | AstType::FormalParameter
+            | AstType::FormalParameters
+    ) {
+        return true;
+    }
+    if let AstKind::AssignmentExpression(assign) = parent.kind() {
+        if node.span() == assign.left.span() {
+            return true;
+        }
+    }
+    if let AstKind::UpdateExpression(upd) = parent.kind() {
+        if node.span() == upd.argument.span() {
+            return true;
+        }
+    }
+    // For loops: init can be an Expression that is also an assignment target etc.
+    if let AstKind::ForStatement(fs) = parent.kind() {
+        if let Some(init) = &fs.init {
+            if init.span() == node.span() {
+                return true;
+            }
+        }
+    }
+    if let AstKind::ForInStatement(fs) = parent.kind() {
+        if fs.left.span() == node.span() {
+            return true;
+        }
+    }
+    if let AstKind::ForOfStatement(fs) = parent.kind() {
+        if fs.left.span() == node.span() {
+            return true;
+        }
+    }
+    false
+}
+
+fn add_escaped_js_string_contents(source: &str, into: &mut String) {
+    for c in source.chars() {
+        match c {
+            '"' => into.push_str("\\\""),
+            '\\' => into.push_str("\\\\"),
+            '\n' => into.push_str("\\n"),
+            '\r' => into.push_str("\\r"),
+            '\t' => into.push_str("\\t"),
+            '\u{08}' => into.push_str("\\b"),
+            '\u{0C}' => into.push_str("\\f"),
+            '\0'..='\u{1F}' | '\u{7F}'..='\u{9F}' => {
+                into.push_str(&format!("\\u{:04x}", c as u32));
+            }
+            _ => into.push(c),
+        }
+    }
+}
+
+/// Encode a string for use as a JS string literal source-text (for the demangler).
+/// Uses the U+FEFF byte order mark as a marker so error messages can be rewritten.
+fn js_string_literal_for_demangling(s: &str) -> String {
+    let limited = limit_string_length(s, 25);
+    let mut result = String::with_capacity(limited.len() + 4);
+    result.push('"');
+    result.push('\u{FEFF}');
+    add_escaped_js_string_contents(&limited, &mut result);
+    result.push('\u{FEFF}');
+    result.push('"');
+    result
+}
+
+/// Plain JS string literal of `s`.
+fn plain_js_string_literal(s: &str) -> String {
+    let mut result = String::with_capacity(s.len() + 2);
+    result.push('"');
+    add_escaped_js_string_contents(&s, &mut result);
+    result.push('"');
+    result
+}
+
+/// Collect all insertions for a given node.
+fn collect_insertions(
+    node: &AstNode,
+    semantic: &Semantic,
+    source: &str,
+    debug_level: DebugLevel,
+) -> Result<InsertionList, &'static str> {
+    let ast_nodes = &semantic.nodes();
+
+    // Determine the enclosing function and what transformation kind it had.
+    let function_parent_kind = enclosing_function_kind(node, semantic);
+
+    // Helpers to get the parent node and its kind (~ full node information)/type.
+    let get_parent = |node: &AstNode| ast_nodes.parent_node(node.id());
+    let get_parent_kind = |node: &AstNode| get_parent(node).kind();
+    let get_parent_type = |node: &AstNode| get_parent_kind(node).ty();
+
+    // Helpers to get the source text of a given node.
+    let get_source = |node: &dyn GetSpan| {
+        let Span { start, end, .. } = node.span();
+        return &source[(start as usize)..(end as usize)];
+    };
+
+    let span = node.span();
+
+    let mut insertions = InsertionList::new();
+
+    if debug_level >= DebugLevel::TypesOnly {
+        // Debugging utility -- insert the type of the node into the generated source.
+        let ty = node.kind().ty();
+        insertions.push_back(Insertion::new(span.start, format!(" /*{ty:#?}*/ "), false));
+    }
+
+    // === Handle function declarations / expressions ===
+    if let AstKind::Function(as_fn) = node.kind() {
+        let body = as_fn.body.as_ref().ok_or("bad FnDecl without body")?;
+
+        // Determine if this is a function declaration vs expression.
+        // Hoisting transformation only applies to declarations at the program scope or
+        // inside blocks that are not nested in functions.
+        let parent_kind = get_parent_kind(node);
+
+        // Detect if this Function is a class method (key, value), in which case
+        // it is not a declaration in our sense.
+        let is_class_method = matches!(parent_kind, AstKind::MethodDefinition(_));
+        // Detect if this is an ObjectProperty method (not a declaration).
+        let is_object_method = matches!(parent_kind, AstKind::ObjectProperty(_));
+
+        let is_declaration =
+            !is_class_method && !is_object_method && function_parent_kind.is_none();
+
+        // Determine the FnTransformKind for this function itself.
+        let kind = function_kind(as_fn,&semantic);
+
+        if is_declaration {
+            match &as_fn.id {
+                None => {
+                    insertions.push_back(Insertion::new(span.start, "/*no ident token*/", false));
+                }
+                Some(name) => {
+                    // For top-level decl, rename function and add assignment.
+                    // For block-scoped, hoist the entire source.
+                    let is_program_level = matches!(parent_kind, AstKind::Program(_));
+                    if is_program_level {
+                        insertions.push_pair(Insertion::pair(
+                            Span::new(name.span().end, span.end),
+                            "__",
+                            format!(";\n_cr = {name} = {name}__;\n", name = name.name.as_str()),
+                        ));
+                        insertions.add_variable(name.to_string());
+                    } else {
+                        // Block-scoped function: emit marker around the declaration and
+                        // the assignment, so that both move to the top of the IIFE.
+                        insertions.push_pair(Insertion::pair(span, HOIST_FN_START, HOIST_FN_END));
+                        insertions.push_pair(Insertion::pair(
+                            Span::new(name.span().end, span.end),
+                            "__",
+                            format!(";\n_cr = {name} = {name}__;\n", name = name.name.as_str()),
+                        ));
+                        // Leave behind an expression statement evaluating the function
+                        // name, so that block-level function declarations contribute
+                        // their value to the completion record (matching babel behavior).
+                        insertions.push_back(Insertion::new(
+                            span.end,
+                            format!(";_cr = {name};", name = name.name.as_str()),
+                            false,
+                        ));
+                        insertions.add_variable(name.to_string());
+                    }
+                }
+            }
+        }
+
+        // Add original-source marker for Function.prototype.toString support.
+        // For class methods, use the MethodDefinition's span so the method name is included.
+        // For object methods, use the ObjectProperty's span similarly.
+        let marker_span = if is_class_method || is_object_method {
+            get_parent(node).span()
+        } else {
+            span
+        };
+        // Apply async wrapping or other inner-function transformations.
+        add_fn_insertions(&mut insertions, body, true, kind, get_source(&marker_span));
+        return Ok(insertions);
+    }
+    if let AstKind::ArrowFunctionExpression(as_fn) = node.kind() {
+        let body = &as_fn.body;
+        let kind = if as_fn.r#async {
+            FnTransformKind::AlreadyAsync
+        } else {
+            FnTransformKind::AsyncWrap
+        };
+        add_fn_insertions(&mut insertions, body, !as_fn.expression, kind, get_source(&span));
+        return Ok(insertions);
+    }
+    if let AstKind::Class(as_class) = node.kind() {
+        // Only hoist program-level class declarations.
+        let parent_kind = get_parent_kind(node);
+        let is_class_declaration = !matches!(as_class.r#type, ClassType::ClassExpression);
+        let is_program_level = matches!(parent_kind, AstKind::Program(_));
+        if is_class_declaration && is_program_level {
+            if let Some(name) = as_class.name() {
+                insertions.push_pair(Insertion::pair(
+                    span,
+                    format!("_cr = {name} = ", name = name.as_str()),
+                    ";",
+                ));
+                insertions.add_variable(name.to_string());
+            }
+        }
+        return Ok(insertions);
+    }
+    if let AstKind::VariableDeclaration(as_var_decl) = node.kind() {
+        // For top-level variables, we extract the variable names to the outermost scope
+        // and comment out the declarator, i.e. `let foo = 42;` -> `var foo; ... /* let */ (foo = 42);`
+        // Only do this for `var` (any scope, hoisted) or any kind at the Program level.
+        let parent_type = get_parent_type(node);
+        let is_var = matches!(as_var_decl.kind, VariableDeclarationKind::Var);
+        let parent_is_program = matches!(get_parent_kind(node), AstKind::Program(_));
+        // Don't hoist if it's the init of a for-statement (e.g. `for (let i = 0; ...)`).
+        let is_for_init = matches!(
+            parent_type,
+            AstType::ForStatement | AstType::ForInStatement | AstType::ForOfStatement
+        );
+
+        let should_hoist =
+            !is_for_init && function_parent_kind.is_none() && (parent_is_program || is_var);
+
+        if should_hoist {
+            let decl_span = Span::new(
+                as_var_decl.span().start,
+                as_var_decl
+                    .declarations
+                    .iter()
+                    .map(|d| d.span().start)
+                    .min()
+                    .unwrap(),
+            );
+
+            insertions.push_pair(Insertion::pair(decl_span, "/*", "*/"));
+            for decl in &as_var_decl.declarations {
+                for name in extract_binding_names(&decl.id) {
+                    insertions.add_variable(name);
+                }
+            }
+            // Wrap the declarator(s) in parens to make them an expression.
+            // For no-init case (e.g. `let x;`), the trailing `x` is just an identifier
+            // expression statement and doesn't need any further wrapping. For init
+            // cases, the parens ensure that `let {a} = b;` becomes `({a} = b);`.
+            let max_end = as_var_decl
+                .declarations
+                .iter()
+                .map(|d| d.span().end)
+                .max()
+                .unwrap();
+            let any_destructuring = as_var_decl
+                .declarations
+                .iter()
+                .any(|d| !matches!(d.id, BindingPattern::BindingIdentifier(_)));
+            if any_destructuring {
+                insertions.push_pair(Insertion::pair(Span::new(decl_span.end, max_end), "(", ")"));
+            }
+        }
+        return Ok(insertions);
+    }
+    if let AstKind::ExpressionStatement(as_expr_stmt) = node.kind() {
+        // We add semicolons to ensure that expression statements are treated properly.
+        let parent_kind = get_parent_kind(node);
+        let parent_is_arrow_body = matches!(parent_kind, AstKind::FunctionBody(_))
+            && matches!(
+                get_parent_kind(get_parent(node)),
+                AstKind::ArrowFunctionExpression(_)
+            );
+        // For single-statement control-flow bodies, we wrap with `{...}` instead of
+        // adding loose semicolons, because something like `if (x) foo(); else bar();`
+        // can't be rewritten to `if (x) foo();; else bar();` (the extra `;` breaks the
+        // `else` matching).
+        let parent_is_control_flow_body = matches!(
+            parent_kind,
+            AstKind::IfStatement(_)
+                | AstKind::WhileStatement(_)
+                | AstKind::DoWhileStatement(_)
+                | AstKind::ForStatement(_)
+                | AstKind::ForInStatement(_)
+                | AstKind::ForOfStatement(_)
+                | AstKind::WithStatement(_)
+                | AstKind::LabeledStatement(_)
+        );
+        if !parent_is_arrow_body {
+            let expr_span = as_expr_stmt.expression.span();
+            if parent_is_control_flow_body {
+                // Wrap the whole statement in a block (so we can safely add semicolons).
+                insertions.push_back(Insertion::new(node.span().start, "{", false));
+                insertions.push_back(Insertion::new(node.span().end, "}", true));
+            }
+            insertions.push_pair(Insertion::pair(expr_span, ";", ";"));
+            if function_parent_kind.is_none() {
+                // If this is a top-level expression statement, it is a candidate for the
+                // completion record value.
+                insertions.push_pair(Insertion::pair(expr_span, "_cr = (", ")"));
+            }
+        }
+        return Ok(insertions);
+    }
+    if let AstKind::ReturnStatement(as_ret_stmt) = node.kind() {
+        if matches!(function_parent_kind, Some(FnTransformKind::AsyncWrap)) {
+            if let Some(expr) = &as_ret_stmt.argument {
+                // When we return from a function, keep track of the function state
+                // and return value.
+                insertions.push_pair(Insertion::pair(
+                    expr.span(),
+                    "(_synchronousReturnValue = (",
+                    "), _functionState === 'async' ? _synchronousReturnValue : null);",
+                ));
+            }
+        }
+        return Ok(insertions);
+    }
+
+    // === Handle TryStatement for uncatchable exceptions ===
+    if let AstKind::TryStatement(try_stmt) = node.kind() {
+        // We transform the try/catch/finally so that exceptions marked with
+        // Symbol.for('@@mongosh.uncatchable') are not caught.
+
+        // Use the offset as a "unique" suffix to avoid collisions with user variables.
+        let unique = span.start;
+        let has_finally = try_stmt.finalizer.is_some();
+
+        if has_finally {
+            insertions.push_pair(Insertion::pair(span,
+            format!("{{ let __skipFinally_{unique} = false;"), "}"));
+        }
+
+        let handler_body_start: u32;
+        if let Some(handler) = &try_stmt.handler {
+            handler_body_start = handler.body.span.start;
+            let after_catch_token = handler.span.start + ("catch".len() as u32);
+            insertions.push_pair(Insertion::pair(Span::new(after_catch_token, handler.body.span.end),
+            format!("(__err_{unique}) {{"),
+            "}"));
+        } else {
+            insertions.push_back(Insertion::new(try_stmt.block.span.end + 1, format!("catch (__err_{unique})"), false));
+            handler_body_start = try_stmt.block.span.end + 1;
+        }
+
+        // catch ({a, b}) { body } -> catch (_errN) { if (check) throw _errN; let {a, b} = _errN; { body } }
+        insertions.push_back(Insertion::new(handler_body_start,
+            format!("
+        {{
+            if (__err_{unique} && __err_{unique}[__SymbolFor('@@mongosh.uncatchable')]) {{
+                {comment_open_if_not_has_finally}__skipFinally_{unique} = true;{comment_close_if_not_has_finally}
+                    throw __err_{unique};
+            }}
+        }}
+            ", comment_open_if_not_has_finally = if has_finally { "" } else { "/*" },
+            comment_close_if_not_has_finally = if has_finally { "" } else { "*/" }),
+            false));
+
+        if let Some(param) = try_stmt.handler.as_ref().and_then(|h| h.param.as_ref()) {
+            // the 0) oddness is to account for the parentheses in `catch (foo)`
+            insertions.push_pair(Insertion::pair(param.span,
+                "0);let ",
+                format!(" = {DEMANGLE_ERROR_IDENTIFIER}(__err_{unique}")));
+        }
+
+        if has_finally {
+            if let Some(handler) = &try_stmt.handler {
+                insertions.push_pair(Insertion::pair(
+                    handler.body.span,
+                    "try {",
+                    format!("}} catch (__err2_{unique}) {{
+                        __skipFinally_{unique} ||= !!(__err2_{unique} && __err2_{unique}[__SymbolFor('@@mongosh.uncatchable')]);
+                        throw __err2_{unique};
+                    }}")
+                ));
+            }
+
+            insertions.push_pair(Insertion::pair(try_stmt.finalizer.as_ref().unwrap().span(),
+        format!("{{ if (!__skipFinally_{unique}) {{ "),
+    "} }"));
+        }
+
+        return Ok(insertions);
+    }
+
+    // === Handle ForOfStatement for implicit async iteration in async functions ===
+    if let AstKind::ForOfStatement(for_of) = node.kind() {
+        if !for_of.r#await {
+            // Sync-only contexts get _ansp wrapping via regular expression handling.
+            // All other contexts (top-level IIFE, async function, AsyncWrap) get
+            // the for-of expansion.
+            let is_sync_only = matches!(function_parent_kind, Some(FnTransformKind::SyncOnly));
+            if !is_sync_only {
+                let unique = span.start;
+                let right_span = for_of.right.span();
+                let right_source = &source[(right_span.start as usize)..(right_span.end as usize)];
+                let right_source_marker = js_string_literal_for_demangling(right_source);
+                let body_span = for_of.body.span();
+
+                insertions.push_pair(Insertion::pair(
+                    span,
+                    format!("{{
+                    let _ii{u}, _isai{u}, _it{u};
+                    try {{ ", u = unique),
+                    format!(
+                        " }} finally {{ _isai{u} && await _it{u}.syncReturn(); }} }}",
+                        u = unique
+                    ),
+                ));
+                insertions.push_pair(Insertion::pair(
+                    right_span,
+                    format!(
+                        "({src}, (_ii{u} = {adaptor}(",
+                        src = right_source_marker,
+                        u = unique,
+                        adaptor = ADAPT_ASYNC_ITERABLE_TO_SYNC_ITERABLE_TEMPLATE
+                    ),
+                    format!(
+                        // (a, (b, (c, d))) instead of (a, b, c, d) is necessary for error
+                        // message demangling to work
+                        "), (_isai{u} = _ii{u}.isSyntheticAsyncIterable, (_it{u} = _ii{u}.iterable, (_isai{u} && await _it{u}.expectNext(), _it{u})))))",
+                        u = unique
+                    ),
+                ));
+                insertions.push_pair(Insertion::pair(
+                    body_span,
+                    " try { ",
+                    format!(
+                        " }} finally {{ _isai{u} && await _it{u}.expectNext(); }}",
+                        u = unique
+                    ),
+                ));
+            }
+        }
+        return Ok(insertions);
+    }
+
+    // === Handle Statement-level: nothing special for most ===
+
+    // === Expression handling ===
+    let parent_node_type = get_parent_type(node);
+    let mut wrap_expr_span = None;
+    let mut is_named_typeof_rhs = false;
+    let mut is_identifier = false;
+    let mut is_member = false;
+
+    if let Some(expr) = get_identifier_reference(node) {
+        // Shorthands `{ foo }` in object expressions: skip; but the ObjectProperty
+        // node is the parent, and we want to skip when this is the key of a shorthand.
+        if let AstKind::ObjectProperty(prop) = get_parent_kind(node) {
+            if prop.shorthand {
+                return Ok(insertions);
+            }
+        }
+        // Shorthand property of object pattern (destructuring): skip.
+        if matches!(
+            parent_node_type,
+            AstType::BindingProperty | AstType::AssignmentTargetPropertyIdentifier
+        ) {
+            return Ok(insertions);
+        }
+        is_identifier = true;
+        let name = expr.name.as_str();
+        let is_eval_this_super_reference = ["eval", "this", "super"].iter().any(|n| *n == name);
+        if !is_eval_this_super_reference {
+            wrap_expr_span = Some(span);
+        }
+    }
+    if let AstKind::CallExpression(_) = node.kind() {
+        wrap_expr_span = Some(span);
+    }
+    if let AstKind::ChainExpression(_) = node.kind() {
+        if parent_node_type != AstType::CallExpression {
+            wrap_expr_span = Some(span);
+        }
+    }
+    if matches!(
+        node.kind(),
+        AstKind::ComputedMemberExpression(_)
+            | AstKind::StaticMemberExpression(_)
+            | AstKind::PrivateFieldExpression(_)
+    ) {
+        is_member = true;
+        if parent_node_type != AstType::CallExpression {
+            wrap_expr_span = Some(span);
+        }
+    }
+    if let AstKind::TaggedTemplateExpression(_) = node.kind() {
+        wrap_expr_span = Some(span);
+    }
+
+    // Detect typeof on identifiers.
+    if let AstKind::UnaryExpression(unary_parent) = get_parent_kind(node) {
+        if is_identifier && unary_parent.operator == UnaryOperator::Typeof {
+            is_named_typeof_rhs = true;
+        }
+        if unary_parent.operator == UnaryOperator::Delete {
+            wrap_expr_span = None;
+        }
+    }
+
+    // Skip if we're in a no-wrap position.
+    if is_in_assignment_target_position(node, semantic)
+        || parent_node_type == AstType::AwaitExpression
+        || parent_node_type == AstType::YieldExpression
+    {
+        // Yield: we don't wrap directly, but the special case for `yield* iter` is below.
+        if parent_node_type != AstType::YieldExpression {
+            wrap_expr_span = None;
+        } else {
+            // Yield expression: only wrap if it's the argument (and only if it's not a yield*).
+            // Actually we still want to wrap normal yield args for await purposes — wait, we're
+            // inside an async function or sync-only context. For sync-only (generator), we want
+            // to call _ansp with `i=true` if it's a yield*.
+            // For our current logic just leave the wrap as it is.
+        }
+    }
+    // typeof: wrap_expr_span may be still Some (we handled it).
+
+    // Special handling for callee in CallExpression: don't wrap if it's a MemberExpression
+    // (we'd lose `this`), Import, or eval.
+    if parent_node_type == AstType::CallExpression {
+        if let AstKind::CallExpression(call) = get_parent_kind(node) {
+            if call.callee.span() == node.span() {
+                // We're the callee.
+                if is_member {
+                    // Member expression callee - keep as is, just wrap arguments separately.
+                    wrap_expr_span = None;
+                }
+                if let AstKind::IdentifierReference(id) = node.kind() {
+                    if id.name.as_str() == "eval" {
+                        wrap_expr_span = None;
+                    }
+                }
+                if matches!(node.kind(), AstKind::ImportExpression(_)) {
+                    wrap_expr_span = None;
+                }
+            }
+        }
+    }
+
+    // Don't wrap if there's no enclosing function (we're at the top level outside the IIFE).
+    // Actually since everything ends up in the IIFE, we should wrap at the top level too.
+    // The check was previously based on `function_parent.is_some()` but that's misleading.
+    // We always wrap inside our IIFE wrapper.
+
+    // For sync-only contexts: use _ansp instead of `_isp(_ex) ? await _ex : _ex`.
+    let is_sync_only = matches!(function_parent_kind, Some(FnTransformKind::SyncOnly));
+
+    if is_named_typeof_rhs {
+        // typeof needs special handling because `typeof foo` does not decompose
+        // as `typeof` applied to the value of `foo`, but also checks whether the
+        // identifier `foo` exists and in particular does not fail if it does not.
+        // So we transform `typeof foo` into
+        // `(typeof foo === 'undefined' ? 'undefined' : typeof (shouldAwait(foo) ? await foo : foo))`.
+        insertions.push_pair(Insertion::pair(
+            get_parent_kind(node),
+            format!(
+                "(typeof {original} === 'undefined' ? 'undefined' : ",
+                original = get_source(node)
+            ),
+            ")",
+        ));
+    }
+    if let Some(s) = wrap_expr_span {
+        // The core magic: wrap expressions so that if they are special expressions
+        // that should be implicitly awaited, we add code that does so.
+        if is_sync_only {
+            // In a sync-only context, throw an error if the value is a synthetic promise.
+            let original = get_source(node);
+            // Determine if this is a yield* delegate iterable.
+            let is_yield_delegate = if let AstKind::YieldExpression(y) = get_parent_kind(node) {
+                y.delegate
+            } else {
+                false
+            };
+            // Also check ForOf right (iterating value)
+            let is_for_of_right = if let AstKind::ForOfStatement(fs) = get_parent_kind(node) {
+                fs.right.span() == node.span()
+            } else {
+                false
+            };
+            let i_arg = if is_yield_delegate || is_for_of_right {
+                "true"
+            } else {
+                "false"
+            };
+            // For _ansp, use a plain string literal (no \ufeff markers) so the error
+            // message doesn't contain stray markers.
+            let plain_lit = plain_js_string_literal(&limit_string_length(&original, 25));
+            insertions.push_pair(Insertion::pair(
+                s,
+                format!("_ansp("),
+                format!(", {}, {})", plain_lit, i_arg),
+            ));
+        } else {
+            // Use the await pattern with original source marker for error demangling.
+            let original = get_source(node);
+            let src_lit = js_string_literal_for_demangling(&original);
+            insertions.push_pair(Insertion::pair(
+                s,
+                format!("({}, _ex = ", src_lit),
+                formatcp!(", {IS_SYNTHETIC_PROMISE_IDENTIFIER}(_ex) ? await _ex : _ex)"),
+            ));
+        }
+    }
+
+    return Ok(insertions);
+}
+
+fn fail_if_nonempty_oxc_diagnostics(diagnostics: &[OxcDiagnostic]) -> Result<(), String> {
+    if diagnostics.len() == 0 {
+        Ok(())
+    } else {
+        Err(format!(
+            "SyntaxError: {:?}",
+            diagnostics
+                .iter()
+                .map(|e| &e.message)
+                .collect::<Vec<&Cow<'static, str>>>()
+        ))
+    }
+}
+
+/// Async-rewrite the input JS source code `str` and return the rewritten source code.
+#[wasm_bindgen]
+pub fn async_rewrite(input: &str, debug_level: DebugLevel) -> Result<String, String> {
+    let allocator = Allocator::default();
+    let source_type = SourceType::cjs();
+    let parsed = Parser::new(&allocator, &input, source_type)
+        .with_options(ParseOptions {
+            parse_regular_expression: true,
+            allow_return_outside_function: false,
+            ..ParseOptions::default()
+        })
+        .parse();
+    fail_if_nonempty_oxc_diagnostics(&parsed.errors)?;
+    assert!(!parsed.panicked);
+
+    let semantic_ret = SemanticBuilder::new()
+        .with_check_syntax_error(true)
+        .build(allocator.alloc(parsed.program));
+    fail_if_nonempty_oxc_diagnostics(&semantic_ret.errors)?;
+
+    // Detect duplicate top-level let/const/class declarations.
+    // JavaScript normally throws "X has already been declared" for these at parse time,
+    // but our transformation hoists them into `var` declarations which would otherwise
+    // silently accept redeclarations.
+    {
+        let program_node = semantic_ret.semantic.nodes().program();
+        let mut seen_names: std::collections::HashSet<String> = std::collections::HashSet::new();
+        let mut duplicate: Option<String> = None;
+        'outer: for stmt in &program_node.body {
+            use oxc_ast::ast::Statement;
+            match stmt {
+                Statement::VariableDeclaration(vd)
+                    if matches!(
+                        vd.kind,
+                        VariableDeclarationKind::Let | VariableDeclarationKind::Const
+                    ) =>
+                {
+                    for decl in &vd.declarations {
+                        let mut names = Vec::new();
+                        extract_binding_names_impl(&decl.id, &mut names);
+                        for name in names {
+                            if !seen_names.insert(name.clone()) {
+                                duplicate = Some(name);
+                                break 'outer;
+                            }
+                        }
+                    }
+                }
+                Statement::ClassDeclaration(c) => {
+                    if let Some(name) = c.name() {
+                        let n = name.as_str().to_string();
+                        if !seen_names.insert(n.clone()) {
+                            duplicate = Some(n);
+                            break 'outer;
+                        }
+                    }
+                }
+                _ => {}
+            }
+        }
+        if let Some(name) = duplicate {
+            return Err(format!(
+                "SyntaxError: Identifier '{}' has already been declared",
+                name
+            ));
+        }
+    }
+
+    let mut insertions = InsertionList::new();
+    let mut collected_insertions = InsertionList::new();
+    for node in semantic_ret.semantic.nodes() {
+        collected_insertions.append(&mut collect_insertions(
+            node,
+            &semantic_ret.semantic,
+            input,
+            debug_level,
+        )?);
+    }
+    // Deduplicate variables (in case multiple declarations reference the same name).
+    collected_insertions.vars.sort();
+    collected_insertions.vars.dedup();
+    {
+        let vars = &collected_insertions.vars;
+        for var in vars {
+            insertions.push_back(Insertion::new(0, format!("var {};", var), false));
+        }
+    }
+    let end = input.len().try_into().unwrap();
+    let input_span = Span::new(0, end);
+    // Copy all directives, i.e. `'use strict';` and friends, to the outermost scope.
+    for directive in &semantic_ret.semantic.nodes().program().directives {
+        insertions.push_back(Insertion::new(
+            0,
+            format!("\"{}\";", directive.directive.as_str()),
+            false,
+        ));
+    }
+    // Special case: if the program is just a single directive (e.g. just `"use strict"`),
+    // treat it as a string literal expression.
+    let program_node = semantic_ret.semantic.nodes().program();
+    let only_directive = program_node.body.is_empty() && program_node.directives.len() == 1;
+
+    // Wrap the original source in a function so that we can make shared assumptions.
+    insertions.push_pair(Insertion::pair(
+        input_span,
+        ";(() => { const __SymbolFor = Symbol.for;",
+        "})()",
+    ));
+    insertions.push_pair(make_fn_insertions(input_span));
+    // Keep track of the completion record value, and return it from the IIFE.
+    insertions.push_pair(Insertion::pair(
+        input_span,
+        format!("var _cr; {}", HOIST_TARGET),
+        ";\n return (_synchronousReturnValue = _cr, _functionState === 'async' ? _synchronousReturnValue : null);",
+    ));
+    if only_directive {
+        // Emit the directive as a string expression instead.
+        let directive = &program_node.directives[0];
+        let value = directive.expression.value.as_str();
+        let lit = plain_js_string_literal(value);
+        insertions.push_back(Insertion::new(
+            input_span.start,
+            format!("_cr = ({});", lit),
+            false,
+        ));
+    }
+    insertions.append(&mut collected_insertions);
+
+    insertions.sort();
+
+    // Generate the combined string from all insertions.
+    let mut previous_offset = 0;
+    let mut result =
+        String::with_capacity(input.len() + insertions.list.iter().map(|s| s.len()).sum::<usize>());
+    let mut debug_tag = "".to_string();
+    for insertion in insertions.list {
+        if insertion.offset != previous_offset {
+            assert!(insertion.offset >= previous_offset);
+            result.push_str(&input[previous_offset as usize..insertion.offset as usize]);
+            previous_offset = insertion.offset.into();
+        }
+
+        let text = insertion.text.as_ref();
+
+        if debug_level >= DebugLevel::Verbose {
+            debug_tag = format!(
+                "/*i{}@{}{}",
+                insertion.original_ordering.unwrap(),
+                u32::from(insertion.offset).to_string(),
+                if text.contains("/*") { "" } else { "*/" }
+            );
+        }
+        result.push_str(debug_tag.as_str());
+        result.push_str(text);
+        result.push_str(debug_tag.as_str());
+    }
+    result.push_str(&input[previous_offset as usize..]);
+
+    // Post-process: move hoisted function declarations to the HOIST_TARGET position.
+    let result = post_process_hoists(result);
+
+    Ok(result)
+}
+
+/// Find HOIST_FN_START..HOIST_FN_END spans and move them to the HOIST_TARGET position.
+fn post_process_hoists(input: String) -> String {
+    let target_idx = match input.find(HOIST_TARGET) {
+        Some(i) => i,
+        None => return input.replace(HOIST_FN_START, "").replace(HOIST_FN_END, ""),
+    };
+
+    let mut hoisted = String::new();
+    let mut remaining = String::with_capacity(input.len());
+    let mut i = 0;
+    let bytes = input.as_bytes();
+    while i < bytes.len() {
+        // Check for HOIST_FN_START.
+        if input[i..].starts_with(HOIST_FN_START) {
+            let after_start = i + HOIST_FN_START.len();
+            if let Some(end_rel) = input[after_start..].find(HOIST_FN_END) {
+                let end_idx = after_start + end_rel;
+                hoisted.push_str(&input[after_start..end_idx]);
+                hoisted.push('\n');
+                i = end_idx + HOIST_FN_END.len();
+                continue;
+            }
+        }
+        // Copy single byte.
+        let ch_end = next_char_boundary(&input, i);
+        remaining.push_str(&input[i..ch_end]);
+        i = ch_end;
+    }
+
+    // Now insert hoisted at HOIST_TARGET position in `remaining`.
+    let target_idx_in_remaining = remaining.find(HOIST_TARGET).unwrap_or(target_idx);
+    let mut final_result = String::with_capacity(remaining.len() + hoisted.len());
+    final_result.push_str(&remaining[..target_idx_in_remaining]);
+    final_result.push_str(&hoisted);
+    final_result.push_str(&remaining[target_idx_in_remaining + HOIST_TARGET.len()..]);
+    final_result
+}
+
+fn next_char_boundary(s: &str, mut i: usize) -> usize {
+    i += 1;
+    while !s.is_char_boundary(i) && i < s.len() {
+        i += 1;
+    }
+    i
+}
+
+#[no_mangle]
+pub extern "C" fn async_rewrite_c(
+    input: *const u8,
+    input_len: usize,
+    output: *mut *mut i8,
+    output_len: *mut usize,
+    debug_level: u8,
+) -> u8 {
+    let input = unsafe { String::from_utf8_lossy(slice::from_raw_parts(input, input_len)) };
+
+    let result = async_rewrite(
+        input.as_ref(),
+        match debug_level {
+            0 => DebugLevel::None,
+            1 => DebugLevel::TypesOnly,
+            2 => DebugLevel::Verbose,
+            _ => return 1,
+        },
+    );
+    match result {
+        Ok(output_str) => {
+            let output_cstr = std::ffi::CString::new(output_str).unwrap();
+            unsafe {
+                *output_len = output_cstr.as_bytes().len();
+                *output = output_cstr.into_raw();
+            }
+            0
+        }
+        Err(_) => 1,
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn async_rewrite_free_result(result: *mut i8) -> () {
+    if !result.is_null() {
+        unsafe {
+            drop(std::ffi::CString::from_raw(result));
+        }
+    }
+}

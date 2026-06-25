@@ -5,7 +5,10 @@ import {
   ShellResult,
   EvaluationListener,
 } from '@mongosh/shell-api';
-import AsyncWriter from '@mongosh/async-rewriter2';
+import AsyncWriter2 from '@mongosh/async-rewriter2';
+import AsyncWriter3 from '@mongosh/async-rewriter3';
+
+type AsyncWriter = AsyncWriter2 | AsyncWriter3;
 
 type EvaluationFunction = (
   input: string,
@@ -24,14 +27,17 @@ try {
 } catch {
   /* not Node.js */
 }
+
+/*
 if (v8?.startupSnapshot?.isBuildingSnapshot?.()) {
   v8.startupSnapshot.addSerializeCallback(() => {
     // Ensure that any lazy loading performed by Babel is part of the snapshot
-    contextlessEval(new AsyncWriter().runtimeSupportCode());
-    contextlessEval(new AsyncWriter().process('1+1'));
+    contextlessEval(new AsyncWriter2().runtimeSupportCode());
+    contextlessEval(new AsyncWriter2().process('1+1'));
     hasAlreadyRunGlobalRuntimeSupportEval = true;
   });
 }
+*/
 
 type ResultHandler<EvaluationResultType> = (
   value: any
@@ -52,7 +58,10 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
   ) {
     this.instanceState = instanceState;
     this.resultHandler = resultHandler;
-    this.asyncWriter = new AsyncWriter();
+    const AsyncWriterCls = !process.env.MONGOSH_NO_EXPERIMENT_ASYNC_REWRITER3
+      ? AsyncWriter3
+      : AsyncWriter2;
+    this.asyncWriter = new AsyncWriterCls();
     this.hasAppliedAsyncWriterRuntimeSupport = false;
     this.exposeAsyncRewriter = !!exposeAsyncRewriter;
     this.markTime = markTime;
@@ -99,7 +108,7 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
     }
 
     this.markTime?.(TimingCategories.AsyncRewrite, 'start async rewrite');
-    let rewrittenInput = this.asyncWriter.process(input);
+    let rewrittenInput = await this.asyncWriter.process(input);
     this.markTime?.(TimingCategories.AsyncRewrite, 'done async rewrite');
 
     if (!shouldRedactCommand(input) && !shouldRedactCommand(rewrittenInput)) {
@@ -114,7 +123,7 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
         TimingCategories.AsyncRewrite,
         'start runtimeSupportCode processing'
       );
-      const supportCode = this.asyncWriter.runtimeSupportCode();
+      const supportCode = new AsyncWriter2().runtimeSupportCode();
       // Eval twice: We need the modified prototypes to be present in both
       // the evaluation context and the current one, because e.g. the value of
       // db.test.find().toArray() is a Promise for an Array from the context

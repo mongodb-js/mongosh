@@ -152,6 +152,7 @@
     "packages/shell-bson",
     "packages/testing",
     "packages/arg-parser",
+    "packages/async-rewriter3",
     "packages/service-provider-core",
     "packages/service-provider-node-driver",
     "packages/shell-api",

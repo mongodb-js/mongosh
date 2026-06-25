@@ -65,6 +65,10 @@
       "path": "packages/arg-parser"
     },
     {
+      "name": "📦 @mongosh/async-rewriter3",
+      "path": "packages/async-rewriter3"
+    },
+    {
       "name": "📦 @mongosh/service-provider-core",
       "path": "packages/service-provider-core"
     },
