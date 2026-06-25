@@ -45,7 +45,7 @@ import type {
   MongoshAnalytics,
   MongoshAnalyticsIdentity,
 } from './analytics-helpers';
-import type { MongoshTelemetryEvent } from './telemetry-events';
+import type { TelemetryEvent } from './telemetry-events';
 import type { ConnectEventMap } from '@mongodb-js/devtools-connect';
 import { hookLogger } from '@mongodb-js/devtools-connect';
 import { MultiSet, toSnakeCase } from './helpers';
@@ -225,15 +225,15 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       return this.bus;
     };
 
-    const getUserTraits = (): AnalyticsIdentifyMessage['traits'] => ({
-      ...this.userTraits,
-      device_id: typeof this.deviceId === 'string' ? this.deviceId : 'unknown',
-      session_id: this.log.logId,
-    });
-
     const getTrackingProperties = (): MongoshTrackingProperties => ({
       mongosh_version: this.mongoshVersion,
       session_id: this.log.logId,
+      device_id: typeof this.deviceId === 'string' ? this.deviceId : 'unknown',
+    });
+
+    const getUserTraits = (): AnalyticsIdentifyMessage['traits'] => ({
+      ...this.userTraits,
+      ...getTrackingProperties(),
     });
 
     const getTelemetryUserIdentity = (): MongoshAnalyticsIdentity => {
@@ -244,14 +244,14 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       };
     };
 
-    const track = (event: MongoshTelemetryEvent): void => {
+    const track = (event: TelemetryEvent): void => {
       const callback = () =>
         this.analytics.track({
           ...getTelemetryUserIdentity(),
           event: event.name,
           properties: {
             ...getTrackingProperties(),
-            ...(event as { properties?: Record<string, unknown> }).properties,
+            ...(event as { payload?: Record<string, unknown> }).payload,
           },
         });
 
@@ -326,7 +326,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
 
       track({
         name: 'New Connection',
-        properties,
+        payload: properties,
       });
     });
 
@@ -341,7 +341,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       const normalizedTimings = Object.fromEntries(normalizedTimingsArray);
       track({
         name: 'Startup Time',
-        properties: {
+        payload: {
           is_interactive: args.isInteractive,
           js_context: args.jsContext,
           ...normalizedTimings,
@@ -404,7 +404,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       if (error.name.includes('Mongosh')) {
         track({
           name: 'Error',
-          properties: {
+          payload: {
             name: mongoshError.name,
             code: mongoshError.code,
             scope: mongoshError.scope,
@@ -481,7 +481,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
 
       track({
         name: 'Show',
-        properties: {
+        payload: {
           method: args.method,
         },
       });
@@ -526,12 +526,12 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       if (this.busEventState.hasStartedMongoshRepl) {
         track({
           name: 'Script Loaded',
-          properties: { nested: args.nested },
+          payload: { nested: args.nested },
         });
       } else {
         track({
           name: 'Script Loaded CLI',
-          properties: {
+          payload: {
             nested: args.nested,
             shell: this.busEventState.usesShellOption,
           },
@@ -549,7 +549,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
 
       track({
         name: 'Script Evaluated',
-        properties: {
+        payload: {
           shell: this.busEventState.usesShellOption,
         },
       });
@@ -798,7 +798,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
 
         track({
           name: 'Deprecated Method',
-          properties: {
+          payload: {
             ...entry,
           },
         });
@@ -806,7 +806,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       for (const [entry, count] of apiCalls) {
         track({
           name: 'API Call',
-          properties: {
+          payload: {
             ...entry,
             count,
           },

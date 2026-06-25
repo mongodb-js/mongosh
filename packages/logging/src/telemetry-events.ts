@@ -1,25 +1,23 @@
 /**
- * Properties automatically included in every `track()` call.
+ * Properties automatically included in every event.
  */
-export interface MongoshCommonEventProperties {
+export interface CommonEventProperties {
   /** The version of mongosh that emitted the event. */
   mongosh_version: string;
   /** Unique identifier for the current mongosh session. */
   session_id: string;
+  /** A persistent, machine-specific identifier. */
+  device_id: string;
 }
 
 /**
- * Traits sent with an `identify()` call to associate a user profile.
+ * Emitted once per session at startup to associate device and OS traits with the session.
  *
  * @category Identity
  */
-export interface MongoshIdentifyTraits {
+export interface IdentifyTraits {
   /** The OS platform (e.g. `"darwin"`, `"linux"`, `"win32"`). */
   platform: string;
-  /** A persistent, machine-specific identifier. */
-  device_id: string;
-  /** Unique identifier for the current mongosh session. */
-  session_id: string;
 }
 
 /**
@@ -31,7 +29,7 @@ export interface MongoshIdentifyTraits {
  */
 export interface NewConnectionEvent {
   name: 'New Connection';
-  properties: {
+  payload: {
     /** Whether the server is an Atlas deployment. */
     is_atlas?: boolean;
     /** Whether the server is running on localhost. */
@@ -86,13 +84,35 @@ export interface NewConnectionEvent {
  */
 export interface StartupTimeEvent {
   name: 'Startup Time';
-  properties: {
+  payload: {
     /** Whether mongosh was started in interactive (REPL) mode. */
     is_interactive: boolean;
-    /** The JavaScript context used by the shell (e.g. `"repl"`, `"plain-vm"`). */
-    js_context: string;
-    /** Duration in milliseconds for each startup phase; key names are snake_case and vary. */
-    [timingKey: string]: number | boolean | string;
+    /** The JavaScript context used by the shell. */
+    js_context: 'repl' | 'plain-vm';
+    /** Duration in milliseconds spent on REPL setup. */
+    repl_instantiation?: number;
+    /** Duration in milliseconds spent reading user config files. */
+    user_config_loading?: number;
+    /** Duration in milliseconds spent connecting to MongoDB. */
+    driver_setup?: number;
+    /** Duration in milliseconds spent on log file setup. */
+    logging?: number;
+    /** Duration in milliseconds spent loading snippets. */
+    snippet_loading?: number;
+    /** Duration in milliseconds spent on V8 snapshot restore. */
+    snapshot?: number;
+    /** Duration in milliseconds spent loading resource files (e.g. `.mongoshrc.js`). */
+    resource_file_loading?: number;
+    /** Duration in milliseconds spent on async rewriting of user input. */
+    async_rewrite?: number;
+    /** Duration in milliseconds spent evaluating expressions. */
+    eval?: number;
+    /** Duration in milliseconds spent evaluating script files. */
+    eval_file?: number;
+    /** Duration in milliseconds spent on telemetry setup. */
+    telemetry?: number;
+    /** Duration in milliseconds not attributed to any other category. */
+    main?: number;
   };
 }
 
@@ -105,7 +125,7 @@ export interface StartupTimeEvent {
  */
 export interface ErrorEvent {
   name: 'Error';
-  properties: {
+  payload: {
     /** The error class name (e.g. `"MongoshInvalidInputError"`). */
     name: string;
     /** The mongosh error code. */
@@ -137,7 +157,7 @@ export interface UseEvent {
  */
 export interface ShowEvent {
   name: 'Show';
-  properties: {
+  payload: {
     /** The `show` sub-command that was invoked (e.g. `"dbs"`, `"collections"`). */
     method: string;
   };
@@ -152,7 +172,7 @@ export interface ShowEvent {
  */
 export interface ScriptLoadedEvent {
   name: 'Script Loaded';
-  properties: {
+  payload: {
     /** Whether the script was loaded as a nested `load()` call from within another script. */
     nested: boolean;
   };
@@ -167,7 +187,7 @@ export interface ScriptLoadedEvent {
  */
 export interface ScriptLoadedCliEvent {
   name: 'Script Loaded CLI';
-  properties: {
+  payload: {
     /** Whether the script was loaded as a nested `load()` call from within another script. */
     nested: boolean;
     /** Whether mongosh was invoked with the `--shell` flag. */
@@ -184,7 +204,7 @@ export interface ScriptLoadedCliEvent {
  */
 export interface ScriptEvaluatedEvent {
   name: 'Script Evaluated';
-  properties: {
+  payload: {
     /** Whether mongosh was invoked with the `--shell` flag. */
     shell: boolean;
   };
@@ -232,7 +252,7 @@ export interface SnippetInstallEvent {
  */
 export interface ApiCallEvent {
   name: 'API Call';
-  properties: {
+  payload: {
     /** The shell API class name (e.g. `"Collection"`, `"Database"`). */
     class: string;
     /** The method name (e.g. `"find"`, `"insertOne"`). */
@@ -251,7 +271,7 @@ export interface ApiCallEvent {
  */
 export interface DeprecatedMethodEvent {
   name: 'Deprecated Method';
-  properties: {
+  payload: {
     /** The shell API class that contains the deprecated method. */
     class: string;
     /** The deprecated method name. */
@@ -262,7 +282,7 @@ export interface DeprecatedMethodEvent {
 /**
  * Union of all analytics events tracked by mongosh.
  */
-export type MongoshTelemetryEvent =
+export type TelemetryEvent =
   | NewConnectionEvent
   | StartupTimeEvent
   | ErrorEvent

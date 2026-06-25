@@ -1,29 +1,15 @@
 # mongosh Tracking Plan
 
-> Auto-generated on 2026-06-05. Do not edit manually.
+> Auto-generated on 2026-06-25. Do not edit manually.
 > Run `npm run generate-tracking-plan` to regenerate from source.
-
-## Common Properties
-
-Properties automatically included in every `track()` call.
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `mongosh_version` | `string` | Yes | The version of mongosh that emitted the event. |
-| `session_id` | `string` | Yes | Unique identifier for the current mongosh session. |
-
-## Identity
-
-Traits sent with an `identify()` call to associate a user profile.
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `platform` | `string` | Yes | The OS platform (e.g. `"darwin"`, `"linux"`, `"win32"`). |
-| `device_id` | `string` | Yes | A persistent, machine-specific identifier. |
-| `session_id` | `string` | Yes | Unique identifier for the current mongosh session. |
 
 ## Table of Contents
 
+- [Common Properties](#common-properties)
+- [Identity](#identity)
+- [API](#api)
+  - [API Call](#api-call)
+  - [Deprecated Method](#deprecated-method)
 - [Connection](#connection)
   - [New Connection](#new-connection)
   - [Startup Time](#startup-time)
@@ -39,9 +25,51 @@ Traits sent with an `identify()` call to associate a user profile.
   - [Mongorc Warning](#mongorc-warning)
 - [Snippets](#snippets)
   - [Snippet Install](#snippet-install)
-- [API](#api)
-  - [API Call](#api-call)
-  - [Deprecated Method](#deprecated-method)
+
+## Common Properties
+
+Properties automatically included in every event.
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `mongosh_version` | `string` | Yes | The version of mongosh that emitted the event. |
+| `session_id` | `string` | Yes | Unique identifier for the current mongosh session. |
+| `device_id` | `string` | Yes | A persistent, machine-specific identifier. |
+
+## Identity
+
+Emitted once per session at startup to associate device and OS traits with the session.
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `platform` | `string` | Yes | The OS platform (e.g. `"darwin"`, `"linux"`, `"win32"`). |
+
+
+## API
+
+### API Call
+
+Emitted once per top-level user evaluation for each distinct async API method called.
+
+Fired on bus event: `mongosh:evaluate-finished`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `class` | `string` | Yes | The shell API class name (e.g. `"Collection"`, `"Database"`). |
+| `method` | `string` | Yes | The method name (e.g. `"find"`, `"insertOne"`). |
+| `count` | `number` | Yes | The number of times this method was called during the current evaluation. |
+
+### Deprecated Method
+
+Emitted when a deprecated shell API method is called.
+
+Fired on bus event: `mongosh:evaluate-finished`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `class` | `string` | Yes | The shell API class that contains the deprecated method. |
+| `method` | `string` | Yes | The deprecated method name. |
+
 
 ## Connection
 
@@ -84,8 +112,19 @@ Fired on bus event: `mongosh:start-session`
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `is_interactive` | `boolean` | Yes | Whether mongosh was started in interactive (REPL) mode. |
-| `js_context` | `string` | Yes | The JavaScript context used by the shell (e.g. `"repl"`, `"plain-vm"`). |
-| `[key: string]` | `string \| number \| boolean` | No |  |
+| `js_context` | `"repl" \| "plain-vm"` | Yes | The JavaScript context used by the shell. |
+| `repl_instantiation` | `number \| undefined` | No | Duration in milliseconds spent on REPL setup. |
+| `user_config_loading` | `number \| undefined` | No | Duration in milliseconds spent reading user config files. |
+| `driver_setup` | `number \| undefined` | No | Duration in milliseconds spent connecting to MongoDB. |
+| `logging` | `number \| undefined` | No | Duration in milliseconds spent on log file setup. |
+| `snippet_loading` | `number \| undefined` | No | Duration in milliseconds spent loading snippets. |
+| `snapshot` | `number \| undefined` | No | Duration in milliseconds spent on V8 snapshot restore. |
+| `resource_file_loading` | `number \| undefined` | No | Duration in milliseconds spent loading resource files (e.g. `.mongoshrc.js`). |
+| `async_rewrite` | `number \| undefined` | No | Duration in milliseconds spent on async rewriting of user input. |
+| `eval` | `number \| undefined` | No | Duration in milliseconds spent evaluating expressions. |
+| `eval_file` | `number \| undefined` | No | Duration in milliseconds spent evaluating script files. |
+| `telemetry` | `number \| undefined` | No | Duration in milliseconds spent on telemetry setup. |
+| `main` | `number \| undefined` | No | Duration in milliseconds not attributed to any other category. |
 
 
 ## Errors
@@ -181,30 +220,4 @@ Emitted when a snippet is installed via the `snippet install` command.
 Fired on bus event: `mongosh-snippets:snippet-command` (only for `install` sub-commands)
 
 _No additional properties._
-
-
-## API
-
-### API Call
-
-Emitted once per top-level user evaluation for each distinct async API method called.
-
-Fired on bus event: `mongosh:evaluate-finished`
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `class` | `string` | Yes | The shell API class name (e.g. `"Collection"`, `"Database"`). |
-| `method` | `string` | Yes | The method name (e.g. `"find"`, `"insertOne"`). |
-| `count` | `number` | Yes | The number of times this method was called during the current evaluation. |
-
-### Deprecated Method
-
-Emitted when a deprecated shell API method is called.
-
-Fired on bus event: `mongosh:evaluate-finished`
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `class` | `string` | Yes | The shell API class that contains the deprecated method. |
-| `method` | `string` | Yes | The deprecated method name. |
 
