@@ -110,5 +110,53 @@ describe('ErrorOutput', function () {
     at Object.runInThisContext (vm.js:303:10)
     at ...`);
     });
+
+    it('renders violations when expanded', function () {
+      const error = new Error('Validation failed.') as any;
+      error.violations = [{ namespace: 'db.coll', properties: ['x', 'y'] }];
+
+      const wrapper = mount(<ErrorOutput value={error} />);
+      wrapper.find('svg').simulate('click');
+
+      expect(wrapper.text()).to.contain('Violations:');
+      expect(wrapper.text()).to.contain('namespace');
+      expect(wrapper.text()).to.contain('db.coll');
+      expect(wrapper.text()).to.contain("'x'");
+    });
+
+    it('renders writeErrors when expanded', function () {
+      const error = new Error('Bulk write failed.') as any;
+      error.writeErrors = [{ index: 0, code: 11000, errmsg: 'duplicate key' }];
+
+      const wrapper = mount(<ErrorOutput value={error} />);
+      wrapper.find('svg').simulate('click');
+
+      expect(wrapper.text()).to.contain('Write Errors:');
+      expect(wrapper.text()).to.contain('11000');
+      expect(wrapper.text()).to.contain('duplicate key');
+    });
+
+    it('renders cause when expanded - Error cause', function () {
+      const cause = new Error('Underlying failure.');
+      const error = new Error('Wrapper failure.', { cause });
+
+      const wrapper = mount(<ErrorOutput value={error} />);
+      wrapper.find('svg').first().simulate('click');
+
+      expect(wrapper.text()).to.contain('Caused by:');
+      expect(wrapper.text()).to.contain('Underlying failure.');
+    });
+
+    it('renders cause when expanded - non-Error cause', function () {
+      const error = new Error('Wrapper failure.') as any;
+      error.cause = { reason: 'something broke' };
+
+      const wrapper = mount(<ErrorOutput value={error} />);
+      wrapper.find('svg').simulate('click');
+
+      expect(wrapper.text()).to.contain('Caused by:');
+      expect(wrapper.text()).to.contain('reason');
+      expect(wrapper.text()).to.contain('something broke');
+    });
   });
 });

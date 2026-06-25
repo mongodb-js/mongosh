@@ -64,7 +64,7 @@
     "@mongosh/node-runtime-worker-thread": "5.2.7",
     "@mongosh/service-provider-core": "5.0.4",
     "@mongosh/shell-bson": "3.0.4",
-    "bson": "^7.2.0",
+    "bson": "^7.3.0",
     "numeral": "^2.0.6",
     "text-table": "^0.2.0"
   },
@@ -101,7 +101,7 @@
     "karma-typescript": "^5.5.4",
     "karma-webpack": "^5.0.0",
     "lodash": "^4.18.1",
-    "mongodb": "^7.1.0",
+    "mongodb": "^7.3.0",
     "path-browserify": "^1.0.1",
     "prettier": "^2.8.8",
     "prop-types": "^15.7.2",

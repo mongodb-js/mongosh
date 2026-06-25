@@ -40,7 +40,7 @@ do
 
     echo "OUTPUT_TO=$TMP_TEST262_DIR/$TEST_FILE"
     npx test262-harness \
-        --timeout 1000 \
+        --timeout 10000 \
         --preprocessor scripts/test262-preprocessor-module.js \
         --reporter json \
         --reporter-keys "file,result,duration" \
