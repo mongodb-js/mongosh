@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/logging",
-  "version": "5.0.6",
+  "version": "5.0.8",
   "description": "MongoDB Shell Logging Utilities Package",
   "homepage": "https://github.com/mongodb-js/mongosh",
   "license": "Apache-2.0",
@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@mongodb-js/devtools-connect": "^3.14.9",
-    "@mongosh/types": "^5.0.3",
+    "@mongosh/types": "^5.0.5",
     "mongodb-log-writer": "^2.5.6",
     "mongodb-redact": "^1.4.6"
   },
