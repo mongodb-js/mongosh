@@ -52,7 +52,6 @@ describe('analytics helpers', function () {
         properties: {
           mongosh_version: '1.2.3',
           session_id: 'abc',
-          device_id: 'test-device-id',
         },
         timestamp,
       });
@@ -67,7 +66,6 @@ describe('analytics helpers', function () {
         properties: {
           mongosh_version: '1.2.3',
           session_id: 'abc',
-          device_id: 'test-device-id',
         },
         timestamp,
       });
@@ -80,7 +78,6 @@ describe('analytics helpers', function () {
         properties: {
           mongosh_version: '1.2.3',
           session_id: 'abc',
-          device_id: 'test-device-id',
         },
         timestamp,
       });
@@ -111,7 +108,6 @@ describe('analytics helpers', function () {
             properties: {
               mongosh_version: '1.2.3',
               session_id: 'abc',
-              device_id: 'test-device-id',
             },
             timestamp,
           },
@@ -124,7 +120,6 @@ describe('analytics helpers', function () {
             properties: {
               mongosh_version: '1.2.3',
               session_id: 'abc',
-              device_id: 'test-device-id',
             },
             timestamp,
           },
@@ -165,7 +160,6 @@ describe('analytics helpers', function () {
       properties: {
         mongosh_version: '1.2.3',
         session_id: 'abc',
-        device_id: 'test-device-id',
       },
     };
     const t2Evt = {
@@ -174,7 +168,6 @@ describe('analytics helpers', function () {
       properties: {
         mongosh_version: '1.2.3',
         session_id: 'abc',
-        device_id: 'test-device-id',
       },
     };
 
@@ -308,7 +301,6 @@ describe('analytics helpers', function () {
       properties: {
         mongosh_version: '1.2.3',
         session_id: 'abc',
-        device_id: 'test-device-id',
       },
     };
 

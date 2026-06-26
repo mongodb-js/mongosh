@@ -228,12 +228,12 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
     const getTrackingProperties = (): MongoshTrackingProperties => ({
       mongosh_version: this.mongoshVersion,
       session_id: this.log.logId,
-      device_id: typeof this.deviceId === 'string' ? this.deviceId : 'unknown',
     });
 
     const getUserTraits = (): AnalyticsIdentifyMessage['traits'] => ({
       ...this.userTraits,
       ...getTrackingProperties(),
+      device_id: typeof this.deviceId === 'string' ? this.deviceId : 'unknown',
     });
 
     const getTelemetryUserIdentity = (): MongoshAnalyticsIdentity => {

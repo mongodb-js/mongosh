@@ -6,8 +6,6 @@ export interface CommonEventProperties {
   mongosh_version: string;
   /** Unique identifier for the current mongosh session. */
   session_id: string;
-  /** A persistent, machine-specific identifier. */
-  device_id: string;
 }
 
 /**
@@ -18,6 +16,8 @@ export interface CommonEventProperties {
 export interface IdentifyTraits {
   /** The OS platform (e.g. `"darwin"`, `"linux"`, `"win32"`). */
   platform: string;
+  /** A persistent, machine-specific identifier. */
+  device_id: string;
 }
 
 /**
