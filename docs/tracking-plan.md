@@ -1,6 +1,6 @@
 # mongosh Tracking Plan
 
-> Auto-generated on 2026-06-25. Do not edit manually.
+> Auto-generated on 2026-06-26. Do not edit manually.
 > Run `npm run generate-tracking-plan` to regenerate from source.
 
 ## Table of Contents
@@ -34,7 +34,6 @@ Properties automatically included in every event.
 |----------|------|----------|-------------|
 | `mongosh_version` | `string` | Yes | The version of mongosh that emitted the event. |
 | `session_id` | `string` | Yes | Unique identifier for the current mongosh session. |
-| `device_id` | `string` | Yes | A persistent, machine-specific identifier. |
 
 ## Identity
 
@@ -43,6 +42,7 @@ Emitted once per session at startup to associate device and OS traits with the s
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `platform` | `string` | Yes | The OS platform (e.g. `"darwin"`, `"linux"`, `"win32"`). |
+| `device_id` | `string` | Yes | A persistent, machine-specific identifier. |
 
 
 ## API
