@@ -11,7 +11,6 @@ import { NodeDriverServiceProvider } from '@mongosh/service-provider-node-driver
 import type { CliOptions, DevtoolsConnectOptions } from '@mongosh/arg-parser';
 import { SnippetManager } from '@mongosh/snippet-manager';
 import { Editor } from '@mongosh/editor';
-import type { Analytics as SegmentAnalytics } from '@segment/analytics-node';
 import askpassword from 'askpassword';
 import { EventEmitter, once } from 'events';
 import yaml from 'js-yaml';
@@ -33,8 +32,8 @@ import type { MongoshLoggingAndTelemetry } from '@mongosh/logging';
 import { setupLoggingAndTelemetry } from '@mongosh/logging';
 import {
   ToggleableAnalytics,
-  ThrottledAnalytics,
-  SampledAnalytics,
+  TelemetryClient,
+  getAiAgent,
 } from '@mongosh/logging';
 import type { MongoshBus } from '@mongosh/types';
 import {
@@ -44,7 +43,8 @@ import {
 } from '@mongosh/types';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { getOsInfo, type OsInfo } from './get-os-info';
+import { getOsInfo } from '@mongodb-js/get-os-info';
+type OsInfo = Awaited<ReturnType<typeof getOsInfo>>;
 import { UpdateNotificationManager } from './update-notification-manager';
 import { getTimingData, markTime, summariseTimingData } from './startup-timing';
 import type { IdPInfo } from 'mongodb';
@@ -66,16 +66,11 @@ import { getDeviceIdForMongosh } from './device-id';
  */
 const CONNECTING = 'cli-repl.cli-repl.connecting';
 
-/**
- * The set of options for Segment analytics support.
- */
 type AnalyticsOptions = {
-  /** The hostname of the HTTP endpoint for Segment. */
-  host?: string;
-  /** The Segment API key. */
-  apiKey?: string;
   /** Whether to enable telemetry even if we are running in CI. */
   alwaysEnable?: boolean;
+  /** Override the telemetry endpoint URL (for testing). */
+  telemetryEndpoint?: string;
 };
 
 /**
@@ -132,7 +127,6 @@ export class CliRepl implements MongoshIOProvider {
   output: Writable;
   promptOutput: Writable;
   analyticsOptions?: AnalyticsOptions;
-  segmentAnalytics?: SegmentAnalytics;
   toggleableAnalytics: ToggleableAnalytics = new ToggleableAnalytics();
   warnedAboutInaccessibleFiles = false;
   onExit: (code?: number) => Promise<never>;
@@ -312,7 +306,9 @@ export class CliRepl implements MongoshIOProvider {
   get forceDisableTelemetry(): boolean {
     return (
       this.globalConfig?.forceDisableTelemetry ||
-      (this.isContainerizedEnvironment && !this.mongoshRepl.isInteractive) ||
+      (this.isContainerizedEnvironment &&
+        !this.mongoshRepl.isInteractive &&
+        !getAiAgent()) ||
       !!process.env.MONGOSH_FORCE_DISABLE_TELEMETRY_FOR_TESTING
     );
   }
@@ -456,7 +452,7 @@ export class CliRepl implements MongoshIOProvider {
 
     let analyticsSetupError: Error | null = null;
     try {
-      await this.setupAnalytics();
+      this.setupAnalytics();
     } catch (err: unknown) {
       // Need to delay emitting the error on the bus so that logging is in place
       // as well
@@ -719,41 +715,15 @@ export class CliRepl implements MongoshIOProvider {
     }
   }
 
-  async setupAnalytics(): Promise<void> {
+  setupAnalytics(): void {
     if (
       process.env.IS_MONGOSH_EVERGREEN_CI &&
       !this.analyticsOptions?.alwaysEnable
     ) {
       throw new Error('no analytics setup for the mongosh CI environment');
     }
-    // build-info.json is created as a part of the release process
-    const apiKey =
-      this.analyticsOptions?.apiKey ??
-      (await buildInfo({ withSegmentApiKey: true })).segmentApiKey;
-    if (!apiKey) {
-      throw new Error('no analytics API key defined');
-    }
-    // 'http' is not supported in startup snapshots yet.
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { Analytics } = require('@segment/analytics-node');
-    this.segmentAnalytics = new Analytics({
-      writeKey: apiKey,
-      maxRetries: 0,
-      httpRequestTimeout: 1000,
-      ...this.analyticsOptions,
-    });
     this.toggleableAnalytics = new ToggleableAnalytics(
-      new SampledAnalytics({
-        target: new ThrottledAnalytics({
-          target: this.segmentAnalytics,
-          throttle: {
-            rate: 30,
-            metadataPath: this.shellHomeDirectory.paths.shellLocalDataPath,
-          },
-        }),
-        sampling: () =>
-          !!process.env.MONGOSH_ANALYTICS_SAMPLE || Math.random() <= 0.01,
-      })
+      new TelemetryClient(this.analyticsOptions?.telemetryEndpoint)
     );
   }
 

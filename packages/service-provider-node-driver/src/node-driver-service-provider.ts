@@ -543,12 +543,18 @@ export class NodeDriverServiceProvider
       serverName,
     });
 
+    const autoEncryption = this.currentClientOptions?.autoEncryption;
     return {
       buildInfo,
       resolvedHostname,
       extraInfo: {
         ...extraConnectionInfo,
         fcv: fcv?.featureCompatibilityVersion?.version,
+        topology_type: this._lastSeenTopology?.type,
+        is_csfle: !!autoEncryption,
+        has_csfle_schema: !!(
+          autoEncryption?.schemaMap || autoEncryption?.encryptedFieldsMap
+        ),
       },
     };
   }

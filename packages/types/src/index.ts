@@ -66,6 +66,11 @@ export interface ConnectEvent {
   uri?: string;
   is_local_atlas?: boolean;
   is_atlas_url?: boolean;
+  is_srv?: boolean;
+  topology_type?: string;
+  is_csfle?: boolean;
+  has_csfle_schema?: boolean;
+  connection_id?: string;
 }
 
 export interface ScriptLoadFileEvent {

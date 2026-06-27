@@ -9,10 +9,67 @@ import {
   ThrottledAnalytics,
   SampledAnalytics,
 } from './analytics-helpers';
+import type { IdentifyEvent, NewConnectionEvent } from './telemetry-events';
 
 const wait = promisify(setTimeout);
 
-const timestamp = new Date();
+const sessionId = 's-test-session';
+
+const iEvt: IdentifyEvent = {
+  name: 'Identify',
+  anonymousId: 'u-test',
+  session_id: sessionId,
+  mongosh_version: '1.2.3',
+  ai_agent: undefined,
+  platform: 'linux',
+  arch: 'x64',
+  is_containerized: false,
+  os_type: undefined,
+  os_version: undefined,
+  os_arch: undefined,
+  os_release: undefined,
+  os_linux_dist: undefined,
+  os_linux_release: undefined,
+  os_darwin_product_name: undefined,
+  os_darwin_product_version: undefined,
+  os_darwin_product_build_version: undefined,
+  device_id: 'test-device-id',
+};
+
+const tEvt: NewConnectionEvent = {
+  name: 'New Connection',
+  session_id: sessionId,
+  mongosh_version: '1.2.3',
+  ai_agent: undefined,
+  payload: {
+    is_atlas: false,
+    is_atlas_url: undefined,
+    is_local_atlas: false,
+    is_localhost: true,
+    is_do_url: undefined,
+    is_enterprise: undefined,
+    is_genuine: true,
+    is_data_federation: undefined,
+    is_stream: undefined,
+    atlas_hostname: null,
+    server_version: '7.0.0',
+    server_os: undefined,
+    server_arch: undefined,
+    non_genuine_server_name: '',
+    auth_type: undefined,
+    api_version: undefined,
+    api_strict: undefined,
+    api_deprecation_errors: undefined,
+    dl_version: undefined,
+    atlas_version: undefined,
+    node_version: undefined,
+  },
+};
+
+const t2Evt: NewConnectionEvent = {
+  ...tEvt,
+  payload: { ...tEvt.payload, is_localhost: false },
+};
 
 describe('analytics helpers', function () {
   let events: any[];
@@ -21,11 +78,8 @@ describe('analytics helpers', function () {
   beforeEach(function () {
     events = [];
     target = {
-      identify(info: any) {
-        events.push(['identify', info]);
-      },
-      track(info: any) {
-        events.push(['track', info]);
+      track(event: any) {
+        events.push(['track', event]);
       },
       async flush() {
         return Promise.resolve();
@@ -38,49 +92,18 @@ describe('analytics helpers', function () {
       const toggleable = new ToggleableAnalytics(target);
       expect(events).to.have.lengthOf(0);
 
-      toggleable.identify({
-        userId: 'me',
-        traits: {
-          platform: '1234',
-          device_id: 'test-device-id',
-        },
-        timestamp,
-      });
-      toggleable.track({
-        userId: 'me',
-        event: 'something',
-        properties: {
-          mongosh_version: '1.2.3',
-          session_id: 'abc',
-        },
-        timestamp,
-      });
+      toggleable.track(iEvt);
+      toggleable.track(tEvt);
       expect(events).to.have.lengthOf(0);
 
       toggleable.enable();
       expect(events).to.have.lengthOf(2);
 
-      toggleable.track({
-        userId: 'me',
-        event: 'something2',
-        properties: {
-          mongosh_version: '1.2.3',
-          session_id: 'abc',
-        },
-        timestamp,
-      });
+      toggleable.track(t2Evt);
       expect(events).to.have.lengthOf(3);
 
       toggleable.pause();
-      toggleable.track({
-        userId: 'me',
-        event: 'something3',
-        properties: {
-          mongosh_version: '1.2.3',
-          session_id: 'abc',
-        },
-        timestamp,
-      });
+      toggleable.track(tEvt);
       expect(events).to.have.lengthOf(3);
 
       toggleable.disable();
@@ -88,88 +111,24 @@ describe('analytics helpers', function () {
       toggleable.enable();
 
       expect(events).to.deep.equal([
-        [
-          'identify',
-          {
-            userId: 'me',
-            traits: {
-              platform: '1234',
-              session_id: 'abc',
-              device_id: 'test-device-id',
-            },
-            timestamp,
-          },
-        ],
-        [
-          'track',
-          {
-            userId: 'me',
-            event: 'something',
-            properties: {
-              mongosh_version: '1.2.3',
-              session_id: 'abc',
-            },
-            timestamp,
-          },
-        ],
-        [
-          'track',
-          {
-            userId: 'me',
-            event: 'something2',
-            properties: {
-              mongosh_version: '1.2.3',
-              session_id: 'abc',
-            },
-            timestamp,
-          },
-        ],
+        ['track', iEvt],
+        ['track', tEvt],
+        ['track', t2Evt],
       ]);
-    });
-
-    it('emits an error for invalid messages if telemetry is enabled', function () {
-      const toggleable = new ToggleableAnalytics(target);
-
-      toggleable.identify({} as any);
-      expect(() => toggleable.enable()).to.throw(
-        'Telemetry setup is missing userId or anonymousId'
-      );
-
-      toggleable.disable();
-      expect(() => toggleable.enable()).to.not.throw();
-      expect(() => toggleable.track({} as any)).to.throw(
-        'Telemetry setup is missing userId or anonymousId'
-      );
     });
   });
 
   describe('ThrottledAnalytics', function () {
     const metadataPath = os.tmpdir();
     const userId = 'u-' + Date.now();
-    const iEvt = {
-      userId,
-      traits: {
-        platform: 'what',
-        session_id: 'abc',
-        device_id: 'test-device-id',
-      },
+
+    const throttledIEvt: IdentifyEvent = {
+      ...iEvt,
+      anonymousId: userId,
+      session_id: userId,
     };
-    const tEvt = {
-      userId,
-      event: 'hi',
-      properties: {
-        mongosh_version: '1.2.3',
-        session_id: 'abc',
-      },
-    };
-    const t2Evt = {
-      userId,
-      event: 'bye',
-      properties: {
-        mongosh_version: '1.2.3',
-        session_id: 'abc',
-      },
-    };
+    const throttledTEvt: NewConnectionEvent = { ...tEvt, session_id: userId };
+    const throttledT2Evt: NewConnectionEvent = { ...t2Evt, session_id: userId };
 
     afterEach(async function () {
       try {
@@ -183,11 +142,11 @@ describe('analytics helpers', function () {
 
     it('should not throttle events by default', async function () {
       const analytics = new ThrottledAnalytics({ target });
-      analytics.identify(iEvt);
-      analytics.track(tEvt);
-      analytics.track(tEvt);
-      analytics.track(tEvt);
-      analytics.track(tEvt);
+      analytics.track(throttledIEvt);
+      analytics.track(throttledTEvt);
+      analytics.track(throttledTEvt);
+      analytics.track(throttledTEvt);
+      analytics.track(throttledTEvt);
       await analytics.flush();
       expect(events).to.have.lengthOf(5);
     });
@@ -197,9 +156,9 @@ describe('analytics helpers', function () {
         target,
         throttle: { rate: 5, metadataPath },
       });
-      analytics.identify(iEvt);
+      analytics.track(throttledIEvt);
       for (let i = 0; i < 100; i++) {
-        analytics.track(tEvt);
+        analytics.track(throttledTEvt);
       }
       await analytics.flush();
       expect(events).to.have.lengthOf(5);
@@ -210,66 +169,64 @@ describe('analytics helpers', function () {
         target,
         throttle: { rate: 5, metadataPath, timeframe: 200 },
       });
-      analytics.identify(iEvt);
+      analytics.track(throttledIEvt);
       for (let i = 0; i < 100; i++) {
-        analytics.track(tEvt);
+        analytics.track(throttledTEvt);
       }
       // More than 200 to make sure we are outside of the previous frame
       await wait(300);
       for (let i = 0; i < 100; i++) {
-        analytics.track(tEvt);
+        analytics.track(throttledTEvt);
       }
       await analytics.flush();
       expect(events).to.have.lengthOf(10);
     });
 
     it('should persist throttled state and throttle across sessions', async function () {
-      const metadataPath = os.tmpdir();
-
       // first "session"
       const a1 = new ThrottledAnalytics({
         target,
         throttle: { rate: 5, metadataPath },
       });
-      a1.identify(iEvt);
-      a1.track(tEvt);
-      a1.track(tEvt);
+      a1.track(throttledIEvt);
+      a1.track(throttledTEvt);
+      a1.track(throttledTEvt);
       await a1.flush();
       expect(events).to.have.lengthOf(3);
 
-      // second "session"
+      // second "session" — uses a different session_id so no lock conflict
+      const sid2 = userId + '-2';
       const a2 = new ThrottledAnalytics({
         target,
         throttle: { rate: 5, metadataPath },
       });
-      a2.identify(iEvt);
+      a2.track({ ...throttledIEvt, session_id: sid2 });
       for (let i = 0; i < 100; i++) {
-        a2.track(tEvt);
+        a2.track({ ...throttledTEvt, session_id: sid2 });
       }
       await a2.flush();
+      // a1 used 3, a2 gets 2 more to reach rate=5
       expect(events).to.have.lengthOf(5);
     });
 
     it('should only allow one analytics instance to send events', async function () {
-      // first "session"
       const a1 = new ThrottledAnalytics({
         target,
         throttle: { rate: 5, metadataPath },
       });
-      // second "session"
       const a2 = new ThrottledAnalytics({
         target,
         throttle: { rate: 5, metadataPath },
       });
 
-      a1.identify(iEvt);
-      a2.identify(iEvt);
-      a1.track(tEvt);
-      a2.track(t2Evt);
-      a1.track(tEvt);
-      a2.track(t2Evt);
-      a1.track(tEvt);
-      a2.track(t2Evt);
+      a1.track(throttledIEvt);
+      a2.track(throttledIEvt);
+      a1.track(throttledTEvt);
+      a2.track(throttledT2Evt);
+      a1.track(throttledTEvt);
+      a2.track(throttledT2Evt);
+      a1.track(throttledTEvt);
+      a2.track(throttledT2Evt);
 
       await a1.flush();
       await a2.flush();
@@ -277,33 +234,14 @@ describe('analytics helpers', function () {
       expect(events).to.have.lengthOf(4);
       expect(
         events
-          .filter((e) => e[0] === 'track')
-          .map((e) => e[1].event)
+          .filter((e) => e[0] === 'track' && e[1].name === 'New Connection')
+          .map((e) => e[1].payload.is_localhost)
           .join(',')
-        // can't be fully sure which instance 'won' the lock because fs operations are inherently subject to race conditions
-      ).to.match(/^(hi,hi,hi|bye,bye,bye)$/);
+      ).to.match(/^(true,true,true|false,false,false)$/);
     });
   });
 
   describe('SampledAnalytics', function () {
-    const userId = `u-${Date.now()}`;
-    const iEvt = {
-      userId,
-      traits: {
-        platform: 'what',
-        session_id: 'abc',
-        device_id: 'test-device-id',
-      },
-    };
-    const tEvt = {
-      userId,
-      event: 'hi',
-      properties: {
-        mongosh_version: '1.2.3',
-        session_id: 'abc',
-      },
-    };
-
     it('should send the event forward when sampled', function () {
       const analytics = new SampledAnalytics({
         target,
@@ -312,7 +250,7 @@ describe('analytics helpers', function () {
 
       expect(analytics.enabled).to.be.true;
 
-      analytics.identify(iEvt);
+      analytics.track(iEvt);
       analytics.track(tEvt);
 
       expect(events.length).to.equal(2);
@@ -326,7 +264,7 @@ describe('analytics helpers', function () {
 
       expect(analytics.enabled).to.be.false;
 
-      analytics.identify(iEvt);
+      analytics.track(iEvt);
       analytics.track(tEvt);
 
       expect(events.length).to.equal(0);
