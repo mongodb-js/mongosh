@@ -1,12 +1,11 @@
 # mongosh Tracking Plan
 
-> Auto-generated on 2026-06-26. Do not edit manually.
+> Auto-generated on 2026-06-27. Do not edit manually.
 > Run `npm run generate-tracking-plan` to regenerate from source.
 
 ## Table of Contents
 
 - [Common Properties](#common-properties)
-- [Identity](#identity)
 - [API](#api)
   - [API Call](#api-call)
   - [Deprecated Method](#deprecated-method)
@@ -15,6 +14,8 @@
   - [Startup Time](#startup-time)
 - [Errors](#errors)
   - [Error](#error)
+- [Identity](#identity)
+  - [Identify](#identify)
 - [Shell](#shell)
   - [Use](#use)
   - [Show](#show)
@@ -34,15 +35,6 @@ Properties automatically included in every event.
 |----------|------|----------|-------------|
 | `mongosh_version` | `string` | Yes | The version of mongosh that emitted the event. |
 | `session_id` | `string` | Yes | Unique identifier for the current mongosh session. |
-
-## Identity
-
-Emitted once per session at startup to associate device and OS traits with the session.
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `platform` | `string` | Yes | The OS platform (e.g. `"darwin"`, `"linux"`, `"win32"`). |
-| `device_id` | `string` | Yes | A persistent, machine-specific identifier. |
 
 
 ## API
@@ -141,6 +133,18 @@ Fired on bus event: `mongosh:error` (only for errors whose `name` includes `"Mon
 | `code` | `unknown` | Yes | The mongosh error code. |
 | `scope` | `unknown` | Yes | The scope in which the error was raised. |
 | `metadata` | `unknown` | Yes | Additional metadata attached to the error. |
+
+
+## Identity
+
+### Identify
+
+Emitted once per session at startup to associate device and OS traits with the session.
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `platform` | `string` | Yes | The OS platform (e.g. `"darwin"`, `"linux"`, `"win32"`). |
+| `device_id` | `string` | Yes | A persistent, machine-specific identifier. |
 
 
 ## Shell

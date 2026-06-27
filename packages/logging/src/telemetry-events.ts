@@ -13,11 +13,14 @@ export interface CommonEventProperties {
  *
  * @category Identity
  */
-export interface IdentifyTraits {
-  /** The OS platform (e.g. `"darwin"`, `"linux"`, `"win32"`). */
-  platform: string;
-  /** A persistent, machine-specific identifier. */
-  device_id: string;
+export interface IdentifyEvent {
+  name: 'Identify';
+  payload: {
+    /** The OS platform (e.g. `"darwin"`, `"linux"`, `"win32"`). */
+    platform: string;
+    /** A persistent, machine-specific identifier. */
+    device_id: string;
+  };
 }
 
 /**
@@ -283,6 +286,7 @@ export interface DeprecatedMethodEvent {
  * Union of all analytics events tracked by mongosh.
  */
 export type TelemetryEvent =
+  | IdentifyEvent
   | NewConnectionEvent
   | StartupTimeEvent
   | ErrorEvent

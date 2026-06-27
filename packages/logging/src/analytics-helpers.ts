@@ -4,16 +4,14 @@ import type {
   IdentifyParams as SegmentIdentifyParams,
   TrackParams as SegmentTrackParams,
 } from '@segment/analytics-node';
-import type { CommonEventProperties, IdentifyTraits } from './telemetry-events';
+import type { CommonEventProperties } from './telemetry-events';
 
 type Timestamp = SegmentTrackParams['timestamp'];
 
 export type MongoshAnalyticsIdentity = SegmentIdentifyParams;
 
 export type AnalyticsIdentifyMessage = MongoshAnalyticsIdentity & {
-  traits: IdentifyTraits &
-    CommonEventProperties &
-    SegmentIdentifyParams['traits'];
+  traits: SegmentIdentifyParams['traits'] & { [key: string]: any };
 };
 
 export type AnalyticsTrackMessage = MongoshAnalyticsIdentity & {
