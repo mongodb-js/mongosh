@@ -101,7 +101,7 @@
     "node": ">=20.19.3"
   },
   "devDependencies": {
-    "@mongodb-js/tracking-plan": "^0.3.1",
+    "@mongodb-js/tracking-plan": "^0.3.2",
     "@mongodb-js/monorepo-tools": "^1.4.5",
     "@pkgjs/nv": "^0.2.2",
     "@types/chai": "^5.2.3",
