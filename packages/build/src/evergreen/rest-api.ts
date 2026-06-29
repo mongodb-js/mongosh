@@ -1,3 +1,4 @@
+import { execSync } from 'child_process';
 import { promises as fs, constants } from 'fs';
 import { default as fetchFn } from 'node-fetch';
 import os from 'os';
@@ -23,23 +24,22 @@ export interface EvergreenTask {
 
 export class EvergreenApi {
   public readonly apiBasepath: string;
-  public readonly apiUser: string;
-  public readonly apiKey: string;
+  private readonly apiToken: string;
   private readonly fetch: typeof fetchFn;
   constructor(
     apiBasepath: string,
-    apiUser: string,
-    apiKey: string,
+    apiToken: string,
     fetch: typeof fetchFn = fetchFn
   ) {
     this.apiBasepath = apiBasepath;
-    this.apiUser = apiUser;
-    this.apiKey = apiKey;
+    this.apiToken = apiToken;
     this.fetch = fetch;
   }
 
   public static async fromUserConfiguration(
-    pathToConfiguration = path.join(os.homedir(), '.evergreen.yml')
+    pathToConfiguration = path.join(os.homedir(), '.evergreen.yml'),
+    execFn: (cmd: string) => string = (cmd) =>
+      execSync(cmd, { encoding: 'utf-8' })
   ): Promise<EvergreenApi> {
     try {
       await fs.access(pathToConfiguration, constants.R_OK);
@@ -52,18 +52,18 @@ export class EvergreenApi {
     const configuration = YAML.parse(
       await fs.readFile(pathToConfiguration, { encoding: 'utf-8' })
     );
-    ['api_server_host', 'user', 'api_key'].forEach((key) => {
-      if (typeof configuration[key] !== 'string') {
-        throw new Error(
-          `Evergreen configuration ${pathToConfiguration} misses required key ${key}`
-        );
-      }
-    });
-    return new EvergreenApi(
-      configuration.api_server_host,
-      configuration.user,
-      configuration.api_key
+    if (typeof configuration.api_server_host !== 'string') {
+      throw new Error(
+        `Evergreen configuration ${pathToConfiguration} misses required key api_server_host`
+      );
+    }
+
+    const apiToken = execFn('evergreen client get-oauth-token').trim();
+    const apiBasepath = (configuration.api_server_host as string).replace(
+      'evergreen.mongodb.com',
+      'evergreen.corp.mongodb.com'
     );
+    return new EvergreenApi(apiBasepath, apiToken);
   }
 
   /**
@@ -109,8 +109,7 @@ export class EvergreenApi {
 
   private getApiHeaders(): Record<string, string> {
     return {
-      'Api-User': this.apiUser,
-      'Api-Key': this.apiKey,
+      'X-Kanopy-Authorization': `Bearer ${this.apiToken}`,
     };
   }
 }
