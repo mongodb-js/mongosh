@@ -13,8 +13,7 @@ export class ElectronInterpreterEnvironment implements InterpreterEnvironment {
   constructor(context: Context) {
     this.context = context;
     vm.createContext(context);
-    // Dates created inside the VM context have a different Date.prototype than
-    // the module scope, so we must patch the context's own Date.prototype.
+    // We patch the Date.prototype inspect inside the context to format dates as ISODate.
     const vmDate = vm.runInContext('Date', context) as typeof Date;
     (vmDate.prototype as any)[inspect.custom] = function (this: Date): string {
       return isNaN(this.valueOf())
