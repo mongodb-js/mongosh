@@ -68,7 +68,26 @@ export class HomebrewPublisher {
       return;
     }
 
-    const description = `This PR was created automatically and bumps \`mongosh\` to the latest published version \`${packageVersion}\`.\n\nFor additional details see ${githubReleaseLink}.`;
+    const description = [
+      `This PR was created automatically and bumps \`mongosh\` to the latest published version \`${packageVersion}\`.`,
+      ``,
+      `For additional details see ${githubReleaseLink}.`,
+      ``,
+      `-----`,
+      ``,
+      `- [ ] Have you followed the [guidelines for contributing](https://github.com/Homebrew/homebrew-core/blob/HEAD/CONTRIBUTING.md)?`,
+      `- [ ] Have you ensured that your commits follow the [commit style guide](https://docs.brew.sh/Formula-Cookbook#commit)?`,
+      `- [ ] Have you checked that there aren't other open [pull requests](https://github.com/Homebrew/homebrew-core/pulls) for the same formula update/change?`,
+      `- [ ] Have you built your formula locally with \`HOMEBREW_NO_INSTALL_FROM_API=1 brew install --build-from-source <formula>\`?`,
+      `- [ ] Is your test running fine \`brew test <formula>\`?`,
+      `- [ ] Does your build pass \`brew audit --strict <formula>\` (after doing \`HOMEBREW_NO_INSTALL_FROM_API=1 brew install --build-from-source <formula>\`)? If this is a new formula, does it pass \`brew audit --new <formula>\`?`,
+      ``,
+      `-----`,
+      ``,
+      `- [ ] AI was used to generate or assist with generating this PR. *Please specify below how you used AI to help you, and what steps you have taken to manually verify the changes*.`,
+      ``,
+      `-----`,
+    ].join('\n');
 
     if (isDryRun) {
       await homebrewCoreFork.deleteBranch(forkBranch);
