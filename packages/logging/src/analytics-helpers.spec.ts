@@ -94,7 +94,6 @@ describe('analytics helpers', function () {
             userId: 'me',
             traits: {
               platform: '1234',
-              session_id: 'abc',
               device_id: 'test-device-id',
             },
             timestamp,
