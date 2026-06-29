@@ -1,25 +1,14 @@
 # mongosh Tracking Plan
 
-> Auto-generated on 2026-06-26. Do not edit manually.
+> Auto-generated on 2026-06-29. Do not edit manually.
 > Run `npm run generate-tracking-plan` to regenerate from source.
 
 ## Table of Contents
 
-- [Common Properties](#common-properties)
 - [Session](#session)
   - [Identify](#identify)
   - [New Connection](#new-connection)
   - [Session Complete](#session-complete)
-
-## Common Properties
-
-Properties automatically included in every track() event.
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `mongosh_version` | `string` | Yes | The version of mongosh that emitted the event. |
-| `ai_agent` | `string \| undefined` | No | AI agent identifier if the session was initiated by an AI agent. |
-| `session_id` | `string` | Yes | Unique identifier for the current mongosh session. |
 
 
 ## Session
@@ -28,7 +17,25 @@ Properties automatically included in every track() event.
 
 Emitted once per session at startup to associate device and OS traits with the session.
 
-_No additional properties._
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `mongosh_version` | `string` | Yes | The version of mongosh that emitted the event. |
+| `ai_agent` | `string \| undefined` | No | AI agent identifier if the session was initiated by an AI agent. |
+| `session_id` | `string` | Yes | Unique identifier for the current mongosh session. |
+| `anonymousId` | `string` | Yes | The anonymous identifier for this user session. |
+| `platform` | `string` | Yes | The OS platform (e.g. `"darwin"`, `"linux"`, `"win32"`). |
+| `arch` | `string` | Yes | The CPU architecture (e.g. `"x64"`, `"arm64"`). |
+| `is_containerized` | `boolean` | Yes | Whether mongosh is running inside a container. |
+| `os_type` | `string \| undefined` | No | The OS type (e.g. `"Darwin"`, `"Linux"`). |
+| `os_version` | `string \| undefined` | No | The OS version string. |
+| `os_arch` | `string \| undefined` | No | The OS architecture. |
+| `os_release` | `string \| undefined` | No | The OS release identifier. |
+| `os_linux_dist` | `string \| undefined` | No | Linux-only: distribution ID from /etc/os-release (e.g. `"ubuntu"`). |
+| `os_linux_release` | `string \| undefined` | No | Linux-only: version ID from /etc/os-release (e.g. `"22.04"`). |
+| `os_darwin_product_name` | `string \| undefined` | No | macOS-only: product name from SystemVersion.plist (e.g. `"macOS"`). |
+| `os_darwin_product_version` | `string \| undefined` | No | macOS-only: product version from SystemVersion.plist (e.g. `"14.1.0"`). |
+| `os_darwin_product_build_version` | `string \| undefined` | No | macOS-only: product build version from SystemVersion.plist (e.g. `"23B74"`). |
+| `device_id` | `string` | Yes | A stable machine identifier; `"unknown"` if unavailable. |
 
 ### New Connection
 
@@ -38,6 +45,9 @@ Fired on bus event: `mongosh:connect`
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
+| `mongosh_version` | `string` | Yes | The version of mongosh that emitted the event. |
+| `ai_agent` | `string \| undefined` | No | AI agent identifier if the session was initiated by an AI agent. |
+| `session_id` | `string` | Yes | Unique identifier for the current mongosh session. |
 | `is_atlas` | `boolean` | Yes | Whether the server is an Atlas deployment. |
 | `is_atlas_url` | `boolean \| undefined` | No | Whether the connection URI is an Atlas URL. |
 | `is_local_atlas` | `boolean` | Yes | Whether the server is a local Atlas deployment. |
@@ -59,6 +69,11 @@ Fired on bus event: `mongosh:connect`
 | `dl_version` | `string \| undefined` | No | The CSFLE/QE shared library version. |
 | `atlas_version` | `string \| undefined` | No | The Atlas version string. |
 | `node_version` | `string \| undefined` | No | The Node.js version used by mongosh. |
+| `is_srv` | `boolean \| undefined` | No | Whether the connection URI uses the SRV format (`mongodb+srv://`). |
+| `topology_type` | `string \| undefined` | No | The topology type reported by the driver (e.g. `"Single"`, `"ReplicaSetWithPrimary"`). |
+| `is_csfle` | `boolean \| undefined` | No | Whether Client-Side Field Level Encryption (CSFLE/QE) is configured. |
+| `has_csfle_schema` | `boolean \| undefined` | No | Whether a CSFLE schema map or encrypted fields map is provided. |
+| `connection_id` | `string \| undefined` | No | Unique identifier for the Mongo connection instance. |
 
 ### Session Complete
 
@@ -67,6 +82,9 @@ Only emitted when is_interactive === true OR ai_agent !== undefined.
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
+| `mongosh_version` | `string` | Yes | The version of mongosh that emitted the event. |
+| `ai_agent` | `string \| undefined` | No | AI agent identifier if the session was initiated by an AI agent. |
+| `session_id` | `string` | Yes | Unique identifier for the current mongosh session. |
 | `is_interactive` | `boolean` | Yes | Whether mongosh was started in interactive (REPL) mode. |
 | `commands_repl` | `any` | Yes | Map of command keys with counts from REPL evaluations. |
 | `commands_rc` | `any` | Yes | Map of command keys with counts from ~/.mongoshrc.js. |
