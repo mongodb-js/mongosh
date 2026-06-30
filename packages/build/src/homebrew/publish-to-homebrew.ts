@@ -73,7 +73,7 @@ export class HomebrewPublisher {
       '',
       '-----',
       '',
-      '<!-- Do not tick a checkbox if you haven’t performed its action. Honesty is indispensable for a smooth review process. -->',
+      '<!-- Do not tick a checkbox if you haven\u{2019}t performed its action. Honesty is indispensable for a smooth review process. -->',
       '<!-- Use [x] to mark item done before creation, or just click the checkboxes with device pointer after creation -->',
       "<!-- In the following questions `<formula>` is the name of the formula you're editing. -- > ",
       '',
