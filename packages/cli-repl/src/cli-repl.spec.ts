@@ -1568,7 +1568,7 @@ describe('CliRepl', function () {
           // even if the HTTP server takes a long time to respond.
           setTelemetryDelay(5000);
           await cliRepl.start(await testServer.connectionString(), {});
-          this.timeout(Date.now() - testStartMs + 2500);
+          this.timeout(Date.now() - testStartMs + 2500); // Do not include connection time in 2.5s timeout
           input.write('use somedb;\n');
           input.write('exit\n');
           await waitBus(cliRepl.bus, 'mongosh:closed');
@@ -1580,7 +1580,7 @@ describe('CliRepl', function () {
           expect(analyticsLog).to.have.lengthOf(1);
           expect(analyticsLog[0]).to.have.nested.property(
             'attr.flushError',
-            null
+            null // Although the flush request will time out, it does not error.
           );
         });
 
@@ -1588,7 +1588,7 @@ describe('CliRepl', function () {
           await cliRepl.start(await testServer.connectionString(), {});
           if (requests.length < 1) {
             const [, res] = await once(srv, 'request');
-            await once(res, 'close');
+            await once(res, 'close'); // Wait until HTTP response is written
           }
           const firstEvent = JSON.parse(requests[0].body);
           expect(firstEvent.name).to.equal('Identify');
