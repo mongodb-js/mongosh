@@ -5,11 +5,13 @@ import { EventEmitter } from 'events';
 import { MongoshInvalidInputError } from '@mongosh/errors';
 import type { MongoshBus } from '@mongosh/types';
 import type { Writable } from 'stream';
-import type { MongoshLoggingAndTelemetry } from '.';
-import { setupLoggingAndTelemetry } from '.';
+import { setupLoggingAndTelemetry } from './logging-and-telemetry';
 import type { LoggingAndTelemetry } from './logging-and-telemetry';
 import sinon from 'sinon';
-import type { MongoshLoggingAndTelemetryArguments } from './types';
+import type {
+  MongoshLoggingAndTelemetryArguments,
+  MongoshLoggingAndTelemetry,
+} from './types';
 
 describe('MongoshLoggingAndTelemetry', function () {
   let logOutput: any[];
@@ -125,6 +127,7 @@ describe('MongoshLoggingAndTelemetry', function () {
             device_id: deviceId,
             arch: process.arch,
             platform: process.platform,
+            mongosh_version: '1.0.0',
             session_id: logId,
           },
         },
@@ -185,6 +188,7 @@ describe('MongoshLoggingAndTelemetry', function () {
             device_id: deviceId,
             arch: process.arch,
             platform: process.platform,
+            mongosh_version: '1.0.0',
             session_id: logId,
           },
         },
@@ -237,6 +241,7 @@ describe('MongoshLoggingAndTelemetry', function () {
               device_id: 'unknown',
               platform: process.platform,
               arch: process.arch,
+              mongosh_version: '1.0.0',
               session_id: logId,
             },
           },
@@ -266,6 +271,7 @@ describe('MongoshLoggingAndTelemetry', function () {
               device_id: 'device_id_value',
               platform: process.platform,
               arch: process.arch,
+              mongosh_version: '1.0.0',
               session_id: logId,
             },
           },
@@ -311,6 +317,7 @@ describe('MongoshLoggingAndTelemetry', function () {
               device_id: 'unknown',
               platform: process.platform,
               arch: process.arch,
+              mongosh_version: '1.0.0',
               session_id: logId,
             },
           },
@@ -454,7 +461,7 @@ describe('MongoshLoggingAndTelemetry', function () {
     bus.emit('mongosh:update-user', { userId, anonymousId: userId });
     bus.emit('mongosh:start-session', {
       isInteractive: true,
-      jsContext: 'foo',
+      jsContext: 'repl',
       timings: {
         'BoxedNode Bindings': 50,
         NodeREPL: 100,
@@ -749,6 +756,7 @@ describe('MongoshLoggingAndTelemetry', function () {
             device_id: deviceId,
             platform: process.platform,
             arch: process.arch,
+            mongosh_version: '1.0.0',
             session_id: logId,
           },
         },
@@ -761,6 +769,7 @@ describe('MongoshLoggingAndTelemetry', function () {
             device_id: deviceId,
             platform: process.platform,
             arch: process.arch,
+            mongosh_version: '1.0.0',
             session_id: logId,
           },
         },
@@ -772,7 +781,7 @@ describe('MongoshLoggingAndTelemetry', function () {
           event: 'Startup Time',
           properties: {
             is_interactive: true,
-            js_context: 'foo',
+            js_context: 'repl',
             boxed_node_bindings: 50,
             node_repl: 100,
             mongosh_version: '1.0.0',
