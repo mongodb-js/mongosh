@@ -7,17 +7,22 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { spawnSync as spawnSyncFn } from '../helpers';
 import { getPackagesInTopologicalOrder as getPackagesInTopologicalOrderFn } from '@mongodb-js/monorepo-tools';
+import { generateShrinkwrapForReleasePackages as generateShrinkwrapForReleasePackagesFn } from './generate-shrinkwrap';
 
 export class PackageBumper {
   private readonly getPackagesInTopologicalOrder: typeof getPackagesInTopologicalOrderFn;
   private readonly spawnSync: typeof spawnSyncFn;
+  private readonly generateShrinkwrapForReleasePackages: typeof generateShrinkwrapForReleasePackagesFn;
 
   constructor({
     getPackagesInTopologicalOrder = getPackagesInTopologicalOrderFn,
     spawnSync = spawnSyncFn,
+    generateShrinkwrapForReleasePackages = generateShrinkwrapForReleasePackagesFn,
   } = {}) {
     this.getPackagesInTopologicalOrder = getPackagesInTopologicalOrder;
     this.spawnSync = spawnSync;
+    this.generateShrinkwrapForReleasePackages =
+      generateShrinkwrapForReleasePackages;
   }
 
   /** Bumps only the main mongosh release packages to the set version. */
@@ -86,6 +91,9 @@ export class PackageBumper {
         PUPPETEER_SKIP_DOWNLOAD: 'true',
       },
     });
+
+    // Regenerate shrinkwrap files from the updated lockfile
+    await this.generateShrinkwrapForReleasePackages(monorepoRootPath);
   }
 
   /** Updates the shell-api constant to match the mongosh version. */
