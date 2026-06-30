@@ -31,6 +31,7 @@ describe('PackageBumper', function () {
     testBumper = new PackageBumper({
       spawnSync,
       getPackagesInTopologicalOrder,
+      generateShrinkwrapForReleasePackages: sinon.stub().resolves(),
     });
   });
 
