@@ -42,7 +42,6 @@ describe('analytics helpers', function () {
         userId: 'me',
         traits: {
           platform: '1234',
-          session_id: 'abc',
           device_id: 'test-device-id',
         },
         timestamp,
@@ -50,7 +49,10 @@ describe('analytics helpers', function () {
       toggleable.track({
         userId: 'me',
         event: 'something',
-        properties: { mongosh_version: '1.2.3', session_id: 'abc' },
+        properties: {
+          mongosh_version: '1.2.3',
+          session_id: 'abc',
+        },
         timestamp,
       });
       expect(events).to.have.lengthOf(0);
@@ -61,7 +63,10 @@ describe('analytics helpers', function () {
       toggleable.track({
         userId: 'me',
         event: 'something2',
-        properties: { mongosh_version: '1.2.3', session_id: 'abc' },
+        properties: {
+          mongosh_version: '1.2.3',
+          session_id: 'abc',
+        },
         timestamp,
       });
       expect(events).to.have.lengthOf(3);
@@ -70,7 +75,10 @@ describe('analytics helpers', function () {
       toggleable.track({
         userId: 'me',
         event: 'something3',
-        properties: { mongosh_version: '1.2.3', session_id: 'abc' },
+        properties: {
+          mongosh_version: '1.2.3',
+          session_id: 'abc',
+        },
         timestamp,
       });
       expect(events).to.have.lengthOf(3);
@@ -86,7 +94,6 @@ describe('analytics helpers', function () {
             userId: 'me',
             traits: {
               platform: '1234',
-              session_id: 'abc',
               device_id: 'test-device-id',
             },
             timestamp,
@@ -97,7 +104,10 @@ describe('analytics helpers', function () {
           {
             userId: 'me',
             event: 'something',
-            properties: { mongosh_version: '1.2.3', session_id: 'abc' },
+            properties: {
+              mongosh_version: '1.2.3',
+              session_id: 'abc',
+            },
             timestamp,
           },
         ],
@@ -106,7 +116,10 @@ describe('analytics helpers', function () {
           {
             userId: 'me',
             event: 'something2',
-            properties: { mongosh_version: '1.2.3', session_id: 'abc' },
+            properties: {
+              mongosh_version: '1.2.3',
+              session_id: 'abc',
+            },
             timestamp,
           },
         ],
@@ -143,12 +156,18 @@ describe('analytics helpers', function () {
     const tEvt = {
       userId,
       event: 'hi',
-      properties: { mongosh_version: '1.2.3', session_id: 'abc' },
+      properties: {
+        mongosh_version: '1.2.3',
+        session_id: 'abc',
+      },
     };
     const t2Evt = {
       userId,
       event: 'bye',
-      properties: { mongosh_version: '1.2.3', session_id: 'abc' },
+      properties: {
+        mongosh_version: '1.2.3',
+        session_id: 'abc',
+      },
     };
 
     afterEach(async function () {
@@ -278,7 +297,10 @@ describe('analytics helpers', function () {
     const tEvt = {
       userId,
       event: 'hi',
-      properties: { mongosh_version: '1.2.3', session_id: 'abc' },
+      properties: {
+        mongosh_version: '1.2.3',
+        session_id: 'abc',
+      },
     };
 
     it('should send the event forward when sampled', function () {

@@ -42,10 +42,10 @@ import { MongoLogWriter } from 'mongodb-log-writer';
 import { mongoLogId } from 'mongodb-log-writer';
 import type {
   AnalyticsIdentifyMessage,
-  AnalyticsTrackMessage,
   MongoshAnalytics,
   MongoshAnalyticsIdentity,
 } from './analytics-helpers';
+import type { TelemetryEvent } from './telemetry-events';
 import type { ConnectEventMap } from '@mongodb-js/devtools-connect';
 import { hookLogger } from '@mongodb-js/devtools-connect';
 import { MultiSet, toSnakeCase } from './helpers';
@@ -225,15 +225,15 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       return this.bus;
     };
 
-    const getUserTraits = (): AnalyticsIdentifyMessage['traits'] => ({
-      ...this.userTraits,
-      device_id: typeof this.deviceId === 'string' ? this.deviceId : 'unknown',
-      session_id: this.log.logId,
-    });
-
     const getTrackingProperties = (): MongoshTrackingProperties => ({
       mongosh_version: this.mongoshVersion,
       session_id: this.log.logId,
+    });
+
+    const getUserTraits = (): AnalyticsIdentifyMessage['traits'] => ({
+      ...this.userTraits,
+      ...getTrackingProperties(),
+      device_id: typeof this.deviceId === 'string' ? this.deviceId : 'unknown',
     });
 
     const getTelemetryUserIdentity = (): MongoshAnalyticsIdentity => {
@@ -244,21 +244,14 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       };
     };
 
-    const track = (
-      message: Pick<AnalyticsTrackMessage, 'event' | 'timestamp'> & {
-        properties?: Omit<
-          AnalyticsTrackMessage['properties'],
-          keyof MongoshTrackingProperties
-        >;
-      }
-    ): void => {
+    const track = (event: TelemetryEvent): void => {
       const callback = () =>
         this.analytics.track({
           ...getTelemetryUserIdentity(),
-          ...message,
+          event: event.name,
           properties: {
             ...getTrackingProperties(),
-            ...message.properties,
+            ...(event as { payload?: Record<string, unknown> }).payload,
           },
         });
 
@@ -311,7 +304,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       const { uri, resolved_hostname, ...argsWithoutUriAndHostname } = args;
       const connectionUri = uri && redactConnectionString(uri);
       const atlasHostname = {
-        atlas_hostname: args.is_atlas ? resolved_hostname : null,
+        atlas_hostname: args.is_atlas ? resolved_hostname ?? null : null,
       };
       const properties = {
         ...argsWithoutUriAndHostname,
@@ -332,8 +325,8 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       );
 
       track({
-        event: 'New Connection',
-        properties,
+        name: 'New Connection',
+        payload: properties,
       });
     });
 
@@ -347,8 +340,8 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
 
       const normalizedTimings = Object.fromEntries(normalizedTimingsArray);
       track({
-        event: 'Startup Time',
-        properties: {
+        name: 'Startup Time',
+        payload: {
           is_interactive: args.isInteractive,
           js_context: args.jsContext,
           ...normalizedTimings,
@@ -410,8 +403,8 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
 
       if (error.name.includes('Mongosh')) {
         track({
-          event: 'Error',
-          properties: {
+          name: 'Error',
+          payload: {
             name: mongoshError.name,
             code: mongoshError.code,
             scope: mongoshError.scope,
@@ -473,7 +466,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       );
 
       track({
-        event: 'Use',
+        name: 'Use',
       });
     });
 
@@ -487,8 +480,8 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       );
 
       track({
-        event: 'Show',
-        properties: {
+        name: 'Show',
+        payload: {
           method: args.method,
         },
       });
@@ -530,17 +523,20 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         args
       );
 
-      track({
-        event: this.busEventState.hasStartedMongoshRepl
-          ? 'Script Loaded'
-          : 'Script Loaded CLI',
-        properties: {
-          nested: args.nested,
-          ...(this.busEventState.hasStartedMongoshRepl
-            ? {}
-            : { shell: this.busEventState.usesShellOption }),
-        },
-      });
+      if (this.busEventState.hasStartedMongoshRepl) {
+        track({
+          name: 'Script Loaded',
+          payload: { nested: args.nested },
+        });
+      } else {
+        track({
+          name: 'Script Loaded CLI',
+          payload: {
+            nested: args.nested,
+            shell: this.busEventState.usesShellOption,
+          },
+        });
+      }
     });
 
     onBus('mongosh:eval-cli-script', () => {
@@ -552,8 +548,8 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       );
 
       track({
-        event: 'Script Evaluated',
-        properties: {
+        name: 'Script Evaluated',
+        payload: {
           shell: this.busEventState.usesShellOption,
         },
       });
@@ -568,7 +564,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       );
 
       track({
-        event: 'Mongoshrc Loaded',
+        name: 'Mongoshrc Loaded',
       });
     });
 
@@ -581,7 +577,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       );
 
       track({
-        event: 'Mongorc Warning',
+        name: 'Mongorc Warning',
       });
     });
 
@@ -747,7 +743,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
 
       if (ev.args[0] === 'install') {
         track({
-          event: 'Snippet Install',
+          name: 'Snippet Install',
         });
       }
     });
@@ -801,16 +797,16 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         );
 
         track({
-          event: 'Deprecated Method',
-          properties: {
+          name: 'Deprecated Method',
+          payload: {
             ...entry,
           },
         });
       }
       for (const [entry, count] of apiCalls) {
         track({
-          event: 'API Call',
-          properties: {
+          name: 'API Call',
+          payload: {
             ...entry,
             count,
           },

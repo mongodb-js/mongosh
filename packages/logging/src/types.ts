@@ -1,6 +1,7 @@
 import type { ApiEvent, MongoshBus } from '@mongosh/types';
 import type { MongoLogWriter } from 'mongodb-log-writer';
 import type { MongoshAnalytics } from './analytics-helpers';
+import type { CommonEventProperties } from './telemetry-events';
 import type { MultiSet } from './helpers';
 
 export interface MongoshLoggingAndTelemetry {
@@ -21,10 +22,7 @@ export type MongoshLoggingAndTelemetryArguments = {
   deviceId: Promise<string> | string;
 };
 
-export type MongoshTrackingProperties = {
-  mongosh_version: string;
-  session_id: string;
-};
+export type MongoshTrackingProperties = CommonEventProperties;
 
 export type LoggingAndTelemetryBusEventState = {
   hasStartedMongoshRepl: boolean;

@@ -76,6 +76,11 @@ jobs:
           npm run update-cli-usage-text packages/*/*.md *.md
           git add packages/*/*.md *.md
 
+      - name: Generate Tracking Plan
+        run: |
+          npm run generate-tracking-plan
+          git add docs/tracking-plan.md
+
       - name: Update npm-shrinkwrap.json for release packages
         run: |
           npm run update-shrinkwrap
