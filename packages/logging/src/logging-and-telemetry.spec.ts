@@ -854,7 +854,7 @@ describe('MongoshLoggingAndTelemetry', function () {
       [
         'track',
         {
-          name: 'Session Complete',
+          name: 'Session Ended',
           payload: {
             mongosh_version: '1.0.0',
             ai_agent: undefined,
@@ -998,7 +998,7 @@ describe('MongoshLoggingAndTelemetry', function () {
       [
         'track',
         {
-          name: 'Session Complete',
+          name: 'Session Ended',
           payload: {
             mongosh_version: '1.0.0',
             ai_agent: undefined,
@@ -1029,7 +1029,7 @@ describe('MongoshLoggingAndTelemetry', function () {
     ]);
   });
 
-  it('Session Complete event includes all SessionEndedEvent payload fields', async function () {
+  it('Session Ended event includes all SessionEndedEvent payload fields', async function () {
     loggingAndTelemetry.attachLogger(logger);
     await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
 
@@ -1070,7 +1070,7 @@ describe('MongoshLoggingAndTelemetry', function () {
       [
         'track',
         {
-          name: 'Session Complete',
+          name: 'Session Ended',
           payload: {
             mongosh_version: '1.0.0',
             ai_agent: undefined,

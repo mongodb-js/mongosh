@@ -133,7 +133,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
     const session: SessionTelemetryState = this.busEventState.session;
     if ((session.isInteractive || getAiAgent()) && this.trackFn) {
       this.trackFn({
-        name: 'Session Complete',
+        name: 'Session Ended',
         payload: {
           is_interactive: session.isInteractive,
           commands_repl:

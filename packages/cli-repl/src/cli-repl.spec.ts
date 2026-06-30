@@ -1646,7 +1646,7 @@ describe('CliRepl', function () {
           );
           expect(flushEntry.attr.flushError).to.equal(null);
           expect(flushEntry.attr.flushDuration).to.be.a('number');
-          // Identify + New Connection + Session Complete = 3 events
+          // Identify + New Connection + Session Ended = 3 events
           expect(totalEventsTracked).to.equal(3);
         });
 
@@ -1663,7 +1663,7 @@ describe('CliRepl', function () {
           const allEventNames = requests
             .map((req) => JSON.parse(req.body).name as string)
             .filter(Boolean);
-          expect(allEventNames).not.to.include('Session Complete');
+          expect(allEventNames).not.to.include('Session Ended');
         });
 
         it('sends a SessionEndedEvent with all session properties instead of individual API Call events', async function () {
@@ -1685,7 +1685,7 @@ describe('CliRepl', function () {
 
           const sessionEndedEvent = requests
             .map((req) => JSON.parse(req.body))
-            .find((entry: any) => entry.name === 'Session Complete');
+            .find((entry: any) => entry.name === 'Session Ended');
           expect(sessionEndedEvent).to.exist;
 
           const payload = sessionEndedEvent.payload;
@@ -1746,7 +1746,7 @@ describe('CliRepl', function () {
           input.write('db.hello()\n');
           input.write('exit\n');
           await waitBus(cliRepl.bus, 'mongosh:closed');
-          // Identify + New Connection + Session Complete = 3 events
+          // Identify + New Connection + Session Ended = 3 events
           expect(totalEventsTracked).to.equal(3);
         });
 
@@ -1875,7 +1875,7 @@ describe('CliRepl', function () {
           input.write('exit\n');
           await waitBus(cliRepl.bus, 'mongosh:closed');
           // ThrottledAnalytics caps total events at rate=30 per time window.
-          // With only 3 events per session (Identify + New Connection + Session Complete),
+          // With only 3 events per session (Identify + New Connection + Session Ended),
           // we stay well under the cap — verify events were received.
           expect(requests.length).to.be.greaterThan(0);
           expect(requests.length).to.be.lessThanOrEqual(30);

@@ -8,7 +8,7 @@
 - [Session](#session)
   - [Identify](#identify)
   - [New Connection](#new-connection)
-  - [Session Complete](#session-complete)
+  - [Session Ended](#session-ended)
 
 
 ## Session
@@ -75,7 +75,7 @@ Fired on bus event: `mongosh:connect`
 | `has_csfle_schema` | `boolean \| undefined` | No | Whether a CSFLE schema map or encrypted fields map is provided. |
 | `connection_id` | `string \| undefined` | No | Unique identifier for the Mongo connection instance. |
 
-### Session Complete
+### Session Ended
 
 Emitted at the end of each session when closing the REPL and before flushing telemetry.
 Only emitted when is_interactive === true OR ai_agent !== undefined.

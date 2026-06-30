@@ -124,7 +124,7 @@ export interface NewConnectionEvent {
  * @category Session
  */
 export interface SessionEndedEvent {
-  name: 'Session Complete';
+  name: 'Session Ended';
   payload: {
     /** The version of mongosh that emitted the event. */
     mongosh_version: string;

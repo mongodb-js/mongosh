@@ -129,6 +129,9 @@ async function lockfile(
   };
   try {
     await fs.promises.mkdir(lockfilePath);
+    // Set up an interval update for lockfile mtime so that if the lockfile is
+    // created by long running process (longer than staleDuration) we make sure
+    // that another process doesn't consider lockfile stale
     intervalId = setInterval(() => {
       const now = Date.now();
       fs.promises.utimes(lockfilePath, now, now).catch(() => {});
@@ -140,6 +143,8 @@ async function lockfile(
       throw e;
     }
     const stats = await fs.promises.stat(lockfilePath);
+    // To make sure that the lockfile is not just a leftover from an unclean
+    // process exit, we check whether or not it is stale
     if (Date.now() - stats.mtimeMs > staleDuration) {
       await fs.promises.rmdir(lockfilePath);
       return lockfile(filepath, staleDuration);
@@ -202,6 +207,10 @@ export class ThrottledAnalytics implements MongoshAnalytics {
     this.trackQueue.push(event);
   }
 
+  // Tries to restore persisted throttle state and returns `true` if telemetry can
+  // be enabled on restore. This method must not throw exceptions, since there
+  // is nothing to handle them. If the error is unexpected, this method should
+  // return `false` to disable telemetry
   private async restoreThrottleState(): Promise<boolean> {
     if (!this.throttleOptions) {
       return true;
@@ -217,6 +226,8 @@ export class ThrottledAnalytics implements MongoshAnalytics {
         this.throttleOptions.lockfileStaleDuration
       );
     } catch (e) {
+      // Error while locking means that lock already exists or something
+      // unexpected happens, in either case we disable telemetry
       return false;
     }
     try {
@@ -225,6 +236,9 @@ export class ThrottledAnalytics implements MongoshAnalytics {
       );
     } catch (e) {
       if ((e as any).code !== 'ENOENT') {
+        // Any error except ENOENT means that we failed to restore state for
+        // some unknown / unexpected reason, ignore the error and assume that it
+        // is not safe to enable telemetry in that case
         return false;
       }
     }
@@ -232,9 +246,11 @@ export class ThrottledAnalytics implements MongoshAnalytics {
   }
 
   private shouldEmitAnalyticsEvent() {
+    // No throttle options indicate that throttling is disabled
     if (!this.throttleOptions) {
       return true;
     }
+    // If throttle window passed, reset throttle state and allow to emit event
     if (
       Date.now() - this.throttleState.timestamp >
       (this.throttleOptions.timeframe ?? 60_000)
@@ -243,6 +259,7 @@ export class ThrottledAnalytics implements MongoshAnalytics {
       this.throttleState.count = 0;
       return true;
     }
+    // Otherwise only allow if the count below the allowed rate
     return this.throttleState.count < this.throttleOptions.rate;
   }
 
