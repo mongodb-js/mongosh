@@ -25,7 +25,7 @@
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
-    "@mongodb-js/tracking-plan": "^0.3.1",
+    "@mongodb-js/tracking-plan": "^0.3.2",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@mongosh/errors": "2.4.7",
     "eslint": "^7.25.0",
