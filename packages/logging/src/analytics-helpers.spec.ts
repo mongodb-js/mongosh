@@ -17,31 +17,33 @@ const sessionId = 's-test-session';
 
 const iEvt: IdentifyEvent = {
   name: 'Identify',
-  anonymousId: 'u-test',
-  session_id: sessionId,
-  mongosh_version: '1.2.3',
-  ai_agent: undefined,
-  platform: 'linux',
-  arch: 'x64',
-  is_containerized: false,
-  os_type: undefined,
-  os_version: undefined,
-  os_arch: undefined,
-  os_release: undefined,
-  os_linux_dist: undefined,
-  os_linux_release: undefined,
-  os_darwin_product_name: undefined,
-  os_darwin_product_version: undefined,
-  os_darwin_product_build_version: undefined,
-  device_id: 'test-device-id',
+  payload: {
+    mongosh_version: '1.2.3',
+    ai_agent: undefined,
+    session_id: sessionId,
+    anonymousId: 'u-test',
+    platform: 'linux',
+    arch: 'x64',
+    is_containerized: false,
+    os_type: undefined,
+    os_version: undefined,
+    os_arch: undefined,
+    os_release: undefined,
+    os_linux_dist: undefined,
+    os_linux_release: undefined,
+    os_darwin_product_name: undefined,
+    os_darwin_product_version: undefined,
+    os_darwin_product_build_version: undefined,
+    device_id: 'test-device-id',
+  },
 };
 
 const tEvt: NewConnectionEvent = {
   name: 'New Connection',
-  session_id: sessionId,
-  mongosh_version: '1.2.3',
-  ai_agent: undefined,
   payload: {
+    mongosh_version: '1.2.3',
+    ai_agent: undefined,
+    session_id: sessionId,
     is_atlas: false,
     is_atlas_url: undefined,
     is_local_atlas: false,
@@ -63,6 +65,11 @@ const tEvt: NewConnectionEvent = {
     dl_version: undefined,
     atlas_version: undefined,
     node_version: undefined,
+    is_srv: undefined,
+    topology_type: undefined,
+    is_csfle: undefined,
+    has_csfle_schema: undefined,
+    connection_id: undefined,
   },
 };
 
@@ -124,11 +131,16 @@ describe('analytics helpers', function () {
 
     const throttledIEvt: IdentifyEvent = {
       ...iEvt,
-      anonymousId: userId,
-      session_id: userId,
+      payload: { ...iEvt.payload, anonymousId: userId, session_id: userId },
     };
-    const throttledTEvt: NewConnectionEvent = { ...tEvt, session_id: userId };
-    const throttledT2Evt: NewConnectionEvent = { ...t2Evt, session_id: userId };
+    const throttledTEvt: NewConnectionEvent = {
+      ...tEvt,
+      payload: { ...tEvt.payload, session_id: userId },
+    };
+    const throttledT2Evt: NewConnectionEvent = {
+      ...t2Evt,
+      payload: { ...t2Evt.payload, session_id: userId },
+    };
 
     afterEach(async function () {
       try {
@@ -200,9 +212,15 @@ describe('analytics helpers', function () {
         target,
         throttle: { rate: 5, metadataPath },
       });
-      a2.track({ ...throttledIEvt, session_id: sid2 });
+      a2.track({
+        ...throttledIEvt,
+        payload: { ...throttledIEvt.payload, session_id: sid2 },
+      });
       for (let i = 0; i < 100; i++) {
-        a2.track({ ...throttledTEvt, session_id: sid2 });
+        a2.track({
+          ...throttledTEvt,
+          payload: { ...throttledTEvt.payload, session_id: sid2 },
+        });
       }
       await a2.flush();
       // a1 used 3, a2 gets 2 more to reach rate=5

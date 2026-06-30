@@ -10,9 +10,7 @@ import { EvergreenApi } from './rest-api';
 describe('evergreen rest-api', function () {
   describe('from user configuration', function () {
     const configData = {
-      api_server_host: 'host',
-      user: 'user',
-      api_key: 'key',
+      api_server_host: 'https://evergreen.mongodb.com/api',
     };
     const writeEvergreenConfiguration = async (
       content: string
@@ -24,20 +22,30 @@ describe('evergreen rest-api', function () {
       await fs.writeFile(configFile, content, { encoding: 'utf-8' });
       return configFile;
     };
+    const stubExec = sinon.stub().returns('oidc-token\n');
 
-    it('parses a configuration file correctly', async function () {
+    it('parses a configuration file and obtains a token via evergreen get-token', async function () {
       const configFile = await writeEvergreenConfiguration(
         YAML.stringify(configData)
       );
-      const api = await EvergreenApi.fromUserConfiguration(configFile);
-      expect(api.apiBasepath).to.equal('host');
-      expect(api.apiUser).to.equal('user');
-      expect(api.apiKey).to.equal('key');
+      const api = await EvergreenApi.fromUserConfiguration(
+        configFile,
+        stubExec
+      );
+      expect(api.apiBasepath).to.equal(
+        'https://evergreen.corp.mongodb.com/api'
+      );
+      expect(stubExec).to.have.been.calledWith(
+        'evergreen client get-oauth-token'
+      );
     });
 
     it('throws an error when the configuration file does not exist', async function () {
       try {
-        await EvergreenApi.fromUserConfiguration('kasldjflasjk dfalsd jfsdfk');
+        await EvergreenApi.fromUserConfiguration(
+          'kasldjflasjk dfalsd jfsdfk',
+          stubExec
+        );
       } catch (e: any) {
         expect(e.message).to.contain(
           'Could not find local evergreen configuration'
@@ -47,21 +55,19 @@ describe('evergreen rest-api', function () {
       expect.fail('Expected error');
     });
 
-    ['api_server_host', 'user', 'api_key'].forEach((key) => {
-      it(`throws an error if ${key} is missing`, async function () {
-        const data: Record<string, string> = {
-          ...configData,
-        };
-        delete data[key];
-        const configFile = await writeEvergreenConfiguration(
-          YAML.stringify(data)
-        );
-        try {
-          await EvergreenApi.fromUserConfiguration(configFile);
-        } catch (e: any) {
-          expect(e.message).to.contain(key);
-        }
-      });
+    it('throws an error if api_server_host is missing', async function () {
+      const data: Record<string, string> = { ...configData };
+      delete data['api_server_host'];
+      const configFile = await writeEvergreenConfiguration(
+        YAML.stringify(data)
+      );
+      try {
+        await EvergreenApi.fromUserConfiguration(configFile, stubExec);
+      } catch (e: any) {
+        expect(e.message).to.contain('api_server_host');
+        return;
+      }
+      expect.fail('Expected error');
     });
   });
 
@@ -71,7 +77,7 @@ describe('evergreen rest-api', function () {
 
     beforeEach(function () {
       fetch = sinon.stub();
-      api = new EvergreenApi('//basePath/api', 'user', 'key', fetch as any);
+      api = new EvergreenApi('//basePath/api', 'test-token', fetch as any);
     });
 
     it('returns all tasks from the API when there is no tag filter', async function () {
@@ -93,8 +99,7 @@ describe('evergreen rest-api', function () {
         '//basePath/api/rest/v2/projects/mongosh/revisions/sha/tasks?limit=5000',
         {
           headers: {
-            'Api-User': 'user',
-            'Api-Key': 'key',
+            'X-Kanopy-Authorization': 'Bearer test-token',
           },
         }
       );
@@ -126,8 +131,7 @@ describe('evergreen rest-api', function () {
         '//basePath/api/rest/v2/projects/mongosh/revisions/sha/tasks?limit=5000',
         {
           headers: {
-            'Api-User': 'user',
-            'Api-Key': 'key',
+            'X-Kanopy-Authorization': 'Bearer test-token',
           },
         }
       );

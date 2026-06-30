@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/shell-api",
-  "version": "5.3.0",
+  "version": "5.3.2",
   "description": "MongoDB Shell API Classes Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -60,7 +60,7 @@
   },
   "devDependencies": {
     "@microsoft/api-extractor": "^7.39.3",
-    "@mongosh/testing": "2.0.12",
+    "@mongosh/testing": "2.0.14",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/mongodb-ts-autocomplete": "^0.6.5",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",

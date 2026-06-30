@@ -1275,7 +1275,7 @@ export class CliRepl implements MongoshIOProvider {
         'MONGOSH',
         mongoLogId(1_000_000_045),
         'analytics',
-        'Flushed outstanding data',
+        'Persisted telemetry throttle state',
         {
           flushError,
           flushDuration,
