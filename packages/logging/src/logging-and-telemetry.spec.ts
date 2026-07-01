@@ -5,17 +5,17 @@ import { EventEmitter } from 'events';
 import { MongoshInvalidInputError } from '@mongosh/errors';
 import type { MongoshBus } from '@mongosh/types';
 import type { Writable } from 'stream';
-import { setupLoggingAndTelemetry } from './logging-and-telemetry';
+import type { MongoshLoggingAndTelemetry } from '.';
+import { setupLoggingAndTelemetry } from '.';
 import type { LoggingAndTelemetry } from './logging-and-telemetry';
 import sinon from 'sinon';
-import type {
-  MongoshLoggingAndTelemetryArguments,
-  MongoshLoggingAndTelemetry,
-} from './types';
+import type { MongoshLoggingAndTelemetryArguments } from './types';
+import { KNOWN_AGENT_ENV_VARS } from './helpers';
+import { TimingCategories } from '@mongosh/types';
 
 describe('MongoshLoggingAndTelemetry', function () {
   let logOutput: any[];
-  let analyticsOutput: ['identify' | 'track' | 'log', any][];
+  let analyticsOutput: ['track', any][];
   let bus: MongoshBus;
 
   const userId = '53defe995fa47e6c13102d9d';
@@ -25,9 +25,6 @@ describe('MongoshLoggingAndTelemetry', function () {
   let logger: MongoLogWriter;
 
   const analytics = {
-    identify(info: any) {
-      analyticsOutput.push(['identify', info]);
-    },
     track(info: any) {
       analyticsOutput.push(['track', info]);
     },
@@ -35,6 +32,35 @@ describe('MongoshLoggingAndTelemetry', function () {
       return Promise.resolve();
     },
   };
+
+  const makeIdentifyEvent = (
+    overrides: {
+      anonymousId?: string;
+      device_id?: string;
+      ai_agent?: string;
+    } = {}
+  ) => ({
+    name: 'Identify' as const,
+    payload: {
+      mongosh_version: '1.0.0',
+      ai_agent: overrides.ai_agent,
+      session_id: logId,
+      anonymousId: overrides.anonymousId ?? userId,
+      platform: process.platform,
+      arch: process.arch,
+      is_containerized: false,
+      os_type: 'Darwin',
+      os_version: '23.1.0',
+      os_arch: 'arm64',
+      os_release: '23.1.0',
+      os_linux_dist: undefined,
+      os_linux_release: undefined,
+      os_darwin_product_name: 'macOS',
+      os_darwin_product_version: '14.1.0',
+      os_darwin_product_build_version: '23B74',
+      device_id: overrides.device_id ?? deviceId,
+    },
+  });
 
   let loggingAndTelemetry: MongoshLoggingAndTelemetry;
 
@@ -46,6 +72,16 @@ describe('MongoshLoggingAndTelemetry', function () {
     userTraits: {
       platform: process.platform,
       arch: process.arch,
+      is_containerized: false,
+      os_type: 'Darwin',
+      os_version: '23.1.0',
+      os_arch: 'arm64',
+      os_release: '23.1.0',
+      os_linux_dist: undefined,
+      os_linux_release: undefined,
+      os_darwin_product_name: 'macOS',
+      os_darwin_product_version: '14.1.0',
+      os_darwin_product_build_version: '23B74',
     },
     mongoshVersion: '1.0.0',
   };
@@ -111,34 +147,24 @@ describe('MongoshLoggingAndTelemetry', function () {
       node_version: 'v12.19.0',
     });
 
-    expect(logOutput[0].msg).to.equal('Connecting to server');
-    expect(logOutput[0].attr.connectionUri).to.equal('mongodb://localhost/');
-    expect(logOutput[0].attr.is_localhost).to.equal(true);
-    expect(logOutput[0].attr.is_atlas).to.equal(false);
-    expect(logOutput[0].attr.atlas_hostname).to.equal(null);
-    expect(logOutput[0].attr.node_version).to.equal('v12.19.0');
+    expect(logOutput[0].msg).to.equal('Sending telemetry event');
+    expect(logOutput[0].attr.name).to.equal('Identify');
+    expect(logOutput[1].msg).to.equal('Connecting to server');
+    expect(logOutput[1].attr.connectionUri).to.equal('mongodb://localhost/');
+    expect(logOutput[1].attr.is_localhost).to.equal(true);
+    expect(logOutput[1].attr.is_atlas).to.equal(false);
+    expect(logOutput[1].attr.atlas_hostname).to.equal(null);
+    expect(logOutput[1].attr.node_version).to.equal('v12.19.0');
 
     expect(analyticsOutput).to.deep.equal([
-      [
-        'identify',
-        {
-          anonymousId: userId,
-          traits: {
-            device_id: deviceId,
-            arch: process.arch,
-            platform: process.platform,
-            mongosh_version: '1.0.0',
-            session_id: logId,
-          },
-        },
-      ],
+      ['track', makeIdentifyEvent()],
       [
         'track',
         {
-          anonymousId: userId,
-          event: 'New Connection',
-          properties: {
+          name: 'New Connection',
+          payload: {
             mongosh_version: '1.0.0',
+            ai_agent: undefined,
             session_id: logId,
             is_localhost: true,
             is_atlas: false,
@@ -168,38 +194,28 @@ describe('MongoshLoggingAndTelemetry', function () {
       node_version: 'v12.19.0',
     });
 
-    expect(logOutput[0].msg).to.equal('Connecting to server');
-    expect(logOutput[0].attr.connectionUri).to.equal(
+    expect(logOutput[0].msg).to.equal('Sending telemetry event');
+    expect(logOutput[0].attr.name).to.equal('Identify');
+    expect(logOutput[1].msg).to.equal('Connecting to server');
+    expect(logOutput[1].attr.connectionUri).to.equal(
       'mongodb://test-data-sets-a011bb.mongodb.net/'
     );
-    expect(logOutput[0].attr.is_localhost).to.equal(false);
-    expect(logOutput[0].attr.is_atlas).to.equal(true);
-    expect(logOutput[0].attr.atlas_hostname).to.equal(
+    expect(logOutput[1].attr.is_localhost).to.equal(false);
+    expect(logOutput[1].attr.is_atlas).to.equal(true);
+    expect(logOutput[1].attr.atlas_hostname).to.equal(
       'test-data-sets-00-02-a011bb.mongodb.net'
     );
-    expect(logOutput[0].attr.node_version).to.equal('v12.19.0');
+    expect(logOutput[1].attr.node_version).to.equal('v12.19.0');
 
     expect(analyticsOutput).to.deep.equal([
-      [
-        'identify',
-        {
-          anonymousId: userId,
-          traits: {
-            device_id: deviceId,
-            arch: process.arch,
-            platform: process.platform,
-            mongosh_version: '1.0.0',
-            session_id: logId,
-          },
-        },
-      ],
+      ['track', makeIdentifyEvent()],
       [
         'track',
         {
-          anonymousId: userId,
-          event: 'New Connection',
-          properties: {
+          name: 'New Connection',
+          payload: {
             mongosh_version: '1.0.0',
+            ai_agent: undefined,
             session_id: logId,
             is_localhost: false,
             is_atlas: true,
@@ -209,6 +225,83 @@ describe('MongoshLoggingAndTelemetry', function () {
         },
       ],
     ]);
+  });
+
+  it('New Connection event includes all NewConnectionEvent payload fields', async function () {
+    loggingAndTelemetry.attachLogger(logger);
+    await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
+
+    bus.emit('mongosh:new-user', { userId, anonymousId: userId });
+    bus.emit('mongosh:log-initialized');
+
+    bus.emit('mongosh:connect', {
+      uri: 'mongodb://myserver.mongodb.net/',
+      is_atlas: true,
+      is_atlas_url: true,
+      is_local_atlas: false,
+      is_localhost: false,
+      is_do_url: false,
+      is_enterprise: true,
+      is_genuine: true,
+      is_data_federation: false,
+      is_stream: false,
+      resolved_hostname: 'myserver.mongodb.net',
+      server_version: '6.0.0',
+      server_os: 'Linux',
+      server_arch: 'x86_64',
+      non_genuine_server_name: '',
+      auth_type: 'SCRAM-SHA-256',
+      api_version: '1',
+      api_strict: false,
+      api_deprecation_errors: false,
+      dl_version: '2.0.0',
+      atlas_version: '20231024.0.0',
+      node_version: 'v18.0.0',
+      is_srv: false,
+      topology_type: 'ReplicaSetWithPrimary',
+      is_csfle: false,
+      has_csfle_schema: false,
+      connection_id: 'connection_1',
+    });
+
+    const trackEvent = analyticsOutput.find(
+      ([, e]) => e.name === 'New Connection'
+    );
+    expect(trackEvent).to.exist;
+    expect(trackEvent![1]).to.deep.equal({
+      name: 'New Connection',
+      payload: {
+        mongosh_version: '1.0.0',
+        ai_agent: undefined,
+        session_id: logId,
+        is_atlas: true,
+        is_atlas_url: true,
+        is_local_atlas: false,
+        is_localhost: false,
+        is_do_url: false,
+        is_enterprise: true,
+        is_genuine: true,
+        is_data_federation: false,
+        is_stream: false,
+        atlas_hostname: 'myserver.mongodb.net',
+        server_version: '6.0.0',
+        server_os: 'Linux',
+        server_arch: 'x86_64',
+        non_genuine_server_name: '',
+        auth_type: 'SCRAM-SHA-256',
+        api_version: '1',
+        api_strict: false,
+        api_deprecation_errors: false,
+        dl_version: '2.0.0',
+        atlas_version: '20231024.0.0',
+        node_version: 'v18.0.0',
+        is_srv: false,
+        topology_type: 'ReplicaSetWithPrimary',
+        is_csfle: false,
+        has_csfle_schema: false,
+        connection_id: 'connection_1',
+      },
+    });
   });
 
   describe('device ID', function () {
@@ -233,19 +326,7 @@ describe('MongoshLoggingAndTelemetry', function () {
       bus.emit('mongosh:new-user', { userId, anonymousId: userId });
 
       expect(analyticsOutput).deep.equal([
-        [
-          'identify',
-          {
-            anonymousId: userId,
-            traits: {
-              device_id: 'unknown',
-              platform: process.platform,
-              arch: process.arch,
-              mongosh_version: '1.0.0',
-              session_id: logId,
-            },
-          },
-        ],
+        ['track', makeIdentifyEvent({ device_id: 'unknown' })],
       ]);
     });
 
@@ -263,19 +344,7 @@ describe('MongoshLoggingAndTelemetry', function () {
       await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
 
       expect(analyticsOutput).deep.equal([
-        [
-          'identify',
-          {
-            anonymousId: userId,
-            traits: {
-              device_id: 'device_id_value',
-              platform: process.platform,
-              arch: process.arch,
-              mongosh_version: '1.0.0',
-              session_id: logId,
-            },
-          },
-        ],
+        ['track', makeIdentifyEvent({ device_id: 'device_id_value' })],
       ]);
     });
 
@@ -309,19 +378,7 @@ describe('MongoshLoggingAndTelemetry', function () {
 
       // Should still identify but with unknown device ID
       expect(analyticsOutput).deep.equal([
-        [
-          'identify',
-          {
-            anonymousId: userId,
-            traits: {
-              device_id: 'unknown',
-              platform: process.platform,
-              arch: process.arch,
-              mongosh_version: '1.0.0',
-              session_id: logId,
-            },
-          },
-        ],
+        ['track', makeIdentifyEvent({ device_id: 'unknown' })],
       ]);
     });
 
@@ -340,7 +397,12 @@ describe('MongoshLoggingAndTelemetry', function () {
       loggingAndTelemetry.attachLogger(logger);
 
       // This event has both analytics and logging
-      bus.emit('mongosh:use', { db: '' });
+      bus.emit('mongosh:connect', {
+        uri: 'mongodb://localhost/',
+        is_localhost: true,
+        is_atlas: false,
+        resolved_hostname: 'localhost',
+      });
 
       expect(logOutput).to.have.lengthOf(1);
       expect(analyticsOutput).to.have.lengthOf(0);
@@ -348,7 +410,7 @@ describe('MongoshLoggingAndTelemetry', function () {
       resolveDeviceId('test-resolved-device-id');
       await loggingAndTelemetry.setupTelemetryPromise;
 
-      expect(logOutput).to.have.lengthOf(1);
+      expect(logOutput).to.have.lengthOf(2); // connect log + "Sending telemetry event"
       expect(analyticsOutput).to.have.lengthOf(1);
 
       expect(loggingAndTelemetry['deviceId']).equals('test-resolved-device-id');
@@ -365,7 +427,12 @@ describe('MongoshLoggingAndTelemetry', function () {
     await loggingAndTelemetry.detachLogger();
 
     // This event has both analytics and logging
-    bus.emit('mongosh:use', { db: '' });
+    bus.emit('mongosh:connect', {
+      uri: 'mongodb://localhost/',
+      is_localhost: true,
+      is_atlas: false,
+      resolved_hostname: 'localhost',
+    });
 
     expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.have.lengthOf(1);
@@ -401,7 +468,12 @@ describe('MongoshLoggingAndTelemetry', function () {
     expect(analyticsOutput).to.have.lengthOf(0);
 
     // This event has both analytics and logging
-    bus.emit('mongosh:use', { db: '' });
+    bus.emit('mongosh:connect', {
+      uri: 'mongodb://localhost/',
+      is_localhost: true,
+      is_atlas: false,
+      resolved_hostname: 'localhost',
+    });
 
     expect(logOutput).to.have.lengthOf(1);
 
@@ -410,9 +482,14 @@ describe('MongoshLoggingAndTelemetry', function () {
 
     await loggingAndTelemetry.detachLogger();
 
-    bus.emit('mongosh:use', { db: '' });
+    bus.emit('mongosh:connect', {
+      uri: 'mongodb://localhost/',
+      is_localhost: true,
+      is_atlas: false,
+      resolved_hostname: 'localhost',
+    });
 
-    expect(logOutput).to.have.lengthOf(1);
+    expect(logOutput).to.have.lengthOf(2);
 
     expect(analyticsOutput).to.have.lengthOf(2);
   });
@@ -424,7 +501,12 @@ describe('MongoshLoggingAndTelemetry', function () {
     expect(analyticsOutput).to.have.lengthOf(0);
 
     // This event has both analytics and logging
-    bus.emit('mongosh:use', { db: '' });
+    bus.emit('mongosh:connect', {
+      uri: 'mongodb://localhost/',
+      is_localhost: true,
+      is_atlas: false,
+      resolved_hostname: 'localhost',
+    });
 
     expect(logOutput).to.have.lengthOf(1);
     await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
@@ -433,17 +515,27 @@ describe('MongoshLoggingAndTelemetry', function () {
 
     await loggingAndTelemetry.detachLogger();
 
-    bus.emit('mongosh:use', { db: '' });
+    bus.emit('mongosh:connect', {
+      uri: 'mongodb://localhost/',
+      is_localhost: true,
+      is_atlas: false,
+      resolved_hostname: 'localhost',
+    });
 
-    expect(logOutput).to.have.lengthOf(1);
+    expect(logOutput).to.have.lengthOf(2);
 
     expect(analyticsOutput).to.have.lengthOf(2);
 
     loggingAndTelemetry.attachLogger(logger);
 
-    bus.emit('mongosh:use', { db: '' });
+    bus.emit('mongosh:connect', {
+      uri: 'mongodb://localhost/',
+      is_localhost: true,
+      is_atlas: false,
+      resolved_hostname: 'localhost',
+    });
 
-    expect(logOutput).to.have.lengthOf(2);
+    expect(logOutput).to.have.lengthOf(4);
 
     expect(analyticsOutput).to.have.lengthOf(3);
   });
@@ -463,8 +555,8 @@ describe('MongoshLoggingAndTelemetry', function () {
       isInteractive: true,
       jsContext: 'repl',
       timings: {
-        'BoxedNode Bindings': 50,
-        NodeREPL: 100,
+        [TimingCategories.REPLInstantiation]: 50,
+        [TimingCategories.UserConfigLoading]: 100,
       },
     });
 
@@ -604,7 +696,9 @@ describe('MongoshLoggingAndTelemetry', function () {
       error: new Error('failed'),
     });
 
-    let i = 0;
+    // logOutput[0] = "Sending telemetry event" (Identify from mongosh:new-user)
+    // logOutput[1] = "Sending telemetry event" (Identify from mongosh:update-user)
+    let i = 2;
 
     expect(logOutput[i++].msg).to.equal('User updated');
     expect(logOutput[i].s).to.equal('E');
@@ -748,167 +842,38 @@ describe('MongoshLoggingAndTelemetry', function () {
     expect(i).to.equal(logOutput.length);
 
     expect(analyticsOutput).to.deep.equal([
-      [
-        'identify',
-        {
-          anonymousId: userId,
-          traits: {
-            device_id: deviceId,
-            platform: process.platform,
-            arch: process.arch,
-            mongosh_version: '1.0.0',
-            session_id: logId,
-          },
-        },
-      ],
-      [
-        'identify',
-        {
-          anonymousId: userId,
-          traits: {
-            device_id: deviceId,
-            platform: process.platform,
-            arch: process.arch,
-            mongosh_version: '1.0.0',
-            session_id: logId,
-          },
-        },
-      ],
+      ['track', makeIdentifyEvent()],
+      ['track', makeIdentifyEvent()],
+    ]);
+
+    await loggingAndTelemetry.flush();
+
+    expect(analyticsOutput).to.deep.equal([
+      ['track', makeIdentifyEvent()],
+      ['track', makeIdentifyEvent()],
       [
         'track',
         {
-          anonymousId: userId,
-          event: 'Startup Time',
-          properties: {
+          name: 'Session Ended',
+          payload: {
+            mongosh_version: '1.0.0',
+            ai_agent: undefined,
+            session_id: logId,
             is_interactive: true,
-            js_context: 'repl',
-            boxed_node_bindings: 50,
-            node_repl: 100,
-            mongosh_version: '1.0.0',
-            session_id: logId,
-          },
-        },
-      ],
-      [
-        'track',
-        {
-          anonymousId: '53defe995fa47e6c13102d9d',
-          event: 'Error',
-          properties: {
-            mongosh_version: '1.0.0',
-            session_id: logId,
-            name: 'MongoshInvalidInputError',
-            code: 'CLIREPL-1005',
-            scope: 'CLIREPL',
-            metadata: { cause: 'x' },
-          },
-        },
-      ],
-      [
-        'track',
-        {
-          anonymousId: '53defe995fa47e6c13102d9d',
-          event: 'Error',
-          properties: {
-            mongosh_version: '1.0.0',
-            session_id: logId,
-            name: 'MongoshInvalidInputError',
-            code: 'CLIREPL-1005',
-            scope: 'CLIREPL',
-            metadata: { cause: 'x' },
-          },
-        },
-      ],
-      [
-        'track',
-        {
-          anonymousId: '53defe995fa47e6c13102d9d',
-          event: 'Use',
-          properties: {
-            mongosh_version: '1.0.0',
-            session_id: logId,
-          },
-        },
-      ],
-      [
-        'track',
-        {
-          anonymousId: '53defe995fa47e6c13102d9d',
-          event: 'Show',
-          properties: {
-            mongosh_version: '1.0.0',
-            session_id: logId,
-            method: 'dbs',
-          },
-        },
-      ],
-      [
-        'track',
-        {
-          event: 'Script Loaded CLI',
-          properties: {
-            mongosh_version: '1.0.0',
-            session_id: logId,
-            nested: true,
-            shell: true,
-          },
-          anonymousId: '53defe995fa47e6c13102d9d',
-        },
-      ],
-      [
-        'track',
-        {
-          event: 'Script Loaded',
-          properties: {
-            mongosh_version: '1.0.0',
-            session_id: logId,
-            nested: false,
-          },
-          anonymousId: '53defe995fa47e6c13102d9d',
-        },
-      ],
-      [
-        'track',
-        {
-          event: 'Mongoshrc Loaded',
-          properties: {
-            mongosh_version: '1.0.0',
-            session_id: logId,
-          },
-          anonymousId: '53defe995fa47e6c13102d9d',
-        },
-      ],
-      [
-        'track',
-        {
-          event: 'Mongorc Warning',
-          properties: {
-            mongosh_version: '1.0.0',
-            session_id: logId,
-          },
-          anonymousId: '53defe995fa47e6c13102d9d',
-        },
-      ],
-      [
-        'track',
-        {
-          event: 'Script Evaluated',
-          properties: {
-            mongosh_version: '1.0.0',
-            session_id: logId,
-            shell: true,
-          },
-          anonymousId: '53defe995fa47e6c13102d9d',
-        },
-      ],
-      [
-        'track',
-        {
-          anonymousId: '53defe995fa47e6c13102d9d',
-          event: 'Snippet Install',
-          properties: {
-            mongosh_version: '1.0.0',
-            session_id: logId,
+            commands_repl: undefined,
+            commands_rc: { 'ShellApi.use': 1 },
+            sequence: ['ShellApi.use'],
+            sequence_truncated: false,
+            error_count: 2,
+            repl_instantiation_ms: 50,
+            user_config_loading_ms: 100,
+            mongoshrc_loaded: true,
+            mongorc_warning: true,
+            snippet_loaded_count: 1,
+            shell_flag: false,
+            cli_eval_count: 1,
+            cli_file_count: 1,
+            evaluation_count: 0,
           },
         },
       ],
@@ -924,6 +889,11 @@ describe('MongoshLoggingAndTelemetry', function () {
 
     bus.emit('mongosh:new-user', { userId, anonymousId: userId });
     bus.emit('mongosh:log-initialized');
+    bus.emit('mongosh:start-session', {
+      isInteractive: true,
+      jsContext: 'repl',
+      timings: {},
+    });
 
     bus.emit('mongosh:evaluate-started');
 
@@ -978,7 +948,7 @@ describe('MongoshLoggingAndTelemetry', function () {
 
     bus.emit('mongosh:evaluate-finished');
     expect(logOutput).to.have.length(3);
-    expect(analyticsOutput).to.have.length(5);
+    expect(analyticsOutput).to.be.empty;
 
     expect(logOutput[0].msg).to.equal('Deprecated API call');
     expect(logOutput[0].attr).to.deep.equal({
@@ -995,75 +965,6 @@ describe('MongoshLoggingAndTelemetry', function () {
       class: 'Database',
       method: 'mangleDatabase',
     });
-    expect(analyticsOutput).to.deep.equal([
-      [
-        'track',
-        {
-          anonymousId: '53defe995fa47e6c13102d9d',
-          event: 'Deprecated Method',
-          properties: {
-            mongosh_version: '1.0.0',
-            session_id: logId,
-            class: 'Database',
-            method: 'cloneDatabase',
-          },
-        },
-      ],
-      [
-        'track',
-        {
-          anonymousId: '53defe995fa47e6c13102d9d',
-          event: 'Deprecated Method',
-          properties: {
-            mongosh_version: '1.0.0',
-            session_id: logId,
-            class: 'Database',
-            method: 'copyDatabase',
-          },
-        },
-      ],
-      [
-        'track',
-        {
-          anonymousId: '53defe995fa47e6c13102d9d',
-          event: 'Deprecated Method',
-          properties: {
-            mongosh_version: '1.0.0',
-            session_id: logId,
-            class: 'Database',
-            method: 'mangleDatabase',
-          },
-        },
-      ],
-      [
-        'track',
-        {
-          anonymousId: '53defe995fa47e6c13102d9d',
-          event: 'API Call',
-          properties: {
-            mongosh_version: '1.0.0',
-            session_id: logId,
-            class: 'Database',
-            method: 'cloneDatabase',
-            count: 3,
-          },
-        },
-      ],
-      [
-        'track',
-        {
-          anonymousId: '53defe995fa47e6c13102d9d',
-          event: 'API Call',
-          properties: {
-            mongosh_version: '1.0.0',
-            session_id: logId,
-            class: 'Database',
-            method: 'copyDatabase',
-            count: 1,
-          },
-        },
-      ],
-    ]);
 
     bus.emit('mongosh:new-user', { userId, anonymousId: userId });
 
@@ -1090,7 +991,119 @@ describe('MongoshLoggingAndTelemetry', function () {
       method: 'cloneDatabase',
     });
 
-    expect(analyticsOutput).to.have.lengthOf(2);
+    expect(analyticsOutput).to.be.empty;
+
+    await loggingAndTelemetry.flush();
+    expect(analyticsOutput).to.deep.equal([
+      [
+        'track',
+        {
+          name: 'Session Ended',
+          payload: {
+            mongosh_version: '1.0.0',
+            ai_agent: undefined,
+            session_id: logId,
+            is_interactive: true,
+            commands_repl: undefined,
+            commands_rc: {
+              'Database.cloneDatabase': 4,
+              'Database.copyDatabase': 1,
+            },
+            sequence: [
+              'Database.cloneDatabase',
+              'Database.copyDatabase',
+              'Database.cloneDatabase',
+            ],
+            sequence_truncated: false,
+            error_count: 0,
+            mongoshrc_loaded: false,
+            mongorc_warning: false,
+            snippet_loaded_count: 0,
+            shell_flag: false,
+            cli_eval_count: 0,
+            cli_file_count: 0,
+            evaluation_count: 2,
+          },
+        },
+      ],
+    ]);
+  });
+
+  it('Session Ended event includes all SessionEndedEvent payload fields', async function () {
+    loggingAndTelemetry.attachLogger(logger);
+    await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
+
+    bus.emit('mongosh:new-user', { userId, anonymousId: userId });
+    bus.emit('mongosh:log-initialized');
+    bus.emit('mongosh:start-session', {
+      isInteractive: true,
+      jsContext: 'repl',
+      timings: {
+        [TimingCategories.REPLInstantiation]: 10,
+        [TimingCategories.UserConfigLoading]: 20,
+        [TimingCategories.DriverSetup]: 30,
+        [TimingCategories.Logging]: 40,
+        [TimingCategories.SnippetLoading]: 50,
+        [TimingCategories.Snapshot]: 60,
+        [TimingCategories.ResourceFileLoading]: 70,
+        [TimingCategories.AsyncRewrite]: 80,
+        [TimingCategories.Eval]: 90,
+        [TimingCategories.EvalFile]: 100,
+        [TimingCategories.Telemetry]: 110,
+        [TimingCategories.Main]: 120,
+      },
+    });
+
+    bus.emit('mongosh:mongoshrc-load');
+    bus.emit('mongosh:mongoshrc-mongorc-warn');
+    bus.emit('mongosh:eval-cli-script');
+    bus.emit('mongosh:start-loading-cli-scripts', { usesShellOption: false });
+    // api-load-file must come before start-mongosh-repl to count toward cli_file_count
+    bus.emit('mongosh:api-load-file', { nested: false, filename: 'test.js' });
+    bus.emit('mongosh:start-mongosh-repl', { version: '1.0.0' });
+
+    analyticsOutput = [];
+
+    await loggingAndTelemetry.flush();
+
+    expect(analyticsOutput).to.deep.equal([
+      [
+        'track',
+        {
+          name: 'Session Ended',
+          payload: {
+            mongosh_version: '1.0.0',
+            ai_agent: undefined,
+            session_id: logId,
+            is_interactive: true,
+            commands_repl: undefined,
+            commands_rc: undefined,
+            sequence: [],
+            sequence_truncated: false,
+            error_count: 0,
+            repl_instantiation_ms: 10,
+            user_config_loading_ms: 20,
+            driver_setup_ms: 30,
+            logging_ms: 40,
+            snippet_loading_ms: 50,
+            snapshot_ms: 60,
+            resource_file_loading_ms: 70,
+            async_rewrite_ms: 80,
+            eval_ms: 90,
+            eval_file_ms: 100,
+            telemetry_ms: 110,
+            main_ms: 120,
+            mongoshrc_loaded: true,
+            mongorc_warning: true,
+            snippet_loaded_count: 0,
+            shell_flag: false,
+            cli_eval_count: 1,
+            cli_file_count: 1,
+            evaluation_count: 0,
+          },
+        },
+      ],
+    ]);
   });
 
   it('does not track database calls outside of evaluate-{started,finished}', function () {
@@ -1219,46 +1232,51 @@ describe('MongoshLoggingAndTelemetry', function () {
     expect(logOutput[0].attr.atlas_hostname).to.equal(null);
     expect(logOutput[0].attr.node_version).to.equal('v12.19.0');
 
-    expect(logOutput[1].s).to.equal('I');
-    expect(logOutput[1].c).to.equal('MONGOSH-SCRIPTS');
-    expect(logOutput[1].ctx).to.equal('custom-log');
-    expect(logOutput[1].msg).to.equal('This is an info message');
-    expect(logOutput[1].attr.some).to.equal('value');
+    expect(logOutput[1].c).to.equal('MONGOSH');
+    expect(logOutput[1].ctx).to.equal('analytics');
+    expect(logOutput[1].msg).to.equal('Sending telemetry event');
+    expect(logOutput[1].attr.name).to.equal('New Connection');
 
-    expect(logOutput[2].s).to.equal('W');
+    expect(logOutput[2].s).to.equal('I');
     expect(logOutput[2].c).to.equal('MONGOSH-SCRIPTS');
     expect(logOutput[2].ctx).to.equal('custom-log');
-    expect(logOutput[2].msg).to.equal('This is a warn message');
+    expect(logOutput[2].msg).to.equal('This is an info message');
+    expect(logOutput[2].attr.some).to.equal('value');
 
-    expect(logOutput[3].s).to.equal('E');
+    expect(logOutput[3].s).to.equal('W');
     expect(logOutput[3].c).to.equal('MONGOSH-SCRIPTS');
     expect(logOutput[3].ctx).to.equal('custom-log');
-    expect(logOutput[3].msg).to.equal('Error!');
+    expect(logOutput[3].msg).to.equal('This is a warn message');
 
-    expect(logOutput[4].s).to.equal('F');
+    expect(logOutput[4].s).to.equal('E');
     expect(logOutput[4].c).to.equal('MONGOSH-SCRIPTS');
     expect(logOutput[4].ctx).to.equal('custom-log');
-    expect(logOutput[4].msg).to.equal('Fatal!');
+    expect(logOutput[4].msg).to.equal('Error!');
 
-    expect(logOutput[5].s).to.equal('D1');
+    expect(logOutput[5].s).to.equal('F');
     expect(logOutput[5].c).to.equal('MONGOSH-SCRIPTS');
     expect(logOutput[5].ctx).to.equal('custom-log');
-    expect(logOutput[5].msg).to.equal('Debug with level');
+    expect(logOutput[5].msg).to.equal('Fatal!');
 
     expect(logOutput[6].s).to.equal('D1');
     expect(logOutput[6].c).to.equal('MONGOSH-SCRIPTS');
     expect(logOutput[6].ctx).to.equal('custom-log');
-    expect(logOutput[6].msg).to.equal('Debug without level');
+    expect(logOutput[6].msg).to.equal('Debug with level');
+
+    expect(logOutput[7].s).to.equal('D1');
+    expect(logOutput[7].c).to.equal('MONGOSH-SCRIPTS');
+    expect(logOutput[7].ctx).to.equal('custom-log');
+    expect(logOutput[7].msg).to.equal('Debug without level');
 
     expect(analyticsOutput).to.deep.equal([
       [
         'track',
         {
-          anonymousId: undefined,
-          event: 'New Connection',
-          properties: {
+          name: 'New Connection',
+          payload: {
             mongosh_version: '1.0.0',
-            session_id: '5fb3c20ee1507e894e5340f3',
+            ai_agent: undefined,
+            session_id: logId,
             is_localhost: true,
             is_atlas: false,
             atlas_hostname: null,
@@ -1267,5 +1285,91 @@ describe('MongoshLoggingAndTelemetry', function () {
         },
       ],
     ]);
+  });
+
+  describe('ai_agent detection', function () {
+    afterEach(async function () {
+      for (const v of KNOWN_AGENT_ENV_VARS) {
+        delete process.env[v];
+      }
+      await loggingAndTelemetry.detachLogger();
+      loggingAndTelemetry = setupLoggingAndTelemetry({
+        ...testLoggingArguments,
+        deviceId,
+        bus,
+      });
+    });
+
+    it('includes ai_agent: undefined in track properties when no agent env var is set', async function () {
+      loggingAndTelemetry.attachLogger(logger);
+      await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
+
+      bus.emit('mongosh:new-user', { userId, anonymousId: userId });
+      bus.emit('mongosh:connect', {
+        uri: 'mongodb://localhost/',
+        is_localhost: true,
+        is_atlas: false,
+        resolved_hostname: 'localhost',
+      });
+
+      const trackEvent = analyticsOutput.find(
+        ([, e]) => e.name === 'New Connection'
+      );
+      expect(trackEvent?.[1].payload.ai_agent).to.equal(undefined);
+    });
+
+    it('includes ai_agent in track properties when CLAUDECODE is set', async function () {
+      process.env.CLAUDECODE = '1';
+
+      loggingAndTelemetry.attachLogger(logger);
+      await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
+
+      bus.emit('mongosh:new-user', { userId, anonymousId: userId });
+      bus.emit('mongosh:connect', {
+        uri: 'mongodb://localhost/',
+        is_localhost: true,
+        is_atlas: false,
+        resolved_hostname: 'localhost',
+      });
+
+      const trackEvent = analyticsOutput.find(
+        ([, e]) => e.name === 'New Connection'
+      );
+      expect(trackEvent?.[1].payload.ai_agent).to.equal('claudecode');
+    });
+
+    it('includes ai_agent in identify traits when an agent env var is set', async function () {
+      process.env.COPILOT_AGENT = '1';
+
+      loggingAndTelemetry.attachLogger(logger);
+      await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
+
+      bus.emit('mongosh:new-user', { userId, anonymousId: userId });
+
+      const identifyEvent = analyticsOutput.find(
+        ([, e]) => e.name === 'Identify'
+      );
+      expect(identifyEvent?.[1].payload.ai_agent).to.equal('copilot_agent');
+    });
+
+    it('returns lowercase env var name for AI_AGENT regardless of its value', async function () {
+      process.env.AI_AGENT = 'my-tool';
+
+      loggingAndTelemetry.attachLogger(logger);
+      await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
+
+      bus.emit('mongosh:new-user', { userId, anonymousId: userId });
+      bus.emit('mongosh:connect', {
+        uri: 'mongodb://localhost/',
+        is_localhost: true,
+        is_atlas: false,
+        resolved_hostname: 'localhost',
+      });
+
+      const trackEvent = analyticsOutput.find(
+        ([, e]) => e.name === 'New Connection'
+      );
+      expect(trackEvent?.[1].payload.ai_agent).to.equal('ai_agent');
+    });
   });
 });

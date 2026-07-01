@@ -19,6 +19,11 @@ export type ConnectionExtraInfo = {
   node_version?: string;
   uri: string;
   is_local_atlas?: boolean;
+  is_srv?: boolean;
+  topology_type?: string;
+  is_csfle?: boolean;
+  has_csfle_schema?: boolean;
+  connection_id?: string;
 } & HostInformation;
 
 export type HostInformation = {
@@ -89,6 +94,7 @@ export default function getConnectExtraInfo({
   return {
     ...getHostInformation(resolvedHostname || uri),
     is_atlas: isAtlas,
+    is_srv: connectionString?.isSRV,
     server_version: buildInfo.version,
     node_version: process.version,
     server_os: serverOs || undefined,

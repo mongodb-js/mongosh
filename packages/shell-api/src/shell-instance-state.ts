@@ -319,6 +319,7 @@ export class ShellInstanceState {
         api_strict: apiVersionInfo?.strict,
         api_deprecation_errors: apiVersionInfo?.deprecationErrors,
         uri: redactConnectionString(connectionInfo?.extraInfo?.uri ?? ''),
+        connection_id: this.currentDb.getMongo()._getConnectionId(),
       });
       return connectionInfo;
     }

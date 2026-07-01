@@ -1,3 +1,29 @@
+export const KNOWN_AGENT_ENV_VARS = [
+  'COPILOT_AGENT',
+  'CLAUDECODE',
+  'CURSOR_AGENT',
+  'CODEX_SANDBOX',
+  'CLINE_ACTIVE',
+  'GEMINI_CLI',
+  'AI_AGENT',
+] as const;
+
+/**
+ * Detects whether mongosh is being driven by an AI agent by checking
+ * well-known environment variables set by calling agents.
+ *
+ * Returns the lowercase env-var name as the agent identifier, or `undefined`
+ * if no agent is detected.
+ */
+export function getAiAgent(): string | undefined {
+  for (const envVar of KNOWN_AGENT_ENV_VARS) {
+    if (process.env[envVar]) {
+      return envVar.toLowerCase();
+    }
+  }
+  return undefined;
+}
+
 /**
  * A helper class for keeping track of how often specific events occurred.
  */
