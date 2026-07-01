@@ -79,7 +79,10 @@ function attachInspectMethods(obj: any): void {
     tryAddInspect(obj, bsonStringifiers[bsontype]);
   } else if (isDate(obj)) {
     tryAddInspect(obj, function (this: Date): string {
-      return this.toISOString();
+      if (isNaN(this.valueOf())) {
+        return 'Invalid Date';
+      }
+      return `ISODate('${this.toISOString()}')`;
     });
   }
 }
