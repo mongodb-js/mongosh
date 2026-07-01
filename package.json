@@ -100,6 +100,9 @@
   "engines": {
     "node": ">=20.19.3"
   },
+  "overrides": {
+    "node-gyp": "^13.0.0"
+  },
   "devDependencies": {
     "@mongodb-js/tracking-plan": "^0.3.2",
     "@mongodb-js/monorepo-tools": "^1.4.5",
