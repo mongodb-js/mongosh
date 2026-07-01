@@ -43,7 +43,7 @@
   "dependencies": {
     "@mongodb-js/mongodb-constants": "^0.20.1",
     "@mongosh/shell-api": "^5.3.2",
-    "@mongodb-js/mongodb-ts-autocomplete": "^0.6.5",
+    "@mongodb-js/mongodb-ts-autocomplete": "^0.6.17",
     "semver": "^7.5.4"
   }
 }
