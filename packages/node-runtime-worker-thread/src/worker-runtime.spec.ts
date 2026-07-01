@@ -203,6 +203,22 @@ describe('worker-runtime', function () {
           '({ cls: class A{}, fn() {}, bsonType: NumberInt("1"), str: "123"})',
           "{ cls: [class A], fn: [Function: fn], bsonType: Int32(1), str: '123' }",
         ],
+        [
+          'date',
+          "new Date('2020-11-06T14:26:29.131Z')",
+          "ISODate('2020-11-06T14:26:29.131Z')",
+        ],
+        ['invalid date', 'new Date(NaN)', 'Invalid Date'],
+        [
+          'object with date',
+          "({ts: new Date('2020-11-06T14:26:29.131Z')})",
+          "{ ts: ISODate('2020-11-06T14:26:29.131Z') }",
+        ],
+        [
+          'date function call (no new)',
+          "Date('2020-11-06T14:26:29.131Z')",
+          /^\w{3} \w{3} \d{2} \d{4}/,
+        ],
       ];
 
       primitiveValues.concat(everythingElse).forEach((testCase) => {
@@ -756,7 +772,7 @@ describe('worker-runtime', function () {
   binData: Binary.createFromBase64('AQID', 0),
   objectId: ObjectId('642d766c7300158b1f22e975'),
   boolean: true,
-  date: 2023-04-05T13:25:08.445Z,
+  date: ISODate('2023-04-05T13:25:08.445Z'),
   null: null,
   regex: BSONRegExp('pattern', 'i'),
   javascript: Code('function() {}'),

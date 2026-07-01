@@ -28,8 +28,12 @@ describe('inspect', function () {
 
     it('inspects Dates', function () {
       expect(inspect(new Date('2020-11-06T14:26:29.131Z'))).to.equal(
-        '2020-11-06T14:26:29.131Z'
+        "ISODate('2020-11-06T14:26:29.131Z')"
       );
+    });
+
+    it('inspects invalid Dates', function () {
+      expect(inspect(new Date(NaN))).to.equal('Invalid Date');
     });
   });
 
