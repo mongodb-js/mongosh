@@ -101,7 +101,7 @@
     "node": ">=20.19.3"
   },
   "overrides": {
-    "node-gyp": "^12.4.0"
+    "node-gyp": "^13.0.0"
   },
   "devDependencies": {
     "@mongodb-js/tracking-plan": "^0.3.2",
