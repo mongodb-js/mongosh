@@ -42,7 +42,7 @@
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@mongodb-js/mongodb-ts-autocomplete": "^0.6.17",
     "@mongosh/types": "^5.0.5",
-    "bson": "^7.3.0",
+    "bson": "^7.3.1",
     "eslint": "^7.25.0",
     "prettier": "^2.8.8",
     "rimraf": "^3.0.2"
