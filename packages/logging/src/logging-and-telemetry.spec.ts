@@ -1289,7 +1289,7 @@ describe('MongoshLoggingAndTelemetry', function () {
 
   describe('ai_agent detection', function () {
     afterEach(async function () {
-      for (const v of KNOWN_AGENT_ENV_VARS) {
+      for (const v of Object.keys(KNOWN_AGENT_ENV_VARS)) {
         delete process.env[v];
       }
       await loggingAndTelemetry.detachLogger();
@@ -1335,7 +1335,7 @@ describe('MongoshLoggingAndTelemetry', function () {
       const trackEvent = analyticsOutput.find(
         ([, e]) => e.name === 'New Connection'
       );
-      expect(trackEvent?.[1].payload.ai_agent).to.equal('claudecode');
+      expect(trackEvent?.[1].payload.ai_agent).to.equal('claude_code');
     });
 
     it('includes ai_agent in identify traits when an agent env var is set', async function () {
@@ -1349,7 +1349,7 @@ describe('MongoshLoggingAndTelemetry', function () {
       const identifyEvent = analyticsOutput.find(
         ([, e]) => e.name === 'Identify'
       );
-      expect(identifyEvent?.[1].payload.ai_agent).to.equal('copilot_agent');
+      expect(identifyEvent?.[1].payload.ai_agent).to.equal('copilot');
     });
 
     it('returns lowercase env var name for AI_AGENT regardless of its value', async function () {

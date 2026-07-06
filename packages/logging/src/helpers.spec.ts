@@ -25,33 +25,53 @@ describe('logging helpers', function () {
   });
 
   describe('getAiAgent', function () {
-    beforeEach(function () {
-      for (const v of KNOWN_AGENT_ENV_VARS) {
+    const cleanup = () => {
+      for (const v of Object.keys(KNOWN_AGENT_ENV_VARS)) {
         delete process.env[v];
       }
-    });
+      delete process.env.AGENT;
+      delete process.env.AI_AGENT;
+    };
 
-    afterEach(function () {
-      for (const v of KNOWN_AGENT_ENV_VARS) {
-        delete process.env[v];
-      }
-    });
+    beforeEach(cleanup);
+    afterEach(cleanup);
 
     it('returns undefined when no agent env var is set', function () {
       expect(getAiAgent()).to.equal(undefined);
     });
 
-    for (const envVar of KNOWN_AGENT_ENV_VARS) {
-      it(`returns lowercase env var name for ${envVar}`, function () {
+    for (const [envVar, agentName] of Object.entries(KNOWN_AGENT_ENV_VARS)) {
+      it(`returns '${agentName}' for ${envVar}`, function () {
         process.env[envVar] = '1';
-        expect(getAiAgent()).to.equal(envVar.toLowerCase());
+        expect(getAiAgent()).to.equal(agentName);
       });
     }
 
-    it('returns the first matching var when multiple are set', function () {
+    it('returns ai_agent for AGENT=1', function () {
+      process.env.AGENT = '1';
+      expect(getAiAgent()).to.equal('ai_agent');
+    });
+
+    it('returns ai_agent for AI_AGENT=true', function () {
+      process.env.AI_AGENT = 'true';
+      expect(getAiAgent()).to.equal('ai_agent');
+    });
+
+    it('returns the value of AGENT when it is a known agent name', function () {
+      process.env.AGENT = 'my_custom_tool';
+      expect(getAiAgent()).to.equal('my_custom_tool');
+    });
+
+    it('returns the first matching KNOWN_AGENT_ENV_VARS entry when multiple are set', function () {
       process.env.CLAUDECODE = '1';
+      process.env.CURSOR_AGENT = '1';
+      expect(getAiAgent()).to.equal('claude_code');
+    });
+
+    it('AGENT and AI_AGENT take priority over KNOWN_AGENT_ENV_VARS', function () {
       process.env.AI_AGENT = '1';
-      expect(getAiAgent()).to.equal('claudecode');
+      process.env.CLAUDECODE = '1';
+      expect(getAiAgent()).to.equal('ai_agent');
     });
   });
 });
