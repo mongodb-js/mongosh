@@ -2304,6 +2304,10 @@ describe('CliRepl', function () {
 
       context('for server >= 4.1', function () {
         skipIfServerVersion(testServer, '< 4.1');
+        // Server 9.0 no longer kills in-progress operations on client
+        // disconnect, which is how mongosh terminates ops on CTRL-C.
+        // See MONGOSH-3412 / MONGOSH-3413.
+        skipIfServerVersion(testServer, '>= 9.0.0-0');
 
         it('terminates operations on the server side', async function () {
           if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
@@ -2362,6 +2366,47 @@ describe('CliRepl', function () {
             expect(output).to.not.include('MongoError');
             expect(output).to.not.include('loop2');
           });
+        });
+      });
+
+      context('for server >= 9.0', function () {
+        skipIfServerVersion(testServer, '< 9.0.0-0');
+
+        // Canary: asserts the 9.0 behavior (ops survive CTRL-C because the
+        // server no longer kills them on client disconnect). If a future 9.x
+        // reinstates that, this fails and the guard above should be revisited.
+        it('does not terminate operations on the server side', async function () {
+          if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
+            return this.skip(); // $currentOp is unversioned
+          }
+          input.write(
+            "db.ctrlc.find({ $where: 'while(true) { /* loop3 */ }' })\n"
+          );
+          await delay(100);
+          process.kill(process.pid, 'SIGINT');
+          await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
+          expect(output).to.match(/Stopping execution.../m);
+
+          input.write('use admin\n');
+          await waitEval(cliRepl.bus);
+
+          // Give the server time to (not) kill the op; it should still run.
+          await delay(2000);
+          output = '';
+          input.write(
+            "db.aggregate([ {$currentOp: {} }, { $match: { 'command.find': 'ctrlc' } }, { $project: { command: 1 } } ])\n"
+          );
+          await waitEval(cliRepl.bus);
+
+          expect(output).to.not.include('MongoError');
+          expect(output).to.include('loop3');
+
+          // Kill it explicitly (killOp still works) so it doesn't run for the
+          // rest of the suite.
+          input.write(
+            "db.aggregate([ {$currentOp: {} }, { $match: { 'command.find': 'ctrlc' } } ]).forEach(op => db.killOp(op.opid))\n"
+          );
+          await waitEval(cliRepl.bus);
         });
       });
 
