@@ -3216,6 +3216,10 @@ describe('Shard', function () {
       let db: Database;
       let hasTotalSize: boolean;
       let hasScaleFactorIncluded: boolean;
+      // Server 9.0 makes timeseries collections viewless: there is no separate
+      // system.buckets.<coll> namespace anymore, so bucketsNs is the collection
+      // namespace itself.
+      let isTimeseriesViewless: boolean;
       const dbName = 'shard-stats-test';
       const ns = `${dbName}.test`;
 
@@ -3226,6 +3230,8 @@ describe('Shard', function () {
         const dbVersion = await db.version();
         hasTotalSize = !/^4\.[0123]\./.exec(dbVersion);
         hasScaleFactorIncluded = !/^4\.[01]\./.exec(dbVersion);
+        isTimeseriesViewless =
+          Number.parseInt(dbVersion.split('.')[0], 10) >= 9;
       });
       afterEach(async function () {
         await db.dropDatabase();
@@ -3410,18 +3416,17 @@ describe('Shard', function () {
           // Timeseries bucket collection does not provide 'count' or 'avgObjSize'.
           expect(result.count).to.equal(undefined);
           expect(result.primary).to.equal(undefined);
+          const expectedBucketsNs = isTimeseriesViewless
+            ? `${dbName}.${timeseriesCollectionName}`
+            : `${dbName}.system.buckets.${timeseriesCollectionName}`;
           for (const shard of Object.values(result.shards) as any) {
             expect(shard.totalSize).to.be.a('number');
             expect(shard.indexDetails).to.equal(undefined);
-            expect(shard.timeseries.bucketsNs).to.equal(
-              `${dbName}.system.buckets.${timeseriesCollectionName}`
-            );
+            expect(shard.timeseries.bucketsNs).to.equal(expectedBucketsNs);
             expect(shard.timeseries.numBucketUpdates).to.equal(0);
             expect(typeof result.timeseries.bucketCount).to.equal('number');
           }
-          expect(result.timeseries.bucketsNs).to.equal(
-            `${dbName}.system.buckets.${timeseriesCollectionName}`
-          );
+          expect(result.timeseries.bucketsNs).to.equal(expectedBucketsNs);
           expect(result.timeseries.bucketCount).to.equal(1);
           expect(result.timeseries.numBucketInserts).to.equal(1);
         });
