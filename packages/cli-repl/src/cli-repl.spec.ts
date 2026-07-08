@@ -2284,27 +2284,6 @@ describe('CliRepl', function () {
         await waitEval(cliRepl.bus);
       });
 
-      // A long-running server-side operation that does NOT use server-side
-      // JavaScript: nested $reduce over $range runs ~1000^4 iterations in
-      // constant memory. Unlike a $where JS loop, non-JS operations are still
-      // interrupted on client disconnect on server 9.0, so this is what we use
-      // to assert CTRL-C termination across all server versions. `marker` is a
-      // filter field name that shows up in $currentOp output while it runs.
-      const longRunningServerOp = (marker: string): string => {
-        // Each level is a self-contained $reduce; nesting to depth 4 runs
-        // ~1000^4 iterations. $$value is only ever referenced inside its own
-        // $reduce `in`.
-        const nested = (depth: number): string =>
-          depth === 0
-            ? '1'
-            : `{ $reduce: { input: { $range: [0, 1000] }, initialValue: 0, in: { $add: ['$$value', ${nested(
-                depth - 1
-              )}] } } }`;
-        return `{ ${marker}: { $exists: false }, $expr: { $gt: [ ${nested(
-          4
-        )}, -1 ] } }`;
-      };
-
       context('for server < 4.1', function () {
         skipIfServerVersion(testServer, '>= 4.1');
 
@@ -2323,14 +2302,39 @@ describe('CliRepl', function () {
         });
       });
 
-      context('for server >= 4.1', function () {
-        skipIfServerVersion(testServer, '< 4.1');
+      // A long-running operation using server-side JavaScript: interrupted on
+      // client disconnect on servers 4.1-8.x, but no longer on 9.0 (see the
+      // >= 9.0 canary below). MONGOSH-3412 / MONGOSH-3413.
+      const longRunningJSOp = (marker: string): string =>
+        `{ $where: 'while(true) { /* ${marker} */ }' }`;
 
+      // A long-running operation NOT using server-side JavaScript: nested
+      // $reduce over $range runs ~1000^4 iterations in constant memory.
+      // Interrupted on client disconnect on server >= 8.0 only.
+      const longRunningNonJSOp = (marker: string): string => {
+        const nested = (depth: number): string =>
+          depth === 0
+            ? '1'
+            : `{ $reduce: { input: { $range: [0, 1000] }, initialValue: 0, in: { $add: ['$$value', ${nested(
+                depth - 1
+              )}] } } }`;
+        return `{ ${marker}: { $exists: false }, $expr: { $gt: [ ${nested(
+          4
+        )}, -1 ] } }`;
+      };
+
+      // CTRL-C should terminate in-progress server-side operations: mongosh
+      // disconnects and relies on the server killing the disconnected client's
+      // operations. `longRunningOp` builds a find() filter that the server
+      // being tested is able to interrupt this way.
+      const defineTerminationTests = (
+        longRunningOp: (marker: string) => string
+      ) => {
         it('terminates operations on the server side', async function () {
           if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
             return this.skip(); // $currentOp is unversioned
           }
-          input.write(`db.ctrlc.find(${longRunningServerOp('loop1')})\n`);
+          input.write(`db.ctrlc.find(${longRunningOp('loop1')})\n`);
           await delay(100);
           process.kill(process.pid, 'SIGINT');
           await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
@@ -2363,9 +2367,7 @@ describe('CliRepl', function () {
           input.write("clientAdminDb = client.getDB('admin');\n");
           await waitEval(cliRepl.bus);
 
-          input.write(
-            `clientCtrlcDb.ctrlc.find(${longRunningServerOp('loop2')})\n`
-          );
+          input.write(`clientCtrlcDb.ctrlc.find(${longRunningOp('loop2')})\n`);
           await delay(100);
           process.kill(process.pid, 'SIGINT');
           await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
@@ -2382,17 +2384,32 @@ describe('CliRepl', function () {
             expect(output).to.not.include('loop2');
           });
         });
+      };
+
+      context('for server >= 4.1 < 8.0', function () {
+        skipIfServerVersion(testServer, '< 4.1');
+        skipIfServerVersion(testServer, '>= 8.0');
+        // Pre-8.0 servers do not interrupt the non-JS operation on disconnect,
+        // so exercise termination with a $where JS loop instead.
+        defineTerminationTests(longRunningJSOp);
+      });
+
+      context('for server >= 8.0', function () {
+        skipIfServerVersion(testServer, '< 8.0');
+        // On server 9.0 the JS engine no longer honors the client-disconnect
+        // interrupt (see the >= 9.0 canary below), so exercise termination
+        // with the non-JS operation, which is interrupted on 8.0+.
+        defineTerminationTests(longRunningNonJSOp);
       });
 
       context('for server >= 9.0', function () {
         skipIfServerVersion(testServer, '< 9.0.0-0');
 
-        // On server 9.0 the JavaScript engine no longer honors the
-        // client-disconnect interrupt, so server-side JS ($where) operations
-        // survive CTRL-C (non-JS operations are still killed - see the
-        // 'for server >= 4.1' tests above). This canary pins that behavior; if
-        // a future 9.x reinstates it, this fails and should be revisited.
-        // See MONGOSH-3412 / MONGOSH-3413.
+        // Canary for the behavior that forces the JS/non-JS split above:
+        // on 9.0, server-side JS ($where) operations survive CTRL-C because
+        // the JS engine no longer honors the client-disconnect interrupt. If a
+        // future 9.x reinstates it, this fails and the split above should be
+        // revisited.
         it('does not terminate server-side JavaScript operations', async function () {
           if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
             return this.skip(); // $currentOp is unversioned
