@@ -39,7 +39,10 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           check-latest: true
-          node-version: 20.x
+          node-version: 24.x
+
+      - name: Pin npm
+        run: npm install -g npm@10
 
       - name: Install Dependencies and Compile
         run: |
