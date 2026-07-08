@@ -2284,6 +2284,27 @@ describe('CliRepl', function () {
         await waitEval(cliRepl.bus);
       });
 
+      // A long-running server-side operation that does NOT use server-side
+      // JavaScript: nested $reduce over $range runs ~1000^4 iterations in
+      // constant memory. Unlike a $where JS loop, non-JS operations are still
+      // interrupted on client disconnect on server 9.0, so this is what we use
+      // to assert CTRL-C termination across all server versions. `marker` is a
+      // filter field name that shows up in $currentOp output while it runs.
+      const longRunningServerOp = (marker: string): string => {
+        // Each level is a self-contained $reduce; nesting to depth 4 runs
+        // ~1000^4 iterations. $$value is only ever referenced inside its own
+        // $reduce `in`.
+        const nested = (depth: number): string =>
+          depth === 0
+            ? '1'
+            : `{ $reduce: { input: { $range: [0, 1000] }, initialValue: 0, in: { $add: ['$$value', ${nested(
+                depth - 1
+              )}] } } }`;
+        return `{ ${marker}: { $exists: false }, $expr: { $gt: [ ${nested(
+          4
+        )}, -1 ] } }`;
+      };
+
       context('for server < 4.1', function () {
         skipIfServerVersion(testServer, '>= 4.1');
 
@@ -2304,18 +2325,12 @@ describe('CliRepl', function () {
 
       context('for server >= 4.1', function () {
         skipIfServerVersion(testServer, '< 4.1');
-        // Server 9.0 no longer kills in-progress operations on client
-        // disconnect, which is how mongosh terminates ops on CTRL-C.
-        // See MONGOSH-3412 / MONGOSH-3413.
-        skipIfServerVersion(testServer, '>= 9.0.0-0');
 
         it('terminates operations on the server side', async function () {
           if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
             return this.skip(); // $currentOp is unversioned
           }
-          input.write(
-            "db.ctrlc.find({ $where: 'while(true) { /* loop1 */ }' })\n"
-          );
+          input.write(`db.ctrlc.find(${longRunningServerOp('loop1')})\n`);
           await delay(100);
           process.kill(process.pid, 'SIGINT');
           await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
@@ -2349,7 +2364,7 @@ describe('CliRepl', function () {
           await waitEval(cliRepl.bus);
 
           input.write(
-            "clientCtrlcDb.ctrlc.find({ $where: 'while(true) { /* loop2 */ }' })\n"
+            `clientCtrlcDb.ctrlc.find(${longRunningServerOp('loop2')})\n`
           );
           await delay(100);
           process.kill(process.pid, 'SIGINT');
@@ -2372,10 +2387,13 @@ describe('CliRepl', function () {
       context('for server >= 9.0', function () {
         skipIfServerVersion(testServer, '< 9.0.0-0');
 
-        // Canary: asserts the 9.0 behavior (ops survive CTRL-C because the
-        // server no longer kills them on client disconnect). If a future 9.x
-        // reinstates that, this fails and the guard above should be revisited.
-        it('does not terminate operations on the server side', async function () {
+        // On server 9.0 the JavaScript engine no longer honors the
+        // client-disconnect interrupt, so server-side JS ($where) operations
+        // survive CTRL-C (non-JS operations are still killed - see the
+        // 'for server >= 4.1' tests above). This canary pins that behavior; if
+        // a future 9.x reinstates it, this fails and should be revisited.
+        // See MONGOSH-3412 / MONGOSH-3413.
+        it('does not terminate server-side JavaScript operations', async function () {
           if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
             return this.skip(); // $currentOp is unversioned
           }
