@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Sun Jul 05 2026.
+This document was automatically generated on Tue Jul 07 2026.
 
 ## List of dependencies
 
@@ -328,7 +328,7 @@ Package|Version|License
 **[isnumber](#bc455463940cfdb939affcb3dcd801c0af55f6d51e5ae4609134900aac2ca032)**|1.0.0|MIT
 **[jose](#f9d2cbf414f008926ab4887a10cb2c34b1b205b42ce272c330e2eb0248071b7a)**|6.0.12|MIT
 **[js-beautify](#4d9446c42fb3dfd9b4130a7d3a0b2014c777cebed3243efef61c2a606c8b3e02)**|1.15.1|MIT
-**[js-cookie](#f53439f108d887a45acefce4403f678c2f64b23a3a897f3dbf60927ff4ac25fd)**|3.0.5|MIT
+**[js-cookie](#e2c9b2624618eca93070f7686413d8366d8eeddc474192b4f17fa136f0cd447d)**|3.0.8|MIT
 **[js-tokens](#f4371f095c6f087cf41433031f8c612e21a4258b18cb4e847ffae73905e146d4)**|4.0.0|MIT
 **[js-yaml](#af705ed1eb31f1af61a3698569d8e0370c173e67024075b4f306d8c9010f1298)**|4.1.1|MIT
 **[js-yaml](#4f38198b2bf4c5ff18c053030b97639d00ee388d640c87b5adef64dacd5da317)**|4.3.0|MIT
@@ -27336,8 +27336,8 @@ License files:
       
 
 
-<a id="f53439f108d887a45acefce4403f678c2f64b23a3a897f3dbf60927ff4ac25fd"></a>
-### [js-cookie](https://www.npmjs.com/package/js-cookie) (version 3.0.5)
+<a id="e2c9b2624618eca93070f7686413d8366d8eeddc474192b4f17fa136f0cd447d"></a>
+### [js-cookie](https://www.npmjs.com/package/js-cookie) (version 3.0.8)
 License tags: MIT
 
 License files:
