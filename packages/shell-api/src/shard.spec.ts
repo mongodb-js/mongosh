@@ -3416,7 +3416,6 @@ describe('Shard', function () {
             // Newer servers no longer expose the explicit buckets namespace
             // for timeseries collections (viewless timeseries), so accept both
             // the legacy `system.buckets.` namespace and the user namespace.
-            // See MONGOSH-1967 for the non-sharded equivalent.
             expect(shard.timeseries.bucketsNs).to.be.oneOf([
               `${dbName}.system.buckets.${timeseriesCollectionName}`,
               `${dbName}.${timeseriesCollectionName}`,
