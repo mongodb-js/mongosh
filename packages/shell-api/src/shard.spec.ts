@@ -3413,15 +3413,20 @@ describe('Shard', function () {
           for (const shard of Object.values(result.shards) as any) {
             expect(shard.totalSize).to.be.a('number');
             expect(shard.indexDetails).to.equal(undefined);
-            expect(shard.timeseries.bucketsNs).to.equal(
-              `${dbName}.system.buckets.${timeseriesCollectionName}`
-            );
+            // Newer servers no longer expose the explicit buckets namespace
+            // for timeseries collections (viewless timeseries), so accept both
+            // the legacy `system.buckets.` namespace and the user namespace.
+            expect(shard.timeseries.bucketsNs).to.be.oneOf([
+              `${dbName}.system.buckets.${timeseriesCollectionName}`,
+              `${dbName}.${timeseriesCollectionName}`,
+            ]);
             expect(shard.timeseries.numBucketUpdates).to.equal(0);
             expect(typeof result.timeseries.bucketCount).to.equal('number');
           }
-          expect(result.timeseries.bucketsNs).to.equal(
-            `${dbName}.system.buckets.${timeseriesCollectionName}`
-          );
+          expect(result.timeseries.bucketsNs).to.be.oneOf([
+            `${dbName}.system.buckets.${timeseriesCollectionName}`,
+            `${dbName}.${timeseriesCollectionName}`,
+          ]);
           expect(result.timeseries.bucketCount).to.equal(1);
           expect(result.timeseries.numBucketInserts).to.equal(1);
         });
