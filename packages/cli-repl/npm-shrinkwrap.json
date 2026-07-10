@@ -1483,21 +1483,33 @@
       }
     },
     "node_modules/@mongodb-js/mongodb-constants": {
-      "version": "0.20.1",
-      "resolved": "https://registry.npmjs.org/@mongodb-js/mongodb-constants/-/mongodb-constants-0.20.1.tgz",
-      "integrity": "sha512-zes9Ays51BkF/OP9ATFbHbLw5UWKv7V0NnPfDDj/TMgdjPMQvnf0yqu1Bwb7VIr1cSBAM9vLXgcVeh3iEPkXpw==",
+      "version": "0.33.0",
+      "resolved": "https://registry.npmjs.org/@mongodb-js/mongodb-constants/-/mongodb-constants-0.33.0.tgz",
+      "integrity": "sha512-eCglRNhukKReQTv8BfHP2wne+rBbmF4M4s5hexfJM4/oRTk7IF5tuvfP0qEDxbNps9arGwYGuFCd3hPxZfp52Q==",
       "license": "Apache-2.0",
       "dependencies": {
-        "semver": "^7.7.1"
+        "semver": "^7.7.4"
       },
       "peerDependencies": {
         "bson": "^4.6.3 || ^5 || ^6.10.3 || ^7.0.0"
       }
     },
+    "node_modules/@mongodb-js/mongodb-constants/node_modules/semver": {
+      "version": "7.8.5",
+      "resolved": "https://registry.npmjs.org/semver/-/semver-7.8.5.tgz",
+      "integrity": "sha512-Y7/KDsb8LjooZpwaqGyulO6DQlksgCncchHGk+sZIY4SBvUocMBEFH5Ur1fI4dV+Jvl0w6cjvucaIi40puRioA==",
+      "license": "ISC",
+      "bin": {
+        "semver": "bin/semver.js"
+      },
+      "engines": {
+        "node": ">=10"
+      }
+    },
     "node_modules/@mongodb-js/mongodb-ts-autocomplete": {
-      "version": "0.6.17",
-      "resolved": "https://registry.npmjs.org/@mongodb-js/mongodb-ts-autocomplete/-/mongodb-ts-autocomplete-0.6.17.tgz",
-      "integrity": "sha512-Vze1NhvefTxfMUtM7aMswWhRKXHghXTNUO4iqIOAPm5zh3AVEM9e5FqClGm+Sa4HTTF//roxfLArtrAtZCemjQ==",
+      "version": "0.7.3",
+      "resolved": "https://registry.npmjs.org/@mongodb-js/mongodb-ts-autocomplete/-/mongodb-ts-autocomplete-0.7.3.tgz",
+      "integrity": "sha512-lVRnJTLm3KarjJHAVKMdK0kIVrORmcsMAOfSgTMN4m2tgWTrObhisngKcWvky8yVhBgnQp2nwm/ykKdbv/XTTg==",
       "license": "Apache-2.0",
       "dependencies": {
         "@mongodb-js/ts-autocomplete": "^0.5.12",
@@ -1724,8 +1736,8 @@
       "version": "5.3.2",
       "license": "Apache-2.0",
       "dependencies": {
-        "@mongodb-js/mongodb-constants": "^0.20.1",
-        "@mongodb-js/mongodb-ts-autocomplete": "^0.6.17",
+        "@mongodb-js/mongodb-constants": "^0.33.0",
+        "@mongodb-js/mongodb-ts-autocomplete": "^0.7.3",
         "@mongosh/shell-api": "^5.3.2",
         "semver": "^7.5.4"
       },
@@ -1938,7 +1950,7 @@
         "@babel/types": "^7.26.10",
         "@microsoft/api-extractor": "^7.39.3",
         "@mongodb-js/eslint-config-mongosh": "^1.0.0",
-        "@mongodb-js/mongodb-ts-autocomplete": "^0.6.17",
+        "@mongodb-js/mongodb-ts-autocomplete": "^0.7.3",
         "@mongodb-js/prettier-config-devtools": "^1.0.1",
         "@mongodb-js/tsconfig-mongosh": "^1.0.0",
         "@mongosh/testing": "2.0.14",
