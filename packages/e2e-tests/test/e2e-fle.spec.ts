@@ -1025,6 +1025,12 @@ describe('FLE tests', function () {
         function () {
           // Substring prefix support is enterprise-only 8.2+
           skipIfCommunityServer(testServer);
+          // substringPreview/prefixPreview/suffixPreview + the TextPreview
+          // algorithm are the 8.2 public-preview QE text-search API. It was
+          // removed at GA: 9.0+ servers reject these query types at collection
+          // creation ("... is deprecated", code 12341600). Gate to the preview
+          // window until ported to the GA prefix/suffix/substring API.
+          skipIfServerVersion(testServer, '>= 9.0');
 
           let shell: TestShell;
 
