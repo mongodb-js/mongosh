@@ -540,7 +540,11 @@ describe('FLE tests', function () {
               keyId: dataKey,
               path: 'v',
               bsonType: 'string',
-              queries: [{ queryType: 'equality' }]
+              // Contention must match the contentionFactor used in the
+              // insert/find payloads below: 9.0+ servers reject a find payload
+              // whose contention differs from the collection's configured
+              // value (Location9188701), whereas older servers did not check.
+              queries: [{ queryType: 'equality', contention: 4 }]
             }]
           }
         });
