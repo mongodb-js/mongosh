@@ -1023,11 +1023,11 @@ describe('FLE tests', function () {
       });
     });
 
-    // QE text-search (prefix/suffix/substring) is GA in server 9.0 (driver
-    // v7.5.0, SERVER-116329), using the `String` algorithm and `stringOptions`.
-    // The 8.2 public-preview form (`*Preview` query types + the `TextPreview`
-    // algorithm) was removed from the driver's client-side encryption and is no
-    // longer usable from the shell, so it is not exercised here.
+    // QE text-search (prefix/suffix/substring) is GA in server 9.0, using the
+    // `String` algorithm and `stringOptions`. The 8.2 public-preview form
+    // (`*Preview` query types + the `TextPreview` algorithm) was removed from
+    // the driver's client-side encryption and is no longer usable from the
+    // shell, so it is not exercised here.
     const variant = {
       algorithm: 'String',
       optionsKey: 'stringOptions',
@@ -1052,7 +1052,7 @@ describe('FLE tests', function () {
             // is not yet published for download (the newest available is 8.3.x,
             // which rejects the GA query types in `analyze_query`), so automatic
             // mode cannot be exercised yet. Re-enable once a 9.0+ crypt_shared
-            // is downloadable (MONGOSH-2192).
+            // is downloadable.
             before(function () {
               this.skip();
             });
