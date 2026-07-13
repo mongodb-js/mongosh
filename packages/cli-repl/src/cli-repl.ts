@@ -1024,6 +1024,9 @@ export class CliRepl implements MongoshIOProvider {
   async getConfig<K extends keyof CliUserConfig>(
     key: K
   ): Promise<CliUserConfig[K]> {
+    if (key === 'enableTelemetry' && this.forceDisableTelemetry) {
+      return false as CliUserConfig[K];
+    }
     return (
       (this.config as CliUserConfig)[key] ??
       (this.globalConfig as CliUserConfig)?.[key] ??
@@ -1043,13 +1046,13 @@ export class CliRepl implements MongoshIOProvider {
         "The 'forceDisableTelemetry' setting cannot be modified"
       );
     }
+    if (key === 'enableTelemetry' && this.forceDisableTelemetry) {
+      throw new MongoshRuntimeError(
+        "Cannot modify telemetry settings while 'forceDisableTelemetry' is set to true"
+      );
+    }
     this.config[key] = value;
     if (key === 'enableTelemetry') {
-      if (this.forceDisableTelemetry) {
-        throw new MongoshRuntimeError(
-          "Cannot modify telemetry settings while 'forceDisableTelemetry' is set to true"
-        );
-      }
       this.setTelemetryEnabled(this.config.enableTelemetry);
       this.bus.emit('mongosh:update-user', {
         userId: this.config.userId,
