@@ -1339,7 +1339,7 @@ describe('MongoshLoggingAndTelemetry', function () {
     });
 
     it('includes ai_agent in identify traits when an agent env var is set', async function () {
-      process.env.COPILOT_AGENT = '1';
+      process.env.CLAUDECODE = '1';
 
       loggingAndTelemetry.attachLogger(logger);
       await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
@@ -1349,10 +1349,10 @@ describe('MongoshLoggingAndTelemetry', function () {
       const identifyEvent = analyticsOutput.find(
         ([, e]) => e.name === 'Identify'
       );
-      expect(identifyEvent?.[1].payload.ai_agent).to.equal('copilot');
+      expect(identifyEvent?.[1].payload.ai_agent).to.equal('claude_code');
     });
 
-    it('returns lowercase env var name for AI_AGENT regardless of its value', async function () {
+    it('uses the value of AI_AGENT directly as agent name when it is not a boolean string', async function () {
       process.env.AI_AGENT = 'my-tool';
 
       loggingAndTelemetry.attachLogger(logger);
@@ -1369,7 +1369,7 @@ describe('MongoshLoggingAndTelemetry', function () {
       const trackEvent = analyticsOutput.find(
         ([, e]) => e.name === 'New Connection'
       );
-      expect(trackEvent?.[1].payload.ai_agent).to.equal('ai_agent');
+      expect(trackEvent?.[1].payload.ai_agent).to.equal('my-tool');
     });
   });
 });

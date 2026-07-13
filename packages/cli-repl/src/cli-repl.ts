@@ -723,7 +723,13 @@ export class CliRepl implements MongoshIOProvider {
       throw new Error('no analytics setup for the mongosh CI environment');
     }
     this.toggleableAnalytics = new ToggleableAnalytics(
-      new TelemetryClient(this.analyticsOptions?.telemetryEndpoint)
+      new TelemetryClient(
+        this.analyticsOptions?.telemetryEndpoint ??
+          process.env.MONGOSH_TELEMETRY_ENDPOINT,
+        // includeDeviceId: false — device_id is already in the event payload,
+        // no need to duplicate it in the User-Agent header.
+        this.fetch({ includeDeviceId: false })
+      )
     );
   }
 

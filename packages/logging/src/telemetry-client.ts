@@ -7,22 +7,34 @@ export const DEFAULT_TELEMETRY_ENDPOINT =
 
 const FLUSH_TIMEOUT_MS = 5_000;
 
+type FetchFn = (
+  url: string,
+  init?: { method?: string; headers?: Record<string, string>; body?: string }
+) => Promise<unknown>;
+
 /**
  * Sends telemetry events to the MongoDB telemetry HTTP endpoint.
  * Network errors are silently dropped. flush() waits up to 5 s for
  * in-flight requests so events sent right before exit are not lost.
  * Pass a custom `endpoint` to override the default (e.g. for testing).
+ * Pass a proxy-aware `fetch` (e.g. from @mongodb-js/devtools-proxy-support)
+ * to respect the user's HTTP_PROXY / HTTPS_PROXY environment variables.
  */
 export class TelemetryClient implements MongoshAnalytics {
   private readonly endpoint: string;
+  private readonly fetch: FetchFn;
   private readonly inflight: Promise<void>[] = [];
 
-  constructor(endpoint: string = DEFAULT_TELEMETRY_ENDPOINT) {
+  constructor(
+    endpoint: string = DEFAULT_TELEMETRY_ENDPOINT,
+    fetch: FetchFn = globalThis.fetch.bind(globalThis)
+  ) {
     this.endpoint = endpoint;
+    this.fetch = fetch;
   }
 
   track(event: TelemetryEvent): void {
-    const p = fetch(this.endpoint, {
+    const p = this.fetch(this.endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(event),

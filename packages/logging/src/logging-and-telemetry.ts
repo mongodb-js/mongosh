@@ -298,7 +298,9 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
           mongoLogId(1_000_000_016),
           'analytics',
           'Sending telemetry event',
-          { name: telemetryEvent.name, payload: telemetryEvent.payload }
+          process.env.MONGOSH_TELEMETRY_DEBUG
+            ? { name: telemetryEvent.name, payload: telemetryEvent.payload }
+            : { name: telemetryEvent.name }
         );
         this.analytics.track(telemetryEvent);
       };
