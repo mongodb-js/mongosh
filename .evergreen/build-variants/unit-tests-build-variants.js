@@ -48,16 +48,28 @@ for (const {
         // Unit tests on macOS use arm64 and therefore require 6.0+
         continue;
       }
+      // Ubuntu 20.04 is EOL for server 9.0 and no longer receives nightly
+      // builds, so its `latest` download is permanently frozen at a pre-9.0-GA
+      // build. Run the `latest` (mlatest) linux variant on the minimum
+      // still-supported distro instead.
+      const details =
+        platform === 'linux' && mShort === 'latest'
+          ? {
+              ...platformDetails,
+              runOn: 'ubuntu2204-small',
+              displayName: 'Ubuntu 22.04 x64',
+            }
+          : platformDetails;
       UNIT_TESTS_BUILD_VARIANTS.push({
-        ...platformDetails,
+        ...details,
         name: `tests_${platform}-m${mShort}_n${nShort}`,
         id: `${platform}-m${mShort}_n${nShort}`,
         runWithUnitTestsOnly: false,
         tags: [
-          ...(platformDetails.tags ?? []),
+          ...(details.tags ?? []),
           ...(mShort === 'latest' ? ['mlatest'] : []),
         ],
-        displayName: `${platformDetails.displayName}${
+        displayName: `${details.displayName}${
           mShort === undefined ? '' : ` m${mShort}`
         } n${nShort} (Unit tests)`,
         platform,

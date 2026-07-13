@@ -11479,8 +11479,8 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_linux-mlatest_n24
-    display_name: "Ubuntu 20.04 x64 mlatest n24 (Unit tests)"
-    run_on: ubuntu2004-small
+    display_name: "Ubuntu 22.04 x64 mlatest n24 (Unit tests)"
+    run_on: ubuntu2204-small
     tags: ["nightly-driver","mlatest"]
     disable: false
     expansions:
