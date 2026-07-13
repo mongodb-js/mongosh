@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Sun Jul 05 2026.
+This document was automatically generated on Sun Jul 12 2026.
 
 ## List of dependencies
 
@@ -170,7 +170,7 @@ Package|Version|License
 **[body-parser](#d7490fc67d710c27059fb0a86e6577555d3fe8ee074b92adb53a633dbc05d385)**|2.2.1|MIT
 **[bowser](#7e460d0286b39487b80f23af29982a9014c20f7f25403c57b17994658645b78c)**|2.14.1|MIT
 **[browserslist](#cfc692fe3baf990d1b809ccf9a9885899c2f934c61ec4ef24b790a0d56bb000c)**|4.28.1|MIT
-**[bson](#e9405550f3c2651d95e5094911c3bd93e2d5c979398f4aa367dfef7d0d4a8886)**|7.3.0|Apache-2.0
+**[bson](#230b84987836dcb0c829c5b9eec2b483d2aa41b9c055d3507096ba964cf5b73c)**|7.3.1|Apache-2.0
 **[buffer-from](#d08b5e69ef91add4f03dac1707f36962c172cf6cccaf6f9ff2ca502a5210d287)**|1.1.2|MIT
 **[buffer](#409d076f160d0351818531a7c09f5e2928335b83e3f0070a7f3e2685553efa6a)**|5.7.1|MIT
 **[buffer](#d57501d0d9fdd3c1bec12d2258e7609aae021266bb59cc2c13bc21b28448aa41)**|6.0.3|MIT
@@ -328,7 +328,7 @@ Package|Version|License
 **[isnumber](#bc455463940cfdb939affcb3dcd801c0af55f6d51e5ae4609134900aac2ca032)**|1.0.0|MIT
 **[jose](#f9d2cbf414f008926ab4887a10cb2c34b1b205b42ce272c330e2eb0248071b7a)**|6.0.12|MIT
 **[js-beautify](#4d9446c42fb3dfd9b4130a7d3a0b2014c777cebed3243efef61c2a606c8b3e02)**|1.15.1|MIT
-**[js-cookie](#f53439f108d887a45acefce4403f678c2f64b23a3a897f3dbf60927ff4ac25fd)**|3.0.5|MIT
+**[js-cookie](#e2c9b2624618eca93070f7686413d8366d8eeddc474192b4f17fa136f0cd447d)**|3.0.8|MIT
 **[js-tokens](#f4371f095c6f087cf41433031f8c612e21a4258b18cb4e847ffae73905e146d4)**|4.0.0|MIT
 **[js-yaml](#af705ed1eb31f1af61a3698569d8e0370c173e67024075b4f306d8c9010f1298)**|4.1.1|MIT
 **[js-yaml](#4f38198b2bf4c5ff18c053030b97639d00ee388d640c87b5adef64dacd5da317)**|4.3.0|MIT
@@ -424,6 +424,7 @@ Package|Version|License
 **[safer-buffer](#2fb14d3728e4ebf313be4634b146bd90cd3ad3559157baec03b64eec0878a0ba)**|2.1.2|MIT
 **[semver](#8b8f657069cf84b7ca932ab17eb24a0a55a8053ccd2a36c03185dadab64db3f8)**|6.3.1|ISC
 **[semver](#9820574a08f66349702b3a538cfb93136780250f98497b337bc415b68c8748d0)**|7.7.2|ISC
+**[semver](#82a86616e50ded7925322daf1aa73ade1c2c4b1f4f9ac088bc8cb5b82de067bd)**|7.8.5|ISC
 **[send](#1b29954c091694853ad3454c280ae2131fc5527135a7551588bce2719b54cc70)**|1.2.0|MIT
 **[serve-static](#ae8c8c81ae13ef8d08a78c4e33b04ea28b5ed9f8ccb43ace3850b1c6549fe636)**|2.2.0|MIT
 **[set-function-length](#88ee3e1c8e8c22ac3653a290c1cdc68787d064f17a743020a070b31290bb4eb9)**|1.2.2|MIT
@@ -21095,8 +21096,8 @@ License files:
       
 
 
-<a id="e9405550f3c2651d95e5094911c3bd93e2d5c979398f4aa367dfef7d0d4a8886"></a>
-### [bson](https://www.npmjs.com/package/bson) (version 7.3.0)
+<a id="230b84987836dcb0c829c5b9eec2b483d2aa41b9c055d3507096ba964cf5b73c"></a>
+### [bson](https://www.npmjs.com/package/bson) (version 7.3.1)
 License tags: Apache-2.0
 
 License files:
@@ -27336,8 +27337,8 @@ License files:
       
 
 
-<a id="f53439f108d887a45acefce4403f678c2f64b23a3a897f3dbf60927ff4ac25fd"></a>
-### [js-cookie](https://www.npmjs.com/package/js-cookie) (version 3.0.5)
+<a id="e2c9b2624618eca93070f7686413d8366d8eeddc474192b4f17fa136f0cd447d"></a>
+### [js-cookie](https://www.npmjs.com/package/js-cookie) (version 3.0.8)
 License tags: MIT
 
 License files:
@@ -32387,6 +32388,31 @@ License files:
 
 <a id="9820574a08f66349702b3a538cfb93136780250f98497b337bc415b68c8748d0"></a>
 ### [semver](https://www.npmjs.com/package/semver) (version 7.7.2)
+License tags: ISC
+
+License files:
+* LICENSE:
+
+      The ISC License
+      
+      Copyright (c) Isaac Z. Schlueter and Contributors
+      
+      Permission to use, copy, modify, and/or distribute this software for any
+      purpose with or without fee is hereby granted, provided that the above
+      copyright notice and this permission notice appear in all copies.
+      
+      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+      IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+      
+
+
+<a id="82a86616e50ded7925322daf1aa73ade1c2c4b1f4f9ac088bc8cb5b82de067bd"></a>
+### [semver](https://www.npmjs.com/package/semver) (version 7.8.5)
 License tags: ISC
 
 License files:
