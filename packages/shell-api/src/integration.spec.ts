@@ -3050,6 +3050,16 @@ describe('Shell API (integration)', function () {
 
   describe('maxTimeMS support', function () {
     skipIfServerVersion(testServer, '< 4.2');
+    // These tests trigger maxTimeMS by running a `$where: while (true)` query,
+    // which relies on the server interrupting server-side JavaScript promptly.
+    // On 9.0+ server-side JS runs in a new WASM engine whose interruption is
+    // coarse/poll-based, so a maxTimeMS'd `$where` loop is no longer aborted
+    // near-instantly (and two back-to-back loops can saturate the engine). That
+    // is a server-side behavior detail unrelated to what these tests check
+    // (mongosh applying the maxTimeMS config option and explicit option to
+    // operations), so restrict them to servers that still interrupt `$where`
+    // promptly.
+    skipIfServerVersion(testServer, '>= 9.0');
 
     beforeEach(async function () {
       await collection.insertMany([...Array(10).keys()].map((i) => ({ i })));
