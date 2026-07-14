@@ -9,7 +9,7 @@
       "version": "2.9.1",
       "license": "Apache-2.0",
       "dependencies": {
-        "@mongodb-js/device-id": "^0.4.6",
+        "@mongodb-js/device-id": "^0.4.13",
         "@mongodb-js/devtools-proxy-support": "^0.7.5",
         "@mongosh/arg-parser": "^5.2.0",
         "@mongosh/autocomplete": "^5.3.2",
@@ -1384,9 +1384,9 @@
       }
     },
     "node_modules/@mongodb-js/device-id": {
-      "version": "0.4.6",
-      "resolved": "https://registry.npmjs.org/@mongodb-js/device-id/-/device-id-0.4.6.tgz",
-      "integrity": "sha512-FdePkTafBnLT0LwP9Uo5PRCjYHzjZEnlnYvFiv3gRrBPIaEMVL1I5yylU53ASBLnaf4Mg/jIivZ5S6X4CDa1rQ==",
+      "version": "0.4.13",
+      "resolved": "https://registry.npmjs.org/@mongodb-js/device-id/-/device-id-0.4.13.tgz",
+      "integrity": "sha512-X9XLwl2sAN4cFPKBjr9fak7SJDxALcVNBz2PVx7uQbPSj+roHsQhWKWIG6yInT2oloo8e7VugtpZJG215YTIRQ==",
       "license": "Apache-2.0"
     },
     "node_modules/@mongodb-js/devtools-connect": {
