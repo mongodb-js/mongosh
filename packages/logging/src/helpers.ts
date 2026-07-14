@@ -9,26 +9,23 @@ export const KNOWN_AGENT_ENV_VARS: Record<string, string> = {
   OPENCODE_CLIENT: 'opencode_client',
   TRAE_AI_SHELL_ID: 'trae_ai',
   GOOSE_TERMINAL: 'goose',
+  GOOSE_AGENT: 'goose',
+  AI_AGENT: 'ai_agent', // Generic fallback.
 };
 
 export function getAiAgent(
   env: NodeJS.ProcessEnv = process.env
 ): string | undefined {
-  // Generic catch-all vars: if the value is a known agent name use it directly,
-  // otherwise fall back to 'ai_agent' for boolean-style values (1, true).
-  for (const genericKey of ['AGENT', 'AI_AGENT'] as const) {
-    const raw = env[genericKey];
-    if (!raw) continue;
-
-    const v = raw.toLowerCase();
-    if (v === '1' || v === 'true') return 'ai_agent';
-    return v;
-  }
-
-  // Agent-specific vars: each maps to a fixed identifier in KNOWN_AGENT_ENV_VARS.
   for (const [key, agent] of Object.entries(KNOWN_AGENT_ENV_VARS)) {
     const value = env[key];
     if (!value) continue;
+
+    // If the value is a descriptive name it is used directly,
+    // otherwise 'ai_agent' is returned.
+    if (key === 'AI_AGENT') {
+      const v = value.toLowerCase();
+      return v === '1' || v === 'true' ? 'ai_agent' : v;
+    }
 
     return agent;
   }

@@ -44,7 +44,6 @@ import {
 import { promises as fs } from 'fs';
 import path from 'path';
 import { getOsInfo } from '@mongodb-js/get-os-info';
-type OsInfo = Awaited<ReturnType<typeof getOsInfo>>;
 import { UpdateNotificationManager } from './update-notification-manager';
 import { getTimingData, markTime, summariseTimingData } from './startup-timing';
 import type { IdPInfo } from 'mongodb';
@@ -60,6 +59,10 @@ import {
 } from '@mongodb-js/devtools-proxy-support';
 import { fullDepthInspectOptions } from './format-output';
 import { getDeviceIdForMongosh } from './device-id';
+
+// TODO: OsInfo is not exported from @mongodb-js/get-os-info. Derive it until that is fixed MONGOSH-3489.
+// https://github.com/mongodb-js/devtools-shared/blob/main/packages/get-os-info/src/get-os-info.ts#L15C6-L15C12
+type OsInfo = Awaited<ReturnType<typeof getOsInfo>>;
 
 /**
  * Connecting text key.

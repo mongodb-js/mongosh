@@ -5,7 +5,7 @@ import type { MongoshAnalytics } from './analytics-helpers';
 export const DEFAULT_TELEMETRY_ENDPOINT =
   'https://telemetry.example.mongodb.com/v1/events';
 
-const FLUSH_TIMEOUT_MS = 5_000;
+const FLUSH_TIMEOUT_MS = 2_000;
 
 type FetchFn = (
   url: string,
@@ -14,7 +14,7 @@ type FetchFn = (
 
 /**
  * Sends telemetry events to the MongoDB telemetry HTTP endpoint.
- * Network errors are silently dropped. flush() waits up to 5 s for
+ * Network errors are silently dropped. flush() waits up to 2 s for
  * in-flight requests so events sent right before exit are not lost.
  * Pass a custom `endpoint` to override the default (e.g. for testing).
  * Pass a proxy-aware `fetch` (e.g. from @mongodb-js/devtools-proxy-support)
@@ -23,14 +23,17 @@ type FetchFn = (
 export class TelemetryClient implements MongoshAnalytics {
   private readonly endpoint: string;
   private readonly fetch: FetchFn;
+  private readonly flushTimeoutMs: number;
   private readonly inflight: Promise<void>[] = [];
 
   constructor(
     endpoint: string = DEFAULT_TELEMETRY_ENDPOINT,
-    fetch: FetchFn = globalThis.fetch.bind(globalThis)
+    fetch: FetchFn = globalThis.fetch.bind(globalThis),
+    flushTimeoutMs: number = FLUSH_TIMEOUT_MS
   ) {
     this.endpoint = endpoint;
     this.fetch = fetch;
+    this.flushTimeoutMs = flushTimeoutMs;
   }
 
   track(event: TelemetryEvent): void {
@@ -48,7 +51,7 @@ export class TelemetryClient implements MongoshAnalytics {
     const pending = this.inflight.splice(0);
     if (pending.length === 0) return;
     const timeout = new Promise<void>((resolve) =>
-      setTimeout(resolve, FLUSH_TIMEOUT_MS).unref?.()
+      setTimeout(resolve, this.flushTimeoutMs).unref?.()
     );
     await Promise.race([Promise.all(pending), timeout]);
   }

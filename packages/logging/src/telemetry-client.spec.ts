@@ -123,6 +123,19 @@ describe('TelemetryClient', function () {
     expect(fetchCalls).to.have.lengthOf(1);
   });
 
+  it('flush() resolves via timeout when a request never completes', async function () {
+    // Simulate a stuck network request that never resolves.
+    const client = new TelemetryClient(
+      'https://example.com/events',
+      () => new Promise<void>(() => undefined), // Never resolves.
+      10 // Override the 2s default so the test completes much faster.
+    );
+    client.track(sessionEvent);
+    const start = Date.now();
+    await client.flush();
+    expect(Date.now() - start).to.be.lessThan(500); // Well within CI tolerance.
+  });
+
   it('events tracked after flush() starts are not included in that flush', async function () {
     let resolveFirst!: () => void;
     const firstDone = new Promise<void>((r) => (resolveFirst = r));

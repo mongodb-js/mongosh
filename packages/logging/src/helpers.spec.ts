@@ -25,16 +25,25 @@ describe('logging helpers', function () {
   });
 
   describe('getAiAgent', function () {
-    const cleanup = () => {
+    let savedEnv: Record<string, string | undefined> = {};
+
+    beforeEach(function () {
+      savedEnv = {};
       for (const v of Object.keys(KNOWN_AGENT_ENV_VARS)) {
+        savedEnv[v] = process.env[v];
         delete process.env[v];
       }
-      delete process.env.AGENT;
-      delete process.env.AI_AGENT;
-    };
+    });
 
-    beforeEach(cleanup);
-    afterEach(cleanup);
+    afterEach(function () {
+      for (const [v, original] of Object.entries(savedEnv)) {
+        if (original === undefined) {
+          delete process.env[v];
+        } else {
+          process.env[v] = original;
+        }
+      }
+    });
 
     it('returns undefined when no agent env var is set', function () {
       expect(getAiAgent()).to.equal(undefined);
@@ -47,31 +56,33 @@ describe('logging helpers', function () {
       });
     }
 
-    it('returns ai_agent for AGENT=1', function () {
-      process.env.AGENT = '1';
-      expect(getAiAgent()).to.equal('ai_agent');
-    });
-
-    it('returns ai_agent for AI_AGENT=true', function () {
-      process.env.AI_AGENT = 'true';
-      expect(getAiAgent()).to.equal('ai_agent');
-    });
-
-    it('returns the value of AGENT when it is a known agent name', function () {
-      process.env.AGENT = 'my_custom_tool';
-      expect(getAiAgent()).to.equal('my_custom_tool');
-    });
-
-    it('returns the first matching KNOWN_AGENT_ENV_VARS entry when multiple are set', function () {
+    it('returns the first matching entry when multiple vars are set', function () {
       process.env.CLAUDECODE = '1';
       process.env.CURSOR_AGENT = '1';
       expect(getAiAgent()).to.equal('claude_code');
     });
 
-    it('AGENT and AI_AGENT take priority over KNOWN_AGENT_ENV_VARS', function () {
-      process.env.AI_AGENT = '1';
-      process.env.CLAUDECODE = '1';
-      expect(getAiAgent()).to.equal('ai_agent');
+    describe('AI_AGENT fallback', function () {
+      it('returns ai_agent when set to boolean-style value "1"', function () {
+        process.env.AI_AGENT = '1';
+        expect(getAiAgent()).to.equal('ai_agent');
+      });
+
+      it('returns ai_agent when set to boolean-style value "true"', function () {
+        process.env.AI_AGENT = 'true';
+        expect(getAiAgent()).to.equal('ai_agent');
+      });
+
+      it('returns the value directly when it is a descriptive agent name', function () {
+        process.env.AI_AGENT = 'my_custom_tool';
+        expect(getAiAgent()).to.equal('my_custom_tool');
+      });
+
+      it('is checked after specific vars — specific vars take priority', function () {
+        process.env.CLAUDECODE = '1';
+        process.env.AI_AGENT = '1';
+        expect(getAiAgent()).to.equal('claude_code');
+      });
     });
   });
 });

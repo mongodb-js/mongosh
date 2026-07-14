@@ -1288,9 +1288,23 @@ describe('MongoshLoggingAndTelemetry', function () {
   });
 
   describe('ai_agent detection', function () {
-    afterEach(async function () {
+    let savedEnv: Record<string, string | undefined> = {};
+
+    beforeEach(function () {
+      savedEnv = {};
       for (const v of Object.keys(KNOWN_AGENT_ENV_VARS)) {
+        savedEnv[v] = process.env[v];
         delete process.env[v];
+      }
+    });
+
+    afterEach(async function () {
+      for (const [v, original] of Object.entries(savedEnv)) {
+        if (original === undefined) {
+          delete process.env[v];
+        } else {
+          process.env[v] = original;
+        }
       }
       await loggingAndTelemetry.detachLogger();
       loggingAndTelemetry = setupLoggingAndTelemetry({
