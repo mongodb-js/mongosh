@@ -189,7 +189,9 @@ export class CliRepl implements MongoshIOProvider {
         this.hasOnDiskTelemetryId = !!(
           config.userId || config.telemetryAnonymousId
         );
-        this.setTelemetryEnabled(config.enableTelemetry);
+        this.setTelemetryEnabled().catch((err: Error) => {
+          this.bus.emit('mongosh:error', err, 'telemetry');
+        });
         this.bus.emit('mongosh:new-user', {
           userId: config.userId,
           anonymousId: config.telemetryAnonymousId,
@@ -199,7 +201,9 @@ export class CliRepl implements MongoshIOProvider {
         this.hasOnDiskTelemetryId = !!(
           config.userId || config.telemetryAnonymousId
         );
-        this.setTelemetryEnabled(config.enableTelemetry);
+        this.setTelemetryEnabled().catch((err: Error) => {
+          this.bus.emit('mongosh:error', err, 'telemetry');
+        });
         this.bus.emit('mongosh:update-user', {
           userId: config.userId,
           anonymousId: config.telemetryAnonymousId,
@@ -218,15 +222,7 @@ export class CliRepl implements MongoshIOProvider {
         ] = await Promise.all([
           this.getOsInfo(),
           (async () => {
-            // TODO: There should be a single way used throughout this class
-            // to check whether telemetry is enabled or not, instead of directly checking
-            // config values in some places and passing an `enabled` flag to
-            // `setTelemetryEnabled` in others.
-            if (
-              !includeDeviceId ||
-              this.forceDisableTelemetry ||
-              !(await this.getConfig('enableTelemetry'))
-            ) {
+            if (!includeDeviceId || !(await this.isTelemetryEnabled())) {
               return 'disabled';
             }
             return await this.getDeviceId();
@@ -634,7 +630,7 @@ export class CliRepl implements MongoshIOProvider {
       if (!this.cliOptions.shell) {
         // We flush the telemetry data as part of exiting. Make sure we have
         // the right config value.
-        this.setTelemetryEnabled(await this.getConfig('enableTelemetry'));
+        await this.setTelemetryEnabled();
         await this.exit(0);
         return;
       }
@@ -667,7 +663,7 @@ export class CliRepl implements MongoshIOProvider {
 
     // We only enable/disable here, since the rc file/command line scripts
     // can disable the telemetry setting.
-    this.setTelemetryEnabled(await this.getConfig('enableTelemetry'));
+    await this.setTelemetryEnabled();
     this.bus.emit('mongosh:start-mongosh-repl', { version });
     markTime(TimingCategories.REPLInstantiation, 'starting repl');
     await this.mongoshRepl.startRepl(initialized);
@@ -765,7 +761,18 @@ export class CliRepl implements MongoshIOProvider {
     }
   }
 
-  setTelemetryEnabled(enabled: boolean): void {
+  /**
+   * Single source of truth for whether telemetry is currently enabled.
+   * Combines the global `forceDisableTelemetry` kill switch with the
+   * user-configurable `enableTelemetry` setting.
+   */
+  async isTelemetryEnabled(): Promise<boolean> {
+    return (
+      !this.forceDisableTelemetry && !!(await this.getConfig('enableTelemetry'))
+    );
+  }
+
+  async setTelemetryEnabled(): Promise<void> {
     if (this.globalConfig === null) {
       // This happens when the per-user config file is loaded before we have
       // started loading the global config file. Keep telemetry paused in that
@@ -773,7 +780,7 @@ export class CliRepl implements MongoshIOProvider {
       return;
     }
 
-    if (enabled && this.hasOnDiskTelemetryId && !this.forceDisableTelemetry) {
+    if ((await this.isTelemetryEnabled()) && this.hasOnDiskTelemetryId) {
       this.toggleableAnalytics.enable();
     } else {
       this.toggleableAnalytics.disable();
@@ -1053,7 +1060,7 @@ export class CliRepl implements MongoshIOProvider {
     }
     this.config[key] = value;
     if (key === 'enableTelemetry') {
-      this.setTelemetryEnabled(this.config.enableTelemetry);
+      await this.setTelemetryEnabled();
       this.bus.emit('mongosh:update-user', {
         userId: this.config.userId,
         anonymousId: this.config.telemetryAnonymousId,
