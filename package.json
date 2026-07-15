@@ -170,9 +170,5 @@
     "packages/node-runtime-worker-thread",
     "packages/browser-repl",
     "packages/connectivity-tests"
-  ],
-  "overrides": {
-    "mongodb": "^7.5.0",
-    "mongodb-client-encryption": "^7.2.0"
-  }
+  ]
 }
