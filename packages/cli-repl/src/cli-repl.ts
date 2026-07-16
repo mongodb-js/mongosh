@@ -32,6 +32,7 @@ import type { MongoshLoggingAndTelemetry } from '@mongosh/logging';
 import { setupLoggingAndTelemetry } from '@mongosh/logging';
 import {
   ToggleableAnalytics,
+  ThrottledAnalytics,
   TelemetryClient,
   getAiAgent,
 } from '@mongosh/logging';
@@ -43,7 +44,7 @@ import {
 } from '@mongosh/types';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { getOsInfo } from '@mongodb-js/get-os-info';
+import { getOsInfo, type OsInfo } from '@mongodb-js/get-os-info';
 import { UpdateNotificationManager } from './update-notification-manager';
 import { getTimingData, markTime, summariseTimingData } from './startup-timing';
 import type { IdPInfo } from 'mongodb';
@@ -59,10 +60,6 @@ import {
 } from '@mongodb-js/devtools-proxy-support';
 import { fullDepthInspectOptions } from './format-output';
 import { getDeviceIdForMongosh } from './device-id';
-
-// TODO: OsInfo is not exported from @mongodb-js/get-os-info. Derive it until that is fixed MONGOSH-3489.
-// https://github.com/mongodb-js/devtools-shared/blob/main/packages/get-os-info/src/get-os-info.ts#L15C6-L15C12
-type OsInfo = Awaited<ReturnType<typeof getOsInfo>>;
 
 /**
  * Connecting text key.
@@ -725,14 +722,22 @@ export class CliRepl implements MongoshIOProvider {
     ) {
       throw new Error('no analytics setup for the mongosh CI environment');
     }
+    // ThrottledAnalytics caps events at 30 per day to protect against
+    // high-frequency scenarios such as reconnect loops.
     this.toggleableAnalytics = new ToggleableAnalytics(
-      new TelemetryClient(
-        this.analyticsOptions?.telemetryEndpoint ??
-          process.env.MONGOSH_TELEMETRY_ENDPOINT,
-        // includeDeviceId: false — device_id is already in the event payload,
-        // no need to duplicate it in the User-Agent header.
-        this.fetch({ includeDeviceId: false })
-      )
+      new ThrottledAnalytics({
+        target: new TelemetryClient(
+          this.analyticsOptions?.telemetryEndpoint ??
+            process.env.MONGOSH_TELEMETRY_ENDPOINT,
+          // includeDeviceId: false — device_id is already in the event payload,
+          // no need to duplicate it in the User-Agent header.
+          this.fetch({ includeDeviceId: false })
+        ),
+        throttle: {
+          rate: 30,
+          metadataPath: this.shellHomeDirectory.paths.shellLocalDataPath,
+        },
+      })
     );
   }
 
