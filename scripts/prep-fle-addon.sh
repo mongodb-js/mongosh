@@ -64,7 +64,7 @@ npm run install:libmongocrypt -- --skip-bindings ${IS_WINDOWS:+--build}
 # The "deps" directory will be populated
 # Structure:
 # deps/
-#   include/kms_message
+#   include/kms_message   (only on libmongocrypt < 1.20; removed in 1.20+)
 #   include/mongocrypt
 # lib/
 #   libbson-static-for-libmongocrypt.a
@@ -75,6 +75,11 @@ if [ x"$FLE_NODE_SOURCE_PATH" != x"" ]; then
   mkdir -p "$FLE_NODE_SOURCE_PATH"/deps/lib
   mkdir -p "$FLE_NODE_SOURCE_PATH"/deps/include
   cp -rv ./deps/lib*/*-static* "$FLE_NODE_SOURCE_PATH"/deps/lib
-  cp -rv ./deps/include/*kms* "$FLE_NODE_SOURCE_PATH"/deps/include
+  # libmongocrypt 1.20+ no longer ships kms_message headers under include/
+  # (the symbols come from libkms_message-static.a only), so copy them only
+  # when present.
+  if ls ./deps/include/*kms* >/dev/null 2>&1; then
+    cp -rv ./deps/include/*kms* "$FLE_NODE_SOURCE_PATH"/deps/include
+  fi
   cp -rv ./deps/include/*mongocrypt* "$FLE_NODE_SOURCE_PATH"/deps/include
 fi
