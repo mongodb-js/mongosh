@@ -1810,6 +1810,11 @@ describe('CliRepl', function () {
             "Cannot modify telemetry settings while 'forceDisableTelemetry' is set to true"
           );
 
+          output = '';
+          input.write('config.get("enableTelemetry")\n');
+          await waitEval(cliRepl.bus);
+          expect(output).to.include('false');
+
           input.write('exit\n');
           await waitBus(cliRepl.bus, 'mongosh:closed');
           expect(requests).to.have.lengthOf(0);

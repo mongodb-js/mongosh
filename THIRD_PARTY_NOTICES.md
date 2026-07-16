@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Sun Jul 12 2026.
+This document was automatically generated on Thu Jul 16 2026.
 
 ## List of dependencies
 
@@ -353,14 +353,14 @@ Package|Version|License
 **[minimist](#8162d302efd0533ce00fc8a52dd6703dbb4205435af84e72b7694c608a729de4)**|1.2.8|MIT
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
 **[mongodb-build-info](#072a485ce651997e66b97b522fce57ad957256d3fae4c7c7179933ee22c75ecd)**|1.9.6|Apache-2.0
-**[mongodb-client-encryption](#f24794d804800d6c453e41a022153224598e9e9c89b0cf7a097419d8e9df3a2e)**|7.0.0|Apache-2.0
+**[mongodb-client-encryption](#c1c2e8654dbbacdaa456c73e0892d6ab5c32e8d5a2a25c056b9174ca4d1c3cab)**|7.2.0|Apache-2.0
 **[mongodb-connection-string-url](#296e917903ac3f9373c527dbe188f557395fb620f871b166921cd51aa5db6ce5)**|7.0.1|Apache-2.0
 **[mongodb-crypt-library-version](#3e1d5f9567c61690518d3cd8a3523c8be420f056599efc3adce11df0edbfa787)**|2.0.1|Apache-2.0
 **[mongodb-log-writer](#81ec4d4efe99c89e6e4d8d6f9d84b7f87ef4ae92bbc9328d484f13ba894c84ed)**|2.5.6|Apache-2.0
 **[mongodb-ns](#08ec71c1363132bf8e3166d828abfabaab899750d2a515b59e6002dc3c3785f1)**|3.1.5|Apache-2.0
 **[mongodb-redact](#7a64fca86edf562f6a1448a1e8435611a12a370751fbc851b2515266424880cd)**|1.4.6|Apache-2.0
 **[mongodb-schema](#e0300e77409789ae795961e8ed90b479d8816c8b4c2e078c0c8679293eae5c9d)**|12.7.0|Apache-2.0
-**[mongodb](#b12d938c28642c062a81e792a687a88bb0c4c66002ae7eebb50e37d361a6b4bb)**|7.3.0|Apache-2.0
+**[mongodb](#2b6d1321e5706f8de316a1b3f659dfd6e492d154443936866c044e7ac313d9c5)**|7.5.0|Apache-2.0
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
 **[ms](#2083576c5af8054927640b4788059806d07e250a26066c9ccb2d928394fb9226)**|2.1.3|MIT
 **[nan](#5007ce5fab0ecba53610a8ffb04600f0e486fdb6c7f3d7822a6796b17d29f598)**|2.24.0|MIT
@@ -372,6 +372,7 @@ Package|Version|License
 **[node-addon-api](#fda53eedd94b7b4715b4b38feabbda94f39cb65947d1f3b9e9b92925285153b4)**|8.2.1|MIT
 **[node-addon-api](#51f8850361f0190a4bb9a2f4fbe84704fc46094f5b68994380ef5180514ff02c)**|8.3.1|MIT
 **[node-addon-api](#e7486763beec09dbdc97b04188281671ab43bf57761b71a087741fe5db541d00)**|8.5.0|MIT
+**[node-addon-api](#6229b4201ea3ef7be83227f13d178fe940528acd58ded6d96bb0726958086cb6)**|8.9.0|MIT
 **[node-cache](#7facc0b98aa570bf195800a761cbe85a8d5b639a49d16be0162f589f86ab6f4e)**|5.1.2|MIT
 **[node-domexception](#3c25065fd2bc1b6b56856e30ac5b8f34ddae33ca87b225854f8d855b0ccabfbe)**|1.0.0|MIT
 **[node-fetch](#23d7d5a419e9a25e6384dee4aa24f7162544418f0cdc2d92e94e2cf924507b8c)**|2.7.0|MIT
@@ -28521,8 +28522,8 @@ License files:
       
 
 
-<a id="f24794d804800d6c453e41a022153224598e9e9c89b0cf7a097419d8e9df3a2e"></a>
-### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 7.0.0)
+<a id="c1c2e8654dbbacdaa456c73e0892d6ab5c32e8d5a2a25c056b9174ca4d1c3cab"></a>
+### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 7.2.0)
 License tags: Apache-2.0
 
 License files:
@@ -29980,8 +29981,8 @@ License files:
       
 
 
-<a id="b12d938c28642c062a81e792a687a88bb0c4c66002ae7eebb50e37d361a6b4bb"></a>
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 7.3.0)
+<a id="2b6d1321e5706f8de316a1b3f659dfd6e492d154443936866c044e7ac313d9c5"></a>
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 7.5.0)
 License tags: Apache-2.0
 
 License files:
@@ -30614,6 +30615,25 @@ License files:
 
 <a id="e7486763beec09dbdc97b04188281671ab43bf57761b71a087741fe5db541d00"></a>
 ### [node-addon-api](https://www.npmjs.com/package/node-addon-api) (version 8.5.0)
+License tags: MIT
+
+License files:
+* LICENSE.md:
+
+      The MIT License (MIT)
+      
+      Copyright (c) 2017 [Node.js API collaborators](https://github.com/nodejs/node-addon-api#collaborators)
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      
+
+
+<a id="6229b4201ea3ef7be83227f13d178fe940528acd58ded6d96bb0726958086cb6"></a>
+### [node-addon-api](https://www.npmjs.com/package/node-addon-api) (version 8.9.0)
 License tags: MIT
 
 License files:

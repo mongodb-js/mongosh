@@ -540,7 +540,9 @@ describe('FLE tests', function () {
               keyId: dataKey,
               path: 'v',
               bsonType: 'string',
-              queries: [{ queryType: 'equality' }]
+              // Must match the contentionFactor used in the payloads below,
+              // otherwise the server rejects the find payload.
+              queries: [{ queryType: 'equality', contention: 4 }]
             }]
           }
         });
@@ -1019,12 +1021,33 @@ describe('FLE tests', function () {
       });
     });
 
+    const variant = {
+      algorithm: 'String',
+      optionsKey: 'stringOptions',
+      queryType: {
+        substring: 'substring',
+        prefix: 'prefix',
+        suffix: 'suffix',
+      },
+    };
+
     for (const mode of ['automatic', 'explicit'] as const)
       context(
         `Queryable Encryption Prefix/Suffix/Substring Support ${mode}`,
         function () {
           // Substring prefix support is enterprise-only 8.2+
           skipIfCommunityServer(testServer);
+          skipIfServerVersion(testServer, '< 9.0');
+
+          if (mode === 'automatic') {
+            // Automatic-mode query analysis runs inside crypt_shared, and no
+            // downloadable crypt_shared yet recognises the GA query types, so
+            // automatic mode cannot be exercised. Re-enable once one is
+            // available.
+            before(function () {
+              this.skip();
+            });
+          }
 
           let shell: TestShell;
 
@@ -1033,7 +1056,7 @@ describe('FLE tests', function () {
           beforeEach(async function () {
             shell = startTestShell(this, {
               args: [
-                `--cryptSharedLibPath=${cryptLibrary82}`,
+                `--cryptSharedLibPath=${cryptLibrary}`,
                 await testServer.connectionString(),
               ],
             });
@@ -1059,7 +1082,7 @@ describe('FLE tests', function () {
 
         substringOptions = {
           strMinQueryLength: 2,
-          strMaxQueryLength: 10,
+          strMaxQueryLength: 6,
         };
         encryptedFieldOptions = {
           ...substringOptions,
@@ -1077,8 +1100,8 @@ describe('FLE tests', function () {
                 path: 'substringData',
                 bsonType: 'string',
                 queries: [{
-                  queryType: 'substringPreview',
-                  strMaxLength: 60,
+                  queryType: ${JSON.stringify(variant.queryType.substring)},
+                  strMaxLength: 50,
                   ...encryptedFieldOptions
                 }]
               }, {
@@ -1086,10 +1109,10 @@ describe('FLE tests', function () {
                 path: 'prefixSuffixData',
                 bsonType: 'string',
                 queries: [{
-                  queryType: 'prefixPreview',
+                  queryType: ${JSON.stringify(variant.queryType.prefix)},
                   ...encryptedFieldOptions
                 }, {
-                  queryType: 'suffixPreview',
+                  queryType: ${JSON.stringify(variant.queryType.suffix)},
                   ...encryptedFieldOptions
                 }]
               }]
@@ -1101,16 +1124,24 @@ describe('FLE tests', function () {
         ecoll = explicitMongo.getDB('${dbname}').${testCollection};
 
         explicitOpts = (details) => ({
-          algorithm: 'TextPreview',
+          algorithm: ${JSON.stringify(variant.algorithm)},
           contentionFactor: 4,
-          textOptions: { caseSensitive: false, diacriticSensitive: false, ...details }
+          ${
+            variant.optionsKey
+          }: { caseSensitive: false, diacriticSensitive: false, ...details }
         });
-        substringOpts = explicitOpts({ substring: { ...substringOptions, strMaxLength: 60 } });
+        substringOpts = explicitOpts({ substring: { ...substringOptions, strMaxLength: 50 } });
         prefixSuffixOpts = explicitOpts({ prefix: substringOptions, suffix: substringOptions });
         methods = {
-          substring: { queryType: 'substringPreview', keyId: keyId1, options: substringOpts },
-          prefix: { queryType: 'prefixPreview', keyId: keyId2, options: prefixSuffixOpts },
-          suffix: { queryType: 'suffixPreview', keyId: keyId2, options: prefixSuffixOpts }
+          substring: { queryType: ${JSON.stringify(
+            variant.queryType.substring
+          )}, keyId: keyId1, options: substringOpts },
+          prefix: { queryType: ${JSON.stringify(
+            variant.queryType.prefix
+          )}, keyId: keyId2, options: prefixSuffixOpts },
+          suffix: { queryType: ${JSON.stringify(
+            variant.queryType.suffix
+          )}, keyId: keyId2, options: prefixSuffixOpts }
         }
         explicitEncrypt = (method, data) => {
           return ce.encrypt(methods[method].keyId, data, {
