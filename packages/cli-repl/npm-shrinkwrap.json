@@ -9,7 +9,7 @@
       "version": "2.9.1",
       "license": "Apache-2.0",
       "dependencies": {
-        "@mongodb-js/device-id": "^0.4.6",
+        "@mongodb-js/device-id": "^0.4.13",
         "@mongodb-js/devtools-proxy-support": "^0.7.5",
         "@mongosh/arg-parser": "^5.2.0",
         "@mongosh/autocomplete": "^5.3.2",
@@ -29,7 +29,7 @@
         "ansi-escape-sequences": "^5.1.2",
         "askcharacter": "^2.0.4",
         "askpassword": "^2.0.2",
-        "bson": "^7.3.0",
+        "bson": "^7.3.1",
         "escape-string-regexp": "^4.0.0",
         "is-recoverable-error": "^1.0.3",
         "js-yaml": "^4.2.0",
@@ -1384,9 +1384,9 @@
       }
     },
     "node_modules/@mongodb-js/device-id": {
-      "version": "0.4.6",
-      "resolved": "https://registry.npmjs.org/@mongodb-js/device-id/-/device-id-0.4.6.tgz",
-      "integrity": "sha512-FdePkTafBnLT0LwP9Uo5PRCjYHzjZEnlnYvFiv3gRrBPIaEMVL1I5yylU53ASBLnaf4Mg/jIivZ5S6X4CDa1rQ==",
+      "version": "0.4.13",
+      "resolved": "https://registry.npmjs.org/@mongodb-js/device-id/-/device-id-0.4.13.tgz",
+      "integrity": "sha512-X9XLwl2sAN4cFPKBjr9fak7SJDxALcVNBz2PVx7uQbPSj+roHsQhWKWIG6yInT2oloo8e7VugtpZJG215YTIRQ==",
       "license": "Apache-2.0"
     },
     "node_modules/@mongodb-js/devtools-connect": {
@@ -1483,21 +1483,33 @@
       }
     },
     "node_modules/@mongodb-js/mongodb-constants": {
-      "version": "0.20.1",
-      "resolved": "https://registry.npmjs.org/@mongodb-js/mongodb-constants/-/mongodb-constants-0.20.1.tgz",
-      "integrity": "sha512-zes9Ays51BkF/OP9ATFbHbLw5UWKv7V0NnPfDDj/TMgdjPMQvnf0yqu1Bwb7VIr1cSBAM9vLXgcVeh3iEPkXpw==",
+      "version": "0.33.0",
+      "resolved": "https://registry.npmjs.org/@mongodb-js/mongodb-constants/-/mongodb-constants-0.33.0.tgz",
+      "integrity": "sha512-eCglRNhukKReQTv8BfHP2wne+rBbmF4M4s5hexfJM4/oRTk7IF5tuvfP0qEDxbNps9arGwYGuFCd3hPxZfp52Q==",
       "license": "Apache-2.0",
       "dependencies": {
-        "semver": "^7.7.1"
+        "semver": "^7.7.4"
       },
       "peerDependencies": {
         "bson": "^4.6.3 || ^5 || ^6.10.3 || ^7.0.0"
       }
     },
+    "node_modules/@mongodb-js/mongodb-constants/node_modules/semver": {
+      "version": "7.8.5",
+      "resolved": "https://registry.npmjs.org/semver/-/semver-7.8.5.tgz",
+      "integrity": "sha512-Y7/KDsb8LjooZpwaqGyulO6DQlksgCncchHGk+sZIY4SBvUocMBEFH5Ur1fI4dV+Jvl0w6cjvucaIi40puRioA==",
+      "license": "ISC",
+      "bin": {
+        "semver": "bin/semver.js"
+      },
+      "engines": {
+        "node": ">=10"
+      }
+    },
     "node_modules/@mongodb-js/mongodb-ts-autocomplete": {
-      "version": "0.6.17",
-      "resolved": "https://registry.npmjs.org/@mongodb-js/mongodb-ts-autocomplete/-/mongodb-ts-autocomplete-0.6.17.tgz",
-      "integrity": "sha512-Vze1NhvefTxfMUtM7aMswWhRKXHghXTNUO4iqIOAPm5zh3AVEM9e5FqClGm+Sa4HTTF//roxfLArtrAtZCemjQ==",
+      "version": "0.7.3",
+      "resolved": "https://registry.npmjs.org/@mongodb-js/mongodb-ts-autocomplete/-/mongodb-ts-autocomplete-0.7.3.tgz",
+      "integrity": "sha512-lVRnJTLm3KarjJHAVKMdK0kIVrORmcsMAOfSgTMN4m2tgWTrObhisngKcWvky8yVhBgnQp2nwm/ykKdbv/XTTg==",
       "license": "Apache-2.0",
       "dependencies": {
         "@mongodb-js/ts-autocomplete": "^0.5.12",
@@ -1611,9 +1623,9 @@
       }
     },
     "node_modules/@mongodb-js/saslprep": {
-      "version": "1.4.4",
-      "resolved": "https://registry.npmjs.org/@mongodb-js/saslprep/-/saslprep-1.4.4.tgz",
-      "integrity": "sha512-p7X/ytJDIdwUfFL/CLOhKgdfJe1Fa8uw9seJYvdOmnP9JBWGWHW69HkOixXS6Wy9yvGf1MbhcS6lVmrhy4jm2g==",
+      "version": "1.4.12",
+      "resolved": "https://registry.npmjs.org/@mongodb-js/saslprep/-/saslprep-1.4.12.tgz",
+      "integrity": "sha512-QAfAMwNgnYxZ2C6D1HgeP7Gc4i/uvJRim415PCIL9ptRxWMNbWeLBYb2/9R4pGKny/s1FVu2JA2cxCUBUOggrA==",
       "license": "MIT",
       "dependencies": {
         "sparse-bitfield": "^3.0.3"
@@ -1682,7 +1694,7 @@
         "@mongodb-js/tsconfig-mongosh": "^1.0.0",
         "@types/yargs-parser": "^21.0.3",
         "eslint": "^7.25.0",
-        "mongodb": "^7.3.0",
+        "mongodb": "^7.5.0",
         "prettier": "^2.8.8"
       },
       "engines": {
@@ -1724,8 +1736,8 @@
       "version": "5.3.2",
       "license": "Apache-2.0",
       "dependencies": {
-        "@mongodb-js/mongodb-constants": "^0.20.1",
-        "@mongodb-js/mongodb-ts-autocomplete": "^0.6.17",
+        "@mongodb-js/mongodb-constants": "^0.33.0",
+        "@mongodb-js/mongodb-ts-autocomplete": "^0.7.3",
         "@mongosh/shell-api": "^5.3.2",
         "semver": "^7.5.4"
       },
@@ -1750,7 +1762,7 @@
         "@mongosh/shell-api": "^5.3.2",
         "@mongosh/shell-evaluator": "^5.3.2",
         "@mongosh/types": "^5.0.5",
-        "bson": "^7.3.0",
+        "bson": "^7.3.1",
         "js-beautify": "^1.15.1"
       },
       "devDependencies": {
@@ -1870,8 +1882,8 @@
       "dependencies": {
         "@mongosh/errors": "2.4.7",
         "@mongosh/shell-bson": "3.0.6",
-        "bson": "^7.3.0",
-        "mongodb": "^7.3.0",
+        "bson": "^7.3.1",
+        "mongodb": "^7.5.0",
         "mongodb-build-info": "^1.9.5",
         "mongodb-connection-string-url": "^7.0.1"
       },
@@ -1898,7 +1910,7 @@
         "@mongosh/service-provider-core": "5.0.6",
         "@mongosh/types": "^5.0.5",
         "gcp-metadata": "^7.0.1",
-        "mongodb": "^7.3.0",
+        "mongodb": "^7.5.0",
         "mongodb-build-info": "^1.9.6",
         "mongodb-connection-string-url": "^7.0.1",
         "socks": "^2.8.3"
@@ -1917,7 +1929,7 @@
       },
       "optionalDependencies": {
         "kerberos": "^7.0.0",
-        "mongodb-client-encryption": "^7.0.0"
+        "mongodb-client-encryption": "^7.2.0"
       }
     },
     "node_modules/@mongosh/shell-api": {
@@ -1938,15 +1950,15 @@
         "@babel/types": "^7.26.10",
         "@microsoft/api-extractor": "^7.39.3",
         "@mongodb-js/eslint-config-mongosh": "^1.0.0",
-        "@mongodb-js/mongodb-ts-autocomplete": "^0.6.17",
+        "@mongodb-js/mongodb-ts-autocomplete": "^0.7.3",
         "@mongodb-js/prettier-config-devtools": "^1.0.1",
         "@mongodb-js/tsconfig-mongosh": "^1.0.0",
         "@mongosh/testing": "2.0.14",
         "@mongosh/types": "^5.0.5",
         "@types/babel__core": "^7.20.5",
-        "bson": "^7.3.0",
+        "bson": "^7.3.1",
         "eslint": "^7.25.0",
-        "mongodb": "^7.3.0",
+        "mongodb": "^7.5.0",
         "prettier": "^2.8.8",
         "semver": "^7.5.3"
       },
@@ -1965,7 +1977,7 @@
         "@mongodb-js/eslint-config-mongosh": "^1.0.0",
         "@mongodb-js/prettier-config-devtools": "^1.0.1",
         "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-        "bson": "^7.3.0",
+        "bson": "^7.3.1",
         "eslint": "^7.25.0",
         "prettier": "^2.8.8"
       },
@@ -2006,7 +2018,7 @@
         "@mongosh/errors": "2.4.7",
         "@mongosh/shell-api": "^5.3.2",
         "@mongosh/types": "^5.0.5",
-        "bson": "^7.3.0",
+        "bson": "^7.3.1",
         "cross-spawn": "^7.0.5",
         "escape-string-regexp": "^4.0.0",
         "tar": "^7.5.11",
@@ -2039,7 +2051,7 @@
         "@mongodb-js/prettier-config-devtools": "^1.0.1",
         "@mongodb-js/tsconfig-mongosh": "^1.0.0",
         "eslint": "^7.25.0",
-        "mongodb": "^7.3.0",
+        "mongodb": "^7.5.0",
         "prettier": "^2.8.8"
       },
       "engines": {
@@ -3351,9 +3363,9 @@
       }
     },
     "node_modules/bson": {
-      "version": "7.3.0",
-      "resolved": "https://registry.npmjs.org/bson/-/bson-7.3.0.tgz",
-      "integrity": "sha512-WmjjMEwFwZHmGnAb7wn90MhkiT+mTm4x/rLj7dvAPWfwnVWDXhLun2e+UM88MJoDGW624yzZglVX/zTBy9ZZMw==",
+      "version": "7.3.1",
+      "resolved": "https://registry.npmjs.org/bson/-/bson-7.3.1.tgz",
+      "integrity": "sha512-h/C0qe6857pQhcSJHLfsR1uYGj98Ge3wKAD3Ed9KqH3wcVh+BM4Jq4xISD7vs9OPuT07n+q3QQVjslJ286j6ag==",
       "license": "Apache-2.0",
       "engines": {
         "node": ">=20.19.0"
@@ -5895,14 +5907,14 @@
       "license": "MIT"
     },
     "node_modules/mongodb": {
-      "version": "7.3.0",
-      "resolved": "https://registry.npmjs.org/mongodb/-/mongodb-7.3.0.tgz",
-      "integrity": "sha512-WpCqSx7JAU9vcyjm/SU7ydnHls2YrfU3Y3sx4Ml9D7sPe4mXPlaapndiurDXrQ7/VvJkB4/i7b7WovHb8bd8sg==",
+      "version": "7.5.0",
+      "resolved": "https://registry.npmjs.org/mongodb/-/mongodb-7.5.0.tgz",
+      "integrity": "sha512-5FnrEDLnvp6ycUOGLNLLU33BfCx2qmp2mJjGPDwKLruYsVzXVSK5fsGpoDXvsXJwBfBsD7ebMRdawbDxC2814g==",
       "license": "Apache-2.0",
       "dependencies": {
-        "@mongodb-js/saslprep": "^1.3.0",
+        "@mongodb-js/saslprep": "^1.4.11",
         "bson": "^7.2.0",
-        "mongodb-connection-string-url": "^7.0.0"
+        "mongodb-connection-string-url": "^7.0.1"
       },
       "engines": {
         "node": ">=20.19.0"
@@ -5912,7 +5924,7 @@
         "@mongodb-js/zstd": "^7.0.0",
         "gcp-metadata": "^7.0.1",
         "kerberos": "^7.0.0",
-        "mongodb-client-encryption": ">=7.0.0 <7.1.0",
+        "mongodb-client-encryption": "^7.2.0",
         "snappy": "^7.3.2",
         "socks": "^2.8.6"
       },
@@ -5974,14 +5986,14 @@
       "license": "MIT"
     },
     "node_modules/mongodb-client-encryption": {
-      "version": "7.0.0",
-      "resolved": "https://registry.npmjs.org/mongodb-client-encryption/-/mongodb-client-encryption-7.0.0.tgz",
-      "integrity": "sha512-0egSmyCQ31MLdDFH2j5fHnX8OkAWytUC4ZoPuelU0E+lgPQ2/UcpxkYQXF20SW0rCzADIc0qouiULtqAKDs/uQ==",
+      "version": "7.2.0",
+      "resolved": "https://registry.npmjs.org/mongodb-client-encryption/-/mongodb-client-encryption-7.2.0.tgz",
+      "integrity": "sha512-BSydVeLbmxXw1/juC2hS1XhTdPWvysniE9MfE2OE0lY/vbes4wrlcTk8HoKCUQOAyXMCH5xThzfUhUaF33Rdmg==",
       "hasInstallScript": true,
       "license": "Apache-2.0",
       "optional": true,
       "dependencies": {
-        "node-addon-api": "^8.5.0",
+        "node-addon-api": "^8.6.0",
         "prebuild-install": "^7.1.3"
       },
       "engines": {
@@ -5989,9 +6001,9 @@
       }
     },
     "node_modules/mongodb-client-encryption/node_modules/node-addon-api": {
-      "version": "8.5.0",
-      "resolved": "https://registry.npmjs.org/node-addon-api/-/node-addon-api-8.5.0.tgz",
-      "integrity": "sha512-/bRZty2mXUIFY/xU5HLvveNHlswNJej+RnxBjOMkidWfwZzgTbPG1E3K5TOxRLOR+5hX7bSofy8yf1hZevMS8A==",
+      "version": "8.9.0",
+      "resolved": "https://registry.npmjs.org/node-addon-api/-/node-addon-api-8.9.0.tgz",
+      "integrity": "sha512-ekZMeaaIzSQTSpr7X2X3iJM7lTzgnx8ahAG9pJfT/7+14mlEM8ZYQ9cgCDvSSRbReFK0oHli3WrZdCiRsgAT9Q==",
       "license": "MIT",
       "optional": true,
       "engines": {

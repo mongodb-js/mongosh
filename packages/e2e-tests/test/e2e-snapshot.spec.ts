@@ -158,4 +158,31 @@ describe('e2e snapshot support', function () {
       );
     });
   });
+
+  context('ObjectId per-process randomness', function () {
+    it('generate a different ObjectId process-random value on each launch (MONGOSH-3421)', async function () {
+      const args = [
+        '--nodb',
+        '--quiet',
+        '--json=relaxed',
+        '--eval',
+        'new ObjectId()',
+      ];
+      const [firstOid, secondOid] = (
+        await Promise.all([
+          startTestShell(this, { args }).waitForCleanOutput(),
+          startTestShell(this, { args }).waitForCleanOutput(),
+        ])
+      ).map((output) => (JSON.parse(output) as { $oid: string }).$oid);
+
+      expect(firstOid).to.match(/^[0-9a-f]{24}$/);
+      expect(secondOid).to.match(/^[0-9a-f]{24}$/);
+      // An ObjectId is a 4-byte timestamp, a 5-byte per-process random value
+      // and a 3-byte counter that starts at a per-process random value. If
+      // either random value is generated while building the startup snapshot
+      // rather than at runtime, every mongosh invocation shares it.
+      expect(firstOid.slice(8, 18)).to.not.equal(secondOid.slice(8, 18));
+      expect(firstOid.slice(18)).to.not.equal(secondOid.slice(18));
+    });
+  });
 });

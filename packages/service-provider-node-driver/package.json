@@ -53,16 +53,16 @@
     "@mongosh/service-provider-core": "5.0.6",
     "@mongosh/types": "^5.0.5",
     "gcp-metadata": "^7.0.1",
-    "mongodb": "^7.3.0",
+    "mongodb": "^7.5.0",
     "mongodb-build-info": "^1.9.6",
     "mongodb-connection-string-url": "^7.0.1",
     "socks": "^2.8.3",
-    "mongodb-client-encryption": "^7.0.0",
+    "mongodb-client-encryption": "^7.2.0",
     "kerberos": "^7.0.0"
   },
   "optionalDependencies": {
     "kerberos": "^7.0.0",
-    "mongodb-client-encryption": "^7.0.0"
+    "mongodb-client-encryption": "^7.2.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",

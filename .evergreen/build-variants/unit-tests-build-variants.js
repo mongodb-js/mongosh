@@ -48,16 +48,24 @@ for (const {
         // Unit tests on macOS use arm64 and therefore require 6.0+
         continue;
       }
+      const details =
+        platform === 'linux' && mShort === 'latest'
+          ? {
+              ...platformDetails,
+              runOn: 'ubuntu2204-small',
+              displayName: 'Ubuntu 22.04 x64',
+            }
+          : platformDetails;
       UNIT_TESTS_BUILD_VARIANTS.push({
-        ...platformDetails,
+        ...details,
         name: `tests_${platform}-m${mShort}_n${nShort}`,
         id: `${platform}-m${mShort}_n${nShort}`,
         runWithUnitTestsOnly: false,
         tags: [
-          ...(platformDetails.tags ?? []),
+          ...(details.tags ?? []),
           ...(mShort === 'latest' ? ['mlatest'] : []),
         ],
-        displayName: `${platformDetails.displayName}${
+        displayName: `${details.displayName}${
           mShort === undefined ? '' : ` m${mShort}`
         } n${nShort} (Unit tests)`,
         platform,
