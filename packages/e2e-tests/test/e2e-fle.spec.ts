@@ -540,10 +540,8 @@ describe('FLE tests', function () {
               keyId: dataKey,
               path: 'v',
               bsonType: 'string',
-              // Contention must match the contentionFactor used in the
-              // insert/find payloads below: 9.0+ servers reject a find payload
-              // whose contention differs from the collection's configured
-              // value (Location9188701), whereas older servers did not check.
+              // Must match the contentionFactor used in the payloads below,
+              // otherwise the server rejects the find payload.
               queries: [{ queryType: 'equality', contention: 4 }]
             }]
           }
@@ -1023,11 +1021,6 @@ describe('FLE tests', function () {
       });
     });
 
-    // QE text-search (prefix/suffix/substring) is GA in server 9.0, using the
-    // `String` algorithm and `stringOptions`. The 8.2 public-preview form
-    // (`*Preview` query types + the `TextPreview` algorithm) was removed from
-    // the driver's client-side encryption and is no longer usable from the
-    // shell, so it is not exercised here.
     const variant = {
       algorithm: 'String',
       optionsKey: 'stringOptions',
@@ -1047,12 +1040,10 @@ describe('FLE tests', function () {
           skipIfServerVersion(testServer, '< 9.0');
 
           if (mode === 'automatic') {
-            // Automatic-mode query analysis runs inside crypt_shared, which
-            // must be 9.0+ to recognise the GA query types. A 9.0 crypt_shared
-            // is not yet published for download (the newest available is 8.3.x,
-            // which rejects the GA query types in `analyze_query`), so automatic
-            // mode cannot be exercised yet. Re-enable once a 9.0+ crypt_shared
-            // is downloadable.
+            // Automatic-mode query analysis runs inside crypt_shared, and no
+            // downloadable crypt_shared yet recognises the GA query types, so
+            // automatic mode cannot be exercised. Re-enable once one is
+            // available.
             before(function () {
               this.skip();
             });

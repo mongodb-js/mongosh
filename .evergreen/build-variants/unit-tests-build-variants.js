@@ -48,10 +48,6 @@ for (const {
         // Unit tests on macOS use arm64 and therefore require 6.0+
         continue;
       }
-      // Ubuntu 20.04 is EOL for server 9.0 and no longer receives nightly
-      // builds, so its `latest` download is permanently frozen at a pre-9.0-GA
-      // build. Run the `latest` (mlatest) linux variant on the minimum
-      // still-supported distro instead.
       const details =
         platform === 'linux' && mShort === 'latest'
           ? {
