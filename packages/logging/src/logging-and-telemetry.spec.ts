@@ -283,8 +283,10 @@ describe('MongoshLoggingAndTelemetry', function () {
     const trackEvent = analyticsOutput.find(
       ([, e]) => e.name === 'New Connection'
     );
-    expect(trackEvent).to.exist;
-    expect(trackEvent![1]).to.deep.equal({
+    if (!trackEvent) {
+      throw new Error('Expected a New Connection event to be tracked');
+    }
+    expect(trackEvent[1]).to.deep.equal({
       name: 'New Connection',
       payload: {
         mongosh_version: '1.0.0',
@@ -370,7 +372,9 @@ describe('MongoshLoggingAndTelemetry', function () {
     });
 
     it('resolves device ID setup when flushed', async function () {
-      let resolveDeviceId: (value: string) => void = () => {};
+      let resolveDeviceId: (value: string) => void = () => {
+        // reassigned synchronously inside the Promise executor below
+      };
       const deviceIdPromise = new Promise<string>((resolve) => {
         resolveDeviceId = resolve;
       });
@@ -403,7 +407,9 @@ describe('MongoshLoggingAndTelemetry', function () {
     });
 
     it('only delays analytic outputs, not logging', async function () {
-      let resolveDeviceId: (value: string) => void = () => {};
+      let resolveDeviceId: (value: string) => void = () => {
+        // reassigned synchronously inside the Promise executor below
+      };
       const deviceIdPromise = new Promise<string>((resolve) => {
         resolveDeviceId = resolve;
       });

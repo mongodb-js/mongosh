@@ -127,7 +127,7 @@ describe('analytics helpers', function () {
 
   describe('ThrottledAnalytics', function () {
     const metadataPath = os.tmpdir();
-    const id = 'd-' + Date.now();
+    const id = `d-${Date.now()}-${process.pid}`;
 
     const throttledIEvt: IdentifyEvent = {
       ...iEvt,

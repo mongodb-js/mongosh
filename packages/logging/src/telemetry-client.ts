@@ -38,8 +38,12 @@ export class TelemetryClient implements MongoshAnalytics {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(event),
     })
-      .then(() => {})
-      .catch(() => {});
+      .then(() => {
+        // discard the Response; callers only await completion
+      })
+      .catch(() => {
+        // telemetry is best-effort; ignore send failures
+      });
     this.inflight.push(p);
   }
 

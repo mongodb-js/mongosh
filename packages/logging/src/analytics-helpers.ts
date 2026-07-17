@@ -55,7 +55,9 @@ class Queue<T> {
  * A no-op implementation of MongoshAnalytics used when telemetry is unavailable.
  */
 export class NoopAnalytics implements MongoshAnalytics {
-  track(): void {}
+  track(): void {
+    // no-op
+  }
   flush() {
     return Promise.resolve();
   }
@@ -134,12 +136,14 @@ async function lockfile(
     // that another process doesn't consider lockfile stale
     intervalId = setInterval(() => {
       const now = Date.now();
-      fs.promises.utimes(lockfilePath, now, now).catch(() => {});
+      fs.promises.utimes(lockfilePath, now, now).catch(() => {
+        // ignore errors refreshing the lockfile mtime
+      });
     }, staleDuration / 2);
     intervalId.unref?.();
     return unlock;
   } catch (e) {
-    if ((e as any).code !== 'EEXIST') {
+    if ((e as NodeJS.ErrnoException).code !== 'EEXIST') {
       throw e;
     }
     const stats = await fs.promises.stat(lockfilePath);
@@ -233,7 +237,7 @@ export class ThrottledAnalytics implements MongoshAnalytics {
         await fs.promises.readFile(this.metadataPath, 'utf8')
       );
     } catch (e) {
-      if ((e as any).code !== 'ENOENT') {
+      if ((e as NodeJS.ErrnoException).code !== 'ENOENT') {
         // Any error except ENOENT means that we failed to restore state for
         // some unknown / unexpected reason, ignore the error and assume that it
         // is not safe to enable telemetry in that case
