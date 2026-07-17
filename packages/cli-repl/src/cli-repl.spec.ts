@@ -32,6 +32,11 @@ import {
 import ConnectionString from 'mongodb-connection-string-url';
 import type { CliReplOptions } from './cli-repl';
 import { CliRepl } from './cli-repl';
+import {
+  NoopAnalytics,
+  ThrottledAnalytics,
+  KNOWN_AGENT_ENV_VARS,
+} from '@mongosh/logging';
 import { CliReplErrors } from './error-codes';
 import type { DevtoolsConnectOptions } from '@mongosh/service-provider-node-driver';
 import type { AddressInfo } from 'net';
@@ -55,6 +60,37 @@ describe('CliRepl', function () {
   let exitCode: null | number;
   let exitPromise: Promise<void>;
   const tmpdir = useTmpdir();
+
+  // Clear any ambient AI-agent env vars (e.g. when the test runner itself is
+  // launched from an AI coding agent) so telemetry assertions are not affected
+  // by getAiAgent() detection. Individual tests can still set them explicitly.
+  let savedAgentEnv: Record<string, string | undefined> = {};
+  beforeEach(function () {
+    savedAgentEnv = {};
+    for (const v of Object.keys(KNOWN_AGENT_ENV_VARS)) {
+      savedAgentEnv[v] = process.env[v];
+      delete process.env[v];
+    }
+  });
+  afterEach(async function () {
+    // Free per-test resources (driver connections, log writer, process
+    // listeners) so CliRepl instances don't accumulate across the suite and
+    // exhaust memory. close() is idempotent and safe to call best-effort.
+    try {
+      await cliRepl?.close();
+    } catch {
+      /* not started or already closed */
+    }
+    cliRepl = undefined as any;
+
+    for (const [v, original] of Object.entries(savedAgentEnv)) {
+      if (original === undefined) {
+        delete process.env[v];
+      } else {
+        process.env[v] = original;
+      }
+    }
+  });
 
   async function log(): Promise<any[]> {
     if (!cliRepl.logWriter?.logFilePath) return [];
@@ -105,6 +141,30 @@ describe('CliRepl', function () {
     };
   });
 
+  context('setupAnalytics', function () {
+    it('disables telemetry when no endpoint is configured', async function () {
+      cliReplOptions.analyticsOptions = { alwaysEnable: true };
+      cliRepl = new CliRepl(cliReplOptions);
+      await cliRepl.setupAnalytics();
+      // No endpoint -> toggleableAnalytics stays a no-op target.
+      expect(cliRepl.toggleableAnalytics._target).to.be.instanceOf(
+        NoopAnalytics
+      );
+    });
+
+    it('enables telemetry when an endpoint is configured', async function () {
+      cliReplOptions.analyticsOptions = {
+        alwaysEnable: true,
+        telemetryEndpoint: 'http://localhost:1',
+      };
+      cliRepl = new CliRepl(cliReplOptions);
+      await cliRepl.setupAnalytics();
+      expect(cliRepl.toggleableAnalytics._target).to.be.instanceOf(
+        ThrottledAnalytics
+      );
+    });
+  });
+
   context('with a broken output stream', function () {
     beforeEach(async function () {
       cliReplOptions.shellCliOptions = { nodb: true };
@@ -137,11 +197,8 @@ describe('CliRepl', function () {
       });
 
       it('toggling telemetry changes config', async function () {
-        const updateUser = waitBus(cliRepl.bus, 'mongosh:update-user');
         const evalComplete = waitBus(cliRepl.bus, 'mongosh:eval-complete');
         input.write('disableTelemetry()\n');
-        const [telemetryUserIdentity] = await updateUser;
-        expect(typeof telemetryUserIdentity).to.equal('object');
 
         await evalComplete; // eval-complete includes the fs.writeFile() call.
         const content = await fs.readFile(path.join(tmpdir.path, 'config'), {
@@ -155,8 +212,6 @@ describe('CliRepl', function () {
           encoding: 'utf8',
         });
         expect(Object.keys(EJSON.parse(content))).to.deep.equal([
-          'userId',
-          'telemetryAnonymousId',
           'enableTelemetry',
           'disableGreetingMessage',
         ]);
@@ -168,8 +223,6 @@ describe('CliRepl', function () {
           encoding: 'utf8',
         });
         expect(Object.keys(EJSON.parse(content))).to.deep.equal([
-          'userId',
-          'telemetryAnonymousId',
           'enableTelemetry',
           'disableGreetingMessage',
           'inspectDepth',
@@ -182,8 +235,6 @@ describe('CliRepl', function () {
           encoding: 'utf8',
         });
         expect(Object.keys(EJSON.parse(content))).to.deep.equal([
-          'userId',
-          'telemetryAnonymousId',
           'enableTelemetry',
           'disableGreetingMessage',
           'inspectDepth',
@@ -329,6 +380,7 @@ describe('CliRepl', function () {
           'oidcTrustedEndpoints',
           'browser',
           'updateURL',
+          'telemetryEndpoint',
           'disableLogging',
           'logLocation',
           'logRetentionDays',
@@ -340,16 +392,16 @@ describe('CliRepl', function () {
 
       it('fails when trying to overwrite mongosh-owned config settings', async function () {
         output = '';
-        input.write('config.set("telemetryAnonymousId", "foo")\n');
+        input.write('config.set("forceDisableTelemetry", true)\n');
         await waitEval(cliRepl.bus);
         expect(output).to.include(
-          'Option "telemetryAnonymousId" is not available in this environment'
+          'Option "forceDisableTelemetry" is not available in this environment'
         );
 
         output = '';
-        input.write('config.get("telemetryAnonymousId")\n');
+        input.write('config.get("forceDisableTelemetry")\n');
         await waitEval(cliRepl.bus);
-        expect(output).to.match(/^[a-z0-9]{24}\n> $/);
+        expect(output).to.include('false');
       });
 
       it('can restore previous config settings', async function () {
@@ -426,25 +478,15 @@ describe('CliRepl', function () {
     });
 
     context('during startup', function () {
-      it('persists userId and telemetryAnonymousId', async function () {
-        const telemetryUserIdentitys: {
-          userId?: string;
-          anonymousId?: string;
-        }[] = [];
+      it('persists the device ID across restarts', async function () {
+        const deviceIds: string[] = [];
         for (let i = 0; i < 2; i++) {
           cliRepl = new CliRepl(cliReplOptions);
-          cliRepl.bus.on('mongosh:new-user', (telemetryUserIdentity) =>
-            telemetryUserIdentitys.push(telemetryUserIdentity)
-          );
-          cliRepl.bus.on('mongosh:update-user', (telemetryUserIdentity) =>
-            telemetryUserIdentitys.push(telemetryUserIdentity)
-          );
           await cliRepl.start('', {});
+          deviceIds.push(await (cliRepl as any).getDeviceId());
         }
-        expect(telemetryUserIdentitys).to.have.lengthOf(2);
-        expect(telemetryUserIdentitys[0]).to.deep.equal(
-          telemetryUserIdentitys[1]
-        );
+        expect(deviceIds).to.have.lengthOf(2);
+        expect(deviceIds[0]).to.equal(deviceIds[1]);
       });
 
       it('emits error for invalid config', async function () {
@@ -1575,7 +1617,7 @@ describe('CliRepl', function () {
           const analyticsLog = (await log()).filter(
             (entry) =>
               entry.ctx === 'analytics' &&
-              entry.msg === 'Flushed outstanding data'
+              entry.msg === 'Persisted telemetry throttle state'
           );
           expect(analyticsLog).to.have.lengthOf(1);
           expect(analyticsLog[0]).to.have.nested.property(
@@ -1586,13 +1628,17 @@ describe('CliRepl', function () {
 
         it('posts analytics data', async function () {
           await cliRepl.start(await testServer.connectionString(), {});
-          if (requests.length < 1) {
-            const [, res] = await once(srv, 'request');
-            await once(res, 'close'); // Wait until HTTP response is written
-          }
-          const firstEvent = JSON.parse(requests[0].body);
-          expect(firstEvent.name).to.equal('Identify');
-          expect(firstEvent.payload.platform).to.equal(process.platform);
+          // Identify and New Connection are sent fire-and-forget, so their
+          // arrival order is not guaranteed. Wait until the Identify event
+          // (which carries the device/OS traits) has been received.
+          let identifyEvent: any;
+          await eventually(() => {
+            identifyEvent = requests
+              .map((r) => JSON.parse(r.body))
+              .find((e) => e.name === 'Identify');
+            expect(identifyEvent, 'Identify event was not posted').to.exist;
+          });
+          expect(identifyEvent.payload.platform).to.equal(process.platform);
         });
 
         it('posts analytics events when telemetry is enabled', async function () {
@@ -1610,6 +1656,14 @@ describe('CliRepl', function () {
 
         it('stops posting analytics data after disableTelemetry()', async function () {
           await cliRepl.start(await testServer.connectionString(), {});
+          // With telemetry enabled, startup events (Identify + New Connection)
+          // are sent immediately (TelemetryClient is fire-and-forget). Wait for
+          // them to arrive and record the baseline.
+          await eventually(() => {
+            expect(requests.length).to.be.greaterThan(0);
+          });
+          const requestsBeforeDisable = requests.length;
+
           input.write('disableTelemetry()\n');
           await waitEval(cliRepl.bus);
           input.write('use somedb;\n');
@@ -1619,7 +1673,11 @@ describe('CliRepl', function () {
           await delay(100);
           input.write('exit\n');
           await waitBus(cliRepl.bus, 'mongosh:closed');
-          expect(requests).to.have.lengthOf(0);
+          // No further events are posted once telemetry is disabled — in
+          // particular, the Session Ended event emitted on exit is not sent.
+          expect(requests).to.have.lengthOf(requestsBeforeDisable);
+          const eventNames = requests.map((r) => JSON.parse(r.body).name);
+          expect(eventNames).to.not.include('Session Ended');
 
           // Re-enable and verify events flow again
           requests = [];
@@ -2895,10 +2953,13 @@ describe('CliRepl', function () {
       // @ts-ignore version is readonly
       process.version = '18.20.0';
       process.versions.openssl = '1.1.11';
-      cliRepl.getGlibcVersion = () => '1.27';
 
       cliReplOptions.shellCliOptions.quiet = true;
       cliRepl = new CliRepl(cliReplOptions);
+      // Stub getGlibcVersion on this instance (must be after it is created, so
+      // we override the real method on the object start() will actually use)
+      // to force the glibc-based OS deprecation check.
+      cliRepl.getGlibcVersion = () => '1.27';
       await cliRepl.start('', {});
       expect(output).not.to.include('Deprecation warnings:');
       expect(output).not.to.include(

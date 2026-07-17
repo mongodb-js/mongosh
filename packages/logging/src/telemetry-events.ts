@@ -12,8 +12,6 @@ export interface IdentifyEvent {
     ai_agent: string | undefined;
     /** Unique identifier for the current mongosh session. */
     session_id: string;
-    /** The anonymous identifier for this user session. */
-    anonymousId: string;
     /** The OS platform (e.g. `"darwin"`, `"linux"`, `"win32"`). */
     platform: string;
     /** The CPU architecture (e.g. `"x64"`, `"arm64"`). */

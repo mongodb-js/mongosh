@@ -21,7 +21,6 @@ const iEvt: IdentifyEvent = {
     mongosh_version: '1.2.3',
     ai_agent: undefined,
     session_id: sessionId,
-    anonymousId: 'u-test',
     platform: 'linux',
     arch: 'x64',
     is_containerized: false,
@@ -131,7 +130,9 @@ describe('analytics helpers', function () {
 
     const throttledIEvt: IdentifyEvent = {
       ...iEvt,
-      payload: { ...iEvt.payload, anonymousId: userId, session_id: userId },
+      // device_id is the throttle key for Identify events; use `userId` so the
+      // persisted metadata file matches the afterEach cleanup path.
+      payload: { ...iEvt.payload, device_id: userId, session_id: userId },
     };
     const throttledTEvt: NewConnectionEvent = {
       ...tEvt,

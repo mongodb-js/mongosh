@@ -19,6 +19,11 @@ export type MongoshLoggingAndTelemetryArguments = {
   mongoshVersion: string;
   /** Machine-specific ID */
   deviceId: Promise<string> | string;
+  /**
+   * The resolved telemetry endpoint. When empty, telemetry is not being sent
+   * anywhere, so full event payloads are logged locally for debugging.
+   */
+  telemetryEndpoint?: string;
 };
 
 export type SessionTelemetryState = {
@@ -46,7 +51,5 @@ export type LoggingAndTelemetryBusEventState = {
     deprecatedApiCalls: MultiSet<Pick<ApiEvent, 'class' | 'method'>>;
   };
   usesShellOption: boolean;
-  telemetryAnonymousId: string | undefined;
-  userId: string | undefined;
   session: SessionTelemetryState;
 };

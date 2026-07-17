@@ -635,7 +635,9 @@ describe('MongoshNodeRepl', function () {
               output = '';
               input.write('history()\n');
               await waitEval(bus);
-              expect(output).includes(
+              // Strip ANSI colors: the REPL colorizes its inspect output while
+              // the expected value below uses plain util.inspect (same layout).
+              expect(stripAnsi(output)).includes(
                 inspect(
                   getAllHistoryItems()
                     .slice(1, getAllHistoryItems().length)
@@ -650,7 +652,9 @@ describe('MongoshNodeRepl', function () {
               input.write('history().slice(history().length-10).reverse()\n');
               await waitEval(bus);
               const history = getAllHistoryItems().slice(1).reverse();
-              expect(output).includes(
+              // Strip ANSI colors: the REPL colorizes its inspect output while
+              // the expected value below uses plain util.inspect (same layout).
+              expect(stripAnsi(output)).includes(
                 inspect(history.slice(history.length - 10).reverse(), {
                   maxArrayLength: Infinity,
                 })

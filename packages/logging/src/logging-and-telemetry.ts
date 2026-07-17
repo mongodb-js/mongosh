@@ -85,6 +85,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
     [key: string]: unknown;
   };
   private readonly mongoshVersion: string;
+  private readonly telemetryEndpoint: string;
 
   private log: MongoLogWriter;
   private pendingBusEvents: CallableFunction[] = [];
@@ -107,6 +108,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
     userTraits,
     mongoshVersion,
     deviceId,
+    telemetryEndpoint,
   }: MongoshLoggingAndTelemetryArguments) {
     this.bus = bus;
     this.analytics = analytics;
@@ -114,6 +116,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
     this.userTraits = userTraits;
     this.mongoshVersion = mongoshVersion;
     this.deviceId = deviceId;
+    this.telemetryEndpoint = telemetryEndpoint ?? '';
   }
 
   public setup(): void {
@@ -172,6 +175,17 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
   private async setupTelemetry(): Promise<void> {
     this.deviceId = await this.deviceId;
 
+    // Emit the Identify event once per session now that the device_id (the
+    // sole user identifier) is known. device_id is included via track().
+    this.trackFn?.({
+      name: 'Identify',
+      payload: () => ({
+        ...this.userTraits,
+        device_id:
+          typeof this.deviceId === 'string' ? this.deviceId : 'unknown',
+      }),
+    });
+
     this.runAndClearPendingTelemetryEvents();
   }
 
@@ -227,8 +241,6 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       deprecatedApiCalls: new MultiSet<Pick<ApiEvent, 'class' | 'method'>>(),
     },
     usesShellOption: false,
-    telemetryAnonymousId: undefined,
-    userId: undefined,
     session: {
       isInteractive: false,
       timings: {},
@@ -278,10 +290,6 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       session_id: this.log.logId,
     });
 
-    const getAnonymousId = (): string =>
-      this.busEventState.telemetryAnonymousId ??
-      (this.busEventState.userId as string);
-
     const track = (event: TrackableEvent): void => {
       const callback = () => {
         const rawPayload =
@@ -298,9 +306,12 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
           mongoLogId(1_000_000_016),
           'analytics',
           'Sending telemetry event',
-          process.env.MONGOSH_TELEMETRY_DEBUG
-            ? { name: telemetryEvent.name, payload: telemetryEvent.payload }
-            : { name: telemetryEvent.name }
+          // When no telemetry endpoint is configured, events are not sent
+          // anywhere, so log the full payload locally to aid debugging.
+          // With a real endpoint, log only the event name.
+          this.telemetryEndpoint
+            ? { name: telemetryEvent.name }
+            : { name: telemetryEvent.name, payload: telemetryEvent.payload }
         );
         this.analytics.track(telemetryEvent);
       };
@@ -353,8 +364,6 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         'connect',
         'Connecting to server',
         {
-          userId: this.busEventState.userId,
-          telemetryAnonymousId: this.busEventState.telemetryAnonymousId,
           connectionUri,
           ...properties,
         }
@@ -374,57 +383,6 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         session.timings[toSnakeCase(key) + '_ms'] = duration;
       }
     });
-
-    onBus(
-      'mongosh:new-user',
-      (newTelemetryUserIdentity: { userId: string; anonymousId: string }) => {
-        if (!newTelemetryUserIdentity.anonymousId) {
-          this.busEventState.userId = newTelemetryUserIdentity.userId;
-        }
-        this.busEventState.telemetryAnonymousId =
-          newTelemetryUserIdentity.anonymousId;
-
-        track({
-          name: 'Identify',
-          payload: () => ({
-            anonymousId: getAnonymousId(),
-            ...this.userTraits,
-            device_id:
-              typeof this.deviceId === 'string' ? this.deviceId : 'unknown',
-          }),
-        });
-      }
-    );
-
-    onBus(
-      'mongosh:update-user',
-      (updatedTelemetryUserIdentity: {
-        userId: string;
-        anonymousId?: string;
-      }) => {
-        if (updatedTelemetryUserIdentity.anonymousId) {
-          this.busEventState.telemetryAnonymousId =
-            updatedTelemetryUserIdentity.anonymousId;
-        } else {
-          this.busEventState.userId = updatedTelemetryUserIdentity.userId;
-        }
-        track({
-          name: 'Identify',
-          payload: () => ({
-            anonymousId: getAnonymousId(),
-            ...this.userTraits,
-            device_id:
-              typeof this.deviceId === 'string' ? this.deviceId : 'unknown',
-          }),
-        });
-        this.log.info(
-          'MONGOSH',
-          mongoLogId(1_000_000_005),
-          'config',
-          'User updated'
-        );
-      }
-    );
 
     onBus('mongosh:error', (error: Error, context: string) => {
       const mongoshError = error as {

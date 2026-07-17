@@ -6,7 +6,7 @@ import {
 import { redactConnectionString, redact } from 'mongodb-redact';
 import i18n from '@mongosh/i18n';
 import type { AutoEncryptionOptions } from '@mongosh/service-provider-core';
-import { EJSON, ObjectId } from 'bson';
+import { EJSON } from 'bson';
 import { NodeDriverServiceProvider } from '@mongosh/service-provider-node-driver';
 import type { CliOptions, DevtoolsConnectOptions } from '@mongosh/arg-parser';
 import { SnippetManager } from '@mongosh/snippet-manager';
@@ -30,12 +30,9 @@ import type { MongoshNodeReplOptions, MongoshIOProvider } from './mongosh-repl';
 import MongoshNodeRepl from './mongosh-repl';
 import type { MongoshLoggingAndTelemetry } from '@mongosh/logging';
 import { setupLoggingAndTelemetry } from '@mongosh/logging';
-import {
-  ToggleableAnalytics,
-  ThrottledAnalytics,
-  TelemetryClient,
-  getAiAgent,
-} from '@mongosh/logging';
+import { ToggleableAnalytics, getAiAgent } from '@mongosh/logging';
+import type { AnalyticsOptions } from './setup-analytics';
+import { setupTelemetryAnalytics } from './setup-analytics';
 import type { MongoshBus } from '@mongosh/types';
 import {
   CliUserConfig,
@@ -65,13 +62,6 @@ import { getDeviceIdForMongosh } from './device-id';
  * Connecting text key.
  */
 const CONNECTING = 'cli-repl.cli-repl.connecting';
-
-type AnalyticsOptions = {
-  /** Whether to enable telemetry even if we are running in CI. */
-  alwaysEnable?: boolean;
-  /** Override the telemetry endpoint URL (for testing). */
-  telemetryEndpoint?: string;
-};
 
 /**
  * The set of options taken by CliRepl instances.
@@ -103,7 +93,7 @@ export type CliReplOptions = {
 
 /** The set of config options that is *always* available in config files stored on the file system. */
 type CliUserConfigOnDisk = Partial<CliUserConfig> &
-  Pick<CliUserConfig, 'enableTelemetry' | 'userId' | 'telemetryAnonymousId'>;
+  Pick<CliUserConfig, 'enableTelemetry'>;
 
 /**
  * The REPL used from the terminal.
@@ -128,11 +118,12 @@ export class CliRepl implements MongoshIOProvider {
   promptOutput: Writable;
   analyticsOptions?: AnalyticsOptions;
   toggleableAnalytics: ToggleableAnalytics = new ToggleableAnalytics();
+  /** The resolved telemetry endpoint; empty string when telemetry is disabled. */
+  telemetryEndpoint = '';
   warnedAboutInaccessibleFiles = false;
   onExit: (code?: number) => Promise<never>;
   closingPromise?: Promise<void>;
   isContainerizedEnvironment = false;
-  hasOnDiskTelemetryId = false;
   proxyOptions: DevtoolsProxyOptions = {
     useEnvironmentVariableProxies: true,
   };
@@ -163,10 +154,7 @@ export class CliRepl implements MongoshIOProvider {
     this.analyticsOptions = options.analyticsOptions;
     this.onExit = options.onExit;
 
-    const id = new ObjectId().toHexString();
     this.config = {
-      userId: id,
-      telemetryAnonymousId: id,
       enableTelemetry: true,
     };
 
@@ -179,28 +167,14 @@ export class CliRepl implements MongoshIOProvider {
       .on('error', (err: Error) => {
         this.bus.emit('mongosh:error', err, 'config');
       })
-      .on('new-config', (config: CliUserConfigOnDisk) => {
-        this.hasOnDiskTelemetryId = !!(
-          config.userId || config.telemetryAnonymousId
-        );
+      .on('new-config', () => {
         this.setTelemetryEnabled().catch((err: Error) => {
           this.bus.emit('mongosh:error', err, 'telemetry');
-        });
-        this.bus.emit('mongosh:new-user', {
-          userId: config.userId,
-          anonymousId: config.telemetryAnonymousId,
         });
       })
-      .on('update-config', (config: CliUserConfigOnDisk) => {
-        this.hasOnDiskTelemetryId = !!(
-          config.userId || config.telemetryAnonymousId
-        );
+      .on('update-config', () => {
         this.setTelemetryEnabled().catch((err: Error) => {
           this.bus.emit('mongosh:error', err, 'telemetry');
-        });
-        this.bus.emit('mongosh:update-user', {
-          userId: config.userId,
-          anonymousId: config.telemetryAnonymousId,
         });
       });
 
@@ -446,9 +420,24 @@ export class CliRepl implements MongoshIOProvider {
     }
     markTime(TimingCategories.REPLInstantiation, 'ensured shell homedir');
 
+    // Read local and global configuration before setting up analytics so that
+    // setupAnalytics() can resolve the telemetry endpoint from user config.
+    // Errors are deferred and surfaced once logging/telemetry is in place.
+    let configSetupError: Error | null = null;
+    try {
+      this.config = await this.configDirectory.generateOrReadConfig(
+        this.config
+      );
+    } catch (err: unknown) {
+      configSetupError = err as Error;
+    }
+
+    this.globalConfig = await this.loadGlobalConfigFile();
+    markTime(TimingCategories.UserConfigLoading, 'read global config files');
+
     let analyticsSetupError: Error | null = null;
     try {
-      this.setupAnalytics();
+      await this.setupAnalytics();
     } catch (err: unknown) {
       // Need to delay emitting the error on the bus so that logging is in place
       // as well
@@ -468,25 +457,18 @@ export class CliRepl implements MongoshIOProvider {
       },
       mongoshVersion: version,
       deviceId: this.getDeviceId(),
+      telemetryEndpoint: this.telemetryEndpoint,
     });
 
     markTime(TimingCategories.Telemetry, 'completed telemetry setup');
 
+    // Surface deferred setup errors now that logging/telemetry listeners exist.
+    if (configSetupError) {
+      this.warnAboutInaccessibleFile(configSetupError);
+    }
     if (analyticsSetupError) {
       this.bus.emit('mongosh:error', analyticsSetupError, 'analytics');
     }
-
-    // Read local and global configuration
-    try {
-      this.config = await this.configDirectory.generateOrReadConfig(
-        this.config
-      );
-    } catch (err: unknown) {
-      this.warnAboutInaccessibleFile(err as Error);
-    }
-
-    this.globalConfig = await this.loadGlobalConfigFile();
-    markTime(TimingCategories.UserConfigLoading, 'read global config files');
 
     await this.setLoggingEnabled(!(await this.getConfig('disableLogging')));
 
@@ -711,30 +693,20 @@ export class CliRepl implements MongoshIOProvider {
     }
   }
 
-  setupAnalytics(): void {
-    if (
-      process.env.IS_MONGOSH_EVERGREEN_CI &&
-      !this.analyticsOptions?.alwaysEnable
-    ) {
-      throw new Error('no analytics setup for the mongosh CI environment');
-    }
-    // ThrottledAnalytics caps events at 30 per day to protect against
-    // high-frequency scenarios such as reconnect loops.
-    this.toggleableAnalytics = new ToggleableAnalytics(
-      new ThrottledAnalytics({
-        target: new TelemetryClient(
-          this.analyticsOptions?.telemetryEndpoint ??
-            process.env.MONGOSH_TELEMETRY_ENDPOINT,
-          // includeDeviceId: false — device_id is already in the event payload,
-          // no need to duplicate it in the User-Agent header.
-          this.fetch({ includeDeviceId: false })
-        ),
-        throttle: {
-          rate: 30,
-          metadataPath: this.shellHomeDirectory.paths.shellLocalDataPath,
-        },
-      })
-    );
+  async setupAnalytics(): Promise<void> {
+    const { analytics, telemetryEndpoint } = setupTelemetryAnalytics({
+      analyticsOptions: this.analyticsOptions,
+      // `telemetryEndpoint` user config carries the production default.
+      configuredTelemetryEndpoint: await this.getConfig('telemetryEndpoint'),
+      // includeDeviceId: false — device_id is already in the event payload,
+      // no need to duplicate it in the User-Agent header.
+      fetch: this.fetch({ includeDeviceId: false }),
+      metadataPath: this.shellHomeDirectory.paths.shellLocalDataPath,
+    });
+    this.toggleableAnalytics = analytics;
+    // Record the resolved endpoint so logging can decide whether to log full
+    // event payloads (only when there is no endpoint to send them to).
+    this.telemetryEndpoint = telemetryEndpoint;
   }
 
   async setLoggingEnabled(enabled: boolean): Promise<void> {
@@ -764,7 +736,7 @@ export class CliRepl implements MongoshIOProvider {
       return;
     }
 
-    if ((await this.isTelemetryEnabled()) && this.hasOnDiskTelemetryId) {
+    if (await this.isTelemetryEnabled()) {
       this.toggleableAnalytics.enable();
     } else {
       this.toggleableAnalytics.disable();
@@ -1045,10 +1017,6 @@ export class CliRepl implements MongoshIOProvider {
     this.config[key] = value;
     if (key === 'enableTelemetry') {
       await this.setTelemetryEnabled();
-      this.bus.emit('mongosh:update-user', {
-        userId: this.config.userId,
-        anonymousId: this.config.telemetryAnonymousId,
-      });
     }
     if (key === 'disableLogging') {
       await this.setLoggingEnabled(!value);
@@ -1065,12 +1033,7 @@ export class CliRepl implements MongoshIOProvider {
    * Implements listConfigOptions from the {@link ConfigProvider} interface.
    */
   listConfigOptions(): string[] {
-    const hiddenKeys = [
-      'userId',
-      'telemetryAnonymousId',
-      'disableGreetingMessage',
-      'forceDisableTelemetry',
-    ];
+    const hiddenKeys = ['disableGreetingMessage', 'forceDisableTelemetry'];
     const keys = Object.keys(new CliUserConfig());
     return keys.filter((key) => !hiddenKeys.includes(key));
   }

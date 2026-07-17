@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { TelemetryClient, DEFAULT_TELEMETRY_ENDPOINT } from '.';
+import { TelemetryClient } from '.';
 import type { TelemetryEvent } from '.';
 
 const sessionEvent: TelemetryEvent = {
@@ -8,7 +8,6 @@ const sessionEvent: TelemetryEvent = {
     mongosh_version: '1.0.0',
     ai_agent: undefined,
     session_id: 'test-session',
-    anonymousId: 'test-user',
     platform: 'linux',
     arch: 'x64',
     is_containerized: false,
@@ -26,14 +25,14 @@ const sessionEvent: TelemetryEvent = {
 };
 
 describe('TelemetryClient', function () {
-  it('uses DEFAULT_TELEMETRY_ENDPOINT when no endpoint is provided', function () {
+  it('sends events to the configured endpoint', function () {
     const calls: string[] = [];
-    const client = new TelemetryClient(undefined, (url) => {
+    const client = new TelemetryClient('https://example.com/events', (url) => {
       calls.push(url);
       return Promise.resolve();
     });
     client.track(sessionEvent);
-    expect(calls).to.deep.equal([DEFAULT_TELEMETRY_ENDPOINT]);
+    expect(calls).to.deep.equal(['https://example.com/events']);
   });
 
   it('sends POST with JSON body to the configured endpoint', async function () {

@@ -18,7 +18,6 @@ describe('MongoshLoggingAndTelemetry', function () {
   let analyticsOutput: ['track', any][];
   let bus: MongoshBus;
 
-  const userId = '53defe995fa47e6c13102d9d';
   const logId = '5fb3c20ee1507e894e5340f3';
   const deviceId = 'test-device';
 
@@ -35,7 +34,6 @@ describe('MongoshLoggingAndTelemetry', function () {
 
   const makeIdentifyEvent = (
     overrides: {
-      anonymousId?: string;
       device_id?: string;
       ai_agent?: string;
     } = {}
@@ -45,7 +43,6 @@ describe('MongoshLoggingAndTelemetry', function () {
       mongosh_version: '1.0.0',
       ai_agent: overrides.ai_agent,
       session_id: logId,
-      anonymousId: overrides.anonymousId ?? userId,
       platform: process.platform,
       arch: process.arch,
       is_containerized: false,
@@ -86,7 +83,17 @@ describe('MongoshLoggingAndTelemetry', function () {
     mongoshVersion: '1.0.0',
   };
 
+  let savedAgentEnv: Record<string, string | undefined> = {};
+
   beforeEach(function () {
+    // Ensure agent-detection env vars (which may be set when running inside an
+    // AI agent shell) do not leak into these tests, so ai_agent is `undefined`.
+    savedAgentEnv = {};
+    for (const v of Object.keys(KNOWN_AGENT_ENV_VARS)) {
+      savedAgentEnv[v] = process.env[v];
+      delete process.env[v];
+    }
+
     logOutput = [];
     analyticsOutput = [];
     bus = new EventEmitter();
@@ -113,6 +120,14 @@ describe('MongoshLoggingAndTelemetry', function () {
   afterEach(async function () {
     await loggingAndTelemetry.detachLogger();
     logger.destroy();
+
+    for (const [v, original] of Object.entries(savedAgentEnv)) {
+      if (original === undefined) {
+        delete process.env[v];
+      } else {
+        process.env[v] = original;
+      }
+    }
   });
 
   it('throws when running attachLogger twice without detaching', function () {
@@ -133,10 +148,10 @@ describe('MongoshLoggingAndTelemetry', function () {
 
     await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
 
-    expect(logOutput).to.have.lengthOf(0);
-    expect(analyticsOutput).to.be.empty;
+    // The Identify event is emitted automatically once during setup.
+    expect(logOutput).to.have.lengthOf(1);
+    expect(analyticsOutput).to.have.lengthOf(1);
 
-    bus.emit('mongosh:new-user', { userId, anonymousId: userId });
     bus.emit('mongosh:log-initialized');
 
     bus.emit('mongosh:connect', {
@@ -180,10 +195,10 @@ describe('MongoshLoggingAndTelemetry', function () {
     loggingAndTelemetry.attachLogger(logger);
     await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
 
-    expect(logOutput).to.have.lengthOf(0);
-    expect(analyticsOutput).to.be.empty;
+    // The Identify event is emitted automatically once during setup.
+    expect(logOutput).to.have.lengthOf(1);
+    expect(analyticsOutput).to.have.lengthOf(1);
 
-    bus.emit('mongosh:new-user', { userId, anonymousId: userId });
     bus.emit('mongosh:log-initialized');
 
     bus.emit('mongosh:connect', {
@@ -231,7 +246,6 @@ describe('MongoshLoggingAndTelemetry', function () {
     loggingAndTelemetry.attachLogger(logger);
     await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
 
-    bus.emit('mongosh:new-user', { userId, anonymousId: userId });
     bus.emit('mongosh:log-initialized');
 
     bus.emit('mongosh:connect', {
@@ -306,7 +320,15 @@ describe('MongoshLoggingAndTelemetry', function () {
 
   describe('device ID', function () {
     let bus: EventEmitter;
-    beforeEach(function () {
+    beforeEach(async function () {
+      // The outer `loggingAndTelemetry` instance (created in the top-level
+      // beforeEach) also emits an automatic Identify event into the shared
+      // analytics/log output. Wait for it and clear the output so these tests
+      // only observe events from their own locally-created instance.
+      await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
+      logOutput = [];
+      analyticsOutput = [];
+
       bus = new EventEmitter();
     });
 
@@ -323,8 +345,6 @@ describe('MongoshLoggingAndTelemetry', function () {
       loggingAndTelemetry.attachLogger(logger);
       await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
 
-      bus.emit('mongosh:new-user', { userId, anonymousId: userId });
-
       expect(analyticsOutput).deep.equal([
         ['track', makeIdentifyEvent({ device_id: 'unknown' })],
       ]);
@@ -338,8 +358,6 @@ describe('MongoshLoggingAndTelemetry', function () {
       });
 
       loggingAndTelemetry.attachLogger(logger);
-
-      bus.emit('mongosh:new-user', { userId, anonymousId: userId });
 
       await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
 
@@ -369,7 +387,6 @@ describe('MongoshLoggingAndTelemetry', function () {
       await loggingAndTelemetry.flush();
 
       // Emit an event that would trigger analytics
-      bus.emit('mongosh:new-user', { userId, anonymousId: userId });
 
       // Resolve deviceId to 'unknown' (simulating external abort handling)
       resolveDeviceId('unknown');
@@ -410,8 +427,10 @@ describe('MongoshLoggingAndTelemetry', function () {
       resolveDeviceId('test-resolved-device-id');
       await loggingAndTelemetry.setupTelemetryPromise;
 
-      expect(logOutput).to.have.lengthOf(2); // connect log + "Sending telemetry event"
-      expect(analyticsOutput).to.have.lengthOf(1);
+      // connect log + Identify telemetry log + New Connection telemetry log
+      expect(logOutput).to.have.lengthOf(3);
+      // Identify event + buffered New Connection event.
+      expect(analyticsOutput).to.have.lengthOf(2);
 
       expect(loggingAndTelemetry['deviceId']).equals('test-resolved-device-id');
     });
@@ -421,8 +440,9 @@ describe('MongoshLoggingAndTelemetry', function () {
     loggingAndTelemetry.attachLogger(logger);
     await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
 
-    expect(logOutput).to.have.lengthOf(0);
-    expect(analyticsOutput).to.have.lengthOf(0);
+    // The Identify event is emitted automatically once during setup.
+    expect(logOutput).to.have.lengthOf(1);
+    expect(analyticsOutput).to.have.lengthOf(1);
 
     await loggingAndTelemetry.detachLogger();
 
@@ -434,8 +454,8 @@ describe('MongoshLoggingAndTelemetry', function () {
       resolved_hostname: 'localhost',
     });
 
-    expect(logOutput).to.have.lengthOf(0);
-    expect(analyticsOutput).to.have.lengthOf(1);
+    expect(logOutput).to.have.lengthOf(1);
+    expect(analyticsOutput).to.have.lengthOf(2);
   });
 
   it('detaching logger applies to devtools-connect events', async function () {
@@ -452,7 +472,8 @@ describe('MongoshLoggingAndTelemetry', function () {
     bus.emit('devtools-connect:connect-fail-early');
 
     expect(logOutput).to.have.lengthOf(2);
-    expect(analyticsOutput).to.have.lengthOf(0);
+    // The automatic Identify event was emitted once during setup.
+    expect(analyticsOutput).to.have.lengthOf(1);
 
     loggingAndTelemetry.attachLogger(logger);
 
@@ -478,7 +499,8 @@ describe('MongoshLoggingAndTelemetry', function () {
     expect(logOutput).to.have.lengthOf(1);
 
     await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
-    expect(analyticsOutput).to.have.lengthOf(1);
+    // Connection analytics + automatic Identify event.
+    expect(analyticsOutput).to.have.lengthOf(2);
 
     await loggingAndTelemetry.detachLogger();
 
@@ -489,9 +511,9 @@ describe('MongoshLoggingAndTelemetry', function () {
       resolved_hostname: 'localhost',
     });
 
-    expect(logOutput).to.have.lengthOf(2);
+    expect(logOutput).to.have.lengthOf(3);
 
-    expect(analyticsOutput).to.have.lengthOf(2);
+    expect(analyticsOutput).to.have.lengthOf(3);
   });
 
   it('detaching logger is recoverable', async function () {
@@ -511,7 +533,8 @@ describe('MongoshLoggingAndTelemetry', function () {
     expect(logOutput).to.have.lengthOf(1);
     await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
 
-    expect(analyticsOutput).to.have.lengthOf(1);
+    // Connection analytics + automatic Identify event.
+    expect(analyticsOutput).to.have.lengthOf(2);
 
     await loggingAndTelemetry.detachLogger();
 
@@ -522,9 +545,9 @@ describe('MongoshLoggingAndTelemetry', function () {
       resolved_hostname: 'localhost',
     });
 
-    expect(logOutput).to.have.lengthOf(2);
+    expect(logOutput).to.have.lengthOf(3);
 
-    expect(analyticsOutput).to.have.lengthOf(2);
+    expect(analyticsOutput).to.have.lengthOf(3);
 
     loggingAndTelemetry.attachLogger(logger);
 
@@ -535,22 +558,21 @@ describe('MongoshLoggingAndTelemetry', function () {
       resolved_hostname: 'localhost',
     });
 
-    expect(logOutput).to.have.lengthOf(4);
+    expect(logOutput).to.have.lengthOf(5);
 
-    expect(analyticsOutput).to.have.lengthOf(3);
+    expect(analyticsOutput).to.have.lengthOf(4);
   });
 
   it('tracks a sequence of events', async function () {
     loggingAndTelemetry.attachLogger(logger);
     await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
 
-    expect(logOutput).to.have.lengthOf(0);
-    expect(analyticsOutput).to.be.empty;
+    // The Identify event is emitted automatically once during setup.
+    expect(logOutput).to.have.lengthOf(1);
+    expect(analyticsOutput).to.have.lengthOf(1);
 
-    bus.emit('mongosh:new-user', { userId, anonymousId: userId });
     bus.emit('mongosh:log-initialized');
 
-    bus.emit('mongosh:update-user', { userId, anonymousId: userId });
     bus.emit('mongosh:start-session', {
       isInteractive: true,
       jsContext: 'repl',
@@ -696,11 +718,9 @@ describe('MongoshLoggingAndTelemetry', function () {
       error: new Error('failed'),
     });
 
-    // logOutput[0] = "Sending telemetry event" (Identify from mongosh:new-user)
-    // logOutput[1] = "Sending telemetry event" (Identify from mongosh:update-user)
-    let i = 2;
+    // logOutput[0] = "Sending telemetry event" (automatic Identify emitted during setup)
+    let i = 1;
 
-    expect(logOutput[i++].msg).to.equal('User updated');
     expect(logOutput[i].s).to.equal('E');
     expect(logOutput[i++].attr.message).to.match(/meow/);
     expect(logOutput[i].s).to.equal('F');
@@ -841,15 +861,11 @@ describe('MongoshLoggingAndTelemetry', function () {
     });
     expect(i).to.equal(logOutput.length);
 
-    expect(analyticsOutput).to.deep.equal([
-      ['track', makeIdentifyEvent()],
-      ['track', makeIdentifyEvent()],
-    ]);
+    expect(analyticsOutput).to.deep.equal([['track', makeIdentifyEvent()]]);
 
     await loggingAndTelemetry.flush();
 
     expect(analyticsOutput).to.deep.equal([
-      ['track', makeIdentifyEvent()],
       ['track', makeIdentifyEvent()],
       [
         'track',
@@ -884,10 +900,10 @@ describe('MongoshLoggingAndTelemetry', function () {
     loggingAndTelemetry.attachLogger(logger);
     await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
 
-    expect(logOutput).to.have.lengthOf(0);
-    expect(analyticsOutput).to.be.empty;
+    // The Identify event is emitted automatically once during setup.
+    expect(logOutput).to.have.lengthOf(1);
+    expect(analyticsOutput).to.have.lengthOf(1);
 
-    bus.emit('mongosh:new-user', { userId, anonymousId: userId });
     bus.emit('mongosh:log-initialized');
     bus.emit('mongosh:start-session', {
       isInteractive: true,
@@ -966,8 +982,6 @@ describe('MongoshLoggingAndTelemetry', function () {
       method: 'mangleDatabase',
     });
 
-    bus.emit('mongosh:new-user', { userId, anonymousId: userId });
-
     logOutput = [];
     analyticsOutput = [];
 
@@ -1033,7 +1047,6 @@ describe('MongoshLoggingAndTelemetry', function () {
     loggingAndTelemetry.attachLogger(logger);
     await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
 
-    bus.emit('mongosh:new-user', { userId, anonymousId: userId });
     bus.emit('mongosh:log-initialized');
     bus.emit('mongosh:start-session', {
       isInteractive: true,
@@ -1112,8 +1125,6 @@ describe('MongoshLoggingAndTelemetry', function () {
     expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.be.empty;
 
-    bus.emit('mongosh:new-user', { userId, anonymousId: userId });
-
     logOutput = [];
     analyticsOutput = [];
 
@@ -1134,7 +1145,10 @@ describe('MongoshLoggingAndTelemetry', function () {
     loggingAndTelemetry.attachLogger(logger);
     await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
 
-    expect(logOutput).to.have.lengthOf(0);
+    // The Identify event is emitted automatically once during setup; drop it
+    // so the assertions below only concern the redaction of evaluate-input.
+    expect(logOutput).to.have.lengthOf(1);
+    logOutput = [];
 
     // Test that sensitive commands are redacted
     bus.emit('mongosh:evaluate-input', {
@@ -1184,6 +1198,13 @@ describe('MongoshLoggingAndTelemetry', function () {
 
     loggingAndTelemetry.attachLogger(logger);
     await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
+
+    // Drop the automatic Identify event emitted during setup so the assertions
+    // below only concern the connect/custom-log events.
+    expect(logOutput).to.have.lengthOf(1);
+    expect(analyticsOutput).to.have.lengthOf(1);
+    logOutput = [];
+    analyticsOutput = [];
 
     bus.emit('mongosh:connect', {
       uri: 'mongodb://localhost/',
@@ -1318,7 +1339,6 @@ describe('MongoshLoggingAndTelemetry', function () {
       loggingAndTelemetry.attachLogger(logger);
       await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
 
-      bus.emit('mongosh:new-user', { userId, anonymousId: userId });
       bus.emit('mongosh:connect', {
         uri: 'mongodb://localhost/',
         is_localhost: true,
@@ -1338,7 +1358,6 @@ describe('MongoshLoggingAndTelemetry', function () {
       loggingAndTelemetry.attachLogger(logger);
       await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
 
-      bus.emit('mongosh:new-user', { userId, anonymousId: userId });
       bus.emit('mongosh:connect', {
         uri: 'mongodb://localhost/',
         is_localhost: true,
@@ -1355,15 +1374,24 @@ describe('MongoshLoggingAndTelemetry', function () {
     it('includes ai_agent in identify traits when an agent env var is set', async function () {
       process.env.CLAUDECODE = '1';
 
-      loggingAndTelemetry.attachLogger(logger);
-      await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
-
-      bus.emit('mongosh:new-user', { userId, anonymousId: userId });
+      // The Identify event now fires automatically during setup, so build a
+      // fresh instance after the agent env var is set and inspect its output.
+      analyticsOutput = [];
+      const localBus = new EventEmitter();
+      const local = setupLoggingAndTelemetry({
+        ...testLoggingArguments,
+        deviceId,
+        bus: localBus,
+      });
+      local.attachLogger(logger);
+      await (local as LoggingAndTelemetry).setupTelemetryPromise;
 
       const identifyEvent = analyticsOutput.find(
         ([, e]) => e.name === 'Identify'
       );
       expect(identifyEvent?.[1].payload.ai_agent).to.equal('claude_code');
+
+      await local.detachLogger();
     });
 
     it('uses the value of AI_AGENT directly as agent name when it is not a boolean string', async function () {
@@ -1372,7 +1400,6 @@ describe('MongoshLoggingAndTelemetry', function () {
       loggingAndTelemetry.attachLogger(logger);
       await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
 
-      bus.emit('mongosh:new-user', { userId, anonymousId: userId });
       bus.emit('mongosh:connect', {
         uri: 'mongodb://localhost/',
         is_localhost: true,

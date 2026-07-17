@@ -215,20 +215,6 @@ export interface MongoshBusEventsMap extends ConnectEventMap {
    */
   'mongosh:start-session': (ev: SessionStartedEvent) => void;
   /**
-   * Signals that the shell is started by a new user.
-   */
-  'mongosh:new-user': (identity: {
-    userId: string;
-    anonymousId: string;
-  }) => void;
-  /**
-   * Signals a change of the user telemetry settings.
-   */
-  'mongosh:update-user': (identity: {
-    userId: string;
-    anonymousId?: string;
-  }) => void;
-  /**
    * Signals an error that should be logged or potentially tracked by analytics.
    */
   'mongosh:error': (error: Error, component: string) => void;
@@ -520,8 +506,6 @@ export class SnippetShellUserConfigValidator extends ShellUserConfigValidator {
 }
 
 export class CliUserConfig extends SnippetShellUserConfig {
-  userId = '';
-  telemetryAnonymousId = '';
   disableGreetingMessage = false;
   forceDisableTelemetry = false;
   inspectCompact: number | boolean = 3;
@@ -533,6 +517,9 @@ export class CliUserConfig extends SnippetShellUserConfig {
   oidcTrustedEndpoints: undefined | string[] = undefined;
   browser: undefined | false | string = undefined;
   updateURL = 'https://downloads.mongodb.com/compass/mongosh.json';
+  // TODO(MONGOSH-3408): set the production telemetry endpoint URL. While this
+  // is empty, telemetry is disabled (there is nowhere to send events).
+  telemetryEndpoint = '';
   disableLogging = false;
   logLocation: string | undefined = undefined;
   logRetentionDays = 30;
@@ -547,8 +534,6 @@ export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
     value: CliUserConfig[K]
   ): Promise<string | null> {
     switch (key) {
-      case 'userId':
-      case 'telemetryAnonymousId':
       case 'disableGreetingMessage':
         return null; // Not modifiable by the user anyway.
       case 'inspectCompact':
@@ -615,6 +600,7 @@ export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
         }
         return null;
       case 'updateURL':
+      case 'telemetryEndpoint':
         if (typeof value !== 'string' || (value.trim() && !isValidUrl(value))) {
           return `${key} must be a valid URL or empty`;
         }

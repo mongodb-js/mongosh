@@ -1,10 +1,6 @@
 import type { TelemetryEvent } from './telemetry-events';
 import type { MongoshAnalytics } from './analytics-helpers';
 
-// TODO: replace with the real telemetry endpoint URL before shipping
-export const DEFAULT_TELEMETRY_ENDPOINT =
-  'https://telemetry.example.mongodb.com/v1/events';
-
 const FLUSH_TIMEOUT_MS = 2_000;
 
 type FetchFn = (
@@ -27,7 +23,7 @@ export class TelemetryClient implements MongoshAnalytics {
   private readonly inflight: Promise<void>[] = [];
 
   constructor(
-    endpoint: string = DEFAULT_TELEMETRY_ENDPOINT,
+    endpoint: string,
     fetch: FetchFn = globalThis.fetch.bind(globalThis),
     flushTimeoutMs: number = FLUSH_TIMEOUT_MS
   ) {

@@ -1514,8 +1514,6 @@ describe('e2e', function () {
       describe('config file', function () {
         it('sets up a config file', async function () {
           const config = await readConfig();
-          expect(config.userId).to.match(/^[a-f0-9]{24}$/);
-          expect(config.telemetryAnonymousId).to.match(/^[a-f0-9]{24}$/);
           expect(config.enableTelemetry).to.be.true;
           expect(config.disableGreetingMessage).to.be.true;
         });
@@ -1524,7 +1522,7 @@ describe('e2e', function () {
           const config1 = await readConfig();
           await startNodbTestShellAndWaitForPrompt(this);
           const config2 = await readConfig();
-          expect(config1.userId).to.equal(config2.userId);
+          expect(config1.enableTelemetry).to.equal(config2.enableTelemetry);
         });
 
         it('loads a global config file if present', async function () {
