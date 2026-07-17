@@ -117,6 +117,7 @@ describe('Mongo', function () {
         serviceProvider
       );
       database = stubInterface<DatabaseWithSchema>();
+      database.getMongo.returns(mongo);
       instanceState.currentDb = database;
     });
     describe('show', function () {
