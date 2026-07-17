@@ -316,7 +316,13 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         this.analytics.track(telemetryEvent);
       };
 
-      if (this.isBufferingTelemetryEvents) {
+      // Bus events (and thus the real log writer via attachLogger()) may not
+      // be ready yet; queuing here too ensures the Identify event emitted
+      // eagerly from setupTelemetry() below isn't logged against the
+      // dummyLogger and silently dropped from the log file.
+      if (this.isBufferingBusEvents) {
+        this.pendingBusEvents.push(callback);
+      } else if (this.isBufferingTelemetryEvents) {
         this.pendingTelemetryEvents.push(callback);
       } else {
         callback();
