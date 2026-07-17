@@ -11,9 +11,8 @@ import { spawnSync } from '../helpers';
  * @param {object} config - The current build config.
  */
 export async function generateBundle(config: Config): Promise<void> {
-  // This takes the segment api key and writes it to the
-  // cli-repl's analytics-config file, as well as information about the
-  // current build environment.
+  // This writes information about the current build environment to the
+  // cli-repl's build-info file.
   await writeBuildInfo(config, 'compiled');
 
   console.info('mongosh: creating bundle:', config.bundleSinglefileOutput);

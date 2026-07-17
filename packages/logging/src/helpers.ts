@@ -64,8 +64,7 @@ export class MultiSet<T extends Record<string, unknown>> {
  *
  * 'Random String' => 'random_string'
  *
- * It will also remove any non alphanumeric characters to ensure the string
- * is compatible with Segment. For example:
+ * It also removes any non alphanumeric characters. For example:
  *
  * 'Node.js REPL Instantiation' => 'node_js_repl_instantiation'
  *

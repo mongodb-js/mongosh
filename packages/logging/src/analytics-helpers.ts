@@ -189,13 +189,11 @@ export class ThrottledAnalytics implements MongoshAnalytics {
 
   track(event: TelemetryEvent): void {
     if (!this.currentSessionId) {
-      // For IdentifyEvent, use device_id so that throttle state persists across
-      // sessions for the same device. For other events, fall back to session_id.
-      if (event.name === 'Identify') {
-        this.currentSessionId = event.payload.device_id;
-      } else {
-        this.currentSessionId = event.payload.session_id;
-      }
+      // Key throttle state on device_id so it persists across sessions for the
+      // same device (device_id is present on every event). session_id is only a
+      // defensive fallback and should not normally be needed.
+      this.currentSessionId =
+        event.payload.device_id ?? event.payload.session_id;
       this.restorePromise = this.restoreThrottleState().then((enabled) => {
         if (!enabled) {
           this.trackQueue.disable();

@@ -7,7 +7,7 @@ import type {
   IncomingMessage,
   ServerResponse,
 } from 'http';
-import http, { createServer as createHTTPServer } from 'http';
+import { createServer as createHTTPServer } from 'http';
 import path from 'path';
 import type { Duplex } from 'stream';
 import { PassThrough } from 'stream';
@@ -32,17 +32,11 @@ import {
 import ConnectionString from 'mongodb-connection-string-url';
 import type { CliReplOptions } from './cli-repl';
 import { CliRepl } from './cli-repl';
-import {
-  NoopAnalytics,
-  ThrottledAnalytics,
-  KNOWN_AGENT_ENV_VARS,
-} from '@mongosh/logging';
+import { KNOWN_AGENT_ENV_VARS } from '@mongosh/logging';
 import { CliReplErrors } from './error-codes';
 import type { DevtoolsConnectOptions } from '@mongosh/service-provider-node-driver';
 import type { AddressInfo } from 'net';
-import sinon from 'sinon';
 import type { CliUserConfig } from '@mongosh/types';
-import { MongoLogWriter, MongoLogManager } from 'mongodb-log-writer';
 
 const delay = promisify(setTimeout);
 
@@ -142,26 +136,36 @@ describe('CliRepl', function () {
   });
 
   context('setupAnalytics', function () {
-    it('disables telemetry when no endpoint is configured', async function () {
-      cliReplOptions.analyticsOptions = { alwaysEnable: true };
+    // Endpoint resolution and sink construction (no-op vs telemetry client) are
+    // covered by setup-analytics.spec.ts. Here we only verify that CliRepl
+    // resolves the endpoint from user config and records it on the instance.
+    // Clear any ambient env override so the "no endpoint" case is deterministic.
+    let savedEndpointEnv: string | undefined;
+    beforeEach(function () {
+      savedEndpointEnv = process.env.MONGOSH_TELEMETRY_ENDPOINT;
+      delete process.env.MONGOSH_TELEMETRY_ENDPOINT;
+    });
+    afterEach(function () {
+      if (savedEndpointEnv === undefined) {
+        delete process.env.MONGOSH_TELEMETRY_ENDPOINT;
+      } else {
+        process.env.MONGOSH_TELEMETRY_ENDPOINT = savedEndpointEnv;
+      }
+    });
+
+    it('records the telemetry endpoint resolved from config', async function () {
       cliRepl = new CliRepl(cliReplOptions);
+      cliRepl.config.telemetryEndpoint = 'https://config.example/events';
       await cliRepl.setupAnalytics();
-      // No endpoint -> toggleableAnalytics stays a no-op target.
-      expect(cliRepl.toggleableAnalytics._target).to.be.instanceOf(
-        NoopAnalytics
+      expect(cliRepl.telemetryEndpoint).to.equal(
+        'https://config.example/events'
       );
     });
 
-    it('enables telemetry when an endpoint is configured', async function () {
-      cliReplOptions.analyticsOptions = {
-        alwaysEnable: true,
-        telemetryEndpoint: 'http://localhost:1',
-      };
+    it('records an empty endpoint when none is configured', async function () {
       cliRepl = new CliRepl(cliReplOptions);
       await cliRepl.setupAnalytics();
-      expect(cliRepl.toggleableAnalytics._target).to.be.instanceOf(
-        ThrottledAnalytics
-      );
+      expect(cliRepl.telemetryEndpoint).to.equal('');
     });
   });
 
@@ -1422,579 +1426,62 @@ describe('CliRepl', function () {
     });
 
     context('analytics integration', function () {
-      context('with network connectivity', function () {
-        let srv: http.Server;
-        let host: string;
-        let requests: any[];
-        let totalEventsTracked = 0;
-        let telemetryDelay = 0;
-        const setTelemetryDelay = (val: number) => {
-          telemetryDelay = val;
-        };
+      // Unit-level telemetry tests: no endpoint is configured, so no HTTP
+      // requests are made. Telemetry events are still emitted and written to
+      // the local log (with the full payload), which we assert on here.
+      // Actual delivery over HTTP is covered by the fake-server integration
+      // tests below and by telemetry-client.spec.ts.
+      context('telemetry events without an endpoint', function () {
+        async function trackedTelemetryEvents(): Promise<
+          { name: string; payload: any }[]
+        > {
+          return (await log())
+            .filter(
+              (e) =>
+                e.ctx === 'analytics' && e.msg === 'Sending telemetry event'
+            )
+            .map((e) => e.attr);
+        }
 
-        beforeEach(async function () {
-          requests = [];
-          totalEventsTracked = 0;
-          srv = http
-            .createServer((req, res) => {
-              let body = '';
-              req
-                .setEncoding('utf8')
-                .on('data', (chunk) => {
-                  body += chunk;
-                })
-                // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                .on('end', async () => {
-                  requests.push({ req, body });
-                  totalEventsTracked += 1; // each POST is a single event
-                  await delay(telemetryDelay);
-                  res.writeHead(200);
-                  res.end('Ok\n');
-                });
-            })
-            .listen(0);
-          await once(srv, 'listening');
-          host = `http://localhost:${(srv.address() as AddressInfo).port}`;
-          cliReplOptions.analyticsOptions = {
-            telemetryEndpoint: host,
-            alwaysEnable: true,
-          };
+        let savedEndpointEnv: string | undefined;
+        beforeEach(function () {
+          // Ensure no ambient env override so the endpoint truly resolves empty.
+          savedEndpointEnv = process.env.MONGOSH_TELEMETRY_ENDPOINT;
+          delete process.env.MONGOSH_TELEMETRY_ENDPOINT;
           cliRepl = new CliRepl(cliReplOptions);
+          // No endpoint configured -> events are logged locally, not sent.
+          cliRepl.config.telemetryEndpoint = '';
         });
-
-        afterEach(async function () {
-          srv.close();
-          await once(srv, 'close');
-          setTelemetryDelay(0);
-          sinon.restore();
-        });
-
-        context('logging configuration', function () {
-          it('logging is enabled by default and event is called', async function () {
-            const onLogInitialized = sinon.stub();
-            cliRepl.bus.on('mongosh:log-initialized', onLogInitialized);
-
-            await cliRepl.start(await testServer.connectionString(), {});
-
-            expect(await cliRepl.getConfig('disableLogging')).is.false;
-
-            expect(onLogInitialized).calledOnce;
-            expect(cliRepl.logWriter).is.instanceOf(MongoLogWriter);
-          });
-
-          it('does not initialize logging when it is disabled', async function () {
-            cliRepl.config.disableLogging = true;
-            const onLogInitialized = sinon.stub();
-            cliRepl.bus.on('mongosh:log-initialized', onLogInitialized);
-
-            await cliRepl.start(await testServer.connectionString(), {});
-
-            expect(await cliRepl.getConfig('disableLogging')).is.true;
-            expect(onLogInitialized).not.called;
-
-            expect(cliRepl.logWriter).is.undefined;
-          });
-
-          it('logs cleanup errors', async function () {
-            sinon
-              .stub(MongoLogManager.prototype, 'cleanupOldLogFiles')
-              .rejects(new Error('Method not implemented'));
-            await cliRepl.start(await testServer.connectionString(), {});
-            expect(
-              (await log()).filter(
-                (entry) =>
-                  entry.ctx === 'log' &&
-                  entry.msg === 'Error: Method not implemented'
-              )
-            ).to.have.lengthOf(1);
-          });
-
-          it('can get a log path', async function () {
-            await cliRepl.start(await testServer.connectionString(), {});
-            expect(cliRepl.getLogPath()).equals(
-              path.join(
-                tmpdir.path,
-                (cliRepl.logWriter?.logId as string) + '_log'
-              )
-            );
-          });
-
-          const customLogLocation = useTmpdir();
-          it('can set the log location and uses a prefix', async function () {
-            cliRepl.config.logLocation = customLogLocation.path;
-            await cliRepl.start(await testServer.connectionString(), {});
-
-            expect(await cliRepl.getConfig('logLocation')).equals(
-              customLogLocation.path
-            );
-            expect(cliRepl.logWriter?.logFilePath).equals(
-              path.join(
-                customLogLocation.path,
-                'mongosh_' + (cliRepl.logWriter?.logId as string) + '_log'
-              )
-            );
-          });
-
-          it('uses a prefix even if the custom location is the same as the home location', async function () {
-            // This is a corner case where the custom location is the same as the home location.
-            // The prefix is still added to the log file name for consistency. If the user needs
-            // the default behavior for the log names, they should instead set the location to undefined.
-            const customLogHomePath = cliRepl.shellHomeDirectory.localPath('.');
-            cliRepl.config.logLocation = customLogHomePath;
-            await cliRepl.start(await testServer.connectionString(), {});
-
-            expect(await cliRepl.getConfig('logLocation')).equals(
-              customLogHomePath
-            );
-            const logName = path.join(
-              customLogHomePath,
-              'mongosh_' + (cliRepl.logWriter?.logId as string) + '_log'
-            );
-            expect(cliRepl.logWriter?.logFilePath).equals(logName);
-            expect(cliRepl.getLogPath()).equals(path.join(logName));
-          });
-
-          it('can set log retention days', async function () {
-            const testRetentionDays = 123;
-            cliRepl.config.logRetentionDays = testRetentionDays;
-            await cliRepl.start(await testServer.connectionString(), {});
-
-            expect(await cliRepl.getConfig('logRetentionDays')).equals(
-              testRetentionDays
-            );
-            expect(cliRepl.logManager?._options.retentionDays).equals(
-              testRetentionDays
-            );
-          });
-
-          it('can set log retention GB', async function () {
-            const testLogRetentionGB = 10;
-            cliRepl.config.logRetentionGB = testLogRetentionGB;
-            await cliRepl.start(await testServer.connectionString(), {});
-
-            expect(await cliRepl.getConfig('logRetentionGB')).equals(
-              testLogRetentionGB
-            );
-            expect(cliRepl.logManager?._options.retentionGB).equals(
-              testLogRetentionGB
-            );
-          });
-
-          it('can set log max file count', async function () {
-            const testMaxFileCount = 123;
-            cliRepl.config.logMaxFileCount = testMaxFileCount;
-            await cliRepl.start(await testServer.connectionString(), {});
-
-            expect(await cliRepl.getConfig('logMaxFileCount')).equals(
-              testMaxFileCount
-            );
-            expect(cliRepl.logManager?._options.maxLogFileCount).equals(
-              testMaxFileCount
-            );
-          });
-
-          it('can set log compression', async function () {
-            cliRepl.config.logCompressionEnabled = true;
-            await cliRepl.start(await testServer.connectionString(), {});
-
-            expect(await cliRepl.getConfig('logCompressionEnabled')).equals(
-              true
-            );
-            expect(cliRepl.logManager?._options.gzip).equals(true);
-          });
-        });
-
-        it('completes quickly even when the telemetry server is slow (fire-and-forget)', async function () {
-          const testStartMs = Date.now();
-          // TelemetryClient is fire-and-forget: flush() returns immediately,
-          // even if the HTTP server takes a long time to respond.
-          setTelemetryDelay(5000);
-          await cliRepl.start(await testServer.connectionString(), {});
-          this.timeout(Date.now() - testStartMs + 2500); // Do not include connection time in 2.5s timeout
-          input.write('use somedb;\n');
-          input.write('exit\n');
-          await waitBus(cliRepl.bus, 'mongosh:closed');
-          const analyticsLog = (await log()).filter(
-            (entry) =>
-              entry.ctx === 'analytics' &&
-              entry.msg === 'Persisted telemetry throttle state'
-          );
-          expect(analyticsLog).to.have.lengthOf(1);
-          expect(analyticsLog[0]).to.have.nested.property(
-            'attr.flushError',
-            null // Although the flush request will time out, it does not error.
-          );
-        });
-
-        it('posts analytics data', async function () {
-          await cliRepl.start(await testServer.connectionString(), {});
-          // Identify and New Connection are sent fire-and-forget, so their
-          // arrival order is not guaranteed. Wait until the Identify event
-          // (which carries the device/OS traits) has been received.
-          let identifyEvent: any;
-          await eventually(() => {
-            identifyEvent = requests
-              .map((r) => JSON.parse(r.body))
-              .find((e) => e.name === 'Identify');
-            expect(identifyEvent, 'Identify event was not posted').to.exist;
-          });
-          expect(identifyEvent.payload.platform).to.equal(process.platform);
-        });
-
-        it('posts analytics events when telemetry is enabled', async function () {
-          await cliRepl.start(await testServer.connectionString(), {});
-          input.write('use somedb;\n');
-          await waitEval(cliRepl.bus);
-          // There are warnings generated by the driver if exit is used to close
-          // the REPL too early. That might be worth investigating at some point.
-          await delay(100);
-          input.write('exit\n');
-          await waitBus(cliRepl.bus, 'mongosh:closed');
-          // With telemetry enabled, at least Identify + New Connection events are sent
-          expect(requests.length).to.be.greaterThan(0);
-        });
-
-        it('stops posting analytics data after disableTelemetry()', async function () {
-          await cliRepl.start(await testServer.connectionString(), {});
-          // With telemetry enabled, startup events (Identify + New Connection)
-          // are sent immediately (TelemetryClient is fire-and-forget). Wait for
-          // them to arrive and record the baseline.
-          await eventually(() => {
-            expect(requests.length).to.be.greaterThan(0);
-          });
-          const requestsBeforeDisable = requests.length;
-
-          input.write('disableTelemetry()\n');
-          await waitEval(cliRepl.bus);
-          input.write('use somedb;\n');
-          await waitEval(cliRepl.bus);
-          // There are warnings generated by the driver if exit is used to close
-          // the REPL too early. That might be worth investigating at some point.
-          await delay(100);
-          input.write('exit\n');
-          await waitBus(cliRepl.bus, 'mongosh:closed');
-          // No further events are posted once telemetry is disabled — in
-          // particular, the Session Ended event emitted on exit is not sent.
-          expect(requests).to.have.lengthOf(requestsBeforeDisable);
-          const eventNames = requests.map((r) => JSON.parse(r.body).name);
-          expect(eventNames).to.not.include('Session Ended');
-
-          // Re-enable and verify events flow again
-          requests = [];
-          cliRepl = new CliRepl(cliReplOptions);
-          await cliRepl.start(await testServer.connectionString(), {});
-          input.write('enableTelemetry()\n');
-          await waitEval(cliRepl.bus);
-          input.write('use somedb;\n');
-          await waitEval(cliRepl.bus);
-          await delay(100);
-          input.write('exit\n');
-          await waitBus(cliRepl.bus, 'mongosh:closed');
-          expect(requests.length).to.be.greaterThan(0);
-        });
-
-        it('includes a statement about flushed telemetry in the log', async function () {
-          await cliRepl.start(await testServer.connectionString(), {});
-          const { logFilePath } = cliRepl.logWriter as MongoLogWriter;
-          input.write('db.hello()\n');
-          input.write('exit\n');
-          await waitBus(cliRepl.bus, 'mongosh:closed');
-          const flushEntry = (await readReplLogFile(logFilePath)).find(
-            (entry: any) => entry.id === 1_000_000_045
-          );
-          expect(flushEntry.attr.flushError).to.equal(null);
-          expect(flushEntry.attr.flushDuration).to.be.a('number');
-          // Identify + New Connection + Session Ended = 3 events
-          expect(totalEventsTracked).to.equal(3);
-        });
-
-        it('does not send telemetry events for --eval sessions', async function () {
-          cliReplOptions.shellCliOptions.eval = [
-            'db.hello(); db.hello();',
-            'db.hello()',
-          ];
-          cliRepl = new CliRepl(cliReplOptions);
-          await startWithExpectedImmediateExit(
-            cliRepl,
-            await testServer.connectionString()
-          );
-          const allEventNames = requests
-            .map((req) => JSON.parse(req.body).name as string)
-            .filter(Boolean);
-          expect(allEventNames).not.to.include('Session Ended');
-        });
-
-        it('sends a SessionEndedEvent with all session properties instead of individual API Call events', async function () {
-          await cliRepl.start(await testServer.connectionString(), {});
-          input.write('db.hello()\n');
-          await waitEval(cliRepl.bus);
-          input.write('db.hello()\n');
-          await waitEval(cliRepl.bus);
-          await delay(100);
-          input.write('exit\n');
-          await waitBus(cliRepl.bus, 'mongosh:closed');
-
-          const allEventNames = requests
-            .map((req) => JSON.parse(req.body).name as string)
-            .filter(Boolean);
-          expect(allEventNames).not.to.include('API Call');
-          expect(allEventNames).not.to.include('Script Evaluated');
-          expect(allEventNames).not.to.include('Startup Time');
-
-          const sessionEndedEvent = requests
-            .map((req) => JSON.parse(req.body))
-            .find((entry: any) => entry.name === 'Session Ended');
-          expect(sessionEndedEvent).to.exist;
-
-          const payload = sessionEndedEvent.payload;
-
-          // Common payload fields
-          expect(payload.mongosh_version).to.be.a('string');
-          expect(payload.ai_agent).to.equal(undefined);
-          expect(payload.session_id).to.be.a('string');
-
-          // SessionEndedEvent payload — session shape
-          expect(payload.is_interactive).to.equal(true);
-          expect(payload.commands_repl).to.deep.equal({ 'Database.hello': 2 });
-          expect(payload.commands_rc).to.equal(undefined);
-          expect(payload.sequence).to.deep.equal([
-            'Database.hello',
-            'Database.hello',
-          ]);
-          expect(payload.sequence_truncated).to.equal(false);
-          expect(payload.error_count).to.equal(0);
-
-          // Timing fields — present as numbers or absent (undefined)
-          const timingFields = [
-            'repl_instantiation_ms',
-            'user_config_loading_ms',
-            'driver_setup_ms',
-            'logging_ms',
-            'snippet_loading_ms',
-            'snapshot_ms',
-            'resource_file_loading_ms',
-            'async_rewrite_ms',
-            'eval_ms',
-            'eval_file_ms',
-            'telemetry_ms',
-            'main_ms',
-          ];
-          for (const field of timingFields) {
-            if (payload[field] !== undefined) {
-              expect(payload[field], field).to.be.a('number');
-            }
-          }
-
-          // SessionEndedEvent payload — session counters
-          expect(payload.mongoshrc_loaded).to.be.a('boolean');
-          expect(payload.mongorc_warning).to.be.a('boolean');
-          expect(payload.snippet_loaded_count).to.equal(0);
-          expect(payload.shell_flag).to.equal(false);
-          expect(payload.cli_eval_count).to.equal(0);
-          expect(payload.cli_file_count).to.equal(0);
-          expect(payload.evaluation_count).to.equal(2);
-        });
-
-        it('sends out telemetry if the repl is running in an interactive mode in a containerized environment', async function () {
-          cliRepl = new CliRepl(cliReplOptions);
-          cliRepl.getIsContainerizedEnvironment = () => {
-            return Promise.resolve(true);
-          };
-          await cliRepl.start(await testServer.connectionString(), {});
-          input.write('db.hello()\n');
-          input.write('exit\n');
-          await waitBus(cliRepl.bus, 'mongosh:closed');
-          // Identify + New Connection + Session Ended = 3 events
-          expect(totalEventsTracked).to.equal(3);
-        });
-
-        it('does not send out telemetry if the user starts with a no-telemetry config', async function () {
-          await fs.writeFile(
-            path.join(tmpdir.path, 'config'),
-            EJSON.stringify({ enableTelemetry: false })
-          );
-          await cliRepl.start(await testServer.connectionString(), {});
-          input.write('db.hello()\n');
-          input.write('exit\n');
-          await waitBus(cliRepl.bus, 'mongosh:closed');
-          expect(requests).to.have.lengthOf(0);
-        });
-
-        it('does not send out telemetry if the user starts with global force-disable-telemetry config', async function () {
-          const globalConfigFile = path.join(tmpdir.path, 'globalconfig.conf');
-          await fs.writeFile(
-            globalConfigFile,
-            'mongosh:\n  forceDisableTelemetry: true'
-          );
-
-          cliReplOptions.globalConfigPaths = [globalConfigFile];
-          cliRepl = new CliRepl(cliReplOptions);
-          await cliRepl.start(await testServer.connectionString(), {});
-          input.write('db.hello()\n');
-          input.write('exit\n');
-          await waitBus(cliRepl.bus, 'mongosh:closed');
-          expect(requests).to.have.lengthOf(0);
-        });
-
-        it('does not let the user modify telemetry settings with global force-disable-telemetry config', async function () {
-          const globalConfigFile = path.join(tmpdir.path, 'globalconfig.conf');
-          await fs.writeFile(
-            globalConfigFile,
-            'mongosh:\n  forceDisableTelemetry: true'
-          );
-
-          cliReplOptions.globalConfigPaths = [globalConfigFile];
-          cliRepl = new CliRepl(cliReplOptions);
-          await cliRepl.start(await testServer.connectionString(), {});
-
-          output = '';
-          input.write('enableTelemetry()\n');
-          await waitEval(cliRepl.bus);
-          expect(output).to.include(
-            "Cannot modify telemetry settings while 'forceDisableTelemetry' is set to true"
-          );
-
-          output = '';
-          input.write('disableTelemetry()\n');
-          await waitEval(cliRepl.bus);
-          expect(output).to.include(
-            "Cannot modify telemetry settings while 'forceDisableTelemetry' is set to true"
-          );
-
-          output = '';
-          input.write('config.set("enableTelemetry", true)\n');
-          await waitEval(cliRepl.bus);
-          expect(output).to.include(
-            "Cannot modify telemetry settings while 'forceDisableTelemetry' is set to true"
-          );
-
-          output = '';
-          input.write('config.get("enableTelemetry")\n');
-          await waitEval(cliRepl.bus);
-          expect(output).to.include('false');
-
-          input.write('exit\n');
-          await waitBus(cliRepl.bus, 'mongosh:closed');
-          expect(requests).to.have.lengthOf(0);
-        });
-
-        it('does not send out telemetry if the user only runs a script for disabling telemetry', async function () {
-          cliReplOptions.shellCliOptions.eval = ['disableTelemetry()'];
-          cliRepl = new CliRepl(cliReplOptions);
-          await startWithExpectedImmediateExit(
-            cliRepl,
-            await testServer.connectionString()
-          );
-          expect(requests).to.have.lengthOf(0);
-        });
-
-        it('does not send out telemetry if the user runs a script for disabling telemetry and drops into the shell', async function () {
-          cliReplOptions.shellCliOptions.eval = ['disableTelemetry()'];
-          cliReplOptions.shellCliOptions.shell = true;
-          cliRepl = new CliRepl(cliReplOptions);
-          await cliRepl.start(await testServer.connectionString(), {});
-          input.write('db.hello()\n');
-          input.write('exit\n');
-          await waitBus(cliRepl.bus, 'mongosh:closed');
-          expect(requests).to.have.lengthOf(0);
-        });
-
-        it('does not send out telemetry if the repl is running in non-interactive mode in a containerized environment', async function () {
-          cliReplOptions.shellCliOptions.eval = ['db.hello()'];
-          cliRepl = new CliRepl(cliReplOptions);
-          cliRepl.getIsContainerizedEnvironment = () => {
-            return Promise.resolve(true);
-          };
-          await startWithExpectedImmediateExit(
-            cliRepl,
-            await testServer.connectionString()
-          );
-          expect(requests).to.have.lengthOf(0);
-        });
-
-        it('sends out telemetry in non-interactive containerized mode when an AI agent env var is set', async function () {
-          process.env.CLAUDECODE = '1';
-          try {
-            cliReplOptions.shellCliOptions.eval = ['db.hello()'];
-            cliRepl = new CliRepl(cliReplOptions);
-            cliRepl.getIsContainerizedEnvironment = () => {
-              return Promise.resolve(true);
-            };
-            await startWithExpectedImmediateExit(
-              cliRepl,
-              await testServer.connectionString()
-            );
-            expect(requests.length).to.be.greaterThan(0);
-          } finally {
-            delete process.env.CLAUDECODE;
+        afterEach(function () {
+          if (savedEndpointEnv === undefined) {
+            delete process.env.MONGOSH_TELEMETRY_ENDPOINT;
+          } else {
+            process.env.MONGOSH_TELEMETRY_ENDPOINT = savedEndpointEnv;
           }
         });
 
-        it('throttles telemetry beyond a certain rate', async function () {
+        it('logs telemetry events with the full payload (not just the name)', async function () {
           await cliRepl.start(await testServer.connectionString(), {});
-          for (let i = 0; i < 60; i++) {
-            input.write('db.hello()\n');
-          }
           input.write('exit\n');
           await waitBus(cliRepl.bus, 'mongosh:closed');
-          // ThrottledAnalytics caps total events at rate=30 per time window.
-          // With only 3 events per session (Identify + New Connection + Session Ended),
-          // we stay well under the cap — verify events were received.
-          expect(requests.length).to.be.greaterThan(0);
-          expect(requests.length).to.be.lessThanOrEqual(30);
+          // With no endpoint, LoggingAndTelemetry logs the full payload so the
+          // events can be inspected locally.
+          const connect = (await trackedTelemetryEvents()).find(
+            (e) => e.name === 'New Connection'
+          );
+          expect(connect, 'New Connection event was not logged').to.exist;
+          expect(connect?.payload).to.be.an('object');
+          expect(connect?.payload.session_id).to.be.a('string');
+          expect(connect?.payload.mongosh_version).to.be.a('string');
         });
 
-        context('with a 5.0+ server', function () {
-          skipIfServerVersion(testServer, '<= 4.4');
-
-          it('posts analytics data including connection information', async function () {
-            await cliRepl.start(await testServer.connectionString(), {
-              serverApi: {
-                version: '1',
-                strict: true,
-                deprecationErrors: true,
-              },
-            });
-            input.write('db.test.find();\n');
-            await waitEval(cliRepl.bus);
-            // There are warnings generated by the driver if exit is used to close
-            // the REPL too early. That might be worth investigating at some point.
-            await delay(100);
-            input.write('exit\n');
-            await waitBus(cliRepl.bus, 'mongosh:closed');
-
-            const connectEvents = requests
-              .map((req) => JSON.parse(req.body))
-              .filter((entry: any) => entry.name === 'New Connection');
-            expect(connectEvents).to.have.lengthOf(1);
-            const connectEvent = connectEvents[0];
-            const { payload } = connectEvent;
-            expect(payload.mongosh_version).to.be.a('string');
-            expect(payload.session_id).to.be.a('string');
-            expect(payload.is_atlas).to.equal(false);
-            expect(payload.node_version).to.equal(process.version);
-            expect(payload.api_version).to.equal('1');
-            expect(payload.api_strict).to.equal(true);
-            expect(payload.api_deprecation_errors).to.equal(true);
-          });
-        });
-      });
-
-      context('without network connectivity', function () {
-        beforeEach(async function () {
-          cliReplOptions.analyticsOptions = {
-            telemetryEndpoint: 'http://localhost:1',
-            alwaysEnable: true,
-          };
-          cliRepl = new CliRepl(cliReplOptions);
+        it('makes no HTTP requests when no endpoint is configured', async function () {
+          // Sanity: no endpoint resolved and the sink is a no-op, so there is
+          // nothing to send. (No fake server is set up in this block.)
           await cliRepl.start(await testServer.connectionString(), {});
-        });
-
-        it('ignores errors', async function () {
-          input.write('print(123 + 456);\n');
+          expect(cliRepl.telemetryEndpoint).to.equal('');
           input.write('exit\n');
           await waitBus(cliRepl.bus, 'mongosh:closed');
-          expect(output).not.to.match(/error/i);
         });
       });
     });

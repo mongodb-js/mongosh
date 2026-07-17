@@ -14,12 +14,7 @@ export async function writeBuildInfo(
     throw new Error('Build info file path is required');
   }
 
-  if (!config.segmentKey) {
-    throw new Error('Segment key is required');
-  }
-
   const info = {
-    segmentApiKey: config.segmentKey,
     version: config.version,
     distributionKind,
     buildArch: os.arch(),

@@ -31,7 +31,6 @@ import MongoshNodeRepl from './mongosh-repl';
 import type { MongoshLoggingAndTelemetry } from '@mongosh/logging';
 import { setupLoggingAndTelemetry } from '@mongosh/logging';
 import { ToggleableAnalytics, getAiAgent } from '@mongosh/logging';
-import type { AnalyticsOptions } from './setup-analytics';
 import { setupTelemetryAnalytics } from './setup-analytics';
 import type { MongoshBus } from '@mongosh/types';
 import {
@@ -87,8 +86,6 @@ export type CliReplOptions = {
   globalConfigPaths?: string[];
   /** A handler for when the REPL exits, e.g. for `exit()` */
   onExit: (code?: number) => never;
-  /** Optional analytics override options. */
-  analyticsOptions?: AnalyticsOptions;
 } & Pick<MongoshNodeReplOptions, 'nodeReplOptions'>;
 
 /** The set of config options that is *always* available in config files stored on the file system. */
@@ -116,9 +113,8 @@ export class CliRepl implements MongoshIOProvider {
   input: Readable;
   output: Writable;
   promptOutput: Writable;
-  analyticsOptions?: AnalyticsOptions;
   toggleableAnalytics: ToggleableAnalytics = new ToggleableAnalytics();
-  /** The resolved telemetry endpoint; empty string when telemetry is disabled. */
+  /** The resolved telemetry endpoint; empty string when telemetry is not sent. */
   telemetryEndpoint = '';
   warnedAboutInaccessibleFiles = false;
   onExit: (code?: number) => Promise<never>;
@@ -151,7 +147,6 @@ export class CliRepl implements MongoshIOProvider {
     this.input = options.input;
     this.output = options.output;
     this.promptOutput = options.promptOutput ?? options.output;
-    this.analyticsOptions = options.analyticsOptions;
     this.onExit = options.onExit;
 
     this.config = {
@@ -695,7 +690,6 @@ export class CliRepl implements MongoshIOProvider {
 
   async setupAnalytics(): Promise<void> {
     const { analytics, telemetryEndpoint } = setupTelemetryAnalytics({
-      analyticsOptions: this.analyticsOptions,
       // `telemetryEndpoint` user config carries the production default.
       configuredTelemetryEndpoint: await this.getConfig('telemetryEndpoint'),
       // includeDeviceId: false — device_id is already in the event payload,

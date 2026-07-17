@@ -43,6 +43,7 @@ const tEvt: NewConnectionEvent = {
     mongosh_version: '1.2.3',
     ai_agent: undefined,
     session_id: sessionId,
+    device_id: 'test-device-id',
     is_atlas: false,
     is_atlas_url: undefined,
     is_local_atlas: false,
@@ -126,28 +127,26 @@ describe('analytics helpers', function () {
 
   describe('ThrottledAnalytics', function () {
     const metadataPath = os.tmpdir();
-    const userId = 'u-' + Date.now();
+    const id = 'd-' + Date.now();
 
     const throttledIEvt: IdentifyEvent = {
       ...iEvt,
-      // device_id is the throttle key for Identify events; use `userId` so the
+      // device_id is the throttle key for Identify events; use `id` so the
       // persisted metadata file matches the afterEach cleanup path.
-      payload: { ...iEvt.payload, device_id: userId, session_id: userId },
+      payload: { ...iEvt.payload, device_id: id, session_id: id },
     };
     const throttledTEvt: NewConnectionEvent = {
       ...tEvt,
-      payload: { ...tEvt.payload, session_id: userId },
+      payload: { ...tEvt.payload, session_id: id },
     };
     const throttledT2Evt: NewConnectionEvent = {
       ...t2Evt,
-      payload: { ...t2Evt.payload, session_id: userId },
+      payload: { ...t2Evt.payload, session_id: id },
     };
 
     afterEach(async function () {
       try {
-        await fs.promises.unlink(
-          path.resolve(metadataPath, `am-${userId}.json`)
-        );
+        await fs.promises.unlink(path.resolve(metadataPath, `am-${id}.json`));
       } catch (e) {
         // ignore
       }
@@ -208,7 +207,7 @@ describe('analytics helpers', function () {
       expect(events).to.have.lengthOf(3);
 
       // second "session" — uses a different session_id so no lock conflict
-      const sid2 = userId + '-2';
+      const sid2 = id + '-2';
       const a2 = new ThrottledAnalytics({
         target,
         throttle: { rate: 5, metadataPath },

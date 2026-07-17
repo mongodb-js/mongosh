@@ -11,16 +11,7 @@ import {
  */
 const TELEMETRY_THROTTLE_RATE = 30;
 
-/** The set of options for analytics/telemetry support. */
-export type AnalyticsOptions = {
-  /** Whether to enable telemetry even if we are running in CI. */
-  alwaysEnable?: boolean;
-  /** Override the telemetry endpoint URL (for testing). */
-  telemetryEndpoint?: string;
-};
-
 export type SetupTelemetryAnalyticsParams = {
-  analyticsOptions: AnalyticsOptions | undefined;
   /**
    * The telemetry endpoint from user config, which carries the production
    * default. Used as the lowest-priority source when resolving the endpoint.
@@ -33,35 +24,35 @@ export type SetupTelemetryAnalyticsParams = {
 };
 
 export type SetupTelemetryAnalyticsResult = {
-  /** The analytics sink; a no-op ToggleableAnalytics when telemetry is off. */
+  /**
+   * The analytics sink. When no endpoint is configured this is a no-op sink
+   * (nothing is sent over the network); telemetry can still be "enabled" and
+   * events are still written to the local log — they just have nowhere to be
+   * sent.
+   */
   analytics: ToggleableAnalytics;
-  /** The resolved telemetry endpoint, or '' when telemetry is disabled. */
+  /** The resolved telemetry endpoint, or '' when none is configured. */
   telemetryEndpoint: string;
 };
 
 /**
  * Build the analytics sink for a mongosh session.
  *
- * Telemetry is disabled (a no-op {@link ToggleableAnalytics} is returned) when
- * no endpoint is configured, since there is nowhere to send events.
- *
- * @throws in the mongosh CI environment unless `alwaysEnable` is set.
+ * When no endpoint is configured there is nowhere to send events, so a no-op
+ * {@link ToggleableAnalytics} sink is returned. This does not disable telemetry
+ * (`isTelemetryEnabled()` is independent of the endpoint) — events are still
+ * logged locally, just not sent. This is also why CI is safe without any
+ * special-casing: with no endpoint configured, no HTTP requests are made.
  */
 export function setupTelemetryAnalytics({
-  analyticsOptions,
   configuredTelemetryEndpoint,
   fetch,
   metadataPath,
 }: SetupTelemetryAnalyticsParams): SetupTelemetryAnalyticsResult {
-  if (process.env.IS_MONGOSH_EVERGREEN_CI && !analyticsOptions?.alwaysEnable) {
-    throw new Error('no analytics setup for the mongosh CI environment');
-  }
-  // Resolve the telemetry endpoint: explicit override (tests/embedders) >
-  // environment variable > `telemetryEndpoint` user config (production default).
+  // Resolve the telemetry endpoint: MONGOSH_TELEMETRY_ENDPOINT environment
+  // variable > `telemetryEndpoint` user config (which carries the prod default).
   const telemetryEndpoint =
-    analyticsOptions?.telemetryEndpoint ??
-    process.env.MONGOSH_TELEMETRY_ENDPOINT ??
-    configuredTelemetryEndpoint;
+    process.env.MONGOSH_TELEMETRY_ENDPOINT ?? configuredTelemetryEndpoint;
   if (!telemetryEndpoint) {
     return { analytics: new ToggleableAnalytics(), telemetryEndpoint: '' };
   }

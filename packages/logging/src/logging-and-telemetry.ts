@@ -176,14 +176,11 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
     this.deviceId = await this.deviceId;
 
     // Emit the Identify event once per session now that the device_id (the
-    // sole user identifier) is known. device_id is included via track().
+    // sole user identifier) is known. device_id is added to every event via
+    // getTrackingProperties(), so it does not need to be set here.
     this.trackFn?.({
       name: 'Identify',
-      payload: () => ({
-        ...this.userTraits,
-        device_id:
-          typeof this.deviceId === 'string' ? this.deviceId : 'unknown',
-      }),
+      payload: () => ({ ...this.userTraits }),
     });
 
     this.runAndClearPendingTelemetryEvents();
@@ -288,6 +285,9 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       mongosh_version: this.mongoshVersion,
       ai_agent: getAiAgent(),
       session_id: this.log.logId,
+      // device_id is the stable per-device identifier and is attached to every
+      // event (it is also what telemetry throttle state is keyed on).
+      device_id: typeof this.deviceId === 'string' ? this.deviceId : 'unknown',
     });
 
     const track = (event: TrackableEvent): void => {

@@ -1,6 +1,6 @@
 # mongosh Tracking Plan
 
-> Auto-generated on 2026-07-16. Do not edit manually.
+> Auto-generated on 2026-07-17. Do not edit manually.
 > Run `npm run generate-tracking-plan` to regenerate from source.
 
 ## Table of Contents
@@ -22,7 +22,6 @@ Emitted once per session at startup to associate device and OS traits with the s
 | `mongosh_version` | `string` | Yes | The version of mongosh that emitted the event. |
 | `ai_agent` | `string \| undefined` | No | AI agent identifier if the session was initiated by an AI agent. |
 | `session_id` | `string` | Yes | Unique identifier for the current mongosh session. |
-| `anonymousId` | `string` | Yes | The anonymous identifier for this user session. |
 | `platform` | `string` | Yes | The OS platform (e.g. `"darwin"`, `"linux"`, `"win32"`). |
 | `arch` | `string` | Yes | The CPU architecture (e.g. `"x64"`, `"arm64"`). |
 | `is_containerized` | `boolean` | Yes | Whether mongosh is running inside a container. |
@@ -48,6 +47,7 @@ Fired on bus event: `mongosh:connect`
 | `mongosh_version` | `string` | Yes | The version of mongosh that emitted the event. |
 | `ai_agent` | `string \| undefined` | No | AI agent identifier if the session was initiated by an AI agent. |
 | `session_id` | `string` | Yes | Unique identifier for the current mongosh session. |
+| `device_id` | `string` | Yes | A stable machine identifier; `"unknown"` if unavailable. |
 | `is_atlas` | `boolean` | Yes | Whether the server is an Atlas deployment. |
 | `is_atlas_url` | `boolean \| undefined` | No | Whether the connection URI is an Atlas URL. |
 | `is_local_atlas` | `boolean` | Yes | Whether the server is a local Atlas deployment. |
@@ -85,6 +85,7 @@ Only emitted when is_interactive === true OR ai_agent !== undefined.
 | `mongosh_version` | `string` | Yes | The version of mongosh that emitted the event. |
 | `ai_agent` | `string \| undefined` | No | AI agent identifier if the session was initiated by an AI agent. |
 | `session_id` | `string` | Yes | Unique identifier for the current mongosh session. |
+| `device_id` | `string` | Yes | A stable machine identifier; `"unknown"` if unavailable. |
 | `is_interactive` | `boolean` | Yes | Whether mongosh was started in interactive (REPL) mode. |
 | `commands_repl` | `any` | Yes | Map of command keys with counts from REPL evaluations. |
 | `commands_rc` | `any` | Yes | Map of command keys with counts from ~/.mongoshrc.js. |

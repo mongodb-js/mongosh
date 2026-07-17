@@ -2388,7 +2388,6 @@ describe('e2e', function () {
         });
         expect(await shell.executeLine('print(123 + 456)')).to.include('579');
         await shell.executeLine('sleep(100)');
-        expect(shell.output).to.not.include('anonymousId');
         expect(shell.output).to.not.include('AssertionError');
         expect(shell.assertNoErrors());
       });
@@ -2405,7 +2404,6 @@ describe('e2e', function () {
           'Telemetry is now enabled'
         );
         await shell.executeLine('sleep(100)');
-        expect(shell.output).to.not.include('anonymousId');
         expect(shell.output).to.not.include('AssertionError');
         expect(shell.assertNoErrors());
       });
@@ -2427,7 +2425,6 @@ describe('e2e', function () {
         });
         expect(await shell.executeLine('print(123 + 456)')).to.include('579');
         await shell.executeLine('sleep(100)');
-        expect(shell.output).to.not.include('anonymousId');
         expect(shell.output).to.not.include('AssertionError');
         expect(shell.assertNoErrors());
       });
