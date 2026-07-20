@@ -209,7 +209,10 @@ describe('MongoshPublisher', function () {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       expect(publishToNpm).to.have.been.calledAfter(writeBuildInfo as any);
     });
-    it('publishes to homebrew', async function () {
+    // Skipped: Homebrew publishing is now handled by Homebrew's own automation,
+    // so publish-mongosh no longer calls homebrewPublisher.publish(). Re-enable
+    // this alongside the call in publish-mongosh.ts if we revert to self-publishing.
+    it.skip('publishes to homebrew', async function () {
       await testPublisher.publish();
 
       // eslint-disable-next-line @typescript-eslint/unbound-method
