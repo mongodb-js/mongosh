@@ -63,7 +63,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     mVersion: 'stable',
   },
   {
-    displayName: 'RHEL 9.3 x64',
+    displayName: 'RHEL 9.3 x64 (fips host)',
     runOn: 'rhel93-fips',
     tags: ['nightly-driver'],
     executableOsId: 'linux-x64',

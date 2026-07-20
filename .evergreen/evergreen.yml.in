@@ -1161,7 +1161,12 @@ tasks:
   # UNIT TESTS
   # E.g. test_m60xc_n20 stands for mongod 6.0.x, community edition, Node.js 20
   ###
-  <% for (const { id, packageName, usePuppeteer } of UNIT_TESTS) { %>
+  <% const USED_UNIT_TEST_IDS = new Set(UNIT_TESTS_WITH_BUILD_VARIANTS.map(([test]) => test.id));
+     for (const { id, packageName, usePuppeteer } of UNIT_TESTS) {
+       // Skip unit tests not placed in any build variant (e.g. packages with
+       // mongosh.variants: []) so we don't emit orphan task definitions that
+       // the .unit-test release gate would reference but never run.
+       if (!USED_UNIT_TEST_IDS.has(id)) continue; %>
   - name: test_<% out(id) %>
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -1190,6 +1195,8 @@ tasks:
   # INTEGRATION TESTS
   ###
   - name: test_vscode
+    # TODO(MONGOSH-3496): re-enable once VSCODE-788 is fixed.
+    disable: true
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -1298,9 +1305,13 @@ tasks:
   # E2E TESTS
   ###
   # Tests reuse the same compilation build variant, so we create those variations based on this.
-  <% for (const compileBuildVariant of COMPILE_BUILD_VARIANTS) {
+  <% const E2E_USED_COMPILE_VARIANTS = new Set(E2E_TESTS_BUILD_VARIANTS.map((v) => v.compileBuildVariant));
+     for (const compileBuildVariant of COMPILE_BUILD_VARIANTS) {
     const platformName = compileBuildVariant.name.replace('build_', '');
     const executableOsId = platformName == 'darwin' ? 'darwin-x64' : platformName.replaceAll('_', '-');
+    // Skip build-only compile variants (e.g. the rhel8 artifact builds) that no
+    // e2e build variant runs, so we don't emit orphan e2e task definitions.
+    if (!E2E_USED_COMPILE_VARIANTS.has(compileBuildVariant.name)) continue;
     %>
   - name: e2e_tests_<% out(platformName) %>
     tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
@@ -1442,6 +1453,10 @@ tasks:
         vars:
           package_variant: <% out(packageVariant) %>
           signature_tag: signed
+  <% /* verify_artifact is only wired into a variant for deb/rpm/win32/darwin
+        packages (see the *_package / verify_*_artifact variants); skip the rest
+        so we don't emit orphan smoke-test task definitions. */
+     if (/^(deb|rpm|win32|darwin)/.test(packageVariant)) { %>
   - name: verify_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
     tags: ["smoke-test"]
     depends_on:
@@ -1454,6 +1469,7 @@ tasks:
           package_variant: <% out(packageVariant) %>
           signature_tag: signed
       - func: verify_artifact
+  <% } %>
   <% } } %>
 
   ###
@@ -1654,10 +1670,8 @@ buildvariants:
     expansions:
       node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
     tasks:
-      # TODO(MONGOSH-3496): re-enable once VSCODE-788 is fixed. The vscode
-      # extension currently requires two different compass-components versions
-      # at once, which our single-version override in test-vscode.sh can't satisfy.
-      # - name: test_vscode
+      # TODO(MONGOSH-3496): re-enable once VSCODE-788 is fixed.
+      - name: test_vscode
       - name: test_connectivity
       - name: test_apistrict
   - name: linux_node_nightly
