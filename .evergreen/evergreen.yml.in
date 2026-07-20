@@ -1654,7 +1654,10 @@ buildvariants:
     expansions:
       node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
     tasks:
-      - name: test_vscode
+      # TODO(MONGOSH-3496): re-enable once VSCODE-788 is fixed. The vscode
+      # extension currently requires two different compass-components versions
+      # at once, which our single-version override in test-vscode.sh can't satisfy.
+      # - name: test_vscode
       - name: test_connectivity
       - name: test_apistrict
   - name: linux_node_nightly
