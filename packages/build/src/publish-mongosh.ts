@@ -151,6 +151,7 @@ export class MongoshPublisher {
 
     this.packagePublisher.publishToNpm();
 
+    // TODO(MONGOSH-3497): clean up the homebrew publishing code.
     // Homebrew publishing is now handled by Homebrew's own bot/automation, which
     // bumps our formula once the new version is published to npm above. We no
     // longer open the homebrew-core PR ourselves. The HomebrewPublisher and its
