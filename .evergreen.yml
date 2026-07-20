@@ -4945,7 +4945,7 @@ functions:
 
           echo "Response Body: $response_body"
           echo "HTTP Status: $http_status"
-          
+
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
 #
@@ -12854,8 +12854,8 @@ buildvariants:
       - name: test_connectivity
       - name: test_apistrict
   - name: linux_node_nightly
-    display_name: "Ubuntu 20.04 x64 (Node.js nightly e2e)"
-    run_on: ubuntu2004-small
+    display_name: "Ubuntu 26.04 arm (Node.js nightly e2e)"
+    run_on: ubuntu2604-arm64-m7g-xlarge
     tags: ["node-nightly-test"]
     expansions:
       node_js_version: "nightly"
