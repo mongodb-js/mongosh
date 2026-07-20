@@ -1,19 +1,36 @@
+import { gzipSync } from 'zlib';
 import type { TelemetryEvent } from './telemetry-events';
 import type { MongoshAnalytics } from './analytics-helpers';
 
 const FLUSH_TIMEOUT_MS = 2_000;
+const SCHEMA_VERSION = 'v1';
 
 type FetchFn = (
   url: string,
   init?: { method?: string; headers?: Record<string, string>; body?: string }
 ) => Promise<unknown>;
 
+function eventPath(name: TelemetryEvent['name']): string {
+  return `/${SCHEMA_VERSION}/${name.toLowerCase().replace(/\s+/g, '-')}`;
+}
+
 /**
- * Sends telemetry events to the MongoDB telemetry HTTP endpoint.
- * Network errors are silently dropped. flush() waits up to 2 s for
+ * Sends telemetry events to the MongoDB telemetry endpoint.
+ *
+ * Events are encoded into request metadata in CloudFront's S3 access log format
+ * (see https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/standard-logging.html):
+ *  - path (cs-uri-stem):          schema version + event name, e.g. /v1/new-connection
+ *  - query string (cs-uri-query): device_id / session_id, for filtering & joins in raw logs
+ *  - User-Agent (cs(User-Agent)): client identity (mongosh version, OS, arch),
+ *                                 attached by the `fetch` passed into the
+ *                                 constructor, not by this class
+ *  - Cookie (cs(Cookie)):         full event payload, gzip-compressed + base64-encoded
+ *
+ * Network errors are silently dropped. flush() waits up to 2s for
  * in-flight requests so events sent right before exit are not lost.
- * Pass a custom `endpoint` to override the default (e.g. for testing).
- * Pass a proxy-aware `fetch` (e.g. from @mongodb-js/devtools-proxy-support)
+ * Override the default endpoint with MONGOSH_TELEMETRY_ENDPOINT
+ * environment variable (e.g. for testing).
+ * Use a proxy-aware fetch from @mongodb-js/devtools-proxy-support
  * to respect the user's HTTP_PROXY / HTTPS_PROXY environment variables.
  */
 export class TelemetryClient implements MongoshAnalytics {
@@ -33,10 +50,26 @@ export class TelemetryClient implements MongoshAnalytics {
   }
 
   track(event: TelemetryEvent): void {
-    const p = this.fetch(this.endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(event),
+    const payload: Record<string, unknown> = event.payload;
+    const query = new URLSearchParams({
+      deviceId: String(payload.device_id ?? ''),
+      sessionId: String(payload.session_id ?? ''),
+    });
+    const url = `${this.endpoint}${eventPath(event.name)}?${query.toString()}`;
+
+    // TODO: It might be worth using something like zstd
+    // and/or use a custom dictionary rather than plain gzip.
+    const cookie = `mge=${gzipSync(Buffer.from(JSON.stringify(event))).toString(
+      'base64'
+    )}`;
+
+    // User-Agent is intentionally not set here: the `fetch` passed in by the
+    // caller (see cli-repl's fetch wrapper) always attaches its own
+    // OS/version-derived User-Agent, which already covers the "compact
+    // client identity" needed for CDN-log reconstruction.
+    const p = this.fetch(url, {
+      method: 'GET',
+      headers: { Cookie: cookie },
     })
       .then(() => {
         // discard the Response; callers only await completion
