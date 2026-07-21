@@ -6,7 +6,7 @@ export BASEDIR="$PWD/.evergreen"
 . "$BASEDIR/setup-env.sh"
 
 if [ "${PUPPETEER_SKIP_DOWNLOAD:-true}" != "true" ]; then
-  node "$BASEDIR/purge-incomplete-puppeteer-cache.js" || true
+  node "$BASEDIR/purge-incomplete-puppeteer-cache.mts" || true
 fi
 
 # Install root directories used by scripts. We should consider moving scripts to separate packages.
