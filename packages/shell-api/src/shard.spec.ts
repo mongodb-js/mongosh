@@ -2212,13 +2212,25 @@ describe('Shard', function () {
         );
       });
 
-      it('does not send an empty filter when called with no arguments', async function () {
+      it('does not send a filter when called with no arguments', async function () {
         await shard.listShards();
 
         const call = serviceProvider.runCommandWithCheck
           .getCalls()
           .find((c) => (c.args[1] as Document).listShards === 1);
         expect(call?.args[1]).to.not.have.property('filter');
+      });
+
+      it('sends an empty filter when one is given explicitly', async function () {
+        await shard.listShards({});
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            listShards: 1,
+            filter: {},
+          }
+        );
       });
 
       it('returns the shards returned by runCommandWithCheck', async function () {

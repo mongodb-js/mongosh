@@ -856,7 +856,7 @@ export default class Shard<
 
   @apiVersions([])
   @returnsPromise
-  async listShards(filter: Document = {}): Promise<ShardInfo[]> {
+  async listShards(filter?: Document): Promise<ShardInfo[]> {
     assertArgsDefinedType(
       [filter],
       [[undefined, 'object']],
@@ -866,7 +866,7 @@ export default class Shard<
     await getConfigDB(this._database);
 
     const command: Document = { listShards: 1 };
-    if (Object.keys(filter).length > 0) {
+    if (filter) {
       command.filter = filter;
     }
 
