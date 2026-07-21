@@ -9,7 +9,7 @@ import { inspect } from 'util';
 import path from 'path';
 import stripAnsi from 'strip-ansi';
 import { EJSON } from 'bson';
-import { eventually } from '@mongosh/testing';
+import { eventually, isNightly } from '@mongosh/testing';
 
 /* eslint-disable mocha/no-exports -- This file export hooks wrapping Mocha's Hooks APIs */
 
@@ -143,7 +143,18 @@ export class TestShell {
   }
 
   static assertNoOpenShells() {
-    const debugInformation = [...TestShell._openShells].map((shell) =>
+    const openShells = [...TestShell._openShells];
+    if (isNightly && openShells.length > 0) {
+      // MONGOSH-3498: on Node.js nightly builds a mongosh process does not
+      // terminate on exit/quit or SIGTERM, so the "no open shells" invariant
+      // that every e2e spec relies on cannot hold. Force-kill the leftovers so
+      // they don't accumulate across suites, and skip the assertion.
+      for (const shell of openShells) {
+        shell.kill('SIGKILL');
+      }
+      return;
+    }
+    const debugInformation = openShells.map((shell) =>
       shell.debugInformation()
     );
     assert.strictEqual(

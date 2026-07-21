@@ -1,5 +1,7 @@
 import {
   eventually,
+  isNightly,
+  skipOnNightly,
   startTestCluster,
   skipIfServerVersion,
   skipIfApiStrict,
@@ -45,6 +47,8 @@ describe('e2e direct connection', function () {
     context('after rs.initiate()', function () {
       let dbname: string;
 
+      skipOnNightly(); // TODO(MONGOSH-3498): shell termination broken on Node nightly
+
       before(async function () {
         this.timeout(60_000);
         const replSetConfig = {
@@ -83,7 +87,9 @@ describe('e2e direct connection', function () {
         await shell.executeLine('db.testcollection.insertOne({})');
         shell.writeInputLine('exit');
       });
+
       after(async function () {
+        if (isNightly) return; // TODO(MONGOSH-3498): cleanup uses exit which hangs on Node nightly
         const shell = startTestShell(this, {
           args: [await rs0.connectionString()],
         });

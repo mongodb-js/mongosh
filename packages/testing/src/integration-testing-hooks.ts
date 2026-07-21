@@ -343,6 +343,37 @@ export function skipIfCommunityServer(server: MongodSetup): void {
 }
 
 /**
+ * Whether the current process is running on a Node.js nightly build.
+ *
+ * mongosh currently does not terminate correctly on nightly builds
+ * (exit/quit/SIGINT, see MONGOSH-3498), which breaks tests that depend on
+ * shell lifecycle. Use this for inline `it`-body skips or static
+ * `(isNightly ? describe.skip : describe)(...)` skips of suites whose `after`
+ * hooks would otherwise hang (a `before`-hook skip does not skip `after` hooks).
+ */
+export const isNightly = process.version.includes('-nightly');
+
+/**
+ * Skip tests in the suite if running on a Node.js nightly build (MONGOSH-3498).
+ *
+ * NOTE: like the other skip* hooks this installs a `before` hook, so it does
+ * not skip `after`/`afterEach` hooks. For a suite whose `after` hook itself
+ * hangs on nightly, skip the whole suite statically with
+ * `(isNightly ? describe.skip : describe)(...)` instead.
+ *
+ * describe('...', () => {
+ *   skipOnNightly();
+ * });
+ */
+export function skipOnNightly(): void {
+  before(function () {
+    if (isNightly) {
+      this.skip();
+    }
+  });
+}
+
+/**
  * Skip tests if environment variables signal that every test runs with
  * --apiStrict.
  */

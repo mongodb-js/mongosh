@@ -49,7 +49,10 @@ import type { Context } from 'vm';
 import { Script, createContext, runInContext } from 'vm';
 import { fixNode60446, installPasteSupport } from './repl-paste-support';
 import util from 'util';
-import { fixNodeReplCompleterSideEffectHandling } from './node-repl-fix-completer-side-effects';
+import {
+  fixNodeReplCompleterSideEffectHandling,
+  promisifyCompleter,
+} from './node-repl-fix-completer-side-effects';
 import { fixNodeReplHistoryHandler } from './node-repl-fix-history-rewrite-on-error';
 
 declare const __non_webpack_require__: any;
@@ -448,8 +451,8 @@ class MongoshNodeRepl implements EvaluationListener {
     this.outputFinishString += installPasteSupport(repl);
 
     const origReplCompleter = await fixNodeReplCompleterSideEffectHandling(
-      promisify(repl.completer.bind(repl))
-    ); // repl.completer is callback-style
+      promisifyCompleter(repl.completer.bind(repl))
+    ); // repl.completer is callback-style on older Node, Promise-returning on newer
 
     await fixNodeReplHistoryHandler(repl);
     let newMongoshCompleter: (line: string) => Promise<CompletionResults>;

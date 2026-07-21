@@ -1,7 +1,5 @@
 import { promises as fs } from 'fs';
-import { promisify } from 'util';
 import path from 'path';
-import rimraf from 'rimraf';
 import * as chai from 'chai';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
@@ -33,10 +31,17 @@ function useTmpdir(): { readonly path: string } {
 
   afterEach(async () => {
     try {
-      await promisify(rimraf)(tmpdir);
+      // On Windows a just-exited mongosh may still hold a handle in the fake
+      // home dir when we remove it, causing EBUSY/EPERM. fs.rm retries those
+      // (and ENOTEMPTY) internally, giving the OS time to release the handle.
+      await fs.rm(tmpdir, {
+        recursive: true,
+        force: true,
+        maxRetries: 30,
+        retryDelay: 100,
+      });
     } catch (err: any) {
-      // On Windows in CI, this can fail with EPERM for some reason.
-      // If it does, just log the error instead of failing all tests.
+      // If it still fails, just log the error instead of failing all tests.
       console.error('Could not remove fake home directory:', err);
     }
   });

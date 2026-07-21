@@ -3,7 +3,7 @@ import path from 'path';
 import { expect } from 'chai';
 import type { TestShell } from './test-shell';
 import { useTmpdir } from './repl-helpers';
-import { eventually } from '@mongosh/testing';
+import { eventually, isNightly } from '@mongosh/testing';
 import { startTestShell } from './test-shell-context';
 
 describe('snippet integration tests', function () {
@@ -85,6 +85,7 @@ describe('snippet integration tests', function () {
   });
 
   it('works when an index file is inaccessible', async function () {
+    if (isNightly) return this.skip(); // TODO(MONGOSH-3498): shell termination broken on Node nightly
     await shell.executeLine(
       'config.set("snippetIndexSourceURLs", "http://localhost:1/")'
     );

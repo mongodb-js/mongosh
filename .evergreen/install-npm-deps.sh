@@ -5,6 +5,10 @@ export BASEDIR="$PWD/.evergreen"
 
 . "$BASEDIR/setup-env.sh"
 
+if [ "${PUPPETEER_SKIP_DOWNLOAD:-true}" != "true" ]; then
+  node "$BASEDIR/purge-incomplete-puppeteer-cache.mts" || true
+fi
+
 # Install root directories used by scripts. We should consider moving scripts to separate packages.
 # Also install config workspaces since they're referenced by tsconfig.json files but not automatically linked when workspaces=false is used
 npm ci -w configs/tsconfig-mongosh -w configs/eslint-config-mongosh --include-workspace-root

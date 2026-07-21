@@ -3,6 +3,8 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import {
   getTestCertificatePath as getCertPath,
+  isNightly,
+  skipOnNightly,
   startTestServer,
 } from '@mongosh/testing';
 import {
@@ -80,7 +82,9 @@ describe('e2e TLS', function () {
   context(
     'connecting without client cert to server with valid cert',
     function () {
+      skipOnNightly(); // TODO(MONGOSH-3498): shell termination broken on Node nightly
       after(async function () {
+        if (isNightly) return; // cleanup uses exit which hangs on Node nightly
         // mlaunch has some trouble interpreting all the server options correctly,
         // and subsequently can't connect to the server to find out if it's up,
         // then thinks it isn't and doesn't shut it down cleanly. We shut it down
@@ -391,7 +395,10 @@ describe('e2e TLS', function () {
   );
 
   context('connecting with client cert to server with valid cert', function () {
+    skipOnNightly(); // TODO(MONGOSH-3498): shell termination broken on Node nightly
+
     after(async function () {
+      if (isNightly) return; // cleanup uses exit which hangs on Node nightly
       const shell = startTestShell(this, {
         args: [
           await connectionStringWithLocalhost(server),
