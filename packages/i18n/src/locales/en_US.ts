@@ -2238,8 +2238,8 @@ const translations: Catalog = {
             listShards: {
               link: 'https://mongodb.com/docs/manual/reference/method/sh.listShards',
               description:
-                'Returns a list of the configured shards in a sharded cluster',
-              example: 'sh.listShards()',
+                'Returns a list of the configured shards in a sharded cluster, optionally filtered (e.g. by draining state)',
+              example: 'sh.listShards({ draining: true })',
             },
             isConfigShardEnabled: {
               link: 'https://mongodb.com/docs/manual/reference/method/sh.isConfigShardEnabled',
