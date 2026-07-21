@@ -1,4 +1,5 @@
 import { promises as fs } from 'fs';
+import { gunzipSync } from 'zlib';
 import { promisify } from 'util';
 import path from 'path';
 import { once } from 'events';
@@ -9,6 +10,7 @@ import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import type { MongoshBus, MongoshBusEventsMap } from '@mongosh/types';
 import type { ReadStream, WriteStream } from 'tty';
+import type { IncomingMessage } from 'http';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -98,6 +100,17 @@ async function readReplLogFile(
     .map((line) => JSON.parse(line));
 }
 
+/**
+ * TelemetryClient sends the event gzip+base64-encoded in the `Cookie`
+ * header (as `mge=<base64>`), not in the request body — decode it back
+ * into the original event for test assertions.
+ */
+function decodeTelemetryCookie(req: IncomingMessage): any {
+  const cookie = req.headers.cookie ?? '';
+  const base64 = cookie.replace(/^mge=/, '');
+  return JSON.parse(gunzipSync(Buffer.from(base64, 'base64')).toString());
+}
+
 // eslint-disable-next-line mocha/no-exports
 export {
   expect,
@@ -109,4 +122,5 @@ export {
   waitCompletion,
   fakeTTYProps,
   readReplLogFile,
+  decodeTelemetryCookie,
 };

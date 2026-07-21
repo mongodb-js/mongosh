@@ -288,30 +288,3 @@ export class ThrottledAnalytics implements MongoshAnalytics {
     await this.target.flush();
   }
 }
-
-type SampledAnalyticsOptions = {
-  target?: MongoshAnalytics;
-  sampling: () => boolean;
-};
-
-export class SampledAnalytics implements MongoshAnalytics {
-  private isEnabled: boolean;
-  private target: MongoshAnalytics;
-
-  constructor(configuration: SampledAnalyticsOptions) {
-    this.isEnabled = configuration.sampling();
-    this.target = configuration.target || new NoopAnalytics();
-  }
-
-  get enabled(): boolean {
-    return this.isEnabled;
-  }
-
-  track(event: TelemetryEvent): void {
-    this.isEnabled && this.target.track(event);
-  }
-
-  async flush(): Promise<void> {
-    return await this.target.flush();
-  }
-}

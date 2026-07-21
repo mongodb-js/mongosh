@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import { gunzipSync } from 'zlib';
 import { TelemetryClient } from '.';
 import type { TelemetryEvent } from '.';
 
@@ -32,10 +33,12 @@ describe('TelemetryClient', function () {
       return Promise.resolve();
     });
     client.track(sessionEvent);
-    expect(calls).to.deep.equal(['https://example.com/events']);
+    expect(calls).to.deep.equal([
+      'https://example.com/events/v1/identify?deviceId=test-device&sessionId=test-session',
+    ]);
   });
 
-  it('sends POST with JSON body to the configured endpoint', async function () {
+  it('sends a HEAD request with the event gzip+base64-encoded in the Cookie header', async function () {
     const requests: { url: string; init: any }[] = [];
     const client = new TelemetryClient(
       'https://example.com/events',
@@ -49,13 +52,18 @@ describe('TelemetryClient', function () {
     await client.flush();
 
     expect(requests).to.have.lengthOf(1);
-    expect(requests[0].url).to.equal('https://example.com/events');
-    expect(requests[0].init.method).to.equal('POST');
-    expect(requests[0].init.headers['Content-Type']).to.equal(
-      'application/json'
+    expect(requests[0].url).to.equal(
+      'https://example.com/events/v1/identify?deviceId=test-device&sessionId=test-session'
     );
-    // JSON.stringify strips undefined fields, so round-trip via JSON for comparison
-    expect(JSON.parse(requests[0].init.body)).to.deep.equal(
+    expect(requests[0].init.method).to.equal('HEAD');
+    expect(requests[0].init.signal).to.be.instanceOf(AbortSignal);
+
+    const cookie: string = requests[0].init.headers.Cookie;
+    expect(cookie).to.match(/^mge=/);
+    const decoded = gunzipSync(
+      Buffer.from(cookie.slice('mge='.length), 'base64')
+    ).toString();
+    expect(JSON.parse(decoded)).to.deep.equal(
       JSON.parse(JSON.stringify(sessionEvent))
     );
   });

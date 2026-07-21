@@ -6,7 +6,7 @@ import {
 } from '@mongosh/logging';
 
 /**
- * ThrottledAnalytics caps events per day to protect against high-frequency
+ * ThrottledAnalytics caps events to protect against high-frequency
  * scenarios such as reconnect loops.
  */
 const TELEMETRY_THROTTLE_RATE = 30;
@@ -58,10 +58,13 @@ export function setupTelemetryAnalytics({
   }
   return {
     telemetryEndpoint,
+    // ThrottledAnalytics wraps TelemetryClient target and gates every
+    // track() call before it reaches it. The timeframe defaults to 60s.
+    // Once the cap is hit, further events within the same window
+    // are silently dropped and TelemetryClient.track()
+    // (and its underlying fetch) is never called.
     analytics: new ToggleableAnalytics(
       new ThrottledAnalytics({
-        // includeDeviceId: false — device_id is already in the event payload,
-        // no need to duplicate it in the User-Agent header.
         target: new TelemetryClient(telemetryEndpoint, fetch),
         throttle: {
           rate: TELEMETRY_THROTTLE_RATE,

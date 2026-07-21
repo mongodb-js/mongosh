@@ -1,7 +1,6 @@
 export {
   MongoshAnalytics,
   ToggleableAnalytics,
-  SampledAnalytics,
   NoopAnalytics,
   ThrottledAnalytics,
 } from './analytics-helpers';

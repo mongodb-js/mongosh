@@ -4,11 +4,7 @@ import fs from 'fs';
 import { promisify } from 'util';
 import { expect } from 'chai';
 import type { MongoshAnalytics } from './analytics-helpers';
-import {
-  ToggleableAnalytics,
-  ThrottledAnalytics,
-  SampledAnalytics,
-} from './analytics-helpers';
+import { ToggleableAnalytics, ThrottledAnalytics } from './analytics-helpers';
 import type { IdentifyEvent, NewConnectionEvent } from './telemetry-events';
 
 const wait = promisify(setTimeout);
@@ -256,36 +252,6 @@ describe('analytics helpers', function () {
           .map((e) => e[1].payload.is_localhost)
           .join(',')
       ).to.match(/^(true,true,true|false,false,false)$/);
-    });
-  });
-
-  describe('SampledAnalytics', function () {
-    it('should send the event forward when sampled', function () {
-      const analytics = new SampledAnalytics({
-        target,
-        sampling: () => true,
-      });
-
-      expect(analytics.enabled).to.be.true;
-
-      analytics.track(iEvt);
-      analytics.track(tEvt);
-
-      expect(events.length).to.equal(2);
-    });
-
-    it('should not send the event forward when not sampled', function () {
-      const analytics = new SampledAnalytics({
-        target,
-        sampling: () => false,
-      });
-
-      expect(analytics.enabled).to.be.false;
-
-      analytics.track(iEvt);
-      analytics.track(tEvt);
-
-      expect(events.length).to.equal(0);
     });
   });
 });

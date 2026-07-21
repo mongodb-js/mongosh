@@ -5,13 +5,13 @@ import http from 'http';
 import path from 'path';
 import type { Duplex } from 'stream';
 import { PassThrough } from 'stream';
-import { promisify } from 'util';
 import {
   eventually,
   skipIfServerVersion,
   startSharedTestServer,
 } from '@mongosh/testing';
 import {
+  decodeTelemetryCookie,
   expect,
   readReplLogFile,
   useTmpdir,
@@ -25,8 +25,7 @@ import type { DevtoolsConnectOptions } from '@mongosh/service-provider-node-driv
 import type { AddressInfo } from 'net';
 import sinon from 'sinon';
 import type { MongoLogWriter } from 'mongodb-log-writer';
-
-const delay = promisify(setTimeout);
+import { setTimeout as delay } from 'timers/promises';
 
 describe('CliRepl telemetry (integration)', function () {
   let cliReplOptions: CliReplOptions;
@@ -150,7 +149,7 @@ describe('CliRepl telemetry (integration)', function () {
               // eslint-disable-next-line @typescript-eslint/no-misused-promises
               .on('end', async () => {
                 requests.push({ req, body });
-                totalEventsTracked += 1; // each POST is a single event
+                totalEventsTracked += 1; // each request is a single event
                 await delay(telemetryDelay);
                 res.writeHead(200);
                 res.end('Ok\n');
@@ -204,7 +203,7 @@ describe('CliRepl telemetry (integration)', function () {
         let identifyEvent: any;
         await eventually(() => {
           identifyEvent = requests
-            .map((r) => JSON.parse(r.body))
+            .map((r) => decodeTelemetryCookie(r.req))
             .find((e) => e.name === 'Identify');
           expect(identifyEvent, 'Identify event was not posted').to.exist;
         });
@@ -246,7 +245,9 @@ describe('CliRepl telemetry (integration)', function () {
         // No further events are posted once telemetry is disabled — in
         // particular, the Session Ended event emitted on exit is not sent.
         expect(requests).to.have.lengthOf(requestsBeforeDisable);
-        const eventNames = requests.map((r) => JSON.parse(r.body).name);
+        const eventNames = requests.map(
+          (r) => decodeTelemetryCookie(r.req).name
+        );
         expect(eventNames).to.not.include('Session Ended');
 
         // Re-enable and verify events flow again
@@ -289,7 +290,7 @@ describe('CliRepl telemetry (integration)', function () {
           await testServer.connectionString()
         );
         const allEventNames = requests
-          .map((req) => JSON.parse(req.body).name as string)
+          .map((entry) => decodeTelemetryCookie(entry.req).name as string)
           .filter(Boolean);
         expect(allEventNames).not.to.include('Session Ended');
       });
@@ -305,14 +306,14 @@ describe('CliRepl telemetry (integration)', function () {
         await waitBus(cliRepl.bus, 'mongosh:closed');
 
         const allEventNames = requests
-          .map((req) => JSON.parse(req.body).name as string)
+          .map((entry) => decodeTelemetryCookie(entry.req).name as string)
           .filter(Boolean);
         expect(allEventNames).not.to.include('API Call');
         expect(allEventNames).not.to.include('Script Evaluated');
         expect(allEventNames).not.to.include('Startup Time');
 
         const sessionEndedEvent = requests
-          .map((req) => JSON.parse(req.body))
+          .map((entry) => decodeTelemetryCookie(entry.req))
           .find((entry: any) => entry.name === 'Session Ended');
         expect(sessionEndedEvent).to.exist;
 
@@ -534,7 +535,7 @@ describe('CliRepl telemetry (integration)', function () {
           await waitBus(cliRepl.bus, 'mongosh:closed');
 
           const connectEvents = requests
-            .map((req) => JSON.parse(req.body))
+            .map((entry) => decodeTelemetryCookie(entry.req))
             .filter((entry: any) => entry.name === 'New Connection');
           expect(connectEvents).to.have.lengthOf(1);
           const connectEvent = connectEvents[0];

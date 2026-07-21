@@ -13,7 +13,7 @@ import type { Duplex } from 'stream';
 import { PassThrough } from 'stream';
 import type { StubbedInstance } from 'ts-sinon';
 import sinon, { stubInterface } from 'ts-sinon';
-import { inspect, promisify } from 'util';
+import { inspect } from 'util';
 import {
   expect,
   fakeTTYProps,
@@ -26,13 +26,12 @@ import type { MongoshIOProvider, MongoshNodeReplOptions } from './mongosh-repl';
 import MongoshNodeRepl from './mongosh-repl';
 import { parseAnyLogEntry } from '../../shell-api/src/log-entry';
 import stripAnsi from 'strip-ansi';
+import { setTimeout as delay } from 'timers/promises';
 
 function nonnull<T>(value: T | null | undefined): NonNullable<T> {
   if (!value) throw new Error();
   return value;
 }
-
-const delay = promisify(setTimeout);
 
 const multilineCode = `(function() {
   // comment

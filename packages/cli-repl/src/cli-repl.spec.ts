@@ -11,7 +11,6 @@ import { createServer as createHTTPServer } from 'http';
 import path from 'path';
 import type { Duplex } from 'stream';
 import { PassThrough } from 'stream';
-import { promisify } from 'util';
 import {
   eventually,
   type MongodSetup,
@@ -37,8 +36,7 @@ import { CliReplErrors } from './error-codes';
 import type { DevtoolsConnectOptions } from '@mongosh/service-provider-node-driver';
 import type { AddressInfo } from 'net';
 import type { CliUserConfig } from '@mongosh/types';
-
-const delay = promisify(setTimeout);
+import { setTimeout as delay } from 'timers/promises';
 
 describe('CliRepl', function () {
   let cliReplOptions: CliReplOptions;
