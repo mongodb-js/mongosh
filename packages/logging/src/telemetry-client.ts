@@ -2,7 +2,8 @@ import { gzipSync } from 'zlib';
 import type { TelemetryEvent } from './telemetry-events';
 import type { MongoshAnalytics } from './analytics-helpers';
 
-const REQUEST_TIMEOUT_MS = 5_000;
+export const REQUEST_TIMEOUT_MS = 5_000;
+
 const FLUSH_TIMEOUT_MS = 2_000;
 const SCHEMA_VERSION = 'v1';
 

@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { gunzipSync } from 'zlib';
-import { TelemetryClient } from '.';
+import sinon from 'sinon';
+import { REQUEST_TIMEOUT_MS, TelemetryClient } from '.';
 import type { TelemetryEvent } from '.';
 
 const sessionEvent: TelemetryEvent = {
@@ -66,6 +67,44 @@ describe('TelemetryClient', function () {
     expect(JSON.parse(decoded)).to.deep.equal(
       JSON.parse(JSON.stringify(sessionEvent))
     );
+  });
+
+  it('aborts a request that never resolves after REQUEST_TIMEOUT_MS', async function () {
+    const clock = sinon.useFakeTimers();
+    try {
+      let capturedSignal: AbortSignal | undefined;
+      const client = new TelemetryClient(
+        'https://example.com/events',
+        (_url, init) => {
+          capturedSignal = init?.signal;
+          // Simulate a stuck network request and reject once the signal is aborted.
+          return new Promise((_resolve, reject) => {
+            init?.signal?.addEventListener('abort', () => {
+              reject(new Error('The operation was aborted'));
+            });
+          });
+        }
+      );
+
+      client.track(sessionEvent);
+
+      expect(capturedSignal).to.be.instanceOf(AbortSignal);
+      expect(capturedSignal?.aborted).to.equal(false);
+
+      // Advance past REQUEST_TIMEOUT_MS and let the resulting abort +
+      // rejection + .catch()/.finally() chain settle.
+      await clock.tickAsync(REQUEST_TIMEOUT_MS);
+
+      expect(capturedSignal?.aborted).to.equal(true);
+
+      // The request already settled via the abort above, so flush()
+      // resolves immediately — not because of its own (also faked) timeout.
+      const flushPromise = client.flush();
+      await clock.tickAsync(0);
+      await flushPromise;
+    } finally {
+      clock.restore();
+    }
   });
 
   it('silently ignores network errors', async function () {
