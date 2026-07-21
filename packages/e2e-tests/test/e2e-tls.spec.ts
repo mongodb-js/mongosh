@@ -3,6 +3,8 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import {
   getTestCertificatePath as getCertPath,
+  isNightly,
+  skipOnNightly,
   startTestServer,
 } from '@mongosh/testing';
 import {
@@ -77,11 +79,12 @@ describe('e2e TLS', function () {
     }
   });
 
-  // TODO(MONGOSH-3498): after() cleanup uses exit which hangs on Node nightly
-  (process.version.includes('-nightly') ? context.skip : context)(
+  context(
     'connecting without client cert to server with valid cert',
     function () {
+      skipOnNightly(); // TODO(MONGOSH-3498): shell termination broken on Node nightly
       after(async function () {
+        if (isNightly) return; // cleanup uses exit which hangs on Node nightly
         // mlaunch has some trouble interpreting all the server options correctly,
         // and subsequently can't connect to the server to find out if it's up,
         // then thinks it isn't and doesn't shut it down cleanly. We shut it down
@@ -391,344 +394,343 @@ describe('e2e TLS', function () {
     }
   );
 
-  // TODO(MONGOSH-3498): after() cleanup uses exit which hangs on Node nightly
-  (process.version.includes('-nightly') ? context.skip : context)(
-    'connecting with client cert to server with valid cert',
-    function () {
-      after(async function () {
-        const shell = startTestShell(this, {
-          args: [
-            await connectionStringWithLocalhost(server),
-            '--tls',
-            '--tlsCAFile',
-            CA_CERT,
-            '--tlsCertificateKeyFile',
-            CLIENT_CERT,
-          ],
-        });
-        await shell.waitForPrompt();
-        await shell.executeLine('db.shutdownServer({ force: true })');
-        shell.writeInputLine('exit');
-        await shell.waitForAnyExit(); // closing the server may lead to an error being displayed
-      });
+  context('connecting with client cert to server with valid cert', function () {
+    skipOnNightly(); // TODO(MONGOSH-3498): shell termination broken on Node nightly
 
-      const server = startTestServer('e2e-tls-valid-cli-valid-srv', {
+    after(async function () {
+      if (isNightly) return; // cleanup uses exit which hangs on Node nightly
+      const shell = startTestShell(this, {
         args: [
-          '--tlsMode',
-          'requireTLS',
-          '--tlsCertificateKeyFile',
-          SERVER_KEY,
+          await connectionStringWithLocalhost(server),
+          '--tls',
           '--tlsCAFile',
           CA_CERT,
+          '--tlsCertificateKeyFile',
+          CLIENT_CERT,
         ],
-        tlsAddClientKey: false,
       });
-      const certUser =
-        'emailAddress=tester@example.com,CN=Wonderwoman,OU=DevTools Testers,O=MongoDB';
+      await shell.waitForPrompt();
+      await shell.executeLine('db.shutdownServer({ force: true })');
+      shell.writeInputLine('exit');
+      await shell.waitForAnyExit(); // closing the server may lead to an error being displayed
+    });
 
-      before(async function () {
-        if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
-          return this.skip(); // createUser is unversioned
-        }
-        /* connect with cert to create user */
-        const shell = startTestShell(this, {
-          args: [
-            await connectionStringWithLocalhost(server, {
-              serverSelectionTimeoutMS: '1500',
-            }),
-            '--tls',
-            '--tlsCAFile',
-            CA_CERT,
-            '--tlsCertificateKeyFile',
-            CLIENT_CERT,
-          ],
-        });
-        const prompt = await shell.waitForPromptOrExit();
-        expect(prompt.state).to.equal('prompt');
-        await shell.executeLine(`db=db.getSiblingDB('$external');db.runCommand({
+    const server = startTestServer('e2e-tls-valid-cli-valid-srv', {
+      args: [
+        '--tlsMode',
+        'requireTLS',
+        '--tlsCertificateKeyFile',
+        SERVER_KEY,
+        '--tlsCAFile',
+        CA_CERT,
+      ],
+      tlsAddClientKey: false,
+    });
+    const certUser =
+      'emailAddress=tester@example.com,CN=Wonderwoman,OU=DevTools Testers,O=MongoDB';
+
+    before(async function () {
+      if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
+        return this.skip(); // createUser is unversioned
+      }
+      /* connect with cert to create user */
+      const shell = startTestShell(this, {
+        args: [
+          await connectionStringWithLocalhost(server, {
+            serverSelectionTimeoutMS: '1500',
+          }),
+          '--tls',
+          '--tlsCAFile',
+          CA_CERT,
+          '--tlsCertificateKeyFile',
+          CLIENT_CERT,
+        ],
+      });
+      const prompt = await shell.waitForPromptOrExit();
+      expect(prompt.state).to.equal('prompt');
+      await shell.executeLine(`db=db.getSiblingDB('$external');db.runCommand({
         createUser: '${certUser}',
         roles: [
           {role: 'userAdminAnyDatabase', db: 'admin'}
         ]
       })`);
-        shell.assertContainsOutput('{ ok: 1 }');
+      shell.assertContainsOutput('{ ok: 1 }');
+    });
+
+    it('works with valid cert (args)', async function () {
+      const shell = startTestShell(this, {
+        args: [
+          await connectionStringWithLocalhost(server, {
+            serverSelectionTimeoutMS: '1500',
+          }),
+          '--authenticationMechanism',
+          'MONGODB-X509',
+          '--tls',
+          '--tlsCAFile',
+          CA_CERT,
+          '--tlsCertificateKeyFile',
+          CLIENT_CERT,
+        ],
+      });
+      const prompt = await shell.waitForPromptOrExit();
+      expect(prompt.state).to.equal('prompt');
+      expect(
+        await shell.executeLine('db.runCommand({ connectionStatus: 1 })')
+      ).to.include(`user: '${certUser}'`);
+
+      expect(
+        await shell.executeLine(
+          'db.getSiblingDB("$external").auth({mechanism: "MONGODB-X509"})'
+        )
+      ).to.include('ok: 1');
+      expect(
+        await shell.executeLine('db.runCommand({ connectionStatus: 1 })')
+      ).to.include(`user: '${certUser}'`);
+    });
+
+    it('works with valid cert (args, encrypted)', async function () {
+      const shell = startTestShell(this, {
+        args: [
+          await connectionStringWithLocalhost(server, {
+            serverSelectionTimeoutMS: '1500',
+          }),
+          '--authenticationMechanism',
+          'MONGODB-X509',
+          '--tls',
+          '--tlsCAFile',
+          CA_CERT,
+          '--tlsCertificateKeyFile',
+          CLIENT_CERT_ENCRYPTED,
+          '--tlsCertificateKeyFilePassword',
+          CLIENT_CERT_PASSWORD,
+        ],
+        env,
+      });
+      const prompt = await shell.waitForPromptOrExit();
+      expect(prompt.state).to.equal('prompt');
+      expect(
+        await shell.executeLine('db.runCommand({ connectionStatus: 1 })')
+      ).to.include(`user: '${certUser}'`);
+
+      expect(
+        await shell.executeLine(
+          'db.getSiblingDB("$external").auth({mechanism: "MONGODB-X509"})'
+        )
+      ).to.include('ok: 1');
+      expect(
+        await shell.executeLine('db.runCommand({ connectionStatus: 1 })')
+      ).to.include(`user: '${certUser}'`);
+
+      const logPath = path.join(logBasePath, `${shell.logId}_log`);
+      const logFileContents = await fs.readFile(logPath, 'utf8');
+      expect(logFileContents).not.to.include(CLIENT_CERT_PASSWORD);
+    });
+
+    it('works with valid cert (connection string)', async function () {
+      const shell = startTestShell(this, {
+        args: [
+          await connectionStringWithLocalhost(server, {
+            serverSelectionTimeoutMS: '1500',
+            authMechanism: 'MONGODB-X509',
+            tls: 'true',
+            tlsCAFile: CA_CERT,
+            tlsCertificateKeyFile: CLIENT_CERT,
+          }),
+        ],
+      });
+      const prompt = await shell.waitForPromptOrExit();
+      expect(prompt.state).to.equal('prompt');
+      expect(
+        await shell.executeLine('db.runCommand({ connectionStatus: 1 })')
+      ).to.include(`user: '${certUser}'`);
+
+      expect(
+        await shell.executeLine(
+          'db.getSiblingDB("$external").auth({mechanism: "MONGODB-X509"})'
+        )
+      ).to.include('ok: 1');
+      expect(
+        await shell.executeLine('db.runCommand({ connectionStatus: 1 })')
+      ).to.include(`user: '${certUser}'`);
+    });
+
+    it('works with valid cert (connection string, encrypted)', async function () {
+      const shell = startTestShell(this, {
+        args: [
+          await connectionStringWithLocalhost(server, {
+            serverSelectionTimeoutMS: '1500',
+            authMechanism: 'MONGODB-X509',
+            tls: 'true',
+            tlsCAFile: CA_CERT,
+            tlsCertificateKeyFile: CLIENT_CERT_ENCRYPTED,
+            tlsCertificateKeyFilePassword: CLIENT_CERT_PASSWORD,
+          }),
+        ],
+        env,
+      });
+      const prompt = await shell.waitForPromptOrExit();
+      expect(prompt.state).to.equal('prompt');
+      expect(
+        await shell.executeLine('db.runCommand({ connectionStatus: 1 })')
+      ).to.include(`user: '${certUser}'`);
+
+      expect(
+        await shell.executeLine(
+          'db.getSiblingDB("$external").auth({mechanism: "MONGODB-X509"})'
+        )
+      ).to.include('ok: 1');
+      expect(
+        await shell.executeLine('db.runCommand({ connectionStatus: 1 })')
+      ).to.include(`user: '${certUser}'`);
+
+      const logPath = path.join(logBasePath, `${shell.logId}_log`);
+      const logFileContents = await fs.readFile(logPath, 'utf8');
+      expect(logFileContents).not.to.include(CLIENT_CERT_PASSWORD);
+    });
+
+    it('asks for tlsCertificateKeyFilePassword when it is needed (connection string, encrypted)', async function () {
+      const shell = startTestShell(this, {
+        args: [
+          await connectionStringWithLocalhost(server, {
+            serverSelectionTimeoutMS: '1500',
+            authMechanism: 'MONGODB-X509',
+            tls: 'true',
+            tlsCAFile: CA_CERT,
+            tlsCertificateKeyFile: CLIENT_CERT_ENCRYPTED,
+          }),
+        ],
+        env,
       });
 
-      it('works with valid cert (args)', async function () {
-        const shell = startTestShell(this, {
-          args: [
-            await connectionStringWithLocalhost(server, {
-              serverSelectionTimeoutMS: '1500',
-            }),
-            '--authenticationMechanism',
-            'MONGODB-X509',
-            '--tls',
-            '--tlsCAFile',
-            CA_CERT,
-            '--tlsCertificateKeyFile',
-            CLIENT_CERT,
-          ],
-        });
-        const prompt = await shell.waitForPromptOrExit();
-        expect(prompt.state).to.equal('prompt');
-        expect(
-          await shell.executeLine('db.runCommand({ connectionStatus: 1 })')
-        ).to.include(`user: '${certUser}'`);
+      await shell.waitForLine(/Enter TLS key file password:/);
+      await shell.executeLine(CLIENT_CERT_PASSWORD);
 
-        expect(
-          await shell.executeLine(
-            'db.getSiblingDB("$external").auth({mechanism: "MONGODB-X509"})'
-          )
-        ).to.include('ok: 1');
-        expect(
-          await shell.executeLine('db.runCommand({ connectionStatus: 1 })')
-        ).to.include(`user: '${certUser}'`);
+      expect(
+        await shell.executeLine('db.runCommand({ connectionStatus: 1 })')
+      ).to.include(`user: '${certUser}'`);
+
+      expect(
+        await shell.executeLine(
+          'db.getSiblingDB("$external").auth({mechanism: "MONGODB-X509"})'
+        )
+      ).to.include('ok: 1');
+      expect(
+        await shell.executeLine('db.runCommand({ connectionStatus: 1 })')
+      ).to.include(`user: '${certUser}'`);
+
+      const logPath = path.join(logBasePath, `${shell.logId}_log`);
+      const logFileContents = await fs.readFile(logPath, 'utf8');
+      expect(logFileContents).not.to.include(CLIENT_CERT_PASSWORD);
+    });
+
+    it('fails with invalid cert (args)', async function () {
+      const shell = startTestShell(this, {
+        args: [
+          await connectionStringWithLocalhost(server, {
+            serverSelectionTimeoutMS: '1500',
+          }),
+          '--authenticationMechanism',
+          'MONGODB-X509',
+          '--tls',
+          '--tlsCAFile',
+          CA_CERT,
+          '--tlsCertificateKeyFile',
+          INVALID_CLIENT_CERT,
+        ],
       });
+      const exit = await shell.waitForPromptOrExit();
+      expect(exit.state).to.equal('exit');
+      shell.assertContainsOutput('MongoServerSelectionError');
+    });
 
-      it('works with valid cert (args, encrypted)', async function () {
-        const shell = startTestShell(this, {
-          args: [
-            await connectionStringWithLocalhost(server, {
-              serverSelectionTimeoutMS: '1500',
-            }),
-            '--authenticationMechanism',
-            'MONGODB-X509',
-            '--tls',
-            '--tlsCAFile',
-            CA_CERT,
-            '--tlsCertificateKeyFile',
-            CLIENT_CERT_ENCRYPTED,
-            '--tlsCertificateKeyFilePassword',
-            CLIENT_CERT_PASSWORD,
-          ],
-          env,
-        });
-        const prompt = await shell.waitForPromptOrExit();
-        expect(prompt.state).to.equal('prompt');
-        expect(
-          await shell.executeLine('db.runCommand({ connectionStatus: 1 })')
-        ).to.include(`user: '${certUser}'`);
-
-        expect(
-          await shell.executeLine(
-            'db.getSiblingDB("$external").auth({mechanism: "MONGODB-X509"})'
-          )
-        ).to.include('ok: 1');
-        expect(
-          await shell.executeLine('db.runCommand({ connectionStatus: 1 })')
-        ).to.include(`user: '${certUser}'`);
-
-        const logPath = path.join(logBasePath, `${shell.logId}_log`);
-        const logFileContents = await fs.readFile(logPath, 'utf8');
-        expect(logFileContents).not.to.include(CLIENT_CERT_PASSWORD);
+    it('fails with invalid cert (connection string)', async function () {
+      const shell = startTestShell(this, {
+        args: [
+          await connectionStringWithLocalhost(server, {
+            serverSelectionTimeoutMS: '1500',
+            authMechanism: 'MONGODB-X509',
+            tls: 'true',
+            tlsCAFile: CA_CERT,
+            tlsCertificateKeyFile: INVALID_CLIENT_CERT,
+          }),
+        ],
       });
+      const exit = await shell.waitForPromptOrExit();
+      expect(exit.state).to.equal('exit');
+      shell.assertContainsOutput('MongoServerSelectionError');
+    });
 
-      it('works with valid cert (connection string)', async function () {
-        const shell = startTestShell(this, {
-          args: [
-            await connectionStringWithLocalhost(server, {
-              serverSelectionTimeoutMS: '1500',
-              authMechanism: 'MONGODB-X509',
-              tls: 'true',
-              tlsCAFile: CA_CERT,
-              tlsCertificateKeyFile: CLIENT_CERT,
-            }),
-          ],
-        });
-        const prompt = await shell.waitForPromptOrExit();
-        expect(prompt.state).to.equal('prompt');
-        expect(
-          await shell.executeLine('db.runCommand({ connectionStatus: 1 })')
-        ).to.include(`user: '${certUser}'`);
-
-        expect(
-          await shell.executeLine(
-            'db.getSiblingDB("$external").auth({mechanism: "MONGODB-X509"})'
-          )
-        ).to.include('ok: 1');
-        expect(
-          await shell.executeLine('db.runCommand({ connectionStatus: 1 })')
-        ).to.include(`user: '${certUser}'`);
-      });
-
-      it('works with valid cert (connection string, encrypted)', async function () {
-        const shell = startTestShell(this, {
-          args: [
-            await connectionStringWithLocalhost(server, {
-              serverSelectionTimeoutMS: '1500',
-              authMechanism: 'MONGODB-X509',
-              tls: 'true',
-              tlsCAFile: CA_CERT,
-              tlsCertificateKeyFile: CLIENT_CERT_ENCRYPTED,
-              tlsCertificateKeyFilePassword: CLIENT_CERT_PASSWORD,
-            }),
-          ],
-          env,
-        });
-        const prompt = await shell.waitForPromptOrExit();
-        expect(prompt.state).to.equal('prompt');
-        expect(
-          await shell.executeLine('db.runCommand({ connectionStatus: 1 })')
-        ).to.include(`user: '${certUser}'`);
-
-        expect(
-          await shell.executeLine(
-            'db.getSiblingDB("$external").auth({mechanism: "MONGODB-X509"})'
-          )
-        ).to.include('ok: 1');
-        expect(
-          await shell.executeLine('db.runCommand({ connectionStatus: 1 })')
-        ).to.include(`user: '${certUser}'`);
-
-        const logPath = path.join(logBasePath, `${shell.logId}_log`);
-        const logFileContents = await fs.readFile(logPath, 'utf8');
-        expect(logFileContents).not.to.include(CLIENT_CERT_PASSWORD);
-      });
-
-      it('asks for tlsCertificateKeyFilePassword when it is needed (connection string, encrypted)', async function () {
-        const shell = startTestShell(this, {
-          args: [
-            await connectionStringWithLocalhost(server, {
-              serverSelectionTimeoutMS: '1500',
-              authMechanism: 'MONGODB-X509',
-              tls: 'true',
-              tlsCAFile: CA_CERT,
-              tlsCertificateKeyFile: CLIENT_CERT_ENCRYPTED,
-            }),
-          ],
-          env,
-        });
-
-        await shell.waitForLine(/Enter TLS key file password:/);
-        await shell.executeLine(CLIENT_CERT_PASSWORD);
-
-        expect(
-          await shell.executeLine('db.runCommand({ connectionStatus: 1 })')
-        ).to.include(`user: '${certUser}'`);
-
-        expect(
-          await shell.executeLine(
-            'db.getSiblingDB("$external").auth({mechanism: "MONGODB-X509"})'
-          )
-        ).to.include('ok: 1');
-        expect(
-          await shell.executeLine('db.runCommand({ connectionStatus: 1 })')
-        ).to.include(`user: '${certUser}'`);
-
-        const logPath = path.join(logBasePath, `${shell.logId}_log`);
-        const logFileContents = await fs.readFile(logPath, 'utf8');
-        expect(logFileContents).not.to.include(CLIENT_CERT_PASSWORD);
-      });
-
-      it('fails with invalid cert (args)', async function () {
-        const shell = startTestShell(this, {
-          args: [
-            await connectionStringWithLocalhost(server, {
-              serverSelectionTimeoutMS: '1500',
-            }),
-            '--authenticationMechanism',
-            'MONGODB-X509',
-            '--tls',
-            '--tlsCAFile',
-            CA_CERT,
-            '--tlsCertificateKeyFile',
-            INVALID_CLIENT_CERT,
-          ],
-        });
-        const exit = await shell.waitForPromptOrExit();
-        expect(exit.state).to.equal('exit');
-        shell.assertContainsOutput('MongoServerSelectionError');
-      });
-
-      it('fails with invalid cert (connection string)', async function () {
-        const shell = startTestShell(this, {
-          args: [
-            await connectionStringWithLocalhost(server, {
-              serverSelectionTimeoutMS: '1500',
-              authMechanism: 'MONGODB-X509',
-              tls: 'true',
-              tlsCAFile: CA_CERT,
-              tlsCertificateKeyFile: INVALID_CLIENT_CERT,
-            }),
-          ],
-        });
-        const exit = await shell.waitForPromptOrExit();
-        expect(exit.state).to.equal('exit');
-        shell.assertContainsOutput('MongoServerSelectionError');
-      });
-
-      it('works with valid cert (with tlsCertificateSelector)', async function () {
-        if (process.env.MONGOSH_TEST_E2E_FORCE_FIPS) {
-          return this.skip(); // No tlsCertificateSelector support in FIPS mode
-        }
-        const fakeOsCaModule = path.resolve(tmpdir.path, 'fake-ca.js');
-        await fs.writeFile(
-          fakeOsCaModule,
-          `
+    it('works with valid cert (with tlsCertificateSelector)', async function () {
+      if (process.env.MONGOSH_TEST_E2E_FORCE_FIPS) {
+        return this.skip(); // No tlsCertificateSelector support in FIPS mode
+      }
+      const fakeOsCaModule = path.resolve(tmpdir.path, 'fake-ca.js');
+      await fs.writeFile(
+        fakeOsCaModule,
+        `
       const fs = require('fs');
       module.exports = () => ({
         passphrase: 'passw0rd',
         pfx: fs.readFileSync(${JSON.stringify(CLIENT_CERT_PFX)})
       });
       `
-        );
-        const shell = startTestShell(this, {
-          args: [
-            await connectionStringWithLocalhost(server, {
-              serverSelectionTimeoutMS: '1500',
-            }),
-            '--authenticationMechanism',
-            'MONGODB-X509',
-            '--tls',
-            '--tlsCAFile',
-            CA_CERT,
-            '--tlsCertificateSelector',
-            'subject=tester@example.com',
-          ],
-          env: {
-            ...process.env,
-            TEST_OS_EXPORT_CERTIFICATE_AND_KEY_PATH: fakeOsCaModule,
-          },
-        });
-        const prompt = await shell.waitForPromptOrExit();
-        expect(prompt.state).to.equal('prompt');
-        await shell.executeLine('db.runCommand({ connectionStatus: 1 })');
-        shell.assertContainsOutput(`user: '${certUser}'`);
+      );
+      const shell = startTestShell(this, {
+        args: [
+          await connectionStringWithLocalhost(server, {
+            serverSelectionTimeoutMS: '1500',
+          }),
+          '--authenticationMechanism',
+          'MONGODB-X509',
+          '--tls',
+          '--tlsCAFile',
+          CA_CERT,
+          '--tlsCertificateSelector',
+          'subject=tester@example.com',
+        ],
+        env: {
+          ...process.env,
+          TEST_OS_EXPORT_CERTIFICATE_AND_KEY_PATH: fakeOsCaModule,
+        },
       });
+      const prompt = await shell.waitForPromptOrExit();
+      expect(prompt.state).to.equal('prompt');
+      await shell.executeLine('db.runCommand({ connectionStatus: 1 })');
+      shell.assertContainsOutput(`user: '${certUser}'`);
+    });
 
-      it('fails with an invalid tlsCertificateSelector', async function () {
-        const shell = startTestShell(this, {
-          args: [
-            await connectionStringWithLocalhost(server, {
-              serverSelectionTimeoutMS: '1500',
-            }),
-            '--authenticationMechanism',
-            'MONGODB-X509',
-            '--tls',
-            '--tlsCAFile',
-            CA_CERT,
-            '--tlsCertificateSelector',
-            'subject=tester@example.com',
-          ],
-        });
-        const prompt = await shell.waitForPromptOrExit();
-        expect(prompt.state).to.equal('exit');
-        if (process.platform === 'win32') {
-          shell.assertContainsOutput(
-            'Could not resolve certificate specification'
-          );
-        } else if (process.platform === 'darwin') {
-          shell.assertContainsOutput(
-            /Could not find a matching certificate|The specified item could not be found in the keychain/
-          );
-        } else {
-          shell.assertContainsOutput(
-            'tlsCertificateSelector is not supported on this platform'
-          );
-        }
+    it('fails with an invalid tlsCertificateSelector', async function () {
+      const shell = startTestShell(this, {
+        args: [
+          await connectionStringWithLocalhost(server, {
+            serverSelectionTimeoutMS: '1500',
+          }),
+          '--authenticationMechanism',
+          'MONGODB-X509',
+          '--tls',
+          '--tlsCAFile',
+          CA_CERT,
+          '--tlsCertificateSelector',
+          'subject=tester@example.com',
+        ],
       });
-    }
-  );
+      const prompt = await shell.waitForPromptOrExit();
+      expect(prompt.state).to.equal('exit');
+      if (process.platform === 'win32') {
+        shell.assertContainsOutput(
+          'Could not resolve certificate specification'
+        );
+      } else if (process.platform === 'darwin') {
+        shell.assertContainsOutput(
+          /Could not find a matching certificate|The specified item could not be found in the keychain/
+        );
+      } else {
+        shell.assertContainsOutput(
+          'tlsCertificateSelector is not supported on this platform'
+        );
+      }
+    });
+  });
 
   context('connecting to server with invalid cert', function () {
     after(async function () {

@@ -7,7 +7,9 @@ import { TestShell } from './test-shell';
 import { ensureTestShellAfterHook, startTestShell } from './test-shell-context';
 import {
   eventually,
+  isNightly,
   skipIfServerVersion,
+  skipOnNightly,
   startSharedTestServer,
 } from '@mongosh/testing';
 import { promises as fs, createReadStream } from 'fs';
@@ -69,7 +71,7 @@ describe('e2e', function () {
       // runtimeGlibcVersion = "N/A" while Node.js's process.report still
       // sees the host's glibc. Investigate the addon's loader behavior
       // under the nightly's prebuilt binary and re-enable.
-      if (process.version.includes('-nightly')) {
+      if (isNightly) {
         return this.skip();
       }
       const shell = startTestShell(this, { args: ['--build-info'] });
@@ -203,13 +205,7 @@ describe('e2e', function () {
       });
     });
     describe('shell termination via exit/quit', function () {
-      beforeEach(function () {
-        // MONGOSH-3498: on Node.js nightly builds the shell process does not
-        // terminate on exit/quit (nor on SIGTERM). Skip until that is fixed.
-        if (process.version.includes('-nightly')) {
-          return this.skip();
-        }
-      });
+      skipOnNightly(); // TODO(MONGOSH-3498): shell does not exit on Node nightly
       it('closes the shell when "exit" is entered', async function () {
         shell.writeInputLine('exit');
         await shell.waitForSuccessfulExit();
@@ -795,7 +791,7 @@ describe('e2e', function () {
       // telemetry deviceId falls back to the literal string "unknown".
       // Pairs with the glibc-version skip in --build-info above; both
       // point at the same loader/dlsym behavior under the nightly binary.
-      if (process.version.includes('-nightly')) {
+      if (isNightly) {
         return this.skip();
       }
       const deviceId = (
@@ -1002,8 +998,8 @@ describe('e2e', function () {
       describe(`non-interactive (${JSON.stringify(
         jsContextFlags
       )})`, function () {
+        skipOnNightly(); // TODO(MONGOSH-3498): SIGINT/termination broken on Node nightly
         it('interrupts file execution', async function () {
-          if (process.version.includes('-nightly')) return this.skip(); // TODO(MONGOSH-3498): SIGINT/termination broken on Node nightly
           const filename = path.resolve(
             __dirname,
             'fixtures',
@@ -1054,7 +1050,7 @@ describe('e2e', function () {
         shell.assertContainsError('interrupted');
       });
       it('interrupts async awaiting', async function () {
-        if (process.version.includes('-nightly')) return this.skip(); // TODO(MONGOSH-3498): SIGINT/termination broken on Node nightly
+        if (isNightly) return this.skip(); // TODO(MONGOSH-3498): SIGINT/termination broken on Node nightly
         const result = shell.executeLine('new Promise(() => {});');
         setTimeout(() => shell.kill('SIGINT'), 3000);
         await result;
@@ -2345,7 +2341,7 @@ describe('e2e', function () {
           // the captured shell output on Node.js nightlies — needs a closer
           // look at how the update-fetch interacts with the local httpServer
           // fixture under the nightly's HTTP/fetch implementation.
-          if (process.version.includes('-nightly')) {
+          if (isNightly) {
             return this.skip();
           }
           {
@@ -2637,6 +2633,8 @@ describe('e2e', function () {
   describe('ask-for-connection-string mode', function () {
     let shell: TestShell;
 
+    skipOnNightly(); // TODO(MONGOSH-3498): shell termination broken on Node nightly
+
     beforeEach(function () {
       shell = startTestShell(this, {
         args: [],
@@ -2646,7 +2644,6 @@ describe('e2e', function () {
     });
 
     it('allows connecting to a host and running commands against it', async function () {
-      if (process.version.includes('-nightly')) return this.skip(); // TODO(MONGOSH-3498): shell termination broken on Node nightly
       const connectionString = await testServer.connectionString();
       await shell.waitForLine(/Please enter a MongoDB connection string/);
       shell.writeInputLine(connectionString);

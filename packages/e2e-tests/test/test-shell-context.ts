@@ -1,5 +1,6 @@
 import assert from 'assert';
 import Mocha from 'mocha';
+import { isNightly } from '@mongosh/testing';
 import { TestShell, type TestShellOptions } from './test-shell';
 
 const TEST_SHELLS_AFTER_ALL = Symbol('test-shells-after-all');
@@ -53,7 +54,7 @@ export function ensureTestShellAfterHook(
             // MONGOSH-3498: on Node.js nightly builds the shell does not
             // terminate on SIGTERM, which would hang this teardown (and every
             // suite that relies on it). Force-kill so cleanup completes.
-            if (process.version.includes('-nightly')) {
+            if (isNightly) {
               shell.kill('SIGKILL');
             }
           }
