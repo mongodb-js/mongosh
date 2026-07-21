@@ -71,4 +71,25 @@ describe('setupTelemetryAnalytics', function () {
     expect(telemetryEndpoint).to.equal('');
     expect(analytics._target).to.be.instanceOf(NoopAnalytics);
   });
+
+  it('never calls fetch when no endpoint is configured', async function () {
+    let fetchCount = 0;
+    const { analytics } = setup({
+      configuredTelemetryEndpoint: '',
+      fetch: (() => {
+        fetchCount++;
+        return Promise.resolve(new Response());
+      }) as any,
+    });
+    // Enable the queue so tracked events are forwarded to the target, then
+    // flush — with no endpoint the target is a NoopAnalytics, so no request
+    // is ever made.
+    analytics.enable();
+    analytics.track({
+      name: 'Identify',
+      payload: { device_id: 'test-device', session_id: 'test-session' },
+    } as any);
+    await analytics.flush();
+    expect(fetchCount).to.equal(0);
+  });
 });
