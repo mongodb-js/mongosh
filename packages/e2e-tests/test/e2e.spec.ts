@@ -1003,6 +1003,7 @@ describe('e2e', function () {
         jsContextFlags
       )})`, function () {
         it('interrupts file execution', async function () {
+          if (process.version.includes('-nightly')) return this.skip(); // TODO(MONGOSH-3498): SIGINT/termination broken on Node nightly
           const filename = path.resolve(
             __dirname,
             'fixtures',
@@ -1053,6 +1054,7 @@ describe('e2e', function () {
         shell.assertContainsError('interrupted');
       });
       it('interrupts async awaiting', async function () {
+        if (process.version.includes('-nightly')) return this.skip(); // TODO(MONGOSH-3498): SIGINT/termination broken on Node nightly
         const result = shell.executeLine('new Promise(() => {});');
         setTimeout(() => shell.kill('SIGINT'), 3000);
         await result;
@@ -2644,6 +2646,7 @@ describe('e2e', function () {
     });
 
     it('allows connecting to a host and running commands against it', async function () {
+      if (process.version.includes('-nightly')) return this.skip(); // TODO(MONGOSH-3498): shell termination broken on Node nightly
       const connectionString = await testServer.connectionString();
       await shell.waitForLine(/Please enter a MongoDB connection string/);
       shell.writeInputLine(connectionString);

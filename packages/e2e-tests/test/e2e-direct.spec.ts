@@ -42,7 +42,10 @@ describe('e2e direct connection', function () {
       });
     });
 
-    context('after rs.initiate()', function () {
+    // TODO(MONGOSH-3498): after() cleanup uses exit which hangs on Node nightly
+    (process.version.includes('-nightly')
+      ? context.skip
+      : context)('after rs.initiate()', function () {
       let dbname: string;
 
       before(async function () {

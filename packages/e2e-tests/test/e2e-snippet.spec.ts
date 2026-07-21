@@ -85,6 +85,7 @@ describe('snippet integration tests', function () {
   });
 
   it('works when an index file is inaccessible', async function () {
+    if (process.version.includes('-nightly')) return this.skip(); // TODO(MONGOSH-3498): shell termination broken on Node nightly
     await shell.executeLine(
       'config.set("snippetIndexSourceURLs", "http://localhost:1/")'
     );
