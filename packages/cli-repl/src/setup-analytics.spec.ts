@@ -5,7 +5,30 @@ import {
   ThrottledAnalytics,
   ToggleableAnalytics,
 } from '@mongosh/logging';
+import type { TelemetryEvent } from '@mongosh/logging';
 import { setupTelemetryAnalytics } from './setup-analytics';
+
+const identifyEvent: TelemetryEvent = {
+  name: 'Identify',
+  payload: {
+    mongosh_version: '1.0.0',
+    ai_agent: undefined,
+    session_id: 'test-session',
+    platform: 'linux',
+    arch: 'x64',
+    is_containerized: false,
+    os_type: undefined,
+    os_version: undefined,
+    os_arch: undefined,
+    os_release: undefined,
+    os_linux_dist: undefined,
+    os_linux_release: undefined,
+    os_darwin_product_name: undefined,
+    os_darwin_product_version: undefined,
+    os_darwin_product_build_version: undefined,
+    device_id: 'test-device',
+  },
+};
 
 describe('setupTelemetryAnalytics', function () {
   const metadataPath = os.tmpdir();
@@ -85,10 +108,7 @@ describe('setupTelemetryAnalytics', function () {
     // flush — with no endpoint the target is a NoopAnalytics, so no request
     // is ever made.
     analytics.enable();
-    analytics.track({
-      name: 'Identify',
-      payload: { device_id: 'test-device', session_id: 'test-session' },
-    } as any);
+    analytics.track(identifyEvent);
     await analytics.flush();
     expect(fetchCount).to.equal(0);
   });
