@@ -4945,7 +4945,7 @@ functions:
 
           echo "Response Body: $response_body"
           echo "HTTP Status: $http_status"
-          
+
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
 #
@@ -5704,26 +5704,6 @@ tasks:
           mongosh_test_id: "cli_repl"
           mongosh_run_only_in_package: "cli-repl"
           task_name: ${task_name}
-  - name: test_connectivity_tests
-    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
-    depends_on:
-      - name: compile_ts
-        variant: linux_compile
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: ${node_js_version}
-          puppeteer_skip_download: "true"
-          mongosh_install_workspace: "@mongosh/connectivity-tests"
-      - func: test
-        vars:
-          mongosh_server_test_version: ${mongosh_server_test_version}
-          node_js_version: ${node_js_version}
-          mongosh_skip_node_version_check: ${mongosh_skip_node_version_check}
-          mongosh_test_id: "connectivity_tests"
-          mongosh_run_only_in_package: "connectivity-tests"
-          task_name: ${task_name}
   - name: test_e2e_tests
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
     depends_on:
@@ -5882,26 +5862,6 @@ tasks:
           mongosh_skip_node_version_check: ${mongosh_skip_node_version_check}
           mongosh_test_id: "logging"
           mongosh_run_only_in_package: "logging"
-          task_name: ${task_name}
-  - name: test_mongosh
-    tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
-    depends_on:
-      - name: compile_ts
-        variant: linux_compile
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: ${node_js_version}
-          puppeteer_skip_download: "true"
-          mongosh_install_workspace: "@mongosh/mongosh"
-      - func: test
-        vars:
-          mongosh_server_test_version: ${mongosh_server_test_version}
-          node_js_version: ${node_js_version}
-          mongosh_skip_node_version_check: ${mongosh_skip_node_version_check}
-          mongosh_test_id: "mongosh"
-          mongosh_run_only_in_package: "mongosh"
           task_name: ${task_name}
   - name: test_node_runtime_worker_thread
     tags: ["assigned_to_jira_team_mongosh_mongosh","unit-test"]
@@ -6067,6 +6027,8 @@ tasks:
   # INTEGRATION TESTS
   ###
   - name: test_vscode
+    # TODO(MONGOSH-3496): re-enable once VSCODE-788 is fixed.
+    disable: true
     depends_on:
       - name: compile_ts
         variant: linux_compile
@@ -6193,24 +6155,6 @@ tasks:
           node_js_version: ${node_js_version}
           mongosh_server_test_version: ${mongosh_server_test_version}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
-  - name: e2e_tests_linux_x64_rhel8
-    tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
-    depends_on:
-      - name: compile_artifact
-        variant: build_linux_x64_rhel8
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: ${node_js_version}
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-x64-rhel8
-      - func: run_e2e_tests
-        vars:
-          node_js_version: ${node_js_version}
-          mongosh_server_test_version: ${mongosh_server_test_version}
-          mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
   - name: e2e_tests_linux_x64_openssl11
     tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
@@ -6229,24 +6173,6 @@ tasks:
           node_js_version: ${node_js_version}
           mongosh_server_test_version: ${mongosh_server_test_version}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
-  - name: e2e_tests_linux_x64_openssl11_rhel8
-    tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
-    depends_on:
-      - name: compile_artifact
-        variant: build_linux_x64_openssl11_rhel8
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: ${node_js_version}
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-x64-openssl11-rhel8
-      - func: run_e2e_tests
-        vars:
-          node_js_version: ${node_js_version}
-          mongosh_server_test_version: ${mongosh_server_test_version}
-          mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
   - name: e2e_tests_linux_x64_openssl3
     tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
@@ -6260,24 +6186,6 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl3
-      - func: run_e2e_tests
-        vars:
-          node_js_version: ${node_js_version}
-          mongosh_server_test_version: ${mongosh_server_test_version}
-          mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
-  - name: e2e_tests_linux_x64_openssl3_rhel8
-    tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
-    depends_on:
-      - name: compile_artifact
-        variant: build_linux_x64_openssl3_rhel8
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: ${node_js_version}
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-x64-openssl3-rhel8
       - func: run_e2e_tests
         vars:
           node_js_version: ${node_js_version}
@@ -7214,18 +7122,6 @@ tasks:
         vars:
           package_variant: linux-x64
           signature_tag: signed
-  - name: verify_artifact_linux_x64
-    tags: ["smoke-test"]
-    depends_on:
-      - name: sign_artifact_linux_x64
-        variant: "*"
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          package_variant: linux-x64
-          signature_tag: signed
-      - func: verify_artifact
   - name: add_crypt_shared_and_sbom_deb_x64
     tags: ["add-sbom-task"]
     depends_on:
@@ -7463,18 +7359,6 @@ tasks:
         vars:
           package_variant: linux-x64-openssl11
           signature_tag: signed
-  - name: verify_artifact_linux_x64_openssl11
-    tags: ["smoke-test"]
-    depends_on:
-      - name: sign_artifact_linux_x64_openssl11
-        variant: "*"
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          package_variant: linux-x64-openssl11
-          signature_tag: signed
-      - func: verify_artifact
   - name: add_crypt_shared_and_sbom_deb_x64_openssl11
     tags: ["add-sbom-task"]
     depends_on:
@@ -7712,18 +7596,6 @@ tasks:
         vars:
           package_variant: linux-x64-openssl3
           signature_tag: signed
-  - name: verify_artifact_linux_x64_openssl3
-    tags: ["smoke-test"]
-    depends_on:
-      - name: sign_artifact_linux_x64_openssl3
-        variant: "*"
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          package_variant: linux-x64-openssl3
-          signature_tag: signed
-      - func: verify_artifact
   - name: add_crypt_shared_and_sbom_deb_x64_openssl3
     tags: ["add-sbom-task"]
     depends_on:
@@ -7961,18 +7833,6 @@ tasks:
         vars:
           package_variant: linux-arm64
           signature_tag: signed
-  - name: verify_artifact_linux_arm64
-    tags: ["smoke-test"]
-    depends_on:
-      - name: sign_artifact_linux_arm64
-        variant: "*"
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          package_variant: linux-arm64
-          signature_tag: signed
-      - func: verify_artifact
   - name: add_crypt_shared_and_sbom_deb_arm64
     tags: ["add-sbom-task"]
     depends_on:
@@ -8210,18 +8070,6 @@ tasks:
         vars:
           package_variant: linux-arm64-openssl11
           signature_tag: signed
-  - name: verify_artifact_linux_arm64_openssl11
-    tags: ["smoke-test"]
-    depends_on:
-      - name: sign_artifact_linux_arm64_openssl11
-        variant: "*"
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          package_variant: linux-arm64-openssl11
-          signature_tag: signed
-      - func: verify_artifact
   - name: add_crypt_shared_and_sbom_deb_arm64_openssl11
     tags: ["add-sbom-task"]
     depends_on:
@@ -8459,18 +8307,6 @@ tasks:
         vars:
           package_variant: linux-arm64-openssl3
           signature_tag: signed
-  - name: verify_artifact_linux_arm64_openssl3
-    tags: ["smoke-test"]
-    depends_on:
-      - name: sign_artifact_linux_arm64_openssl3
-        variant: "*"
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          package_variant: linux-arm64-openssl3
-          signature_tag: signed
-      - func: verify_artifact
   - name: add_crypt_shared_and_sbom_deb_arm64_openssl3
     tags: ["add-sbom-task"]
     depends_on:
@@ -8708,18 +8544,6 @@ tasks:
         vars:
           package_variant: linux-ppc64le
           signature_tag: signed
-  - name: verify_artifact_linux_ppc64le
-    tags: ["smoke-test"]
-    depends_on:
-      - name: sign_artifact_linux_ppc64le
-        variant: "*"
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          package_variant: linux-ppc64le
-          signature_tag: signed
-      - func: verify_artifact
   - name: add_crypt_shared_and_sbom_rpm_ppc64le
     tags: ["add-sbom-task"]
     depends_on:
@@ -8874,18 +8698,6 @@ tasks:
         vars:
           package_variant: linux-s390x
           signature_tag: signed
-  - name: verify_artifact_linux_s390x
-    tags: ["smoke-test"]
-    depends_on:
-      - name: sign_artifact_linux_s390x
-        variant: "*"
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          package_variant: linux-s390x
-          signature_tag: signed
-      - func: verify_artifact
   - name: add_crypt_shared_and_sbom_rpm_s390x
     tags: ["add-sbom-task"]
     depends_on:
@@ -12355,7 +12167,7 @@ buildvariants:
     tasks:
       - name: e2e_tests_linux_x64_openssl11
   - name: e2e_tests_rhel93_fips
-    display_name: "RHEL 9.3 x64 (E2E tests)"
+    display_name: "RHEL 9.3 x64 (fips host) (E2E tests)"
     run_on: rhel93-fips
     tags: ["nightly-driver"]
     expansions:
@@ -12941,14 +12753,14 @@ buildvariants:
       - name: sign_artifact_darwin_x64
       - name: package_artifact_darwin_arm64
       - name: sign_artifact_darwin_arm64
-  - name: e2e_tests_windows_vsCurrent_small
-    display_name: "Windows VS pre-2022 (E2E tests)"
+  - name: e2e_tests_windows_vsCurrent_small_m80x
+    display_name: "Windows VS pre-2022 80x (E2E tests)"
     run_on: windows-vsCurrent-small
     tags: []
     expansions:
       executable_os_id: "win32"
       node_js_version: "24.18.0"
-      mongosh_server_test_version: "stable-enterprise"
+      mongosh_server_test_version: "8.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_win32
@@ -13002,12 +12814,13 @@ buildvariants:
     expansions:
       node_js_version: "24.18.0"
     tasks:
+      # TODO(MONGOSH-3496): re-enable once VSCODE-788 is fixed.
       - name: test_vscode
       - name: test_connectivity
       - name: test_apistrict
   - name: linux_node_nightly
-    display_name: "Ubuntu 20.04 x64 (Node.js nightly e2e)"
-    run_on: ubuntu2004-small
+    display_name: "Ubuntu 26.04 arm (Node.js nightly e2e)"
+    run_on: ubuntu2604-arm64-m7g-xlarge
     tags: ["node-nightly-test"]
     expansions:
       node_js_version: "nightly"
