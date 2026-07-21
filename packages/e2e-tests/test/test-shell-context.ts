@@ -50,6 +50,12 @@ export function ensureTestShellAfterHook(
         shellsToKill.map((shell) => {
           if (shell.process.exitCode === null) {
             shell.kill();
+            // MONGOSH-3498: on Node.js nightly builds the shell does not
+            // terminate on SIGTERM, which would hang this teardown (and every
+            // suite that relies on it). Force-kill so cleanup completes.
+            if (process.version.includes('-nightly')) {
+              shell.kill('SIGKILL');
+            }
           }
           return shell.waitForAnyExit();
         })

@@ -202,29 +202,38 @@ describe('e2e', function () {
         );
       });
     });
-    it('closes the shell when "exit" is entered', async function () {
-      shell.writeInputLine('exit');
-      await shell.waitForSuccessfulExit();
-    });
-    it('closes the shell when "quit" is entered', async function () {
-      shell.writeInputLine('quit');
-      await shell.waitForSuccessfulExit();
-    });
-    it('closes the shell with the specified exit code when "exit(n)" is entered', async function () {
-      shell.writeInputLine('exit(42)');
-      expect(await shell.waitForAnyExit()).to.equal(42);
-    });
-    it('closes the shell with the specified exit code when "quit(n)" is entered', async function () {
-      shell.writeInputLine('quit(42)');
-      expect(await shell.waitForAnyExit()).to.equal(42);
-    });
-    it('closes the shell with the pre-specified exit code when "exit" is entered', async function () {
-      shell.writeInputLine('process.exitCode = 42; exit()');
-      expect(await shell.waitForAnyExit()).to.equal(42);
-    });
-    it('closes the shell with the pre-specified exit code when "quit" is entered', async function () {
-      shell.writeInputLine('process.exitCode = 42; quit()');
-      expect(await shell.waitForAnyExit()).to.equal(42);
+    describe('shell termination via exit/quit', function () {
+      beforeEach(function () {
+        // MONGOSH-3498: on Node.js nightly builds the shell process does not
+        // terminate on exit/quit (nor on SIGTERM). Skip until that is fixed.
+        if (process.version.includes('-nightly')) {
+          return this.skip();
+        }
+      });
+      it('closes the shell when "exit" is entered', async function () {
+        shell.writeInputLine('exit');
+        await shell.waitForSuccessfulExit();
+      });
+      it('closes the shell when "quit" is entered', async function () {
+        shell.writeInputLine('quit');
+        await shell.waitForSuccessfulExit();
+      });
+      it('closes the shell with the specified exit code when "exit(n)" is entered', async function () {
+        shell.writeInputLine('exit(42)');
+        expect(await shell.waitForAnyExit()).to.equal(42);
+      });
+      it('closes the shell with the specified exit code when "quit(n)" is entered', async function () {
+        shell.writeInputLine('quit(42)');
+        expect(await shell.waitForAnyExit()).to.equal(42);
+      });
+      it('closes the shell with the pre-specified exit code when "exit" is entered', async function () {
+        shell.writeInputLine('process.exitCode = 42; exit()');
+        expect(await shell.waitForAnyExit()).to.equal(42);
+      });
+      it('closes the shell with the pre-specified exit code when "quit" is entered', async function () {
+        shell.writeInputLine('process.exitCode = 42; quit()');
+        expect(await shell.waitForAnyExit()).to.equal(42);
+      });
     });
     it('decorates internal errors with bug reporting information', async function () {
       const err = await shell.executeLine(
