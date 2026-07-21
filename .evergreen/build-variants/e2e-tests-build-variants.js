@@ -63,7 +63,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     mVersion: 'stable',
   },
   {
-    displayName: 'RHEL 9.3 x64',
+    displayName: 'RHEL 9.3 x64 (fips host)',
     runOn: 'rhel93-fips',
     tags: ['nightly-driver'],
     executableOsId: 'linux-x64',
@@ -431,10 +431,15 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     ],
   },
   {
+    // Server 8.3+ binaries are built with Windows SDK 10.0.26100.0 and fail to
+    // load on Windows Server 2019 (missing GetProcessWorkingSetSize in the
+    // api-ms-win-core-memory-l1-1-1 API set; see SERVER-116018, closed as
+    // Works as Designed). Pin pre-2022 Windows to the newest server versions
+    // that still run there instead of `stable`.
     displayName: 'Windows VS pre-2022',
     runOn: 'windows-vsCurrent-small',
     executableOsId: 'win32',
-    mVersion: 'stable',
+    mVersion: '8.0.x',
   },
   {
     displayName: 'Windows VS pre-2022',

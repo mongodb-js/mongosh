@@ -7,7 +7,9 @@ import { TestShell } from './test-shell';
 import { ensureTestShellAfterHook, startTestShell } from './test-shell-context';
 import {
   eventually,
+  isNightly,
   skipIfServerVersion,
+  skipOnNightly,
   startSharedTestServer,
 } from '@mongosh/testing';
 import { promises as fs, createReadStream } from 'fs';
@@ -69,7 +71,7 @@ describe('e2e', function () {
       // runtimeGlibcVersion = "N/A" while Node.js's process.report still
       // sees the host's glibc. Investigate the addon's loader behavior
       // under the nightly's prebuilt binary and re-enable.
-      if (process.version.includes('-nightly')) {
+      if (isNightly) {
         return this.skip();
       }
       const shell = startTestShell(this, { args: ['--build-info'] });
@@ -202,29 +204,32 @@ describe('e2e', function () {
         );
       });
     });
-    it('closes the shell when "exit" is entered', async function () {
-      shell.writeInputLine('exit');
-      await shell.waitForSuccessfulExit();
-    });
-    it('closes the shell when "quit" is entered', async function () {
-      shell.writeInputLine('quit');
-      await shell.waitForSuccessfulExit();
-    });
-    it('closes the shell with the specified exit code when "exit(n)" is entered', async function () {
-      shell.writeInputLine('exit(42)');
-      expect(await shell.waitForAnyExit()).to.equal(42);
-    });
-    it('closes the shell with the specified exit code when "quit(n)" is entered', async function () {
-      shell.writeInputLine('quit(42)');
-      expect(await shell.waitForAnyExit()).to.equal(42);
-    });
-    it('closes the shell with the pre-specified exit code when "exit" is entered', async function () {
-      shell.writeInputLine('process.exitCode = 42; exit()');
-      expect(await shell.waitForAnyExit()).to.equal(42);
-    });
-    it('closes the shell with the pre-specified exit code when "quit" is entered', async function () {
-      shell.writeInputLine('process.exitCode = 42; quit()');
-      expect(await shell.waitForAnyExit()).to.equal(42);
+    describe('shell termination via exit/quit', function () {
+      skipOnNightly(); // TODO(MONGOSH-3498): shell does not exit on Node nightly
+      it('closes the shell when "exit" is entered', async function () {
+        shell.writeInputLine('exit');
+        await shell.waitForSuccessfulExit();
+      });
+      it('closes the shell when "quit" is entered', async function () {
+        shell.writeInputLine('quit');
+        await shell.waitForSuccessfulExit();
+      });
+      it('closes the shell with the specified exit code when "exit(n)" is entered', async function () {
+        shell.writeInputLine('exit(42)');
+        expect(await shell.waitForAnyExit()).to.equal(42);
+      });
+      it('closes the shell with the specified exit code when "quit(n)" is entered', async function () {
+        shell.writeInputLine('quit(42)');
+        expect(await shell.waitForAnyExit()).to.equal(42);
+      });
+      it('closes the shell with the pre-specified exit code when "exit" is entered', async function () {
+        shell.writeInputLine('process.exitCode = 42; exit()');
+        expect(await shell.waitForAnyExit()).to.equal(42);
+      });
+      it('closes the shell with the pre-specified exit code when "quit" is entered', async function () {
+        shell.writeInputLine('process.exitCode = 42; quit()');
+        expect(await shell.waitForAnyExit()).to.equal(42);
+      });
     });
     it('decorates internal errors with bug reporting information', async function () {
       const err = await shell.executeLine(
@@ -786,7 +791,7 @@ describe('e2e', function () {
       // telemetry deviceId falls back to the literal string "unknown".
       // Pairs with the glibc-version skip in --build-info above; both
       // point at the same loader/dlsym behavior under the nightly binary.
-      if (process.version.includes('-nightly')) {
+      if (isNightly) {
         return this.skip();
       }
       const deviceId = (
@@ -993,6 +998,7 @@ describe('e2e', function () {
       describe(`non-interactive (${JSON.stringify(
         jsContextFlags
       )})`, function () {
+        skipOnNightly(); // TODO(MONGOSH-3498): SIGINT/termination broken on Node nightly
         it('interrupts file execution', async function () {
           const filename = path.resolve(
             __dirname,
@@ -1044,6 +1050,7 @@ describe('e2e', function () {
         shell.assertContainsError('interrupted');
       });
       it('interrupts async awaiting', async function () {
+        if (isNightly) return this.skip(); // TODO(MONGOSH-3498): SIGINT/termination broken on Node nightly
         const result = shell.executeLine('new Promise(() => {});');
         setTimeout(() => shell.kill('SIGINT'), 3000);
         await result;
@@ -2332,7 +2339,7 @@ describe('e2e', function () {
           // the captured shell output on Node.js nightlies — needs a closer
           // look at how the update-fetch interacts with the local httpServer
           // fixture under the nightly's HTTP/fetch implementation.
-          if (process.version.includes('-nightly')) {
+          if (isNightly) {
             return this.skip();
           }
           {
@@ -2620,6 +2627,8 @@ describe('e2e', function () {
 
   describe('ask-for-connection-string mode', function () {
     let shell: TestShell;
+
+    skipOnNightly(); // TODO(MONGOSH-3498): shell termination broken on Node nightly
 
     beforeEach(function () {
       shell = startTestShell(this, {
