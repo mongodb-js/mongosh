@@ -81,6 +81,7 @@ export class TelemetryClient implements MongoshAnalytics {
     this.inflight.push(p);
   }
 
+  // TODO(MONGOSH-3454): Optimize aggregated event flushing.
   async flush(): Promise<void> {
     const pending = this.inflight.splice(0);
     if (pending.length === 0) return;
