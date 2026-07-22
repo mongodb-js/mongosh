@@ -1,10 +1,11 @@
 export {
   MongoshAnalytics,
   ToggleableAnalytics,
-  SampledAnalytics,
   NoopAnalytics,
   ThrottledAnalytics,
 } from './analytics-helpers';
+export { TelemetryClient, REQUEST_TIMEOUT_MS } from './telemetry-client';
 export { MongoshLoggingAndTelemetry } from './types';
 export { setupLoggingAndTelemetry } from './logging-and-telemetry';
-export type { TelemetryEvent, CommonEventProperties } from './telemetry-events';
+export { getAiAgent, KNOWN_AGENT_ENV_VARS } from './helpers';
+export type { TelemetryEvent } from './telemetry-events';

@@ -66,6 +66,11 @@ export interface ConnectEvent {
   uri?: string;
   is_local_atlas?: boolean;
   is_atlas_url?: boolean;
+  is_srv?: boolean;
+  topology_type?: string;
+  is_csfle?: boolean;
+  has_csfle_schema?: boolean;
+  connection_id?: string;
 }
 
 export interface ScriptLoadFileEvent {
@@ -209,20 +214,6 @@ export interface MongoshBusEventsMap extends ConnectEventMap {
    * sessions or close on non-interactive sessions.
    */
   'mongosh:start-session': (ev: SessionStartedEvent) => void;
-  /**
-   * Signals that the shell is started by a new user.
-   */
-  'mongosh:new-user': (identity: {
-    userId: string;
-    anonymousId: string;
-  }) => void;
-  /**
-   * Signals a change of the user telemetry settings.
-   */
-  'mongosh:update-user': (identity: {
-    userId: string;
-    anonymousId?: string;
-  }) => void;
   /**
    * Signals an error that should be logged or potentially tracked by analytics.
    */
@@ -515,8 +506,6 @@ export class SnippetShellUserConfigValidator extends ShellUserConfigValidator {
 }
 
 export class CliUserConfig extends SnippetShellUserConfig {
-  userId = '';
-  telemetryAnonymousId = '';
   disableGreetingMessage = false;
   forceDisableTelemetry = false;
   inspectCompact: number | boolean = 3;
@@ -528,6 +517,9 @@ export class CliUserConfig extends SnippetShellUserConfig {
   oidcTrustedEndpoints: undefined | string[] = undefined;
   browser: undefined | false | string = undefined;
   updateURL = 'https://downloads.mongodb.com/compass/mongosh.json';
+  // TODO(MONGOSH-3406): set the production telemetry endpoint URL. While this
+  // is empty, telemetry is not sent (events are only written to the log).
+  telemetryEndpoint = '';
   disableLogging = false;
   logLocation: string | undefined = undefined;
   logRetentionDays = 30;
@@ -542,8 +534,6 @@ export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
     value: CliUserConfig[K]
   ): Promise<string | null> {
     switch (key) {
-      case 'userId':
-      case 'telemetryAnonymousId':
       case 'disableGreetingMessage':
         return null; // Not modifiable by the user anyway.
       case 'inspectCompact':
@@ -610,6 +600,7 @@ export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
         }
         return null;
       case 'updateURL':
+      case 'telemetryEndpoint':
         if (typeof value !== 'string' || (value.trim() && !isValidUrl(value))) {
           return `${key} must be a valid URL or empty`;
         }

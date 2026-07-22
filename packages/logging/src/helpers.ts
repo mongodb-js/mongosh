@@ -1,3 +1,38 @@
+export const KNOWN_AGENT_ENV_VARS: Record<string, string> = {
+  CLAUDECODE: 'claude_code',
+  CLAUDE_CODE_ENTRYPOINT: 'claude_code',
+  CURSOR_AGENT: 'cursor',
+  CODEX_SANDBOX: 'codex_cli',
+  CLINE_ACTIVE: 'cline',
+  GEMINI_CLI: 'gemini_cli',
+  AUGMENT_AGENT: 'auggie_cli',
+  OPENCODE_CLIENT: 'opencode_client',
+  TRAE_AI_SHELL_ID: 'trae_ai',
+  GOOSE_TERMINAL: 'goose',
+  GOOSE_AGENT: 'goose',
+  AI_AGENT: 'ai_agent', // Generic fallback.
+};
+
+export function getAiAgent(
+  env: NodeJS.ProcessEnv = process.env
+): string | undefined {
+  for (const [key, agent] of Object.entries(KNOWN_AGENT_ENV_VARS)) {
+    const value = env[key];
+    if (!value) continue;
+
+    // If the value is a descriptive name it is used directly,
+    // otherwise 'ai_agent' is returned.
+    if (key === 'AI_AGENT') {
+      const v = value.toLowerCase();
+      return v === '1' || v === 'true' ? 'ai_agent' : v;
+    }
+
+    return agent;
+  }
+
+  return undefined;
+}
+
 /**
  * A helper class for keeping track of how often specific events occurred.
  */
@@ -29,8 +64,7 @@ export class MultiSet<T extends Record<string, unknown>> {
  *
  * 'Random String' => 'random_string'
  *
- * It will also remove any non alphanumeric characters to ensure the string
- * is compatible with Segment. For example:
+ * It also removes any non alphanumeric characters. For example:
  *
  * 'Node.js REPL Instantiation' => 'node_js_repl_instantiation'
  *

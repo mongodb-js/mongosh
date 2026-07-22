@@ -4,8 +4,6 @@ import { expect } from 'chai';
 describe('config validation', function () {
   it('validates config option values', async function () {
     const { validate } = CliUserConfigValidator as any;
-    expect(await validate('userId', 'foo')).to.equal(null);
-    expect(await validate('telemetryAnonymousId', 'foo')).to.equal(null);
     expect(await validate('disableGreetingMessage', 'foo')).to.equal(null);
     expect(await validate('inspectDepth', 'foo')).to.equal(
       'inspectDepth must be a positive integer'

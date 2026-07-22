@@ -1521,8 +1521,6 @@ describe('e2e', function () {
       describe('config file', function () {
         it('sets up a config file', async function () {
           const config = await readConfig();
-          expect(config.userId).to.match(/^[a-f0-9]{24}$/);
-          expect(config.telemetryAnonymousId).to.match(/^[a-f0-9]{24}$/);
           expect(config.enableTelemetry).to.be.true;
           expect(config.disableGreetingMessage).to.be.true;
         });
@@ -1531,7 +1529,7 @@ describe('e2e', function () {
           const config1 = await readConfig();
           await startNodbTestShellAndWaitForPrompt(this);
           const config2 = await readConfig();
-          expect(config1.userId).to.equal(config2.userId);
+          expect(config1.enableTelemetry).to.equal(config2.enableTelemetry);
         });
 
         it('loads a global config file if present', async function () {
@@ -2397,7 +2395,6 @@ describe('e2e', function () {
         });
         expect(await shell.executeLine('print(123 + 456)')).to.include('579');
         await shell.executeLine('sleep(100)');
-        expect(shell.output).to.not.include('anonymousId');
         expect(shell.output).to.not.include('AssertionError');
         expect(shell.assertNoErrors());
       });
@@ -2414,7 +2411,6 @@ describe('e2e', function () {
           'Telemetry is now enabled'
         );
         await shell.executeLine('sleep(100)');
-        expect(shell.output).to.not.include('anonymousId');
         expect(shell.output).to.not.include('AssertionError');
         expect(shell.assertNoErrors());
       });
@@ -2436,7 +2432,6 @@ describe('e2e', function () {
         });
         expect(await shell.executeLine('print(123 + 456)')).to.include('579');
         await shell.executeLine('sleep(100)');
-        expect(shell.output).to.not.include('anonymousId');
         expect(shell.output).to.not.include('AssertionError');
         expect(shell.assertNoErrors());
       });

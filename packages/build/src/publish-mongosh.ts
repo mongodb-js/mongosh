@@ -145,8 +145,6 @@ export class MongoshPublisher {
     );
 
     await mongoshGithubRepo.promoteRelease(config);
-
-    // ensures the segment api key to be present in the published packages
     await this.writeBuildInfo(config, 'packaged');
 
     this.packagePublisher.publishToNpm();

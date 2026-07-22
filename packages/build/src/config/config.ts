@@ -51,7 +51,6 @@ export interface Config {
   downloadCenterAwsSessionTokenArtifacts?: string;
   injectedJsonFeedFile?: string;
   githubToken?: string;
-  segmentKey?: string;
   isCi?: boolean;
   platform?: NodeJS.Platform;
   execNodeVersion: string;
