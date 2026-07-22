@@ -4,6 +4,11 @@ import { once } from 'events';
 import { spawn } from 'child_process';
 import path from 'path';
 import type { AddressInfo } from 'net';
+import fs from 'fs';
+import os from 'os';
+import type tls from 'tls';
+import { createServer as createHttpsServer } from 'https';
+import type { Server as HttpsServer } from 'https';
 import {
   FireAndForgetBeacon,
   createCachedLookup,
@@ -439,6 +444,92 @@ describe('FireAndForgetBeacon', function () {
       await new Promise((resolve) => setTimeout(resolve, 100));
       expect(paths).to.deep.equal(['/warm-up', '/v1/test']);
       expect(connections).to.equal(1);
+    });
+  });
+
+  context('over TLS', function () {
+    let srv: HttpsServer;
+    let baseUrl: string;
+    let reusedFlags: boolean[];
+    let dir: string;
+    let storePath: string;
+
+    beforeEach(async function () {
+      reusedFlags = [];
+      dir = fs.mkdtempSync(path.join(os.tmpdir(), 'beacon-tls-'));
+      storePath = path.join(dir, 'sessions.json');
+      // Any syntactically valid key/cert pair works here: clients use
+      // rejectUnauthorized: false because these tests target the handshake
+      // lifecycle, not certificate validation.
+      const certDir = path.resolve(
+        __dirname,
+        '..',
+        '..',
+        'testing',
+        'certificates',
+        'partial-trust-chain'
+      );
+      srv = createHttpsServer(
+        {
+          key: fs.readFileSync(path.join(certDir, 'key.pem')),
+          cert: fs.readFileSync(path.join(certDir, 'cert.pem')),
+        },
+        (req, res) => {
+          reusedFlags.push((req.socket as tls.TLSSocket).isSessionReused());
+          res.writeHead(200);
+          res.end();
+        }
+      ).listen(0);
+      await once(srv, 'listening');
+      baseUrl = `https://localhost:${(srv.address() as AddressInfo).port}`;
+    });
+
+    afterEach(async function () {
+      srv.close();
+      await once(srv, 'close');
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+
+    it('resolve as dispatched only after the TLS handshake completes', async function () {
+      beacon = new FireAndForgetBeacon({
+        tlsOptions: { rejectUnauthorized: false },
+      });
+      const requestReceived = once(srv, 'request');
+      const outcome = await beacon.send(`${baseUrl}/v1/test`, {
+        Cookie: 'mge=tls',
+      });
+      expect(outcome.kind).to.equal('dispatched');
+      await requestReceived;
+      expect(reusedFlags).to.deep.equal([false]);
+    });
+
+    it('resume the TLS session from the persisted ticket in a fresh beacon', async function () {
+      const first = new FireAndForgetBeacon({
+        tlsOptions: { rejectUnauthorized: false },
+        sessionStorePath: storePath,
+      });
+      const firstReceived = once(srv, 'request');
+      const firstOutcome = await first.send(`${baseUrl}/v1/one`, {});
+      expect(firstOutcome.kind).to.equal('dispatched');
+      await firstReceived;
+      // The shutdown hook: waits for the in-flight TLS 1.3 ticket (which
+      // arrives after `dispatched`) and for the store write to land — this is
+      // exactly what TelemetryClient.flush() does for a real mongosh exit.
+      await first.flush();
+      expect(fs.existsSync(storePath)).to.equal(true);
+      first.close();
+
+      // Fresh instance = simulates the next mongosh process.
+      beacon = new FireAndForgetBeacon({
+        tlsOptions: { rejectUnauthorized: false },
+        sessionStorePath: storePath,
+      });
+      const secondReceived = once(srv, 'request');
+      const secondOutcome = await beacon.send(`${baseUrl}/v1/two`, {});
+      expect(secondOutcome.kind).to.equal('dispatched');
+      await secondReceived;
+
+      expect(reusedFlags).to.deep.equal([false, true]);
     });
   });
 });

@@ -2,8 +2,11 @@ import dns from 'dns';
 import http from 'http';
 import https from 'https';
 import tls from 'tls';
+import type net from 'net';
+import type { Duplex } from 'stream';
 import type { Beacon, BeaconOutcome } from './beacon';
 import { REQUEST_TIMEOUT_MS } from './beacon';
+import { TlsSessionStore } from './tls-session-store';
 
 export type FireAndForgetBeaconOptions = {
   /**
@@ -38,6 +41,11 @@ export type FireAndForgetBeaconOptions = {
   lookup?: typeof dns.lookup;
   /** TTL for the built-in DNS cache; default 60s. Ignored when `lookup` is set. */
   dnsCacheTtlMs?: number;
+  /**
+   * Path of the persisted TLS session-ticket store. When set (and no external
+   * `agent` is given), https connections resume sessions across processes.
+   */
+  sessionStorePath?: string;
 };
 
 /**
@@ -90,6 +98,70 @@ export function createCachedLookup(
 }
 
 /**
+ * https.Agent that persists TLS session tickets via TlsSessionStore and
+ * offers them on new connections, so a fresh process resumes the handshake
+ * in one round-trip instead of performing a full one.
+ */
+export class ResumingHttpsAgent extends https.Agent {
+  private readonly store: TlsSessionStore;
+  private connectionsCreated = 0;
+  private ticketCaptured = false;
+  private notifyFirstTicket?: () => void;
+  /** Resolves when the first session ticket of this process is captured. */
+  readonly firstTicket: Promise<void>;
+
+  constructor(options: https.AgentOptions, store: TlsSessionStore) {
+    super(options);
+    this.store = store;
+    this.firstTicket = new Promise<void>(
+      (resolve) => (this.notifyFirstTicket = resolve)
+    );
+  }
+
+  /**
+   * True when a handshake happened but its ticket has not arrived yet.
+   * TLS 1.3 delivers NewSessionTicket ~1 RTT after the handshake — after
+   * `dispatched` resolves — so at shutdown this indicates a ticket is still
+   * worth a bounded wait (see FireAndForgetBeacon.flush()).
+   */
+  get awaitingFirstTicket(): boolean {
+    return this.connectionsCreated > 0 && !this.ticketCaptured;
+  }
+
+  // Overrides the documented Agent API (called for every new connection).
+  // The installed @types/node *does* declare this method (unlike what the
+  // task brief assumed) typed generically via net.NetConnectOpts/Duplex; the
+  // signature below matches that declaration verbatim so the override stays
+  // structurally compatible, and the TLS-specific shape is recovered
+  // internally via the same prototype-cast trick used to invoke super.
+  createConnection(
+    options: net.NetConnectOpts,
+    callback?: (err: Error | null, stream: Duplex) => void
+  ): Duplex {
+    this.connectionsCreated++;
+    const tlsOptions = options as tls.ConnectionOptions & { host?: string };
+    const host = tlsOptions.host ?? 'localhost';
+    const socket = (
+      https.Agent.prototype as unknown as {
+        createConnection: (o: unknown, cb?: unknown) => tls.TLSSocket;
+      }
+    ).createConnection.call(
+      this,
+      { ...tlsOptions, session: this.store.get(host) },
+      callback
+    );
+    // TLS 1.3 delivers session tickets after the handshake, possibly more
+    // than once; each one supersedes the previous.
+    socket.on('session', (ticket: Buffer) => {
+      this.ticketCaptured = true;
+      this.notifyFirstTicket?.();
+      this.store.set(host, ticket);
+    });
+    return socket;
+  }
+}
+
+/**
  * A fire-and-forget HEAD launcher built on the raw http/https modules.
  *
  * Unlike fetch, `send()` resolves as soon as the request has been fully
@@ -108,6 +180,8 @@ export class FireAndForgetBeacon implements Beacon {
   protected readonly options: FireAndForgetBeaconOptions;
   private httpAgent?: http.Agent;
   private httpsAgent?: https.Agent;
+  private sessionStore?: TlsSessionStore;
+  private resumingAgent?: ResumingHttpsAgent;
   /** Durations of recent successful dispatches (ring of 50). */
   private readonly dispatchDurations: number[] = [];
   private consecutiveFailures = 0;
@@ -126,10 +200,23 @@ export class FireAndForgetBeacon implements Beacon {
       createCachedLookup(this.options.dnsCacheTtlMs ?? 60_000);
     const agentOptions = { keepAlive: true, lookup: this.lookup };
     if (isHttps) {
-      this.httpsAgent ??= new https.Agent({
-        ...agentOptions,
-        ...this.options.tlsOptions,
-      });
+      if (!this.httpsAgent) {
+        if (this.options.sessionStorePath) {
+          this.sessionStore = new TlsSessionStore(
+            this.options.sessionStorePath
+          );
+          this.resumingAgent = new ResumingHttpsAgent(
+            { ...agentOptions, ...this.options.tlsOptions },
+            this.sessionStore
+          );
+          this.httpsAgent = this.resumingAgent;
+        } else {
+          this.httpsAgent = new https.Agent({
+            ...agentOptions,
+            ...this.options.tlsOptions,
+          });
+        }
+      }
       return this.httpsAgent;
     }
     this.httpAgent ??= new http.Agent(agentOptions);
@@ -280,6 +367,23 @@ export class FireAndForgetBeacon implements Beacon {
       );
       req.end();
     });
+  }
+
+  /**
+   * Impending-shutdown hook, invoked via TelemetryClient.flush(). TLS 1.3
+   * delivers session tickets ~1 RTT *after* the handshake — i.e. after
+   * `dispatched` resolves — so a short-lived session that only sends at exit
+   * would otherwise never seed the resumption cache. Grant a small bounded
+   * grace for an in-flight ticket, then await the pending store write.
+   */
+  async flush(): Promise<void> {
+    if (this.resumingAgent?.awaitingFirstTicket) {
+      await Promise.race([
+        this.resumingAgent.firstTicket,
+        new Promise((resolve) => setTimeout(resolve, 100).unref?.()),
+      ]);
+    }
+    await this.sessionStore?.flush();
   }
 
   /**
