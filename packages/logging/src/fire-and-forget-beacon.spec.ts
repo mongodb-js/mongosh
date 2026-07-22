@@ -223,4 +223,101 @@ describe('FireAndForgetBeacon', function () {
       );
     });
   });
+
+  context('health tracking', function () {
+    let liveSrv: http.Server;
+    let liveUrl: string;
+    let refusedUrl: string;
+
+    beforeEach(async function () {
+      liveSrv = http
+        .createServer((req, res) => {
+          res.writeHead(200);
+          res.end();
+        })
+        .listen(0);
+      await once(liveSrv, 'listening');
+      liveUrl = `http://localhost:${
+        (liveSrv.address() as AddressInfo).port
+      }/v1/live`;
+
+      // Grab a port that is momentarily free, then free it again.
+      const gone = http.createServer().listen(0);
+      await once(gone, 'listening');
+      const refusedPort = (gone.address() as AddressInfo).port;
+      gone.close();
+      await once(gone, 'close');
+      refusedUrl = `http://localhost:${refusedPort}/v1/refused`;
+    });
+
+    afterEach(async function () {
+      liveSrv.close();
+      await once(liveSrv, 'close');
+    });
+
+    it('use the default timeout until enough samples are collected', function () {
+      beacon = new FireAndForgetBeacon();
+      expect(beacon.currentTimeoutMs()).to.equal(5_000);
+    });
+
+    it('tighten the timeout from observed dispatch durations', async function () {
+      beacon = new FireAndForgetBeacon({
+        timeouts: { minSamples: 3, minMs: 10 },
+      });
+      const outcomes = [
+        await beacon.send(liveUrl, {}),
+        await beacon.send(liveUrl, {}),
+        await beacon.send(liveUrl, {}),
+      ];
+      expect(outcomes.map(({ kind }) => kind)).to.deep.equal([
+        'dispatched',
+        'dispatched',
+        'dispatched',
+      ]);
+      expect(beacon.currentTimeoutMs()).to.be.lessThan(5_000);
+      expect(beacon.currentTimeoutMs()).to.be.at.least(10);
+    });
+
+    it('open the breaker after the configured number of consecutive failures', async function () {
+      beacon = new FireAndForgetBeacon({ breaker: { threshold: 2 } });
+      const first = await beacon.send(refusedUrl, {});
+      const second = await beacon.send(refusedUrl, {});
+      const third = await beacon.send(refusedUrl, {});
+      expect(first.kind).to.equal('error');
+      expect(second.kind).to.equal('error');
+      expect(third.kind).to.equal('suppressed');
+    });
+
+    it('allow a probe after the cooldown and reopen on its failure', async function () {
+      beacon = new FireAndForgetBeacon({
+        breaker: { threshold: 1, cooldownMs: 50 },
+      });
+      const initial = await beacon.send(refusedUrl, {});
+      const whileOpen = await beacon.send(refusedUrl, {});
+      await new Promise((resolve) => setTimeout(resolve, 75));
+      const probe = await beacon.send(refusedUrl, {});
+      const reopened = await beacon.send(refusedUrl, {});
+      expect(initial.kind).to.equal('error');
+      expect(whileOpen.kind).to.equal('suppressed');
+      expect(probe.kind).to.equal('error'); // the probe actually went out
+      expect(reopened.kind).to.equal('suppressed'); // and its failure reopened the breaker
+    });
+
+    it('reset the failure count after a successful dispatch', async function () {
+      beacon = new FireAndForgetBeacon({ breaker: { threshold: 2 } });
+      const fail1 = await beacon.send(refusedUrl, {});
+      const ok = await beacon.send(liveUrl, {});
+      const fail2 = await beacon.send(refusedUrl, {});
+      // Without the reset, fail2 would have been the second consecutive
+      // failure and this send would be suppressed; with it, the breaker
+      // only opens as fail3 completes.
+      const fail3 = await beacon.send(refusedUrl, {});
+      const suppressed = await beacon.send(refusedUrl, {});
+      expect(fail1.kind).to.equal('error');
+      expect(ok.kind).to.equal('dispatched');
+      expect(fail2.kind).to.equal('error');
+      expect(fail3.kind).to.equal('error');
+      expect(suppressed.kind).to.equal('suppressed');
+    });
+  });
 });
