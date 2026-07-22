@@ -697,9 +697,26 @@ export class CliRepl implements MongoshIOProvider {
   }
 
   async setupAnalytics(): Promise<void> {
-    const { version }: { version: string } = require('../package.json');
-    const { os_type, os_release, os_arch, os_linux_dist, os_linux_release } =
-      await this.getOsInfo();
+    // Only the fire-and-forget transport consumes a precomputed User-Agent;
+    // keep the default path free of the extra OS-info dependency.
+    // (setup-analytics.ts re-checks this env var to pick the transport.)
+    let userAgent: string | undefined;
+    if (process.env.MONGOSH_TELEMETRY_TRANSPORT === 'fire-and-forget') {
+      const { version }: { version: string } = require('../package.json');
+      const { os_type, os_release, os_arch, os_linux_dist, os_linux_release } =
+        await this.getOsInfo();
+      // Mirrors the fetch-path User-Agent with includeDeviceId: false
+      // ('disabled' in the device slot).
+      userAgent = formatUserAgentTags([
+        `mongosh/${version}`,
+        os_type,
+        os_release,
+        os_arch,
+        os_linux_dist,
+        os_linux_release,
+        'disabled',
+      ]);
+    }
     const { analytics, telemetryEndpoint } = setupTelemetryAnalytics({
       // `telemetryEndpoint` user config carries the production default.
       configuredTelemetryEndpoint: await this.getConfig('telemetryEndpoint'),
@@ -708,17 +725,7 @@ export class CliRepl implements MongoshIOProvider {
       fetch: this.fetch({ includeDeviceId: false }),
       metadataPath: this.shellHomeDirectory.paths.shellLocalDataPath,
       agent: this.agent,
-      // Mirrors the fetch-path User-Agent with includeDeviceId: false
-      // ('disabled' in the device slot).
-      userAgent: formatUserAgentTags([
-        `mongosh/${version}`,
-        os_type,
-        os_release,
-        os_arch,
-        os_linux_dist,
-        os_linux_release,
-        'disabled',
-      ]),
+      userAgent,
     });
     this.toggleableAnalytics = analytics;
     // Record the resolved endpoint so logging can decide whether to log full
