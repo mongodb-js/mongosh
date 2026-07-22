@@ -45,6 +45,13 @@ describe('TlsSessionStore', function () {
     store.set('telemetry.example.com', Buffer.from('recovered')); // must not throw
   });
 
+  it('ignore a store file containing non-object JSON silently', function () {
+    fs.writeFileSync(filePath, '42'); // valid JSON, wrong shape
+    const store = new TlsSessionStore(filePath);
+    expect(store.get('telemetry.example.com')).to.equal(undefined);
+    store.set('telemetry.example.com', Buffer.from('recovered')); // must not throw
+  });
+
   it('resolve flush() without a pending write', async function () {
     const store = new TlsSessionStore(filePath);
     await store.flush(); // must not throw or hang

@@ -30,9 +30,15 @@ export class TlsSessionStore {
   private load(): StoredSessions {
     if (!this.sessions) {
       try {
-        this.sessions = JSON.parse(
+        const parsed: unknown = JSON.parse(
           fs.readFileSync(this.filePath, 'utf8')
-        ) as StoredSessions;
+        );
+        this.sessions =
+          typeof parsed === 'object' &&
+          parsed !== null &&
+          !Array.isArray(parsed)
+            ? (parsed as StoredSessions)
+            : {};
       } catch {
         this.sessions = {};
       }
