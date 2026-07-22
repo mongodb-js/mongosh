@@ -55,7 +55,6 @@ export const dummyConfig: Config = Object.freeze({
   downloadCenterAwsSecretArtifacts: 'downloadCenterAwsSecret',
   downloadCenterAwsSessionTokenArtifacts: 'downloadCenterAwsSessionToken',
   githubToken: 'githubToken',
-  segmentKey: 'segmentKey',
   isCi: true,
   platform: 'linux',
   repo: {

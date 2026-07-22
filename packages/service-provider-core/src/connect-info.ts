@@ -1,4 +1,5 @@
-// ^ segment data is in snake_case: forgive me javascript, for i have sinned.
+// The telemetry format came from legacy Segment, which stores data in snake_case.
+// Forgive me javascript, for i have sinned.
 
 import * as getBuildInfo from 'mongodb-build-info';
 import type { ConnectionString } from 'mongodb-connection-string-url';
@@ -19,6 +20,11 @@ export type ConnectionExtraInfo = {
   node_version?: string;
   uri: string;
   is_local_atlas?: boolean;
+  is_srv?: boolean;
+  topology_type?: string;
+  is_csfle?: boolean;
+  has_csfle_schema?: boolean;
+  connection_id?: string;
 } & HostInformation;
 
 export type HostInformation = {
@@ -89,6 +95,7 @@ export default function getConnectExtraInfo({
   return {
     ...getHostInformation(resolvedHostname || uri),
     is_atlas: isAtlas,
+    is_srv: connectionString?.isSRV,
     server_version: buildInfo.version,
     node_version: process.version,
     server_os: serverOs || undefined,

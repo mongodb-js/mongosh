@@ -126,38 +126,6 @@ bus.emit('mongosh:connect', {
 });
 ```
 
-### bus.on('mongosh:new-user', telemetryUserIdentity, enableTelemetry)
-
-Where `telemetryUserIdentity` is `userId` and `anonymousId` which are both a [BSON ObjectID][object-id].
-And `enableTelemetry` is a boolean flag.
-This is used internally to update telemetry preferences.
-
-Example:
-
-```js
-bus.emit(
-  'mongosh:new-user',
-  { userId: '12394dfjvnaw3uw3erdf', anonymousId: '12394dfjvnaw3uw3erdf' },
-  true
-);
-```
-
-### bus.on('mongosh:update-user', telemetryUserIdentity, enableTelemetry)
-
-Where `telemetryUserIdentity` is `userId` and `anonymousId` which are both a [BSON ObjectID][object-id].
-And `enableTelemetry` is a boolean flag.
-This is used internally to update telemetry preferences.
-
-Example:
-
-```js
-bus.emit(
-  'mongosh:update-user',
-  { userId: '12394dfjvnaw3uw3erdf', anonymousId: null },
-  false
-);
-```
-
 ### bus.on('mongosh:error', error)
 
 Where `error` is an [Error Object][error-object]. Used to log and send telemetry

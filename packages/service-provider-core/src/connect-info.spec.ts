@@ -73,6 +73,7 @@ describe('getConnectInfo', function () {
       server_os: 'osx',
       uri: ATLAS_URI_WITH_AUTH,
       is_local_atlas: false,
+      is_srv: true,
     };
     expect(
       getConnectExtraInfo({
@@ -106,6 +107,7 @@ describe('getConnectInfo', function () {
       server_os: 'osx',
       uri: ATLAS_URI,
       is_local_atlas: false,
+      is_srv: true,
     };
     expect(
       getConnectExtraInfo({
@@ -141,6 +143,7 @@ describe('getConnectInfo', function () {
       node_version: process.version,
       server_os: 'osx',
       uri: streamUri,
+      is_srv: false,
     };
     expect(
       getConnectExtraInfo({
@@ -175,6 +178,7 @@ describe('getConnectInfo', function () {
       server_os: 'osx',
       uri: '',
       is_local_atlas: true,
+      is_srv: undefined,
     };
     expect(
       getConnectExtraInfo({
@@ -207,6 +211,7 @@ describe('getConnectInfo', function () {
       server_arch: undefined,
       uri: '',
       is_local_atlas: false,
+      is_srv: undefined,
     };
     expect(
       getConnectExtraInfo({

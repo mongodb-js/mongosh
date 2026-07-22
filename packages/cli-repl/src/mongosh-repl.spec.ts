@@ -13,7 +13,7 @@ import type { Duplex } from 'stream';
 import { PassThrough } from 'stream';
 import type { StubbedInstance } from 'ts-sinon';
 import sinon, { stubInterface } from 'ts-sinon';
-import { inspect, promisify } from 'util';
+import { inspect } from 'util';
 import {
   expect,
   fakeTTYProps,
@@ -26,13 +26,12 @@ import type { MongoshIOProvider, MongoshNodeReplOptions } from './mongosh-repl';
 import MongoshNodeRepl from './mongosh-repl';
 import { parseAnyLogEntry } from '../../shell-api/src/log-entry';
 import stripAnsi from 'strip-ansi';
+import { setTimeout as delay } from 'timers/promises';
 
 function nonnull<T>(value: T | null | undefined): NonNullable<T> {
   if (!value) throw new Error();
   return value;
 }
-
-const delay = promisify(setTimeout);
 
 const multilineCode = `(function() {
   // comment
@@ -635,7 +634,9 @@ describe('MongoshNodeRepl', function () {
               output = '';
               input.write('history()\n');
               await waitEval(bus);
-              expect(output).includes(
+              // Strip ANSI colors: the REPL colorizes its inspect output while
+              // the expected value below uses plain util.inspect (same layout).
+              expect(stripAnsi(output)).includes(
                 inspect(
                   getAllHistoryItems()
                     .slice(1, getAllHistoryItems().length)
@@ -650,7 +651,9 @@ describe('MongoshNodeRepl', function () {
               input.write('history().slice(history().length-10).reverse()\n');
               await waitEval(bus);
               const history = getAllHistoryItems().slice(1).reverse();
-              expect(output).includes(
+              // Strip ANSI colors: the REPL colorizes its inspect output while
+              // the expected value below uses plain util.inspect (same layout).
+              expect(stripAnsi(output)).includes(
                 inspect(history.slice(history.length - 10).reverse(), {
                   maxArrayLength: Infinity,
                 })

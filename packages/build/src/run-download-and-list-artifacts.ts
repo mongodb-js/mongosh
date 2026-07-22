@@ -7,8 +7,7 @@ import { ARTIFACTS_URL_PUBLIC_BASE } from './download-center/constants';
 import { createHash } from 'crypto';
 import { once } from 'events';
 import fetch from 'node-fetch';
-import { promisify } from 'util';
-const delay = promisify(setTimeout);
+import { setTimeout as delay } from 'timers/promises';
 
 export const hashListFiles = [
   { filename: 'SHASUMS1.txt', hash: 'sha1' },

@@ -1,7 +1,6 @@
 import type { ApiEvent, MongoshBus } from '@mongosh/types';
 import type { MongoLogWriter } from 'mongodb-log-writer';
 import type { MongoshAnalytics } from './analytics-helpers';
-import type { CommonEventProperties } from './telemetry-events';
 import type { MultiSet } from './helpers';
 
 export interface MongoshLoggingAndTelemetry {
@@ -20,9 +19,29 @@ export type MongoshLoggingAndTelemetryArguments = {
   mongoshVersion: string;
   /** Machine-specific ID */
   deviceId: Promise<string> | string;
+  /**
+   * The resolved telemetry endpoint. When empty, telemetry is not being sent
+   * anywhere, so full event payloads are logged locally for debugging.
+   */
+  telemetryEndpoint?: string;
 };
 
-export type MongoshTrackingProperties = CommonEventProperties;
+export type SessionTelemetryState = {
+  isInteractive: boolean;
+  timings: Record<string, number>;
+  errorCount: number;
+  mongoshrcLoaded: boolean;
+  mongorcWarning: boolean;
+  snippetLoadedCount: number;
+  shellFlag: boolean;
+  cliEvalCount: number;
+  cliFileCount: number;
+  evaluationCount: number;
+  commandsRepl: Record<string, number>;
+  commandsRc: Record<string, number>;
+  sequence: string[];
+  sequenceTruncated: boolean;
+};
 
 export type LoggingAndTelemetryBusEventState = {
   hasStartedMongoshRepl: boolean;
@@ -32,6 +51,5 @@ export type LoggingAndTelemetryBusEventState = {
     deprecatedApiCalls: MultiSet<Pick<ApiEvent, 'class' | 'method'>>;
   };
   usesShellOption: boolean;
-  telemetryAnonymousId: string | undefined;
-  userId: string | undefined;
+  session: SessionTelemetryState;
 };

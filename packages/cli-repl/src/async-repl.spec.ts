@@ -4,16 +4,16 @@ import type { OriginalEvalFunction, AsyncREPLOptions } from './async-repl';
 import { start, evalStart, evalFinish } from './async-repl';
 import type { Readable, Writable } from 'stream';
 import { PassThrough } from 'stream';
-import { promisify, inspect } from 'util';
+import { inspect } from 'util';
 import { once } from 'events';
 import * as chai from 'chai';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { tick } from '../test/repl-helpers';
-chai.use(sinonChai);
+import { setTimeout as delay } from 'timers/promises';
 
-const delay = promisify(setTimeout);
+chai.use(sinonChai);
 
 function createDefaultAsyncRepl(extraOpts: Partial<AsyncREPLOptions> = {}): {
   input: Writable;

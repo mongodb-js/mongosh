@@ -16,7 +16,6 @@ export interface BuildInfo {
   gitVersion: string | null;
   opensslVersion: string;
   sharedOpenssl: boolean;
-  segmentApiKey?: string;
   runtimeGlibcVersion: string;
   deps: ReturnType<typeof NodeDriverServiceProvider.getVersionInformation>;
 }
@@ -104,19 +103,11 @@ export function baseBuildInfo(): Omit<
  * in particular, when it was built and how.
  */
 // eslint-disable-next-line @typescript-eslint/require-await
-export async function buildInfo({
-  withSegmentApiKey,
-}: {
-  withSegmentApiKey?: boolean;
-} = {}): Promise<BuildInfo> {
+export async function buildInfo(): Promise<BuildInfo> {
   const dependencyVersionInfo: BuildInfo['deps'] = {
     ...NodeDriverServiceProvider.getVersionInformation(),
   };
-
   const buildInfo = { ...baseBuildInfo(), deps: { ...dependencyVersionInfo } };
-  if (!withSegmentApiKey) {
-    delete buildInfo.segmentApiKey;
-  }
   return {
     installationMethod: await getInstallationMethod(buildInfo),
     ...buildInfo,

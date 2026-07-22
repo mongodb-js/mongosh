@@ -102,7 +102,6 @@ module.exports = {
   downloadCenterAwsSessionTokenArtifacts: process.env.DOWNLOAD_CENTER_AWS_SESSION_TOKEN_ARTIFACTS,
   injectedJsonFeedFile: path.join(ROOT, 'config', 'mongosh-versions.json'),
   githubToken: process.env.GITHUB_TOKEN,
-  segmentKey: process.env.SEGMENT_API_KEY,
   isCi: process.env.IS_CI === 'true',
   isPatch: process.env.IS_PATCH === 'true',
   triggeringGitTag: process.env.TRIGGERED_BY_GIT_TAG,
