@@ -856,11 +856,21 @@ export default class Shard<
 
   @apiVersions([])
   @returnsPromise
-  async listShards(): Promise<ShardInfo[]> {
-    this._emitShardApiCall('listShards', {});
+  async listShards(filter?: Document): Promise<ShardInfo[]> {
+    assertArgsDefinedType(
+      [filter],
+      [[undefined, 'object']],
+      'Shard.listShards'
+    );
+    this._emitShardApiCall('listShards', { filter });
     await getConfigDB(this._database);
 
-    return (await this._database.adminCommand({ listShards: 1 })).shards ?? [];
+    const command: Document = { listShards: 1 };
+    if (filter) {
+      command.filter = filter;
+    }
+
+    return (await this._database.adminCommand(command)).shards ?? [];
   }
 
   @serverVersions(['8.0.0', ServerVersions.latest])
