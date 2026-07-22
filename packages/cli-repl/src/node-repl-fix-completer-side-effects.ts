@@ -1,6 +1,31 @@
 import type { CompleterResult } from 'readline';
 import { PassThrough } from 'stream';
-import { promisify } from 'util';
+
+function isThenable<T>(value: unknown): value is PromiseLike<T> {
+  return !!(
+    value &&
+    (typeof value === 'object' || typeof value === 'function') &&
+    'then' in value &&
+    typeof value.then === 'function'
+  );
+}
+
+export function promisifyCompleter(
+  completer: (
+    line: string,
+    callback: (err?: Error | null, result?: CompleterResult) => void
+  ) => unknown
+): (line: string) => Promise<CompleterResult> {
+  return (line: string) =>
+    new Promise<CompleterResult>((resolve, reject) => {
+      const maybePromise = completer(line, (err, result) =>
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        err ? reject(err) : resolve(result!)
+      );
+      if (isThenable<CompleterResult>(maybePromise))
+        maybePromise.then(resolve, reject);
+    });
+}
 
 // Detect whether the issue described in https://github.com/nodejs/node/pull/59774
 // occurs in this version of Node.js or not.
@@ -21,7 +46,7 @@ async function detectReplNodeBug59774(): Promise<boolean> {
   try {
     // Try to autocomplete a random property access on the result of calling
     // causeSideEffect(). If the function is actually called, then the bug is present.
-    await promisify(repl.completer)('causeSideEffect().x');
+    await promisifyCompleter(repl.completer)('causeSideEffect().x');
   } finally {
     repl.close();
   }

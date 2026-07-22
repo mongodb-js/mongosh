@@ -27,7 +27,14 @@ if [ "$NODE_JS_VERSION" = "nightly" ]; then
   fi
   if [ ! -x "$NIGHTLY_NODE_DIR/bin/node" ]; then
     mkdir -p "$NIGHTLY_NODE_DIR"
-    curl -sSfL "https://nodejs.org/download/nightly/v$NODE_JS_VERSION/node-v$NODE_JS_VERSION-linux-x64.tar.xz" \
+    # Map the host architecture to the Node.js download naming so the nightly
+    # variant can run on either x64 or arm64 Linux distros.
+    case "$(uname -m)" in
+      x86_64) NIGHTLY_NODE_ARCH=x64 ;;
+      aarch64 | arm64) NIGHTLY_NODE_ARCH=arm64 ;;
+      *) echo "Unsupported architecture for Node.js nightly: $(uname -m)" >&2; exit 1 ;;
+    esac
+    curl -sSfL "https://nodejs.org/download/nightly/v$NODE_JS_VERSION/node-v$NODE_JS_VERSION-linux-$NIGHTLY_NODE_ARCH.tar.xz" \
       | tar -xJ --strip-components=1 -C "$NIGHTLY_NODE_DIR"
   fi
   export PATH="$NIGHTLY_NODE_DIR/bin:$PATH"
