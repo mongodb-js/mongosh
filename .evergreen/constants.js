@@ -25,8 +25,6 @@ const NODE_JS_VERSION_24 = require('./node-24-latest.json').version;
 exports.NODE_JS_VERSION_24 = NODE_JS_VERSION_24;
 
 exports.MONGODB_VERSIONS = [
-  { shortName: '42xc', versionSpec: '4.2.x' },
-  { shortName: '42xe', versionSpec: '4.2.x-enterprise' },
   { shortName: '44xc', versionSpec: '4.4.x' },
   { shortName: '44xe', versionSpec: '4.4.x-enterprise' },
   { shortName: '50xc', versionSpec: '5.0.x' },
@@ -37,8 +35,10 @@ exports.MONGODB_VERSIONS = [
   { shortName: '70xe', versionSpec: '7.0.x-enterprise' },
   { shortName: '80xc', versionSpec: '8.0.x' },
   { shortName: '80xe', versionSpec: '8.0.x-enterprise' },
-  { shortName: '83xc', versionSpec: '8.3.0-rc3' },
-  { shortName: '83xe', versionSpec: '8.3.0-rc3-enterprise' },
+  { shortName: '83xc', versionSpec: '8.3.x' },
+  { shortName: '83xe', versionSpec: '8.3.x-enterprise' },
+  { shortName: '90xc', versionSpec: '9.0.0-rc0' },
+  { shortName: '90xe', versionSpec: '9.0.0-rc0-enterprise' },
   { shortName: 'latest', versionSpec: 'latest-alpha-enterprise' },
 ];
 

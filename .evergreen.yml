@@ -1124,6 +1124,146 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_darwin-m90xc_n24-cli_repl.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m90xc_n24-cli_repl.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_darwin-m90xc_n24-cli_repl.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_darwin-m90xc_n24-e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m90xc_n24-e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_darwin-m90xc_n24-e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_darwin-m90xc_n24-node_runtime_worker_thread.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m90xc_n24-node_runtime_worker_thread.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_darwin-m90xc_n24-node_runtime_worker_thread.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_darwin-m90xc_n24-service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m90xc_n24-service_provider_node_driver.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_darwin-m90xc_n24-service_provider_node_driver.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_darwin-m90xc_n24-shell_api.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m90xc_n24-shell_api.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_darwin-m90xc_n24-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_darwin-m90xe_n24-cli_repl.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m90xe_n24-cli_repl.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_darwin-m90xe_n24-cli_repl.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_darwin-m90xe_n24-e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m90xe_n24-e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_darwin-m90xe_n24-e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_darwin-m90xe_n24-node_runtime_worker_thread.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m90xe_n24-node_runtime_worker_thread.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_darwin-m90xe_n24-node_runtime_worker_thread.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_darwin-m90xe_n24-service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m90xe_n24-service_provider_node_driver.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_darwin-m90xe_n24-service_provider_node_driver.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_darwin-m90xe_n24-shell_api.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-m90xe_n24-shell_api.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_darwin-m90xe_n24-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_darwin-mlatest_n24-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_darwin-mlatest_n24-cli_repl.tgz
         bucket: mciuploads
@@ -1512,90 +1652,6 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-linux-n24-types.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m42xc_n24-cli_repl.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m42xc_n24-cli_repl.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_linux-m42xc_n24-cli_repl.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m42xc_n24-e2e_tests.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m42xc_n24-e2e_tests.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_linux-m42xc_n24-e2e_tests.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m42xc_n24-java_shell.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m42xc_n24-java_shell.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_linux-m42xc_n24-java_shell.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m42xc_n24-node_runtime_worker_thread.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m42xc_n24-node_runtime_worker_thread.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_linux-m42xc_n24-node_runtime_worker_thread.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m42xc_n24-service_provider_node_driver.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m42xc_n24-service_provider_node_driver.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_linux-m42xc_n24-service_provider_node_driver.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_linux-m42xc_n24-shell_api.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m42xc_n24-shell_api.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_linux-m42xc_n24-shell_api.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -2608,6 +2664,174 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m90xc_n24-cli_repl.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m90xc_n24-cli_repl.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m90xc_n24-cli_repl.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m90xc_n24-e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m90xc_n24-e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m90xc_n24-e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m90xc_n24-java_shell.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m90xc_n24-java_shell.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m90xc_n24-java_shell.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m90xc_n24-node_runtime_worker_thread.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m90xc_n24-node_runtime_worker_thread.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m90xc_n24-node_runtime_worker_thread.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m90xc_n24-service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m90xc_n24-service_provider_node_driver.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m90xc_n24-service_provider_node_driver.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m90xc_n24-shell_api.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m90xc_n24-shell_api.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m90xc_n24-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m90xe_n24-cli_repl.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m90xe_n24-cli_repl.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m90xe_n24-cli_repl.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m90xe_n24-e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m90xe_n24-e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m90xe_n24-e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m90xe_n24-java_shell.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m90xe_n24-java_shell.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m90xe_n24-java_shell.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m90xe_n24-node_runtime_worker_thread.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m90xe_n24-node_runtime_worker_thread.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m90xe_n24-node_runtime_worker_thread.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m90xe_n24-service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m90xe_n24-service_provider_node_driver.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m90xe_n24-service_provider_node_driver.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_linux-m90xe_n24-shell_api.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-m90xe_n24-shell_api.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_linux-m90xe_n24-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-tests_linux-mlatest_n24-cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_linux-mlatest_n24-cli_repl.tgz
         bucket: mciuploads
@@ -2996,146 +3220,6 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-win32-n24-types.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m42xc_n24-cli_repl.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m42xc_n24-cli_repl.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_win32-m42xc_n24-cli_repl.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m42xc_n24-e2e_tests.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m42xc_n24-e2e_tests.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_win32-m42xc_n24-e2e_tests.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m42xc_n24-node_runtime_worker_thread.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m42xc_n24-node_runtime_worker_thread.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_win32-m42xc_n24-node_runtime_worker_thread.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m42xc_n24-service_provider_node_driver.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m42xc_n24-service_provider_node_driver.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_win32-m42xc_n24-service_provider_node_driver.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m42xc_n24-shell_api.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m42xc_n24-shell_api.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_win32-m42xc_n24-shell_api.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m42xe_n24-cli_repl.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m42xe_n24-cli_repl.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_win32-m42xe_n24-cli_repl.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m42xe_n24-e2e_tests.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m42xe_n24-e2e_tests.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_win32-m42xe_n24-e2e_tests.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m42xe_n24-node_runtime_worker_thread.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m42xe_n24-node_runtime_worker_thread.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_win32-m42xe_n24-node_runtime_worker_thread.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m42xe_n24-service_provider_node_driver.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m42xe_n24-service_provider_node_driver.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_win32-m42xe_n24-service_provider_node_driver.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-tests_win32-m42xe_n24-shell_api.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m42xe_n24-shell_api.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-tests_win32-m42xe_n24-shell_api.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -3976,6 +4060,146 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-tests_win32-m83xe_n24-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m90xc_n24-cli_repl.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m90xc_n24-cli_repl.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m90xc_n24-cli_repl.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m90xc_n24-e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m90xc_n24-e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m90xc_n24-e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m90xc_n24-node_runtime_worker_thread.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m90xc_n24-node_runtime_worker_thread.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m90xc_n24-node_runtime_worker_thread.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m90xc_n24-service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m90xc_n24-service_provider_node_driver.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m90xc_n24-service_provider_node_driver.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m90xc_n24-shell_api.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m90xc_n24-shell_api.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m90xc_n24-shell_api.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m90xe_n24-cli_repl.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m90xe_n24-cli_repl.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m90xe_n24-cli_repl.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m90xe_n24-e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m90xe_n24-e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m90xe_n24-e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m90xe_n24-node_runtime_worker_thread.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m90xe_n24-node_runtime_worker_thread.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m90xe_n24-node_runtime_worker_thread.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m90xe_n24-service_provider_node_driver.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m90xe_n24-service_provider_node_driver.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m90xe_n24-service_provider_node_driver.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-tests_win32-m90xe_n24-shell_api.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-tests_win32-m90xe_n24-shell_api.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-tests_win32-m90xe_n24-shell_api.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -5114,6 +5338,26 @@ tasks:
       - name: test_shell_api
         variant: tests_darwin-m83xe_n24
       - name: test_cli_repl
+        variant: tests_darwin-m90xc_n24
+      - name: test_e2e_tests
+        variant: tests_darwin-m90xc_n24
+      - name: test_node_runtime_worker_thread
+        variant: tests_darwin-m90xc_n24
+      - name: test_service_provider_node_driver
+        variant: tests_darwin-m90xc_n24
+      - name: test_shell_api
+        variant: tests_darwin-m90xc_n24
+      - name: test_cli_repl
+        variant: tests_darwin-m90xe_n24
+      - name: test_e2e_tests
+        variant: tests_darwin-m90xe_n24
+      - name: test_node_runtime_worker_thread
+        variant: tests_darwin-m90xe_n24
+      - name: test_service_provider_node_driver
+        variant: tests_darwin-m90xe_n24
+      - name: test_shell_api
+        variant: tests_darwin-m90xe_n24
+      - name: test_cli_repl
         variant: tests_darwin-mlatest_n24
       - name: test_e2e_tests
         variant: tests_darwin-mlatest_n24
@@ -5170,18 +5414,6 @@ tasks:
       - name: test_types
         variant: linux-n24
       - name: test_cli_repl
-        variant: tests_linux-m42xc_n24
-      - name: test_e2e_tests
-        variant: tests_linux-m42xc_n24
-      - name: test_java_shell
-        variant: tests_linux-m42xc_n24
-      - name: test_node_runtime_worker_thread
-        variant: tests_linux-m42xc_n24
-      - name: test_service_provider_node_driver
-        variant: tests_linux-m42xc_n24
-      - name: test_shell_api
-        variant: tests_linux-m42xc_n24
-      - name: test_cli_repl
         variant: tests_linux-m44xc_n24
       - name: test_e2e_tests
         variant: tests_linux-m44xc_n24
@@ -5325,6 +5557,30 @@ tasks:
         variant: tests_linux-m83xe_n24
       - name: test_shell_api
         variant: tests_linux-m83xe_n24
+      - name: test_cli_repl
+        variant: tests_linux-m90xc_n24
+      - name: test_e2e_tests
+        variant: tests_linux-m90xc_n24
+      - name: test_java_shell
+        variant: tests_linux-m90xc_n24
+      - name: test_node_runtime_worker_thread
+        variant: tests_linux-m90xc_n24
+      - name: test_service_provider_node_driver
+        variant: tests_linux-m90xc_n24
+      - name: test_shell_api
+        variant: tests_linux-m90xc_n24
+      - name: test_cli_repl
+        variant: tests_linux-m90xe_n24
+      - name: test_e2e_tests
+        variant: tests_linux-m90xe_n24
+      - name: test_java_shell
+        variant: tests_linux-m90xe_n24
+      - name: test_node_runtime_worker_thread
+        variant: tests_linux-m90xe_n24
+      - name: test_service_provider_node_driver
+        variant: tests_linux-m90xe_n24
+      - name: test_shell_api
+        variant: tests_linux-m90xe_n24
       - name: test_cli_repl
         variant: tests_linux-mlatest_n24
       - name: test_e2e_tests
@@ -5382,26 +5638,6 @@ tasks:
       - name: test_types
         variant: win32-n24
       - name: test_cli_repl
-        variant: tests_win32-m42xc_n24
-      - name: test_e2e_tests
-        variant: tests_win32-m42xc_n24
-      - name: test_node_runtime_worker_thread
-        variant: tests_win32-m42xc_n24
-      - name: test_service_provider_node_driver
-        variant: tests_win32-m42xc_n24
-      - name: test_shell_api
-        variant: tests_win32-m42xc_n24
-      - name: test_cli_repl
-        variant: tests_win32-m42xe_n24
-      - name: test_e2e_tests
-        variant: tests_win32-m42xe_n24
-      - name: test_node_runtime_worker_thread
-        variant: tests_win32-m42xe_n24
-      - name: test_service_provider_node_driver
-        variant: tests_win32-m42xe_n24
-      - name: test_shell_api
-        variant: tests_win32-m42xe_n24
-      - name: test_cli_repl
         variant: tests_win32-m44xc_n24
       - name: test_e2e_tests
         variant: tests_win32-m44xc_n24
@@ -5521,6 +5757,26 @@ tasks:
         variant: tests_win32-m83xe_n24
       - name: test_shell_api
         variant: tests_win32-m83xe_n24
+      - name: test_cli_repl
+        variant: tests_win32-m90xc_n24
+      - name: test_e2e_tests
+        variant: tests_win32-m90xc_n24
+      - name: test_node_runtime_worker_thread
+        variant: tests_win32-m90xc_n24
+      - name: test_service_provider_node_driver
+        variant: tests_win32-m90xc_n24
+      - name: test_shell_api
+        variant: tests_win32-m90xc_n24
+      - name: test_cli_repl
+        variant: tests_win32-m90xe_n24
+      - name: test_e2e_tests
+        variant: tests_win32-m90xe_n24
+      - name: test_node_runtime_worker_thread
+        variant: tests_win32-m90xe_n24
+      - name: test_service_provider_node_driver
+        variant: tests_win32-m90xe_n24
+      - name: test_shell_api
+        variant: tests_win32-m90xe_n24
       - name: test_cli_repl
         variant: tests_win32-mlatest_n24
       - name: test_e2e_tests
@@ -10719,7 +10975,7 @@ buildvariants:
     disable: false
     expansions:
       executable_os_id: darwin-arm64
-      mongosh_server_test_version: "8.3.0-rc3"
+      mongosh_server_test_version: "8.3.x"
       node_js_version: "24.18.0"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -10753,7 +11009,75 @@ buildvariants:
     disable: false
     expansions:
       executable_os_id: darwin-arm64
-      mongosh_server_test_version: "8.3.0-rc3-enterprise"
+      mongosh_server_test_version: "8.3.x-enterprise"
+      node_js_version: "24.18.0"
+      mongosh_skip_node_version_check: ""
+    tasks:
+      - name: test_arg_parser
+      - name: test_async_rewriter2
+      - name: test_autocomplete
+      - name: test_browser_repl
+      - name: test_browser_runtime_core
+      - name: test_browser_runtime_electron
+      - name: test_build
+      - name: test_cli_repl
+      - name: test_e2e_tests
+      - name: test_editor
+      - name: test_errors
+      - name: test_history
+      - name: test_i18n
+      - name: test_js_multiline_to_singleline
+      - name: test_logging
+      - name: test_node_runtime_worker_thread
+      - name: test_service_provider_core
+      - name: test_service_provider_node_driver
+      - name: test_shell_api
+      - name: test_shell_bson
+      - name: test_shell_evaluator
+      - name: test_snippet_manager
+      - name: test_types
+  - name: tests_darwin-m90xc_n24
+    display_name: "MacOS 14 arm64 m90xc n24 (Unit tests)"
+    run_on: macos-14-arm64
+    tags: []
+    disable: false
+    expansions:
+      executable_os_id: darwin-arm64
+      mongosh_server_test_version: "9.0.0-rc0"
+      node_js_version: "24.18.0"
+      mongosh_skip_node_version_check: ""
+    tasks:
+      - name: test_arg_parser
+      - name: test_async_rewriter2
+      - name: test_autocomplete
+      - name: test_browser_repl
+      - name: test_browser_runtime_core
+      - name: test_browser_runtime_electron
+      - name: test_build
+      - name: test_cli_repl
+      - name: test_e2e_tests
+      - name: test_editor
+      - name: test_errors
+      - name: test_history
+      - name: test_i18n
+      - name: test_js_multiline_to_singleline
+      - name: test_logging
+      - name: test_node_runtime_worker_thread
+      - name: test_service_provider_core
+      - name: test_service_provider_node_driver
+      - name: test_shell_api
+      - name: test_shell_bson
+      - name: test_shell_evaluator
+      - name: test_snippet_manager
+      - name: test_types
+  - name: tests_darwin-m90xe_n24
+    display_name: "MacOS 14 arm64 m90xe n24 (Unit tests)"
+    run_on: macos-14-arm64
+    tags: []
+    disable: false
+    expansions:
+      executable_os_id: darwin-arm64
+      mongosh_server_test_version: "9.0.0-rc0-enterprise"
       node_js_version: "24.18.0"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -10822,40 +11146,6 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: ""
-      node_js_version: "24.18.0"
-      mongosh_skip_node_version_check: ""
-    tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
-      - name: test_cli_repl
-      - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
-      - name: test_java_shell
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
-      - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
-      - name: test_service_provider_node_driver
-      - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
-  - name: tests_linux-m42xc_n24
-    display_name: "Ubuntu 20.04 x64 m42xc n24 (Unit tests)"
-    run_on: ubuntu2004-small
-    tags: ["nightly-driver"]
-    disable: false
-    expansions:
-      executable_os_id: darwin-arm64
-      mongosh_server_test_version: "4.2.x"
       node_js_version: "24.18.0"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -11229,7 +11519,7 @@ buildvariants:
     disable: false
     expansions:
       executable_os_id: darwin-arm64
-      mongosh_server_test_version: "8.3.0-rc3"
+      mongosh_server_test_version: "8.3.x"
       node_js_version: "24.18.0"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -11263,7 +11553,75 @@ buildvariants:
     disable: false
     expansions:
       executable_os_id: darwin-arm64
-      mongosh_server_test_version: "8.3.0-rc3-enterprise"
+      mongosh_server_test_version: "8.3.x-enterprise"
+      node_js_version: "24.18.0"
+      mongosh_skip_node_version_check: ""
+    tasks:
+      - name: test_arg_parser
+      - name: test_async_rewriter2
+      - name: test_autocomplete
+      - name: test_browser_runtime_core
+      - name: test_browser_runtime_electron
+      - name: test_build
+      - name: test_cli_repl
+      - name: test_e2e_tests
+      - name: test_editor
+      - name: test_errors
+      - name: test_history
+      - name: test_i18n
+      - name: test_java_shell
+      - name: test_js_multiline_to_singleline
+      - name: test_logging
+      - name: test_node_runtime_worker_thread
+      - name: test_service_provider_core
+      - name: test_service_provider_node_driver
+      - name: test_shell_api
+      - name: test_shell_bson
+      - name: test_shell_evaluator
+      - name: test_snippet_manager
+      - name: test_types
+  - name: tests_linux-m90xc_n24
+    display_name: "Ubuntu 22.04 x64 m90xc n24 (Unit tests)"
+    run_on: ubuntu2204-small
+    tags: ["nightly-driver"]
+    disable: false
+    expansions:
+      executable_os_id: darwin-arm64
+      mongosh_server_test_version: "9.0.0-rc0"
+      node_js_version: "24.18.0"
+      mongosh_skip_node_version_check: ""
+    tasks:
+      - name: test_arg_parser
+      - name: test_async_rewriter2
+      - name: test_autocomplete
+      - name: test_browser_runtime_core
+      - name: test_browser_runtime_electron
+      - name: test_build
+      - name: test_cli_repl
+      - name: test_e2e_tests
+      - name: test_editor
+      - name: test_errors
+      - name: test_history
+      - name: test_i18n
+      - name: test_java_shell
+      - name: test_js_multiline_to_singleline
+      - name: test_logging
+      - name: test_node_runtime_worker_thread
+      - name: test_service_provider_core
+      - name: test_service_provider_node_driver
+      - name: test_shell_api
+      - name: test_shell_bson
+      - name: test_shell_evaluator
+      - name: test_snippet_manager
+      - name: test_types
+  - name: tests_linux-m90xe_n24
+    display_name: "Ubuntu 22.04 x64 m90xe n24 (Unit tests)"
+    run_on: ubuntu2204-small
+    tags: ["nightly-driver"]
+    disable: false
+    expansions:
+      executable_os_id: darwin-arm64
+      mongosh_server_test_version: "9.0.0-rc0-enterprise"
       node_js_version: "24.18.0"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -11332,72 +11690,6 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: ""
-      node_js_version: "24.18.0"
-      mongosh_skip_node_version_check: ""
-    tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
-      - name: test_cli_repl
-      - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
-      - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
-      - name: test_service_provider_node_driver
-      - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
-  - name: tests_win32-m42xc_n24
-    display_name: "Windows m42xc n24 (Unit tests)"
-    run_on: windows-2022-small
-    tags: []
-    disable: false
-    expansions:
-      executable_os_id: win32
-      mongosh_server_test_version: "4.2.x"
-      node_js_version: "24.18.0"
-      mongosh_skip_node_version_check: ""
-    tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
-      - name: test_cli_repl
-      - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
-      - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
-      - name: test_service_provider_node_driver
-      - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
-  - name: tests_win32-m42xe_n24
-    display_name: "Windows m42xe n24 (Unit tests)"
-    run_on: windows-2022-small
-    tags: []
-    disable: false
-    expansions:
-      executable_os_id: win32
-      mongosh_server_test_version: "4.2.x-enterprise"
       node_js_version: "24.18.0"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -11760,7 +12052,7 @@ buildvariants:
     disable: false
     expansions:
       executable_os_id: win32
-      mongosh_server_test_version: "8.3.0-rc3"
+      mongosh_server_test_version: "8.3.x"
       node_js_version: "24.18.0"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -11793,7 +12085,73 @@ buildvariants:
     disable: false
     expansions:
       executable_os_id: win32
-      mongosh_server_test_version: "8.3.0-rc3-enterprise"
+      mongosh_server_test_version: "8.3.x-enterprise"
+      node_js_version: "24.18.0"
+      mongosh_skip_node_version_check: ""
+    tasks:
+      - name: test_arg_parser
+      - name: test_async_rewriter2
+      - name: test_autocomplete
+      - name: test_browser_runtime_core
+      - name: test_browser_runtime_electron
+      - name: test_build
+      - name: test_cli_repl
+      - name: test_e2e_tests
+      - name: test_editor
+      - name: test_errors
+      - name: test_history
+      - name: test_i18n
+      - name: test_js_multiline_to_singleline
+      - name: test_logging
+      - name: test_node_runtime_worker_thread
+      - name: test_service_provider_core
+      - name: test_service_provider_node_driver
+      - name: test_shell_api
+      - name: test_shell_bson
+      - name: test_shell_evaluator
+      - name: test_snippet_manager
+      - name: test_types
+  - name: tests_win32-m90xc_n24
+    display_name: "Windows m90xc n24 (Unit tests)"
+    run_on: windows-2022-small
+    tags: []
+    disable: false
+    expansions:
+      executable_os_id: win32
+      mongosh_server_test_version: "9.0.0-rc0"
+      node_js_version: "24.18.0"
+      mongosh_skip_node_version_check: ""
+    tasks:
+      - name: test_arg_parser
+      - name: test_async_rewriter2
+      - name: test_autocomplete
+      - name: test_browser_runtime_core
+      - name: test_browser_runtime_electron
+      - name: test_build
+      - name: test_cli_repl
+      - name: test_e2e_tests
+      - name: test_editor
+      - name: test_errors
+      - name: test_history
+      - name: test_i18n
+      - name: test_js_multiline_to_singleline
+      - name: test_logging
+      - name: test_node_runtime_worker_thread
+      - name: test_service_provider_core
+      - name: test_service_provider_node_driver
+      - name: test_shell_api
+      - name: test_shell_bson
+      - name: test_shell_evaluator
+      - name: test_snippet_manager
+      - name: test_types
+  - name: tests_win32-m90xe_n24
+    display_name: "Windows m90xe n24 (Unit tests)"
+    run_on: windows-2022-small
+    tags: []
+    disable: false
+    expansions:
+      executable_os_id: win32
+      mongosh_server_test_version: "9.0.0-rc0-enterprise"
       node_js_version: "24.18.0"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -12333,14 +12691,14 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_arm64_openssl3
-  - name: e2e_tests_ubuntu2404_arm64_small_openssl3_m830-rc5
-    display_name: "Ubuntu 24.04 arm64 830-rc5 openssl3 (E2E tests)"
+  - name: e2e_tests_ubuntu2404_arm64_small_openssl3_m83x
+    display_name: "Ubuntu 24.04 arm64 83x openssl3 (E2E tests)"
     run_on: ubuntu2404-arm64-small
     tags: []
     expansions:
       executable_os_id: "linux-arm64-openssl3"
       node_js_version: "24.18.0"
-      mongosh_server_test_version: "8.3.0-rc5-enterprise"
+      mongosh_server_test_version: "8.3.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_arm64_openssl3
@@ -12366,14 +12724,14 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_arm64
-  - name: e2e_tests_amazon2023.0_arm64_small_m830-rc5
-    display_name: "Amazon Linux 2023 arm64 830-rc5 (E2E tests)"
+  - name: e2e_tests_amazon2023.0_arm64_small_m83x
+    display_name: "Amazon Linux 2023 arm64 83x (E2E tests)"
     run_on: amazon2023.0-arm64-small
     tags: []
     expansions:
       executable_os_id: "linux-arm64"
       node_js_version: "24.18.0"
-      mongosh_server_test_version: "8.3.0-rc5-enterprise"
+      mongosh_server_test_version: "8.3.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_arm64
@@ -12454,14 +12812,14 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_ppc64le
-  - name: e2e_tests_rhel9_power_small_m830-rc5
-    display_name: "RHEL 9 PPC 830-rc5 (E2E tests)"
+  - name: e2e_tests_rhel9_power_small_m83x
+    display_name: "RHEL 9 PPC 83x (E2E tests)"
     run_on: rhel9-power-small
     tags: []
     expansions:
       executable_os_id: "linux-ppc64le"
       node_js_version: "24.18.0"
-      mongosh_server_test_version: "8.3.0-rc5-enterprise"
+      mongosh_server_test_version: "8.3.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_ppc64le
@@ -12498,14 +12856,14 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_s390x
-  - name: e2e_tests_rhel9_zseries_small_m830-rc5
-    display_name: "RHEL 9 s390x 830-rc5 (E2E tests)"
+  - name: e2e_tests_rhel9_zseries_small_m83x
+    display_name: "RHEL 9 s390x 83x (E2E tests)"
     run_on: rhel9-zseries-small
     tags: []
     expansions:
       executable_os_id: "linux-s390x"
       node_js_version: "24.18.0"
-      mongosh_server_test_version: "8.3.0-rc5-enterprise"
+      mongosh_server_test_version: "8.3.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_s390x
@@ -12564,14 +12922,14 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_darwin_arm64
-  - name: e2e_tests_macos_14_arm64_m830-rc5
-    display_name: "MacOS 14 arm64 830-rc5 (E2E tests)"
+  - name: e2e_tests_macos_14_arm64_m83x
+    display_name: "MacOS 14 arm64 83x (E2E tests)"
     run_on: macos-14-arm64
     tags: []
     expansions:
       executable_os_id: "darwin-arm64"
       node_js_version: "24.18.0"
-      mongosh_server_test_version: "8.3.0-rc5-enterprise"
+      mongosh_server_test_version: "8.3.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_darwin_arm64
@@ -12636,14 +12994,14 @@ buildvariants:
       - name: e2e_tests_win32
       - name: package_artifact_win32_x64
       - name: package_artifact_win32msi_x64
-  - name: e2e_tests_windows_2022_latest_small_m830-rc5
-    display_name: "Windows VS 2022 830-rc5 (E2E tests)"
+  - name: e2e_tests_windows_2022_latest_small_m83x
+    display_name: "Windows VS 2022 83x (E2E tests)"
     run_on: windows-2022-latest-small
     tags: []
     expansions:
       executable_os_id: "win32"
       node_js_version: "24.18.0"
-      mongosh_server_test_version: "8.3.0-rc5-enterprise"
+      mongosh_server_test_version: "8.3.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_win32
