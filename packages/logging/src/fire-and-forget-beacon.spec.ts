@@ -319,5 +319,23 @@ describe('FireAndForgetBeacon', function () {
       expect(fail3.kind).to.equal('error');
       expect(suppressed.kind).to.equal('suppressed');
     });
+
+    it('let only one probe through when concurrent sends race the half-open window', async function () {
+      beacon = new FireAndForgetBeacon({
+        breaker: { threshold: 1, cooldownMs: 50 },
+      });
+      const initial = await beacon.send(refusedUrl, {});
+      expect(initial.kind).to.equal('error'); // opens the breaker
+      await new Promise((resolve) => setTimeout(resolve, 75)); // cooldown expires
+      // All three send() calls execute synchronously before the probe's
+      // connection attempt can resolve, so exactly one may become the probe.
+      const outcomes = await Promise.all([
+        beacon.send(refusedUrl, {}),
+        beacon.send(refusedUrl, {}),
+        beacon.send(refusedUrl, {}),
+      ]);
+      const kinds = outcomes.map(({ kind }) => kind).sort();
+      expect(kinds).to.deep.equal(['error', 'suppressed', 'suppressed']);
+    });
   });
 });

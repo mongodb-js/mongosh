@@ -58,6 +58,7 @@ export class FireAndForgetBeacon implements Beacon {
   private readonly dispatchDurations: number[] = [];
   private consecutiveFailures = 0;
   private breakerOpenedAt?: number;
+  private probeInFlight = false;
 
   constructor(options: FireAndForgetBeaconOptions = {}) {
     this.options = options;
@@ -114,12 +115,18 @@ export class FireAndForgetBeacon implements Beacon {
     if (outcome.kind === 'dispatched') {
       this.consecutiveFailures = 0;
       this.breakerOpenedAt = undefined;
+      this.probeInFlight = false;
       this.dispatchDurations.push(outcome.durationMs);
       if (this.dispatchDurations.length > 50) this.dispatchDurations.shift();
     } else if (outcome.kind === 'error') {
+      const wasProbe = this.probeInFlight;
+      this.probeInFlight = false;
       this.consecutiveFailures++;
       const { threshold = 5 } = this.options.breaker ?? {};
-      if (
+      if (wasProbe) {
+        // Failed probe: reopen immediately, restarting the cooldown.
+        this.breakerOpenedAt = Date.now();
+      } else if (
         this.consecutiveFailures >= threshold &&
         this.breakerOpenedAt === undefined
       ) {
@@ -131,12 +138,14 @@ export class FireAndForgetBeacon implements Beacon {
 
   private breakerIsOpen(): boolean {
     if (this.breakerOpenedAt === undefined) return false;
-    const { threshold = 5, cooldownMs = 300_000 } = this.options.breaker ?? {};
+    // A half-open probe is already in flight — stay suppressed until its
+    // outcome is recorded.
+    if (this.probeInFlight) return true;
+    const { cooldownMs = 300_000 } = this.options.breaker ?? {};
     if (Date.now() - this.breakerOpenedAt < cooldownMs) return true;
-    // Half-open: let a single probe through. A success closes the breaker
-    // fully (recordOutcome resets); one more failure reopens it immediately.
-    this.breakerOpenedAt = undefined;
-    this.consecutiveFailures = threshold - 1;
+    // Half-open: exactly this send becomes the probe. breakerOpenedAt stays
+    // set so concurrent sends remain suppressed while the probe is out.
+    this.probeInFlight = true;
     return false;
   }
 
