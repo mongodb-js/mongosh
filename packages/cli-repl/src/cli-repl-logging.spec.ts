@@ -85,17 +85,17 @@ describe('CliRepl logging', function () {
       cliReplOptions.shellCliOptions.connectionSpecifier =
         await testServer.connectionString();
       cliRepl = new CliRepl(cliReplOptions);
+      // These tests exercise log file behavior, not REPL history. Disabling
+      // persistent history avoids opening a history file handle per test.
+      sinon.stub(cliRepl, 'getHistoryFilePath').returns('');
     });
 
     afterEach(async function () {
       await cliRepl.mongoshRepl.close();
+      sinon.restore();
     });
 
     context('logging configuration', function () {
-      afterEach(function () {
-        sinon.restore();
-      });
-
       it('logging is enabled by default and event is called', async function () {
         const onLogInitialized = sinon.stub();
         cliRepl.bus.on('mongosh:log-initialized', onLogInitialized);
@@ -177,9 +177,14 @@ describe('CliRepl logging', function () {
         expect(cliRepl.getLogPath()).equals(path.join(logName));
       });
 
-      it('can set log retention days', async function () {
+      it('can set log retention days, retention GB, max file count, and compression', async function () {
         const testRetentionDays = 123;
+        const testLogRetentionGB = 10;
+        const testMaxFileCount = 123;
         cliRepl.config.logRetentionDays = testRetentionDays;
+        cliRepl.config.logRetentionGB = testLogRetentionGB;
+        cliRepl.config.logMaxFileCount = testMaxFileCount;
+        cliRepl.config.logCompressionEnabled = true;
         await cliRepl.start(await testServer.connectionString(), {});
 
         expect(await cliRepl.getConfig('logRetentionDays')).equals(
@@ -188,12 +193,6 @@ describe('CliRepl logging', function () {
         expect(cliRepl.logManager?._options.retentionDays).equals(
           testRetentionDays
         );
-      });
-
-      it('can set log retention GB', async function () {
-        const testLogRetentionGB = 10;
-        cliRepl.config.logRetentionGB = testLogRetentionGB;
-        await cliRepl.start(await testServer.connectionString(), {});
 
         expect(await cliRepl.getConfig('logRetentionGB')).equals(
           testLogRetentionGB
@@ -201,12 +200,6 @@ describe('CliRepl logging', function () {
         expect(cliRepl.logManager?._options.retentionGB).equals(
           testLogRetentionGB
         );
-      });
-
-      it('can set log max file count', async function () {
-        const testMaxFileCount = 123;
-        cliRepl.config.logMaxFileCount = testMaxFileCount;
-        await cliRepl.start(await testServer.connectionString(), {});
 
         expect(await cliRepl.getConfig('logMaxFileCount')).equals(
           testMaxFileCount
@@ -214,11 +207,6 @@ describe('CliRepl logging', function () {
         expect(cliRepl.logManager?._options.maxLogFileCount).equals(
           testMaxFileCount
         );
-      });
-
-      it('can set log compression', async function () {
-        cliRepl.config.logCompressionEnabled = true;
-        await cliRepl.start(await testServer.connectionString(), {});
 
         expect(await cliRepl.getConfig('logCompressionEnabled')).equals(true);
         expect(cliRepl.logManager?._options.gzip).equals(true);

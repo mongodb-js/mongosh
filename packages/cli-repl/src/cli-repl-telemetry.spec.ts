@@ -115,7 +115,13 @@ describe('CliRepl telemetry (integration)', function () {
   context('with an actual server', function () {
     const testServer = startSharedTestServer();
 
+    let getHistoryFilePathStub: sinon.SinonStub;
     beforeEach(async function () {
+      // These tests exercise log file behavior, not REPL history. Disabling
+      // persistent history avoids opening a history file handle per test.
+      getHistoryFilePathStub = sinon
+        .stub(CliRepl.prototype, 'getHistoryFilePath')
+        .returns('');
       cliReplOptions.shellCliOptions.connectionSpecifier =
         await testServer.connectionString();
       cliRepl = new CliRepl(cliReplOptions);
@@ -123,6 +129,7 @@ describe('CliRepl telemetry (integration)', function () {
 
     afterEach(async function () {
       await cliRepl.mongoshRepl.close();
+      getHistoryFilePathStub.restore();
     });
 
     context('with network connectivity', function () {
