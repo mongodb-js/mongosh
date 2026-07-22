@@ -61,9 +61,15 @@ export class TlsSessionStore {
       storedAt: Date.now(),
     };
     // Best-effort async persist; within this process the in-memory copy is
-    // already up to date even if the write never lands.
-    this.pendingWrite = fs.promises
-      .mkdir(path.dirname(this.filePath), { recursive: true })
+    // already up to date even if the write never lands. Chained onto the
+    // previous pendingWrite (rather than replacing it) so back-to-back
+    // tickets — TLS 1.3 servers commonly send two NewSessionTickets in a
+    // row — persist in call order instead of racing two unordered
+    // writeFile calls to the same path, where the older write could win.
+    this.pendingWrite = this.pendingWrite
+      .then(() =>
+        fs.promises.mkdir(path.dirname(this.filePath), { recursive: true })
+      )
       .then(() =>
         fs.promises.writeFile(this.filePath, JSON.stringify(sessions), {
           mode: 0o600,
