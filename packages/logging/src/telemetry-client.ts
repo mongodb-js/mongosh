@@ -65,8 +65,8 @@ export class TelemetryClient implements MongoshAnalytics {
         // discard the outcome; callers only await completion
       })
       .catch(() => {
-        // telemetry is best-effort; the beacon contract never rejects, this
-        // guards gzip/serialization failures
+        // telemetry is best-effort; guards gzip/serialization failures and
+        // beacons that reject despite their contract
       });
     this.inflight.push(p);
   }
