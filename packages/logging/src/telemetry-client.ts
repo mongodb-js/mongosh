@@ -2,23 +2,12 @@ import { gzip } from 'zlib';
 import { promisify } from 'util';
 import type { TelemetryEvent } from './telemetry-events';
 import type { MongoshAnalytics } from './analytics-helpers';
+import type { Beacon } from './beacon';
 
 const gzipAsync = promisify(gzip);
 
-// Generous enough number for a fire-and-forget event. Adjust freely if needed.
-export const REQUEST_TIMEOUT_MS = 5_000;
-
 const FLUSH_TIMEOUT_MS = 2_000;
 const SCHEMA_VERSION = 'v1';
-
-type FetchFn = (
-  url: string,
-  init?: {
-    method?: string;
-    headers?: { Cookie: string };
-    signal?: AbortSignal;
-  }
-) => Promise<unknown>;
 
 function eventPath(name: TelemetryEvent['name']): string {
   return `/${SCHEMA_VERSION}/${name.toLowerCase().replace(/\s+/g, '-')}`;
@@ -26,21 +15,23 @@ function eventPath(name: TelemetryEvent['name']): string {
 
 export class TelemetryClient implements MongoshAnalytics {
   private readonly endpoint: string;
-  private readonly fetch: FetchFn;
+  private readonly beacon: Beacon;
   private readonly flushTimeoutMs: number;
-  private readonly requestTimeoutMs: number;
   private readonly inflight: Promise<void>[] = [];
 
   constructor(
     endpoint: string,
-    fetch: FetchFn = globalThis.fetch.bind(globalThis),
-    flushTimeoutMs: number = FLUSH_TIMEOUT_MS,
-    requestTimeoutMs: number = REQUEST_TIMEOUT_MS
+    beacon: Beacon,
+    flushTimeoutMs: number = FLUSH_TIMEOUT_MS
   ) {
     this.endpoint = endpoint;
-    this.fetch = fetch;
+    this.beacon = beacon;
     this.flushTimeoutMs = flushTimeoutMs;
-    this.requestTimeoutMs = requestTimeoutMs;
+  }
+
+  /** Pre-establish the connection to the telemetry endpoint, if the beacon supports it. */
+  warmUp(): void {
+    this.beacon.warmUp?.(`${this.endpoint}/warm-up`);
   }
 
   /**
@@ -48,7 +39,7 @@ export class TelemetryClient implements MongoshAnalytics {
    *  - path (cs-uri-stem):          schema version + event name, e.g. /v1/new-connection
    *  - query string (cs-uri-query): device_id / session_id, for filtering & joins in raw logs
    *  - User-Agent (cs(User-Agent)): client identity (mongosh version, OS, arch),
-   *                                 attached by the `fetch` passed into the
+   *                                 attached by the Beacon passed into the
    *                                 constructor, not by this class
    *  - Cookie (cs(Cookie)):         full event payload, gzip-compressed + base64-encoded
    *
@@ -66,28 +57,36 @@ export class TelemetryClient implements MongoshAnalytics {
     // and/or use a custom dictionary rather than plain gzip.
     const p = gzipAsync(Buffer.from(JSON.stringify(event)))
       .then((compressed) =>
-        this.fetch(url, {
-          method: 'HEAD',
-          headers: { Cookie: `mge=${compressed.toString('base64')}` },
-          signal: AbortSignal.timeout(this.requestTimeoutMs),
+        this.beacon.send(url, {
+          Cookie: `mge=${compressed.toString('base64')}`,
         })
       )
       .then(() => {
-        // discard the Response; callers only await completion
+        // discard the outcome; callers only await completion
       })
       .catch(() => {
-        // telemetry is best-effort; ignore send failures (including timeouts)
+        // telemetry is best-effort; the beacon contract never rejects, this
+        // guards gzip/serialization failures
       });
     this.inflight.push(p);
   }
 
-  // TODO(MONGOSH-3454): Optimize aggregated event flushing.
+  /**
+   * Bounded shutdown window: waits for in-flight sends to reach the kernel,
+   * then gives the beacon its impending-shutdown hook (persistence I/O) —
+   * all raced against flushTimeoutMs so exit can never hang on telemetry.
+   */
   async flush(): Promise<void> {
     const pending = this.inflight.splice(0);
-    if (pending.length === 0) return;
+    if (pending.length === 0 && !this.beacon.flush) return;
+    const work = Promise.all(pending)
+      .then(() => this.beacon.flush?.())
+      .catch(() => {
+        // the beacon contract never rejects; guard against violations anyway
+      });
     const timeout = new Promise<void>((resolve) =>
       setTimeout(resolve, this.flushTimeoutMs).unref?.()
     );
-    await Promise.race([Promise.all(pending), timeout]);
+    await Promise.race([work, timeout]);
   }
 }

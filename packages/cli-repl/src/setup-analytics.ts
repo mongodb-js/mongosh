@@ -3,6 +3,7 @@ import {
   ThrottledAnalytics,
   ToggleableAnalytics,
   TelemetryClient,
+  FetchBeacon,
 } from '@mongosh/logging';
 
 /**
@@ -65,7 +66,7 @@ export function setupTelemetryAnalytics({
     // (and its underlying fetch) is never called.
     analytics: new ToggleableAnalytics(
       new ThrottledAnalytics({
-        target: new TelemetryClient(telemetryEndpoint, fetch),
+        target: new TelemetryClient(telemetryEndpoint, new FetchBeacon(fetch)),
         throttle: {
           rate: TELEMETRY_THROTTLE_RATE,
           metadataPath,

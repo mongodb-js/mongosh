@@ -1,7 +1,8 @@
 import { expect } from 'chai';
 import { gunzipSync } from 'zlib';
 import { TelemetryClient } from '.';
-import type { TelemetryEvent } from '.';
+import type { TelemetryEvent, Beacon } from '.';
+import type { BeaconOutcome } from './beacon';
 
 const sessionEvent: TelemetryEvent = {
   name: 'Identify',
@@ -25,41 +26,47 @@ const sessionEvent: TelemetryEvent = {
   },
 };
 
+type RecordedSend = { url: string; headers: Record<string, string> };
+
+function createFakeBeacon(
+  sendImpl?: (
+    url: string,
+    headers: Record<string, string>
+  ) => Promise<BeaconOutcome>
+): { beacon: Beacon; sends: RecordedSend[] } {
+  const sends: RecordedSend[] = [];
+  const beacon: Beacon = {
+    send(url, headers) {
+      sends.push({ url, headers });
+      return (
+        sendImpl?.(url, headers) ??
+        Promise.resolve({ kind: 'dispatched', durationMs: 1 })
+      );
+    },
+  };
+  return { beacon, sends };
+}
+
 describe('TelemetryClient', function () {
-  it('sends events to the configured endpoint', async function () {
-    const calls: string[] = [];
-    const client = new TelemetryClient('https://example.com/events', (url) => {
-      calls.push(url);
-      return Promise.resolve();
-    });
+  it('send events to the configured endpoint', async function () {
+    const { beacon, sends } = createFakeBeacon();
+    const client = new TelemetryClient('https://example.com/events', beacon);
     client.track(sessionEvent);
     await client.flush();
-    expect(calls).to.deep.equal([
+    expect(sends.map(({ url }) => url)).to.deep.equal([
       'https://example.com/events/v1/identify?deviceId=test-device&sessionId=test-session',
     ]);
   });
 
-  it('sends a HEAD request with the event gzip+base64-encoded in the Cookie header', async function () {
-    const requests: { url: string; init: any }[] = [];
-    const client = new TelemetryClient(
-      'https://example.com/events',
-      (url, init) => {
-        requests.push({ url, init });
-        return Promise.resolve();
-      }
-    );
+  it('send the event gzip+base64-encoded in the Cookie header', async function () {
+    const { beacon, sends } = createFakeBeacon();
+    const client = new TelemetryClient('https://example.com/events', beacon);
 
     client.track(sessionEvent);
     await client.flush();
 
-    expect(requests).to.have.lengthOf(1);
-    expect(requests[0].url).to.equal(
-      'https://example.com/events/v1/identify?deviceId=test-device&sessionId=test-session'
-    );
-    expect(requests[0].init.method).to.equal('HEAD');
-    expect(requests[0].init.signal).to.be.instanceOf(AbortSignal);
-
-    const cookie: string = requests[0].init.headers.Cookie;
+    expect(sends).to.have.lengthOf(1);
+    const cookie: string = sends[0].headers.Cookie;
     expect(cookie).to.match(/^mge=/);
     const decoded = gunzipSync(
       Buffer.from(cookie.slice('mge='.length), 'base64')
@@ -69,59 +76,32 @@ describe('TelemetryClient', function () {
     );
   });
 
-  it('aborts a request that never resolves after the request timeout', async function () {
-    let capturedSignal: AbortSignal | undefined;
-    const client = new TelemetryClient(
-      'https://example.com/events',
-      (_url, init) => {
-        capturedSignal = init?.signal;
-        // Simulate a stuck network request and reject once the signal is aborted.
-        return new Promise((_resolve, reject) => {
-          init?.signal?.addEventListener('abort', () => {
-            reject(new Error('The operation was aborted'));
-          });
-        });
-      },
-      undefined,
-      5 // requestTimeoutMs
+  it('stay silent when the beacon rejects despite its contract', async function () {
+    const { beacon } = createFakeBeacon(() =>
+      Promise.reject(new Error('beacon contract violation'))
     );
-
-    client.track(sessionEvent);
-
-    // The request never resolves on its own. flush() only returns once the
-    // timeout aborts it (within the 2s).
-    await client.flush();
-
-    expect(capturedSignal).to.be.instanceOf(AbortSignal);
-    expect(capturedSignal?.aborted).to.equal(true);
-  });
-
-  it('silently ignores network errors', async function () {
-    const client = new TelemetryClient('https://example.com/events', () => {
-      return Promise.reject(new Error('network failure'));
-    });
+    const client = new TelemetryClient('https://example.com/events', beacon);
     client.track(sessionEvent);
     await client.flush(); // must not throw
   });
 
-  it('flush() resolves immediately when no events were tracked', async function () {
-    const client = new TelemetryClient('https://example.com/events', () =>
-      Promise.resolve()
-    );
+  it('resolve flush() immediately when no events were tracked', async function () {
+    const { beacon } = createFakeBeacon();
+    const client = new TelemetryClient('https://example.com/events', beacon);
     await client.flush(); // must not throw
   });
 
-  it('flush() waits for all in-flight requests before resolving', async function () {
-    let resolve1!: () => void;
-    let resolve2!: () => void;
-    const p1 = new Promise<void>((r) => (resolve1 = r));
-    const p2 = new Promise<void>((r) => (resolve2 = r));
-    const responses = [p1, p2];
-    let responseIndex = 0;
-
-    const client = new TelemetryClient('https://example.com/events', () => {
-      return responses[responseIndex++];
-    });
+  it('wait for all in-flight sends before resolving flush()', async function () {
+    const dispatched: BeaconOutcome = { kind: 'dispatched', durationMs: 1 };
+    let resolve1!: (o: BeaconOutcome) => void;
+    let resolve2!: (o: BeaconOutcome) => void;
+    const outcomes = [
+      new Promise<BeaconOutcome>((r) => (resolve1 = r)),
+      new Promise<BeaconOutcome>((r) => (resolve2 = r)),
+    ];
+    let sendIndex = 0;
+    const { beacon } = createFakeBeacon(() => outcomes[sendIndex++]);
+    const client = new TelemetryClient('https://example.com/events', beacon);
 
     client.track(sessionEvent);
     client.track(sessionEvent);
@@ -131,38 +111,37 @@ describe('TelemetryClient', function () {
       flushed = true;
     });
 
-    await Promise.resolve();
+    await new Promise(setImmediate);
     expect(flushed).to.equal(false);
 
-    resolve1();
-    await Promise.resolve();
+    resolve1(dispatched);
+    await new Promise(setImmediate);
     expect(flushed).to.equal(false);
 
-    resolve2();
+    resolve2(dispatched);
     await flushPromise;
     expect(flushed).to.equal(true);
   });
 
-  it('flush() clears inflight so a second flush() has nothing to wait on', async function () {
-    const fetchCalls: number[] = [];
-    const client = new TelemetryClient('https://example.com/events', () => {
-      fetchCalls.push(1);
-      return Promise.resolve();
-    });
+  it('clear inflight so a second flush() has nothing to wait on', async function () {
+    const { beacon, sends } = createFakeBeacon();
+    const client = new TelemetryClient('https://example.com/events', beacon);
 
     client.track(sessionEvent);
     await client.flush();
-    expect(fetchCalls).to.have.lengthOf(1);
+    expect(sends).to.have.lengthOf(1);
 
     await client.flush(); // no new track() calls — should resolve immediately
-    expect(fetchCalls).to.have.lengthOf(1);
+    expect(sends).to.have.lengthOf(1);
   });
 
-  it('flush() resolves via timeout when a request never completes', async function () {
-    // Simulate a stuck network request that never resolves.
+  it('resolve flush() via the timeout when a send never completes', async function () {
+    const { beacon } = createFakeBeacon(
+      () => new Promise<BeaconOutcome>(() => undefined) // Never resolves.
+    );
     const client = new TelemetryClient(
       'https://example.com/events',
-      () => new Promise<void>(() => undefined), // Never resolves.
+      beacon,
       10 // Override the 2s default so the test completes much faster.
     );
     client.track(sessionEvent);
@@ -171,28 +150,98 @@ describe('TelemetryClient', function () {
     expect(Date.now() - start).to.be.lessThan(500); // Well within CI tolerance.
   });
 
-  it('events tracked after flush() starts are not included in that flush', async function () {
-    let resolveFirst!: () => void;
-    const firstDone = new Promise<void>((r) => (resolveFirst = r));
-    let fetchCount = 0;
-
-    const client = new TelemetryClient('https://example.com/events', () => {
-      fetchCount++;
-      if (fetchCount === 1) return firstDone;
-      return Promise.resolve();
+  it('exclude events tracked after flush() starts from that flush', async function () {
+    const dispatched: BeaconOutcome = { kind: 'dispatched', durationMs: 1 };
+    let resolveFirst!: (o: BeaconOutcome) => void;
+    const firstOutcome = new Promise<BeaconOutcome>((r) => (resolveFirst = r));
+    let sendCount = 0;
+    const { beacon } = createFakeBeacon(() => {
+      sendCount++;
+      if (sendCount === 1) return firstOutcome;
+      return Promise.resolve(dispatched);
     });
+    const client = new TelemetryClient('https://example.com/events', beacon);
 
     client.track(sessionEvent); // first event — held until resolveFirst()
     const flushPromise = client.flush();
 
     client.track(sessionEvent); // second event tracked while flush is pending
 
-    resolveFirst();
+    resolveFirst(dispatched);
     await flushPromise;
 
     // second event is in a fresh inflight batch, not in the completed flush;
     // draining it separately confirms it was tracked outside the first flush
     await client.flush(); // drain the second event
-    expect(fetchCount).to.equal(2);
+    expect(sendCount).to.equal(2);
+  });
+
+  it('invoke the beacon flush hook after in-flight sends complete', async function () {
+    const order: string[] = [];
+    const beacon: Beacon = {
+      send: async () => {
+        await new Promise((resolve) => setTimeout(resolve, 20));
+        order.push('send');
+        return { kind: 'dispatched', durationMs: 1 };
+      },
+      flush: () => {
+        order.push('beacon-flush');
+        return Promise.resolve();
+      },
+    };
+    const client = new TelemetryClient('https://example.com/events', beacon);
+    client.track(sessionEvent);
+    client.track(sessionEvent);
+    await client.flush();
+    expect(order).to.deep.equal(['send', 'send', 'beacon-flush']);
+  });
+
+  it('call the beacon flush hook even when no events were tracked', async function () {
+    let flushCalls = 0;
+    const beacon: Beacon = {
+      send: () => Promise.resolve({ kind: 'dispatched', durationMs: 1 }),
+      flush: () => {
+        flushCalls++;
+        return Promise.resolve();
+      },
+    };
+    const client = new TelemetryClient('https://example.com/events', beacon);
+    await client.flush();
+    expect(flushCalls).to.equal(1);
+  });
+
+  it('bound the beacon flush hook by the flush timeout', async function () {
+    const beacon: Beacon = {
+      send: () => Promise.resolve({ kind: 'dispatched', durationMs: 1 }),
+      flush: () => new Promise<void>(() => undefined), // never resolves
+    };
+    const client = new TelemetryClient(
+      'https://example.com/events',
+      beacon,
+      10
+    );
+    client.track(sessionEvent);
+    const start = Date.now();
+    await client.flush();
+    expect(Date.now() - start).to.be.lessThan(500);
+  });
+
+  it('forward warm-up to the beacon with the /warm-up path', function () {
+    const warmUpCalls: string[] = [];
+    const beacon: Beacon = {
+      send: () => Promise.resolve({ kind: 'dispatched', durationMs: 1 }),
+      warmUp: (url) => {
+        warmUpCalls.push(url);
+      },
+    };
+    const client = new TelemetryClient('https://example.com/events', beacon);
+    client.warmUp();
+    expect(warmUpCalls).to.deep.equal(['https://example.com/events/warm-up']);
+  });
+
+  it('tolerate beacons without warm-up support', function () {
+    const { beacon } = createFakeBeacon();
+    const client = new TelemetryClient('https://example.com/events', beacon);
+    client.warmUp(); // must not throw
   });
 });
