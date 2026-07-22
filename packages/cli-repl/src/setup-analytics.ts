@@ -1,4 +1,9 @@
-import type { RequestInit, Response } from '@mongodb-js/devtools-proxy-support';
+import type {
+  AgentWithInitialize,
+  RequestInit,
+  Response,
+} from '@mongodb-js/devtools-proxy-support';
+import { useOrCreateAgent } from '@mongodb-js/devtools-proxy-support';
 import type { Beacon } from '@mongosh/logging';
 import {
   ThrottledAnalytics,
@@ -7,7 +12,6 @@ import {
   FetchBeacon,
   FireAndForgetBeacon,
 } from '@mongosh/logging';
-import type http from 'http';
 import path from 'path';
 
 /**
@@ -27,11 +31,20 @@ export type SetupTelemetryAnalyticsParams = {
   /** Directory used to persist cross-session throttle state. */
   metadataPath: string;
   /**
-   * Proxy-aware agent shared with the rest of mongosh; undefined when no
-   * proxy is configured. Used by the fire-and-forget transport so proxy
-   * environments keep working.
+   * Proxy-aware agent shared with the rest of mongosh. This is always
+   * present in a real mongosh — `useOrCreateAgent` is called without a
+   * target in cli-repl.ts, and without one it always builds an agent rather
+   * than returning undefined. The fire-and-forget transport only reuses it
+   * (via {@link resolveTelemetryAgent}) when a proxy actually applies to the
+   * telemetry endpoint; otherwise it builds its own resuming keep-alive
+   * agent so TLS session resumption and the local DNS cache stay in effect.
+   * Note that when a proxy agent *is* used, the fire-and-forget beacon's
+   * `dispatched` guarantee ("bytes reached the kernel") is a little weaker:
+   * the client-visible connect event can fire once the tunnel to the proxy
+   * is established, ahead of the end-to-end TLS handshake completing —
+   * acceptable for best-effort telemetry.
    */
-  agent?: http.Agent;
+  agent?: AgentWithInitialize;
   /** User-Agent header value for the fire-and-forget transport. */
   userAgent?: string;
 };
@@ -47,6 +60,34 @@ export type SetupTelemetryAnalyticsResult = {
   /** The resolved telemetry endpoint, or '' when none is configured. */
   telemetryEndpoint: string;
 };
+
+/**
+ * Resolves the shared proxy-aware agent against the telemetry endpoint for
+ * use by the fire-and-forget transport.
+ *
+ * `useOrCreateAgent(agent, telemetryEndpoint, true)`, given an *existing*
+ * agent instance plus a target and `useTargetRegardlessOfExistingAgent:
+ * true`, re-checks that agent's own `proxyOptions` against the target and:
+ *  - returns `undefined` when they resolve to no proxy for that URL — the
+ *    fire-and-forget transport then builds its own resuming keep-alive
+ *    agent (TLS session resumption + DNS cache) instead of reusing the
+ *    general-purpose one, both of which would otherwise be dead code;
+ *  - returns the agent unchanged when a proxy *does* apply, so proxy
+ *    environments keep working.
+ * (Verified against node_modules/@mongodb-js/devtools-proxy-support
+ * dist/agent.js: `useOrCreateAgent` branches on `isExistingAgentInstance`
+ * (`'createConnection' in options`, true for any agent produced by
+ * `createAgent`/`useOrCreateAgent`) and, on that branch, returns `undefined`
+ * exactly when `useTargetRegardlessOfExistingAgent && target !== undefined
+ * && agent.proxyOptions && !proxyForUrl(agent.proxyOptions, target)`.)
+ */
+export function resolveTelemetryAgent(
+  agent: AgentWithInitialize | undefined,
+  telemetryEndpoint: string
+): AgentWithInitialize | undefined {
+  if (!agent) return undefined;
+  return useOrCreateAgent(agent, telemetryEndpoint, true);
+}
 
 /**
  * Build the analytics sink for a mongosh session.
@@ -79,7 +120,7 @@ export function setupTelemetryAnalytics({
   const beacon: Beacon =
     process.env.MONGOSH_TELEMETRY_TRANSPORT === 'fire-and-forget'
       ? new FireAndForgetBeacon({
-          agent,
+          agent: resolveTelemetryAgent(agent, telemetryEndpoint),
           defaultHeaders: userAgent ? { 'User-Agent': userAgent } : {},
           sessionStorePath: path.join(
             metadataPath,

@@ -6,7 +6,12 @@ import {
   ToggleableAnalytics,
 } from '@mongosh/logging';
 import type { TelemetryEvent } from '@mongosh/logging';
-import { setupTelemetryAnalytics } from './setup-analytics';
+import type { AgentWithInitialize } from '@mongodb-js/devtools-proxy-support';
+import { useOrCreateAgent } from '@mongodb-js/devtools-proxy-support';
+import {
+  resolveTelemetryAgent,
+  setupTelemetryAnalytics,
+} from './setup-analytics';
 
 const identifyEvent: TelemetryEvent = {
   name: 'Identify',
@@ -30,86 +35,130 @@ const identifyEvent: TelemetryEvent = {
   },
 };
 
-describe('setupTelemetryAnalytics', function () {
-  const metadataPath = os.tmpdir();
-  // A fetch stub; these tests never actually track()/send, they only inspect
-  // how the analytics sink is constructed.
-  const fetch = () => Promise.resolve(new Response());
+describe('setup-analytics', function () {
+  describe('setupTelemetryAnalytics', function () {
+    const metadataPath = os.tmpdir();
+    // A fetch stub; these tests never actually track()/send, they only inspect
+    // how the analytics sink is constructed.
+    const fetch = () => Promise.resolve(new Response());
 
-  let savedEnvEndpoint: string | undefined;
-  beforeEach(function () {
-    savedEnvEndpoint = process.env.MONGOSH_TELEMETRY_ENDPOINT;
-    delete process.env.MONGOSH_TELEMETRY_ENDPOINT;
-  });
-  afterEach(function () {
-    if (savedEnvEndpoint === undefined) {
+    let savedEnvEndpoint: string | undefined;
+    beforeEach(function () {
+      savedEnvEndpoint = process.env.MONGOSH_TELEMETRY_ENDPOINT;
       delete process.env.MONGOSH_TELEMETRY_ENDPOINT;
-    } else {
-      process.env.MONGOSH_TELEMETRY_ENDPOINT = savedEnvEndpoint;
+    });
+    afterEach(function () {
+      if (savedEnvEndpoint === undefined) {
+        delete process.env.MONGOSH_TELEMETRY_ENDPOINT;
+      } else {
+        process.env.MONGOSH_TELEMETRY_ENDPOINT = savedEnvEndpoint;
+      }
+    });
+
+    function setup(
+      params: Partial<Parameters<typeof setupTelemetryAnalytics>[0]> = {}
+    ) {
+      return setupTelemetryAnalytics({
+        configuredTelemetryEndpoint: '',
+        fetch: fetch as any,
+        metadataPath,
+        ...params,
+      });
     }
+
+    it('returns a no-op sink when no endpoint is configured', function () {
+      const { analytics, telemetryEndpoint } = setup();
+      expect(telemetryEndpoint).to.equal('');
+      expect(analytics).to.be.instanceOf(ToggleableAnalytics);
+      // No endpoint -> nothing to send to. Telemetry is not disabled here;
+      // events are still logged locally, they just have no destination.
+      expect(analytics._target).to.be.instanceOf(NoopAnalytics);
+    });
+
+    it('creates a telemetry client when an endpoint is configured via user config', function () {
+      const { analytics, telemetryEndpoint } = setup({
+        configuredTelemetryEndpoint: 'https://config.example/events',
+      });
+      expect(telemetryEndpoint).to.equal('https://config.example/events');
+      expect(analytics._target).to.be.instanceOf(ThrottledAnalytics);
+    });
+
+    it('uses MONGOSH_TELEMETRY_ENDPOINT over the configured default', function () {
+      process.env.MONGOSH_TELEMETRY_ENDPOINT = 'https://env.example/events';
+      const { telemetryEndpoint, analytics } = setup({
+        configuredTelemetryEndpoint: 'https://config.example/events',
+      });
+      expect(telemetryEndpoint).to.equal('https://env.example/events');
+      expect(analytics._target).to.be.instanceOf(ThrottledAnalytics);
+    });
+
+    it('is disabled when every source resolves to an empty endpoint', function () {
+      process.env.MONGOSH_TELEMETRY_ENDPOINT = '';
+      const { telemetryEndpoint, analytics } = setup({
+        configuredTelemetryEndpoint: '',
+      });
+      expect(telemetryEndpoint).to.equal('');
+      expect(analytics._target).to.be.instanceOf(NoopAnalytics);
+    });
+
+    it('never calls fetch when no endpoint is configured', async function () {
+      let fetchCount = 0;
+      const { analytics } = setup({
+        configuredTelemetryEndpoint: '',
+        fetch: (() => {
+          fetchCount++;
+          return Promise.resolve(new Response());
+        }) as any,
+      });
+      // Enable the queue so tracked events are forwarded to the target, then
+      // flush — with no endpoint the target is a NoopAnalytics, so no request
+      // is ever made.
+      analytics.enable();
+      analytics.track(identifyEvent);
+      await analytics.flush();
+      expect(fetchCount).to.equal(0);
+    });
   });
 
-  function setup(
-    params: Partial<Parameters<typeof setupTelemetryAnalytics>[0]> = {}
-  ) {
-    return setupTelemetryAnalytics({
-      configuredTelemetryEndpoint: '',
-      fetch: fetch as any,
-      metadataPath,
-      ...params,
-    });
-  }
+  describe('resolveTelemetryAgent', function () {
+    const createdAgents: (AgentWithInitialize | undefined)[] = [];
 
-  it('returns a no-op sink when no endpoint is configured', function () {
-    const { analytics, telemetryEndpoint } = setup();
-    expect(telemetryEndpoint).to.equal('');
-    expect(analytics).to.be.instanceOf(ToggleableAnalytics);
-    // No endpoint -> nothing to send to. Telemetry is not disabled here;
-    // events are still logged locally, they just have no destination.
-    expect(analytics._target).to.be.instanceOf(NoopAnalytics);
-  });
-
-  it('creates a telemetry client when an endpoint is configured via user config', function () {
-    const { analytics, telemetryEndpoint } = setup({
-      configuredTelemetryEndpoint: 'https://config.example/events',
+    afterEach(function () {
+      // Mirrors cli-repl.ts (which destroys its shared agent without
+      // awaiting); none of these agents ever open a real connection.
+      for (const agent of createdAgents.splice(0)) {
+        agent?.destroy();
+      }
     });
-    expect(telemetryEndpoint).to.equal('https://config.example/events');
-    expect(analytics._target).to.be.instanceOf(ThrottledAnalytics);
-  });
 
-  it('uses MONGOSH_TELEMETRY_ENDPOINT over the configured default', function () {
-    process.env.MONGOSH_TELEMETRY_ENDPOINT = 'https://env.example/events';
-    const { telemetryEndpoint, analytics } = setup({
-      configuredTelemetryEndpoint: 'https://config.example/events',
+    it('return undefined when the agent has no proxy configured for the endpoint', function () {
+      const agent = useOrCreateAgent({});
+      createdAgents.push(agent);
+      const resolved = resolveTelemetryAgent(
+        agent,
+        'https://telemetry.example.com'
+      );
+      expect(resolved).to.equal(undefined);
     });
-    expect(telemetryEndpoint).to.equal('https://env.example/events');
-    expect(analytics._target).to.be.instanceOf(ThrottledAnalytics);
-  });
 
-  it('is disabled when every source resolves to an empty endpoint', function () {
-    process.env.MONGOSH_TELEMETRY_ENDPOINT = '';
-    const { telemetryEndpoint, analytics } = setup({
-      configuredTelemetryEndpoint: '',
+    it('return the agent unchanged when a proxy is configured for the endpoint', function () {
+      const agent = useOrCreateAgent({
+        proxy: 'http://proxy.example.com:8080',
+      });
+      createdAgents.push(agent);
+      const resolved = resolveTelemetryAgent(
+        agent,
+        'https://telemetry.example.com'
+      );
+      expect(resolved).to.equal(agent);
     });
-    expect(telemetryEndpoint).to.equal('');
-    expect(analytics._target).to.be.instanceOf(NoopAnalytics);
-  });
 
-  it('never calls fetch when no endpoint is configured', async function () {
-    let fetchCount = 0;
-    const { analytics } = setup({
-      configuredTelemetryEndpoint: '',
-      fetch: (() => {
-        fetchCount++;
-        return Promise.resolve(new Response());
-      }) as any,
+    it('return undefined when there is no agent to resolve', function () {
+      const resolved = resolveTelemetryAgent(
+        undefined,
+        'https://telemetry.example.com'
+      );
+      expect(resolved).to.equal(undefined);
     });
-    // Enable the queue so tracked events are forwarded to the target, then
-    // flush — with no endpoint the target is a NoopAnalytics, so no request
-    // is ever made.
-    analytics.enable();
-    analytics.track(identifyEvent);
-    await analytics.flush();
-    expect(fetchCount).to.equal(0);
   });
 });
