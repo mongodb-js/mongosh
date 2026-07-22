@@ -104,7 +104,7 @@ export function createCachedLookup(
  */
 export class ResumingHttpsAgent extends https.Agent {
   private readonly store: TlsSessionStore;
-  private connectionsCreated = 0;
+  private handshakeCompleted = false;
   private ticketCaptured = false;
   private notifyFirstTicket?: () => void;
   /** Resolves when the first session ticket of this process is captured. */
@@ -119,13 +119,18 @@ export class ResumingHttpsAgent extends https.Agent {
   }
 
   /**
-   * True when a handshake happened but its ticket has not arrived yet.
+   * True once a handshake has completed but its ticket has not arrived yet.
    * TLS 1.3 delivers NewSessionTicket ~1 RTT after the handshake — after
    * `dispatched` resolves — so at shutdown this indicates a ticket is still
    * worth a bounded wait (see FireAndForgetBeacon.flush()).
+   *
+   * Gated on the handshake actually *completing*, not merely being
+   * attempted: if the endpoint is down or refuses the connection, no
+   * ticket can ever arrive, and flush() should not pay the grace period in
+   * exactly the failure case the circuit breaker exists for.
    */
   get awaitingFirstTicket(): boolean {
-    return this.connectionsCreated > 0 && !this.ticketCaptured;
+    return this.handshakeCompleted && !this.ticketCaptured;
   }
 
   // Overrides the documented Agent API (called for every new connection).
@@ -138,7 +143,6 @@ export class ResumingHttpsAgent extends https.Agent {
     options: net.NetConnectOpts,
     callback?: (err: Error | null, stream: Duplex) => void
   ): Duplex {
-    this.connectionsCreated++;
     const tlsOptions = options as tls.ConnectionOptions & { host?: string };
     const host = tlsOptions.host ?? 'localhost';
     const socket = (
@@ -150,6 +154,9 @@ export class ResumingHttpsAgent extends https.Agent {
       { ...tlsOptions, session: this.store.get(host) },
       callback
     );
+    socket.once('secureConnect', () => {
+      this.handshakeCompleted = true;
+    });
     // TLS 1.3 delivers session tickets after the handshake, possibly more
     // than once; each one supersedes the previous.
     socket.on('session', (ticket: Buffer) => {

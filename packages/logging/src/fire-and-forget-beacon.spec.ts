@@ -531,5 +531,31 @@ describe('FireAndForgetBeacon', function () {
 
       expect(reusedFlags).to.deep.equal([false, true]);
     });
+
+    it('resolve flush() quickly when the handshake never completes', async function () {
+      // Grab a port that is momentarily free, then close the server so
+      // nothing is listening on it: the connection is refused before any
+      // TLS handshake starts, so no session ticket can ever arrive and
+      // flush() must not pay the ticket grace period.
+      const gone = http.createServer().listen(0);
+      await once(gone, 'listening');
+      const port = (gone.address() as AddressInfo).port;
+      gone.close();
+      await once(gone, 'close');
+
+      beacon = new FireAndForgetBeacon({
+        tlsOptions: { rejectUnauthorized: false },
+        sessionStorePath: storePath,
+      });
+      const outcome = await beacon.send(
+        `https://localhost:${port}/v1/test`,
+        {}
+      );
+      expect(outcome.kind).to.equal('error');
+
+      const start = Date.now();
+      await beacon.flush();
+      expect(Date.now() - start).to.be.lessThan(90);
+    });
   });
 });
