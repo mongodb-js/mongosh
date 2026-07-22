@@ -2247,6 +2247,18 @@ const translations: Catalog = {
                 'Returns a document with an `enabled: <boolean>` field indicating whether the cluster is configured as embedded config server cluster. If it is, then the config shard host and tags are also returned.',
               example: 'sh.isConfigShardEnabled()',
             },
+            shardDrainingStatus: {
+              link: 'https://mongodb.com/docs/manual/reference/method/sh.shardDrainingStatus',
+              description:
+                'Returns the draining status of the given shard, or of all draining shards if no shard is specified. Uses the shardDrainingStatus admin command.',
+              example: 'sh.shardDrainingStatus(shardId?)',
+            },
+            getTransitionToDedicatedConfigServerStatus: {
+              link: 'https://mongodb.com/docs/manual/reference/method/sh.getTransitionToDedicatedConfigServerStatus',
+              description:
+                'Returns the draining status of the config shard while transitioning to a dedicated config server. Uses the getTransitionToDedicatedConfigServerStatus admin command.',
+              example: 'sh.getTransitionToDedicatedConfigServerStatus()',
+            },
           },
         },
       },
