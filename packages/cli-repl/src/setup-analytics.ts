@@ -86,7 +86,14 @@ export function resolveTelemetryAgent(
   telemetryEndpoint: string
 ): AgentWithInitialize | undefined {
   if (!agent) return undefined;
-  return useOrCreateAgent(agent, telemetryEndpoint, true);
+  try {
+    return useOrCreateAgent(agent, telemetryEndpoint, true);
+  } catch {
+    // A malformed endpoint must not break analytics setup; the fire-and-forget
+    // beacon then builds its own agent and telemetry sends fail silently
+    // downstream, consistent with the never-throw contract.
+    return undefined;
+  }
 }
 
 /**

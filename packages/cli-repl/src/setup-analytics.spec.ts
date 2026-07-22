@@ -160,5 +160,17 @@ describe('setup-analytics', function () {
       );
       expect(resolved).to.equal(undefined);
     });
+
+    it('return undefined for an unparsable telemetry endpoint', function () {
+      // Use an agent with proxy configured to trigger the code path that
+      // parses the target URL in proxyForUrl(). With a malformed endpoint,
+      // this should throw; the fix wraps it in try/catch and returns undefined.
+      const agent = useOrCreateAgent({
+        proxy: 'http://proxy.example.com:8080',
+      });
+      createdAgents.push(agent);
+      const resolved = resolveTelemetryAgent(agent, 'not a url');
+      expect(resolved).to.equal(undefined);
+    });
   });
 });
