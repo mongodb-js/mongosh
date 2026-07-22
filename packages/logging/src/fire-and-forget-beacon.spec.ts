@@ -212,5 +212,15 @@ describe('FireAndForgetBeacon', function () {
       expect(outcome.kind).to.equal('error');
       expect(outcome).to.have.nested.property('error.name', 'TypeError');
     });
+
+    it('resolve with an error outcome for an unsupported URL scheme', async function () {
+      beacon = new FireAndForgetBeacon();
+      const outcome = await beacon.send('ftp://example.com/v1/test', {});
+      expect(outcome.kind).to.equal('error');
+      expect(outcome).to.have.nested.property(
+        'error.code',
+        'ERR_INVALID_PROTOCOL'
+      );
+    });
   });
 });

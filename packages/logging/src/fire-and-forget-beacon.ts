@@ -69,13 +69,23 @@ export class FireAndForgetBeacon implements Beacon {
       }
       const isHttps = target.protocol === 'https:';
 
-      const req = (isHttps ? https : http).request(target, {
-        method: 'HEAD',
-        headers: { ...this.options.defaultHeaders, ...headers },
-        agent: this.agentFor(isHttps),
-        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-        ...(isHttps ? this.options.tlsOptions : {}),
-      });
+      let req: http.ClientRequest;
+      try {
+        req = (isHttps ? https : http).request(target, {
+          method: 'HEAD',
+          headers: { ...this.options.defaultHeaders, ...headers },
+          agent: this.agentFor(isHttps),
+          signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+          ...(isHttps ? this.options.tlsOptions : {}),
+        });
+      } catch (error) {
+        done({
+          kind: 'error',
+          error: error as Error,
+          durationMs: performance.now() - start,
+        });
+        return;
+      }
 
       let connected = false;
       let finished = false;
