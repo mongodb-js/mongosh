@@ -63,6 +63,16 @@ import { getDeviceIdForMongosh } from './device-id';
 const CONNECTING = 'cli-repl.cli-repl.connecting';
 
 /**
+ * Sanitizes a list of User-Agent tag values (dropping nullish entries to
+ * '') and joins them the way the telemetry endpoint expects.
+ */
+function formatUserAgentTags(tags: (string | undefined)[]): string {
+  return tags
+    .map((s) => (s ?? '').replace(/[^a-zA-Z0-9./_-]/g, '_'))
+    .join('; ');
+}
+
+/**
  * The set of options taken by CliRepl instances.
  */
 export type CliReplOptions = {
@@ -191,17 +201,15 @@ export class CliRepl implements MongoshIOProvider {
             return await this.getDeviceId();
           })(),
         ]);
-        const userAgentTags = [
+        const userAgentTags = formatUserAgentTags([
           `mongosh/${version}`,
           os_type,
           os_release,
           os_arch,
-          os_linux_dist ?? '',
-          os_linux_release ?? '',
+          os_linux_dist,
+          os_linux_release,
           deviceId,
-        ]
-          .map((s) => s.replace(/[^a-zA-Z0-9./_-]/g, '_'))
-          .join('; ');
+        ]);
         return baseFetch(url, {
           ...init,
           headers: {
@@ -689,6 +697,9 @@ export class CliRepl implements MongoshIOProvider {
   }
 
   async setupAnalytics(): Promise<void> {
+    const { version }: { version: string } = require('../package.json');
+    const { os_type, os_release, os_arch, os_linux_dist, os_linux_release } =
+      await this.getOsInfo();
     const { analytics, telemetryEndpoint } = setupTelemetryAnalytics({
       // `telemetryEndpoint` user config carries the production default.
       configuredTelemetryEndpoint: await this.getConfig('telemetryEndpoint'),
@@ -696,6 +707,18 @@ export class CliRepl implements MongoshIOProvider {
       // no need to duplicate it in the User-Agent header.
       fetch: this.fetch({ includeDeviceId: false }),
       metadataPath: this.shellHomeDirectory.paths.shellLocalDataPath,
+      agent: this.agent,
+      // Mirrors the fetch-path User-Agent with includeDeviceId: false
+      // ('disabled' in the device slot).
+      userAgent: formatUserAgentTags([
+        `mongosh/${version}`,
+        os_type,
+        os_release,
+        os_arch,
+        os_linux_dist,
+        os_linux_release,
+        'disabled',
+      ]),
     });
     this.toggleableAnalytics = analytics;
     // Record the resolved endpoint so logging can decide whether to log full

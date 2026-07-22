@@ -556,6 +556,38 @@ describe('CliRepl telemetry (integration)', function () {
           expect(payload.api_deprecation_errors).to.equal(true);
         });
       });
+
+      context('with MONGOSH_TELEMETRY_TRANSPORT=fire-and-forget', function () {
+        beforeEach(function () {
+          process.env.MONGOSH_TELEMETRY_TRANSPORT = 'fire-and-forget';
+          // Recreate so the transport env var is picked up by setupAnalytics.
+          cliRepl = new CliRepl(cliReplOptions);
+        });
+
+        afterEach(function () {
+          delete process.env.MONGOSH_TELEMETRY_TRANSPORT;
+        });
+
+        it('deliver HEAD beacons without waiting for slow responses', async function () {
+          const testStartMs = Date.now();
+          // The server delays responses by 5s. The fire-and-forget transport
+          // dispatches on write-finish and exits immediately; the fetch
+          // baseline would wait out the 2s flush timeout and bust the 1s
+          // post-start budget below — so this test discriminates transports.
+          setTelemetryDelay(5000);
+          await cliRepl.start(await testServer.connectionString(), {});
+          this.timeout(Date.now() - testStartMs + 1000); // Exclude connection time from the 1s budget
+          input.write('use somedb;\n');
+          input.write('exit\n');
+          await waitBus(cliRepl.bus, 'mongosh:closed');
+          // The fake server records requests on receipt, before delaying the
+          // response, so these are observable even though no response has
+          // been sent yet.
+          expect(requests).to.have.lengthOf.at.least(1);
+          expect(requests[0].req.method).to.equal('HEAD');
+          expect(requests[0].req.headers['user-agent']).to.match(/^mongosh\//);
+        });
+      });
     });
 
     context('without network connectivity', function () {

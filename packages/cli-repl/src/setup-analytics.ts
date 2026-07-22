@@ -1,10 +1,14 @@
 import type { RequestInit, Response } from '@mongodb-js/devtools-proxy-support';
+import type { Beacon } from '@mongosh/logging';
 import {
   ThrottledAnalytics,
   ToggleableAnalytics,
   TelemetryClient,
   FetchBeacon,
+  FireAndForgetBeacon,
 } from '@mongosh/logging';
+import type http from 'http';
+import path from 'path';
 
 /**
  * ThrottledAnalytics caps events to protect against high-frequency
@@ -22,6 +26,14 @@ export type SetupTelemetryAnalyticsParams = {
   fetch: (url: string, init?: RequestInit) => Promise<Response>;
   /** Directory used to persist cross-session throttle state. */
   metadataPath: string;
+  /**
+   * Proxy-aware agent shared with the rest of mongosh; undefined when no
+   * proxy is configured. Used by the fire-and-forget transport so proxy
+   * environments keep working.
+   */
+  agent?: http.Agent;
+  /** User-Agent header value for the fire-and-forget transport. */
+  userAgent?: string;
 };
 
 export type SetupTelemetryAnalyticsResult = {
@@ -49,6 +61,8 @@ export function setupTelemetryAnalytics({
   configuredTelemetryEndpoint,
   fetch,
   metadataPath,
+  agent,
+  userAgent,
 }: SetupTelemetryAnalyticsParams): SetupTelemetryAnalyticsResult {
   // Resolve the telemetry endpoint: MONGOSH_TELEMETRY_ENDPOINT environment
   // variable > `telemetryEndpoint` user config (which carries the prod default).
@@ -57,6 +71,22 @@ export function setupTelemetryAnalytics({
   if (!telemetryEndpoint) {
     return { analytics: new ToggleableAnalytics(), telemetryEndpoint: '' };
   }
+  // Opt-in fire-and-forget transport (MONGOSH-3454): resolves sends once the
+  // request is written to an established socket instead of waiting for the
+  // response, so telemetry can never delay mongosh exit. Owns its own
+  // health policy (adaptive timeout, circuit breaker) and persists TLS
+  // session tickets next to the throttle state for cross-session resumption.
+  const beacon: Beacon =
+    process.env.MONGOSH_TELEMETRY_TRANSPORT === 'fire-and-forget'
+      ? new FireAndForgetBeacon({
+          agent,
+          defaultHeaders: userAgent ? { 'User-Agent': userAgent } : {},
+          sessionStorePath: path.join(
+            metadataPath,
+            'telemetry-tls-sessions.json'
+          ),
+        })
+      : new FetchBeacon(fetch);
   return {
     telemetryEndpoint,
     // ThrottledAnalytics wraps TelemetryClient target and gates every
@@ -66,7 +96,7 @@ export function setupTelemetryAnalytics({
     // (and its underlying fetch) is never called.
     analytics: new ToggleableAnalytics(
       new ThrottledAnalytics({
-        target: new TelemetryClient(telemetryEndpoint, new FetchBeacon(fetch)),
+        target: new TelemetryClient(telemetryEndpoint, beacon),
         throttle: {
           rate: TELEMETRY_THROTTLE_RATE,
           metadataPath,
