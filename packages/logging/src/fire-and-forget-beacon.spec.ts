@@ -4,7 +4,10 @@ import { once } from 'events';
 import { spawn } from 'child_process';
 import path from 'path';
 import type { AddressInfo } from 'net';
-import { FireAndForgetBeacon } from './fire-and-forget-beacon';
+import {
+  FireAndForgetBeacon,
+  createCachedLookup,
+} from './fire-and-forget-beacon';
 
 describe('FireAndForgetBeacon', function () {
   let beacon: FireAndForgetBeacon;
@@ -336,6 +339,106 @@ describe('FireAndForgetBeacon', function () {
       ]);
       const kinds = outcomes.map(({ kind }) => kind).sort();
       expect(kinds).to.deep.equal(['error', 'suppressed', 'suppressed']);
+    });
+  });
+
+  context('createCachedLookup', function () {
+    it('resolve from the cache within the TTL', async function () {
+      let baseCalls = 0;
+      const base = ((hostname: any, options: any, callback: any) => {
+        baseCalls++;
+        callback(null, '127.0.0.1', 4);
+      }) as any;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      const lookup = createCachedLookup(3_600_000, base);
+
+      const first = await new Promise((resolve) =>
+        lookup('example.com', {}, (...args: unknown[]) => resolve(args))
+      );
+      const second = await new Promise((resolve) =>
+        lookup('example.com', {}, (...args: unknown[]) => resolve(args))
+      );
+
+      expect(first).to.deep.equal([null, '127.0.0.1', 4]);
+      expect(second).to.deep.equal([null, '127.0.0.1', 4]);
+      expect(baseCalls).to.equal(1);
+    });
+
+    it('fall back to the base lookup after the TTL expires', async function () {
+      let baseCalls = 0;
+      const base = ((hostname: any, options: any, callback: any) => {
+        baseCalls++;
+        callback(null, '127.0.0.1', 4);
+      }) as any;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      const lookup = createCachedLookup(-1, base); // everything is expired
+
+      await new Promise((resolve) => lookup('example.com', {}, resolve));
+      await new Promise((resolve) => lookup('example.com', {}, resolve));
+
+      expect(baseCalls).to.equal(2);
+    });
+
+    it('bypass the cache for all-addresses lookups', async function () {
+      let baseCalls = 0;
+      const base = ((hostname: any, options: any, callback: any) => {
+        baseCalls++;
+        callback(null, [{ address: '127.0.0.1', family: 4 }]);
+      }) as any;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      const lookup = createCachedLookup(3_600_000, base);
+
+      await new Promise((resolve) =>
+        lookup('example.com', { all: true }, resolve)
+      );
+      await new Promise((resolve) =>
+        lookup('example.com', { all: true }, resolve)
+      );
+
+      expect(baseCalls).to.equal(2);
+    });
+  });
+
+  context('warm-up', function () {
+    let srv: http.Server;
+    let baseUrl: string;
+    let paths: string[];
+    let connections: number;
+
+    beforeEach(async function () {
+      paths = [];
+      connections = 0;
+      srv = http
+        .createServer((req, res) => {
+          paths.push(req.url ?? '');
+          // Content-Length must be explicit for the same reason as above:
+          // otherwise the HEAD response is treated as non-keep-alive and the
+          // warm-up socket never makes it back to the pool for reuse.
+          res.writeHead(200, { 'Content-Length': '0' });
+          res.end();
+        })
+        .on('connection', () => {
+          connections++;
+        })
+        .listen(0);
+      await once(srv, 'listening');
+      baseUrl = `http://localhost:${(srv.address() as AddressInfo).port}`;
+    });
+
+    afterEach(async function () {
+      srv.close();
+      await once(srv, 'close');
+    });
+
+    it('establish the connection during warm-up so the first send reuses it', async function () {
+      beacon = new FireAndForgetBeacon();
+      beacon.warmUp(`${baseUrl}/warm-up`);
+      // Wait for the warm-up response to complete and return to the pool.
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      await beacon.send(`${baseUrl}/v1/test`, {});
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      expect(paths).to.deep.equal(['/warm-up', '/v1/test']);
+      expect(connections).to.equal(1);
     });
   });
 });

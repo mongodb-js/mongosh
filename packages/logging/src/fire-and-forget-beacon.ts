@@ -1,3 +1,4 @@
+import dns from 'dns';
 import http from 'http';
 import https from 'https';
 import tls from 'tls';
@@ -33,7 +34,60 @@ export type FireAndForgetBeaconOptions = {
     /** How long the breaker stays open before allowing one probe. Default 5 minutes. */
     cooldownMs?: number;
   };
+  /** DNS lookup override; used by the built-in agents. */
+  lookup?: typeof dns.lookup;
+  /** TTL for the built-in DNS cache; default 60s. Ignored when `lookup` is set. */
+  dnsCacheTtlMs?: number;
 };
+
+/**
+ * Wraps dns.lookup with a tiny TTL cache so repeat connections to the
+ * telemetry endpoint skip the DNS round-trip. Multi-answer (`all: true`)
+ * lookups are passed through uncached.
+ */
+export function createCachedLookup(
+  ttlMs: number,
+  baseLookup: typeof dns.lookup = dns.lookup
+): typeof dns.lookup {
+  const cache = new Map<
+    string,
+    { address: string; family: number; expiresAt: number }
+  >();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return function lookup(hostname: string, options: any, callback?: any): any {
+    if (typeof options === 'function') {
+      callback = options;
+      options = {};
+    }
+    if (options.all) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      return baseLookup(hostname, options, callback);
+    }
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    const key = `${hostname}|${options.family ?? 0}`;
+    const hit = cache.get(key);
+    if (hit && hit.expiresAt > Date.now()) {
+      callback(null, hit.address, hit.family);
+      return;
+    }
+    baseLookup(
+      hostname,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      options,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (err: NodeJS.ErrnoException | null, address: any, family: any) => {
+        if (!err && typeof address === 'string') {
+          cache.set(key, {
+            address,
+            family,
+            expiresAt: Date.now() + ttlMs,
+          });
+        }
+        callback(err, address, family);
+      }
+    );
+  } as typeof dns.lookup;
+}
 
 /**
  * A fire-and-forget HEAD launcher built on the raw http/https modules.
@@ -59,6 +113,7 @@ export class FireAndForgetBeacon implements Beacon {
   private consecutiveFailures = 0;
   private breakerOpenedAt?: number;
   private probeInFlight = false;
+  private lookup?: typeof dns.lookup;
 
   constructor(options: FireAndForgetBeaconOptions = {}) {
     this.options = options;
@@ -66,7 +121,10 @@ export class FireAndForgetBeacon implements Beacon {
 
   private agentFor(isHttps: boolean): http.Agent {
     if (this.options.agent) return this.options.agent;
-    const agentOptions = { keepAlive: true };
+    this.lookup ??=
+      this.options.lookup ??
+      createCachedLookup(this.options.dnsCacheTtlMs ?? 60_000);
+    const agentOptions = { keepAlive: true, lookup: this.lookup };
     if (isHttps) {
       this.httpsAgent ??= new https.Agent({
         ...agentOptions,
@@ -222,6 +280,15 @@ export class FireAndForgetBeacon implements Beacon {
       );
       req.end();
     });
+  }
+
+  /**
+   * Fire a HEAD request purely to establish the connection (DNS + TCP + TLS)
+   * so that the first real event is a bare write on a hot socket. The
+   * outcome is intentionally ignored.
+   */
+  warmUp(url: string): void {
+    void this.send(url, {});
   }
 
   /** Destroys the beacon-owned agents and their pooled sockets. */
