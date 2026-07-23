@@ -28,3 +28,7 @@ mongocryptd.pid
 snapshot.blob
 .logs/*
 !.logs/empty.xml
+docs/superpowers
+telemetry-sink-endpoint.txt
+telemetry-sink-events.ndjson
+telemetry-sink.pid
