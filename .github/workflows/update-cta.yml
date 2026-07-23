@@ -32,16 +32,16 @@ jobs:
       npm_config_foreground_scripts: "true"
       PUPPETEER_SKIP_DOWNLOAD: "true"
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v4.1.0
+        uses: aws-actions/configure-aws-credentials@ececac1a45f3b08a01d2dd070d28d111c5fe6722  # v4.1.0
         with:
           role-to-assume: arn:aws:iam::119629040606:role/s3-access.cdn-origin-compass
           aws-region: us-east-1
       - name: Sts GetCallerIdentity
         run: |
           aws sts get-caller-identity
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           check-latest: true
           node-version: 24.x
