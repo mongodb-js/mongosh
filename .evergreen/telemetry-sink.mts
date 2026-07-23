@@ -89,10 +89,13 @@ Usage: node telemetry-sink.mts <endpoint-file> <results-file>
   console.log(`telemetry sink listening on ${endpoint}`);
 
   process.on('SIGTERM', () => {
+    // Flush buffered LDJSON before exiting: process.exit() does not wait for
+    // pending write-stream data, which would truncate the newest events.
+    const flushAndExit = () => results.end(() => process.exit(0));
     server.closeAllConnections?.();
-    server.close(() => process.exit(0));
-    // Don't let lingering keep-alive sockets block shutdown.
-    setTimeout(() => process.exit(0), 1000).unref();
+    server.close(flushAndExit);
+    // Don't let lingering keep-alive sockets block shutdown — but still flush.
+    setTimeout(flushAndExit, 1000).unref();
   });
 }
 

@@ -4909,9 +4909,6 @@ functions:
         args: [".evergreen/perf-test.sh"]
         env:
           DISTRO_ID: ${distro_id}
-          # Passed explicitly instead of add_expansions_to_env: the spawned
-          # mongosh processes inherit this environment, so we avoid handing
-          # every expansion (including secrets) to 160 child processes.
           MONGOSH_PERF_TELEMETRY: ${mongosh_perf_telemetry|}
     - command: subprocess.exec
       params:
