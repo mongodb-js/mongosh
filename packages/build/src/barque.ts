@@ -53,6 +53,7 @@ export function getReposAndArch(packageVariant: PackageVariant): {
           'ubuntu2004',
           'ubuntu2204',
           'ubuntu2404',
+          'ubuntu2604',
           'debian10',
           'debian11',
           'debian12',
@@ -73,6 +74,7 @@ export function getReposAndArch(packageVariant: PackageVariant): {
             'amazon2023',
             'suse12',
             'suse15',
+            'suse16',
           ]),
           arch: getRPMArchName(getArch(packageVariant)),
         };
@@ -321,6 +323,8 @@ export class Barque {
         return `${base}/apt/ubuntu/dists/jammy/mongodb-${edition}/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
       case 'ubuntu2404':
         return `${base}/apt/ubuntu/dists/noble/mongodb-${edition}/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
+      case 'ubuntu2604':
+        return `${base}/apt/ubuntu/dists/resolute/mongodb-${edition}/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
       case 'debian10':
         return `${base}/apt/debian/dists/buster/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
       case 'debian11':
@@ -347,6 +351,8 @@ export class Barque {
         return `${base}/zypper/suse/12/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'suse15':
         return `${base}/zypper/suse/15/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
+      case 'suse16':
+        return `${base}/zypper/suse/16/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       default:
         throw new Error(
           `Unsupported PPA, could not compute published mongosh package URL: ${ppa}`

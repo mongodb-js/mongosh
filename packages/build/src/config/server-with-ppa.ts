@@ -21,6 +21,7 @@ export type PPARepository =
   | 'ubuntu2004'
   | 'ubuntu2204'
   | 'ubuntu2404'
+  | 'ubuntu2604'
   | 'debian10'
   | 'debian11'
   | 'debian12'
@@ -33,7 +34,8 @@ export type PPARepository =
   | 'amazon2'
   | 'amazon2023'
   | 'suse12'
-  | 'suse15';
+  | 'suse15'
+  | 'suse16';
 
 export const SERVER_WITH_PPAS: Record<
   SupportedServerVersion,
@@ -149,9 +151,10 @@ export const SERVER_WITH_PPAS: Record<
     'rhel90',
     'rhel10',
     'suse15',
-    'ubuntu2004',
+    'suse16',
     'ubuntu2204',
     'ubuntu2404',
+    'ubuntu2604',
   ],
 };
 
