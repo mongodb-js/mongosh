@@ -35,21 +35,15 @@ for (const {
       versionSpec: mVersion,
     } of MONGODB_VERSIONS) {
       if (
-        mShort === '42xe' &&
-        (platform === 'linux' || platform === 'darwin')
-      ) {
-        // The MongoDB 4.2 enterprise server does not work on Ubuntu 20.04 or arm64 macOS
-        continue;
-      }
-      if (
-        ['42xc', '42xe', '44xc', '44xe', '50xc', '50xe'].includes(mShort) &&
+        ['44xc', '44xe', '50xc', '50xe'].includes(mShort) &&
         platform === 'darwin'
       ) {
         // Unit tests on macOS use arm64 and therefore require 6.0+
         continue;
       }
       const details =
-        platform === 'linux' && mShort === 'latest'
+        platform === 'linux' &&
+        ['latest', '90xc', '90xe'].includes(mShort)
           ? {
               ...platformDetails,
               runOn: 'ubuntu2204-small',
