@@ -145,6 +145,9 @@ export class Barque {
       '8.3.0': {
         notaryKeyName: 'server-8.3',
       },
+      '9.0.0': {
+        notaryKeyName: 'server-9.0',
+      },
     };
   }
 
