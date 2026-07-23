@@ -19,10 +19,10 @@ jobs:
     name: Run baseline
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           ref: main
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           check-latest: true
           node-version: 24.x
@@ -33,7 +33,7 @@ jobs:
         run: npm run test-262 -- baseline
 
       - name: Upload baseline results
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: "baseline"
           path: tmp/test262-out/baseline-output.json
@@ -42,11 +42,11 @@ jobs:
     name: Run tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           # don't checkout a detached HEAD
           ref: ${{ github.head_ref }}
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           check-latest: true
           node-version: 24.x
@@ -58,7 +58,7 @@ jobs:
         run: npm run test-262 -- current
 
       - name: Upload current results
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: "current"
           path: tmp/test262-out/current-output.json
@@ -71,18 +71,18 @@ jobs:
       - run_test_262_pr
     if: ${{ always() }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           # don't checkout a detached HEAD
           ref: ${{ github.head_ref }}
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           check-latest: true
           node-version: 24.x
 
       - name: Download previous results
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
           merge-multiple: true
           path: "tmp/test262-out/"
@@ -94,7 +94,7 @@ jobs:
           npm run -s test-262-diff -- tmp/test262-out/baseline-output.json tmp/test262-out/current-output.json tmp/test262.json >> $GITHUB_ENV
 
       - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v2
+        uses: EnricoMi/publish-unit-test-result-action@d0a4676d0e0b938bc201470d88276b7c74c712b3 # v2
         with:
           comment_mode: ${{ (github.event.workflow_run.event == 'pull_request' || github.event_name == 'pull_request') && 'always' || 'off' }}
           check_name: "tc39/test-262 test results"
@@ -114,7 +114,7 @@ jobs:
             })
 
       - name: Upload diff results
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: "test262-diff"
           path: tmp/test262.json
