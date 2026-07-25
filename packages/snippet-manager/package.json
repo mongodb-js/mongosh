@@ -40,7 +40,7 @@
     "bson": "^7.3.1",
     "cross-spawn": "^7.0.5",
     "escape-string-regexp": "^4.0.0",
-    "tar": "^7.5.19",
+    "tar": "^7.5.21",
     "zod": "^3.25.76"
   },
   "devDependencies": {
@@ -48,10 +48,10 @@
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
+    "@mongosh/testing": "2.0.14",
     "@types/cross-spawn": "^6.0.6",
     "eslint": "^7.25.0",
     "nanobus": "^4.5.0",
-    "prettier": "^2.8.8",
-    "@mongosh/testing": "2.0.14"
+    "prettier": "^2.8.8"
   }
 }
