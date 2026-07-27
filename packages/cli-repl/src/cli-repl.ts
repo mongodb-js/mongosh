@@ -52,6 +52,7 @@ import type {
 } from '@mongodb-js/devtools-proxy-support';
 import {
   createFetch,
+  systemCA,
   useOrCreateAgent,
 } from '@mongodb-js/devtools-proxy-support';
 import { fullDepthInspectOptions } from './format-output';
@@ -697,10 +698,11 @@ export class CliRepl implements MongoshIOProvider {
   }
 
   async setupAnalytics(): Promise<void> {
-    // Only the fire-and-forget transport consumes a precomputed User-Agent;
-    // keep the default path free of the extra OS-info dependency.
+    // Only the fire-and-forget transport consumes a precomputed User-Agent
+    // and CA list; keep the default path free of the extra dependencies.
     // (setup-analytics.ts re-checks this env var to pick the transport.)
     let userAgent: string | undefined;
+    let tlsCa: string | undefined;
     if (process.env.MONGOSH_TELEMETRY_TRANSPORT === 'fire-and-forget') {
       const { version }: { version: string } = require('../package.json');
       const { os_type, os_release, os_arch, os_linux_dist, os_linux_release } =
@@ -716,6 +718,14 @@ export class CliRepl implements MongoshIOProvider {
         os_linux_release,
         'disabled',
       ]);
+      // The fetch transport trusts the system CA store (via
+      // devtools-proxy-support's systemCA); the fire-and-forget beacon builds
+      // its own agents, which would otherwise only trust Node's bundled
+      // roots. Hand it the same merged CA list so environments with custom
+      // CAs (corporate proxies, test sinks) behave identically on both
+      // transports. systemCA() is pre-warmed at startup, so this is a cache
+      // hit.
+      tlsCa = (await systemCA()).ca;
     }
     const { analytics, telemetryEndpoint } = setupTelemetryAnalytics({
       // `telemetryEndpoint` user config carries the production default.
@@ -726,6 +736,7 @@ export class CliRepl implements MongoshIOProvider {
       metadataPath: this.shellHomeDirectory.paths.shellLocalDataPath,
       agent: this.agent,
       userAgent,
+      tlsCa,
     });
     this.toggleableAnalytics = analytics;
     // Record the resolved endpoint so logging can decide whether to log full

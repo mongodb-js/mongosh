@@ -47,6 +47,13 @@ export type SetupTelemetryAnalyticsParams = {
   agent?: AgentWithInitialize;
   /** User-Agent header value for the fire-and-forget transport. */
   userAgent?: string;
+  /**
+   * Merged CA list (system store + bundled roots, from devtools-proxy-support's
+   * systemCA) for the fire-and-forget transport. The fetch transport gets the
+   * same trust via its proxy-aware fetch; the fire-and-forget beacon builds
+   * its own agents and would otherwise only trust Node's bundled roots.
+   */
+  tlsCa?: string;
 };
 
 export type SetupTelemetryAnalyticsResult = {
@@ -111,6 +118,7 @@ export function setupTelemetryAnalytics({
   metadataPath,
   agent,
   userAgent,
+  tlsCa,
 }: SetupTelemetryAnalyticsParams): SetupTelemetryAnalyticsResult {
   // Resolve the telemetry endpoint: MONGOSH_TELEMETRY_ENDPOINT environment
   // variable > `telemetryEndpoint` user config (which carries the prod default).
@@ -129,6 +137,7 @@ export function setupTelemetryAnalytics({
       ? new FireAndForgetBeacon({
           agent: resolveTelemetryAgent(agent, telemetryEndpoint),
           defaultHeaders: userAgent ? { 'User-Agent': userAgent } : {},
+          tlsOptions: tlsCa ? { ca: tlsCa } : undefined,
           sessionStorePath: path.join(
             metadataPath,
             'telemetry-tls-sessions.json'

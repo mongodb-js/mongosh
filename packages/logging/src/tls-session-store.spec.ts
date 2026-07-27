@@ -25,6 +25,7 @@ describe('TlsSessionStore', function () {
     expect(fs.existsSync(filePath)).to.equal(true);
 
     const reader = new TlsSessionStore(filePath); // fresh instance = fresh process
+    await reader.whenLoaded(); // the disk state is read asynchronously
     expect(reader.get('telemetry.example.com')).to.deep.equal(ticket);
     expect(reader.get('other.example.com')).to.equal(undefined);
   });
@@ -35,21 +36,44 @@ describe('TlsSessionStore', function () {
     await writer.flush();
 
     const reader = new TlsSessionStore(filePath, -1);
+    await reader.whenLoaded();
     expect(reader.get('telemetry.example.com')).to.equal(undefined);
   });
 
-  it('ignore a corrupted store file silently', function () {
+  it('ignore a corrupted store file silently', async function () {
     fs.writeFileSync(filePath, 'not json at all{{{');
     const store = new TlsSessionStore(filePath);
+    await store.whenLoaded(); // must not reject
     expect(store.get('telemetry.example.com')).to.equal(undefined);
     store.set('telemetry.example.com', Buffer.from('recovered')); // must not throw
   });
 
-  it('ignore a store file containing non-object JSON silently', function () {
+  it('ignore a store file containing non-object JSON silently', async function () {
     fs.writeFileSync(filePath, '42'); // valid JSON, wrong shape
     const store = new TlsSessionStore(filePath);
+    await store.whenLoaded();
     expect(store.get('telemetry.example.com')).to.equal(undefined);
     store.set('telemetry.example.com', Buffer.from('recovered')); // must not throw
+  });
+
+  it('preserve a ticket set before the disk state finishes loading', async function () {
+    const seed = new TlsSessionStore(filePath);
+    seed.set('telemetry.example.com', Buffer.from('older-from-disk'));
+    seed.set('other.example.com', Buffer.from('disk-only'));
+    await seed.flush();
+
+    const store = new TlsSessionStore(filePath);
+    // set() while the async read is still in flight: the newer in-memory
+    // ticket must survive the load completing, while disk-only entries
+    // still merge in underneath.
+    store.set('telemetry.example.com', Buffer.from('newer-in-memory'));
+    await store.whenLoaded();
+    expect(store.get('telemetry.example.com')).to.deep.equal(
+      Buffer.from('newer-in-memory')
+    );
+    expect(store.get('other.example.com')).to.deep.equal(
+      Buffer.from('disk-only')
+    );
   });
 
   it('resolve flush() without a pending write', async function () {

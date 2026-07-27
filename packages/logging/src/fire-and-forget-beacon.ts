@@ -1,12 +1,36 @@
-import dns from 'dns';
-import http from 'http';
-import https from 'https';
-import tls from 'tls';
+import type dns from 'dns';
+import type http from 'http';
+import type https from 'https';
+import type tls from 'tls';
 import type net from 'net';
 import type { Duplex } from 'stream';
 import type { Beacon, BeaconOutcome } from './beacon';
 import { REQUEST_TIMEOUT_MS } from './beacon';
+
+/** Ref'd post-dispatch drain window in flush(); see flush() for rationale. */
+const FLUSH_SETTLE_DELAY_MS = 10;
+/** Bounded wait for an in-flight TLS 1.3 session ticket during flush(). */
+const TICKET_GRACE_MS = 100;
 import { TlsSessionStore } from './tls-session-store';
+
+// Node.js's networking stack is required lazily, at first use: mongosh loads
+// this module (via the @mongosh/logging index) while building its V8 startup
+// snapshot, and http/https cannot be included in startup snapshots — the
+// snapshot builder aborts with 'CheckGlobalAndEternalHandles failed'. See the
+// snapshot handling in packages/cli-repl/src/run.ts. Node caches modules, so
+// the lazy require is a map lookup after the first call.
+function httpModule(): typeof http {
+  return require('http') as typeof http;
+}
+function httpsModule(): typeof https {
+  return require('https') as typeof https;
+}
+function tlsModule(): typeof tls {
+  return require('tls') as typeof tls;
+}
+function dnsModule(): typeof dns {
+  return require('dns') as typeof dns;
+}
 
 export type FireAndForgetBeaconOptions = {
   /**
@@ -55,8 +79,9 @@ export type FireAndForgetBeaconOptions = {
  */
 export function createCachedLookup(
   ttlMs: number,
-  baseLookup: typeof dns.lookup = dns.lookup
+  baseLookup?: typeof dns.lookup
 ): typeof dns.lookup {
+  const base = baseLookup ?? dnsModule().lookup;
   const cache = new Map<
     string,
     { address: string; family: number; expiresAt: number }
@@ -69,7 +94,7 @@ export function createCachedLookup(
     }
     if (options.all) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      return baseLookup(hostname, options, callback);
+      return base(hostname, options, callback);
     }
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     const key = `${hostname}|${options.family ?? 0}`;
@@ -78,7 +103,7 @@ export function createCachedLookup(
       callback(null, hit.address, hit.family);
       return;
     }
-    baseLookup(
+    base(
       hostname,
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       options,
@@ -102,22 +127,9 @@ export function createCachedLookup(
  * offers them on new connections, so a fresh process resumes the handshake
  * in one round-trip instead of performing a full one.
  */
-export class ResumingHttpsAgent extends https.Agent {
-  private readonly store: TlsSessionStore;
-  private handshakeCompleted = false;
-  private ticketCaptured = false;
-  private notifyFirstTicket?: () => void;
+export interface ResumingHttpsAgent extends https.Agent {
   /** Resolves when the first session ticket of this process is captured. */
   readonly firstTicket: Promise<void>;
-
-  constructor(options: https.AgentOptions, store: TlsSessionStore) {
-    super(options);
-    this.store = store;
-    this.firstTicket = new Promise<void>(
-      (resolve) => (this.notifyFirstTicket = resolve)
-    );
-  }
-
   /**
    * True once a handshake has completed but its ticket has not arrived yet.
    * TLS 1.3 delivers NewSessionTicket ~1 RTT after the handshake — after
@@ -129,43 +141,87 @@ export class ResumingHttpsAgent extends https.Agent {
    * ticket can ever arrive, and flush() should not pay the grace period in
    * exactly the failure case the circuit breaker exists for.
    */
-  get awaitingFirstTicket(): boolean {
-    return this.handshakeCompleted && !this.ticketCaptured;
-  }
+  readonly awaitingFirstTicket: boolean;
+}
 
-  // Overrides the documented Agent API (called for every new connection).
-  // The installed @types/node *does* declare this method (unlike what the
-  // task brief assumed) typed generically via net.NetConnectOpts/Duplex; the
-  // signature below matches that declaration verbatim so the override stays
-  // structurally compatible, and the TLS-specific shape is recovered
-  // internally via the same prototype-cast trick used to invoke super.
-  createConnection(
-    options: net.NetConnectOpts,
-    callback?: (err: Error | null, stream: Duplex) => void
-  ): Duplex {
-    const tlsOptions = options as tls.ConnectionOptions & { host?: string };
-    const host = tlsOptions.host ?? 'localhost';
-    const socket = (
-      https.Agent.prototype as unknown as {
-        createConnection: (o: unknown, cb?: unknown) => tls.TLSSocket;
+type ResumingHttpsAgentConstructor = new (
+  options: https.AgentOptions,
+  store: TlsSessionStore
+) => ResumingHttpsAgent;
+
+let resumingHttpsAgentClass: ResumingHttpsAgentConstructor | undefined;
+
+// The class is defined lazily: `extends https.Agent` at module scope would
+// force the https require this file goes out of its way to defer (see the
+// snapshot note on the lazy module helpers above).
+function getResumingHttpsAgentClass(): ResumingHttpsAgentConstructor {
+  if (!resumingHttpsAgentClass) {
+    const { Agent } = httpsModule();
+    resumingHttpsAgentClass = class ResumingHttpsAgent extends Agent {
+      private readonly store: TlsSessionStore;
+      private handshakeCompleted = false;
+      private ticketCaptured = false;
+      private notifyFirstTicket?: () => void;
+      readonly firstTicket: Promise<void>;
+
+      constructor(options: https.AgentOptions, store: TlsSessionStore) {
+        super(options);
+        this.store = store;
+        this.firstTicket = new Promise<void>(
+          (resolve) => (this.notifyFirstTicket = resolve)
+        );
       }
-    ).createConnection.call(
-      this,
-      { ...tlsOptions, session: this.store.get(host) },
-      callback
-    );
-    socket.once('secureConnect', () => {
-      this.handshakeCompleted = true;
-    });
-    // TLS 1.3 delivers session tickets after the handshake, possibly more
-    // than once; each one supersedes the previous.
-    socket.on('session', (ticket: Buffer) => {
-      this.ticketCaptured = true;
-      this.notifyFirstTicket?.();
-      this.store.set(host, ticket);
-    });
-    return socket;
+
+      get awaitingFirstTicket(): boolean {
+        return this.handshakeCompleted && !this.ticketCaptured;
+      }
+
+      // Overrides the documented Agent API (called for every new connection).
+      // The installed @types/node *does* declare this method typed
+      // generically via net.NetConnectOpts/Duplex; the signature below
+      // matches that declaration verbatim so the override stays structurally
+      // compatible, and the TLS-specific shape is recovered internally via
+      // the same prototype-cast trick used to invoke super.
+      createConnection(
+        options: net.NetConnectOpts,
+        callback?: (err: Error | null, stream: Duplex) => void
+      ): Duplex {
+        const tlsOptions = options as tls.ConnectionOptions & {
+          host?: string;
+        };
+        const host = tlsOptions.host ?? 'localhost';
+        const socket = (
+          Agent.prototype as unknown as {
+            createConnection: (o: unknown, cb?: unknown) => tls.TLSSocket;
+          }
+        ).createConnection.call(
+          this,
+          { ...tlsOptions, session: this.store.get(host) },
+          callback
+        );
+        socket.once('secureConnect', () => {
+          this.handshakeCompleted = true;
+          if (socket.isSessionReused()) {
+            // A resumed session proves the stored ticket is still valid, and
+            // servers do not necessarily issue a fresh NewSessionTicket on
+            // resumed connections — without this, flush() would wait the
+            // full ticket grace on every session after the first.
+            this.ticketCaptured = true;
+            this.notifyFirstTicket?.();
+          }
+        });
+        // TLS 1.3 delivers session tickets after the handshake, possibly more
+        // than once; each one supersedes the previous.
+        socket.on('session', (ticket: Buffer) => {
+          this.ticketCaptured = true;
+          this.notifyFirstTicket?.();
+          this.store.set(host, ticket);
+        });
+        return socket;
+      }
+    };
   }
+  return resumingHttpsAgentClass;
 }
 
 /**
@@ -194,10 +250,18 @@ export class FireAndForgetBeacon implements Beacon {
   private consecutiveFailures = 0;
   private breakerOpenedAt?: number;
   private probeInFlight = false;
+  private hasSent = false;
   private lookup?: typeof dns.lookup;
 
   constructor(options: FireAndForgetBeaconOptions = {}) {
     this.options = options;
+    if (options.sessionStorePath) {
+      // Constructed eagerly so its async disk read starts now — long before
+      // the first send — instead of racing the first TLS connect, where a
+      // miss would silently disable session resumption for exactly the
+      // short-lived sessions it exists for. send() awaits whenLoaded().
+      this.sessionStore = new TlsSessionStore(options.sessionStorePath);
+    }
   }
 
   private agentFor(isHttps: boolean): http.Agent {
@@ -208,17 +272,14 @@ export class FireAndForgetBeacon implements Beacon {
     const agentOptions = { keepAlive: true, lookup: this.lookup };
     if (isHttps) {
       if (!this.httpsAgent) {
-        if (this.options.sessionStorePath) {
-          this.sessionStore = new TlsSessionStore(
-            this.options.sessionStorePath
-          );
-          this.resumingAgent = new ResumingHttpsAgent(
+        if (this.sessionStore) {
+          this.resumingAgent = new (getResumingHttpsAgentClass())(
             { ...agentOptions, ...this.options.tlsOptions },
             this.sessionStore
           );
           this.httpsAgent = this.resumingAgent;
         } else {
-          this.httpsAgent = new https.Agent({
+          this.httpsAgent = new (httpsModule().Agent)({
             ...agentOptions,
             ...this.options.tlsOptions,
           });
@@ -226,19 +287,25 @@ export class FireAndForgetBeacon implements Beacon {
       }
       return this.httpsAgent;
     }
-    this.httpAgent ??= new http.Agent(agentOptions);
+    this.httpAgent ??= new (httpModule().Agent)(agentOptions);
     return this.httpAgent;
   }
 
-  send(url: string, headers: Record<string, string>): Promise<BeaconOutcome> {
+  async send(
+    url: string,
+    headers: Record<string, string>
+  ): Promise<BeaconOutcome> {
     if (this.breakerIsOpen()) {
       // The endpoint has been consistently failing (down or firewalled);
       // act as /dev/null instead of burning sockets and timeouts.
-      return Promise.resolve({ kind: 'suppressed' });
+      return { kind: 'suppressed' };
     }
-    return this.doSend(url, headers).then((outcome) =>
-      this.recordOutcome(outcome)
-    );
+    // Wait for the persisted TLS tickets to be readable (async, usually long
+    // since resolved) so the first connect of a short-lived session can
+    // still resume instead of racing the disk read and missing.
+    await this.sessionStore?.whenLoaded();
+    const outcome = await this.doSend(url, headers);
+    return this.recordOutcome(outcome);
   }
 
   /**
@@ -305,6 +372,7 @@ export class FireAndForgetBeacon implements Beacon {
     url: string,
     headers: Record<string, string>
   ): Promise<BeaconOutcome> {
+    this.hasSent = true;
     return new Promise<BeaconOutcome>((resolve) => {
       const start = performance.now();
       const done = (outcome: BeaconOutcome): void => resolve(outcome);
@@ -320,7 +388,7 @@ export class FireAndForgetBeacon implements Beacon {
 
       let req: http.ClientRequest;
       try {
-        req = (isHttps ? https : http).request(target, {
+        req = (isHttps ? httpsModule() : httpModule()).request(target, {
           method: 'HEAD',
           headers: { ...this.options.defaultHeaders, ...headers },
           agent: this.agentFor(isHttps),
@@ -356,7 +424,7 @@ export class FireAndForgetBeacon implements Beacon {
         // 'dispatched' means the bytes reached the kernel; that is only true
         // once the connection (including the TLS handshake) is established.
         const connectEvent =
-          socket instanceof tls.TLSSocket ? 'secureConnect' : 'connect';
+          socket instanceof tlsModule().TLSSocket ? 'secureConnect' : 'connect';
         socket.once(connectEvent, () => {
           connected = true;
           maybeDispatched();
@@ -384,13 +452,56 @@ export class FireAndForgetBeacon implements Beacon {
    * grace for an in-flight ticket, then await the pending store write.
    */
   async flush(): Promise<void> {
+    if (this.hasSent) {
+      // Half-close every beacon-owned socket now, so a TLS close_notify and
+      // TCP FIN reach the kernel before the process concludes — otherwise
+      // exit tears the connections down abruptly (RST, no close_notify) and
+      // the server logs every session as an error. Half-close still lets
+      // responses and TLS 1.3 session tickets arrive below.
+      this.endOwnedSockets();
+      // 'dispatched' resolves when the request is written to the TLS/socket
+      // layer, which is still userspace — and with every telemetry handle
+      // unref'd, awaiting alone does not keep the event loop alive to drain
+      // it into the kernel. This short, deliberately ref'd delay is what
+      // keeps the process running those last few milliseconds (including
+      // the close_notify/FIN just queued above). Bounded and cleared by
+      // construction (plain one-shot timer).
+      await new Promise((resolve) =>
+        setTimeout(resolve, FLUSH_SETTLE_DELAY_MS)
+      );
+    }
     if (this.resumingAgent?.awaitingFirstTicket) {
-      await Promise.race([
-        this.resumingAgent.firstTicket,
-        new Promise((resolve) => setTimeout(resolve, 100).unref?.()),
-      ]);
+      // Ref'd for the same reason as above; cleared as soon as the ticket
+      // arrives so it only bounds the wait rather than extending it.
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      const grace = new Promise<void>(
+        (resolve) => (timer = setTimeout(resolve, TICKET_GRACE_MS))
+      );
+      try {
+        await Promise.race([this.resumingAgent.firstTicket, grace]);
+      } finally {
+        if (timer !== undefined) clearTimeout(timer);
+      }
     }
     await this.sessionStore?.flush();
+  }
+
+  /**
+   * Half-close (FIN + TLS close_notify) every socket of the beacon-owned
+   * agents. Deliberately does NOT touch an externally provided agent
+   * (options.agent) — that one is shared with the rest of the shell.
+   */
+  private endOwnedSockets(): void {
+    for (const agent of [this.httpAgent, this.httpsAgent]) {
+      if (!agent) continue;
+      for (const pool of [agent.sockets, agent.freeSockets]) {
+        for (const sockets of Object.values(pool)) {
+          for (const socket of sockets ?? []) {
+            socket.end();
+          }
+        }
+      }
+    }
   }
 
   /**

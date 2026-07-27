@@ -84,9 +84,20 @@ export class TelemetryClient implements MongoshAnalytics {
       .catch(() => {
         // the beacon contract never rejects; guard against violations anyway
       });
-    const timeout = new Promise<void>((resolve) =>
-      setTimeout(resolve, this.flushTimeoutMs).unref?.()
+    // This timer is deliberately ref'd: by design every telemetry socket and
+    // internal timer is unref'd, so during the exit flush nothing else may be
+    // keeping the event loop alive — awaiting a promise does not. Without a
+    // ref'd handle the process can exit mid-flush and drop the final events
+    // while they sit in userspace TLS buffers. The timer is cleared as soon
+    // as the work settles, so it never delays exit; it only bounds it.
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timeout = new Promise<void>(
+      (resolve) => (timer = setTimeout(resolve, this.flushTimeoutMs))
     );
-    await Promise.race([work, timeout]);
+    try {
+      await Promise.race([work, timeout]);
+    } finally {
+      if (timer !== undefined) clearTimeout(timer);
+    }
   }
 }
