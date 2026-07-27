@@ -4544,6 +4544,16 @@ functions:
           kondukto_token=$(aws secretsmanager get-secret-value --secret-id "kondukto-token" --region "us-east-1" --query 'SecretString' --output text)
           # set the KONDUKTO_TOKEN environment variable
           echo "KONDUKTO_TOKEN=$kondukto_token" > /tmp/kondukto_credentials.env
+    # NOTE: this assume_role runs after the Kondukto credentials above have
+    # already been retrieved and written to file - it intentionally overwrites
+    # the AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY/AWS_SESSION_TOKEN expansions
+    # set by the Kondukto role assumption above. Do not move this earlier in
+    # the function, or it will clobber the Kondukto role's credentials before
+    # they're used.
+    - command: ec2.assume_role
+      display_name: Assume IAM role with permissions to pull DevProd Platforms ECR images
+      params:
+        role_arn: ${devprod_platforms_ecr_readonly_role_arn}
     - command: subprocess.exec
       params:
         working_dir: src
@@ -4552,8 +4562,9 @@ functions:
           NODE_JS_VERSION: ${node_js_version}
           DISTRO_ID_OVERRIDE: ${distro_id}
           PACKAGE_VARIANT: ${package_variant}
-          ARTIFACTORY_USERNAME: ${artifactory_username}
-          ARTIFACTORY_PASSWORD: ${artifactory_password}
+          AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+          AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+          AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
           # for Kondukto SBOM integration
           KONDUKTO_BRANCH: ${branch_name}_${executable_os_id}
   create_static_analysis_report:
@@ -4681,6 +4692,13 @@ functions:
       params:
         file: tmp/expansions.yaml
         redacted: true
+    # Needed for the non-Darwin (garasign) signing path only; harmless no-op
+    # for the Darwin/macnotary path, same as MACOS_NOTARY_KEY/SECRET below
+    # being passed unconditionally even though only Darwin uses them.
+    - command: ec2.assume_role
+      display_name: Assume IAM role with permissions to pull DevProd Platforms ECR images
+      params:
+        role_arn: ${devprod_platforms_ecr_readonly_role_arn}
     - command: subprocess.exec
       params:
         working_dir: src
@@ -4692,6 +4710,9 @@ functions:
           MACOS_NOTARY_KEY: ${macos_notary_key}
           MACOS_NOTARY_SECRET: ${macos_notary_secret}
           REQUESTER: ${requester}
+          AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+          AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+          AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
   verify_artifact:
     - command: expansions.write
       type: setup
