@@ -42,8 +42,7 @@
     "compile": "tsc -p tsconfig.json",
     "prepublish": "npm run compile",
     "prettier": "prettier",
-    "reformat": "npm run prettier -- --write . && npm run eslint -- --fix",
-    "benchmark-beacons": "ts-node scripts/benchmark-beacons.ts"
+    "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
   },
   "mongosh": {
     "unitTestsOnly": true

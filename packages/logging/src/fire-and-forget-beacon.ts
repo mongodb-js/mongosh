@@ -149,79 +149,72 @@ type ResumingHttpsAgentConstructor = new (
   store: TlsSessionStore
 ) => ResumingHttpsAgent;
 
-let resumingHttpsAgentClass: ResumingHttpsAgentConstructor | undefined;
+let ResumingHttpsAgentClass: ResumingHttpsAgentConstructor | undefined;
 
 // The class is defined lazily: `extends https.Agent` at module scope would
 // force the https require this file goes out of its way to defer (see the
 // snapshot note on the lazy module helpers above).
 function getResumingHttpsAgentClass(): ResumingHttpsAgentConstructor {
-  if (!resumingHttpsAgentClass) {
-    const { Agent } = httpsModule();
-    resumingHttpsAgentClass = class ResumingHttpsAgent extends Agent {
-      private readonly store: TlsSessionStore;
-      private handshakeCompleted = false;
-      private ticketCaptured = false;
-      private notifyFirstTicket?: () => void;
-      readonly firstTicket: Promise<void>;
+  if (ResumingHttpsAgentClass) return ResumingHttpsAgentClass;
+  const { Agent } = httpsModule();
+  class ResumingHttpsAgent extends Agent {
+    private readonly store: TlsSessionStore;
+    private handshakeCompleted = false;
+    private ticketCaptured = false;
+    private notifyFirstTicket?: () => void;
+    readonly firstTicket: Promise<void>;
 
-      constructor(options: https.AgentOptions, store: TlsSessionStore) {
-        super(options);
-        this.store = store;
-        this.firstTicket = new Promise<void>(
-          (resolve) => (this.notifyFirstTicket = resolve)
-        );
-      }
+    constructor(options: https.AgentOptions, store: TlsSessionStore) {
+      super(options);
+      this.store = store;
+      this.firstTicket = new Promise<void>(
+        (resolve) => (this.notifyFirstTicket = resolve)
+      );
+    }
 
-      get awaitingFirstTicket(): boolean {
-        return this.handshakeCompleted && !this.ticketCaptured;
-      }
+    get awaitingFirstTicket(): boolean {
+      return this.handshakeCompleted && !this.ticketCaptured;
+    }
 
-      // Overrides the documented Agent API (called for every new connection).
-      // The installed @types/node *does* declare this method typed
-      // generically via net.NetConnectOpts/Duplex; the signature below
-      // matches that declaration verbatim so the override stays structurally
-      // compatible, and the TLS-specific shape is recovered internally via
-      // the same prototype-cast trick used to invoke super.
-      createConnection(
-        options: net.NetConnectOpts,
-        callback?: (err: Error | null, stream: Duplex) => void
-      ): Duplex {
-        const tlsOptions = options as tls.ConnectionOptions & {
-          host?: string;
-        };
-        const host = tlsOptions.host ?? 'localhost';
-        const socket = (
-          Agent.prototype as unknown as {
-            createConnection: (o: unknown, cb?: unknown) => tls.TLSSocket;
-          }
-        ).createConnection.call(
-          this,
-          { ...tlsOptions, session: this.store.get(host) },
-          callback
-        );
-        socket.once('secureConnect', () => {
-          this.handshakeCompleted = true;
-          if (socket.isSessionReused()) {
-            // A resumed session proves the stored ticket is still valid, and
-            // servers do not necessarily issue a fresh NewSessionTicket on
-            // resumed connections — without this, flush() would wait the
-            // full ticket grace on every session after the first.
-            this.ticketCaptured = true;
-            this.notifyFirstTicket?.();
-          }
-        });
-        // TLS 1.3 delivers session tickets after the handshake, possibly more
-        // than once; each one supersedes the previous.
-        socket.on('session', (ticket: Buffer) => {
+    createConnection(
+      options: net.NetConnectOpts,
+      callback?: (err: Error | null, stream: Duplex) => void
+    ): Duplex {
+      const host = 'host' in options && options.host ? options.host : 'localhost';
+
+      const connectOptions = {
+        ...options,
+        host,
+        session: this.store.get(host),
+      };
+
+      const socket = super.createConnection(connectOptions, callback) as tls.TLSSocket;
+
+      socket.once('secureConnect', () => {
+        this.handshakeCompleted = true;
+        if (socket.isSessionReused()) {
+          // A resumed session proves the stored ticket is still valid, and
+          // servers do not necessarily issue a fresh NewSessionTicket on
+          // resumed connections — without this, flush() would wait the
+          // full ticket grace on every session after the first.
           this.ticketCaptured = true;
           this.notifyFirstTicket?.();
-          this.store.set(host, ticket);
-        });
-        return socket;
-      }
-    };
+        }
+      });
+
+      // TLS 1.3 delivers session tickets after the handshake
+      socket.on('session', (ticket: Buffer) => {
+        this.ticketCaptured = true;
+        this.notifyFirstTicket?.();
+        this.store.set(host, ticket);
+      });
+
+      return socket;
+    }
   }
-  return resumingHttpsAgentClass;
+
+  ResumingHttpsAgentClass = ResumingHttpsAgent;
+  return ResumingHttpsAgentClass;
 }
 
 /**
