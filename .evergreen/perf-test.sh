@@ -15,9 +15,6 @@ if [ "${MONGOSH_PERF_TELEMETRY:-}" = "1" ]; then
   MONGOSH_TELEMETRY_ENDPOINT="$(cat telemetry-sink-endpoint.txt)"
   export MONGOSH_TELEMETRY_ENDPOINT
   export SSL_CERT_FILE="$PWD/packages/testing/certificates/ca.crt"
-  # Opt in to the fire-and-forget telemetry transport (MONGOSH-3454) so the
-  # telemetry perf task measures it instead of the default fetch transport.
-  export MONGOSH_TELEMETRY_TRANSPORT=fire-and-forget
 fi
 
 # shellcheck disable=SC2016 # $MONGODB_URI is deliberately expanded by the inner shell, which mongodb-runner invokes with the URI in its environment

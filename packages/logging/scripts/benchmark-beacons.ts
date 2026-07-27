@@ -4,7 +4,8 @@
  *
  * Section 1 — flush latency: for fast / slow / blackhole local servers,
  * measures the wall-clock time of `track() x N + flush()` through
- * TelemetryClient for FetchBeacon (baseline: waits for responses) vs
+ * TelemetryClient for a response-waiting fetch baseline (defined locally in
+ * this script — the shipped transport is fire-and-forget only) vs
  * FireAndForgetBeacon (cold and warmed).
  *
  * Section 2 — TLS session resumption: measures time-to-dispatched of the
@@ -23,13 +24,46 @@ import { once } from 'events';
 import { createServer as createHttpsServer } from 'https';
 import type { AddressInfo } from 'net';
 import { TelemetryClient } from '../src/telemetry-client';
-import type { Beacon } from '../src/beacon';
-import { FetchBeacon } from '../src/beacon';
+import type { Beacon, BeaconOutcome } from '../src/beacon';
+import { REQUEST_TIMEOUT_MS } from '../src/beacon';
 import { FireAndForgetBeacon } from '../src/fire-and-forget-beacon';
 import type { TelemetryEvent } from '../src/telemetry-events';
 
 const EVENTS_PER_RUN = 10;
 const FLUSH_TIMEOUT_MS = 2_000;
+
+/**
+ * Response-waiting baseline for comparison. This used to ship as
+ * `FetchBeacon` before the fire-and-forget transport became the only one;
+ * it lives on here purely so the benchmark can keep demonstrating the
+ * difference.
+ */
+class FetchBaselineBeacon implements Beacon {
+  async send(
+    url: string,
+    headers: Record<string, string>
+  ): Promise<BeaconOutcome> {
+    const start = performance.now();
+    try {
+      const response = await globalThis.fetch(url, {
+        method: 'HEAD',
+        headers,
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      });
+      return {
+        kind: 'response',
+        status: response.status,
+        durationMs: performance.now() - start,
+      };
+    } catch (error) {
+      return {
+        kind: 'error',
+        error: error as Error,
+        durationMs: performance.now() - start,
+      };
+    }
+  }
+}
 
 const event = {
   name: 'API Call',
@@ -90,9 +124,9 @@ async function benchmarkFlushLatency(): Promise<void> {
     const row: Record<string, string> = {};
 
     let srv = await startServer(scenario);
-    row['FetchBeacon'] = await timeFlush(
+    row['fetch baseline'] = await timeFlush(
       endpointOf(srv),
-      new FetchBeacon((url, init) => globalThis.fetch(url, init)),
+      new FetchBaselineBeacon(),
       false
     );
     srv.closeAllConnections();

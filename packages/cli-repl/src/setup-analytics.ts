@@ -1,15 +1,9 @@
-import type {
-  AgentWithInitialize,
-  RequestInit,
-  Response,
-} from '@mongodb-js/devtools-proxy-support';
+import type { AgentWithInitialize } from '@mongodb-js/devtools-proxy-support';
 import { useOrCreateAgent } from '@mongodb-js/devtools-proxy-support';
-import type { Beacon } from '@mongosh/logging';
 import {
   ThrottledAnalytics,
   ToggleableAnalytics,
   TelemetryClient,
-  FetchBeacon,
   FireAndForgetBeacon,
 } from '@mongosh/logging';
 import path from 'path';
@@ -26,32 +20,30 @@ export type SetupTelemetryAnalyticsParams = {
    * default. Used as the lowest-priority source when resolving the endpoint.
    */
   configuredTelemetryEndpoint: string;
-  /** Proxy-aware fetch used to deliver telemetry events. */
-  fetch: (url: string, init?: RequestInit) => Promise<Response>;
   /** Directory used to persist cross-session throttle state. */
   metadataPath: string;
   /**
    * Proxy-aware agent shared with the rest of mongosh. This is always
    * present in a real mongosh — `useOrCreateAgent` is called without a
    * target in cli-repl.ts, and without one it always builds an agent rather
-   * than returning undefined. The fire-and-forget transport only reuses it
+   * than returning undefined. The telemetry beacon only reuses it
    * (via {@link resolveTelemetryAgent}) when a proxy actually applies to the
    * telemetry endpoint; otherwise it builds its own resuming keep-alive
    * agent so TLS session resumption and the local DNS cache stay in effect.
-   * Note that when a proxy agent *is* used, the fire-and-forget beacon's
-   * `dispatched` guarantee ("bytes reached the kernel") is a little weaker:
-   * the client-visible connect event can fire once the tunnel to the proxy
+   * Note that when a proxy agent *is* used, the beacon's `dispatched`
+   * guarantee ("bytes reached the kernel") is a little weaker: the
+   * client-visible connect event can fire once the tunnel to the proxy
    * is established, ahead of the end-to-end TLS handshake completing —
    * acceptable for best-effort telemetry.
    */
   agent?: AgentWithInitialize;
-  /** User-Agent header value for the fire-and-forget transport. */
+  /** User-Agent header value attached to every telemetry request. */
   userAgent?: string;
   /**
    * Merged CA list (system store + bundled roots, from devtools-proxy-support's
-   * systemCA) for the fire-and-forget transport. The fetch transport gets the
-   * same trust via its proxy-aware fetch; the fire-and-forget beacon builds
-   * its own agents and would otherwise only trust Node's bundled roots.
+   * systemCA). The beacon builds its own agents, which would otherwise only
+   * trust Node's bundled roots — this keeps custom-CA environments
+   * (corporate proxies, test sinks) working.
    */
   tlsCa?: string;
 };
@@ -114,7 +106,6 @@ export function resolveTelemetryAgent(
  */
 export function setupTelemetryAnalytics({
   configuredTelemetryEndpoint,
-  fetch,
   metadataPath,
   agent,
   userAgent,
@@ -127,30 +118,24 @@ export function setupTelemetryAnalytics({
   if (!telemetryEndpoint) {
     return { analytics: new ToggleableAnalytics(), telemetryEndpoint: '' };
   }
-  // Opt-in fire-and-forget transport (MONGOSH-3454): resolves sends once the
+  // Fire-and-forget transport (MONGOSH-3454): resolves sends once the
   // request is written to an established socket instead of waiting for the
   // response, so telemetry can never delay mongosh exit. Owns its own
   // health policy (adaptive timeout, circuit breaker) and persists TLS
   // session tickets next to the throttle state for cross-session resumption.
-  const beacon: Beacon =
-    process.env.MONGOSH_TELEMETRY_TRANSPORT === 'fire-and-forget'
-      ? new FireAndForgetBeacon({
-          agent: resolveTelemetryAgent(agent, telemetryEndpoint),
-          defaultHeaders: userAgent ? { 'User-Agent': userAgent } : {},
-          tlsOptions: tlsCa ? { ca: tlsCa } : undefined,
-          sessionStorePath: path.join(
-            metadataPath,
-            'telemetry-tls-sessions.json'
-          ),
-        })
-      : new FetchBeacon(fetch);
+  const beacon = new FireAndForgetBeacon({
+    agent: resolveTelemetryAgent(agent, telemetryEndpoint),
+    defaultHeaders: userAgent ? { 'User-Agent': userAgent } : {},
+    tlsOptions: tlsCa ? { ca: tlsCa } : undefined,
+    sessionStorePath: path.join(metadataPath, 'telemetry-tls-sessions.json'),
+  });
   return {
     telemetryEndpoint,
     // ThrottledAnalytics wraps TelemetryClient target and gates every
     // track() call before it reaches it. The timeframe defaults to 60s.
     // Once the cap is hit, further events within the same window
     // are silently dropped and TelemetryClient.track()
-    // (and its underlying fetch) is never called.
+    // (and the beacon behind it) is never called.
     analytics: new ToggleableAnalytics(
       new ThrottledAnalytics({
         target: new TelemetryClient(telemetryEndpoint, beacon),

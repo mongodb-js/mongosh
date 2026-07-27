@@ -38,9 +38,6 @@ const identifyEvent: TelemetryEvent = {
 describe('setup-analytics', function () {
   describe('setupTelemetryAnalytics', function () {
     const metadataPath = os.tmpdir();
-    // A fetch stub; these tests never actually track()/send, they only inspect
-    // how the analytics sink is constructed.
-    const fetch = () => Promise.resolve(new Response());
 
     let savedEnvEndpoint: string | undefined;
     beforeEach(function () {
@@ -60,7 +57,6 @@ describe('setup-analytics', function () {
     ) {
       return setupTelemetryAnalytics({
         configuredTelemetryEndpoint: '',
-        fetch: fetch as any,
         metadataPath,
         ...params,
       });
@@ -101,22 +97,17 @@ describe('setup-analytics', function () {
       expect(analytics._target).to.be.instanceOf(NoopAnalytics);
     });
 
-    it('never calls fetch when no endpoint is configured', async function () {
-      let fetchCount = 0;
+    it('never constructs a network-capable sink when no endpoint is configured', async function () {
       const { analytics } = setup({
         configuredTelemetryEndpoint: '',
-        fetch: (() => {
-          fetchCount++;
-          return Promise.resolve(new Response());
-        }) as any,
       });
-      // Enable the queue so tracked events are forwarded to the target, then
-      // flush — with no endpoint the target is a NoopAnalytics, so no request
-      // is ever made.
+      // With no endpoint the target is a NoopAnalytics — no beacon exists,
+      // so tracking and flushing can never produce a network request.
+      expect(analytics._target).to.be.instanceOf(NoopAnalytics);
       analytics.enable();
       analytics.track(identifyEvent);
-      await analytics.flush();
-      expect(fetchCount).to.equal(0);
+      await analytics.flush(); // must not throw
+      expect(analytics._target).to.be.instanceOf(NoopAnalytics);
     });
   });
 

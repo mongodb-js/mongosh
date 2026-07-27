@@ -5,8 +5,8 @@ export {
   ThrottledAnalytics,
 } from './analytics-helpers';
 export { TelemetryClient } from './telemetry-client';
-export { FetchBeacon, REQUEST_TIMEOUT_MS } from './beacon';
-export type { Beacon, BeaconOutcome, FetchFn } from './beacon';
+export { REQUEST_TIMEOUT_MS } from './beacon';
+export type { Beacon, BeaconOutcome } from './beacon';
 export { FireAndForgetBeacon } from './fire-and-forget-beacon';
 export type { FireAndForgetBeaconOptions } from './fire-and-forget-beacon';
 export { TlsSessionStore } from './tls-session-store';
