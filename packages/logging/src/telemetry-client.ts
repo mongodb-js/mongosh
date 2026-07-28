@@ -6,9 +6,9 @@ import type { MongoshAnalytics } from './analytics-helpers';
 const gzipAsync = promisify(gzip);
 
 // Generous enough number for a fire-and-forget event. Adjust freely if needed.
-export const REQUEST_TIMEOUT_MS = 5_000;
+export const REQUEST_TIMEOUT_MS = 1_000;
 
-const FLUSH_TIMEOUT_MS = 2_000;
+const FLUSH_TIMEOUT_MS = 1_000;
 const SCHEMA_VERSION = 'v1';
 
 type FetchFn = (
