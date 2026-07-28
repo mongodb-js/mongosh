@@ -6490,42 +6490,6 @@ tasks:
           node_js_version: ${node_js_version}
           mongosh_server_test_version: ${mongosh_server_test_version}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
-  - name: e2e_tests_linux_ppc64le_openssl11
-    tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
-    depends_on:
-      - name: compile_artifact
-        variant: build_linux_ppc64le_openssl11
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: ${node_js_version}
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-ppc64le-openssl11
-      - func: run_e2e_tests
-        vars:
-          node_js_version: ${node_js_version}
-          mongosh_server_test_version: ${mongosh_server_test_version}
-          mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
-  - name: e2e_tests_linux_ppc64le_openssl3
-    tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
-    depends_on:
-      - name: compile_artifact
-        variant: build_linux_ppc64le_openssl3
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: ${node_js_version}
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-ppc64le-openssl3
-      - func: run_e2e_tests
-        vars:
-          node_js_version: ${node_js_version}
-          mongosh_server_test_version: ${mongosh_server_test_version}
-          mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
   - name: e2e_tests_linux_s390x
     tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
@@ -6539,42 +6503,6 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-s390x
-      - func: run_e2e_tests
-        vars:
-          node_js_version: ${node_js_version}
-          mongosh_server_test_version: ${mongosh_server_test_version}
-          mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
-  - name: e2e_tests_linux_s390x_openssl11
-    tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
-    depends_on:
-      - name: compile_artifact
-        variant: build_linux_s390x_openssl11
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: ${node_js_version}
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-s390x-openssl11
-      - func: run_e2e_tests
-        vars:
-          node_js_version: ${node_js_version}
-          mongosh_server_test_version: ${mongosh_server_test_version}
-          mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
-  - name: e2e_tests_linux_s390x_openssl3
-    tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
-    depends_on:
-      - name: compile_artifact
-        variant: build_linux_s390x_openssl3
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: ${node_js_version}
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-s390x-openssl3
       - func: run_e2e_tests
         vars:
           node_js_version: ${node_js_version}
@@ -12357,48 +12285,12 @@ buildvariants:
       node_js_version: "24.18.0"
     tasks:
       - name: compile_artifact
-  - name: build_linux_ppc64le_openssl11
-    display_name: "RHEL 8 PPC openssl11 (Build)"
-    run_on: rhel8-power-small
-    expansions:
-      executable_os_id: "linux-ppc64le-openssl11"
-      node_js_version: "24.18.0"
-      mongosh_shared_openssl: "openssl11"
-    tasks:
-      - name: compile_artifact
-  - name: build_linux_ppc64le_openssl3
-    display_name: "RHEL 8 PPC openssl3 (Build)"
-    run_on: rhel8-power-small
-    expansions:
-      executable_os_id: "linux-ppc64le-openssl3"
-      node_js_version: "24.18.0"
-      mongosh_shared_openssl: "openssl3"
-    tasks:
-      - name: compile_artifact
   - name: build_linux_s390x
     display_name: "RHEL 7 s390x (Build)"
     run_on: rhel7-zseries-large
     expansions:
       executable_os_id: "linux-s390x"
       node_js_version: "24.18.0"
-    tasks:
-      - name: compile_artifact
-  - name: build_linux_s390x_openssl11
-    display_name: "RHEL 7 s390x openssl11 (Build)"
-    run_on: rhel7-zseries-large
-    expansions:
-      executable_os_id: "linux-s390x-openssl11"
-      node_js_version: "24.18.0"
-      mongosh_shared_openssl: "openssl11"
-    tasks:
-      - name: compile_artifact
-  - name: build_linux_s390x_openssl3
-    display_name: "RHEL 7 s390x openssl3 (Build)"
-    run_on: rhel7-zseries-large
-    expansions:
-      executable_os_id: "linux-s390x-openssl3"
-      node_js_version: "24.18.0"
-      mongosh_shared_openssl: "openssl3"
     tasks:
       - name: compile_artifact
   - name: build_darwin
@@ -12920,28 +12812,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_ppc64le
-  - name: e2e_tests_rhel9_power_small_openssl11
-    display_name: "RHEL 9 PPC openssl11 (E2E tests)"
-    run_on: rhel9-power-small
-    tags: []
-    expansions:
-      executable_os_id: "linux-ppc64le-openssl11"
-      node_js_version: "24.18.0"
-      mongosh_server_test_version: "stable-enterprise"
-      mongosh_test_e2e_force_fips: ""
-    tasks:
-      - name: e2e_tests_linux_ppc64le_openssl11
-  - name: e2e_tests_rhel9_power_small_openssl3
-    display_name: "RHEL 9 PPC openssl3 (E2E tests)"
-    run_on: rhel9-power-small
-    tags: []
-    expansions:
-      executable_os_id: "linux-ppc64le-openssl3"
-      node_js_version: "24.18.0"
-      mongosh_server_test_version: "stable-enterprise"
-      mongosh_test_e2e_force_fips: ""
-    tasks:
-      - name: e2e_tests_linux_ppc64le_openssl3
   - name: e2e_tests_rhel7_zseries_small_m60x
     display_name: "RHEL 7 s390x 60x (E2E tests)"
     run_on: rhel7-zseries-small
@@ -12986,28 +12856,6 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_s390x
-  - name: e2e_tests_rhel9_zseries_small_openssl11
-    display_name: "RHEL 9 s390x openssl11 (E2E tests)"
-    run_on: rhel9-zseries-small
-    tags: []
-    expansions:
-      executable_os_id: "linux-s390x-openssl11"
-      node_js_version: "24.18.0"
-      mongosh_server_test_version: "stable-enterprise"
-      mongosh_test_e2e_force_fips: ""
-    tasks:
-      - name: e2e_tests_linux_s390x_openssl11
-  - name: e2e_tests_rhel9_zseries_small_openssl3
-    display_name: "RHEL 9 s390x openssl3 (E2E tests)"
-    run_on: rhel9-zseries-small
-    tags: []
-    expansions:
-      executable_os_id: "linux-s390x-openssl3"
-      node_js_version: "24.18.0"
-      mongosh_server_test_version: "stable-enterprise"
-      mongosh_test_e2e_force_fips: ""
-    tasks:
-      - name: e2e_tests_linux_s390x_openssl3
   - name: e2e_tests_macos_15_amd64_gui
     display_name: "MacOS 15 Sequoia (amd64) (E2E tests)"
     run_on: macos-15-amd64-gui
