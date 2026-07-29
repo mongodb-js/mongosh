@@ -34,7 +34,7 @@ export class TelemetryClient implements MongoshAnalytics {
   private readonly requestTimeoutMs: number;
   private readonly flushTimeoutMs: number;
   private readonly controller = new AbortController();
-  private pending = new Set<Promise<unknown> | undefined>();
+  private pending = new Set<Promise<unknown>>();
 
   constructor(
     endpoint: string,
