@@ -13,7 +13,7 @@ import { SnippetManager } from '@mongosh/snippet-manager';
 import { Editor } from '@mongosh/editor';
 import askpassword from 'askpassword';
 import { EventEmitter, once } from 'events';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 import ConnectionString from 'mongodb-connection-string-url';
 import semver from 'semver';
 import type { Readable, Writable } from 'stream';
