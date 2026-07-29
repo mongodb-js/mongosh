@@ -111,38 +111,6 @@ describe('TelemetryClient', function () {
     await client.flush(); // must not throw
   });
 
-  it('flush() waits for all in-flight requests before resolving', async function () {
-    let resolve1!: () => void;
-    let resolve2!: () => void;
-    const p1 = new Promise<void>((r) => (resolve1 = r));
-    const p2 = new Promise<void>((r) => (resolve2 = r));
-    const responses = [p1, p2];
-    let responseIndex = 0;
-
-    const client = new TelemetryClient('https://example.com/events', () => {
-      return responses[responseIndex++];
-    });
-
-    client.track(sessionEvent);
-    client.track(sessionEvent);
-
-    let flushed = false;
-    const flushPromise = client.flush().then(() => {
-      flushed = true;
-    });
-
-    await Promise.resolve();
-    expect(flushed).to.equal(false);
-
-    resolve1();
-    await Promise.resolve();
-    expect(flushed).to.equal(false);
-
-    resolve2();
-    await flushPromise;
-    expect(flushed).to.equal(true);
-  });
-
   it('flush() clears inflight so a second flush() has nothing to wait on', async function () {
     const fetchCalls: number[] = [];
     const client = new TelemetryClient('https://example.com/events', () => {

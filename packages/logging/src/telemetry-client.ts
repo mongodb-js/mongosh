@@ -60,39 +60,35 @@ export class TelemetryClient implements MongoshAnalytics {
    * https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/standard-logging.html
    */
   public track(event: TelemetryEvent): void {
-    void this.doTrack(event).then(noop, noop);
+    const trackPromise = this.doTrack(event)
+      .then(noop, noop)
+      .finally(() => this.pending.delete(trackPromise));
+    this.pending.add(trackPromise);
   }
 
   private async doTrack(event: TelemetryEvent): Promise<void> {
-    let fetchPromise: Promise<unknown> | undefined;
-    try {
-      const payload: Record<string, unknown> = event.payload;
-      const query = new URLSearchParams({
-        deviceId: String(payload.device_id ?? ''),
-        sessionId: String(payload.session_id ?? ''),
-      });
-      const url = `${this.endpoint}${eventPath(
-        event.name
-      )}?${query.toString()}`;
+    const payload: Record<string, unknown> = event.payload;
+    const query = new URLSearchParams({
+      deviceId: String(payload.device_id ?? ''),
+      sessionId: String(payload.session_id ?? ''),
+    });
+    const url = `${this.endpoint}${eventPath(event.name)}?${query.toString()}`;
 
-      // TODO(MONGOSH-3504): It might be worth using something like zstd
-      // and/or use a custom dictionary rather than plain gzip.
-      const compressed = await gzipAsync(Buffer.from(JSON.stringify(event)));
+    // TODO(MONGOSH-3504): It might be worth using something like zstd
+    // and/or use a custom dictionary rather than plain gzip.
+    const compressed = await gzipAsync(Buffer.from(JSON.stringify(event)));
+    try {
       const signal = AbortSignal.any([
         AbortSignal.timeout(this.requestTimeoutMs),
         this.controller.signal,
       ]);
-      fetchPromise = this.fetch(url, {
+      await this.fetch(url, {
         method: 'HEAD',
         headers: { Cookie: `mge=${compressed.toString('base64')}` },
         signal,
       });
-      this.pending.add(fetchPromise);
-      await fetchPromise;
     } catch {
       // ignore
-    } finally {
-      this.pending.delete(fetchPromise);
     }
   }
 
