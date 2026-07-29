@@ -64,22 +64,25 @@ export class TelemetryClient implements MongoshAnalytics {
   }
 
   async doTrack(event: TelemetryEvent): Promise<void> {
-    const payload: Record<string, unknown> = event.payload;
-    const query = new URLSearchParams({
-      deviceId: String(payload.device_id ?? ''),
-      sessionId: String(payload.session_id ?? ''),
-    });
-    const url = `${this.endpoint}${eventPath(event.name)}?${query.toString()}`;
-
-    // TODO(MONGOSH-3504): It might be worth using something like zstd
-    // and/or use a custom dictionary rather than plain gzip.
     try {
+      this.pending += 1;
+
+      const payload: Record<string, unknown> = event.payload;
+      const query = new URLSearchParams({
+        deviceId: String(payload.device_id ?? ''),
+        sessionId: String(payload.session_id ?? ''),
+      });
+      const url = `${this.endpoint}${eventPath(
+        event.name
+      )}?${query.toString()}`;
+
+      // TODO(MONGOSH-3504): It might be worth using something like zstd
+      // and/or use a custom dictionary rather than plain gzip.
       const compressed = await gzipAsync(Buffer.from(JSON.stringify(event)));
       const signal = AbortSignal.any([
         AbortSignal.timeout(this.requestTimeoutMs),
         this.controller.signal,
       ]);
-      this.pending += 1;
       await this.fetch(url, {
         method: 'HEAD',
         headers: { Cookie: `mge=${compressed.toString('base64')}` },
