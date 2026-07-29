@@ -34,7 +34,7 @@ export class TelemetryClient implements MongoshAnalytics {
   private readonly requestTimeoutMs: number;
   private readonly flushTimeoutMs: number;
   private readonly controller = new AbortController();
-  private pending = 0;
+  private pending = new Set<Promise<unknown> | undefined>();
 
   constructor(
     endpoint: string,
@@ -59,14 +59,13 @@ export class TelemetryClient implements MongoshAnalytics {
    *
    * https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/standard-logging.html
    */
-  track(event: TelemetryEvent): void {
+  public track(event: TelemetryEvent): void {
     void this.doTrack(event).then(noop, noop);
   }
 
-  async doTrack(event: TelemetryEvent): Promise<void> {
+  private async doTrack(event: TelemetryEvent): Promise<void> {
+    let fetchPromise: Promise<unknown> | undefined;
     try {
-      this.pending += 1;
-
       const payload: Record<string, unknown> = event.payload;
       const query = new URLSearchParams({
         deviceId: String(payload.device_id ?? ''),
@@ -83,21 +82,27 @@ export class TelemetryClient implements MongoshAnalytics {
         AbortSignal.timeout(this.requestTimeoutMs),
         this.controller.signal,
       ]);
-      await this.fetch(url, {
+      fetchPromise = this.fetch(url, {
         method: 'HEAD',
         headers: { Cookie: `mge=${compressed.toString('base64')}` },
         signal,
       });
+      this.pending.add(fetchPromise);
+      await fetchPromise;
     } catch {
       // ignore
     } finally {
-      this.pending -= 1;
+      this.pending.delete(fetchPromise);
     }
   }
 
   async flush(): Promise<void> {
-    if (this.pending > 0)
-      await timers.promises.setTimeout(this.flushTimeoutMs, { unref: true });
+    if (this.pending.size !== 0) {
+      const maxFlushTimeout = timers.promises.setTimeout(this.flushTimeoutMs, {
+        unref: true,
+      });
+      await Promise.race([Promise.allSettled(this.pending), maxFlushTimeout]);
+    }
     this.controller.abort('TelemetryClient flush');
   }
 }
