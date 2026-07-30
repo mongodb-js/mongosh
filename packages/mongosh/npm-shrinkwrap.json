@@ -1727,7 +1727,7 @@
         "bson": "^7.3.1",
         "escape-string-regexp": "^4.0.0",
         "is-recoverable-error": "^1.0.3",
-        "js-yaml": "^4.3.0",
+        "js-yaml": "^5.2.2",
         "mongodb-connection-string-url": "^7.0.1",
         "mongodb-log-writer": "^2.5.6",
         "mongodb-redact": "^1.4.6",
@@ -1748,7 +1748,6 @@
         "@mongosh/testing": "2.0.14",
         "@types/ansi-escape-sequences": "^4.0.0",
         "@types/chai-as-promised": "^8.0.2",
-        "@types/js-yaml": "^4.0.5",
         "@types/node": "^22.15.30",
         "@types/numeral": "^2.0.2",
         "@types/text-table": "^0.2.1",
@@ -5123,9 +5122,9 @@
       }
     },
     "node_modules/ip-address": {
-      "version": "10.2.0",
-      "resolved": "https://registry.npmjs.org/ip-address/-/ip-address-10.2.0.tgz",
-      "integrity": "sha512-/+S6j4E9AHvW9SWMSEY9Xfy66O5PWvVEJ08O0y5JGyEKQpojb0K0GKpz/v5HJ/G0vi3D2sjGK78119oXZeE0qA==",
+      "version": "10.3.1",
+      "resolved": "https://registry.npmjs.org/ip-address/-/ip-address-10.3.1.tgz",
+      "integrity": "sha512-1e9d3kb97NHJTIJDZW9rKqW2h6+dFa50Dy0fpPSMQp2ADje5gvKsXmdiK6dwY5t76TaTt5+P5N1Y/LoToIxP6g==",
       "license": "MIT",
       "engines": {
         "node": ">= 12"
@@ -5627,6 +5626,7 @@
       "version": "4.3.0",
       "resolved": "https://registry.npmjs.org/js-yaml/-/js-yaml-4.3.0.tgz",
       "integrity": "sha512-1td788aAnnZ5qs7V2QIRl1owjtYpbKt749Y3xauqQgwIIGF/xXWz1wMTEBx5O3LK3lXLVuqXPdPxj2BoFHaW9Q==",
+      "devOptional": true,
       "funding": [
         {
           "type": "github",
@@ -5649,6 +5649,7 @@
       "version": "2.0.1",
       "resolved": "https://registry.npmjs.org/argparse/-/argparse-2.0.1.tgz",
       "integrity": "sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==",
+      "devOptional": true,
       "license": "Python-2.0"
     },
     "node_modules/jsesc": {
@@ -7285,9 +7286,9 @@
       }
     },
     "node_modules/tar": {
-      "version": "7.5.20",
-      "resolved": "https://registry.npmjs.org/tar/-/tar-7.5.20.tgz",
-      "integrity": "sha512-9FcyK4PA6+WbzlTM9WhQm6vB5W7cP7dUiPsv1g7YDwEQnQ1CGpK3MGlKk/ITVWMk05kHZuBhmVhiv8LZoy/PFQ==",
+      "version": "7.5.22",
+      "resolved": "https://registry.npmjs.org/tar/-/tar-7.5.22.tgz",
+      "integrity": "sha512-MFO/QzvtAOmJbkhOaCTvbGcFN9L9b+JunIsDwaKljSOdcLMea3NJ1k9Usz/rjdfSXTq4dfzfeS7W4p4YOAAHeA==",
       "license": "BlueOak-1.0.0",
       "dependencies": {
         "@isaacs/fs-minipass": "^4.0.0",
