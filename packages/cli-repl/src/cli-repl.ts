@@ -13,7 +13,7 @@ import { SnippetManager } from '@mongosh/snippet-manager';
 import { Editor } from '@mongosh/editor';
 import askpassword from 'askpassword';
 import { EventEmitter, once } from 'events';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 import ConnectionString from 'mongodb-connection-string-url';
 import semver from 'semver';
 import type { Readable, Writable } from 'stream';
@@ -902,7 +902,9 @@ export class CliRepl implements MongoshIOProvider {
       if (fileContents.trim().startsWith('{')) {
         config = EJSON.parse(fileContents);
       } else {
-        config = (yaml.load(fileContents) as any)?.mongosh ?? {};
+        config = fileContents
+          ? (yaml.load(fileContents) as any)?.mongosh ?? {}
+          : {};
       }
       for (const [key, value] of Object.entries(config) as [
         keyof CliUserConfig,
