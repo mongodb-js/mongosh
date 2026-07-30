@@ -135,6 +135,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
   public async flush(): Promise<void> {
     const session: SessionTelemetryState = this.busEventState.session;
     if ((session.isInteractive || getAiAgent()) && this.trackFn) {
+      // Emit the "Session Ended" event once per session.
       this.trackFn({
         name: 'Session Ended',
         payload: {
@@ -175,9 +176,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
   private async setupTelemetry(): Promise<void> {
     this.deviceId = await this.deviceId;
 
-    // Emit the Identify event once per session now that the device_id (the
-    // sole user identifier) is known. device_id is added to every event via
-    // getTrackingProperties(), so it does not need to be set here.
+    // Emit the "Identify" event once per session.
     this.trackFn?.({
       name: 'Identify',
       payload: () => ({ ...this.userTraits }),
@@ -285,9 +284,6 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
       mongosh_version: this.mongoshVersion,
       ai_agent: getAiAgent(),
       session_id: this.log.logId,
-      // device_id is the stable per-device identifier and is attached to every
-      // event (it is also what telemetry throttle state is keyed on).
-      device_id: typeof this.deviceId === 'string' ? this.deviceId : 'unknown',
     });
 
     const track = (event: TrackableEvent): void => {
@@ -300,7 +296,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
             ...getTrackingProperties(),
             ...rawPayload,
           },
-        } as TelemetryEvent;
+        } as unknown as TelemetryEvent;
         this.log.info(
           'MONGOSH',
           mongoLogId(1_000_000_016),
@@ -375,6 +371,7 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
         }
       );
 
+      // Emit the "New Connection" event once per connection.
       track({
         name: 'New Connection',
         payload: properties,

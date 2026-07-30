@@ -21,7 +21,6 @@ const sessionEvent: TelemetryEvent = {
     os_darwin_product_name: undefined,
     os_darwin_product_version: undefined,
     os_darwin_product_build_version: undefined,
-    device_id: 'test-device',
   },
 };
 
@@ -35,7 +34,7 @@ describe('TelemetryClient', function () {
     client.track(sessionEvent);
     await client.flush();
     expect(calls).to.deep.equal([
-      'https://example.com/events/v1/identify?deviceId=test-device&sessionId=test-session',
+      'https://example.com/events/v1/identify?sessionId=test-session',
     ]);
   });
 
@@ -54,7 +53,7 @@ describe('TelemetryClient', function () {
 
     expect(requests).to.have.lengthOf(1);
     expect(requests[0].url).to.equal(
-      'https://example.com/events/v1/identify?deviceId=test-device&sessionId=test-session'
+      'https://example.com/events/v1/identify?sessionId=test-session'
     );
     expect(requests[0].init.method).to.equal('HEAD');
     expect(requests[0].init.signal).to.be.instanceOf(AbortSignal);

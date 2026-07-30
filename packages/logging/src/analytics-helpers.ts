@@ -100,6 +100,8 @@ export class ToggleableAnalytics implements MongoshAnalytics {
 
 type ThrottledAnalyticsOptions = {
   target: MongoshAnalytics;
+  /** Stable identifier used to key cross-session throttle state. */
+  currentSessionId: string;
   /**
    * Throttling options. If not provided, throttling is disabled (default: null)
    */
@@ -171,9 +173,29 @@ export class ThrottledAnalytics implements MongoshAnalytics {
   private restorePromise: Promise<void> = Promise.resolve();
   private unlock: () => Promise<void> = () => Promise.resolve();
 
-  constructor({ target, throttle }: Partial<ThrottledAnalyticsOptions> = {}) {
+  constructor({
+    target,
+    currentSessionId,
+    throttle,
+  }: Partial<ThrottledAnalyticsOptions> = {}) {
     this.target = target ?? new NoopAnalytics();
     this.throttleOptions = throttle ?? this.throttleOptions;
+    if (currentSessionId) {
+      // Start restore immediately so the lockfile is acquired before the first
+      // track() call, rather than being deferred until the first event arrives.
+      this.beginRestore(currentSessionId);
+    }
+  }
+
+  private beginRestore(sessionId: string): void {
+    this.currentSessionId = sessionId;
+    this.restorePromise = this.restoreThrottleState().then((enabled) => {
+      if (!enabled) {
+        this.trackQueue.disable();
+        return;
+      }
+      this.trackQueue.enable();
+    });
   }
 
   get metadataPath() {
@@ -193,18 +215,7 @@ export class ThrottledAnalytics implements MongoshAnalytics {
 
   track(event: TelemetryEvent): void {
     if (!this.currentSessionId) {
-      // Key throttle state on device_id so it persists across sessions for the
-      // same device (device_id is present on every event). session_id is only a
-      // defensive fallback and should not normally be needed.
-      this.currentSessionId =
-        event.payload.device_id ?? event.payload.session_id;
-      this.restorePromise = this.restoreThrottleState().then((enabled) => {
-        if (!enabled) {
-          this.trackQueue.disable();
-          return;
-        }
-        this.trackQueue.enable();
-      });
+      this.beginRestore(event.payload.session_id);
     }
     this.trackQueue.push(event);
   }

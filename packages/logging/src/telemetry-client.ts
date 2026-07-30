@@ -51,7 +51,7 @@ export class TelemetryClient implements MongoshAnalytics {
   /**
    * Sends events to the MongoDB telemetry endpoint. The format:
    *  - path (cs-uri-stem):          schema version + event name, e.g. /v1/new-connection
-   *  - query string (cs-uri-query): device_id / session_id, for filtering & joins in raw logs
+   *  - query string (cs-uri-query): session_id for filtering & joins in raw logs;
    *  - User-Agent (cs(User-Agent)): client identity (mongosh version, OS, arch),
    *                                 attached by the `fetch` passed into the
    *                                 constructor, not by this class
@@ -69,7 +69,6 @@ export class TelemetryClient implements MongoshAnalytics {
   private async doTrack(event: TelemetryEvent): Promise<void> {
     const payload: Record<string, unknown> = event.payload;
     const query = new URLSearchParams({
-      deviceId: String(payload.device_id ?? ''),
       sessionId: String(payload.session_id ?? ''),
     });
     const url = `${this.endpoint}${eventPath(event.name)}?${query.toString()}`;
