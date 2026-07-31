@@ -16,7 +16,7 @@
     "@mongosh/service-provider-core",
     "@mongosh/types",
     "mongodb",
-    "mongodb-schema",
+    "@mongodb-js/mongodb-schema",
     "@types/json-schema"
   ],
   "dtsRollup": {
