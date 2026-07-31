@@ -893,4 +893,33 @@ export default class Shard<
       ...(configShard.tags && { tags: configShard.tags }),
     };
   }
+
+  @serverVersions(['8.2.0', ServerVersions.latest])
+  @apiVersions([])
+  @returnsPromise
+  async shardDrainingStatus(shardId?: string): Promise<Document> {
+    assertArgsDefinedType(
+      [shardId],
+      [[undefined, 'string']],
+      'Shard.shardDrainingStatus'
+    );
+    this._emitShardApiCall('shardDrainingStatus', { shardId });
+    await getConfigDB(this._database);
+
+    return this._database._runAdminReadCommand({
+      shardDrainingStatus: shardId ?? 1,
+    });
+  }
+
+  @serverVersions(['8.3.0', ServerVersions.latest])
+  @apiVersions([])
+  @returnsPromise
+  async getTransitionToDedicatedConfigServerStatus(): Promise<Document> {
+    this._emitShardApiCall('getTransitionToDedicatedConfigServerStatus', {});
+    await getConfigDB(this._database);
+
+    return this._database._runAdminReadCommand({
+      getTransitionToDedicatedConfigServerStatus: 1,
+    });
+  }
 }

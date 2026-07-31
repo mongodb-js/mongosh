@@ -59,7 +59,10 @@ elif [ -n "$MONGOSH_SHARED_OPENSSL" ]; then
   pushd openssl-*
   ./config --prefix=/tmp/m/opt --libdir=lib shared
   make -j12
-  make -j12 install install_ssldirs
+  # install_sw (not install) skips building/installing HTML man pages via
+  # mkpod2html.pl, which can fail if the host's Perl lacks required modules;
+  # we only need the libs/headers here.
+  make -j12 install_sw install_ssldirs
 
   popd # openssl-*
   popd # /tmp/m
