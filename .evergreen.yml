@@ -11053,7 +11053,7 @@ buildvariants:
     disable: false
     expansions:
       executable_os_id: darwin-arm64
-      mongosh_server_test_version: "9.0.0-rc0"
+      mongosh_server_test_version: "9.0.0-rc1"
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -11087,7 +11087,7 @@ buildvariants:
     disable: false
     expansions:
       executable_os_id: darwin-arm64
-      mongosh_server_test_version: "9.0.0-rc0-enterprise"
+      mongosh_server_test_version: "9.0.0-rc1-enterprise"
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -11597,7 +11597,7 @@ buildvariants:
     disable: false
     expansions:
       executable_os_id: darwin-arm64
-      mongosh_server_test_version: "9.0.0-rc0"
+      mongosh_server_test_version: "9.0.0-rc1"
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -11631,7 +11631,7 @@ buildvariants:
     disable: false
     expansions:
       executable_os_id: darwin-arm64
-      mongosh_server_test_version: "9.0.0-rc0-enterprise"
+      mongosh_server_test_version: "9.0.0-rc1-enterprise"
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -12128,7 +12128,7 @@ buildvariants:
     disable: false
     expansions:
       executable_os_id: win32
-      mongosh_server_test_version: "9.0.0-rc0"
+      mongosh_server_test_version: "9.0.0-rc1"
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -12161,7 +12161,7 @@ buildvariants:
     disable: false
     expansions:
       executable_os_id: win32
-      mongosh_server_test_version: "9.0.0-rc0-enterprise"
+      mongosh_server_test_version: "9.0.0-rc1-enterprise"
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
