@@ -60,7 +60,7 @@ describe('local trigger-release-draft', function () {
       expect(spawnSync).to.have.been.calledTwice;
       expect(spawnSync.getCall(0)).calledWith(
         'git',
-        ['tag', 'v0.8.0-draft.8'],
+        ['tag', '-m', 'v0.8.0-draft.8', 'v0.8.0-draft.8'],
         sinon.match.any
       );
       expect(spawnSync.getCall(1)).calledWith(
@@ -99,7 +99,7 @@ describe('local trigger-release-draft', function () {
       expect(spawnSync).to.have.been.calledTwice;
       expect(spawnSync.getCall(0)).calledWith(
         'git',
-        ['tag', 'v0.9.0-draft.0'],
+        ['tag', '-m', 'v0.9.0-draft.0', 'v0.9.0-draft.0'],
         sinon.match.any
       );
       expect(spawnSync.getCall(1)).calledWith(
@@ -147,7 +147,7 @@ describe('local trigger-release-draft', function () {
       expect(spawnSync).to.have.been.calledTwice;
       expect(spawnSync.getCall(0)).calledWith(
         'git',
-        ['tag', 'v0.8.3-draft.0'],
+        ['tag', '-m', 'v0.8.3-draft.0', 'v0.8.3-draft.0'],
         sinon.match.any
       );
       expect(spawnSync.getCall(1)).calledWith(
