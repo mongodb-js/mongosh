@@ -11054,6 +11054,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "9.0.0-rc1"
+      mongosh_server_test_version_list_url: "https://downloads.mongodb.org/cloud.json"
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -11088,6 +11089,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "9.0.0-rc1-enterprise"
+      mongosh_server_test_version_list_url: "https://downloads.mongodb.org/cloud.json"
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -11598,6 +11600,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "9.0.0-rc1"
+      mongosh_server_test_version_list_url: "https://downloads.mongodb.org/cloud.json"
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -11632,6 +11635,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "9.0.0-rc1-enterprise"
+      mongosh_server_test_version_list_url: "https://downloads.mongodb.org/cloud.json"
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -12129,6 +12133,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "9.0.0-rc1"
+      mongosh_server_test_version_list_url: "https://downloads.mongodb.org/cloud.json"
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -12162,6 +12167,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "9.0.0-rc1-enterprise"
+      mongosh_server_test_version_list_url: "https://downloads.mongodb.org/cloud.json"
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
