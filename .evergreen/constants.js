@@ -37,8 +37,18 @@ exports.MONGODB_VERSIONS = [
   { shortName: '80xe', versionSpec: '8.0.x-enterprise' },
   { shortName: '83xc', versionSpec: '8.3.x' },
   { shortName: '83xe', versionSpec: '8.3.x-enterprise' },
-  { shortName: '90xc', versionSpec: '9.0.0-rc0' },
-  { shortName: '90xe', versionSpec: '9.0.0-rc0-enterprise' },
+  {
+    shortName: '90xc',
+    versionSpec: '9.0.0-rc1',
+    // 9.0 release candidates are only published to cloud.json, not the
+    // default full.json feed that mongodb-download-url resolves against.
+    versionListUrl: 'https://downloads.mongodb.org/cloud.json',
+  },
+  {
+    shortName: '90xe',
+    versionSpec: '9.0.0-rc1-enterprise',
+    versionListUrl: 'https://downloads.mongodb.org/cloud.json',
+  },
   { shortName: 'latest', versionSpec: 'latest-alpha-enterprise' },
 ];
 
