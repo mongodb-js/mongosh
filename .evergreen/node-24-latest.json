@@ -1,8 +1,8 @@
 {
-  "version": "24.18.1",
+  "version": "24.19.0",
   "major": 24,
-  "minor": 18,
-  "patch": 1,
+  "minor": 19,
+  "patch": 0,
   "tag": "",
   "codename": "krypton",
   "versionName": "v24",
@@ -10,11 +10,11 @@
   "lts": "2025-10-28T00:00:00.000Z",
   "maintenance": "2026-10-20T00:00:00.000Z",
   "end": "2028-04-30T00:00:00.000Z",
-  "releaseDate": "2026-07-28T00:00:00.000Z",
+  "releaseDate": "2026-08-03T00:00:00.000Z",
   "isLts": true,
   "isSupported": true,
   "isMaintenance": false,
-  "isSecurity": true,
+  "isSecurity": false,
   "modules": "137",
   "files": [
     "aix-ppc64",
@@ -35,10 +35,10 @@
     "win-x64-zip"
   ],
   "dependencies": {
-    "npm": "11.16.0",
+    "npm": "11.17.0",
     "v8": "13.6.233.17",
     "uv": "1.52.1",
-    "zlib": "1.3.1",
+    "zlib": "1.3.2.1-motley",
     "openssl": "3.5.7"
   }
 }
