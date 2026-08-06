@@ -181,6 +181,14 @@ describe('MongoshPublisher', function () {
       expect(barque.waitUntilPackagesAreAvailable).to.have.been.called;
     });
 
+    it('does not bump auxiliary packages (to avoid SBOM version mismatch)', async function () {
+      await testPublisher.publish();
+
+      expect(
+        testPublisher.packageBumper.bumpAuxiliaryPackages
+      ).not.to.have.been.called;
+    });
+
     it('updates the download center config', async function () {
       await testPublisher.publish();
 
