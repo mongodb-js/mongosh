@@ -4544,6 +4544,16 @@ functions:
           kondukto_token=$(aws secretsmanager get-secret-value --secret-id "kondukto-token" --region "us-east-1" --query 'SecretString' --output text)
           # set the KONDUKTO_TOKEN environment variable
           echo "KONDUKTO_TOKEN=$kondukto_token" > /tmp/kondukto_credentials.env
+    # NOTE: this assume_role runs after the Kondukto credentials above have
+    # already been retrieved and written to file - it intentionally overwrites
+    # the AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY/AWS_SESSION_TOKEN expansions
+    # set by the Kondukto role assumption above. Do not move this earlier in
+    # the function, or it will clobber the Kondukto role's credentials before
+    # they're used.
+    - command: ec2.assume_role
+      display_name: Assume IAM role with permissions to pull DevProd Platforms ECR images
+      params:
+        role_arn: ${devprod_platforms_ecr_readonly_role_arn}
     - command: subprocess.exec
       params:
         working_dir: src
@@ -4552,8 +4562,9 @@ functions:
           NODE_JS_VERSION: ${node_js_version}
           DISTRO_ID_OVERRIDE: ${distro_id}
           PACKAGE_VARIANT: ${package_variant}
-          ARTIFACTORY_USERNAME: ${artifactory_username}
-          ARTIFACTORY_PASSWORD: ${artifactory_password}
+          AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+          AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+          AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
           # for Kondukto SBOM integration
           KONDUKTO_BRANCH: ${branch_name}_${executable_os_id}
   create_static_analysis_report:
@@ -4681,6 +4692,13 @@ functions:
       params:
         file: tmp/expansions.yaml
         redacted: true
+    # Needed for the non-Darwin (garasign) signing path only; harmless no-op
+    # for the Darwin/macnotary path, same as MACOS_NOTARY_KEY/SECRET below
+    # being passed unconditionally even though only Darwin uses them.
+    - command: ec2.assume_role
+      display_name: Assume IAM role with permissions to pull DevProd Platforms ECR images
+      params:
+        role_arn: ${devprod_platforms_ecr_readonly_role_arn}
     - command: subprocess.exec
       params:
         working_dir: src
@@ -4692,6 +4710,9 @@ functions:
           MACOS_NOTARY_KEY: ${macos_notary_key}
           MACOS_NOTARY_SECRET: ${macos_notary_secret}
           REQUESTER: ${requester}
+          AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+          AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+          AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
   verify_artifact:
     - command: expansions.write
       type: setup
@@ -5165,7 +5186,7 @@ tasks:
       - func: checkout
       - func: compile_ts
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
 
   - name: check
     depends_on:
@@ -5175,10 +5196,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: check
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
 
   - name: check_coverage
     depends_on:
@@ -5762,10 +5783,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: check_coverage
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
 
   ###
   # UNIT TESTS
@@ -6263,7 +6284,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_vscode
         vars:
           task_name: ${task_name}
@@ -6276,10 +6297,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_connectivity
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           task_name: ${task_name}
   - name: test_apistrict
     tags: ["extra-integration-test", "assigned_to_jira_team_mongosh_mongosh"]
@@ -6290,10 +6311,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_apistrict
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           mongosh_server_test_version: "latest-alpha-enterprise"
           mongosh_test_force_api_strict: "1"
           task_name: ${task_name}
@@ -6335,16 +6356,16 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: compile_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: upload_compiled_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: upload_first_party_deps_list
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
 
   - name: generate_license_and_vulnerability_report
     tags: ["extra-integration-test"]
@@ -6355,10 +6376,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: generate_license_and_vulnerability_report
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
 
   ###
   # E2E TESTS
@@ -6571,7 +6592,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: "linux-x64"
@@ -6587,7 +6608,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: "linux-x64"
@@ -6607,13 +6628,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64
       - func: test_connectivity
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.rocky8"
           task_name: ${task_name}
@@ -6626,13 +6647,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64
       - func: test_connectivity
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.ubuntu2004"
           task_name: ${task_name}
@@ -6645,13 +6666,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64
       - func: test_connectivity
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.node20"
           task_name: ${task_name}
@@ -6664,13 +6685,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64
       - func: test_connectivity
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.rocky9"
           task_name: ${task_name}
@@ -6683,13 +6704,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64
       - func: test_connectivity
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.rocky10"
           task_name: ${task_name}
@@ -6702,13 +6723,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64
       - func: test_connectivity
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.ubuntu2204"
           task_name: ${task_name}
@@ -6721,13 +6742,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl11
       - func: test_connectivity
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.rocky8"
           task_name: ${task_name}
@@ -6740,13 +6761,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl11
       - func: test_connectivity
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.ubuntu2004"
           task_name: ${task_name}
@@ -6759,13 +6780,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl3
       - func: test_connectivity
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.node20"
           task_name: ${task_name}
@@ -6778,13 +6799,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl3
       - func: test_connectivity
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.rocky9"
           task_name: ${task_name}
@@ -6797,13 +6818,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl3
       - func: test_connectivity
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.rocky10"
           task_name: ${task_name}
@@ -6816,13 +6837,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl3
       - func: test_connectivity
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.ubuntu2204"
           task_name: ${task_name}
@@ -6835,13 +6856,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64
       - func: test_connectivity
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.rocky8"
           task_name: ${task_name}
@@ -6854,13 +6875,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64
       - func: test_connectivity
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.ubuntu2004"
           task_name: ${task_name}
@@ -6873,13 +6894,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64
       - func: test_connectivity
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.node20"
           task_name: ${task_name}
@@ -6892,13 +6913,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64
       - func: test_connectivity
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.rocky9"
           task_name: ${task_name}
@@ -6911,13 +6932,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64
       - func: test_connectivity
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.rocky10"
           task_name: ${task_name}
@@ -6930,13 +6951,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64
       - func: test_connectivity
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.ubuntu2204"
           task_name: ${task_name}
@@ -6949,13 +6970,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl11
       - func: test_connectivity
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.rocky8"
           task_name: ${task_name}
@@ -6968,13 +6989,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl11
       - func: test_connectivity
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.ubuntu2004"
           task_name: ${task_name}
@@ -6987,13 +7008,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl3
       - func: test_connectivity
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.node20"
           task_name: ${task_name}
@@ -7006,13 +7027,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl3
       - func: test_connectivity
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.rocky9"
           task_name: ${task_name}
@@ -7025,13 +7046,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl3
       - func: test_connectivity
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.rocky10"
           task_name: ${task_name}
@@ -7044,13 +7065,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl3
       - func: test_connectivity
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           test_mongosh_executable: dist/mongosh
           kerberos_jumphost_dockerfile: "Dockerfile.ubuntu2204"
           task_name: ${task_name}
@@ -7067,7 +7088,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: darwin-x64
@@ -7091,14 +7112,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: darwin-x64
           extra_upload_tag: -darwin-x64-complete
       - func: package_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: darwin-x64
           executable_os_id: darwin-x64
       - func: put_artifact_url
@@ -7113,14 +7134,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: get_artifact_url
         vars:
           package_variant: darwin-x64
           signature_tag: unsigned
       - func: sign_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: darwin-x64
       - func: papertrail_trace
         vars:
@@ -7150,7 +7171,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: darwin-arm64
@@ -7174,14 +7195,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: darwin-arm64
           extra_upload_tag: -darwin-arm64-complete
       - func: package_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: darwin-arm64
           executable_os_id: darwin-arm64
       - func: put_artifact_url
@@ -7196,14 +7217,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: get_artifact_url
         vars:
           package_variant: darwin-arm64
           signature_tag: unsigned
       - func: sign_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: darwin-arm64
       - func: papertrail_trace
         vars:
@@ -7233,7 +7254,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64
@@ -7257,14 +7278,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64
           extra_upload_tag: -linux-x64-complete
       - func: package_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: linux-x64
           executable_os_id: linux-x64
       - func: put_artifact_url
@@ -7279,14 +7300,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: get_artifact_url
         vars:
           package_variant: linux-x64
           signature_tag: unsigned
       - func: sign_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: linux-x64
       - func: papertrail_trace
         vars:
@@ -7304,7 +7325,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64
@@ -7328,14 +7349,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64
           extra_upload_tag: -deb-x64-complete
       - func: package_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: deb-x64
           executable_os_id: linux-x64
       - func: put_artifact_url
@@ -7350,14 +7371,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: get_artifact_url
         vars:
           package_variant: deb-x64
           signature_tag: unsigned
       - func: sign_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: deb-x64
       - func: papertrail_trace
         vars:
@@ -7387,7 +7408,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64
@@ -7411,14 +7432,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64
           extra_upload_tag: -rpm-x64-complete
       - func: package_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: rpm-x64
           executable_os_id: linux-x64
       - func: put_artifact_url
@@ -7433,14 +7454,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: get_artifact_url
         vars:
           package_variant: rpm-x64
           signature_tag: unsigned
       - func: sign_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: rpm-x64
       - func: papertrail_trace
         vars:
@@ -7470,7 +7491,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl11
@@ -7494,14 +7515,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl11
           extra_upload_tag: -linux-x64-openssl11-complete
       - func: package_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: linux-x64-openssl11
           executable_os_id: linux-x64-openssl11
       - func: put_artifact_url
@@ -7516,14 +7537,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: get_artifact_url
         vars:
           package_variant: linux-x64-openssl11
           signature_tag: unsigned
       - func: sign_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: linux-x64-openssl11
       - func: papertrail_trace
         vars:
@@ -7541,7 +7562,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl11
@@ -7565,14 +7586,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl11
           extra_upload_tag: -deb-x64-openssl11-complete
       - func: package_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: deb-x64-openssl11
           executable_os_id: linux-x64-openssl11
       - func: put_artifact_url
@@ -7587,14 +7608,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: get_artifact_url
         vars:
           package_variant: deb-x64-openssl11
           signature_tag: unsigned
       - func: sign_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: deb-x64-openssl11
       - func: papertrail_trace
         vars:
@@ -7624,7 +7645,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl11
@@ -7648,14 +7669,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl11
           extra_upload_tag: -rpm-x64-openssl11-complete
       - func: package_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: rpm-x64-openssl11
           executable_os_id: linux-x64-openssl11
       - func: put_artifact_url
@@ -7670,14 +7691,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: get_artifact_url
         vars:
           package_variant: rpm-x64-openssl11
           signature_tag: unsigned
       - func: sign_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: rpm-x64-openssl11
       - func: papertrail_trace
         vars:
@@ -7707,7 +7728,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl3
@@ -7731,14 +7752,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl3
           extra_upload_tag: -linux-x64-openssl3-complete
       - func: package_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: linux-x64-openssl3
           executable_os_id: linux-x64-openssl3
       - func: put_artifact_url
@@ -7753,14 +7774,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: get_artifact_url
         vars:
           package_variant: linux-x64-openssl3
           signature_tag: unsigned
       - func: sign_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: linux-x64-openssl3
       - func: papertrail_trace
         vars:
@@ -7778,7 +7799,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl3
@@ -7802,14 +7823,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl3
           extra_upload_tag: -deb-x64-openssl3-complete
       - func: package_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: deb-x64-openssl3
           executable_os_id: linux-x64-openssl3
       - func: put_artifact_url
@@ -7824,14 +7845,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: get_artifact_url
         vars:
           package_variant: deb-x64-openssl3
           signature_tag: unsigned
       - func: sign_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: deb-x64-openssl3
       - func: papertrail_trace
         vars:
@@ -7861,7 +7882,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl3
@@ -7885,14 +7906,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl3
           extra_upload_tag: -rpm-x64-openssl3-complete
       - func: package_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: rpm-x64-openssl3
           executable_os_id: linux-x64-openssl3
       - func: put_artifact_url
@@ -7907,14 +7928,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: get_artifact_url
         vars:
           package_variant: rpm-x64-openssl3
           signature_tag: unsigned
       - func: sign_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: rpm-x64-openssl3
       - func: papertrail_trace
         vars:
@@ -7944,7 +7965,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64
@@ -7968,14 +7989,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64
           extra_upload_tag: -linux-arm64-complete
       - func: package_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: linux-arm64
           executable_os_id: linux-arm64
       - func: put_artifact_url
@@ -7990,14 +8011,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: get_artifact_url
         vars:
           package_variant: linux-arm64
           signature_tag: unsigned
       - func: sign_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: linux-arm64
       - func: papertrail_trace
         vars:
@@ -8015,7 +8036,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64
@@ -8039,14 +8060,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64
           extra_upload_tag: -deb-arm64-complete
       - func: package_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: deb-arm64
           executable_os_id: linux-arm64
       - func: put_artifact_url
@@ -8061,14 +8082,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: get_artifact_url
         vars:
           package_variant: deb-arm64
           signature_tag: unsigned
       - func: sign_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: deb-arm64
       - func: papertrail_trace
         vars:
@@ -8098,7 +8119,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64
@@ -8122,14 +8143,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64
           extra_upload_tag: -rpm-arm64-complete
       - func: package_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: rpm-arm64
           executable_os_id: linux-arm64
       - func: put_artifact_url
@@ -8144,14 +8165,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: get_artifact_url
         vars:
           package_variant: rpm-arm64
           signature_tag: unsigned
       - func: sign_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: rpm-arm64
       - func: papertrail_trace
         vars:
@@ -8181,7 +8202,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl11
@@ -8205,14 +8226,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl11
           extra_upload_tag: -linux-arm64-openssl11-complete
       - func: package_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: linux-arm64-openssl11
           executable_os_id: linux-arm64-openssl11
       - func: put_artifact_url
@@ -8227,14 +8248,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: get_artifact_url
         vars:
           package_variant: linux-arm64-openssl11
           signature_tag: unsigned
       - func: sign_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: linux-arm64-openssl11
       - func: papertrail_trace
         vars:
@@ -8252,7 +8273,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl11
@@ -8276,14 +8297,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl11
           extra_upload_tag: -deb-arm64-openssl11-complete
       - func: package_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: deb-arm64-openssl11
           executable_os_id: linux-arm64-openssl11
       - func: put_artifact_url
@@ -8298,14 +8319,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: get_artifact_url
         vars:
           package_variant: deb-arm64-openssl11
           signature_tag: unsigned
       - func: sign_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: deb-arm64-openssl11
       - func: papertrail_trace
         vars:
@@ -8335,7 +8356,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl11
@@ -8359,14 +8380,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl11
           extra_upload_tag: -rpm-arm64-openssl11-complete
       - func: package_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: rpm-arm64-openssl11
           executable_os_id: linux-arm64-openssl11
       - func: put_artifact_url
@@ -8381,14 +8402,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: get_artifact_url
         vars:
           package_variant: rpm-arm64-openssl11
           signature_tag: unsigned
       - func: sign_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: rpm-arm64-openssl11
       - func: papertrail_trace
         vars:
@@ -8418,7 +8439,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl3
@@ -8442,14 +8463,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl3
           extra_upload_tag: -linux-arm64-openssl3-complete
       - func: package_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: linux-arm64-openssl3
           executable_os_id: linux-arm64-openssl3
       - func: put_artifact_url
@@ -8464,14 +8485,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: get_artifact_url
         vars:
           package_variant: linux-arm64-openssl3
           signature_tag: unsigned
       - func: sign_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: linux-arm64-openssl3
       - func: papertrail_trace
         vars:
@@ -8489,7 +8510,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl3
@@ -8513,14 +8534,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl3
           extra_upload_tag: -deb-arm64-openssl3-complete
       - func: package_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: deb-arm64-openssl3
           executable_os_id: linux-arm64-openssl3
       - func: put_artifact_url
@@ -8535,14 +8556,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: get_artifact_url
         vars:
           package_variant: deb-arm64-openssl3
           signature_tag: unsigned
       - func: sign_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: deb-arm64-openssl3
       - func: papertrail_trace
         vars:
@@ -8572,7 +8593,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl3
@@ -8596,14 +8617,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl3
           extra_upload_tag: -rpm-arm64-openssl3-complete
       - func: package_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: rpm-arm64-openssl3
           executable_os_id: linux-arm64-openssl3
       - func: put_artifact_url
@@ -8618,14 +8639,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: get_artifact_url
         vars:
           package_variant: rpm-arm64-openssl3
           signature_tag: unsigned
       - func: sign_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: rpm-arm64-openssl3
       - func: papertrail_trace
         vars:
@@ -8655,7 +8676,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-ppc64le
@@ -8679,14 +8700,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-ppc64le
           extra_upload_tag: -linux-ppc64le-complete
       - func: package_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: linux-ppc64le
           executable_os_id: linux-ppc64le
       - func: put_artifact_url
@@ -8701,14 +8722,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: get_artifact_url
         vars:
           package_variant: linux-ppc64le
           signature_tag: unsigned
       - func: sign_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: linux-ppc64le
       - func: papertrail_trace
         vars:
@@ -8726,7 +8747,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-ppc64le
@@ -8750,14 +8771,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-ppc64le
           extra_upload_tag: -rpm-ppc64le-complete
       - func: package_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: rpm-ppc64le
           executable_os_id: linux-ppc64le
       - func: put_artifact_url
@@ -8772,14 +8793,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: get_artifact_url
         vars:
           package_variant: rpm-ppc64le
           signature_tag: unsigned
       - func: sign_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: rpm-ppc64le
       - func: papertrail_trace
         vars:
@@ -8809,7 +8830,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-s390x
@@ -8833,14 +8854,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-s390x
           extra_upload_tag: -linux-s390x-complete
       - func: package_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: linux-s390x
           executable_os_id: linux-s390x
       - func: put_artifact_url
@@ -8855,14 +8876,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: get_artifact_url
         vars:
           package_variant: linux-s390x
           signature_tag: unsigned
       - func: sign_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: linux-s390x
       - func: papertrail_trace
         vars:
@@ -8880,7 +8901,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-s390x
@@ -8904,14 +8925,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-s390x
           extra_upload_tag: -rpm-s390x-complete
       - func: package_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: rpm-s390x
           executable_os_id: linux-s390x
       - func: put_artifact_url
@@ -8926,14 +8947,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: get_artifact_url
         vars:
           package_variant: rpm-s390x
           signature_tag: unsigned
       - func: sign_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: rpm-s390x
       - func: papertrail_trace
         vars:
@@ -8963,7 +8984,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: win32
@@ -8987,14 +9008,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: win32
           extra_upload_tag: -win32-x64-complete
       - func: package_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: win32-x64
           executable_os_id: win32
       - func: put_artifact_url
@@ -9009,14 +9030,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: get_artifact_url
         vars:
           package_variant: win32-x64
           signature_tag: unsigned
       - func: sign_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: win32-x64
       - func: papertrail_trace
         vars:
@@ -9046,7 +9067,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: win32
@@ -9070,14 +9091,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: win32
           extra_upload_tag: -win32msi-x64-complete
       - func: package_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: win32msi-x64
           executable_os_id: win32
       - func: put_artifact_url
@@ -9092,14 +9113,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: get_artifact_url
         vars:
           package_variant: win32msi-x64
           signature_tag: unsigned
       - func: sign_artifact
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           package_variant: win32msi-x64
       - func: papertrail_trace
         vars:
@@ -9164,10 +9185,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: ubuntu20.04-tgz
           task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_ubuntu18_04_deb
@@ -9184,10 +9205,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: ubuntu18.04-deb
           task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_ubuntu20_04_deb
@@ -9204,10 +9225,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: ubuntu20.04-deb
           task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_ubuntu22_04_deb
@@ -9224,10 +9245,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: ubuntu22.04-deb
           task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_ubuntu22_04_nohome_deb
@@ -9244,10 +9265,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: ubuntu22.04-nohome-deb
           task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_ubuntu22_04_qemu_deb
@@ -9264,10 +9285,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: ubuntu22.04-qemu-deb
           task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_ubuntu24_04_deb
@@ -9284,10 +9305,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: ubuntu24.04-deb
           task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_debian10_deb
@@ -9304,10 +9325,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: debian10-deb
           task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_debian11_deb
@@ -9324,10 +9345,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: debian11-deb
           task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_debian12_deb
@@ -9344,10 +9365,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: debian12-deb
           task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_debian13_deb
@@ -9364,10 +9385,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: debian13-deb
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_centos7_rpm
@@ -9384,10 +9405,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: centos7-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_amazonlinux2_rpm
@@ -9404,10 +9425,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: amazonlinux2-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_amazonlinux2023_rpm
@@ -9424,10 +9445,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: amazonlinux2023-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_rocky8_rpm
@@ -9444,10 +9465,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: rocky8-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_rocky9_rpm
@@ -9464,10 +9485,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: rocky9-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_rocky10_rpm
@@ -9484,10 +9505,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: rocky10-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_fedora34_rpm
@@ -9504,10 +9525,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: fedora34-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_suse12_rpm
@@ -9524,10 +9545,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: suse12-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_suse15_rpm
@@ -9544,10 +9565,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: suse15-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_oraclelinux9_rpm
@@ -9564,10 +9585,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: oraclelinux9-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_openssl11_ubuntu20_04_deb
@@ -9584,10 +9605,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: ubuntu20.04-deb
           task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_openssl11_debian10_deb
@@ -9604,10 +9625,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: debian10-deb
           task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_openssl11_debian11_deb
@@ -9624,10 +9645,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: debian11-deb
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_openssl11_centos7_epel_rpm
@@ -9644,10 +9665,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: centos7-epel-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_openssl11_amazonlinux2_rpm
@@ -9664,10 +9685,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: amazonlinux2-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_openssl11_rocky8_rpm
@@ -9684,10 +9705,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: rocky8-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_openssl11_rocky9_rpm
@@ -9704,10 +9725,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: rocky9-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_openssl11_fedora34_rpm
@@ -9724,10 +9745,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: fedora34-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_openssl3_ubuntu22_04_deb
@@ -9744,10 +9765,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: ubuntu22.04-deb
           task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_openssl3_ubuntu22_04_fips_deb
@@ -9764,10 +9785,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: ubuntu22.04-fips-deb
           task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_openssl3_debian12_deb
@@ -9784,10 +9805,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: debian12-deb
           task_name: ${task_name}
   - name: pkg_test_docker_deb_x64_openssl3_debian13_deb
@@ -9804,10 +9825,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: debian13-deb
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_openssl3_rocky8_epel_rpm
@@ -9824,10 +9845,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: rocky8-epel-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_openssl3_rocky9_rpm
@@ -9844,10 +9865,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: rocky9-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_openssl3_rocky9_fips_rpm
@@ -9864,10 +9885,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: rocky9-fips-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_openssl3_rocky10_rpm
@@ -9884,10 +9905,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: rocky10-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_x64_openssl3_amazonlinux2023_rpm
@@ -9904,10 +9925,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: amazonlinux2023-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_linux_arm64_ubuntu20_04_tgz
@@ -9924,10 +9945,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: ubuntu20.04-tgz
           task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_ubuntu18_04_deb
@@ -9944,10 +9965,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: ubuntu18.04-deb
           task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_ubuntu20_04_deb
@@ -9964,10 +9985,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: ubuntu20.04-deb
           task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_ubuntu22_04_deb
@@ -9984,10 +10005,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: ubuntu22.04-deb
           task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_ubuntu22_04_nohome_deb
@@ -10004,10 +10025,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: ubuntu22.04-nohome-deb
           task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_ubuntu22_04_qemu_deb
@@ -10024,10 +10045,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: ubuntu22.04-qemu-deb
           task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_ubuntu24_04_deb
@@ -10044,10 +10065,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: ubuntu24.04-deb
           task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_debian10_deb
@@ -10064,10 +10085,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: debian10-deb
           task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_debian11_deb
@@ -10084,10 +10105,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: debian11-deb
           task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_debian12_deb
@@ -10104,10 +10125,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: debian12-deb
           task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_debian13_deb
@@ -10124,10 +10145,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: debian13-deb
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_rocky8_rpm
@@ -10144,10 +10165,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: rocky8-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_rocky9_rpm
@@ -10164,10 +10185,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: rocky9-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_rocky10_rpm
@@ -10184,10 +10205,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: rocky10-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_fedora34_rpm
@@ -10204,10 +10225,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: fedora34-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_amazonlinux2_rpm
@@ -10224,10 +10245,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: amazonlinux2-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_amazonlinux2023_rpm
@@ -10244,10 +10265,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: amazonlinux2023-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_openssl11_ubuntu20_04_deb
@@ -10264,10 +10285,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: ubuntu20.04-deb
           task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_openssl11_debian10_deb
@@ -10284,10 +10305,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: debian10-deb
           task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_openssl11_debian11_deb
@@ -10304,10 +10325,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: debian11-deb
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_openssl11_rocky8_rpm
@@ -10324,10 +10345,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: rocky8-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_openssl11_rocky9_rpm
@@ -10344,10 +10365,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: rocky9-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_openssl11_fedora34_rpm
@@ -10364,10 +10385,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: fedora34-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_openssl11_amazonlinux2_rpm
@@ -10384,10 +10405,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: amazonlinux2-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_openssl3_ubuntu22_04_deb
@@ -10404,10 +10425,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: ubuntu22.04-deb
           task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_openssl3_ubuntu22_04_fips_deb
@@ -10424,10 +10445,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: ubuntu22.04-fips-deb
           task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_openssl3_debian12_deb
@@ -10444,10 +10465,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: debian12-deb
           task_name: ${task_name}
   - name: pkg_test_docker_deb_arm64_openssl3_debian13_deb
@@ -10464,10 +10485,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: debian13-deb
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_openssl3_rocky8_epel_rpm
@@ -10484,10 +10505,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: rocky8-epel-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_openssl3_rocky9_rpm
@@ -10504,10 +10525,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: rocky9-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_openssl3_rocky9_fips_rpm
@@ -10524,10 +10545,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: rocky9-fips-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_openssl3_rocky10_rpm
@@ -10544,10 +10565,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: rocky10-rpm
           task_name: ${task_name}
   - name: pkg_test_docker_rpm_arm64_openssl3_amazonlinux2023_rpm
@@ -10564,10 +10585,10 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: test_artifact_docker
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
           dockerfile: amazonlinux2023-rpm
           task_name: ${task_name}
   - name: pkg_test_rpmextract_rpm_ppc64le
@@ -10645,10 +10666,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: create_static_analysis_report
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
 
   ###
   # RELEASE TASKS
@@ -10672,10 +10693,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: release_draft
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
   - name: release_publish_dry_run
     git_tag_only: true
     exec_timeout_secs: 86400
@@ -10685,16 +10706,16 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: release_publish_download_and_list_artifacts
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: papertrail_trace
         vars:
           product: "mongosh-draft"
       - func: release_publish_dry_run
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
   - name: release_publish
     tags: ["publish"]
     git_tag_only: true
@@ -10706,16 +10727,16 @@ tasks:
       - func: checkout_writeable
       - func: install
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: release_publish_download_and_list_artifacts
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
       - func: papertrail_trace
         vars:
           product: "mongosh"
       - func: release_publish
         vars:
-          node_js_version: "24.18.0"
+          node_js_version: "24.18.1"
 
 # Need to run builds for every possible build variant.
 buildvariants:
@@ -10727,7 +10748,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: ""
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -10761,7 +10782,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "6.0.x"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -10795,7 +10816,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "6.0.x-enterprise"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -10829,7 +10850,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "7.0.x"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -10863,7 +10884,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "7.0.x-enterprise"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -10897,7 +10918,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.0.x"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -10931,7 +10952,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.0.x-enterprise"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -10965,7 +10986,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.3.x"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -10999,7 +11020,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.3.x-enterprise"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11033,7 +11054,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "9.0.0-rc0"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11067,7 +11088,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "9.0.0-rc0-enterprise"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11101,7 +11122,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "latest-alpha-enterprise"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11135,7 +11156,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: ""
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11169,7 +11190,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "4.4.x"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11203,7 +11224,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "4.4.x-enterprise"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11237,7 +11258,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "5.0.x"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11271,7 +11292,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "5.0.x-enterprise"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11305,7 +11326,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "6.0.x"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11339,7 +11360,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "6.0.x-enterprise"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11373,7 +11394,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "7.0.x"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11407,7 +11428,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "7.0.x-enterprise"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11441,7 +11462,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.0.x"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11475,7 +11496,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.0.x-enterprise"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11509,7 +11530,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.3.x"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11543,7 +11564,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "8.3.x-enterprise"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11577,7 +11598,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "9.0.0-rc0"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11611,7 +11632,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "9.0.0-rc0-enterprise"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11645,7 +11666,7 @@ buildvariants:
     expansions:
       executable_os_id: darwin-arm64
       mongosh_server_test_version: "latest-alpha-enterprise"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11679,7 +11700,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: ""
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11712,7 +11733,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "4.4.x"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11745,7 +11766,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "4.4.x-enterprise"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11778,7 +11799,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "5.0.x"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11811,7 +11832,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "5.0.x-enterprise"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11844,7 +11865,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "6.0.x"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11877,7 +11898,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "6.0.x-enterprise"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11910,7 +11931,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "7.0.x"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11943,7 +11964,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "7.0.x-enterprise"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -11976,7 +11997,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "8.0.x"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12009,7 +12030,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "8.0.x-enterprise"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12042,7 +12063,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "8.3.x"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12075,7 +12096,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "8.3.x-enterprise"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12108,7 +12129,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "9.0.0-rc0"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12141,7 +12162,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "9.0.0-rc0-enterprise"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12174,7 +12195,7 @@ buildvariants:
     expansions:
       executable_os_id: win32
       mongosh_server_test_version: "latest-alpha-enterprise"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
       - name: test_arg_parser
@@ -12204,7 +12225,7 @@ buildvariants:
     run_on: rhel70-build
     expansions:
       executable_os_id: "linux-x64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
     tasks:
       - name: compile_artifact
   - name: build_linux_x64_rhel8
@@ -12212,7 +12233,7 @@ buildvariants:
     run_on: rhel80-build
     expansions:
       executable_os_id: "linux-x64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
     tasks:
       - name: compile_artifact
   - name: build_linux_x64_openssl11
@@ -12220,7 +12241,7 @@ buildvariants:
     run_on: rhel70-build
     expansions:
       executable_os_id: "linux-x64-openssl11"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_shared_openssl: "openssl11"
     tasks:
       - name: compile_artifact
@@ -12229,7 +12250,7 @@ buildvariants:
     run_on: rhel80-build
     expansions:
       executable_os_id: "linux-x64-openssl11"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_shared_openssl: "openssl11"
     tasks:
       - name: compile_artifact
@@ -12238,7 +12259,7 @@ buildvariants:
     run_on: rhel70-build
     expansions:
       executable_os_id: "linux-x64-openssl3"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_shared_openssl: "openssl3"
     tasks:
       - name: compile_artifact
@@ -12247,7 +12268,7 @@ buildvariants:
     run_on: rhel80-build
     expansions:
       executable_os_id: "linux-x64-openssl3"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_shared_openssl: "openssl3"
     tasks:
       - name: compile_artifact
@@ -12256,7 +12277,7 @@ buildvariants:
     run_on: amazon2-arm64-large
     expansions:
       executable_os_id: "linux-arm64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
     tasks:
       - name: compile_artifact
   - name: build_linux_arm64_openssl11
@@ -12264,7 +12285,7 @@ buildvariants:
     run_on: amazon2-arm64-large
     expansions:
       executable_os_id: "linux-arm64-openssl11"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_shared_openssl: "openssl11"
     tasks:
       - name: compile_artifact
@@ -12273,7 +12294,7 @@ buildvariants:
     run_on: amazon2-arm64-large
     expansions:
       executable_os_id: "linux-arm64-openssl3"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_shared_openssl: "openssl3"
     tasks:
       - name: compile_artifact
@@ -12282,7 +12303,7 @@ buildvariants:
     run_on: rhel8-power-small
     expansions:
       executable_os_id: "linux-ppc64le"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
     tasks:
       - name: compile_artifact
   - name: build_linux_s390x
@@ -12290,7 +12311,7 @@ buildvariants:
     run_on: rhel7-zseries-large
     expansions:
       executable_os_id: "linux-s390x"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
     tasks:
       - name: compile_artifact
   - name: build_darwin
@@ -12298,7 +12319,7 @@ buildvariants:
     run_on: macos-15-amd64-gui
     expansions:
       executable_os_id: "darwin-x64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
     tasks:
       - name: compile_artifact
   - name: build_darwin_arm64
@@ -12306,7 +12327,7 @@ buildvariants:
     run_on: macos-15-arm64-gui
     expansions:
       executable_os_id: "darwin-arm64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
     tasks:
       - name: compile_artifact
   - name: build_win32
@@ -12314,7 +12335,7 @@ buildvariants:
     run_on: windows-2022-latest-small
     expansions:
       executable_os_id: "win32"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
     tasks:
       - name: compile_artifact
   - name: e2e_tests_rhel70_small_m70x
@@ -12323,7 +12344,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12334,7 +12355,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12345,7 +12366,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12356,7 +12377,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12367,7 +12388,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12378,7 +12399,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12389,7 +12410,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64-openssl11"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12400,7 +12421,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64-openssl11"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: "1"
     tasks:
@@ -12411,7 +12432,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12422,7 +12443,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64-openssl3"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12433,7 +12454,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64-openssl3"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: "1"
     tasks:
@@ -12444,7 +12465,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "6.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12455,7 +12476,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12466,7 +12487,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64-openssl11"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12477,7 +12498,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12488,7 +12509,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64-openssl3"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12499,7 +12520,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12510,7 +12531,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64-openssl3"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12521,7 +12542,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "6.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12532,7 +12553,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64-openssl11"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "6.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12543,7 +12564,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12554,7 +12575,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64-openssl11"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12565,7 +12586,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12576,7 +12597,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12587,7 +12608,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12598,7 +12619,7 @@ buildvariants:
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12609,7 +12630,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-arm64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "6.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12620,7 +12641,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-arm64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12631,7 +12652,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-arm64-openssl11"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12642,7 +12663,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-arm64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12653,7 +12674,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-arm64-openssl3"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12664,7 +12685,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-arm64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12675,7 +12696,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-arm64-openssl3"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12686,7 +12707,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-arm64-openssl3"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "8.3.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12697,7 +12718,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-arm64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12708,7 +12729,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-arm64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12719,7 +12740,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-arm64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "8.3.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12730,7 +12751,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-arm64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12741,7 +12762,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-arm64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12752,7 +12773,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-arm64-openssl3"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "7.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12763,7 +12784,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-arm64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12774,7 +12795,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-arm64-openssl3"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12785,7 +12806,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-ppc64le"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12796,7 +12817,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-ppc64le"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12807,7 +12828,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-ppc64le"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "8.3.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12818,7 +12839,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-s390x"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "6.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12829,7 +12850,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-s390x"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12840,7 +12861,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-s390x"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12851,7 +12872,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "linux-s390x"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "8.3.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12862,7 +12883,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "darwin-x64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12873,7 +12894,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "darwin-arm64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12884,7 +12905,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "darwin-arm64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "8.2.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12895,7 +12916,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "darwin-x64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12906,7 +12927,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "darwin-arm64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12917,7 +12938,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "darwin-arm64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "8.3.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12928,7 +12949,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "darwin-x64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "8.0.5-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12939,7 +12960,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "darwin-arm64"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "8.0.5-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12954,7 +12975,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "win32"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "8.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12965,7 +12986,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "win32"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "8.2.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12976,7 +12997,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "win32"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "stable-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -12989,7 +13010,7 @@ buildvariants:
     tags: []
     expansions:
       executable_os_id: "win32"
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
       mongosh_server_test_version: "8.3.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
@@ -13007,7 +13028,7 @@ buildvariants:
     run_on: ubuntu2204-small
     tags: ["nightly-driver"]
     expansions:
-      node_js_version: "24.18.0"
+      node_js_version: "24.18.1"
     tasks:
       # TODO(MONGOSH-3496): re-enable once VSCODE-788 is fixed.
       - name: test_vscode

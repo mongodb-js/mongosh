@@ -15,6 +15,13 @@ async function preCompileHook(nodeSourceTree: string) {
     ),
     'package.json'
   )).version;
+  // LD_LIBRARY_PATH may point at a custom-built shared OpenSSL used for the
+  // Node.js compile step (see .evergreen/compile-artifact.sh); this script
+  // only clones a git repo and builds the FLE addon, and git subprocesses
+  // (git-remote-https) can fail to resolve symbols against that OpenSSL on
+  // some platforms, so we don't want it inherited here.
+  const envWithoutLdLibraryPath = { ...process.env };
+  delete envWithoutLdLibraryPath.LD_LIBRARY_PATH;
   const proc = childProcess.spawn(
     'bash',
     [
@@ -30,7 +37,7 @@ async function preCompileHook(nodeSourceTree: string) {
     ],
     {
       env: {
-        ...process.env,
+        ...envWithoutLdLibraryPath,
         FLE_NODE_SOURCE_PATH: nodeSourceTree,
         MONGODB_CLIENT_ENCRYPTION_VERSION: `v${fleAddonVersion}`,
       },

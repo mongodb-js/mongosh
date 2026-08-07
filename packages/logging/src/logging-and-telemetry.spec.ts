@@ -34,7 +34,6 @@ describe('MongoshLoggingAndTelemetry', function () {
 
   const makeIdentifyEvent = (
     overrides: {
-      device_id?: string;
       ai_agent?: string;
     } = {}
   ) => ({
@@ -55,7 +54,6 @@ describe('MongoshLoggingAndTelemetry', function () {
       os_darwin_product_name: 'macOS',
       os_darwin_product_version: '14.1.0',
       os_darwin_product_build_version: '23B74',
-      device_id: overrides.device_id ?? deviceId,
     },
   });
 
@@ -181,7 +179,6 @@ describe('MongoshLoggingAndTelemetry', function () {
             mongosh_version: '1.0.0',
             ai_agent: undefined,
             session_id: logId,
-            device_id: deviceId,
             is_localhost: true,
             is_atlas: false,
             atlas_hostname: null,
@@ -233,7 +230,6 @@ describe('MongoshLoggingAndTelemetry', function () {
             mongosh_version: '1.0.0',
             ai_agent: undefined,
             session_id: logId,
-            device_id: deviceId,
             is_localhost: false,
             is_atlas: true,
             atlas_hostname: 'test-data-sets-00-02-a011bb.mongodb.net',
@@ -292,7 +288,6 @@ describe('MongoshLoggingAndTelemetry', function () {
         mongosh_version: '1.0.0',
         ai_agent: undefined,
         session_id: logId,
-        device_id: deviceId,
         is_atlas: true,
         is_atlas_url: true,
         is_local_atlas: false,
@@ -341,7 +336,7 @@ describe('MongoshLoggingAndTelemetry', function () {
       sinon.restore();
     });
 
-    it('uses device ID "unknown" when deviceId resolves to "unknown"', async function () {
+    it('emits Identify event when deviceId resolves', async function () {
       const loggingAndTelemetry = setupLoggingAndTelemetry({
         ...testLoggingArguments,
         bus,
@@ -350,12 +345,10 @@ describe('MongoshLoggingAndTelemetry', function () {
       loggingAndTelemetry.attachLogger(logger);
       await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
 
-      expect(analyticsOutput).deep.equal([
-        ['track', makeIdentifyEvent({ device_id: 'unknown' })],
-      ]);
+      expect(analyticsOutput).deep.equal([['track', makeIdentifyEvent()]]);
     });
 
-    it('automatically sets up device ID for telemetry', async function () {
+    it('automatically sets up telemetry after device ID resolves', async function () {
       const loggingAndTelemetry = setupLoggingAndTelemetry({
         ...testLoggingArguments,
         bus,
@@ -366,9 +359,7 @@ describe('MongoshLoggingAndTelemetry', function () {
 
       await (loggingAndTelemetry as LoggingAndTelemetry).setupTelemetryPromise;
 
-      expect(analyticsOutput).deep.equal([
-        ['track', makeIdentifyEvent({ device_id: 'device_id_value' })],
-      ]);
+      expect(analyticsOutput).deep.equal([['track', makeIdentifyEvent()]]);
     });
 
     it('resolves device ID setup when flushed', async function () {
@@ -400,10 +391,7 @@ describe('MongoshLoggingAndTelemetry', function () {
 
       await setupPromise;
 
-      // Should still identify but with unknown device ID
-      expect(analyticsOutput).deep.equal([
-        ['track', makeIdentifyEvent({ device_id: 'unknown' })],
-      ]);
+      expect(analyticsOutput).deep.equal([['track', makeIdentifyEvent()]]);
     });
 
     it('only delays analytic outputs, not logging', async function () {
@@ -884,7 +872,6 @@ describe('MongoshLoggingAndTelemetry', function () {
             mongosh_version: '1.0.0',
             ai_agent: undefined,
             session_id: logId,
-            device_id: deviceId,
             is_interactive: true,
             commands_repl: undefined,
             commands_rc: { 'ShellApi.use': 1 },
@@ -1027,7 +1014,6 @@ describe('MongoshLoggingAndTelemetry', function () {
             mongosh_version: '1.0.0',
             ai_agent: undefined,
             session_id: logId,
-            device_id: deviceId,
             is_interactive: true,
             commands_repl: undefined,
             commands_rc: {
@@ -1099,7 +1085,6 @@ describe('MongoshLoggingAndTelemetry', function () {
             mongosh_version: '1.0.0',
             ai_agent: undefined,
             session_id: logId,
-            device_id: deviceId,
             is_interactive: true,
             commands_repl: undefined,
             commands_rc: undefined,
@@ -1310,7 +1295,6 @@ describe('MongoshLoggingAndTelemetry', function () {
             mongosh_version: '1.0.0',
             ai_agent: undefined,
             session_id: logId,
-            device_id: deviceId,
             is_localhost: true,
             is_atlas: false,
             atlas_hostname: null,

@@ -1,15 +1,19 @@
 import { gzip } from 'zlib';
 import { promisify } from 'util';
+import timers from 'timers';
 import type { TelemetryEvent } from './telemetry-events';
 import type { MongoshAnalytics } from './analytics-helpers';
 
 const gzipAsync = promisify(gzip);
 
 // Generous enough number for a fire-and-forget event. Adjust freely if needed.
-export const REQUEST_TIMEOUT_MS = 5_000;
-
-const FLUSH_TIMEOUT_MS = 2_000;
+export const REQUEST_TIMEOUT_MS = 1_000;
+export const FLUSH_TIMEOUT_MS = 500;
 const SCHEMA_VERSION = 'v1';
+
+function noop(): void {
+  // ignore
+}
 
 type FetchFn = (
   url: string,
@@ -27,9 +31,10 @@ function eventPath(name: TelemetryEvent['name']): string {
 export class TelemetryClient implements MongoshAnalytics {
   private readonly endpoint: string;
   private readonly fetch: FetchFn;
-  private readonly flushTimeoutMs: number;
   private readonly requestTimeoutMs: number;
-  private readonly inflight: Promise<void>[] = [];
+  private readonly flushTimeoutMs: number;
+  private readonly controller = new AbortController();
+  private pending = new Set<Promise<unknown>>();
 
   constructor(
     endpoint: string,
@@ -46,7 +51,7 @@ export class TelemetryClient implements MongoshAnalytics {
   /**
    * Sends events to the MongoDB telemetry endpoint. The format:
    *  - path (cs-uri-stem):          schema version + event name, e.g. /v1/new-connection
-   *  - query string (cs-uri-query): device_id / session_id, for filtering & joins in raw logs
+   *  - query string (cs-uri-query): session_id for filtering & joins in raw logs;
    *  - User-Agent (cs(User-Agent)): client identity (mongosh version, OS, arch),
    *                                 attached by the `fetch` passed into the
    *                                 constructor, not by this class
@@ -54,40 +59,45 @@ export class TelemetryClient implements MongoshAnalytics {
    *
    * https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/standard-logging.html
    */
-  track(event: TelemetryEvent): void {
+  public track(event: TelemetryEvent): void {
+    const trackPromise = this.doTrack(event)
+      .then(noop, noop)
+      .finally(() => this.pending.delete(trackPromise));
+    this.pending.add(trackPromise);
+  }
+
+  private async doTrack(event: TelemetryEvent): Promise<void> {
     const payload: Record<string, unknown> = event.payload;
     const query = new URLSearchParams({
-      deviceId: String(payload.device_id ?? ''),
       sessionId: String(payload.session_id ?? ''),
     });
     const url = `${this.endpoint}${eventPath(event.name)}?${query.toString()}`;
 
     // TODO(MONGOSH-3504): It might be worth using something like zstd
     // and/or use a custom dictionary rather than plain gzip.
-    const p = gzipAsync(Buffer.from(JSON.stringify(event)))
-      .then((compressed) =>
-        this.fetch(url, {
-          method: 'HEAD',
-          headers: { Cookie: `mge=${compressed.toString('base64')}` },
-          signal: AbortSignal.timeout(this.requestTimeoutMs),
-        })
-      )
-      .then(() => {
-        // discard the Response; callers only await completion
-      })
-      .catch(() => {
-        // telemetry is best-effort; ignore send failures (including timeouts)
+    const compressed = await gzipAsync(Buffer.from(JSON.stringify(event)));
+    try {
+      const signal = AbortSignal.any([
+        AbortSignal.timeout(this.requestTimeoutMs),
+        this.controller.signal,
+      ]);
+      await this.fetch(url, {
+        method: 'HEAD',
+        headers: { Cookie: `mge=${compressed.toString('base64')}` },
+        signal,
       });
-    this.inflight.push(p);
+    } catch {
+      // ignore
+    }
   }
 
-  // TODO(MONGOSH-3454): Optimize aggregated event flushing.
   async flush(): Promise<void> {
-    const pending = this.inflight.splice(0);
-    if (pending.length === 0) return;
-    const timeout = new Promise<void>((resolve) =>
-      setTimeout(resolve, this.flushTimeoutMs).unref?.()
-    );
-    await Promise.race([Promise.all(pending), timeout]);
+    if (this.pending.size !== 0) {
+      const maxFlushTimeout = timers.promises.setTimeout(this.flushTimeoutMs, {
+        unref: true,
+      });
+      await Promise.race([Promise.allSettled(this.pending), maxFlushTimeout]);
+    }
+    this.controller.abort('TelemetryClient flush');
   }
 }

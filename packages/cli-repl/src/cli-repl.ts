@@ -13,7 +13,7 @@ import { SnippetManager } from '@mongosh/snippet-manager';
 import { Editor } from '@mongosh/editor';
 import askpassword from 'askpassword';
 import { EventEmitter, once } from 'events';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 import ConnectionString from 'mongodb-connection-string-url';
 import semver from 'semver';
 import type { Readable, Writable } from 'stream';
@@ -31,7 +31,7 @@ import MongoshNodeRepl from './mongosh-repl';
 import type { MongoshLoggingAndTelemetry } from '@mongosh/logging';
 import { setupLoggingAndTelemetry } from '@mongosh/logging';
 import { ToggleableAnalytics, getAiAgent } from '@mongosh/logging';
-import { setupTelemetryAnalytics } from './setup-analytics';
+import { resolveToggleableAnalytics } from './setup-analytics';
 import type { MongoshBus } from '@mongosh/types';
 import {
   CliUserConfig,
@@ -185,6 +185,9 @@ export class CliRepl implements MongoshIOProvider {
         ] = await Promise.all([
           this.getOsInfo(),
           (async () => {
+            // includeDeviceId marks this request as a telemetry event.
+            // We must verify telemetry is enabled before exposing the device ID
+            // in the User-Agent header; requests without it get 'disabled'.
             if (!includeDeviceId || !(await this.isTelemetryEnabled())) {
               return 'disabled';
             }
@@ -416,7 +419,7 @@ export class CliRepl implements MongoshIOProvider {
     markTime(TimingCategories.REPLInstantiation, 'ensured shell homedir');
 
     // Read local and global configuration before setting up analytics so that
-    // setupAnalytics() can resolve the telemetry endpoint from user config.
+    // setupTelemetrySink() can resolve the telemetry endpoint from user config.
     // Errors are deferred and surfaced once logging/telemetry is in place.
     let configSetupError: Error | null = null;
     try {
@@ -432,7 +435,7 @@ export class CliRepl implements MongoshIOProvider {
 
     let analyticsSetupError: Error | null = null;
     try {
-      await this.setupAnalytics();
+      await this.setupTelemetrySink();
     } catch (err: unknown) {
       // Need to delay emitting the error on the bus so that logging is in place
       // as well
@@ -688,14 +691,14 @@ export class CliRepl implements MongoshIOProvider {
     }
   }
 
-  async setupAnalytics(): Promise<void> {
-    const { analytics, telemetryEndpoint } = setupTelemetryAnalytics({
+  async setupTelemetrySink(): Promise<void> {
+    const { analytics, telemetryEndpoint } = await resolveToggleableAnalytics({
       // `telemetryEndpoint` user config carries the production default.
       configuredTelemetryEndpoint: await this.getConfig('telemetryEndpoint'),
-      // includeDeviceId: false — device_id is already in the event payload,
-      // no need to duplicate it in the User-Agent header.
-      fetch: this.fetch({ includeDeviceId: false }),
+      // includeDeviceId adds device_id to the User-Agent header.
+      fetch: this.fetch({ includeDeviceId: true }),
       metadataPath: this.shellHomeDirectory.paths.shellLocalDataPath,
+      deviceId: this.getDeviceId(),
     });
     this.toggleableAnalytics = analytics;
     // Record the resolved endpoint so logging can decide whether to log full
@@ -899,7 +902,9 @@ export class CliRepl implements MongoshIOProvider {
       if (fileContents.trim().startsWith('{')) {
         config = EJSON.parse(fileContents);
       } else {
-        config = (yaml.load(fileContents) as any)?.mongosh ?? {};
+        config = fileContents
+          ? (yaml.load(fileContents) as any)?.mongosh ?? {}
+          : {};
       }
       for (const [key, value] of Object.entries(config) as [
         keyof CliUserConfig,

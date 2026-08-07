@@ -374,7 +374,6 @@ describe('CliRepl telemetry (integration)', function () {
       });
 
       it('sends out telemetry if the repl is running in an interactive mode in a containerized environment', async function () {
-        cliRepl = new CliRepl(cliReplOptions);
         cliRepl.getIsContainerizedEnvironment = () => {
           return Promise.resolve(true);
         };
