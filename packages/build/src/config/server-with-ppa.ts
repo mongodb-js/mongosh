@@ -154,7 +154,6 @@ export const SERVER_WITH_PPAS: Record<
     'suse16',
     'ubuntu2204',
     'ubuntu2404',
-    'ubuntu2604',
   ],
 };
 
