@@ -17,6 +17,7 @@ import {
 import { once } from 'events';
 import { serialize } from 'v8';
 import { inspect } from 'util';
+import os from 'os';
 import path from 'path';
 import { startTestShell } from './test-shell-context';
 
@@ -42,6 +43,12 @@ describe('FLE tests', function () {
       expect(major).to.equal('2');
       // The crypt_shared libraries we use require at least glibc 2.27
       if (+minor < 28) return this.skip();
+    }
+
+    if (process.platform === 'darwin') {
+      // The crypt_shared libraries we use require macOS 14, i.e. Darwin 23
+      const [major] = os.release().split('.');
+      if (+major < 23) return this.skip();
     }
 
     kmsServer = makeFakeHTTPServer(fakeAWSHandlers);
