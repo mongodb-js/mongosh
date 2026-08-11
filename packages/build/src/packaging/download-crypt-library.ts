@@ -38,7 +38,7 @@ export async function downloadCryptLibrary(
     // A 9.0 library is required to analyze the GA Queryable Encryption query
     // type names. Switch back to 'continuous' and drop the overrides below once
     // 9.0 is GA and lands in the default feed.
-    versionSpec = '9.0.0-rc1';
+    versionSpec = '9.0.0-rc3';
 
     // Release candidates past rc0 only exist in cloud.json, and the version list
     // cache is keyed by cache path rather than by feed URL, so a list already

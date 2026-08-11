@@ -39,14 +39,14 @@ exports.MONGODB_VERSIONS = [
   { shortName: '83xe', versionSpec: '8.3.x-enterprise' },
   {
     shortName: '90xc',
-    versionSpec: '9.0.0-rc1',
+    versionSpec: '9.0.0-rc3',
     // 9.0 release candidates are only published to cloud.json, not the
     // default full.json feed that mongodb-download-url resolves against.
     versionListUrl: 'https://downloads.mongodb.org/cloud.json',
   },
   {
     shortName: '90xe',
-    versionSpec: '9.0.0-rc1-enterprise',
+    versionSpec: '9.0.0-rc3-enterprise',
     versionListUrl: 'https://downloads.mongodb.org/cloud.json',
   },
   { shortName: 'latest', versionSpec: 'latest-alpha-enterprise' },
