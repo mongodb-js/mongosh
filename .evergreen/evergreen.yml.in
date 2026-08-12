@@ -1628,6 +1628,9 @@ buildvariants:
     expansions:
       executable_os_id: <% out(variant.executableOsId) %>
       mongosh_server_test_version: "<% out(variant.mVersion || '') %>"
+      <% if (variant.mVersionListUrl) { %>
+      mongosh_server_test_version_list_url: "<% out(variant.mVersionListUrl) %>"
+      <% } %>
       node_js_version: "<% out(variant.nVersion) %>"
       mongosh_skip_node_version_check: "<% out(variant.skipNodeVersionCheck) %>"
     tasks:
@@ -1797,11 +1800,6 @@ buildvariants:
     tasks:
       - name: pkg_test_ssh_win32_x64
       - name: pkg_test_ssh_win32msi_x64
-  - name: pkg_smoke_tests_macos_1300_arm64
-    display_name: "package smoke tests (macos 13.00 arm64)"
-    run_on: macos-13-arm64
-    tasks:
-      - name: pkg_test_macos_darwin_arm64
   - name: pkg_smoke_tests_macos_1400_x64
     display_name: "package smoke tests (macos 14.00 x64)"
     run_on: macos-14

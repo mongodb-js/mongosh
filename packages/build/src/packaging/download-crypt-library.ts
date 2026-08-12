@@ -35,15 +35,16 @@ export async function downloadCryptLibrary(
   );
 
   if (!versionSpec) {
-    // Download mongodb for latest server version, including rapid releases
-    // (for the platforms that they exist for, i.e. for ppc64le/s390x only pick stable releases).
-    versionSpec = '8.0.12'; // TODO(MONGOSH-2192): Switch back to 'continuous' and deal with affected platform support.
+    // A 9.0 library is required to analyze the GA Queryable Encryption query
+    // type names. Switch back to 'continuous' and drop the overrides below once
+    // 9.0 is GA and lands in the default feed.
+    versionSpec = '9.0.0-rc3';
 
-    if (/ppc64|s390x/.test(opts.arch || process.arch)) {
-      versionSpec = '8.0.12';
-    } else if ((opts.platform || process.platform) === 'darwin') {
-      versionSpec = '8.0.5'; // TBD(MONGOSH-2192,SERVER-101020): Figure out at what point we use a later version.
-    }
+    // Release candidates past rc0 only exist in cloud.json, and the version list
+    // cache is keyed by cache path rather than by feed URL, so a list already
+    // cached from the default feed would be reused and the candidate not found.
+    opts.versionListUrl = 'https://downloads.mongodb.org/cloud.json';
+    opts.cacheTimeMs = 0;
   }
 
   const { downloadedBinDir: libdir, version } =

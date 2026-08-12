@@ -17,6 +17,7 @@ import {
 import { once } from 'events';
 import { serialize } from 'v8';
 import { inspect } from 'util';
+import os from 'os';
 import path from 'path';
 import { startTestShell } from './test-shell-context';
 
@@ -40,8 +41,14 @@ describe('FLE tests', function () {
         .getReport()
         .header.glibcVersionRuntime.split('.');
       expect(major).to.equal('2');
-      // All crypt_shared versions that we use require at least glibc 2.28
+      // The crypt_shared libraries we use require at least glibc 2.27
       if (+minor < 28) return this.skip();
+    }
+
+    if (process.platform === 'darwin') {
+      // The crypt_shared libraries we use require macOS 14, i.e. Darwin 23
+      const [major] = os.release().split('.');
+      if (+major < 23) return this.skip();
     }
 
     kmsServer = makeFakeHTTPServer(fakeAWSHandlers);
@@ -1038,16 +1045,6 @@ describe('FLE tests', function () {
           // Substring prefix support is enterprise-only 8.2+
           skipIfCommunityServer(testServer);
           skipIfServerVersion(testServer, '< 9.0');
-
-          if (mode === 'automatic') {
-            // Automatic-mode query analysis runs inside crypt_shared, and no
-            // downloadable crypt_shared yet recognises the GA query types, so
-            // automatic mode cannot be exercised. Re-enable once one is
-            // available.
-            before(function () {
-              this.skip();
-            });
-          }
 
           let shell: TestShell;
 
