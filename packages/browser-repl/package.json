@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/browser-repl",
-  "version": "5.5.2",
+  "version": "5.7.0",
   "description": "Browser presentation component for Mongo Shell",
   "engines": {
     "node": ">=14.15.1"
@@ -57,13 +57,13 @@
     ]
   },
   "dependencies": {
-    "@mongosh/browser-runtime-core": "^5.5.2",
+    "@mongosh/browser-runtime-core": "^5.7.0",
     "@mongosh/errors": "2.4.7",
     "@mongosh/history": "2.4.13",
-    "@mongosh/i18n": "^2.22.0",
-    "@mongosh/node-runtime-worker-thread": "5.2.11",
-    "@mongosh/service-provider-core": "5.0.6",
-    "@mongosh/shell-bson": "3.0.6",
+    "@mongosh/i18n": "^2.24.0",
+    "@mongosh/node-runtime-worker-thread": "5.2.13",
+    "@mongosh/service-provider-core": "5.2.0",
+    "@mongosh/shell-bson": "3.0.8",
     "bson": "^7.3.1",
     "numeral": "^2.0.6",
     "text-table": "^0.2.0"
@@ -78,7 +78,7 @@
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "@mongosh/testing": "2.0.14",
+    "@mongosh/testing": "2.2.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.8",
     "@testing-library/dom": "^8.20.1",
     "@testing-library/react": "^12.1.5",
