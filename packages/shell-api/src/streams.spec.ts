@@ -38,11 +38,12 @@ describe('Streams', function () {
       );
     });
 
-    it('throws when pipeline is empty', async function () {
-      const caught = await streams
-        .createStreamProcessor('spm', [])
-        .catch((e) => e);
-      expect(caught.message).to.contain('[COMMON-10001] Invalid pipeline');
+    it('allows empty pipeline', async function () {
+      const response = { ok: 1, name: 'spm' };
+      sinon.stub(mongo._serviceProvider, 'runCommand').resolves(response);
+
+      const result = await streams.createStreamProcessor('spm', []);
+      expect(result._name).to.equal('spm');
     });
 
     it('returns error when creation fails', async function () {
@@ -69,9 +70,20 @@ describe('Streams', function () {
   });
 
   describe('process', function () {
-    it('throws when pipeline is empty', async function () {
-      const caught = await streams.process([]).catch((e) => e);
-      expect(caught.message).to.contain('[COMMON-10001] Invalid pipeline');
+    it('allows empty pipeline', async function () {
+      const response = { ok: 1, name: 'proc', cursorId: 1 };
+      const runCmdStub = sinon
+        .stub(mongo._serviceProvider, 'runCommand')
+        .resolves(response);
+
+      streams.process([]);
+      expect(
+        runCmdStub.calledOnceWithExactly(
+          'admin',
+          { processStreamProcessor: [] },
+          {}
+        )
+      ).to.be.true;
     });
 
     it('returns if process cmd errors', async function () {
