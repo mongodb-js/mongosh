@@ -39,11 +39,17 @@ describe('Streams', function () {
     });
 
     it('allows empty pipeline', async function () {
-      const response = { ok: 1, name: 'spm' };
-      sinon.stub(mongo._serviceProvider, 'runCommand').resolves(response);
+      const runCmdStub = sinon
+        .stub(mongo._serviceProvider, 'runCommand')
+        .resolves({ ok: 1 });
 
       const result = await streams.createStreamProcessor('spm', []);
-      expect(result._name).to.equal('spm');
+      expect(result).to.eql(
+        streams.getProcessor({ name: 'spm', pipeline: [] })
+      );
+
+      const cmd = { createStreamProcessor: 'spm', pipeline: [] };
+      expect(runCmdStub.calledOnceWithExactly('admin', cmd, {})).to.be.true;
     });
 
     it('returns error when creation fails', async function () {
