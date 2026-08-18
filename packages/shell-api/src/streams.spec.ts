@@ -17,7 +17,7 @@ describe('Streams', function () {
     mongo = {
       _instanceState: {
         interrupted: new InterruptFlag(),
-        shellApi: { printjson: identity },
+        shellApi: { printjson: identity, sleep: identity },
         transformError: identity,
       },
       _serviceProvider: {
