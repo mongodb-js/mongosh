@@ -77,14 +77,22 @@ describe('Streams', function () {
 
   describe('process', function () {
     it('allows empty pipeline', async function () {
-      const response = { ok: 1, name: 'proc', cursorId: 1 };
-      const runCmdStub = sinon
-        .stub(mongo._serviceProvider, 'runCommand')
-        .resolves(response);
+      const runCmdStub = sinon.stub(mongo._serviceProvider, 'runCommand');
+      runCmdStub
+        .withArgs('admin', { processStreamProcessor: [] }, {})
+        .resolves({ ok: 1, name: 'proc', cursorId: 1 });
+      runCmdStub
+        .withArgs(
+          'admin',
+          { getMoreSampleStreamProcessor: 'proc', cursorId: 1 },
+          {}
+        )
+        .resolves({ ok: 1, messages: [], cursorId: 0 });
+      runCmdStub.resolves({ ok: 1 });
 
-      streams.process([]);
+      await streams.process([]);
       expect(
-        runCmdStub.calledOnceWithExactly(
+        runCmdStub.calledWithExactly(
           'admin',
           { processStreamProcessor: [] },
           {}
