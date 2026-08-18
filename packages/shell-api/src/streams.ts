@@ -62,7 +62,7 @@ export class Streams<
 
   @returnsPromise
   async process(pipeline: MQLPipeline, options?: Document) {
-    if (!Array.isArray(pipeline) || !pipeline.length) {
+    if (!Array.isArray(pipeline)) {
       throw new MongoshInvalidInputError(
         'Invalid pipeline',
         CommonErrors.InvalidArgument,
@@ -114,7 +114,7 @@ export class Streams<
         CommonErrors.InvalidArgument
       );
     }
-    if (!Array.isArray(pipeline) || !pipeline.length) {
+    if (!Array.isArray(pipeline)) {
       throw new MongoshInvalidInputError(
         'Invalid pipeline',
         CommonErrors.InvalidArgument,
