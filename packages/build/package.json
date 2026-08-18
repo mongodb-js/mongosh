@@ -66,7 +66,7 @@
     "@mongodb-js/mongodb-downloader": "^1.1.7",
     "@mongodb-js/monorepo-tools": "^1.4.5",
     "@mongodb-js/signing-utils": "^0.5.14",
-    "@octokit/rest": "^17.9.0",
+    "@octokit/rest": "^22.0.1",
     "ajv": "^8.17.1",
     "aws-sdk": "^2.674.0",
     "boxednode": "^3.0.0",

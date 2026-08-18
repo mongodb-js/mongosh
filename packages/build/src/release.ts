@@ -70,6 +70,8 @@ export async function release(
 
       return {
         headers: {},
+        status: 200,
+        url: options.url,
         data: {
           content: { sha: '0'.repeat(40) },
           commit: { sha: '0'.repeat(40) },
