@@ -296,10 +296,19 @@ describe('CliRepl telemetry (integration)', function () {
           cliRepl,
           await testServer.connectionString()
         );
-        const allEventNames = requests
-          .map((entry) => decodeTelemetryCookie(entry.req).name as string)
-          .filter(Boolean);
-        expect(allEventNames).not.to.include('Session Ended');
+        // Telemetry is not collected for non-interactive sessions at all.
+        expect(requests).to.have.lengthOf(0);
+      });
+
+      it('sends telemetry events for --eval sessions that drop into the shell', async function () {
+        cliReplOptions.shellCliOptions.eval = ['db.hello()'];
+        cliReplOptions.shellCliOptions.shell = true;
+        cliRepl = new CliRepl(cliReplOptions);
+        await cliRepl.start(await testServer.connectionString(), {});
+        input.write('exit\n');
+        await waitBus(cliRepl.bus, 'mongosh:closed');
+        // Identify + New Connection + Session Ended = 3 events
+        expect(totalEventsTracked).to.equal(3);
       });
 
       it('sends a SessionEndedEvent with all session properties instead of individual API Call events', async function () {

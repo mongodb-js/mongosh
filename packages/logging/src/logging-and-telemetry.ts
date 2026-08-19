@@ -134,8 +134,10 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
 
   public async flush(): Promise<void> {
     const session: SessionTelemetryState = this.busEventState.session;
-    if ((session.isInteractive || getAiAgent()) && this.trackFn) {
-      // Emit the "Session Ended" event once per session.
+    if (this.trackFn) {
+      // Emit the "Session Ended" event once per session. Whether the session is
+      // one we collect telemetry for at all is decided by the analytics
+      // instance passed in, see CliRepl#isTelemetryEnabled().
       this.trackFn({
         name: 'Session Ended',
         payload: {
