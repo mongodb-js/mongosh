@@ -1,6 +1,6 @@
 # mongosh Tracking Plan
 
-> Auto-generated on 2026-08-18. Do not edit manually.
+> Auto-generated on 2026-08-20. Do not edit manually.
 > Run `npm run generate-tracking-plan` to regenerate from source.
 
 ## Table of Contents
