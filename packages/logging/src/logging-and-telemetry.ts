@@ -493,7 +493,8 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
     });
 
     onBus('mongosh:api-call-with-arguments', (args: ApiEventWithArguments) => {
-      // TODO: redactInfo cannot handle circular or otherwise nontrivial input
+      // redact() overflows the stack on circular input and leaves anything that
+      // is not a plain object, array or string unredacted.
       let arg;
       try {
         arg = JSON.parse(JSON.stringify(args));
