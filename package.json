@@ -139,8 +139,7 @@
     "lerna": "^9.0.3"
   },
   "overrides": {
-    "js-yaml@^4.0.0": "^4.3.0",
-    "browserslist@^4.0.0": "^4.28.7"
+    "js-yaml@^4.0.0": "^4.3.0"
   },
   "workspaces": [
     "configs/eslint-config-mongosh",
