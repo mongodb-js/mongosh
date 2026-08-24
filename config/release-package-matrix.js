@@ -387,6 +387,50 @@ exports.RELEASE_PACKAGE_MATRIX = [
     ],
   },
   {
+    executableOsId: 'linux-ppc64le-openssl11',
+    compileBuildVariant: 'build_linux_ppc64le_openssl11',
+    packages: [
+      {
+        name: 'linux-ppc64le-openssl11',
+        description: publicDescriptions.linux_ppc64le,
+        packageType: 'tgz with shared OpenSSL 1.1',
+        packageOn: 'linux_package',
+        smokeTestKind: 'none',
+        serverLikeTargetList: [...rhel81AndAbove],
+      },
+      {
+        name: 'rpm-ppc64le-openssl11',
+        description: publicDescriptions.rhel_ppc64le,
+        packageType: 'rpm with shared OpenSSL 1.1',
+        packageOn: 'linux_package',
+        smokeTestKind: 'rpmextract',
+        serverLikeTargetList: [...rhel81AndAbove],
+      },
+    ],
+  },
+  {
+    executableOsId: 'linux-ppc64le-openssl3',
+    compileBuildVariant: 'build_linux_ppc64le_openssl3',
+    packages: [
+      {
+        name: 'linux-ppc64le-openssl3',
+        description: publicDescriptions.linux_ppc64le,
+        packageType: 'tgz with shared OpenSSL 3',
+        packageOn: 'linux_package',
+        smokeTestKind: 'none',
+        serverLikeTargetList: [...rhel81AndAbove],
+      },
+      {
+        name: 'rpm-ppc64le-openssl3',
+        description: publicDescriptions.rhel_ppc64le,
+        packageType: 'rpm with shared OpenSSL 3',
+        packageOn: 'linux_package',
+        smokeTestKind: 'rpmextract',
+        serverLikeTargetList: [...rhel81AndAbove],
+      },
+    ],
+  },
+  {
     executableOsId: 'linux-s390x',
     compileBuildVariant: 'build_linux_s390x',
     packages: [
@@ -402,6 +446,50 @@ exports.RELEASE_PACKAGE_MATRIX = [
         name: 'rpm-s390x',
         description: publicDescriptions.rhel_s390x,
         packageType: 'rpm',
+        packageOn: 'linux_package',
+        smokeTestKind: 'rpmextract',
+        serverLikeTargetList: [...rhel72AndAbove],
+      },
+    ],
+  },
+  {
+    executableOsId: 'linux-s390x-openssl11',
+    compileBuildVariant: 'build_linux_s390x_openssl11',
+    packages: [
+      {
+        name: 'linux-s390x-openssl11',
+        description: publicDescriptions.linux_s390x,
+        packageType: 'tgz with shared OpenSSL 1.1',
+        packageOn: 'linux_package',
+        smokeTestKind: 'none',
+        serverLikeTargetList: [...rhel72AndAbove],
+      },
+      {
+        name: 'rpm-s390x-openssl11',
+        description: publicDescriptions.rhel_s390x,
+        packageType: 'rpm with shared OpenSSL 1.1',
+        packageOn: 'linux_package',
+        smokeTestKind: 'rpmextract',
+        serverLikeTargetList: [...rhel72AndAbove],
+      },
+    ],
+  },
+  {
+    executableOsId: 'linux-s390x-openssl3',
+    compileBuildVariant: 'build_linux_s390x_openssl3',
+    packages: [
+      {
+        name: 'linux-s390x-openssl3',
+        description: publicDescriptions.linux_s390x,
+        packageType: 'tgz with shared OpenSSL 3',
+        packageOn: 'linux_package',
+        smokeTestKind: 'none',
+        serverLikeTargetList: [...rhel72AndAbove],
+      },
+      {
+        name: 'rpm-s390x-openssl3',
+        description: publicDescriptions.rhel_s390x,
+        packageType: 'rpm with shared OpenSSL 3',
         packageOn: 'linux_package',
         smokeTestKind: 'rpmextract',
         serverLikeTargetList: [...rhel72AndAbove],

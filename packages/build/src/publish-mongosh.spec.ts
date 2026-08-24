@@ -165,7 +165,7 @@ describe('MongoshPublisher', function () {
     it('publishes artifacts to barque', async function () {
       await testPublisher.publish();
 
-      expect(barque.releaseToBarque).to.have.been.callCount(26);
+      expect(barque.releaseToBarque).to.have.been.callCount(34);
       expect(barque.releaseToBarque).to.have.been.calledWith(
         'rpm-x64',
         'https://s3.amazonaws.com/mciuploads/project/v0.7.0-draft.42/mongodb-mongosh-0.7.0.x86_64.rpm'
@@ -177,6 +177,14 @@ describe('MongoshPublisher', function () {
       expect(barque.releaseToBarque).to.have.been.calledWith(
         'rpm-arm64',
         'https://s3.amazonaws.com/mciuploads/project/v0.7.0-draft.42/mongodb-mongosh-0.7.0.aarch64.rpm'
+      );
+      expect(barque.releaseToBarque).to.have.been.calledWith(
+        'rpm-ppc64le-openssl3',
+        'https://s3.amazonaws.com/mciuploads/project/v0.7.0-draft.42/mongodb-mongosh-0.7.0.ppc64le.rpm'
+      );
+      expect(barque.releaseToBarque).to.have.been.calledWith(
+        'rpm-s390x-openssl11',
+        'https://s3.amazonaws.com/mciuploads/project/v0.7.0-draft.42/mongodb-mongosh-0.7.0.s390x.rpm'
       );
       expect(barque.waitUntilPackagesAreAvailable).to.have.been.called;
     });

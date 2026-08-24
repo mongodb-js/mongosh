@@ -347,6 +347,20 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
   {
     displayName: 'RHEL 9 PPC',
     runOn: 'rhel9-power-small',
+    sharedOpenSsl: 'openssl11',
+    executableOsId: 'linux-ppc64le-openssl11',
+    mVersion: 'stable',
+  },
+  {
+    displayName: 'RHEL 9 PPC',
+    runOn: 'rhel9-power-small',
+    sharedOpenSsl: 'openssl3',
+    executableOsId: 'linux-ppc64le-openssl3',
+    mVersion: 'stable',
+  },
+  {
+    displayName: 'RHEL 9 PPC',
+    runOn: 'rhel9-power-small',
     executableOsId: 'linux-ppc64le',
     mVersion: '8.3.x',
   },
@@ -366,6 +380,20 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     displayName: 'RHEL 9 s390x',
     runOn: 'rhel9-zseries-small',
     executableOsId: 'linux-s390x',
+    mVersion: 'stable',
+  },
+  {
+    displayName: 'RHEL 9 s390x',
+    runOn: 'rhel9-zseries-small',
+    sharedOpenSsl: 'openssl11',
+    executableOsId: 'linux-s390x-openssl11',
+    mVersion: 'stable',
+  },
+  {
+    displayName: 'RHEL 9 s390x',
+    runOn: 'rhel9-zseries-small',
+    sharedOpenSsl: 'openssl3',
+    executableOsId: 'linux-s390x-openssl3',
     mVersion: 'stable',
   },
   {
