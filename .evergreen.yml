@@ -4635,8 +4635,36 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-linux-ppc64le-openssl11-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-ppc64le-openssl11-first-party-deps.json
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-linux-ppc64le-openssl3-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-ppc64le-openssl3-first-party-deps.json
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/.sbom/mongosh-linux-s390x-first-party-deps.json
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-s390x-first-party-deps.json
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-linux-s390x-openssl11-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-s390x-openssl11-first-party-deps.json
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-linux-s390x-openssl3-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-s390x-openssl3-first-party-deps.json
         bucket: mciuploads
     - command: s3.get
       params:
@@ -4656,7 +4684,7 @@ functions:
           .evergreen/create-static-analysis-report.sh
         env:
           NODE_JS_VERSION: ${node_js_version}
-          FIRST_PARTY_DEPENDENCY_FILENAMES: .sbom/mongosh-darwin-x64-first-party-deps.json,.sbom/mongosh-darwin-arm64-first-party-deps.json,.sbom/mongosh-linux-x64-first-party-deps.json,.sbom/mongosh-linux-x64-openssl11-first-party-deps.json,.sbom/mongosh-linux-x64-openssl3-first-party-deps.json,.sbom/mongosh-linux-arm64-first-party-deps.json,.sbom/mongosh-linux-arm64-openssl11-first-party-deps.json,.sbom/mongosh-linux-arm64-openssl3-first-party-deps.json,.sbom/mongosh-linux-ppc64le-first-party-deps.json,.sbom/mongosh-linux-s390x-first-party-deps.json,.sbom/mongosh-win32-first-party-deps.json
+          FIRST_PARTY_DEPENDENCY_FILENAMES: .sbom/mongosh-darwin-x64-first-party-deps.json,.sbom/mongosh-darwin-arm64-first-party-deps.json,.sbom/mongosh-linux-x64-first-party-deps.json,.sbom/mongosh-linux-x64-openssl11-first-party-deps.json,.sbom/mongosh-linux-x64-openssl3-first-party-deps.json,.sbom/mongosh-linux-arm64-first-party-deps.json,.sbom/mongosh-linux-arm64-openssl11-first-party-deps.json,.sbom/mongosh-linux-arm64-openssl3-first-party-deps.json,.sbom/mongosh-linux-ppc64le-first-party-deps.json,.sbom/mongosh-linux-ppc64le-openssl11-first-party-deps.json,.sbom/mongosh-linux-ppc64le-openssl3-first-party-deps.json,.sbom/mongosh-linux-s390x-first-party-deps.json,.sbom/mongosh-linux-s390x-openssl11-first-party-deps.json,.sbom/mongosh-linux-s390x-openssl3-first-party-deps.json,.sbom/mongosh-win32-first-party-deps.json
           GITHUB_TOKEN: ${github_token}
           GITHUB_PR_NUMBER: ${github_pr_number}
     - command: s3.put
@@ -6511,6 +6539,42 @@ tasks:
           node_js_version: ${node_js_version}
           mongosh_server_test_version: ${mongosh_server_test_version}
           mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
+  - name: e2e_tests_linux_ppc64le_openssl11
+    tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
+    depends_on:
+      - name: compile_artifact
+        variant: build_linux_ppc64le_openssl11
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: ${node_js_version}
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-ppc64le-openssl11
+      - func: run_e2e_tests
+        vars:
+          node_js_version: ${node_js_version}
+          mongosh_server_test_version: ${mongosh_server_test_version}
+          mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
+  - name: e2e_tests_linux_ppc64le_openssl3
+    tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
+    depends_on:
+      - name: compile_artifact
+        variant: build_linux_ppc64le_openssl3
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: ${node_js_version}
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-ppc64le-openssl3
+      - func: run_e2e_tests
+        vars:
+          node_js_version: ${node_js_version}
+          mongosh_server_test_version: ${mongosh_server_test_version}
+          mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
   - name: e2e_tests_linux_s390x
     tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
     depends_on:
@@ -6524,6 +6588,42 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-s390x
+      - func: run_e2e_tests
+        vars:
+          node_js_version: ${node_js_version}
+          mongosh_server_test_version: ${mongosh_server_test_version}
+          mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
+  - name: e2e_tests_linux_s390x_openssl11
+    tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
+    depends_on:
+      - name: compile_artifact
+        variant: build_linux_s390x_openssl11
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: ${node_js_version}
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-s390x-openssl11
+      - func: run_e2e_tests
+        vars:
+          node_js_version: ${node_js_version}
+          mongosh_server_test_version: ${mongosh_server_test_version}
+          mongosh_test_e2e_force_fips: ${mongosh_test_e2e_force_fips}
+  - name: e2e_tests_linux_s390x_openssl3
+    tags: ["e2e-test", "assigned_to_jira_team_mongosh_mongosh"]
+    depends_on:
+      - name: compile_artifact
+        variant: build_linux_s390x_openssl3
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: ${node_js_version}
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-s390x-openssl3
       - func: run_e2e_tests
         vars:
           node_js_version: ${node_js_version}
@@ -8821,6 +8921,314 @@ tasks:
           package_variant: rpm-ppc64le
           signature_tag: signed
       - func: verify_artifact
+  - name: add_crypt_shared_and_sbom_linux_ppc64le_openssl11
+    tags: ["add-sbom-task"]
+    depends_on:
+      - name: compile_artifact
+        variant: build_linux_ppc64le_openssl11
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "24.18.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-ppc64le-openssl11
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: linux-ppc64le-openssl11
+          executable_os_id: linux-ppc64le-openssl11
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-ppc64le-openssl11
+          extra_upload_tag: -linux-ppc64le-openssl11-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-ppc64le-openssl11
+          extra_upload_tag: -linux-ppc64le-openssl11-complete
+  - name: package_artifact_linux_ppc64le_openssl11
+    depends_on:
+      - name: add_crypt_shared_and_sbom_linux_ppc64le_openssl11
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "24.18.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-ppc64le-openssl11
+          extra_upload_tag: -linux-ppc64le-openssl11-complete
+      - func: package_artifact
+        vars:
+          node_js_version: "24.18.1"
+          package_variant: linux-ppc64le-openssl11
+          executable_os_id: linux-ppc64le-openssl11
+      - func: put_artifact_url
+        vars:
+          package_variant: linux-ppc64le-openssl11
+          signature_tag: unsigned
+  - name: sign_artifact_linux_ppc64le_openssl11
+    depends_on:
+      - name: package_artifact_linux_ppc64le_openssl11
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "24.18.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: linux-ppc64le-openssl11
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "24.18.1"
+          package_variant: linux-ppc64le-openssl11
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
+      - func: put_artifact_url
+        vars:
+          package_variant: linux-ppc64le-openssl11
+          signature_tag: signed
+  - name: add_crypt_shared_and_sbom_rpm_ppc64le_openssl11
+    tags: ["add-sbom-task"]
+    depends_on:
+      - name: compile_artifact
+        variant: build_linux_ppc64le_openssl11
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "24.18.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-ppc64le-openssl11
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: rpm-ppc64le-openssl11
+          executable_os_id: linux-ppc64le-openssl11
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-ppc64le-openssl11
+          extra_upload_tag: -rpm-ppc64le-openssl11-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-ppc64le-openssl11
+          extra_upload_tag: -rpm-ppc64le-openssl11-complete
+  - name: package_artifact_rpm_ppc64le_openssl11
+    depends_on:
+      - name: add_crypt_shared_and_sbom_rpm_ppc64le_openssl11
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "24.18.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-ppc64le-openssl11
+          extra_upload_tag: -rpm-ppc64le-openssl11-complete
+      - func: package_artifact
+        vars:
+          node_js_version: "24.18.1"
+          package_variant: rpm-ppc64le-openssl11
+          executable_os_id: linux-ppc64le-openssl11
+      - func: put_artifact_url
+        vars:
+          package_variant: rpm-ppc64le-openssl11
+          signature_tag: unsigned
+  - name: sign_artifact_rpm_ppc64le_openssl11
+    depends_on:
+      - name: package_artifact_rpm_ppc64le_openssl11
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "24.18.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: rpm-ppc64le-openssl11
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "24.18.1"
+          package_variant: rpm-ppc64le-openssl11
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
+      - func: put_artifact_url
+        vars:
+          package_variant: rpm-ppc64le-openssl11
+          signature_tag: signed
+  - name: verify_artifact_rpm_ppc64le_openssl11
+    tags: ["smoke-test"]
+    depends_on:
+      - name: sign_artifact_rpm_ppc64le_openssl11
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          package_variant: rpm-ppc64le-openssl11
+          signature_tag: signed
+      - func: verify_artifact
+  - name: add_crypt_shared_and_sbom_linux_ppc64le_openssl3
+    tags: ["add-sbom-task"]
+    depends_on:
+      - name: compile_artifact
+        variant: build_linux_ppc64le_openssl3
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "24.18.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-ppc64le-openssl3
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: linux-ppc64le-openssl3
+          executable_os_id: linux-ppc64le-openssl3
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-ppc64le-openssl3
+          extra_upload_tag: -linux-ppc64le-openssl3-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-ppc64le-openssl3
+          extra_upload_tag: -linux-ppc64le-openssl3-complete
+  - name: package_artifact_linux_ppc64le_openssl3
+    depends_on:
+      - name: add_crypt_shared_and_sbom_linux_ppc64le_openssl3
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "24.18.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-ppc64le-openssl3
+          extra_upload_tag: -linux-ppc64le-openssl3-complete
+      - func: package_artifact
+        vars:
+          node_js_version: "24.18.1"
+          package_variant: linux-ppc64le-openssl3
+          executable_os_id: linux-ppc64le-openssl3
+      - func: put_artifact_url
+        vars:
+          package_variant: linux-ppc64le-openssl3
+          signature_tag: unsigned
+  - name: sign_artifact_linux_ppc64le_openssl3
+    depends_on:
+      - name: package_artifact_linux_ppc64le_openssl3
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "24.18.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: linux-ppc64le-openssl3
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "24.18.1"
+          package_variant: linux-ppc64le-openssl3
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
+      - func: put_artifact_url
+        vars:
+          package_variant: linux-ppc64le-openssl3
+          signature_tag: signed
+  - name: add_crypt_shared_and_sbom_rpm_ppc64le_openssl3
+    tags: ["add-sbom-task"]
+    depends_on:
+      - name: compile_artifact
+        variant: build_linux_ppc64le_openssl3
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "24.18.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-ppc64le-openssl3
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: rpm-ppc64le-openssl3
+          executable_os_id: linux-ppc64le-openssl3
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-ppc64le-openssl3
+          extra_upload_tag: -rpm-ppc64le-openssl3-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-ppc64le-openssl3
+          extra_upload_tag: -rpm-ppc64le-openssl3-complete
+  - name: package_artifact_rpm_ppc64le_openssl3
+    depends_on:
+      - name: add_crypt_shared_and_sbom_rpm_ppc64le_openssl3
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "24.18.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-ppc64le-openssl3
+          extra_upload_tag: -rpm-ppc64le-openssl3-complete
+      - func: package_artifact
+        vars:
+          node_js_version: "24.18.1"
+          package_variant: rpm-ppc64le-openssl3
+          executable_os_id: linux-ppc64le-openssl3
+      - func: put_artifact_url
+        vars:
+          package_variant: rpm-ppc64le-openssl3
+          signature_tag: unsigned
+  - name: sign_artifact_rpm_ppc64le_openssl3
+    depends_on:
+      - name: package_artifact_rpm_ppc64le_openssl3
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "24.18.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: rpm-ppc64le-openssl3
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "24.18.1"
+          package_variant: rpm-ppc64le-openssl3
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
+      - func: put_artifact_url
+        vars:
+          package_variant: rpm-ppc64le-openssl3
+          signature_tag: signed
+  - name: verify_artifact_rpm_ppc64le_openssl3
+    tags: ["smoke-test"]
+    depends_on:
+      - name: sign_artifact_rpm_ppc64le_openssl3
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          package_variant: rpm-ppc64le-openssl3
+          signature_tag: signed
+      - func: verify_artifact
   - name: add_crypt_shared_and_sbom_linux_s390x
     tags: ["add-sbom-task"]
     depends_on:
@@ -8973,6 +9381,314 @@ tasks:
       - func: get_artifact_url
         vars:
           package_variant: rpm-s390x
+          signature_tag: signed
+      - func: verify_artifact
+  - name: add_crypt_shared_and_sbom_linux_s390x_openssl11
+    tags: ["add-sbom-task"]
+    depends_on:
+      - name: compile_artifact
+        variant: build_linux_s390x_openssl11
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "24.18.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-s390x-openssl11
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: linux-s390x-openssl11
+          executable_os_id: linux-s390x-openssl11
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-s390x-openssl11
+          extra_upload_tag: -linux-s390x-openssl11-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-s390x-openssl11
+          extra_upload_tag: -linux-s390x-openssl11-complete
+  - name: package_artifact_linux_s390x_openssl11
+    depends_on:
+      - name: add_crypt_shared_and_sbom_linux_s390x_openssl11
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "24.18.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-s390x-openssl11
+          extra_upload_tag: -linux-s390x-openssl11-complete
+      - func: package_artifact
+        vars:
+          node_js_version: "24.18.1"
+          package_variant: linux-s390x-openssl11
+          executable_os_id: linux-s390x-openssl11
+      - func: put_artifact_url
+        vars:
+          package_variant: linux-s390x-openssl11
+          signature_tag: unsigned
+  - name: sign_artifact_linux_s390x_openssl11
+    depends_on:
+      - name: package_artifact_linux_s390x_openssl11
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "24.18.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: linux-s390x-openssl11
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "24.18.1"
+          package_variant: linux-s390x-openssl11
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
+      - func: put_artifact_url
+        vars:
+          package_variant: linux-s390x-openssl11
+          signature_tag: signed
+  - name: add_crypt_shared_and_sbom_rpm_s390x_openssl11
+    tags: ["add-sbom-task"]
+    depends_on:
+      - name: compile_artifact
+        variant: build_linux_s390x_openssl11
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "24.18.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-s390x-openssl11
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: rpm-s390x-openssl11
+          executable_os_id: linux-s390x-openssl11
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-s390x-openssl11
+          extra_upload_tag: -rpm-s390x-openssl11-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-s390x-openssl11
+          extra_upload_tag: -rpm-s390x-openssl11-complete
+  - name: package_artifact_rpm_s390x_openssl11
+    depends_on:
+      - name: add_crypt_shared_and_sbom_rpm_s390x_openssl11
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "24.18.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-s390x-openssl11
+          extra_upload_tag: -rpm-s390x-openssl11-complete
+      - func: package_artifact
+        vars:
+          node_js_version: "24.18.1"
+          package_variant: rpm-s390x-openssl11
+          executable_os_id: linux-s390x-openssl11
+      - func: put_artifact_url
+        vars:
+          package_variant: rpm-s390x-openssl11
+          signature_tag: unsigned
+  - name: sign_artifact_rpm_s390x_openssl11
+    depends_on:
+      - name: package_artifact_rpm_s390x_openssl11
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "24.18.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: rpm-s390x-openssl11
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "24.18.1"
+          package_variant: rpm-s390x-openssl11
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
+      - func: put_artifact_url
+        vars:
+          package_variant: rpm-s390x-openssl11
+          signature_tag: signed
+  - name: verify_artifact_rpm_s390x_openssl11
+    tags: ["smoke-test"]
+    depends_on:
+      - name: sign_artifact_rpm_s390x_openssl11
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          package_variant: rpm-s390x-openssl11
+          signature_tag: signed
+      - func: verify_artifact
+  - name: add_crypt_shared_and_sbom_linux_s390x_openssl3
+    tags: ["add-sbom-task"]
+    depends_on:
+      - name: compile_artifact
+        variant: build_linux_s390x_openssl3
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "24.18.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-s390x-openssl3
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: linux-s390x-openssl3
+          executable_os_id: linux-s390x-openssl3
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-s390x-openssl3
+          extra_upload_tag: -linux-s390x-openssl3-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-s390x-openssl3
+          extra_upload_tag: -linux-s390x-openssl3-complete
+  - name: package_artifact_linux_s390x_openssl3
+    depends_on:
+      - name: add_crypt_shared_and_sbom_linux_s390x_openssl3
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "24.18.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-s390x-openssl3
+          extra_upload_tag: -linux-s390x-openssl3-complete
+      - func: package_artifact
+        vars:
+          node_js_version: "24.18.1"
+          package_variant: linux-s390x-openssl3
+          executable_os_id: linux-s390x-openssl3
+      - func: put_artifact_url
+        vars:
+          package_variant: linux-s390x-openssl3
+          signature_tag: unsigned
+  - name: sign_artifact_linux_s390x_openssl3
+    depends_on:
+      - name: package_artifact_linux_s390x_openssl3
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "24.18.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: linux-s390x-openssl3
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "24.18.1"
+          package_variant: linux-s390x-openssl3
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
+      - func: put_artifact_url
+        vars:
+          package_variant: linux-s390x-openssl3
+          signature_tag: signed
+  - name: add_crypt_shared_and_sbom_rpm_s390x_openssl3
+    tags: ["add-sbom-task"]
+    depends_on:
+      - name: compile_artifact
+        variant: build_linux_s390x_openssl3
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "24.18.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-s390x-openssl3
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: rpm-s390x-openssl3
+          executable_os_id: linux-s390x-openssl3
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-s390x-openssl3
+          extra_upload_tag: -rpm-s390x-openssl3-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-s390x-openssl3
+          extra_upload_tag: -rpm-s390x-openssl3-complete
+  - name: package_artifact_rpm_s390x_openssl3
+    depends_on:
+      - name: add_crypt_shared_and_sbom_rpm_s390x_openssl3
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "24.18.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-s390x-openssl3
+          extra_upload_tag: -rpm-s390x-openssl3-complete
+      - func: package_artifact
+        vars:
+          node_js_version: "24.18.1"
+          package_variant: rpm-s390x-openssl3
+          executable_os_id: linux-s390x-openssl3
+      - func: put_artifact_url
+        vars:
+          package_variant: rpm-s390x-openssl3
+          signature_tag: unsigned
+  - name: sign_artifact_rpm_s390x_openssl3
+    depends_on:
+      - name: package_artifact_rpm_s390x_openssl3
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "24.18.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: rpm-s390x-openssl3
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "24.18.1"
+          package_variant: rpm-s390x-openssl3
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
+      - func: put_artifact_url
+        vars:
+          package_variant: rpm-s390x-openssl3
+          signature_tag: signed
+  - name: verify_artifact_rpm_s390x_openssl3
+    tags: ["smoke-test"]
+    depends_on:
+      - name: sign_artifact_rpm_s390x_openssl3
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          package_variant: rpm-s390x-openssl3
           signature_tag: signed
       - func: verify_artifact
   - name: add_crypt_shared_and_sbom_win32_x64
@@ -10604,6 +11320,32 @@ tasks:
           signature_tag: signed
       - func: write_preload_script
       - func: test_artifact_rpmextract
+  - name: pkg_test_rpmextract_rpm_ppc64le_openssl11
+    tags: ["smoke-test"]
+    depends_on:
+      - name: sign_artifact_rpm_ppc64le_openssl11
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          package_variant: rpm-ppc64le-openssl11
+          signature_tag: signed
+      - func: write_preload_script
+      - func: test_artifact_rpmextract
+  - name: pkg_test_rpmextract_rpm_ppc64le_openssl3
+    tags: ["smoke-test"]
+    depends_on:
+      - name: sign_artifact_rpm_ppc64le_openssl3
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          package_variant: rpm-ppc64le-openssl3
+          signature_tag: signed
+      - func: write_preload_script
+      - func: test_artifact_rpmextract
   - name: pkg_test_rpmextract_rpm_s390x
     tags: ["smoke-test"]
     depends_on:
@@ -10614,6 +11356,32 @@ tasks:
       - func: get_artifact_url
         vars:
           package_variant: rpm-s390x
+          signature_tag: signed
+      - func: write_preload_script
+      - func: test_artifact_rpmextract
+  - name: pkg_test_rpmextract_rpm_s390x_openssl11
+    tags: ["smoke-test"]
+    depends_on:
+      - name: sign_artifact_rpm_s390x_openssl11
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          package_variant: rpm-s390x-openssl11
+          signature_tag: signed
+      - func: write_preload_script
+      - func: test_artifact_rpmextract
+  - name: pkg_test_rpmextract_rpm_s390x_openssl3
+    tags: ["smoke-test"]
+    depends_on:
+      - name: sign_artifact_rpm_s390x_openssl3
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          package_variant: rpm-s390x-openssl3
           signature_tag: signed
       - func: write_preload_script
       - func: test_artifact_rpmextract
@@ -12312,12 +13080,48 @@ buildvariants:
       node_js_version: "24.18.1"
     tasks:
       - name: compile_artifact
+  - name: build_linux_ppc64le_openssl11
+    display_name: "RHEL 8 PPC openssl11 (Build)"
+    run_on: rhel8-power-small
+    expansions:
+      executable_os_id: "linux-ppc64le-openssl11"
+      node_js_version: "24.18.1"
+      mongosh_shared_openssl: "openssl11"
+    tasks:
+      - name: compile_artifact
+  - name: build_linux_ppc64le_openssl3
+    display_name: "RHEL 8 PPC openssl3 (Build)"
+    run_on: rhel8-power-small
+    expansions:
+      executable_os_id: "linux-ppc64le-openssl3"
+      node_js_version: "24.18.1"
+      mongosh_shared_openssl: "openssl3"
+    tasks:
+      - name: compile_artifact
   - name: build_linux_s390x
     display_name: "RHEL 7 s390x (Build)"
     run_on: rhel7-zseries-large
     expansions:
       executable_os_id: "linux-s390x"
       node_js_version: "24.18.1"
+    tasks:
+      - name: compile_artifact
+  - name: build_linux_s390x_openssl11
+    display_name: "RHEL 7 s390x openssl11 (Build)"
+    run_on: rhel7-zseries-large
+    expansions:
+      executable_os_id: "linux-s390x-openssl11"
+      node_js_version: "24.18.1"
+      mongosh_shared_openssl: "openssl11"
+    tasks:
+      - name: compile_artifact
+  - name: build_linux_s390x_openssl3
+    display_name: "RHEL 7 s390x openssl3 (Build)"
+    run_on: rhel7-zseries-large
+    expansions:
+      executable_os_id: "linux-s390x-openssl3"
+      node_js_version: "24.18.1"
+      mongosh_shared_openssl: "openssl3"
     tasks:
       - name: compile_artifact
   - name: build_darwin
@@ -12828,6 +13632,28 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_ppc64le
+  - name: e2e_tests_rhel9_power_small_openssl11
+    display_name: "RHEL 9 PPC openssl11 (E2E tests)"
+    run_on: rhel9-power-small
+    tags: []
+    expansions:
+      executable_os_id: "linux-ppc64le-openssl11"
+      node_js_version: "24.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests_linux_ppc64le_openssl11
+  - name: e2e_tests_rhel9_power_small_openssl3
+    display_name: "RHEL 9 PPC openssl3 (E2E tests)"
+    run_on: rhel9-power-small
+    tags: []
+    expansions:
+      executable_os_id: "linux-ppc64le-openssl3"
+      node_js_version: "24.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests_linux_ppc64le_openssl3
   - name: e2e_tests_rhel9_power_small_m83x
     display_name: "RHEL 9 PPC 83x (E2E tests)"
     run_on: rhel9-power-small
@@ -12872,6 +13698,28 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_s390x
+  - name: e2e_tests_rhel9_zseries_small_openssl11
+    display_name: "RHEL 9 s390x openssl11 (E2E tests)"
+    run_on: rhel9-zseries-small
+    tags: []
+    expansions:
+      executable_os_id: "linux-s390x-openssl11"
+      node_js_version: "24.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests_linux_s390x_openssl11
+  - name: e2e_tests_rhel9_zseries_small_openssl3
+    display_name: "RHEL 9 s390x openssl3 (E2E tests)"
+    run_on: rhel9-zseries-small
+    tags: []
+    expansions:
+      executable_os_id: "linux-s390x-openssl3"
+      node_js_version: "24.18.1"
+      mongosh_server_test_version: "stable-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests_linux_s390x_openssl3
   - name: e2e_tests_rhel9_zseries_small_m83x
     display_name: "RHEL 9 s390x 83x (E2E tests)"
     run_on: rhel9-zseries-small
@@ -13128,12 +13976,36 @@ buildvariants:
       - name: add_crypt_shared_and_sbom_rpm_ppc64le
       - name: package_artifact_rpm_ppc64le
       - name: sign_artifact_rpm_ppc64le
+      - name: add_crypt_shared_and_sbom_linux_ppc64le_openssl11
+      - name: package_artifact_linux_ppc64le_openssl11
+      - name: sign_artifact_linux_ppc64le_openssl11
+      - name: add_crypt_shared_and_sbom_rpm_ppc64le_openssl11
+      - name: package_artifact_rpm_ppc64le_openssl11
+      - name: sign_artifact_rpm_ppc64le_openssl11
+      - name: add_crypt_shared_and_sbom_linux_ppc64le_openssl3
+      - name: package_artifact_linux_ppc64le_openssl3
+      - name: sign_artifact_linux_ppc64le_openssl3
+      - name: add_crypt_shared_and_sbom_rpm_ppc64le_openssl3
+      - name: package_artifact_rpm_ppc64le_openssl3
+      - name: sign_artifact_rpm_ppc64le_openssl3
       - name: add_crypt_shared_and_sbom_linux_s390x
       - name: package_artifact_linux_s390x
       - name: sign_artifact_linux_s390x
       - name: add_crypt_shared_and_sbom_rpm_s390x
       - name: package_artifact_rpm_s390x
       - name: sign_artifact_rpm_s390x
+      - name: add_crypt_shared_and_sbom_linux_s390x_openssl11
+      - name: package_artifact_linux_s390x_openssl11
+      - name: sign_artifact_linux_s390x_openssl11
+      - name: add_crypt_shared_and_sbom_rpm_s390x_openssl11
+      - name: package_artifact_rpm_s390x_openssl11
+      - name: sign_artifact_rpm_s390x_openssl11
+      - name: add_crypt_shared_and_sbom_linux_s390x_openssl3
+      - name: package_artifact_linux_s390x_openssl3
+      - name: sign_artifact_linux_s390x_openssl3
+      - name: add_crypt_shared_and_sbom_rpm_s390x_openssl3
+      - name: package_artifact_rpm_s390x_openssl3
+      - name: sign_artifact_rpm_s390x_openssl3
       - name: add_crypt_shared_and_sbom_win32_x64
       - name: add_crypt_shared_and_sbom_win32msi_x64
       - name: sign_artifact_win32_x64
@@ -13149,7 +14021,11 @@ buildvariants:
       - name: verify_artifact_rpm_arm64_openssl11
       - name: verify_artifact_rpm_arm64_openssl3
       - name: verify_artifact_rpm_ppc64le
+      - name: verify_artifact_rpm_ppc64le_openssl11
+      - name: verify_artifact_rpm_ppc64le_openssl3
       - name: verify_artifact_rpm_s390x
+      - name: verify_artifact_rpm_s390x_openssl11
+      - name: verify_artifact_rpm_s390x_openssl3
   - name: verify_windows_artifact
     display_name: "Windows (Signature Verification)"
     run_on: windows-2022-small
@@ -13326,21 +14202,25 @@ buildvariants:
     run_on: rhel8-zseries-small
     tasks:
       - name: pkg_test_rpmextract_rpm_s390x
+      - name: pkg_test_rpmextract_rpm_s390x_openssl11
   - name: pkg_smoke_tests_rhel9_s390x
     display_name: "package smoke tests (RHEL 9 s390x)"
     run_on: rhel9-zseries-small
     tasks:
       - name: pkg_test_rpmextract_rpm_s390x
+      - name: pkg_test_rpmextract_rpm_s390x_openssl3
   - name: pkg_smoke_tests_rhel8_ppc64le
     display_name: "package smoke tests (RHEL 8 ppc64le)"
     run_on: rhel8-power-small
     tasks:
       - name: pkg_test_rpmextract_rpm_ppc64le
+      - name: pkg_test_rpmextract_rpm_ppc64le_openssl11
   - name: pkg_smoke_tests_rhel9_ppc64le
     display_name: "package smoke tests (RHEL 9 ppc64le)"
     run_on: rhel9-power-small
     tasks:
       - name: pkg_test_rpmextract_rpm_ppc64le
+      - name: pkg_test_rpmextract_rpm_ppc64le_openssl3
   - name: draft_publish_release
     display_name: "Draft/Publish Release"
     run_on: ubuntu2004-small
