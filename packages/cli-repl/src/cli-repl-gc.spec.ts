@@ -183,11 +183,14 @@ describe('CliRepl GC', function () {
       1
     );
     objHolder.obj = null;
-    // A stale copy of the object pointer can survive in a stack slot or
-    // register of this call chain, and V8's conservative stack scanning
-    // then keeps the object alive through a GC cycle. Re-check a few times
-    // so that such false positives don't fail the test; a genuine leak
-    // stays visible on every attempt.
+    // The REPL's V8 Context is held by a weak Global handle, and releasing
+    // a weak handle takes two GC passes: one to notice it's unreachable and
+    // queue it for release, another to actually reclaim it. If a heap
+    // snapshot's GC lands between those two passes, the Context - and the
+    // "a" property still pointing at our object - is briefly visible.
+    // Re-check a few times so that this false positive doesn't fail the
+    // test; a genuine leak (a strong reference) stays visible on every
+    // attempt.
     let leaked: { index: number }[] = [];
     let snapshot = '';
     for (let attempt = 0; attempt < 5; attempt++) {
