@@ -63,7 +63,7 @@ const shellContainerLightModeStyles = css({
 });
 
 const shellContainerDarkModeStyles = css({
-  backgroundColor: palette.gray.dark4,
+  backgroundColor: palette.black,
   color: palette.gray.light3,
 });
 
