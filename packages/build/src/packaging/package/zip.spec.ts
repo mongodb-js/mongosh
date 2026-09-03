@@ -53,8 +53,69 @@ describe('package zip', function () {
       path.join(tmpPkg.tarballDir, 'outfile.zip'),
       execFileStub
     );
-    expect(execFileStub).to.have.been.calledTwice;
+    const outFile = path.join(tmpPkg.tarballDir, 'outfile.zip');
+    expect(execFileStub.callCount).to.equal(2);
     expect(execFileStub.getCalls()[1].args[0]).to.equal('7z');
+    expect(execFileStub.getCalls()[1].args[1]).to.deep.equal([
+      'a',
+      outFile,
+      '.',
+    ]);
+  });
+
+  it('falls back to the 7-Zip install path if 7z is not on PATH', async function () {
+    const execFileStub = sinon.stub();
+    for (const missing of ['zip', '7z']) {
+      execFileStub
+        .withArgs(missing, sinon.match.any, sinon.match.any)
+        .rejects(new FakeNOENTError());
+    }
+
+    const outFile = path.join(tmpPkg.tarballDir, 'outfile.zip');
+    await createZipPackage(tmpPkg.pkgConfig, outFile, execFileStub);
+    expect(execFileStub.callCount).to.equal(3);
+    expect(execFileStub.lastCall.args[0]).to.equal(
+      'C:\\Program Files\\7-Zip\\7z.exe'
+    );
+    expect(execFileStub.lastCall.args[1]).to.deep.equal(['a', outFile, '.']);
+  });
+
+  it('tries the x86 7-Zip install path last', async function () {
+    const execFileStub = sinon.stub();
+    for (const missing of ['zip', '7z', 'C:\\Program Files\\7-Zip\\7z.exe']) {
+      execFileStub
+        .withArgs(missing, sinon.match.any, sinon.match.any)
+        .rejects(new FakeNOENTError());
+    }
+
+    await createZipPackage(
+      tmpPkg.pkgConfig,
+      path.join(tmpPkg.tarballDir, 'outfile.zip'),
+      execFileStub
+    );
+    expect(execFileStub.callCount).to.equal(4);
+    expect(execFileStub.lastCall.args[0]).to.equal(
+      'C:\\Program Files (x86)\\7-Zip\\7z.exe'
+    );
+  });
+
+  it('rethrows ENOENT if no archiver is available at all', async function () {
+    const execFileStub = sinon.stub().rejects(new FakeNOENTError());
+
+    try {
+      await createZipPackage(
+        tmpPkg.pkgConfig,
+        path.join(tmpPkg.tarballDir, 'outfile.zip'),
+        execFileStub
+      );
+    } catch (e: any) {
+      expect(e.code).to.equal('ENOENT');
+      expect(execFileStub.lastCall.args[0]).to.equal(
+        'C:\\Program Files (x86)\\7-Zip\\7z.exe'
+      );
+      return;
+    }
+    expect.fail('Expected error');
   });
 
   it('rethrows errors', async function () {
