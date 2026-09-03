@@ -193,7 +193,7 @@ describe('CliRepl GC', function () {
     // attempt.
     let leaked: { index: number }[] = [];
     let snapshot = '';
-    for (let attempt = 0; attempt < 5; attempt++) {
+    for (let attempt = 0; attempt < 2; attempt++) {
       await new Promise(setImmediate);
       snapshot = await takeHeapSnapshot();
       leaked = [...taggedObjectsInHeap(snapshot)];
@@ -213,5 +213,23 @@ describe('CliRepl GC', function () {
     expect(leaked).to.have.lengthOf(0);
     await new Promise(setImmediate);
     expect(finalizersCalled).to.equal(1);
+  });
+
+  it('the retry loop detects a genuine leak', async function () {
+    const objHolder: { obj: any } = {
+      obj: await createTaggedObjectFromInsideRepl(),
+    };
+    // Simulate a real leak: an extra strong reference that outlives
+    // objHolder, unlike the benign weak-handle timing artifact above.
+    const leakSink: any[] = [objHolder.obj];
+    objHolder.obj = null;
+
+    let leaked: { index: number }[] = [];
+    for (let attempt = 0; attempt < 2; attempt++) {
+      await new Promise(setImmediate);
+      leaked = [...taggedObjectsInHeap(await takeHeapSnapshot())];
+    }
+    expect(leaked).to.have.lengthOf(1);
+    expect(leakSink).to.have.lengthOf(1); // keep leakSink alive until here
   });
 });
