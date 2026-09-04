@@ -82,6 +82,24 @@ export async function generateShrinkwrap(
     lockfile.name = packageJson.name;
     lockfile.version = packageJson.version;
     lockfile.packages[''] = { ...prodPkg };
+
+    // When a workspace needs a different version of a dependency than the one
+    // npm hoisted to the monorepo root, the lockfile nests it under
+    // `packages/<name>/node_modules/...`. Those paths are unreachable from the
+    // root entry we just swapped in, so npm would resolve those ranges against
+    // the registry instead of the lockfile. Re-key them onto the new root's
+    // node_modules, overriding the hoisted versions.
+    const workspacePrefix = `${path
+      .relative(projectRoot, packageDir)
+      .split(path.sep)
+      .join('/')}/node_modules/`;
+    for (const [key, entry] of Object.entries(lockfile.packages)) {
+      if (!key.startsWith(workspacePrefix)) continue;
+      lockfile.packages[`node_modules/${key.slice(workspacePrefix.length)}`] =
+        entry;
+      delete lockfile.packages[key];
+    }
+
     await fs.writeFile(
       path.join(tmpDir, 'package-lock.json'),
       JSON.stringify(lockfile, null, 2)
@@ -99,6 +117,7 @@ export async function generateShrinkwrap(
         '--ignore-scripts',
         '--no-audit',
         '--no-fund',
+        '--offline',
       ],
       {
         cwd: tmpDir,
