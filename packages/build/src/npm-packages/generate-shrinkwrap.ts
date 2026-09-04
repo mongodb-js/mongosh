@@ -87,12 +87,33 @@ export async function generateShrinkwrap(
       JSON.stringify(lockfile, null, 2)
     );
 
-    // Let npm prune the lockfile to only the reachable dependencies
-    spawnSync('npm', ['install', '--package-lock-only', '--ignore-scripts'], {
-      cwd: tmpDir,
-      stdio: 'pipe',
-      encoding: 'utf8',
-    });
+    // Let npm prune the lockfile to only the reachable dependencies.
+    // --no-audit/--no-fund keep npm from making network calls we do not need
+    // here: we only want the lockfile rewritten, and the audit endpoint in
+    // particular has been slow enough to time this out in CI.
+    const result = spawnSync(
+      'npm',
+      [
+        'install',
+        '--package-lock-only',
+        '--ignore-scripts',
+        '--no-audit',
+        '--no-fund',
+      ],
+      {
+        cwd: tmpDir,
+        stdio: 'pipe',
+        encoding: 'utf8',
+      }
+    );
+    if (result.error) throw result.error;
+    if (result.status !== 0) {
+      throw new Error(
+        `npm install --package-lock-only failed with status ${result.status}: ${
+          result.stderr || result.stdout
+        }`
+      );
+    }
 
     // Read the pruned lockfile and post-process it
     const prunedContent = await fs.readFile(
