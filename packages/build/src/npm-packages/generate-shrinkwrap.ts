@@ -83,21 +83,21 @@ export async function generateShrinkwrap(
     lockfile.version = packageJson.version;
     lockfile.packages[''] = { ...prodPkg };
 
-    // When a workspace needs a different version of a dependency than the one
-    // npm hoisted to the monorepo root, the lockfile nests it under
-    // `packages/<name>/node_modules/...`. Those paths are unreachable from the
-    // root entry we just swapped in, so npm would resolve those ranges against
-    // the registry instead of the lockfile. Re-key them onto the new root's
-    // node_modules, overriding the hoisted versions.
-    const workspacePrefix = `${path
-      .relative(projectRoot, packageDir)
-      .split(path.sep)
-      .join('/')}/node_modules/`;
-    for (const [key, entry] of Object.entries(lockfile.packages)) {
-      if (!key.startsWith(workspacePrefix)) continue;
-      lockfile.packages[`node_modules/${key.slice(workspacePrefix.length)}`] =
-        entry;
-      delete lockfile.packages[key];
+    // Move the workspace's nested dependencies onto the new root, so their
+    // versions resolve from the lockfile rather than from the registry.
+    const workspaceLocation = (
+      lockfile.packages[`node_modules/${packageJson.name}`] as
+        | LockfilePackageEntry
+        | undefined
+    )?.resolved;
+    if (workspaceLocation) {
+      const workspacePrefix = `${workspaceLocation}/node_modules/`;
+      for (const [key, entry] of Object.entries(lockfile.packages)) {
+        if (!key.startsWith(workspacePrefix)) continue;
+        lockfile.packages[`node_modules/${key.slice(workspacePrefix.length)}`] =
+          entry;
+        delete lockfile.packages[key];
+      }
     }
 
     await fs.writeFile(
@@ -106,10 +106,9 @@ export async function generateShrinkwrap(
     );
 
     // Let npm prune the lockfile to only the reachable dependencies.
-    // --no-audit/--no-fund keep npm from making network calls we do not need
-    // here: we only want the lockfile rewritten, and the audit endpoint in
-    // particular has been slow enough to time this out in CI.
-    const result = spawnSync(
+    // --offline keeps this free of network calls and fails loudly if a version
+    // cannot be resolved from the lockfile.
+    spawnSync(
       'npm',
       [
         'install',
@@ -125,14 +124,6 @@ export async function generateShrinkwrap(
         encoding: 'utf8',
       }
     );
-    if (result.error) throw result.error;
-    if (result.status !== 0) {
-      throw new Error(
-        `npm install --package-lock-only failed with status ${result.status}: ${
-          result.stderr || result.stdout
-        }`
-      );
-    }
 
     // Read the pruned lockfile and post-process it
     const prunedContent = await fs.readFile(
