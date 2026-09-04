@@ -1,0 +1,72 @@
+[package]
+name = "smongo-engine"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+description = "Pure Rust MongoDB-compatible embedded database engine"
+
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+bson = "2"
+chrono = "0.4"
+regex = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+uuid = { version = "1", features = ["v4"] }
+rand = "0.8"
+wasm-bindgen = "0.2"
+
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+redb = "2.3"
+parking_lot = "0.12.5"
+s2 = "0.0.13"
+roaring = { version = "0.10", optional = true }
+tempfile = "3"
+
+[features]
+default = []
+bitmap = ["roaring"]
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+getrandom = { version = "0.2", features = ["js"] }
+console_error_panic_hook = "0.1"
+js-sys = "0.3"
+web-sys = { version = "0.3", features = [
+    "console",
+    "FileSystemDirectoryHandle",
+    "FileSystemFileHandle",
+    "FileSystemReadWriteOptions",
+    "FileSystemSyncAccessHandle",
+    "FileSystemGetDirectoryOptions",
+    "FileSystemGetFileOptions",
+    "FileSystemCreateWritableOptions",
+    "StorageManager",
+    "Navigator",
+    "Window",
+] }
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "engine_bench"
+harness = false
+
+[package.metadata.wasm-pack.profile.release]
+# Rust's wasm32-unknown-unknown defaults to 6 post-MVP features that wasm-opt
+# doesn't enable by default. Mirror them here so any wasm-opt >=117 works.
+wasm-opt = [
+    "-Oz",
+    "--enable-bulk-memory",
+    "--enable-multivalue",
+    "--enable-mutable-globals",
+    "--enable-nontrapping-float-to-int",
+    "--enable-reference-types",
+    "--enable-sign-ext",
+]
+
+[lints]
+workspace = true

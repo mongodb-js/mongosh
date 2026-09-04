@@ -39,6 +39,7 @@ export const USAGE = `
         --nodb                                 ${i18n.__('cli-repl.args.nodb')}
         --norc                                 ${i18n.__('cli-repl.args.norc')}
         --eval [arg]                           ${i18n.__('cli-repl.args.eval')}
+        --from [arg]                           ${i18n.__('cli-repl.args.from')}
         --json[=canonical|relaxed]             ${i18n.__('cli-repl.args.json')}
         --retryWrites[=true|false]             ${i18n.__(
           'cli-repl.args.retryWrites'

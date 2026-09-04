@@ -96,6 +96,10 @@ const config = {
       'commonjs2 ../build/Release/native_machine_id.node',
     '../build/Debug/native_machine_id.node':
       'commonjs2 ../build/Debug/native_machine_id.node',
+    // Vendored smongo embedded engine (native addon). Resolved at runtime by
+    // Node so it is not bundled or eagerly snapshotted.
+    '@mongosh/smongo': 'commonjs2 @mongosh/smongo',
+    'smongo-node.node': 'commonjs2 smongo-node.node',
   },
 
   externalsPresets: {
