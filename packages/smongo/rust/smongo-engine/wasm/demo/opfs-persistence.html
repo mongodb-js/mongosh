@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OPFS persistence — smongo WASM</title>
+  <style>
+    body { font-family: 'Consolas', 'Courier New', monospace; max-width: 900px; margin: 40px auto; padding: 0 20px; background: #1e1e1e; color: #d4d4d4; }
+    h1 { color: #4ec9b0; border-bottom: 2px solid #4ec9b0; padding-bottom: 10px; }
+    pre { background: #2d2d2d; border: 1px solid #3e3e3e; border-radius: 4px; padding: 16px; min-height: 100px; overflow-x: auto; }
+    button { background: #4ec9b0; border: none; color: #1e1e1e; padding: 10px 20px; margin: 10px 8px 10px 0; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    button:hover { background: #6ee7c7; }
+    .pass { color: #4ec9b0; }
+    .fail { color: #f48771; }
+    a { color: #4ec9b0; }
+  </style>
+</head>
+<body>
+  <h1>OPFS persistence</h1>
+  <p style="color:#dcdcaa;">Chromium + secure context. One writer per DB name; close other tabs using <code>persistTest</code>.</p>
+  <p><a href="index.html">← Demos</a></p>
+  <div>
+    <button type="button" id="write">Write</button>
+    <button type="button" id="read">Read</button>
+    <button type="button" id="clear">Wipe storage</button>
+  </div>
+  <pre id="output">Write a document, reload the page, then Read. “Wipe” closes OPFS handles and deletes the database folder.</pre>
+
+  <script type="module">
+    import { initOpfsDatabase, wipeOpfsDatabaseDirectory } from '../smongo-browser.js';
+
+    const DB = 'persistTest';
+    const COL = 'testData';
+    const output = document.getElementById('output');
+
+    const log = (msg, className = '') => {
+      const line = document.createElement('div');
+      if (className) line.className = className;
+      line.textContent = msg;
+      output.appendChild(line);
+    };
+
+    document.getElementById('write').onclick = async () => {
+      try {
+        output.textContent = '';
+        log('Opening OPFS…');
+        const db = await initOpfsDatabase(DB, [COL]);
+        log('✓ Database ready', 'pass');
+        const coll = db.collection(COL);
+        const doc = { test: 'persistence', timestamp: Date.now(), message: 'Survives reload' };
+        await coll.insertOne(doc);
+        log('✓ Written', 'pass');
+        log(JSON.stringify(doc, null, 2));
+        log('Reload the page and use Read.', 'pass');
+      } catch (err) {
+        log(`❌ ${err.message}`, 'fail');
+        console.error(err);
+      }
+    };
+
+    document.getElementById('read').onclick = async () => {
+      try {
+        output.textContent = '';
+        log('Reading…');
+        const db = await initOpfsDatabase(DB, [COL]);
+        const coll = db.collection(COL);
+        const docs = await coll.find({});
+        log(`✓ ${docs.length} document(s)`, docs.length ? 'pass' : 'fail');
+        docs.forEach((d) => log(JSON.stringify(d, null, 2)));
+      } catch (err) {
+        log(`❌ ${err.message}`, 'fail');
+        console.error(err);
+      }
+    };
+
+    document.getElementById('clear').onclick = async () => {
+      try {
+        output.textContent = '';
+        log('Closing handles and removing OPFS directory…');
+        await wipeOpfsDatabaseDirectory(DB);
+        log('✓ Wiped. You can Write again to recreate.', 'pass');
+      } catch (err) {
+        log(`❌ ${err.message}`, 'fail');
+        console.error(err);
+      }
+    };
+  </script>
+</body>
+</html>

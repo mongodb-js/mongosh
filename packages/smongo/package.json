@@ -1,0 +1,20 @@
+{
+  "name": "@mongosh/smongo",
+  "version": "0.0.1",
+  "description": "Vendored smongo embedded engine (Rust/napi) with an in-process wire server, for mongosh --from",
+  "private": true,
+  "main": "index.js",
+  "types": "index.d.ts",
+  "napi": {
+    "name": "smongo-node",
+    "triples": {
+      "defaults": true
+    }
+  },
+  "scripts": {
+    "build:rust": "cargo build --manifest-path rust/Cargo.toml -p smongo-node",
+    "copy:native": "cp rust/target/debug/libsmongo_node.so ./smongo-node.node",
+    "build:native": "npm run build:rust && npm run copy:native"
+  },
+  "license": "Apache-2.0"
+}

@@ -1,0 +1,29 @@
+[workspace]
+resolver = "2"
+members = [
+    "smongo-engine",
+    "smongo-macros",
+    "smongo-node",
+]
+
+[workspace.package]
+version = "1.2.8"
+edition = "2021"
+rust-version = "1.88"
+
+[workspace.lints.rust]
+unsafe_op_in_unsafe_fn = "warn"
+
+[workspace.lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "warn"
+todo = "warn"
+dbg_macro = "warn"
+uninlined_format_args = "allow"
+
+# Profiles must live on the workspace root (not member crates) or Cargo ignores them.
+[profile.release]
+lto = true
+codegen-units = 1
+strip = "symbols"

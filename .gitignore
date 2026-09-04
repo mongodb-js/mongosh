@@ -32,3 +32,7 @@ docs/superpowers
 telemetry-sink-endpoint.txt
 telemetry-sink-events.ndjson
 telemetry-sink.pid
+
+# Vendored smongo embedded engine build artifacts
+packages/smongo/rust/target/
+packages/smongo/smongo-node.node

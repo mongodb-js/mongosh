@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OPFS lock handoff</title>
+  <style>
+    body { font-family: 'Consolas', 'Courier New', monospace; max-width: 900px; margin: 40px auto; padding: 0 20px; background: #1e1e1e; color: #d4d4d4; }
+    h1 { color: #4ec9b0; border-bottom: 2px solid #4ec9b0; padding-bottom: 10px; }
+    pre { background: #2d2d2d; border: 1px solid #3e3e3e; border-radius: 4px; padding: 16px; min-height: 100px; }
+    button { background: #4ec9b0; border: none; color: #1e1e1e; padding: 10px 20px; margin: 10px 8px 10px 0; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    button:disabled { background: #555; color: #aaa; cursor: not-allowed; }
+    .pass { color: #4ec9b0; }
+    .fail { color: #f48771; }
+    .info { color: #dcdcaa; }
+    a { color: #4ec9b0; }
+  </style>
+</head>
+<body>
+  <h1>Lock handoff between tabs</h1>
+  <p><a href="index.html">← Demos</a></p>
+  <p class="info">Other tabs can already use the DB via RPC while you stay owner (see <a href="opfs-multitab-shared.html">multi-tab shared</a>). This page shows <code>closeOpfsDatabase</code>: after Close, another tab can become the OPFS owner.</p>
+  <ol class="info" style="line-height:1.7;">
+    <li>Open database in this tab.</li>
+    <li>Click <strong>Close database</strong> (releases Web Lock + worker).</li>
+    <li>Open <a href="opfs-multitab-handoff.html" target="_blank" rel="noopener">this page</a> in another tab and open there — should succeed as the new owner.</li>
+  </ol>
+  <div>
+    <button type="button" id="open">Open database</button>
+    <button type="button" id="close" disabled>Close database</button>
+  </div>
+  <pre id="output"></pre>
+
+  <script type="module">
+    import { initOpfsDatabase, closeOpfsDatabase } from '../smongo-browser.js';
+
+    const DB = 'sequentialTest';
+    const output = document.getElementById('output');
+    const openBtn = document.getElementById('open');
+    const closeBtn = document.getElementById('close');
+    const tabId = Math.random().toString(36).substring(2, 8);
+
+    const log = (msg, className = '') => {
+      const line = document.createElement('div');
+      if (className) line.className = className;
+      line.textContent = msg;
+      output.appendChild(line);
+    };
+
+    log(`Tab ${tabId}`, 'info');
+
+    openBtn.onclick = async () => {
+      try {
+        output.textContent = '';
+        log(`Tab ${tabId}`, 'info');
+        await initOpfsDatabase(DB, ['testData']);
+        log('✓ Lock acquired in this tab.', 'pass');
+        openBtn.disabled = true;
+        closeBtn.disabled = false;
+      } catch (err) {
+        log(`❌ ${err.message}`, 'fail');
+      }
+    };
+
+    closeBtn.onclick = async () => {
+      try {
+        log('Releasing lock and worker…', 'info');
+        await closeOpfsDatabase(DB);
+        log('✓ Released. Another tab can open now.', 'pass');
+        openBtn.disabled = false;
+        closeBtn.disabled = true;
+      } catch (err) {
+        log(`❌ ${err.message}`, 'fail');
+      }
+    };
+  </script>
+</body>
+</html>
