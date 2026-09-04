@@ -130,6 +130,8 @@ mongosh --from ./data.csv
 - **CSV typing**: cells are inferred as numbers, booleans, or strings; empty cells
   become `null`; quoted fields (including embedded commas/newlines) are handled.
 - **Queries**: `find`, `aggregate`, `count` (via the MongoDB driver over the wire).
+- **Cross-collection aggregation**: `$unionWith`, `$lookup`, and `$graphLookup`
+  resolve other ingested collections (e.g. `db.colours.aggregate([{ $unionWith: { coll: "data", pipeline: [] } }])`).
 - **Multiple `--from` files** in one session.
 - **Interactive + `--eval`** modes.
 - **Cleanup**: the temporary engine directory and port are released on exit.

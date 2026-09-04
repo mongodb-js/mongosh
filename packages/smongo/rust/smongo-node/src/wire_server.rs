@@ -18,6 +18,7 @@ use std::time::Duration;
 use bson::{doc, Bson, Document};
 use napi_derive::napi;
 
+use smongo_engine::aggregation::DatabaseContext;
 use smongo_engine::collection::{Collection as EngineCollection, FindOptions as EngineFindOptions};
 use smongo_engine::database::Database as EngineDatabase;
 
@@ -380,7 +381,20 @@ fn handle_aggregate(db: &EngineDatabase, db_name: &str, cmd: &Document) -> Docum
         Ok(c) => c,
         Err(e) => return doc! { "ok": 0, "errmsg": e.to_string() },
     };
-    match coll.aggregate(pipeline) {
+    // Run through a DatabaseContext so cross-collection stages ($lookup,
+    // $unionWith, $graphLookup) can resolve other collections.
+    let source_docs = match coll.find(Document::new()) {
+        Ok(docs) => docs,
+        Err(e) => return doc! { "ok": 0, "errmsg": e.to_string() },
+    };
+    let ctx = DatabaseContext::new(db);
+    let result = smongo_engine::aggregation::aggregate_with_db_collection(
+        source_docs,
+        &pipeline,
+        &ctx,
+        Some(coll_name),
+    );
+    match result {
         Ok(docs) => {
             let batch = docs.into_iter().take(DEFAULT_BATCH_SIZE).collect();
             cursor_ok(db_name, coll_name, batch)
