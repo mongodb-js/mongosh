@@ -26,6 +26,12 @@ function test_for_version() {
   FAILED_EXPLICIT=$(try_connect_explicit 'writer@EXAMPLE.COM' 'Password1!')
   FAILED_CONNECTION_STRING=$(try_connect_connection_string 'mongodb://writer%40EXAMPLE.COM:Password1!@localhost:30017/$external?authMechanism=PLAIN' 'writer@EXAMPLE.COM')
 
+  # Dump the container logs before tearing the stack down, so that a failure
+  # here is diagnosable (e.g. mongod not having started up in time).
+  if [ $FAILED_EXPLICIT = yes ] || [ $FAILED_CONNECTION_STRING = yes ]; then
+    MONGODB_VERSION="$1" docker compose -f docker/ldap/docker-compose.yaml logs
+  fi
+
   MONGODB_VERSION="$1" docker compose -f docker/ldap/docker-compose.yaml down
 
   if [ $FAILED_EXPLICIT = yes ]; then
