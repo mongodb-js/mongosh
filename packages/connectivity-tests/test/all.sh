@@ -20,7 +20,8 @@ fi
 git clone https://github.com/mongodb-js/devtools-docker-test-envs.git test-envs
 cd test-envs
 
-git checkout a1da39f5086cc36bef6b6fb97cf590aed56e4e17
+# TODO(MONGOSH-3642): Update once the devtools-docker-test-envs fix is merged to main.
+git checkout c68e74349f6f644892b2728cb3b10cf0669abe57
 
 "$CONNECTIVITY_TEST_SOURCE_DIR/ldap.sh"
 "$CONNECTIVITY_TEST_SOURCE_DIR/localhost.sh"
