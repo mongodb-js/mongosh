@@ -53,8 +53,94 @@ describe('package zip', function () {
       path.join(tmpPkg.tarballDir, 'outfile.zip'),
       execFileStub
     );
-    expect(execFileStub).to.have.been.calledTwice;
+    const outFile = path.join(tmpPkg.tarballDir, 'outfile.zip');
+    expect(execFileStub.callCount).to.equal(2);
     expect(execFileStub.getCalls()[1].args[0]).to.equal('7z');
+    expect(execFileStub.getCalls()[1].args[1]).to.deep.equal([
+      'a',
+      outFile,
+      '.',
+    ]);
+  });
+
+  // TODO(DEVPROD-42642): drop the workaround test once 7-Zip is restored on the Windows image.
+  it('falls back to 7z.exe if the bare 7z does not resolve', async function () {
+    const execFileStub = sinon.stub();
+    for (const missing of ['zip', '7z']) {
+      execFileStub
+        .withArgs(missing, sinon.match.any, sinon.match.any)
+        .rejects(new FakeNOENTError());
+    }
+
+    const outFile = path.join(tmpPkg.tarballDir, 'outfile.zip');
+    await createZipPackage(tmpPkg.pkgConfig, outFile, execFileStub);
+    expect(execFileStub.callCount).to.equal(3);
+    expect(execFileStub.lastCall.args[0]).to.equal('7z.exe');
+    expect(execFileStub.lastCall.args[1]).to.deep.equal(['a', outFile, '.']);
+  });
+
+  // TODO(DEVPROD-42642): drop the workaround test once 7-Zip is restored on the Windows image.
+  it('falls back to the 7-Zip install path if it is not on PATH at all', async function () {
+    const execFileStub = sinon.stub();
+    for (const missing of ['zip', '7z', '7z.exe']) {
+      execFileStub
+        .withArgs(missing, sinon.match.any, sinon.match.any)
+        .rejects(new FakeNOENTError());
+    }
+
+    const outFile = path.join(tmpPkg.tarballDir, 'outfile.zip');
+    await createZipPackage(tmpPkg.pkgConfig, outFile, execFileStub);
+    expect(execFileStub.callCount).to.equal(4);
+    expect(execFileStub.lastCall.args[0]).to.equal(
+      'C:\\Program Files\\7-Zip\\7z.exe'
+    );
+    expect(execFileStub.lastCall.args[1]).to.deep.equal(['a', outFile, '.']);
+  });
+
+  // TODO(DEVPROD-42642): drop the workaround test once 7-Zip is restored on the Windows image.
+  it('tries the x86 7-Zip install path last', async function () {
+    const execFileStub = sinon.stub();
+    for (const missing of [
+      'zip',
+      '7z',
+      '7z.exe',
+      'C:\\Program Files\\7-Zip\\7z.exe',
+    ]) {
+      execFileStub
+        .withArgs(missing, sinon.match.any, sinon.match.any)
+        .rejects(new FakeNOENTError());
+    }
+
+    await createZipPackage(
+      tmpPkg.pkgConfig,
+      path.join(tmpPkg.tarballDir, 'outfile.zip'),
+      execFileStub
+    );
+    expect(execFileStub.callCount).to.equal(5);
+    expect(execFileStub.lastCall.args[0]).to.equal(
+      'C:\\Program Files (x86)\\7-Zip\\7z.exe'
+    );
+  });
+
+  // TODO(DEVPROD-42642): keep this test, but update the expected last
+  // candidate once the workaround entries are dropped.
+  it('rethrows ENOENT if no archiver is available at all', async function () {
+    const execFileStub = sinon.stub().rejects(new FakeNOENTError());
+
+    try {
+      await createZipPackage(
+        tmpPkg.pkgConfig,
+        path.join(tmpPkg.tarballDir, 'outfile.zip'),
+        execFileStub
+      );
+    } catch (e: any) {
+      expect(e.code).to.equal('ENOENT');
+      expect(execFileStub.lastCall.args[0]).to.equal(
+        'C:\\Program Files (x86)\\7-Zip\\7z.exe'
+      );
+      return;
+    }
+    expect.fail('Expected error');
   });
 
   it('rethrows errors', async function () {

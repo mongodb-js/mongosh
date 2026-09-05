@@ -290,6 +290,21 @@ function wrapNoSyncDomainError<Args extends any[], Ret>(
   repl: any
 ) {
   return (...args: Args): Ret => {
+    // Node.js dropped the REPL's dependency on `domain` in favour of _handleError
+    // https://github.com/nodejs/node/commit/a9da9ffc04c923f383a0aa220123687909dd2263
+    // Where exists, prefer it and skip loading `domain`, which emits a DEP0032 warning into our output.
+    const origHandleError = repl._handleError;
+    if (origHandleError) {
+      repl._handleError = (err: unknown) => {
+        throw err;
+      };
+      try {
+        return fn(...args);
+      } finally {
+        repl._handleError = origHandleError;
+      }
+    }
+
     // 'domain' is not supported in startup snapshots yet.
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { Domain } = require('domain');
@@ -324,19 +339,9 @@ function wrapNoSyncDomainError<Args extends any[], Ret>(
       return origEmit.call(this, ev, ...eventArgs);
     };
 
-    // _handleError is used instead of the above since
-    // https://github.com/nodejs/node/commit/a9da9ffc04c923f383a0aa220123687909dd2263
-    // which is nice, since it's quite a bit cleaner to monkey-patch
-    // and could be turned into an actual API more easily, but it still requires
-    // us to monkey-patch here for now
-    const origHandleError = repl._handleError;
-    repl._handleError = (err: unknown) => {
-      throw err;
-    };
     try {
       return fn(...args);
     } finally {
-      repl._handleError = origHandleError;
       // Reset the `emit` function after synchronous evaluation, because
       // we need the Domain functionality for the asynchronous bits.
       Domain.prototype.emit = origEmit;
