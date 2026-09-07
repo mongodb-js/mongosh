@@ -44,6 +44,33 @@ const GSSAPI_SERVICE_NAME_UNSUPPORTED =
   'cli-repl.uri-generator.gssapi-service-name-unsupported';
 
 /**
+ * The schemes naming an embedded MongoDB data directory rather than a server, as the Python
+ * binding spells them. Neither survives a strict connection string parse, so an embedded
+ * address is rewritten into a `mongodb://` one carrying the directory as a query parameter,
+ * which the service provider turns into an in-process engine before the driver sees it.
+ */
+const EMBEDDED_SCHEMES = ['mongodb_embedded://', 'mongodb+embedded://'];
+const EMBEDDED_DIRECTORY_PARAM = 'embeddedMongodb';
+
+/**
+ * The data directory an embedded address names, or undefined if this is not one.
+ */
+function embeddedDirectory(uri: string): string | undefined {
+  for (const scheme of EMBEDDED_SCHEMES) {
+    if (!uri.startsWith(scheme)) continue;
+    const directory = uri.slice(scheme.length);
+    if (!directory || directory.includes('?') || directory.includes('#')) {
+      throw new MongoshInvalidInputError(
+        'embedded MongoDB URI must contain only a database directory',
+        CommonErrors.InvalidArgument
+      );
+    }
+    return decodeURIComponent(directory);
+  }
+  return undefined;
+}
+
+/**
  * Validate conflicts in the options.
  */
 function validateConflicts(
@@ -96,7 +123,7 @@ function validateHost(host: string): void {
   const invalidCharacter = /[^a-zA-Z0-9.:[\]_-]/.exec(host);
   if (invalidCharacter) {
     throw new MongoshInvalidInputError(
-      `${i18n.__(INVALID_HOST) as string}: ${invalidCharacter[0]}`,
+      `${i18n.__(INVALID_HOST)}: ${invalidCharacter[0]}`,
       CommonErrors.InvalidArgument
     );
   }
@@ -245,6 +272,16 @@ function generateUriNormalized(options: CliOptions): ConnectionString {
         options
       )}/?directConnection=true`
     );
+  }
+
+  const directory = embeddedDirectory(uri);
+  if (directory !== undefined) {
+    validateConflicts(options);
+    const connectionString = new ConnectionString(
+      'mongodb://embedded/?directConnection=true'
+    );
+    connectionString.searchParams.set(EMBEDDED_DIRECTORY_PARAM, directory);
+    return connectionString;
   }
 
   // mongodb+srv:// URI is provided, treat as correct and immediately return
