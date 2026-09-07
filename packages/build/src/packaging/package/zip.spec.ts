@@ -63,7 +63,7 @@ describe('package zip', function () {
     ]);
   });
 
-  it('rethrows ENOENT if no archiver is available at all', async function () {
+  it('does not swallow ENOENT when no archiver is available', async function () {
     const execFileStub = sinon.stub().rejects(new FakeNOENTError());
 
     try {
