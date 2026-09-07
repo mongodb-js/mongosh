@@ -61,11 +61,11 @@ describe('CliRepl GC', function () {
 
   function* listNodesInHeapSnapshot(
     snapshotString: string
-  ): Iterable<{ type: string; name: string }> {
+  ): Iterable<{ type: string; name: string; index: number }> {
     const { snapshot, nodes, strings } = JSON.parse(snapshotString);
     const { node_fields, node_types } = snapshot.meta;
     for (let i = 0; i < nodes.length; i += node_fields.length) {
-      const description: any = {};
+      const description: any = { index: i / node_fields.length };
       for (let j = 0; j < node_fields.length; j++) {
         const type = node_types[j];
         if (Array.isArray(type)) {
@@ -85,7 +85,7 @@ describe('CliRepl GC', function () {
   }
   function* taggedObjectsInHeap(
     snapshot: string
-  ): Iterable<{ type: string; name: string }> {
+  ): Iterable<{ type: string; name: string; index: number }> {
     for (const node of listNodesInHeapSnapshot(snapshot)) {
       if (node.type === 'object' && node.name === 'CliReplGcTaggedObject') {
         yield node;
@@ -107,11 +107,36 @@ describe('CliRepl GC', function () {
       1
     );
     objHolder.obj = null;
-    await new Promise(setImmediate);
-    expect([...taggedObjectsInHeap(await takeHeapSnapshot())]).to.have.lengthOf(
-      0
-    );
+    // The REPL's V8 Context is held by a weak Global handle, and releasing
+    // a weak handle takes two GC passes: one to notice it's unreachable and
+    // queue it for release, another to actually reclaim it. If a heap
+    // snapshot's GC lands between those two passes, the Context - and the
+    // "a" property still pointing at our object - is briefly visible.
+    // Re-check a few times so that this false positive doesn't fail the
+    // test; a genuine leak (a strong reference) stays visible on every
+    // attempt.
+    let leaked: { index: number }[] = [];
+    for (let attempt = 0; attempt < 2; attempt++) {
+      await new Promise(setImmediate);
+      leaked = [...taggedObjectsInHeap(await takeHeapSnapshot())];
+      if (leaked.length === 0) break;
+    }
+    expect(leaked).to.have.lengthOf(0);
     await new Promise(setImmediate);
     expect(finalizersCalled).to.equal(1);
+  });
+
+  it('the retry loop detects a genuine leak', async function () {
+    // A strong reference, unlike the benign weak-handle timing artifact in the
+    // test above: the retry loop must keep reporting this on every attempt.
+    const leakSink: any[] = [await createTaggedObjectFromInsideRepl()];
+
+    let leaked: { index: number }[] = [];
+    for (let attempt = 0; attempt < 2; attempt++) {
+      await new Promise(setImmediate);
+      leaked = [...taggedObjectsInHeap(await takeHeapSnapshot())];
+    }
+    expect(leaked).to.have.lengthOf(1);
+    expect(leakSink).to.have.lengthOf(1); // keep leakSink alive until here
   });
 });
