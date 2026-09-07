@@ -127,13 +127,9 @@ describe('CliRepl GC', function () {
   });
 
   it('the retry loop detects a genuine leak', async function () {
-    const objHolder: { obj: any } = {
-      obj: await createTaggedObjectFromInsideRepl(),
-    };
-    // Simulate a real leak: an extra strong reference that outlives
-    // objHolder, unlike the benign weak-handle timing artifact above.
-    const leakSink: any[] = [objHolder.obj];
-    objHolder.obj = null;
+    // A strong reference, unlike the benign weak-handle timing artifact in the
+    // test above: the retry loop must keep reporting this on every attempt.
+    const leakSink: any[] = [await createTaggedObjectFromInsideRepl()];
 
     let leaked: { index: number }[] = [];
     for (let attempt = 0; attempt < 2; attempt++) {
