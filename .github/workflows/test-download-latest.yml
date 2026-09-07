@@ -35,4 +35,4 @@ jobs:
         run: ./download_latest.sh
 
       - name: Run smoke tests
-        run: npx -y mongodb-runner -- exec -- sh -c 'env MONGOSH_SMOKE_TEST_SERVER=$MONGODB_URI ./mongosh --smokeTests'
+        run: npx -y @mongodb-js/mongodb-runner -- exec -- sh -c 'env MONGOSH_SMOKE_TEST_SERVER=$MONGODB_URI ./mongosh --smokeTests'

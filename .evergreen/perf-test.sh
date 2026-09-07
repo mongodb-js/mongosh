@@ -18,7 +18,7 @@ if [ "${MONGOSH_PERF_TELEMETRY:-}" = "1" ]; then
 fi
 
 # shellcheck disable=SC2016 # $MONGODB_URI is deliberately expanded by the inner shell, which mongodb-runner invokes with the URI in its environment
-npx -y mongodb-runner exec -t standalone --version=7.0.x-enterprise -- \
+npx -y @mongodb-js/mongodb-runner exec -t standalone --version=7.0.x-enterprise -- \
   sh -c 'MONGOSH_SMOKE_TEST_SERVER="$MONGODB_URI" ./dist/mongosh --perfTests > perf_results.json'
 
 if [ "${MONGOSH_PERF_TELEMETRY:-}" = "1" ]; then
