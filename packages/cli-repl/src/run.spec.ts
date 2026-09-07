@@ -109,11 +109,13 @@ describe('CLI entry point', function () {
       });
       let stdout = '';
       let promptedForPassword = false;
+      // The write can race the child exiting, so handle EPIPE in
+      // the callback rather than letting it be thrown asynchronously.
       proc.stdout?.setEncoding('utf8').on('data', (chunk) => {
         stdout += chunk;
         if (stdout.includes('Enter password')) {
           promptedForPassword = true;
-          proc.stdin?.write('\n');
+          proc.stdin?.write('\n', () => {});
         }
       });
 
@@ -130,11 +132,13 @@ describe('CLI entry point', function () {
       });
       let stderr = '';
       let promptedForPassword = false;
+      // The write can race the child exiting, so handle EPIPE in
+      // the callback rather than letting it be thrown asynchronously.
       proc.stderr?.setEncoding('utf8').on('data', (chunk) => {
         stderr += chunk;
         if (stderr.includes('Enter password')) {
           promptedForPassword = true;
-          proc.stdin?.write('\n');
+          proc.stdin?.write('\n', () => {});
         }
       });
 
