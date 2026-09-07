@@ -53,8 +53,31 @@ describe('package zip', function () {
       path.join(tmpPkg.tarballDir, 'outfile.zip'),
       execFileStub
     );
-    expect(execFileStub).to.have.been.calledTwice;
+    const outFile = path.join(tmpPkg.tarballDir, 'outfile.zip');
+    expect(execFileStub.callCount).to.equal(2);
     expect(execFileStub.getCalls()[1].args[0]).to.equal('7z');
+    expect(execFileStub.getCalls()[1].args[1]).to.deep.equal([
+      'a',
+      outFile,
+      '.',
+    ]);
+  });
+
+  it('does not swallow ENOENT when no archiver is available', async function () {
+    const execFileStub = sinon.stub().rejects(new FakeNOENTError());
+
+    try {
+      await createZipPackage(
+        tmpPkg.pkgConfig,
+        path.join(tmpPkg.tarballDir, 'outfile.zip'),
+        execFileStub
+      );
+    } catch (e: any) {
+      expect(e.code).to.equal('ENOENT');
+      expect(execFileStub.lastCall.args[0]).to.equal('7z');
+      return;
+    }
+    expect.fail('Expected error');
   });
 
   it('rethrows errors', async function () {
