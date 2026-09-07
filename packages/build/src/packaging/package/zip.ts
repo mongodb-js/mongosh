@@ -8,23 +8,6 @@ import {
 import type { PackageInformation } from './package-information';
 
 /**
- * The list of external tools that we can use to create a ZIP archive, in the
- * order in which we try them. Using these has the advantage of preserving
- * executable permissions as opposed to using libraries like adm-zip.
- *
- * `zip` is what we use on the evergreen macOS machines, `7z` on the Windows
- * ones.
- */
-function zipCommandCandidates(
-  outFile: string
-): { cmd: string; args: string[] }[] {
-  return [
-    { cmd: 'zip', args: ['-r', outFile, '.'] },
-    { cmd: '7z', args: ['a', outFile, '.'] },
-  ];
-}
-
-/**
  * Create a ZIP archive.
  */
 export async function createZipPackage(
@@ -32,19 +15,19 @@ export async function createZipPackage(
   outFile: string,
   execFile: typeof execFileFn = execFileFn
 ): Promise<void> {
+  // Let's assume that either zip or 7z are installed. That's true for the
+  // evergreen macOS and Windows machines, respectively, at this point.
+  // In either case, using these has the advantage of preserving executable permissions
+  // as opposed to using libraries like adm-zip.
   const filename = path.basename(outFile).replace(/\.[^.]+$/, '');
   const tmpDir = await createCompressedArchiveContents(filename, pkg);
-  const candidates = zipCommandCandidates(outFile);
-  for (const [index, { cmd, args }] of candidates.entries()) {
-    try {
-      await execFile(cmd, args, { cwd: tmpDir });
-      break;
-    } catch (err: any) {
-      // Only a missing binary makes us move on to the next candidate.
-      // An actual failure of one of these tools is a genuine error.
-      if (err?.code !== 'ENOENT' || index === candidates.length - 1) {
-        throw err;
-      }
+  try {
+    await execFile('zip', ['-r', outFile, '.'], { cwd: tmpDir });
+  } catch (err: any) {
+    if (err?.code === 'ENOENT') {
+      await execFile('7z', ['a', outFile, '.'], { cwd: tmpDir });
+    } else {
+      throw err;
     }
   }
   await promisify(rimraf)(tmpDir);
