@@ -80,82 +80,6 @@ describe('CliRepl GC', function () {
     }
   }
 
-  function retainerPath(snapshotString: string, targetIndex: number): string {
-    const {
-      snapshot,
-      nodes,
-      edges,
-      strings,
-    }: {
-      snapshot: {
-        meta: {
-          node_fields: string[];
-          node_types: (string | string[])[];
-          edge_fields: string[];
-          edge_types: (string | string[])[];
-        };
-      };
-      nodes: number[];
-      edges: number[];
-      strings: string[];
-    } = JSON.parse(snapshotString);
-    const { node_fields, node_types, edge_fields, edge_types } = snapshot.meta;
-    const nodeCount = nodes.length / node_fields.length;
-    const edgeCountOffset = node_fields.indexOf('edge_count');
-    const nodeTypeOffset = node_fields.indexOf('type');
-    const nodeNameOffset = node_fields.indexOf('name');
-    const edgeTypeOffset = edge_fields.indexOf('type');
-    const edgeNameOffset = edge_fields.indexOf('name_or_index');
-    const edgeToOffset = edge_fields.indexOf('to_node');
-
-    // For each node, remember one retaining (parent) edge, BFS from root.
-    const parent = new Int32Array(nodeCount).fill(-1);
-    const parentEdge = new Int32Array(nodeCount).fill(-1);
-    // Precompute each node's first edge index.
-    const firstEdge = new Uint32Array(nodeCount + 1);
-    for (let i = 0, acc = 0; i < nodeCount; i++) {
-      firstEdge[i] = acc;
-      acc += nodes[i * node_fields.length + edgeCountOffset];
-      firstEdge[i + 1] = acc;
-    }
-    const queue = [0];
-    parent[0] = 0;
-    while (queue.length > 0 && parent[targetIndex] === -1) {
-      const from = queue.shift() as number;
-      for (let e = firstEdge[from]; e < firstEdge[from + 1]; e++) {
-        const to =
-          edges[e * edge_fields.length + edgeToOffset] / node_fields.length;
-        if (parent[to] === -1) {
-          parent[to] = from;
-          parentEdge[to] = e;
-          queue.push(to);
-        }
-      }
-    }
-    if (parent[targetIndex] === -1) return '(no retainer path found)';
-    const path: string[] = [];
-    for (let cur = targetIndex; cur !== 0; cur = parent[cur]) {
-      const e = parentEdge[cur];
-      const edgeType =
-        edge_types[edgeTypeOffset][
-          edges[e * edge_fields.length + edgeTypeOffset]
-        ];
-      const rawName = edges[e * edge_fields.length + edgeNameOffset];
-      const edgeName =
-        edgeType === 'element' || edgeType === 'hidden'
-          ? `[${rawName}]`
-          : strings[rawName];
-      const nodeType =
-        node_types[nodeTypeOffset][
-          nodes[cur * node_fields.length + nodeTypeOffset]
-        ];
-      const nodeName =
-        strings[nodes[cur * node_fields.length + nodeNameOffset]];
-      path.unshift(`--${edgeType}:${edgeName}--> ${nodeType} '${nodeName}'`);
-    }
-    return ['(root)', ...path].join('\n  ');
-  }
-
   async function takeHeapSnapshot(): Promise<string> {
     return (await v8.getHeapSnapshot().setEncoding('utf8').toArray()).join('');
   }
@@ -192,23 +116,10 @@ describe('CliRepl GC', function () {
     // test; a genuine leak (a strong reference) stays visible on every
     // attempt.
     let leaked: { index: number }[] = [];
-    let snapshot = '';
     for (let attempt = 0; attempt < 2; attempt++) {
       await new Promise(setImmediate);
-      snapshot = await takeHeapSnapshot();
-      leaked = [...taggedObjectsInHeap(snapshot)];
+      leaked = [...taggedObjectsInHeap(await takeHeapSnapshot())];
       if (leaked.length === 0) break;
-    }
-    // If the object is still around, log what is retaining it so that
-    // CI failures are actually debuggable.
-    for (const node of leaked) {
-      // eslint-disable-next-line no-console
-      console.error(
-        `Leaked CliReplGcTaggedObject retainer path:\n  ${retainerPath(
-          snapshot,
-          node.index
-        )}`
-      );
     }
     expect(leaked).to.have.lengthOf(0);
     await new Promise(setImmediate);
