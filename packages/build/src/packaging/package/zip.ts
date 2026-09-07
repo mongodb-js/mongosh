@@ -12,9 +12,8 @@ import type { PackageInformation } from './package-information';
  * order in which we try them. Using these has the advantage of preserving
  * executable permissions as opposed to using libraries like adm-zip.
  *
- * TODO(DEVPROD-42642): the Windows image no longer has 7-Zip on PATH, so we
- * fall back to the two standard install locations. Drop the `7z.exe` and
- * absolute-path entries once 7-Zip is properly available again.
+ * `zip` is what we use on the evergreen macOS machines, `7z` on the Windows
+ * ones.
  */
 function zipCommandCandidates(
   outFile: string
@@ -22,15 +21,6 @@ function zipCommandCandidates(
   return [
     { cmd: 'zip', args: ['-r', outFile, '.'] },
     { cmd: '7z', args: ['a', outFile, '.'] },
-    { cmd: '7z.exe', args: ['a', outFile, '.'] },
-    {
-      cmd: 'C:\\Program Files\\7-Zip\\7z.exe',
-      args: ['a', outFile, '.'],
-    },
-    {
-      cmd: 'C:\\Program Files (x86)\\7-Zip\\7z.exe',
-      args: ['a', outFile, '.'],
-    },
   ];
 }
 
