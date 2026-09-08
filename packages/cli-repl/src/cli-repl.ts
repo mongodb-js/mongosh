@@ -15,6 +15,7 @@ import askpassword from 'askpassword';
 import { EventEmitter, once } from 'events';
 import * as yaml from 'js-yaml';
 import ConnectionString from 'mongodb-connection-string-url';
+import { embeddedUriAsTyped } from '@mongosh/arg-parser';
 import semver from 'semver';
 import type { Readable, Writable } from 'stream';
 import { buildInfo, getGlibcVersion } from './build-info';
@@ -986,7 +987,10 @@ export class CliRepl implements MongoshIOProvider {
       this.output.write(
         i18n.__(CONNECTING) +
           '\t\t' +
-          this.clr(redactConnectionString(driverUri), 'mongosh:uri') +
+          this.clr(
+            embeddedUriAsTyped(driverUri) ?? redactConnectionString(driverUri),
+            'mongosh:uri'
+          ) +
           '\n'
       );
     }
