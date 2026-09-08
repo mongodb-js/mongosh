@@ -1,0 +1,16 @@
+{
+  "name": "smongo-wasm-test",
+  "version": "1.1.9",
+  "type": "module",
+  "description": "WASM smoke tests for smongo-engine Phase 2",
+  "scripts": {
+    "serve": "python3 -m http.server 8080 --bind 127.0.0.1",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "bson": "^6.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0"
+  }
+}

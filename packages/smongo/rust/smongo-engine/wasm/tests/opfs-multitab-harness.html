@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>OPFS multi-tab harness</title>
+</head>
+<body>
+  <script type="module">
+    import { initOpfsDatabase } from '../smongo-browser.js';
+
+    window.smongoOpfsInit = async (dbName) => {
+      try {
+        await initOpfsDatabase(dbName, ['testData']);
+        return { ok: true };
+      } catch (e) {
+        return { ok: false, message: String(e?.message ?? e) };
+      }
+    };
+
+    window.smongoOpfsInsertOne = async (dbName) => {
+      try {
+        const db = await initOpfsDatabase(dbName, ['testData']);
+        await db.collection('testData').insertOne({ test: true, t: Date.now() });
+        return { ok: true };
+      } catch (e) {
+        return { ok: false, message: String(e?.message ?? e) };
+      }
+    };
+
+    window.smongoOpfsFindCount = async (dbName) => {
+      try {
+        const db = await initOpfsDatabase(dbName, ['testData']);
+        const docs = await db.collection('testData').find({});
+        return { ok: true, count: docs.length };
+      } catch (e) {
+        return { ok: false, message: String(e?.message ?? e) };
+      }
+    };
+
+    window.smongoOpfsReady = true;
+  </script>
+</body>
+</html>

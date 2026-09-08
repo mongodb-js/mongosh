@@ -97,6 +97,7 @@ export const CurrentCliOptionsSchema = z.object({
     .array(z.string())
     .optional()
     .register(argMetadata, { alias: ['f'] }),
+  from: z.array(z.string()).optional(),
 
   // Options that can be boolean or string
   json: z.union([z.boolean(), z.enum(['relaxed', 'canonical'])]).optional(),
@@ -202,6 +203,21 @@ export function validateCliOptions(parsed: CliOptions): void {
       '--json can only have the values relaxed, canonical',
       CommonErrors.InvalidArgument
     );
+  }
+
+  if (parsed.from?.length) {
+    if (parsed.connectionSpecifier) {
+      throw new MongoshUnimplementedError(
+        'Cannot use --from together with a connection string: --from queries local files via an embedded engine, not a remote server.',
+        CommonErrors.InvalidArgument
+      );
+    }
+    if (parsed.nodb) {
+      throw new MongoshUnimplementedError(
+        'Cannot use --from together with --nodb: --from requires the embedded engine to be started.',
+        CommonErrors.InvalidArgument
+      );
+    }
   }
 
   const oidcDumpTokensValidation =

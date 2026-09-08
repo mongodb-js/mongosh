@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Memory CRUD — smongo WASM</title>
+  <style>
+    body { font-family: 'Consolas', 'Courier New', monospace; max-width: 900px; margin: 40px auto; padding: 0 20px; background: #1e1e1e; color: #d4d4d4; }
+    h1 { color: #4ec9b0; border-bottom: 2px solid #4ec9b0; padding-bottom: 10px; }
+    pre { background: #2d2d2d; border: 1px solid #3e3e3e; border-radius: 4px; padding: 16px; overflow-x: auto; }
+    .pass { color: #4ec9b0; }
+    .fail { color: #f48771; }
+    .info { color: #dcdcaa; }
+    a { color: #4ec9b0; }
+  </style>
+</head>
+<body>
+  <h1>Memory CRUD (WasmDatabase)</h1>
+  <p><a href="index.html">← Demos</a></p>
+  <pre id="output">Loading WASM module...</pre>
+
+  <script type="module">
+    import { initSmongo, Database } from '../smongo-browser.js';
+
+    const output = document.getElementById('output');
+    const log = (msg, className = '') => {
+      const line = document.createElement('div');
+      if (className) line.className = className;
+      line.textContent = msg;
+      output.appendChild(line);
+    };
+
+    async function runTests() {
+      output.textContent = '';
+      try {
+        await initSmongo();
+        log('✓ WASM module loaded', 'pass');
+
+        const db = new Database('test');
+        const users = db.collection('users');
+        log('✓ Database and collection created', 'pass');
+
+        const insertResult = users.insertOne({ name: 'Alice', age: 30, active: true });
+        if (!insertResult.insertedId) throw new Error('No insertedId returned');
+        log(`✓ Insert: ${JSON.stringify(insertResult)}`, 'pass');
+
+        const allDocs = users.find({});
+        if (allDocs.length !== 1) throw new Error(`Expected 1 doc, got ${allDocs.length}`);
+        log(`✓ Find all: ${allDocs.length} docs`, 'pass');
+        log(`  ${JSON.stringify(allDocs[0])}`, 'info');
+
+        const filtered = users.find({ name: 'Alice' });
+        if (filtered.length !== 1) throw new Error(`Filter failed: ${filtered.length} docs`);
+        log(`✓ Find filtered: ${filtered.length} docs`, 'pass');
+
+        users.insertOne({ name: 'Bob', age: 25 });
+        users.insertOne({ name: 'Charlie', age: 35 });
+        const count = users.countDocuments({});
+        if (count !== 3) throw new Error(`Expected 3 docs, got ${count}`);
+        log(`✓ Count: ${count} documents`, 'pass');
+
+        const updateResult = users.updateMany(
+          { name: 'Alice' },
+          { $set: { age: 31, updated: true } }
+        );
+        if (updateResult.modifiedCount !== 1) throw new Error('Update failed');
+        log(`✓ Update: ${updateResult.modifiedCount} docs modified`, 'pass');
+
+        const deleteResult = users.deleteMany({ name: 'Bob' });
+        if (deleteResult.deletedCount !== 1) throw new Error('Delete failed');
+        log(`✓ Delete: ${deleteResult.deletedCount} docs deleted`, 'pass');
+
+        users.insertOne({
+          name: 'Diana',
+          tags: ['admin', 'user'],
+          metadata: { created: new Date(), version: 2 }
+        });
+        const diana = users.find({ name: 'Diana' })[0];
+        if (!Array.isArray(diana.tags)) throw new Error('Array not preserved');
+        log('✓ BSON types: arrays, nested docs', 'pass');
+
+        log('\n🎉 All tests passed!', 'pass');
+      } catch (err) {
+        log(`\n❌ Error: ${err.message}`, 'fail');
+        log(err.stack, 'fail');
+      }
+    }
+
+    runTests();
+  </script>
+</body>
+</html>

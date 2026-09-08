@@ -1,0 +1,21 @@
+[package]
+name = "smongo-node"
+version.workspace = true
+edition.workspace = true
+description = "Node.js binding for smongo embedded database engine"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+smongo-engine = { path = "../smongo-engine" }
+napi = { version = "3", default-features = false, features = ["napi9", "serde-json"] }
+napi-derive = "3"
+bson = "2"
+serde_json = "1"
+
+[build-dependencies]
+napi-build = "2"
+
+[lints]
+workspace = true

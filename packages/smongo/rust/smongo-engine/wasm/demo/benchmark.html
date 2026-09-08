@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Benchmark — smongo WASM</title>
+  <style>
+    body { font-family: 'Consolas', 'Courier New', monospace; max-width: 900px; margin: 40px auto; padding: 0 20px; background: #1e1e1e; color: #d4d4d4; }
+    h1 { color: #4ec9b0; border-bottom: 2px solid #4ec9b0; padding-bottom: 10px; }
+    pre { background: #2d2d2d; border: 1px solid #3e3e3e; border-radius: 4px; padding: 16px; overflow-x: auto; }
+    .timing { color: #dcdcaa; font-weight: bold; }
+    a { color: #4ec9b0; }
+  </style>
+</head>
+<body>
+  <h1>In-memory benchmark</h1>
+  <p><a href="index.html">← Demos</a></p>
+  <pre id="output">Starting benchmark...</pre>
+
+  <script type="module">
+    import { initSmongo, Database } from '../smongo-browser.js';
+
+    const output = document.getElementById('output');
+    const log = (msg) => { output.textContent += msg + '\n'; };
+    const yieldToEventLoop = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+    async function benchmark() {
+      output.textContent = '';
+      log('Starting smongo WASM benchmark (MemBackend)...\n');
+
+      await initSmongo();
+      log('✓ WASM module loaded\n');
+
+      const db = new Database('bench');
+      const coll = db.collection('docs');
+
+      log('Running 5k inserts...');
+      const insertStart = performance.now();
+      for (let i = 0; i < 5_000; i++) {
+        coll.insertOne({
+          index: i,
+          value: Math.random(),
+          name: `doc_${i}`,
+          tags: ['test', 'benchmark'],
+          metadata: { created: new Date(), iteration: i }
+        });
+        if (i % 500 === 499) await yieldToEventLoop();
+      }
+      const insertEnd = performance.now();
+      log(`⏱️  5k inserts: ${(insertEnd - insertStart).toFixed(2)}ms (${(5000 / ((insertEnd - insertStart) / 1000)).toFixed(0)} ops/sec)`);
+
+      const count = coll.countDocuments({});
+      log(`✓  Total documents: ${count}\n`);
+
+      log('Running 500 exact finds...');
+      const findStart = performance.now();
+      for (let i = 0; i < 500; i++) {
+        const docs = coll.find({ index: i });
+        if (docs.length !== 1) log(`❌ Find failed at index ${i}: expected 1 doc, got ${docs.length}`);
+        if (i % 100 === 99) await yieldToEventLoop();
+      }
+      const findEnd = performance.now();
+      log(`⏱️  500 exact finds: ${(findEnd - findStart).toFixed(2)}ms\n`);
+
+      log('Running 200 range queries...');
+      const rangeStart = performance.now();
+      for (let i = 0; i < 200; i++) {
+        const start = Math.floor(Math.random() * 4900);
+        const docs = coll.find({ index: { $gte: start, $lt: start + 100 } });
+        if (docs.length !== 100) log(`❌ Range query failed: expected 100 docs, got ${docs.length}`);
+        if (i % 50 === 49) await yieldToEventLoop();
+      }
+      const rangeEnd = performance.now();
+      log(`⏱️  200 range queries: ${(rangeEnd - rangeStart).toFixed(2)}ms\n`);
+
+      log('Running 500 updates...');
+      const updateStart = performance.now();
+      for (let i = 0; i < 500; i++) {
+        coll.updateMany({ index: i }, { $set: { updated: true, timestamp: Date.now() } });
+        if (i % 100 === 99) await yieldToEventLoop();
+      }
+      const updateEnd = performance.now();
+      log(`⏱️  500 updates: ${(updateEnd - updateStart).toFixed(2)}ms\n`);
+
+      log('Running find all (5k docs)...');
+      const findAllStart = performance.now();
+      const allDocs = coll.find({});
+      const findAllEnd = performance.now();
+      log(`⏱️  Find all (${allDocs.length} docs): ${(findAllEnd - findAllStart).toFixed(2)}ms\n`);
+
+      log('✓ Benchmark complete!');
+    }
+
+    benchmark().catch((err) => {
+      log(`\n❌ Error: ${err.message}`);
+      log(err.stack);
+    });
+  </script>
+</body>
+</html>

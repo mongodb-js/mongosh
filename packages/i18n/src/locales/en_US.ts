@@ -26,6 +26,7 @@ const translations: Catalog = {
         'Force full depth inspection of server results (default: true if in interactive mode)',
       norc: "Will not run the '.mongoshrc.js' file on start up",
       eval: 'Evaluate javascript',
+      from: 'Ingest a local file (CSV/JSON/NDJSON) into an embedded engine and query it without a server',
       json: 'Print result of --eval as Extended JSON, including errors',
       retryWrites:
         'Automatically retry write operations upon transient network errors (Default: true)',

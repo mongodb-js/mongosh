@@ -83,6 +83,7 @@
     "@mongosh/shell-api": "^5.5.0",
     "@mongosh/shell-evaluator": "^5.5.0",
     "@mongosh/snippet-manager": "^5.5.0",
+    "@mongosh/smongo": "file:../smongo",
     "@mongosh/types": "^5.2.0",
     "ansi-escape-sequences": "^5.1.2",
     "askcharacter": "^2.0.4",

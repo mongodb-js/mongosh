@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>smongo WASM demos</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 48px auto; padding: 0 20px; line-height: 1.5; color: #e8e8e8; background: #1a1a1a; }
+    h1 { color: #5dd9c0; font-weight: 600; }
+    h2 { color: #b8b8b8; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2rem; }
+    ul { padding-left: 1.2rem; }
+    a { color: #5dd9c0; }
+    a:hover { color: #8eedd5; }
+    .card { background: #252525; border: 1px solid #333; border-radius: 8px; padding: 1rem 1.25rem; margin: 0.75rem 0; }
+    .card strong { color: #fff; }
+    code { background: #333; padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.9em; }
+    .note { color: #a0a0a0; font-size: 0.9rem; margin-top: 2rem; }
+  </style>
+</head>
+<body>
+  <h1>smongo-engine WASM demos</h1>
+  <p>Run a local static server from the parent <code>wasm/</code> directory (see <code>docker-compose.yml</code> or <code>npm run serve</code>). Open DevTools for logs.</p>
+
+  <h2>In-memory (main thread)</h2>
+  <div class="card">
+    <strong><a href="memory-crud.html">Memory CRUD smoke test</a></strong>
+    <p>Loads WASM in the page via <code>smongo-browser.js</code> (in-memory path). No worker, no persistence.</p>
+  </div>
+  <div class="card">
+    <strong><a href="benchmark.html">Benchmark</a></strong>
+    <p>Insert / find / update throughput (in-memory).</p>
+  </div>
+
+  <h2>OPFS (dedicated worker + sync access handles)</h2>
+  <p class="note" style="margin-top:0">Use Chromium. One tab owns the OPFS sync worker per database name; additional tabs talk to it over BroadcastChannel RPC.</p>
+  <div class="card">
+    <strong><a href="opfs-persistence.html">OPFS persistence</a></strong>
+    <p>Write, read, and wipe stored data. Wipe calls <code>wipeOpfsDatabaseDirectory</code> (closes handles, then removes the OPFS folder).</p>
+  </div>
+  <div class="card">
+    <strong><a href="opfs-multitab-shared.html">Multi-tab shared DB</a></strong>
+    <p>Two tabs: both connect; one is owner, others use RPC. Insert/count from either tab.</p>
+  </div>
+  <div class="card">
+    <strong><a href="opfs-multitab-handoff.html">Lock handoff</a></strong>
+    <p>Open here, then <strong>Close database</strong> (releases lock), then open in another tab.</p>
+  </div>
+
+  <h2>Automation</h2>
+  <div class="card">
+    <strong><a href="../tests/opfs-multitab-harness.html">Playwright harness</a></strong>
+    <p>Blank page used by <code>npm run test:e2e</code>; same-origin path as CI.</p>
+  </div>
+
+  <p class="note">Build WASM first: <code>wasm-pack build --target web --out-dir wasm/pkg --release</code> from <code>rust/smongo-engine/</code>.</p>
+</body>
+</html>

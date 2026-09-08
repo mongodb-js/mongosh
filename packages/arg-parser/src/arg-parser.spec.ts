@@ -289,6 +289,52 @@ describe('arg-parser', function () {
           });
         });
 
+        context('when providing --from (single value)', function () {
+          const argv = ['--from', 'data.csv'];
+
+          it('does not set a connection specifier', function () {
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.connectionSpecifier
+            ).to.equal(undefined);
+          });
+
+          it('sets the from value in the object', function () {
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.from
+            ).to.deep.equal(['data.csv']);
+          });
+        });
+
+        context('when providing --from (multiple values)', function () {
+          const argv = ['--from', 'data.csv', '--from', 'events.ndjson'];
+
+          it('sets the from values in the object', function () {
+            expect(
+              parseArgsWithCliOptions({ args: argv }).parsed.from
+            ).to.deep.equal(['data.csv', 'events.ndjson']);
+          });
+        });
+
+        context('when providing --from with a connection string', function () {
+          const argv = [uri, '--from', 'data.csv'];
+
+          it('throws an error', function () {
+            expect(() => parseArgsWithCliOptions({ args: argv })).to.throw(
+              MongoshUnimplementedError
+            );
+          });
+        });
+
+        context('when providing --from with --nodb', function () {
+          const argv = ['--nodb', '--from', 'data.csv'];
+
+          it('throws an error', function () {
+            expect(() => parseArgsWithCliOptions({ args: argv })).to.throw(
+              MongoshUnimplementedError
+            );
+          });
+        });
+
         context('when providing --retryWrites', function () {
           const argv = [uri, '--retryWrites'];
 
@@ -1342,7 +1388,7 @@ describe('arg-parser', function () {
           'verbose',
           'version',
         ],
-        array: ['eval', 'file'],
+        array: ['eval', 'file', 'from'],
         coerce: {
           json: coerceIfBoolean,
           oidcDumpTokens: coerceIfBoolean,

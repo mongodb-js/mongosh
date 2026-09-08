@@ -1,0 +1,30 @@
+{
+  "name": "@smongo/embedded",
+  "version": "0.1.0",
+  "description": "Embedded MongoDB-compatible database engine for Node.js (smongo-engine / redb)",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "napi": {
+    "name": "smongo-node",
+    "triples": {
+      "defaults": true
+    }
+  },
+  "scripts": {
+    "build": "napi build --release --js index.js --dts index.d.ts",
+    "build:debug": "napi build --js index.js --dts index.d.ts",
+    "test": "node --test __test__/index.spec.mjs"
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "^3.0.0"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">= 18"
+  },
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "*.node"
+  ]
+}

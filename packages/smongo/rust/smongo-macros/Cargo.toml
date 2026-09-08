@@ -1,0 +1,16 @@
+[package]
+name = "smongo-macros"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+description = "Proc macros for smongo FFI bindings"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = { version = "2", features = ["full"] }
+quote = "1"
+
+[lints]
+workspace = true

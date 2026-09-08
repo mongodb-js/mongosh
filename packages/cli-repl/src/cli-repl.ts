@@ -56,6 +56,8 @@ import {
 } from '@mongodb-js/devtools-proxy-support';
 import { fullDepthInspectOptions } from './format-output';
 import { getDeviceIdForMongosh } from './device-id';
+import { ingestFiles, startEmbeddedEngine } from './embedded/smongo';
+import type { EmbeddedEngine } from './embedded/smongo';
 
 /**
  * Connecting text key.
@@ -137,6 +139,8 @@ export class CliRepl implements MongoshIOProvider {
   closeAbortController = new AbortController();
 
   private loggingAndTelemetry: MongoshLoggingAndTelemetry | undefined;
+  /** The embedded engine backing a `--from` session, if any. */
+  private embeddedEngine: EmbeddedEngine | undefined;
 
   /**
    * Instantiate the new CLI Repl.
@@ -389,7 +393,7 @@ export class CliRepl implements MongoshIOProvider {
       'checked containerized environment'
     );
 
-    if (!this.cliOptions.nodb) {
+    if (!this.cliOptions.nodb && !this.cliOptions.from?.length) {
       const cs = new ConnectionString(driverUri);
       const searchParams = cs.typedSearchParams<DevtoolsConnectOptions>();
       if (!searchParams.get('appName')) {
@@ -409,6 +413,18 @@ export class CliRepl implements MongoshIOProvider {
 
       this.ensurePasswordFieldIsPresentInAuth(driverOptions);
       driverUri = cs.toString();
+    }
+
+    // `--from` runs against an in-process embedded engine rather than a remote
+    // server: start it and point the shell's driver at its local wire endpoint.
+    if (this.cliOptions.from?.length) {
+      this.embeddedEngine = await startEmbeddedEngine();
+      driverUri = this.embeddedEngine.uri;
+      driverOptions = {
+        ...driverOptions,
+        directConnection: true,
+        serverSelectionTimeoutMS: 3000,
+      };
     }
 
     try {
@@ -519,6 +535,17 @@ export class CliRepl implements MongoshIOProvider {
       throw err;
     }
     markTime(TimingCategories.DriverSetup, 'completed SP setup');
+
+    // Ingest `--from` files now that we are connected to the embedded engine,
+    // so they are queryable by the time the shell (or --eval) runs.
+    if (this.embeddedEngine && this.cliOptions.from?.length) {
+      await ingestFiles(
+        this.cliOptions.from,
+        this.embeddedEngine.uri,
+        this.embeddedEngine.dbName
+      );
+    }
+
     const buildInfoPromise = buildInfo();
     const [
       moreRecentMongoshVersion,
@@ -1247,6 +1274,8 @@ export class CliRepl implements MongoshIOProvider {
       this.closeAbortController.abort();
       markTime(TimingCategories.REPLInstantiation, 'start closing');
       await this.mongoshRepl.close();
+      await this.embeddedEngine?.stop();
+      this.embeddedEngine = undefined;
       this.agent?.destroy();
       if (!this.output.destroyed) {
         // Wait for output to be fully flushed before exiting.

@@ -1,0 +1,15 @@
+# Serve static files for browser demos (ES modules require HTTP — no file://).
+#
+# From this directory (rust/smongo-engine/wasm):
+#   1. Build the bundle:  cd .. && wasm-pack build --target web --out-dir wasm/pkg --release
+#   2. Start:             docker compose up
+#   3. Open:              http://localhost:8080/demo/
+#
+services:
+  wasm-demos:
+    image: nginx:1.27-alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
