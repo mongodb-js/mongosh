@@ -53,6 +53,18 @@ const EMBEDDED_SCHEMES = ['mongodb_embedded://', 'mongodb+embedded://'];
 const EMBEDDED_DIRECTORY_PARAM = 'embeddedMongodb';
 
 /**
+ * The `mongodb_embedded://<directory>` a user typed, recovered from the `mongodb://` form
+ * `generateUri` turned it into; undefined for any other URI. For the connect line and the
+ * terminal title, which should read back what was typed rather than what the driver needs.
+ */
+export function embeddedUriAsTyped(uri: string): string | undefined {
+  const directory = new ConnectionString(uri).searchParams.get(
+    EMBEDDED_DIRECTORY_PARAM
+  );
+  return directory === null ? undefined : `mongodb_embedded://${directory}`;
+}
+
+/**
  * The data directory an embedded address names, or undefined if this is not one.
  */
 function embeddedDirectory(uri: string): string | undefined {

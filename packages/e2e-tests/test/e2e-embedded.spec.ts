@@ -20,6 +20,9 @@ describe('e2e embedded MongoDB', function () {
       args: [`mongodb_embedded://${directory}`],
     });
     await shell.waitForPrompt();
+    // The connect line shows the address as typed, not the rewritten driver URI.
+    shell.assertContainsOutput(`mongodb_embedded://${directory}`);
+    shell.assertNotContainsOutput('embeddedMongodb=');
     await shell.executeLine('db.items.insertOne({ answer: 42 })');
     await shell.executeLine('db.items.findOne()');
     shell.assertContainsOutput('answer: 42');

@@ -1,7 +1,7 @@
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import { expect } from 'chai';
 import type { CliOptions } from './cli-options';
-import { generateUri } from './uri-generator';
+import { generateUri, embeddedUriAsTyped } from './uri-generator';
 
 describe('uri-generator.generate-uri', function () {
   context('when no arguments are provided', function () {
@@ -296,6 +296,22 @@ describe('uri-generator.generate-uri', function () {
         expect(e).to.be.instanceOf(MongoshInvalidInputError);
         expect(e.code).to.equal(CommonErrors.InvalidArgument);
       }
+    });
+  });
+
+  context('embeddedUriAsTyped', function () {
+    it('recovers the typed address from the rewritten URI', function () {
+      expect(
+        embeddedUriAsTyped(
+          generateUri({ connectionSpecifier: 'mongodb_embedded://./data' })
+        )
+      ).to.equal('mongodb_embedded://./data');
+    });
+
+    it('answers undefined for any other URI', function () {
+      expect(
+        embeddedUriAsTyped('mongodb://localhost:27017/?directConnection=true')
+      ).to.equal(undefined);
     });
   });
 
