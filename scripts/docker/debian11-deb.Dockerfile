@@ -5,7 +5,7 @@ ADD ${artifact_url} /tmp
 ADD node_modules /usr/share/mongodb-crypt-library-version/node_modules
 
 # Debian 11 (bullseye) LTS ended 2026-08-31 (https://wiki.debian.org/LTS).
-# TODO(MONGOSH-3476): Ignore the expiry until we drop Debian 11 support.
+# TODO(MONGOSH-3476): Ignore the expiry field in apt repository metadata until we drop Debian 11 support.
 RUN echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99no-check-valid-until
 
 RUN apt-get update
