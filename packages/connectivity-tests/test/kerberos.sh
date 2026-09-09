@@ -8,13 +8,13 @@ FAILED=no
 docker compose \
   -f "$TEST_TMPDIR/test-envs/docker/kerberos/docker-compose.yaml" \
   -f "$CONNECTIVITY_TEST_SOURCE_DIR/kerberos/docker-compose.kerberos.yaml" \
-  --no-ansi \
+  --ansi never \
   up --build --exit-code-from kerberos_jumphost --abort-on-container-exit || FAILED=yes
 
 docker compose \
   -f "$TEST_TMPDIR/test-envs/docker/kerberos/docker-compose.yaml" \
   -f "$CONNECTIVITY_TEST_SOURCE_DIR/kerberos/docker-compose.kerberos.yaml" \
-  --no-ansi \
+  --ansi never \
   down -v
 
 if [ $FAILED = yes ]; then
