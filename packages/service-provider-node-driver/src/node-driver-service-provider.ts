@@ -94,6 +94,7 @@ import {
   ClientEncryption,
 } from 'mongodb';
 import { connectMongoClient } from '@mongodb-js/devtools-connect';
+import type { EmbeddedMongodb } from '@0q/embedded-mongodb';
 import { identifyServerName } from 'mongodb-build-info';
 
 const bsonlib = () => {
@@ -142,6 +143,12 @@ export type DropDatabaseResult = {
 /**
  * Default driver options we always use.
  */
+/**
+ * The query parameter the arg parser carries an embedded data directory in. Named in both
+ * packages rather than shared, because this one does not otherwise depend on the parser.
+ */
+const EMBEDDED_DIRECTORY_PARAM = 'embeddedMongodb';
+
 const DEFAULT_DRIVER_OPTIONS: MongoClientOptions = Object.freeze({
   // In COMPASS-9455 / https://github.com/mongodb-js/devtools-shared/pull/557,
   // we turned on the driver-internal `__skipPingOnConnect` option on by default
@@ -422,6 +429,8 @@ export class NodeDriverServiceProvider
     lastSeenTopology: TopologyDescription | undefined;
   }> {
     let lastSeenTopology: TopologyDescription | undefined;
+    const embedded = await this.openEmbedded(connectionString);
+    const uri = (embedded?.connectionString ?? connectionString).toString();
 
     class MongoshMongoClient extends MongoClientCtor {
       constructor(url: string, options?: MongoClientOptions) {
@@ -433,17 +442,29 @@ export class NodeDriverServiceProvider
           }
         );
       }
+
+      // The engine lives exactly as long as the client that was connected to it.
+      async close(force?: boolean): Promise<void> {
+        try {
+          await super.close(force);
+        } finally {
+          await embedded?.engine.close();
+        }
+      }
     }
 
     try {
       const result = await connectMongoClient(
-        connectionString.toString(),
+        uri,
         clientOptions,
         bus,
         MongoshMongoClient
       );
       return { ...result, lastSeenTopology };
     } catch (err: unknown) {
+      // Not through the client, which may not exist: an engine left open would refuse every
+      // later connection in this process.
+      await embedded?.engine.close();
       if (
         typeof err === 'object' &&
         err &&
@@ -456,6 +477,33 @@ export class NodeDriverServiceProvider
       }
       throw err;
     }
+  }
+
+  /**
+   * Opens the embedded engine a connection string asks for, if it asks for one.
+   *
+   * `mongodb_embedded://<dir>` arrives here as `mongodb://embedded/?embeddedMongodb=<dir>`,
+   * the shape the arg parser gives it so that it survives strict connection string parsing on
+   * the way. The engine serves the driver over a Unix socket inside this process, so what is
+   * handed back is that socket's address, with the directory parameter gone and every other
+   * parameter kept. Loaded on demand: the package carries the whole database engine, and a
+   * shell connecting to a server has no reason to map it in.
+   */
+  private static async openEmbedded(
+    connectionString: ConnectionString | string
+  ): Promise<
+    { engine: EmbeddedMongodb; connectionString: ConnectionString } | undefined
+  > {
+    const parsed = new ConnectionString(connectionString.toString());
+    const directory = parsed.searchParams.get(EMBEDDED_DIRECTORY_PARAM);
+    if (directory === null) {
+      return undefined;
+    }
+    const { open } = await import('@0q/embedded-mongodb');
+    const engine = await open(directory);
+    parsed.searchParams.delete(EMBEDDED_DIRECTORY_PARAM);
+    parsed.hosts = [encodeURIComponent(engine.socketPath)];
+    return { engine, connectionString: parsed };
   }
 
   async getNewConnection(
