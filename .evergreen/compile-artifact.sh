@@ -42,7 +42,10 @@ elif [ -n "$MONGOSH_SHARED_OPENSSL" ]; then
     curl -sSfLO https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1o/openssl-1.1.1o.tar.gz
     MONGOSH_OPENSSL_LIBNAME=:libcrypto.so.1.1,:libssl.so.1.1
   elif [ "$MONGOSH_SHARED_OPENSSL" == "openssl3" ]; then
-    curl -sSfLO https://www.openssl.org/source/old/3.0/openssl-3.0.5.tar.gz
+    # Node.js 24.21 needs EVP_PKEY_PRIVATE_KEY and
+    # OPENSSL_DH_CHECK_MAX_MODULUS_BITS, which were backported to the 3.0
+    # branch in 3.0.13, so anything older fails to compile deps/ncrypto.
+    curl -sSfLO https://www.openssl.org/source/old/3.0/openssl-3.0.22.tar.gz
     MONGOSH_OPENSSL_LIBNAME=:libcrypto.so.3,:libssl.so.3
   else
     echo "Unknown MONGOSH_SHARED_OPENSSL value: $MONGOSH_SHARED_OPENSSL"
