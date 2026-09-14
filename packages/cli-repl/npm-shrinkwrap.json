@@ -32,7 +32,7 @@
         "bson": "^7.3.1",
         "escape-string-regexp": "^4.0.0",
         "is-recoverable-error": "^1.0.3",
-        "js-yaml": "^5.2.2",
+        "js-yaml": "^5.4.1",
         "mongodb-connection-string-url": "^7.0.1",
         "mongodb-log-writer": "^2.5.6",
         "mongodb-redact": "^1.4.6",
@@ -49,11 +49,11 @@
         "node": ">=18.19.0"
       },
       "optionalDependencies": {
+        "@mongodb-js/native-machine-id": "^0.3.6",
         "get-console-process-list": "^1.0.5",
         "glibc-version": "^1.0.1",
         "macos-export-certificate-and-key": "^2.0.1",
         "mongodb-crypt-library-version": "^2.0.1",
-        "native-machine-id": "^0.3.6",
         "win-export-certificate-and-key": "^3.0.2"
       }
     },
@@ -1540,6 +1540,13 @@
         "url": "https://github.com/chalk/ansi-styles?sponsor=1"
       }
     },
+    "node_modules/@mongodb-js/mongodb-schema/node_modules/argparse": {
+      "version": "2.0.1",
+      "resolved": "https://registry.npmjs.org/argparse/-/argparse-2.0.1.tgz",
+      "integrity": "sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==",
+      "license": "Python-2.0",
+      "optional": true
+    },
     "node_modules/@mongodb-js/mongodb-schema/node_modules/cliui": {
       "version": "9.0.1",
       "resolved": "https://registry.npmjs.org/cliui/-/cliui-9.0.1.tgz",
@@ -1579,6 +1586,29 @@
       "integrity": "sha512-toUI84YS5YmxW219erniWD0CIVOo46xGKColeNQRgOzDorgBi1v4D71/OFzgD9GO2UGKIv1C3Sp8DAn0+j5w7A==",
       "license": "MIT",
       "optional": true
+    },
+    "node_modules/@mongodb-js/mongodb-schema/node_modules/js-yaml": {
+      "version": "5.4.1",
+      "resolved": "https://registry.npmjs.org/js-yaml/-/js-yaml-5.4.1.tgz",
+      "integrity": "sha512-28R/k+NAjeuf7+CKlTxWZVExJGwVVLwY06DgEnOMz2gEpfNkDcD7QvyiVPT0xy0XXhU8vHsd4Ot42OOPdJG7dQ==",
+      "funding": [
+        {
+          "type": "github",
+          "url": "https://github.com/sponsors/puzrin"
+        },
+        {
+          "type": "github",
+          "url": "https://github.com/sponsors/nodeca"
+        }
+      ],
+      "license": "MIT",
+      "optional": true,
+      "dependencies": {
+        "argparse": "^2.0.1"
+      },
+      "bin": {
+        "js-yaml": "bin/js-yaml.mjs"
+      }
     },
     "node_modules/@mongodb-js/mongodb-schema/node_modules/string-width": {
       "version": "8.2.2",
@@ -1714,6 +1744,30 @@
       "resolved": "https://registry.npmjs.org/ms/-/ms-2.1.3.tgz",
       "integrity": "sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==",
       "license": "MIT"
+    },
+    "node_modules/@mongodb-js/native-machine-id": {
+      "version": "0.3.14",
+      "resolved": "https://registry.npmjs.org/@mongodb-js/native-machine-id/-/native-machine-id-0.3.14.tgz",
+      "integrity": "sha512-Ux6AVCaRYeVCmagAxeRm6uoCe3hxj8lzywPFccFeRaIu4UHRtk1dS7tw1fpCax56PhhCoimKCBVUepD5Wf4ayg==",
+      "hasInstallScript": true,
+      "license": "Apache-2.0",
+      "optional": true,
+      "dependencies": {
+        "node-addon-api": "^8.0.0"
+      },
+      "bin": {
+        "native-machine-id": "dist/bin/machine-id.js"
+      }
+    },
+    "node_modules/@mongodb-js/native-machine-id/node_modules/node-addon-api": {
+      "version": "8.9.2",
+      "resolved": "https://registry.npmjs.org/node-addon-api/-/node-addon-api-8.9.2.tgz",
+      "integrity": "sha512-VijLXbi3UACN69I0JVXJsX4tjACjNoQDgv2gTF6sx2wWEi8tkSg2eX8p5gSIFi8z2+DL3oHmY6OyKce38SDolg==",
+      "license": "MIT",
+      "optional": true,
+      "engines": {
+        "node": "^18 || ^20 || >= 21"
+      }
     },
     "node_modules/@mongodb-js/oidc-http-server-pages": {
       "version": "1.2.6",
@@ -6174,30 +6228,6 @@
       "integrity": "sha512-Vpf9qnVW1RaDkoNKFUvfxqAbtI8ncb8OJlqZ9wwpXzWPEsvsB1nvdUi6oYrHIkQ1Y/tMDnr1h4nczS0VB9Xykg==",
       "license": "MIT",
       "optional": true
-    },
-    "node_modules/native-machine-id": {
-      "version": "0.3.6",
-      "resolved": "https://registry.npmjs.org/native-machine-id/-/native-machine-id-0.3.6.tgz",
-      "integrity": "sha512-Lbe1k9WudZFQxzIbAM5IeUQNzJnEVwMDGz2q0K5irw4Zb+XgsbUWxqudp3rY/6UymF2PEAvAqVysOBqrTe+f3Q==",
-      "hasInstallScript": true,
-      "license": "Apache-2.0",
-      "optional": true,
-      "dependencies": {
-        "node-addon-api": "^8.0.0"
-      },
-      "bin": {
-        "native-machine-id": "dist/bin/machine-id.js"
-      }
-    },
-    "node_modules/native-machine-id/node_modules/node-addon-api": {
-      "version": "8.3.1",
-      "resolved": "https://registry.npmjs.org/node-addon-api/-/node-addon-api-8.3.1.tgz",
-      "integrity": "sha512-lytcDEdxKjGJPTLEfW4mYMigRezMlyJY8W4wxJK8zE533Jlb8L8dRuObJFWg2P+AuOIxoCgKF+2Oq4d4Zd0OUA==",
-      "license": "MIT",
-      "optional": true,
-      "engines": {
-        "node": "^18 || ^20 || >= 21"
-      }
     },
     "node_modules/netmask": {
       "version": "2.0.2",
