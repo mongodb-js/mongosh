@@ -27,11 +27,11 @@
     "reformat": "npm run prettier -- --write . && npm run eslint -- --fix"
   },
   "dependencies": {
+    "@mongodb-js/mongodb-runner": "^6.10.0",
     "@mongosh/build": "^3.12.0",
     "duplexpair": "^1.0.2",
     "mongodb": "^7.5.0",
     "mongodb-connection-string-url": "^7.0.1",
-    "mongodb-runner": "^6.5.3",
     "semver": "^7.3.4",
     "which": "^2.0.2"
   },

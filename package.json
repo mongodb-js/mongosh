@@ -102,6 +102,7 @@
   },
   "devDependencies": {
     "@mongodb-js/tracking-plan": "^0.3.2",
+    "@mongodb-js/mongodb-runner": "^6.10.0",
     "@mongodb-js/monorepo-tools": "^1.4.5",
     "@pkgjs/nv": "^0.3.0",
     "@types/chai": "^5.2.3",
@@ -116,7 +117,6 @@
     "husky": "^9.0.11",
     "knip": "^5.71.0",
     "mocha": "^11.7.5",
-    "mongodb-runner": "6.5.3",
     "nyc": "^15.1.0",
     "pkg-up": "^3.1.0",
     "rimraf": "^3.0.2",
