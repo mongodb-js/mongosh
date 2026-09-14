@@ -44,6 +44,8 @@ if [ "$(uname)" == Darwin ]; then
   fi
 
 else
+  ECR_LOGIN_PASSWORD="$(aws ecr get-login-password --region us-east-1)"
+  export ECR_LOGIN_PASSWORD
   npm run evergreen-release sign
 fi
 

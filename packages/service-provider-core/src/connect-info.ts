@@ -33,6 +33,40 @@ export type HostInformation = {
   is_do_url?: boolean; // Is digital ocean url.
 };
 
+// Strips the port from a `host:port` address. IPv6 hosts are returned in
+// bracketed form, which is what `mongodb-build-info` matches against, and which
+// the driver's `hostAddress.host` does not use.
+function extractHostname(address?: string): string | undefined {
+  if (!address) {
+    return undefined;
+  }
+
+  if (address.startsWith('[')) {
+    const host = address.slice(1).split(']')[0];
+    return host ? `[${host}]` : undefined;
+  }
+
+  // A bare IPv6 address has more than one colon, so it has no port to strip.
+  if (address.indexOf(':') !== address.lastIndexOf(':')) {
+    return `[${address}]`;
+  }
+
+  return address.split(':')[0] || undefined;
+}
+
+// Prefers the address of the server we actually talked to, falling back to the
+// seed host from the connection string when the topology has not been populated.
+// Both sources are credential-free, unlike the connection string itself.
+function getResolvedHostname(
+  resolvedHostname?: string,
+  connectionString?: ConnectionString
+): string | undefined {
+  return (
+    extractHostname(resolvedHostname) ??
+    extractHostname(connectionString?.hosts[0])
+  );
+}
+
 function getHostInformation(host?: string): HostInformation {
   if (!host) {
     return {
@@ -93,7 +127,9 @@ export default function getConnectExtraInfo({
   const isAtlas = !!atlasVersion?.atlasVersion || getBuildInfo.isAtlas(uri);
 
   return {
-    ...getHostInformation(resolvedHostname || uri),
+    ...getHostInformation(
+      getResolvedHostname(resolvedHostname, connectionString)
+    ),
     is_atlas: isAtlas,
     is_srv: connectionString?.isSRV,
     server_version: buildInfo.version,

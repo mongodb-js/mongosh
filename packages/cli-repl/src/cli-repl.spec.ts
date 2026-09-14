@@ -133,7 +133,7 @@ describe('CliRepl', function () {
     };
   });
 
-  context('setupAnalytics', function () {
+  context('setupTelemetrySink', function () {
     // Endpoint resolution and sink construction (no-op vs telemetry client) are
     // covered by setup-analytics.spec.ts. Here we only verify that CliRepl
     // resolves the endpoint from user config and records it on the instance.
@@ -154,7 +154,7 @@ describe('CliRepl', function () {
     it('records the telemetry endpoint resolved from config', async function () {
       cliRepl = new CliRepl(cliReplOptions);
       cliRepl.config.telemetryEndpoint = 'https://config.example/events';
-      await cliRepl.setupAnalytics();
+      await cliRepl.setupTelemetrySink();
       expect(cliRepl.telemetryEndpoint).to.equal(
         'https://config.example/events'
       );
@@ -162,7 +162,7 @@ describe('CliRepl', function () {
 
     it('records an empty endpoint when none is configured', async function () {
       cliRepl = new CliRepl(cliReplOptions);
-      await cliRepl.setupAnalytics();
+      await cliRepl.setupTelemetrySink();
       expect(cliRepl.telemetryEndpoint).to.equal('');
     });
   });

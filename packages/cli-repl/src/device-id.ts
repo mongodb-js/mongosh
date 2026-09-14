@@ -10,7 +10,7 @@ export async function getDeviceIdForMongosh({
 }): Promise<string> {
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const getMachineId = require('native-machine-id').getMachineId;
+    const getMachineId = require('@mongodb-js/native-machine-id').getMachineId;
     return await getDeviceId({
       getMachineId: () => getMachineId({ raw: true }),
       onError: (reason, error) => {

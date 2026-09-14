@@ -146,6 +146,7 @@ type Mutable<T> = {
  */
 class MongoshNodeRepl implements EvaluationListener {
   _runtimeState: MongoshRuntimeState | null;
+  private _isInteractive = false;
   closeTrace?: string;
   exitPromise?: Promise<never>;
   input: Readable;
@@ -185,11 +186,15 @@ class MongoshNodeRepl implements EvaluationListener {
    * @param value The new isInteractive value.
    */
   setIsInteractive(value: boolean): void {
+    this._isInteractive = value;
     this.runtimeState().instanceState.isInteractive = value;
   }
 
   get isInteractive(): boolean {
-    return this.runtimeState().instanceState.isInteractive;
+    if (this._runtimeState === null) {
+      return this._isInteractive;
+    }
+    return this._runtimeState.instanceState.isInteractive;
   }
 
   /**

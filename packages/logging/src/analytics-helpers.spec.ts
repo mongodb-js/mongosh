@@ -29,7 +29,6 @@ const iEvt: IdentifyEvent = {
     os_darwin_product_name: undefined,
     os_darwin_product_version: undefined,
     os_darwin_product_build_version: undefined,
-    device_id: 'test-device-id',
   },
 };
 
@@ -39,7 +38,6 @@ const tEvt: NewConnectionEvent = {
     mongosh_version: '1.2.3',
     ai_agent: undefined,
     session_id: sessionId,
-    device_id: 'test-device-id',
     is_atlas: false,
     is_atlas_url: undefined,
     is_local_atlas: false,
@@ -127,9 +125,7 @@ describe('analytics helpers', function () {
 
     const throttledIEvt: IdentifyEvent = {
       ...iEvt,
-      // device_id is the throttle key for Identify events; use `id` so the
-      // persisted metadata file matches the afterEach cleanup path.
-      payload: { ...iEvt.payload, device_id: id, session_id: id },
+      payload: { ...iEvt.payload, session_id: id },
     };
     const throttledTEvt: NewConnectionEvent = {
       ...tEvt,
@@ -161,6 +157,7 @@ describe('analytics helpers', function () {
 
     it('should throttle when throttling options are provided', async function () {
       const analytics = new ThrottledAnalytics({
+        currentSessionId: id,
         target,
         throttle: { rate: 5, metadataPath },
       });
@@ -174,6 +171,7 @@ describe('analytics helpers', function () {
 
     it('should reset counter after a timeout', async function () {
       const analytics = new ThrottledAnalytics({
+        currentSessionId: id,
         target,
         throttle: { rate: 5, metadataPath, timeframe: 200 },
       });
@@ -193,6 +191,7 @@ describe('analytics helpers', function () {
     it('should persist throttled state and throttle across sessions', async function () {
       // first "session"
       const a1 = new ThrottledAnalytics({
+        currentSessionId: id,
         target,
         throttle: { rate: 5, metadataPath },
       });
@@ -205,6 +204,7 @@ describe('analytics helpers', function () {
       // second "session" — uses a different session_id so no lock conflict
       const sid2 = id + '-2';
       const a2 = new ThrottledAnalytics({
+        currentSessionId: id,
         target,
         throttle: { rate: 5, metadataPath },
       });
@@ -225,10 +225,12 @@ describe('analytics helpers', function () {
 
     it('should only allow one analytics instance to send events', async function () {
       const a1 = new ThrottledAnalytics({
+        currentSessionId: id,
         target,
         throttle: { rate: 5, metadataPath },
       });
       const a2 = new ThrottledAnalytics({
+        currentSessionId: id,
         target,
         throttle: { rate: 5, metadataPath },
       });

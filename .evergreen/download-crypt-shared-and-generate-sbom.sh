@@ -9,8 +9,11 @@ echo "pkg:generic/mongo_crypt_shared@$(cat dist/.mongosh_crypt_*.version)" >> di
 
 cat dist/.purls.txt
 
+ECR_HOST=901841024863.dkr.ecr.us-east-1.amazonaws.com
+SILKBOMB_IMAGE="${ECR_HOST}/release-infrastructure/silkbomb:2.0"
+
 set +x
-echo "${ARTIFACTORY_PASSWORD}" | docker login artifactory.corp.mongodb.com --username "${ARTIFACTORY_USERNAME}" --password-stdin
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin "${ECR_HOST}"
 set -x
 
 trap_handler() {
@@ -18,8 +21,8 @@ trap_handler() {
 }
 trap trap_handler ERR EXIT
 
-docker pull artifactory.corp.mongodb.com/release-tools-container-registry-public-local/silkbomb:2.0
-docker run --rm -v ${PWD}:/pwd artifactory.corp.mongodb.com/release-tools-container-registry-public-local/silkbomb:2.0 update \
+docker pull "${SILKBOMB_IMAGE}"
+docker run --rm -v ${PWD}:/pwd "${SILKBOMB_IMAGE}" update \
   --purls /pwd/dist/.purls.txt --sbom-out /pwd/dist/.sbom-lite.json
-docker run --env-file /tmp/kondukto_credentials.env --rm -v ${PWD}:/pwd artifactory.corp.mongodb.com/release-tools-container-registry-public-local/silkbomb:2.0 augment \
+docker run --env-file /tmp/kondukto_credentials.env --rm -v ${PWD}:/pwd "${SILKBOMB_IMAGE}" augment \
   --repo mongodb-js/mongosh --branch ${KONDUKTO_BRANCH} --sbom-in /pwd/dist/.sbom-lite.json --sbom-out /pwd/dist/.sbom.json

@@ -277,6 +277,20 @@ export async function runSmokeTests({
             tags: ['startup'],
           },
           {
+            name: 'db_hello_script_plainvm',
+            input: 'print(EJSON.stringify(db.hello(), null, 2))',
+            output: /"ok": ?1\b/,
+            includeStderr: false,
+            exitCode: 0,
+            testArgs: [
+              smokeTestServer,
+              '--file=$INPUT_AS_FILE',
+              '--jsContext=plain-vm',
+            ],
+            perfTestIterations: 20,
+            tags: ['startup', 'script'],
+          },
+          {
             name: 'db_cursor_iteration_repl',
             input: `let count = 0; for (const item of ${manyDocsCursor(
               12345

@@ -21,6 +21,8 @@ export type SetupTelemetryAnalyticsParams = {
   fetch: (url: string, init?: RequestInit) => Promise<Response>;
   /** Directory used to persist cross-session throttle state. */
   metadataPath: string;
+  /** Stable per-device identifier used to key cross-session throttle state. */
+  deviceId?: string | Promise<string>;
 };
 
 export type SetupTelemetryAnalyticsResult = {
@@ -44,11 +46,12 @@ export type SetupTelemetryAnalyticsResult = {
  * logged locally, just not sent. This is also why CI is safe without any
  * special-casing: with no endpoint configured, no HTTP requests are made.
  */
-export function setupTelemetryAnalytics({
+export async function resolveToggleableAnalytics({
   configuredTelemetryEndpoint,
   fetch,
   metadataPath,
-}: SetupTelemetryAnalyticsParams): SetupTelemetryAnalyticsResult {
+  deviceId,
+}: SetupTelemetryAnalyticsParams): Promise<SetupTelemetryAnalyticsResult> {
   // Resolve the telemetry endpoint: MONGOSH_TELEMETRY_ENDPOINT environment
   // variable > `telemetryEndpoint` user config (which carries the prod default).
   const telemetryEndpoint =
@@ -56,6 +59,7 @@ export function setupTelemetryAnalytics({
   if (!telemetryEndpoint) {
     return { analytics: new ToggleableAnalytics(), telemetryEndpoint: '' };
   }
+  const resolvedDeviceId = await Promise.resolve(deviceId);
   return {
     telemetryEndpoint,
     // ThrottledAnalytics wraps TelemetryClient target and gates every
@@ -65,6 +69,7 @@ export function setupTelemetryAnalytics({
     // (and its underlying fetch) is never called.
     analytics: new ToggleableAnalytics(
       new ThrottledAnalytics({
+        currentSessionId: resolvedDeviceId,
         target: new TelemetryClient(telemetryEndpoint, fetch),
         throttle: {
           rate: TELEMETRY_THROTTLE_RATE,

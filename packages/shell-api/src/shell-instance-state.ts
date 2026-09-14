@@ -50,8 +50,8 @@ import { Streams } from './streams';
 import { ShellLog } from './shell-log';
 
 import type { AutocompletionContext } from '@mongodb-js/mongodb-ts-autocomplete';
-import type { JSONSchema } from 'mongodb-schema';
-import { analyzeDocuments } from 'mongodb-schema';
+import type { JSONSchema } from '@mongodb-js/mongodb-schema';
+import { analyzeDocuments } from '@mongodb-js/mongodb-schema';
 import type { BaseCursor } from './abstract-cursor';
 import { deepInspectServiceProviderWrapper } from './deep-inspect/service-provider-wrapper';
 
