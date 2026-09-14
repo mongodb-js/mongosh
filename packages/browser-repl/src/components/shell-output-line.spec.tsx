@@ -1,78 +1,75 @@
 import React from 'react';
 import { expect } from '@mongosh/testing';
-import { shallow, mount } from '../../testing/enzyme';
+import { render, screen } from '@testing-library/react';
 
 import { ShellOutputLine } from './shell-output-line';
-import { HelpOutput } from './types/help-output';
-import { CursorOutput } from './types/cursor-output';
-import { CursorIterationResultOutput } from './types/cursor-iteration-result-output';
-import { SimpleTypeOutput } from './types/simple-type-output';
-import { ObjectOutput } from './types/object-output';
-import { ErrorOutput } from './types/error-output';
 
 describe('<ShellOutputLine />', function () {
   it('renders a string value', function () {
-    const wrapper = mount(
+    const { container } = render(
       <ShellOutputLine entry={{ format: 'output', value: 'some text' }} />
     );
-    expect(wrapper.find('pre')).to.have.lengthOf(1);
-    expect(wrapper.text()).to.contain('some text');
+    expect(container.querySelectorAll('pre')).to.have.lengthOf(1);
+    expect(container.textContent).to.contain('some text');
   });
 
   it('renders a pre-inspected string value from node-runtime-worker-thread', function () {
-    const wrapper = shallow(
+    const { container } = render(
       <ShellOutputLine
         entry={{ format: 'output', value: 'some text', type: 'InspectResult' }}
       />
     );
-    expect(wrapper.find(SimpleTypeOutput)).to.have.lengthOf(1);
+    expect(container.querySelectorAll('.cm-editor')).to.have.lengthOf(1);
+    expect(container.textContent).to.contain('some text');
+    expect(container.textContent).to.not.contain("'some text'");
   });
 
   it('renders an integer value', function () {
-    const wrapper = shallow(
+    const { container } = render(
       <ShellOutputLine entry={{ format: 'output', value: 1 }} />
     );
-    expect(wrapper.find(SimpleTypeOutput)).to.have.lengthOf(1);
+    expect(container.querySelectorAll('.cm-editor')).to.have.lengthOf(1);
+    expect(container.textContent).to.contain('1');
   });
 
   it('renders an object', function () {
     const object = { x: 1 };
-    const wrapper = shallow(
+    const { container } = render(
       <ShellOutputLine entry={{ format: 'output', value: object }} />
     );
-    expect(wrapper.find(ObjectOutput)).to.have.lengthOf(1);
+    expect(container.textContent).to.contain('x: 1');
   });
 
   it('renders undefined', function () {
-    const wrapper = shallow(
+    const { container } = render(
       <ShellOutputLine entry={{ format: 'output', value: undefined }} />
     );
-    expect(wrapper.find(SimpleTypeOutput)).to.have.lengthOf(1);
+    expect(container.textContent).to.contain('undefined');
   });
 
   it('renders null', function () {
-    const wrapper = shallow(
+    const { container } = render(
       <ShellOutputLine entry={{ format: 'output', value: null }} />
     );
-    expect(wrapper.find(SimpleTypeOutput)).to.have.lengthOf(1);
+    expect(container.textContent).to.contain('null');
   });
 
   it('renders function', function () {
-    const wrapper = shallow(
+    const { container } = render(
       <ShellOutputLine entry={{ format: 'output', value: (x): any => x }} />
     );
-    expect(wrapper.find(SimpleTypeOutput)).to.have.lengthOf(1);
+    expect(container.textContent).to.contain('Function');
   });
 
   it('renders class', function () {
-    const wrapper = shallow(
+    const { container } = render(
       <ShellOutputLine entry={{ format: 'output', value: class C {} }} />
     );
-    expect(wrapper.find(SimpleTypeOutput)).to.have.lengthOf(1);
+    expect(container.textContent).to.contain('Function: C');
   });
 
   it('renders Help', function () {
-    const wrapper = shallow(
+    const { container } = render(
       <ShellOutputLine
         entry={{
           format: 'output',
@@ -86,39 +83,42 @@ describe('<ShellOutputLine />', function () {
       />
     );
 
-    expect(wrapper.find(HelpOutput)).to.have.lengthOf(1);
+    expect(container.textContent).to.contain('Help');
+    expect(screen.getAllByRole('link')).to.have.lengthOf(1);
   });
 
   it('renders Cursor', function () {
-    const wrapper = shallow(
+    const { container } = render(
       <ShellOutputLine
         entry={{
           format: 'output',
           type: 'Cursor',
-          value: [],
+          value: { documents: [], cursorHasMore: false },
         }}
       />
     );
 
-    expect(wrapper.find(CursorOutput)).to.have.lengthOf(1);
+    // an empty cursor renders as an empty <pre>, unlike CursorIterationResult
+    expect(container.textContent).to.equal('');
+    expect(container.querySelectorAll('pre')).to.have.lengthOf(1);
   });
 
   it('renders CursorIterationResult', function () {
-    const wrapper = shallow(
+    const { container } = render(
       <ShellOutputLine
         entry={{
           format: 'output',
           type: 'CursorIterationResult',
-          value: [],
+          value: { documents: [], cursorHasMore: false },
         }}
       />
     );
 
-    expect(wrapper.find(CursorIterationResultOutput)).to.have.lengthOf(1);
+    expect(container.textContent).to.contain('no cursor');
   });
 
   it('renders Database', function () {
-    const wrapper = mount(
+    const { container } = render(
       <ShellOutputLine
         entry={{
           format: 'output',
@@ -128,11 +128,11 @@ describe('<ShellOutputLine />', function () {
       />
     );
 
-    expect(wrapper.text()).to.contain('value string');
+    expect(container.textContent).to.contain('value string');
   });
 
   it('renders Collection', function () {
-    const wrapper = mount(
+    const { container } = render(
       <ShellOutputLine
         entry={{
           format: 'output',
@@ -142,11 +142,11 @@ describe('<ShellOutputLine />', function () {
       />
     );
 
-    expect(wrapper.text()).to.contain('value string');
+    expect(container.textContent).to.contain('value string');
   });
 
   it('renders ShowCollectionsResult', function () {
-    const wrapper = mount(
+    const { container } = render(
       <ShellOutputLine
         entry={{
           format: 'output',
@@ -164,13 +164,13 @@ describe('<ShellOutputLine />', function () {
       />
     );
 
-    expect(wrapper.text()).to.match(
+    expect(container.textContent).to.match(
       /cats\s+\[time-series]()coll()decimal128()nested_documents()people_imported\s+\[view]()test\s+\[time-series]()system.views/
     );
   });
 
   it('renders ShowDatabasesResult', function () {
-    const wrapper = mount(
+    const { container } = render(
       <ShellOutputLine
         entry={{
           format: 'output',
@@ -186,7 +186,7 @@ describe('<ShellOutputLine />', function () {
       />
     );
 
-    expect(wrapper.text()).to.equal(
+    expect(container.textContent).to.equal(
       `
 admin      44.00 KiB
 dxl         8.00 KiB
@@ -198,7 +198,7 @@ test      558.79 GiB
   });
 
   it('renders StatsResult', function () {
-    const wrapper = mount(
+    const { container } = render(
       <ShellOutputLine
         entry={{
           format: 'output',
@@ -211,12 +211,12 @@ test      558.79 GiB
       />
     );
 
-    expect(wrapper.find('hr')).to.have.lengthOf(1);
-    expect(wrapper.text()).to.include('metadata');
+    expect(container.querySelectorAll('hr')).to.have.lengthOf(1);
+    expect(container.textContent).to.include('metadata');
   });
 
   it('renders ListCommandsResult', function () {
-    const wrapper = mount(
+    const { container } = render(
       <ShellOutputLine
         entry={{
           format: 'output',
@@ -228,13 +228,13 @@ test      558.79 GiB
       />
     );
 
-    expect(wrapper.text()).to.include('help string');
-    expect(wrapper.text()).to.include('c1');
-    expect(wrapper.text()).to.include('metadata');
+    expect(container.textContent).to.include('help string');
+    expect(container.textContent).to.include('c1');
+    expect(container.textContent).to.include('metadata');
   });
 
   it('renders ShowProfileResult with count = 0', function () {
-    const wrapper = mount(
+    const { container } = render(
       <ShellOutputLine
         entry={{
           format: 'output',
@@ -245,11 +245,11 @@ test      558.79 GiB
         }}
       />
     );
-    expect(wrapper.text()).to.include('db.system.profile is empty');
+    expect(container.textContent).to.include('db.system.profile is empty');
   });
 
   it('renders ShowProfileResult with count > 0', function () {
-    const wrapper = mount(
+    const { container } = render(
       <ShellOutputLine
         entry={{
           format: 'output',
@@ -298,22 +298,27 @@ test      558.79 GiB
         }}
       />
     );
-    expect(wrapper.text()).to.contain('command    test.system.profile 1ms ts');
-    expect(wrapper.text()).to.contain('aggregate');
+    expect(container.textContent).to.contain(
+      'command    test.system.profile 1ms ts'
+    );
+    expect(container.textContent).to.contain('aggregate');
   });
 
   it('renders an error', function () {
     const err = new Error('x');
-    const wrapper = shallow(
+    const { container } = render(
       <ShellOutputLine entry={{ format: 'output', value: err }} />
     );
-    expect(wrapper.find(ErrorOutput)).to.have.lengthOf(1);
+    // ErrorOutput renders the error name as a toggle link
+    expect(screen.getAllByRole('link')).to.have.lengthOf(1);
+    expect(container.textContent).to.contain('Error');
+    expect(container.textContent).to.contain('x');
   });
 
   it('renders an input line', function () {
-    const wrapper = mount(
+    const { container } = render(
       <ShellOutputLine entry={{ format: 'input', value: 'some text' }} />
     );
-    expect(wrapper.text()).to.contain('some text');
+    expect(container.textContent).to.contain('some text');
   });
 });
