@@ -7,7 +7,7 @@ import type { Server as HTTPServer, IncomingMessage } from 'http';
 import type { AddressInfo } from 'net';
 import { once } from 'events';
 import { gunzipSync } from 'zlib';
-import { eventually } from '@mongosh/testing';
+import { eventually, isNightly } from '@mongosh/testing';
 import type { TestShell } from './test-shell';
 import { startTestShell } from './test-shell-context';
 import { setTemporaryHomeDirectory } from './repl-helpers';
@@ -102,6 +102,7 @@ describe('e2e telemetry', function () {
     });
 
     it('sends events from a spawned shell to the configured endpoint', async function () {
+      if (isNightly) return this.skip(); // TODO(MONGOSH-3498): shell does not exit on Node nightly
       const shell = startTestShell(this, {
         args: ['--nodb'],
         env: { ...env, MONGOSH_TELEMETRY_ENDPOINT: endpoint },
@@ -132,6 +133,7 @@ describe('e2e telemetry', function () {
     });
 
     it('sends nothing when the endpoint is empty, but keeps telemetry enabled', async function () {
+      if (isNightly) return this.skip(); // TODO(MONGOSH-3498): shell does not exit on Node nightly
       // This is the default every other test in the repo runs under, courtesy
       // of scripts/test-env-setup.js.
       const shell = startTestShell(this, {
