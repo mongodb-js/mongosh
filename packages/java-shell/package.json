@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/java-shell",
-  "version": "4.3.0",
+  "version": "4.3.2",
   "private": true,
   "description": "Java application that uses mongosh-shell-api node module and MongoDB java driver to run mongo shell on JVM",
   "config": {
@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "@mongosh/cli-repl": "2.10.0",
+    "@mongosh/cli-repl": "2.11.1",
     "assert": "^2.1.0",
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.0",
@@ -33,7 +33,7 @@
     "stream-browserify": "^3.0.0",
     "util": "^0.12.5",
     "webpack-merge": "^5.8.0",
-    "@mongosh/testing": "2.2.0",
+    "@mongosh/testing": "2.4.0",
     "bson": "^7.3.1"
   },
   "license": "SSPL",
