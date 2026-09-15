@@ -301,16 +301,6 @@ export class CliRepl implements MongoshIOProvider {
         this.warnAboutInaccessibleFile(err, path),
     });
 
-    // Do not wait for log cleanup and log errors if MongoLogManager throws any.
-    void this.logManager
-      .cleanupOldLogFiles()
-      .catch((err) => {
-        this.bus.emit('mongosh:error', err, 'log');
-      })
-      .finally(() => {
-        markTime(TimingCategories.Logging, 'cleaned up log files');
-      });
-
     if (!this.logWriter) {
       this.logWriter ??= await this.logManager.createLogWriter();
 
@@ -321,6 +311,19 @@ export class CliRepl implements MongoshIOProvider {
 
       markTime(TimingCategories.Logging, 'instantiated log writer');
     }
+
+    // Clean up after creating this session's log file, so that it counts
+    // towards logMaxFileCount/logRetentionGB. Cleaning up first would leave
+    // the configured maximum of old files plus this one, i.e. one too many.
+    // Do not wait for log cleanup and log errors if MongoLogManager throws any.
+    void this.logManager
+      .cleanupOldLogFiles()
+      .catch((err) => {
+        this.bus.emit('mongosh:error', err, 'log');
+      })
+      .finally(() => {
+        markTime(TimingCategories.Logging, 'cleaned up log files');
+      });
 
     this.loggingAndTelemetry.attachLogger(this.logWriter);
 
