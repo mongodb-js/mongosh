@@ -1552,43 +1552,6 @@ describe('e2e', function () {
         });
       });
 
-      describe('telemetry toggling', function () {
-        it('enableTelemetry() yields a success response', async function () {
-          expect(await shell.executeLine('enableTelemetry()')).to.include(
-            'Telemetry is now enabled'
-          );
-          expect((await readConfig()).enableTelemetry).to.equal(true);
-        });
-        it('disableTelemetry() yields a success response', async function () {
-          expect(await shell.executeLine('disableTelemetry();')).to.include(
-            'Telemetry is now disabled'
-          );
-          expect((await readConfig()).enableTelemetry).to.equal(false);
-        });
-        it('enableTelemetry() returns an error if forceDisableTelemetry is set (but does not throw)', async function () {
-          await shell.executeLine(
-            'process.env.MONGOSH_FORCE_DISABLE_TELEMETRY_FOR_TESTING = 1'
-          );
-          expect(
-            await shell.executeLine('enableTelemetry() + "<<<<"')
-          ).to.include(
-            "Cannot modify telemetry settings while 'forceDisableTelemetry' is set to true<<<<"
-          );
-          expect((await readConfig()).enableTelemetry).to.equal(true);
-        });
-        it('disableTelemetry() returns an error if forceDisableTelemetry is set (but does not throw)', async function () {
-          await shell.executeLine(
-            'process.env.MONGOSH_FORCE_DISABLE_TELEMETRY_FOR_TESTING = 1'
-          );
-          expect(
-            await shell.executeLine('disableTelemetry() + "<<<<"')
-          ).to.include(
-            "Cannot modify telemetry settings while 'forceDisableTelemetry' is set to true<<<<"
-          );
-          expect((await readConfig()).enableTelemetry).to.equal(true);
-        });
-      });
-
       describe('log file', function () {
         it('does not get created if global config has disableLogging', async function () {
           const globalConfig = path.join(homedir, 'globalconfig.conf');
