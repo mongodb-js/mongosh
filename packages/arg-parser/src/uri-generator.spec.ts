@@ -1,7 +1,7 @@
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import { expect } from 'chai';
 import type { CliOptions } from './cli-options';
-import { generateUri } from './uri-generator';
+import { generateUri, embeddedUriAsTyped } from './uri-generator';
 
 describe('uri-generator.generate-uri', function () {
   context('when no arguments are provided', function () {
@@ -241,6 +241,78 @@ describe('uri-generator.generate-uri', function () {
         });
       }
     );
+  });
+
+  context('when an embedded MongoDB URI is provided', function () {
+    it('carries the directory into a mongodb:// URI for the service provider', function () {
+      expect(
+        generateUri({ connectionSpecifier: 'mongodb_embedded://./data' })
+      ).to.equal(
+        'mongodb://embedded/?directConnection=true&embeddedMongodb=.%2Fdata'
+      );
+    });
+
+    it('accepts the mongodb+embedded:// spelling', function () {
+      expect(
+        generateUri({ connectionSpecifier: 'mongodb+embedded:///var/lib/app' })
+      ).to.equal(
+        'mongodb://embedded/?directConnection=true&embeddedMongodb=%2Fvar%2Flib%2Fapp'
+      );
+    });
+
+    it('decodes a percent-encoded directory', function () {
+      expect(
+        generateUri({ connectionSpecifier: 'mongodb_embedded://./my%20data' })
+      ).to.equal(
+        'mongodb://embedded/?directConnection=true&embeddedMongodb=.%2Fmy+data'
+      );
+    });
+
+    it('rejects a URI carrying more than a directory', function () {
+      for (const connectionSpecifier of [
+        'mongodb_embedded://',
+        'mongodb_embedded://./data?x=1',
+        'mongodb_embedded://./data#f',
+      ]) {
+        try {
+          generateUri({ connectionSpecifier });
+          expect.fail('expected error');
+        } catch (e: any) {
+          expect(e).to.be.instanceOf(MongoshInvalidInputError);
+          expect(e.message).to.contain('only a database directory');
+          expect(e.code).to.equal(CommonErrors.InvalidArgument);
+        }
+      }
+    });
+
+    it('rejects --host and --port alongside it', function () {
+      try {
+        generateUri({
+          connectionSpecifier: 'mongodb_embedded://./data',
+          host: 'localhost',
+        });
+        expect.fail('expected error');
+      } catch (e: any) {
+        expect(e).to.be.instanceOf(MongoshInvalidInputError);
+        expect(e.code).to.equal(CommonErrors.InvalidArgument);
+      }
+    });
+  });
+
+  context('embeddedUriAsTyped', function () {
+    it('recovers the typed address from the rewritten URI', function () {
+      expect(
+        embeddedUriAsTyped(
+          generateUri({ connectionSpecifier: 'mongodb_embedded://./data' })
+        )
+      ).to.equal('mongodb_embedded://./data');
+    });
+
+    it('answers undefined for any other URI', function () {
+      expect(
+        embeddedUriAsTyped('mongodb://localhost:27017/?directConnection=true')
+      ).to.equal(undefined);
+    });
   });
 
   context('when a URI is provided without a scheme', function () {
