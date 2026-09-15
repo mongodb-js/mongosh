@@ -1,4 +1,5 @@
 import path from 'path';
+import { promises as fs } from 'fs';
 import type { Duplex } from 'stream';
 import { PassThrough } from 'stream';
 import { startSharedTestServer } from '@mongosh/testing';
@@ -119,6 +120,29 @@ describe('CliRepl logging', function () {
         expect(onLogInitialized).not.called;
 
         expect(cliRepl.logWriter).is.undefined;
+      });
+
+      it("creates this session's log file before cleaning up old ones", async function () {
+        // The cleanup pass reads the log directory once and keeps the newest
+        // logMaxFileCount/logRetentionGB worth of files. If it ran before this
+        // session's log file existed, that file would not be counted and we
+        // would end up with one file more than configured.
+        let logFileExistedDuringCleanup: boolean | undefined;
+        sinon
+          .stub(MongoLogManager.prototype, 'cleanupOldLogFiles')
+          .callsFake(async () => {
+            const logPath = cliRepl.getLogPath();
+            logFileExistedDuringCleanup =
+              !!logPath &&
+              (await fs.access(logPath).then(
+                () => true,
+                () => false
+              ));
+          });
+
+        await cliRepl.start(await testServer.connectionString(), {});
+
+        expect(logFileExistedDuringCleanup).to.equal(true);
       });
 
       it('logs cleanup errors', async function () {
