@@ -11553,29 +11553,11 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_repl
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_darwin-m60xe_n24
     display_name: "MacOS 14 arm64 m60xe n24 (Unit tests)"
     run_on: macos-14-arm64
@@ -11587,29 +11569,11 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_repl
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_darwin-m70xc_n24
     display_name: "MacOS 14 arm64 m70xc n24 (Unit tests)"
     run_on: macos-14-arm64
@@ -11621,29 +11585,11 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_repl
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_darwin-m70xe_n24
     display_name: "MacOS 14 arm64 m70xe n24 (Unit tests)"
     run_on: macos-14-arm64
@@ -11655,29 +11601,11 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_repl
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_darwin-m80xc_n24
     display_name: "MacOS 14 arm64 m80xc n24 (Unit tests)"
     run_on: macos-14-arm64
@@ -11689,29 +11617,11 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_repl
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_darwin-m80xe_n24
     display_name: "MacOS 14 arm64 m80xe n24 (Unit tests)"
     run_on: macos-14-arm64
@@ -11723,29 +11633,11 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_repl
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_darwin-m83xc_n24
     display_name: "MacOS 14 arm64 m83xc n24 (Unit tests)"
     run_on: macos-14-arm64
@@ -11757,29 +11649,11 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_repl
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_darwin-m83xe_n24
     display_name: "MacOS 14 arm64 m83xe n24 (Unit tests)"
     run_on: macos-14-arm64
@@ -11791,29 +11665,11 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_repl
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_darwin-m90xc_n24
     display_name: "MacOS 14 arm64 m90xc n24 (Unit tests)"
     run_on: macos-14-arm64
@@ -11826,29 +11682,11 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_repl
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_darwin-m90xe_n24
     display_name: "MacOS 14 arm64 m90xe n24 (Unit tests)"
     run_on: macos-14-arm64
@@ -11861,29 +11699,11 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_repl
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_darwin-mlatest_n24
     display_name: "MacOS 14 arm64 mlatest n24 (Unit tests)"
     run_on: macos-14-arm64
@@ -11895,29 +11715,11 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_repl
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: linux-n24
     display_name: "Ubuntu 20.04 x64 n24 (Unit tests)"
     run_on: ubuntu2004-small
@@ -11963,29 +11765,12 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
       - name: test_java_shell
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_linux-m44xe_n24
     display_name: "Ubuntu 20.04 x64 m44xe n24 (Unit tests)"
     run_on: ubuntu2004-small
@@ -11997,29 +11782,12 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
       - name: test_java_shell
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_linux-m50xc_n24
     display_name: "Ubuntu 20.04 x64 m50xc n24 (Unit tests)"
     run_on: ubuntu2004-small
@@ -12031,29 +11799,12 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
       - name: test_java_shell
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_linux-m50xe_n24
     display_name: "Ubuntu 20.04 x64 m50xe n24 (Unit tests)"
     run_on: ubuntu2004-small
@@ -12065,29 +11816,12 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
       - name: test_java_shell
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_linux-m60xc_n24
     display_name: "Ubuntu 20.04 x64 m60xc n24 (Unit tests)"
     run_on: ubuntu2004-small
@@ -12099,29 +11833,12 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
       - name: test_java_shell
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_linux-m60xe_n24
     display_name: "Ubuntu 20.04 x64 m60xe n24 (Unit tests)"
     run_on: ubuntu2004-small
@@ -12133,29 +11850,12 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
       - name: test_java_shell
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_linux-m70xc_n24
     display_name: "Ubuntu 20.04 x64 m70xc n24 (Unit tests)"
     run_on: ubuntu2004-small
@@ -12167,29 +11867,12 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
       - name: test_java_shell
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_linux-m70xe_n24
     display_name: "Ubuntu 20.04 x64 m70xe n24 (Unit tests)"
     run_on: ubuntu2004-small
@@ -12201,29 +11884,12 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
       - name: test_java_shell
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_linux-m80xc_n24
     display_name: "Ubuntu 20.04 x64 m80xc n24 (Unit tests)"
     run_on: ubuntu2004-small
@@ -12235,29 +11901,12 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
       - name: test_java_shell
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_linux-m80xe_n24
     display_name: "Ubuntu 20.04 x64 m80xe n24 (Unit tests)"
     run_on: ubuntu2004-small
@@ -12269,29 +11918,12 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
       - name: test_java_shell
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_linux-m83xc_n24
     display_name: "Ubuntu 20.04 x64 m83xc n24 (Unit tests)"
     run_on: ubuntu2004-small
@@ -12303,29 +11935,12 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
       - name: test_java_shell
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_linux-m83xe_n24
     display_name: "Ubuntu 20.04 x64 m83xe n24 (Unit tests)"
     run_on: ubuntu2004-small
@@ -12337,29 +11952,12 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
       - name: test_java_shell
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_linux-m90xc_n24
     display_name: "Ubuntu 22.04 x64 m90xc n24 (Unit tests)"
     run_on: ubuntu2204-small
@@ -12372,29 +11970,12 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
       - name: test_java_shell
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_linux-m90xe_n24
     display_name: "Ubuntu 22.04 x64 m90xe n24 (Unit tests)"
     run_on: ubuntu2204-small
@@ -12407,29 +11988,12 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
       - name: test_java_shell
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_linux-mlatest_n24
     display_name: "Ubuntu 22.04 x64 mlatest n24 (Unit tests)"
     run_on: ubuntu2204-small
@@ -12441,29 +12005,12 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
       - name: test_java_shell
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: win32-n24
     display_name: "Windows n24 (Unit tests)"
     run_on: windows-2022-small
@@ -12508,28 +12055,11 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_win32-m44xe_n24
     display_name: "Windows m44xe n24 (Unit tests)"
     run_on: windows-2022-small
@@ -12541,28 +12071,11 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_win32-m50xc_n24
     display_name: "Windows m50xc n24 (Unit tests)"
     run_on: windows-2022-small
@@ -12574,28 +12087,11 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_win32-m50xe_n24
     display_name: "Windows m50xe n24 (Unit tests)"
     run_on: windows-2022-small
@@ -12607,28 +12103,11 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_win32-m60xc_n24
     display_name: "Windows m60xc n24 (Unit tests)"
     run_on: windows-2022-small
@@ -12640,28 +12119,11 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_win32-m60xe_n24
     display_name: "Windows m60xe n24 (Unit tests)"
     run_on: windows-2022-small
@@ -12673,28 +12135,11 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_win32-m70xc_n24
     display_name: "Windows m70xc n24 (Unit tests)"
     run_on: windows-2022-small
@@ -12706,28 +12151,11 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_win32-m70xe_n24
     display_name: "Windows m70xe n24 (Unit tests)"
     run_on: windows-2022-small
@@ -12739,28 +12167,11 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_win32-m80xc_n24
     display_name: "Windows m80xc n24 (Unit tests)"
     run_on: windows-2022-small
@@ -12772,28 +12183,11 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_win32-m80xe_n24
     display_name: "Windows m80xe n24 (Unit tests)"
     run_on: windows-2022-small
@@ -12805,28 +12199,11 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_win32-m83xc_n24
     display_name: "Windows m83xc n24 (Unit tests)"
     run_on: windows-2022-small
@@ -12838,28 +12215,11 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_win32-m83xe_n24
     display_name: "Windows m83xe n24 (Unit tests)"
     run_on: windows-2022-small
@@ -12871,28 +12231,11 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_win32-m90xc_n24
     display_name: "Windows m90xc n24 (Unit tests)"
     run_on: windows-2022-small
@@ -12905,28 +12248,11 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_win32-m90xe_n24
     display_name: "Windows m90xe n24 (Unit tests)"
     run_on: windows-2022-small
@@ -12939,28 +12265,11 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: tests_win32-mlatest_n24
     display_name: "Windows mlatest n24 (Unit tests)"
     run_on: windows-2022-small
@@ -12972,28 +12281,11 @@ buildvariants:
       node_js_version: "24.18.1"
       mongosh_skip_node_version_check: ""
     tasks:
-      - name: test_arg_parser
-      - name: test_async_rewriter2
-      - name: test_autocomplete
-      - name: test_browser_runtime_core
-      - name: test_browser_runtime_electron
-      - name: test_build
       - name: test_cli_repl
       - name: test_e2e_tests
-      - name: test_editor
-      - name: test_errors
-      - name: test_history
-      - name: test_i18n
-      - name: test_js_multiline_to_singleline
-      - name: test_logging
       - name: test_node_runtime_worker_thread
-      - name: test_service_provider_core
       - name: test_service_provider_node_driver
       - name: test_shell_api
-      - name: test_shell_bson
-      - name: test_shell_evaluator
-      - name: test_snippet_manager
-      - name: test_types
   - name: build_linux_x64
     display_name: "RHEL 7.0 x64 (Build)"
     run_on: rhel70-build
