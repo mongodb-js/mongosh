@@ -405,6 +405,12 @@ export interface MongoshBusEventsMap extends ConnectEventMap {
   ) => void;
   /** Signals that logging has been initialized. */
   'mongosh:log-initialized': () => void;
+  /**
+   * Signals that the cleanup of old log files is about to start. This session's
+   * log file must already exist at this point so that it counts towards
+   * logMaxFileCount/logRetentionGB.
+   */
+  'mongosh:log-cleanup-start': () => void;
 }
 
 export interface MongoshBus {
