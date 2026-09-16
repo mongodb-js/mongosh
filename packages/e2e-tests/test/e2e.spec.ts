@@ -28,7 +28,6 @@ import { createServer as createHTTPServer } from 'http';
 import { once } from 'events';
 import type { AddressInfo } from 'net';
 const { EJSON } = bson;
-import { sleep } from './util-helpers';
 
 const jsContextFlagCombinations: `--jsContext=${'plain-vm' | 'repl'}`[][] = [
   [],
@@ -2666,8 +2665,22 @@ describe('e2e', function () {
       let helperShell: TestShell;
       let currentOpShell: TestShell;
 
-      const CURRENT_OP_WAIT_TIME = 400;
-      const OPERATION_TIME = CURRENT_OP_WAIT_TIME * 2;
+      // How long the server-side operation stays in progress. This is the
+      // window in which db.currentOp() has to observe it, so it needs to be
+      // comfortably longer than one shell round trip - on the emulated
+      // variants (s390x, ppc64le) a single executeLine() can take a second or more.
+      const OPERATION_TIME = 5000;
+
+      // eventually() adds attempts while the sleeps between them still fit in
+      // `timeout`, so that allows 1500 / 250 = 6 attempts.
+      //
+      // The time each attempt itself takes is not part of that,
+      // so the total time has to fit in OPERATION_TIME.
+      const CURRENT_OP_POLL_OPTIONS = { initialInterval: 250, timeout: 1500 };
+
+      before(function () {
+        this.timeout(60_000);
+      });
 
       beforeEach(async function () {
         helperShell = startTestShell(this, {
@@ -2688,16 +2701,23 @@ describe('e2e', function () {
           `db.coll.find({$where: function() { sleep(${OPERATION_TIME}) }}).projection({testProjection: 1})`
         );
         helperShell.assertNoErrors();
-        await sleep(CURRENT_OP_WAIT_TIME);
-        let currentOpCall = await currentOpShell.executeLine(`db.currentOp()`);
 
-        currentOpShell.assertNoErrors();
-
-        expect(currentOpCall).to.include('testProjection');
+        // Poll instead of sleeping for a fixed amount of time: we cannot know
+        // when the operation becomes visible to db.currentOp(), only that it
+        // will be at some point while it is still running.
+        await eventually(async () => {
+          const currentOpCall = await currentOpShell.executeLine(
+            `db.currentOp()`
+          );
+          currentOpShell.assertNoErrors();
+          expect(currentOpCall).to.include('testProjection');
+        }, CURRENT_OP_POLL_OPTIONS);
 
         await currentCommand;
 
-        currentOpCall = await currentOpShell.executeLine(`db.currentOp()`);
+        const currentOpCall = await currentOpShell.executeLine(
+          `db.currentOp()`
+        );
 
         currentOpShell.assertNoErrors();
         expect(currentOpCall).not.to.include('testProjection');
@@ -2718,14 +2738,13 @@ describe('e2e', function () {
         );
         helperShell.assertNoErrors();
 
-        await sleep(CURRENT_OP_WAIT_TIME);
-
-        const currentOpCall = await currentOpShell.executeLine(
-          `db.currentOp()`
-        );
-        currentOpShell.assertNoErrors();
-
-        expect(currentOpCall).to.include(stringifiedRegExpString);
+        await eventually(async () => {
+          const currentOpCall = await currentOpShell.executeLine(
+            `db.currentOp()`
+          );
+          currentOpShell.assertNoErrors();
+          expect(currentOpCall).to.include(stringifiedRegExpString);
+        }, CURRENT_OP_POLL_OPTIONS);
       });
     });
   });
