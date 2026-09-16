@@ -82,17 +82,48 @@ export async function generateShrinkwrap(
     lockfile.name = packageJson.name;
     lockfile.version = packageJson.version;
     lockfile.packages[''] = { ...prodPkg };
+
+    // Move the workspace's nested dependencies onto the new root, so their
+    // versions resolve from the lockfile rather than from the registry.
+    const workspaceLocation = (
+      lockfile.packages[`node_modules/${packageJson.name}`] as
+        | LockfilePackageEntry
+        | undefined
+    )?.resolved;
+    if (workspaceLocation) {
+      const workspacePrefix = `${workspaceLocation}/node_modules/`;
+      for (const [key, entry] of Object.entries(lockfile.packages)) {
+        if (!key.startsWith(workspacePrefix)) continue;
+        lockfile.packages[`node_modules/${key.slice(workspacePrefix.length)}`] =
+          entry;
+        delete lockfile.packages[key];
+      }
+    }
+
     await fs.writeFile(
       path.join(tmpDir, 'package-lock.json'),
       JSON.stringify(lockfile, null, 2)
     );
 
-    // Let npm prune the lockfile to only the reachable dependencies
-    spawnSync('npm', ['install', '--package-lock-only', '--ignore-scripts'], {
-      cwd: tmpDir,
-      stdio: 'pipe',
-      encoding: 'utf8',
-    });
+    // Let npm prune the lockfile to only the reachable dependencies.
+    // --offline keeps this free of network calls and fails loudly if a version
+    // cannot be resolved from the lockfile.
+    spawnSync(
+      'npm',
+      [
+        'install',
+        '--package-lock-only',
+        '--ignore-scripts',
+        '--no-audit',
+        '--no-fund',
+        '--offline',
+      ],
+      {
+        cwd: tmpDir,
+        stdio: 'pipe',
+        encoding: 'utf8',
+      }
+    );
 
     // Read the pruned lockfile and post-process it
     const prunedContent = await fs.readFile(
