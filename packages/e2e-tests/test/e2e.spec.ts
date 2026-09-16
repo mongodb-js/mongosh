@@ -2669,7 +2669,15 @@ describe('e2e', function () {
       // window in which db.currentOp() has to observe it, so it needs to be
       // comfortably longer than one shell round trip - on the emulated
       // variants (s390x, ppc64le) a single executeLine() can take a second or more.
+      // It also has to stay under the 10s that TestShell.waitForPrompt()
+      // allows, since the shell running the operation only gets its prompt
+      // back once the operation completes.
       const OPERATION_TIME = 5000;
+
+      // A collection of our own: $where runs once per scanned document, so in
+      // a collection shared with the rest of this file the operations below
+      // would take OPERATION_TIME per document.
+      const COLLECTION = 'currentOpColl';
 
       // eventually() adds attempts while the sleeps between them still fit in
       // `timeout`, so that allows 1500 / 250 = 6 attempts.
@@ -2692,13 +2700,15 @@ describe('e2e', function () {
         await helperShell.waitForPrompt();
         await currentOpShell.waitForPrompt();
 
-        // Insert a dummy object so find commands will actually run with the delay.
-        await helperShell.executeLine('db.coll.insertOne({})');
+        // Start from a known state with a single dummy object, so that find
+        // commands run with the delay exactly once.
+        await helperShell.executeLine(`db.${COLLECTION}.drop()`);
+        await helperShell.executeLine(`db.${COLLECTION}.insertOne({})`);
       });
 
       it('should return the current operation and clear when it is complete', async function () {
         const currentCommand = helperShell.executeLine(
-          `db.coll.find({$where: function() { sleep(${OPERATION_TIME}) }}).projection({testProjection: 1})`
+          `db.${COLLECTION}.find({$where: function() { sleep(${OPERATION_TIME}) }}).projection({testProjection: 1})`
         );
         helperShell.assertNoErrors();
 
@@ -2734,7 +2744,7 @@ describe('e2e', function () {
         );
 
         void helperShell.executeLine(
-          `db.coll.find({$where: function() { sleep(${OPERATION_TIME}) }}).projection({re: BSONRegExp('${stringifiedRegExpString}')})`
+          `db.${COLLECTION}.find({$where: function() { sleep(${OPERATION_TIME}) }}).projection({re: BSONRegExp('${stringifiedRegExpString}')})`
         );
         helperShell.assertNoErrors();
 
