@@ -2087,7 +2087,12 @@ describe('CliRepl', function () {
         expect(output, output).not.to.include(
           'listCollections requires authentication'
         );
-        await cliRepl.mongoshRepl.close();
+        // close() the whole CliRepl, not just the REPL: these suites connect to
+        // a real server, and leaving the service provider's MongoClient open
+        // keeps its sockets and through them this test's REPL, shell
+        // instance state and autocompleter - reachable for the rest of the
+        // run, which is enough to exhaust the heap.
+        await cliRepl.close();
       });
 
       it(`${
