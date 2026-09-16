@@ -315,6 +315,7 @@ export class CliRepl implements MongoshIOProvider {
     // Clean up after creating this session's log file, so that it counts
     // towards logMaxFileCount/logRetentionGB. Cleaning up first would leave
     // the configured maximum of old files plus this one, i.e. one too many.
+    this.bus.emit('mongosh:log-cleanup-start');
     // Do not wait for log cleanup and log errors if MongoLogManager throws any.
     void this.logManager
       .cleanupOldLogFiles()
