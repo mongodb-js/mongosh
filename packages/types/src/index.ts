@@ -517,9 +517,7 @@ export class CliUserConfig extends SnippetShellUserConfig {
   oidcTrustedEndpoints: undefined | string[] = undefined;
   browser: undefined | false | string = undefined;
   updateURL = 'https://downloads.mongodb.com/compass/mongosh.json';
-  // TODO(MONGOSH-3406): set the production telemetry endpoint URL. While this
-  // is empty, telemetry is not sent (events are only written to the log).
-  telemetryEndpoint = '';
+  telemetryEndpoint = 'https://mongosh-telemetry.mongodb.com';
   disableLogging = false;
   logLocation: string | undefined = undefined;
   logRetentionDays = 30;
