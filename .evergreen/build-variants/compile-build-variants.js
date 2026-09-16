@@ -62,9 +62,33 @@ exports.COMPILE_BUILD_VARIANTS = [
     executableOsId: 'linux-ppc64le',
   },
   {
+    displayName: 'RHEL 8 PPC',
+    runOn: 'rhel8-power-small',
+    executableOsId: 'linux-ppc64le-openssl11',
+    sharedOpenSsl: 'openssl11',
+  },
+  {
+    displayName: 'RHEL 8 PPC',
+    runOn: 'rhel8-power-small',
+    executableOsId: 'linux-ppc64le-openssl3',
+    sharedOpenSsl: 'openssl3',
+  },
+  {
     displayName: 'RHEL 7 s390x',
     runOn: 'rhel7-zseries-large',
     executableOsId: 'linux-s390x',
+  },
+  {
+    displayName: 'RHEL 7 s390x',
+    runOn: 'rhel7-zseries-large',
+    executableOsId: 'linux-s390x-openssl11',
+    sharedOpenSsl: 'openssl11',
+  },
+  {
+    displayName: 'RHEL 7 s390x',
+    runOn: 'rhel7-zseries-large',
+    executableOsId: 'linux-s390x-openssl3',
+    sharedOpenSsl: 'openssl3',
   },
   {
     displayName: 'MacOS 15 Sequoia (amd64)',

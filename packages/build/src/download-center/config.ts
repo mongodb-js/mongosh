@@ -42,11 +42,11 @@ async function getCurrentJsonFeed(
     );
   } catch (err: any) {
     console.warn('Failed to get existing JSON feed text', err);
-    if (err?.code !== 'NoSuchKey') throw err;
+    if (err?.name !== 'NoSuchKey') throw err;
   }
 
   return existingJsonFeedText
-    ? JSON.parse(existingJsonFeedText.toString())
+    ? JSON.parse(await existingJsonFeedText.transformToString())
     : undefined;
 }
 
@@ -67,8 +67,10 @@ export async function createAndPublishDownloadCenterConfig(
 ): Promise<void> {
   const dlcenterConfig = new DownloadCenterConfig({
     bucket: CONFIGURATIONS_BUCKET,
-    accessKeyId: awsAccessKeyIdConfig,
-    secretAccessKey: awsSecretAccessKeyConfig,
+    credentials: {
+      accessKeyId: awsAccessKeyIdConfig,
+      secretAccessKey: awsSecretAccessKeyConfig,
+    },
   });
   let existingDownloadCenterConfig: DownloadCenterConfig | undefined;
   try {
@@ -77,7 +79,7 @@ export async function createAndPublishDownloadCenterConfig(
     );
   } catch (err: any) {
     console.warn('Failed to get existing download center config', err);
-    if (err?.code !== 'NoSuchKey') {
+    if (err?.name !== 'NoSuchKey') {
       throw err;
     } else {
       existingDownloadCenterConfig = { ...ARTIFACTS_FALLBACK };
@@ -100,9 +102,11 @@ export async function createAndPublishDownloadCenterConfig(
 
   const dlcenterArtifacts = new DownloadCenterArtifacts({
     bucket: ARTIFACTS_BUCKET,
-    accessKeyId: awsAccessKeyIdArtifacts,
-    secretAccessKey: awsSecretAccessKeyArtifacts,
-    sessionToken: awsSessionTokenArtifacts,
+    credentials: {
+      accessKeyId: awsAccessKeyIdArtifacts,
+      secretAccessKey: awsSecretAccessKeyArtifacts,
+      sessionToken: awsSessionTokenArtifacts,
+    },
   });
 
   const existingJsonFeed = await getCurrentJsonFeed(dlcenterArtifacts);
@@ -154,9 +158,11 @@ export async function updateJsonFeedCTA(
 ) {
   const dlcenterArtifacts = new DownloadCenter({
     bucket: ARTIFACTS_BUCKET,
-    accessKeyId: awsAccessKeyId,
-    secretAccessKey: awsSecretAccessKey,
-    sessionToken: awsSessionToken,
+    credentials: {
+      accessKeyId: awsAccessKeyId,
+      secretAccessKey: awsSecretAccessKey,
+      sessionToken: awsSessionToken,
+    },
   });
 
   const jsonFeed = await getCurrentJsonFeed(dlcenterArtifacts);

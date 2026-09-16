@@ -102,7 +102,7 @@ const translations: Catalog = {
     'cli-repl': {
       connecting: 'Connecting to:',
       telemetry:
-        'To help improve our products, anonymous usage data is collected and sent to MongoDB periodically (https://www.mongodb.com/legal/privacy-policy).',
+        'To help improve our products, pseudo-anonymous usage data is collected from interactive and agentic sessions only, and sent to MongoDB periodically (https://www.mongodb.com/legal/privacy-policy).',
       disableTelemetry: 'You can opt-out by running the ',
       command: 'command.',
       enabledTelemetry: 'Telemetry is now enabled.',

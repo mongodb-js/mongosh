@@ -17,7 +17,7 @@ describe('Streams', function () {
     mongo = {
       _instanceState: {
         interrupted: new InterruptFlag(),
-        shellApi: { printjson: identity },
+        shellApi: { printjson: identity, sleep: identity },
         transformError: identity,
       },
       _serviceProvider: {
@@ -38,11 +38,18 @@ describe('Streams', function () {
       );
     });
 
-    it('throws when pipeline is empty', async function () {
-      const caught = await streams
-        .createStreamProcessor('spm', [])
-        .catch((e) => e);
-      expect(caught.message).to.contain('[COMMON-10001] Invalid pipeline');
+    it('allows empty pipeline', async function () {
+      const runCmdStub = sinon
+        .stub(mongo._serviceProvider, 'runCommand')
+        .resolves({ ok: 1 });
+
+      const result = await streams.createStreamProcessor('spm', []);
+      expect(result).to.eql(
+        streams.getProcessor({ name: 'spm', pipeline: [] })
+      );
+
+      const cmd = { createStreamProcessor: 'spm', pipeline: [] };
+      expect(runCmdStub.calledOnceWithExactly('admin', cmd, {})).to.be.true;
     });
 
     it('returns error when creation fails', async function () {
@@ -69,9 +76,28 @@ describe('Streams', function () {
   });
 
   describe('process', function () {
-    it('throws when pipeline is empty', async function () {
-      const caught = await streams.process([]).catch((e) => e);
-      expect(caught.message).to.contain('[COMMON-10001] Invalid pipeline');
+    it('allows empty pipeline', async function () {
+      const runCmdStub = sinon.stub(mongo._serviceProvider, 'runCommand');
+      runCmdStub
+        .withArgs('admin', { processStreamProcessor: [] }, {})
+        .resolves({ ok: 1, name: 'proc', cursorId: 1 });
+      runCmdStub
+        .withArgs(
+          'admin',
+          { getMoreSampleStreamProcessor: 'proc', cursorId: 1 },
+          {}
+        )
+        .resolves({ ok: 1, messages: [], cursorId: 0 });
+      runCmdStub.resolves({ ok: 1 });
+
+      await streams.process([]);
+      expect(
+        runCmdStub.calledWithExactly(
+          'admin',
+          { processStreamProcessor: [] },
+          {}
+        )
+      ).to.be.true;
     });
 
     it('returns if process cmd errors', async function () {

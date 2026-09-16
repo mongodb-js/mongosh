@@ -305,7 +305,7 @@ describe('DownloadCenter config', function () {
 
     context('when a configuration does not exist', function () {
       it('publishes the created configuration with the fallback provided in fallback.json', async function () {
-        downloadConfig.throws({ code: 'NoSuchKey' });
+        downloadConfig.throws({ name: 'NoSuchKey' });
 
         await createAndPublishDownloadCenterConfig(
           outputDir,
@@ -325,14 +325,18 @@ describe('DownloadCenter config', function () {
 
         expect(dlCenterConfig).to.have.been.calledWith({
           bucket: 'info-mongodb-com',
-          accessKeyId: DUMMY_ACCESS_KEY,
-          secretAccessKey: DUMMY_SECRET_KEY,
+          credentials: {
+            accessKeyId: DUMMY_ACCESS_KEY,
+            secretAccessKey: DUMMY_SECRET_KEY,
+          },
         });
         expect(dlCenterArtifacts).to.have.been.calledWith({
           bucket: 'cdn-origin-compass',
-          accessKeyId: DUMMY_ACCESS_KEY,
-          secretAccessKey: DUMMY_SECRET_KEY,
-          sessionToken: DUMMY_SESSION_TOKEN,
+          credentials: {
+            accessKeyId: DUMMY_ACCESS_KEY,
+            secretAccessKey: DUMMY_SECRET_KEY,
+            sessionToken: DUMMY_SESSION_TOKEN,
+          },
         });
 
         expect(uploadConfig).to.be.calledOnce;
@@ -389,14 +393,18 @@ describe('DownloadCenter config', function () {
 
         expect(dlCenterConfig).to.have.been.calledWith({
           bucket: 'info-mongodb-com',
-          accessKeyId: DUMMY_ACCESS_KEY,
-          secretAccessKey: DUMMY_SECRET_KEY,
+          credentials: {
+            accessKeyId: DUMMY_ACCESS_KEY,
+            secretAccessKey: DUMMY_SECRET_KEY,
+          },
         });
         expect(dlCenterArtifacts).to.have.been.calledWith({
           bucket: 'cdn-origin-compass',
-          accessKeyId: DUMMY_ACCESS_KEY,
-          secretAccessKey: DUMMY_SECRET_KEY,
-          sessionToken: DUMMY_SESSION_TOKEN,
+          credentials: {
+            accessKeyId: DUMMY_ACCESS_KEY,
+            secretAccessKey: DUMMY_SECRET_KEY,
+            sessionToken: DUMMY_SESSION_TOKEN,
+          },
         });
 
         expect(uploadConfig).to.be.calledOnce;
@@ -473,7 +481,10 @@ describe('DownloadCenter config', function () {
           'mongosh-versions.json'
         ));
         existingUploadedJsonFeed.versions[0].version = '1.10.2';
-        downloadAsset.returns(JSON.stringify(existingUploadedJsonFeed));
+        downloadAsset.returns({
+          transformToString: () =>
+            Promise.resolve(JSON.stringify(existingUploadedJsonFeed)),
+        });
 
         await createAndPublishDownloadCenterConfig(
           outputDir,
@@ -500,14 +511,18 @@ describe('DownloadCenter config', function () {
 
         expect(dlCenterConfig).to.have.been.calledWith({
           bucket: 'info-mongodb-com',
-          accessKeyId: DUMMY_ACCESS_KEY,
-          secretAccessKey: DUMMY_SECRET_KEY,
+          credentials: {
+            accessKeyId: DUMMY_ACCESS_KEY,
+            secretAccessKey: DUMMY_SECRET_KEY,
+          },
         });
         expect(dlCenterArtifacts).to.have.been.calledWith({
           bucket: 'cdn-origin-compass',
-          accessKeyId: DUMMY_ACCESS_KEY,
-          secretAccessKey: DUMMY_SECRET_KEY,
-          sessionToken: DUMMY_SESSION_TOKEN,
+          credentials: {
+            accessKeyId: DUMMY_ACCESS_KEY,
+            secretAccessKey: DUMMY_SECRET_KEY,
+            sessionToken: DUMMY_SESSION_TOKEN,
+          },
         });
 
         expect(uploadConfig).to.be.calledOnce;
@@ -626,7 +641,10 @@ describe('DownloadCenter config', function () {
       downloadAsset = sinon.stub();
       dlCenter = sinon.stub();
 
-      downloadAsset.returns(JSON.stringify(existingUploadedJsonFeed));
+      downloadAsset.returns({
+        transformToString: () =>
+          Promise.resolve(JSON.stringify(existingUploadedJsonFeed)),
+      });
 
       dlCenter.returns({
         downloadConfig,

@@ -134,8 +134,10 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
 
   public async flush(): Promise<void> {
     const session: SessionTelemetryState = this.busEventState.session;
-    if ((session.isInteractive || getAiAgent()) && this.trackFn) {
-      // Emit the "Session Ended" event once per session.
+    if (this.trackFn) {
+      // Emit the "Session Ended" event once per session. Whether the session is
+      // one we collect telemetry for at all is decided by the analytics
+      // instance passed in, see CliRepl#isTelemetryEnabled().
       this.trackFn({
         name: 'Session Ended',
         payload: {
@@ -493,7 +495,8 @@ export class LoggingAndTelemetry implements MongoshLoggingAndTelemetry {
     });
 
     onBus('mongosh:api-call-with-arguments', (args: ApiEventWithArguments) => {
-      // TODO: redactInfo cannot handle circular or otherwise nontrivial input
+      // redact() overflows the stack on circular input and leaves anything that
+      // is not a plain object, array or string unredacted.
       let arg;
       try {
         arg = JSON.parse(JSON.stringify(args));

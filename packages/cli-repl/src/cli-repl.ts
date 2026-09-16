@@ -715,9 +715,30 @@ export class CliRepl implements MongoshIOProvider {
   }
 
   /**
+   * Telemetry is only collected for sessions that are interactive or driven by
+   * an AI agent. Scripts passed via --eval or as a file are not tracked, unless
+   * they also enter the REPL afterwards (--shell).
+   *
+   * This is derived from the CLI options rather than from
+   * `mongoshRepl.isInteractive`, so that it holds from process start - events
+   * are emitted (and buffered by ToggleableAnalytics) before the REPL exists.
+   */
+  get isTrackedSessionKind(): boolean {
+    return (
+      CliRepl.getFileAndEvalInfo(this.cliOptions).willEnterInteractiveMode ||
+      !!getAiAgent()
+    );
+  }
+
+  /**
    * Single source of truth for whether telemetry is currently enabled.
    * Combines the global `forceDisableTelemetry` kill switch with the
    * user-configurable `enableTelemetry` setting.
+   *
+   * This does not take the kind of session into account: it also gates whether
+   * the device ID may be exposed in the update notification request, which
+   * happens for non-interactive sessions too. Whether telemetry events are
+   * collected is decided in setTelemetryEnabled().
    */
   async isTelemetryEnabled(): Promise<boolean> {
     return (
@@ -733,7 +754,10 @@ export class CliRepl implements MongoshIOProvider {
       return;
     }
 
-    if (await this.isTelemetryEnabled()) {
+    // Single place deciding whether telemetry events are collected: the
+    // user-facing setting, plus the kind of session this is. disable() also
+    // discards events that ToggleableAnalytics buffered before this point.
+    if ((await this.isTelemetryEnabled()) && this.isTrackedSessionKind) {
       this.toggleableAnalytics.enable();
     } else {
       this.toggleableAnalytics.disable();

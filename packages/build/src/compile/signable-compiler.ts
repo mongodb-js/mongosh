@@ -159,7 +159,7 @@ export class SignableCompiler {
       requireRegexp: /\bglibc_version\.node$/,
     };
     const nativeMachineIdAddon = {
-      path: await findModulePath('cli-repl', 'native-machine-id'),
+      path: await findModulePath('cli-repl', '@mongodb-js/native-machine-id'),
       requireRegexp: /\bnative_machine_id\.node$/,
     };
     // Warning! Until https://jira.mongodb.org/browse/MONGOSH-990,

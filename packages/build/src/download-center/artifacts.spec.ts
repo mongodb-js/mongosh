@@ -25,9 +25,11 @@ describe('DownloadCenter artifacts', function () {
 
       expect(dlCenter).to.have.been.calledWith({
         bucket: 'cdn-origin-compass',
-        accessKeyId: 'accessKey',
-        secretAccessKey: 'secretKey',
-        sessionToken: 'sessionToken',
+        credentials: {
+          accessKeyId: 'accessKey',
+          secretAccessKey: 'secretKey',
+          sessionToken: 'sessionToken',
+        },
       });
       expect(uploadAsset).to.have.been.calledWith(
         'compass/artifacts.spec.ts',
