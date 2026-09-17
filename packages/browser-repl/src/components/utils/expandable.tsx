@@ -9,7 +9,11 @@ const expandableCaret = css({
   cursor: 'pointer',
 });
 
-type ExpandableProps = {};
+type ExpandableProps = {
+  children?:
+    | React.ReactNode
+    | ((expanded: boolean, toggle: () => void) => React.ReactNode);
+};
 
 interface ExpandableState {
   expanded: boolean;

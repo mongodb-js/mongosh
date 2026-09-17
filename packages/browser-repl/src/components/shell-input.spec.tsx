@@ -83,7 +83,11 @@ describe('<ShellInput />', function () {
       render(<ShellInput history={['value2', 'value1']} />);
 
       arrowUp();
+      await expectValue('value2');
+
       arrowUp();
+      await expectValue('value1');
+
       arrowDown();
       await expectValue('value2');
     });

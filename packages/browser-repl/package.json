@@ -80,12 +80,12 @@
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@mongosh/testing": "2.2.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.8",
-    "@testing-library/dom": "^8.20.1",
-    "@testing-library/react": "^12.1.5",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.7",
     "@types/numeral": "^2.0.2",
-    "@types/react": "^16.9.17",
-    "@types/react-dom": "^18.0.8",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
     "@types/text-table": "^0.2.1",
     "assert": "^2.1.0",
     "babel-loader": "^8.3.0",
@@ -108,8 +108,8 @@
     "prop-types": "^15.7.2",
     "punycode": "^2.3.1",
     "puppeteer": "^24.31.0",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-refresh": "^0.14.0",
     "rimraf": "^3.0.2",
     "stream-browserify": "^3.0.0",
@@ -124,7 +124,7 @@
     "@mongodb-js/compass-components": "*",
     "@mongodb-js/compass-editor": "*",
     "prop-types": "^15.7.2",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
   }
 }

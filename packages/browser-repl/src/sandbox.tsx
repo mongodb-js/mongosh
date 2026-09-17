@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import {
   css,
   ThemeProvider,
-  Theme,
+  Themes,
   Description,
   FormFieldContainer,
   Label,
@@ -193,7 +193,10 @@ const IframeRuntimeExample: React.FunctionComponent = () => {
     <div className={sandboxContainer}>
       <div className={shellContainer}>
         <ThemeProvider
-          theme={{ theme: darkMode ? Theme.Dark : Theme.Light, enabled: true }}
+          theme={{
+            theme: darkMode ? Themes.Dark : Themes.Light,
+            enabled: true,
+          }}
         >
           <Shell
             runtime={runtime}

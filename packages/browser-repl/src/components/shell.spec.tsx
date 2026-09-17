@@ -474,7 +474,7 @@ describe('shell', function () {
       const promise = listener?.onPrompt?.('password?', 'password');
 
       await userEvent.type(
-        screen.getByTestId('password-prompt'),
+        await screen.findByTestId('password-prompt'),
         'my password{Enter}'
       );
 
@@ -492,7 +492,10 @@ describe('shell', function () {
       await waitFor(() => expect(listener).to.exist);
       const promise = listener?.onPrompt?.('password?', 'password');
 
-      await userEvent.type(screen.getByTestId('password-prompt'), '{Escape}');
+      await userEvent.type(
+        await screen.findByTestId('password-prompt'),
+        '{Escape}'
+      );
 
       try {
         await promise;
