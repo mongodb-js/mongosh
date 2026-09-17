@@ -2671,7 +2671,7 @@ describe('e2e', function () {
       // window in which db.currentOp() has to observe it, so it needs to be
       // comfortably longer than one shell round trip - on the emulated
       // variants (s390x, ppc64le) a single executeLine() can take a second or more.
-      const OPERATION_TIME = 5000;
+      const OPERATION_TIME = 3000;
 
       // The shell that runs the operation only gets its prompt back once the
       // operation completes, so it has to wait for longer than
