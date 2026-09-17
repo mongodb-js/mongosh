@@ -42,26 +42,30 @@ describe('ErrorOutput', function () {
   // The collapsed view renders the error name as a link that toggles the
   // Expandable it lives in.
   async function expand(): Promise<void> {
-    await userEvent.click(screen.getAllByRole('link')[0]);
+    await userEvent.click(screen.getByTestId('error-name'));
   }
 
   describe('collapsed', function () {
     it('renders basic info - MongoError', function () {
-      const { container } = render(<ErrorOutput value={mongoError} />);
+      render(<ErrorOutput value={mongoError} />);
 
-      expect(container.textContent).to.contain(
-        'MongoError[ErrorCode]: Something went wrong'
+      expect(screen.getByTestId('error-name').textContent).to.equal(
+        'MongoError[ErrorCode]:'
       );
-      expect(container.textContent).not.to.contain(
-        'More details about the error'
+      expect(screen.getByTestId('error-message').textContent).to.equal(
+        'Something went wrong.'
       );
+      expect(screen.queryByTestId('error-stack')).to.equal(null);
     });
 
     it('renders basic info - generic Error', function () {
       const error = new Error('Something went wrong.');
-      const { container } = render(<ErrorOutput value={error} />);
+      render(<ErrorOutput value={error} />);
 
-      expect(container.textContent).to.contain('Something went wrong.');
+      expect(screen.getByTestId('error-name').textContent).to.equal('Error:');
+      expect(screen.getByTestId('error-message').textContent).to.equal(
+        'Something went wrong.'
+      );
     });
 
     it('strips ANSI codes from syntax errors', function () {
@@ -73,9 +77,13 @@ describe('ErrorOutput', function () {
 \u001b[0m    at ...`;
       error.message = error.stack;
 
-      const { container } = render(<ErrorOutput value={error} />);
-      expect(container.textContent).to.deep
-        .equal(`SyntaxError: SyntaxError: Syntax is wrong
+      render(<ErrorOutput value={error} />);
+
+      expect(screen.getByTestId('error-name').textContent).to.equal(
+        'SyntaxError:'
+      );
+      expect(screen.getByTestId('error-message').textContent).to.deep
+        .equal(`SyntaxError: Syntax is wrong
     at new Script (vm.js:79:7)
     at createScript (vm.js:251:10)
     at Object.runInThisContext (vm.js:303:10)
@@ -85,17 +93,16 @@ describe('ErrorOutput', function () {
 
   describe('expanded', function () {
     it('renders basic info - generic Error', async function () {
-      const { container } = render(<ErrorOutput value={mongoError} />);
-
-      expect(container.textContent).to.contain('Something went wrong.');
+      render(<ErrorOutput value={mongoError} />);
       await expand();
 
-      expect(container.textContent).to.contain(
-        'MongoError[ErrorCode]: Something went wrong'
+      expect(screen.getByTestId('error-name').textContent).to.equal(
+        'MongoError[ErrorCode]:'
       );
-      expect(container.textContent).not.to.contain(
-        'More details about the error'
+      expect(screen.getByTestId('error-message').textContent).to.equal(
+        'Something went wrong.'
       );
+      expect(screen.getByTestId('error-stack')).to.exist;
     });
 
     it('strips ANSI codes from syntax errors', async function () {
@@ -107,15 +114,17 @@ describe('ErrorOutput', function () {
 \u001b[0m    at ...`;
       error.message = error.stack;
 
-      const { container } = render(<ErrorOutput value={error} />);
+      render(<ErrorOutput value={error} />);
       await expand();
 
-      expect(container.textContent).to.deep
-        .equal(`SyntaxError: SyntaxError: Syntax is wrong
+      expect(screen.getByTestId('error-message').textContent).to.deep
+        .equal(`SyntaxError: Syntax is wrong
     at new Script (vm.js:79:7)
     at createScript (vm.js:251:10)
     at Object.runInThisContext (vm.js:303:10)
-    at ...    at new Script (vm.js:79:7)
+    at ...`);
+      expect(screen.getByTestId('error-stack').textContent).to.deep
+        .equal(`    at new Script (vm.js:79:7)
     at createScript (vm.js:251:10)
     at Object.runInThisContext (vm.js:303:10)
     at ...`);
@@ -125,48 +134,52 @@ describe('ErrorOutput', function () {
       const error = new Error('Validation failed.') as any;
       error.violations = [{ namespace: 'db.coll', properties: ['x', 'y'] }];
 
-      const { container } = render(<ErrorOutput value={error} />);
+      render(<ErrorOutput value={error} />);
       await expand();
 
-      expect(container.textContent).to.contain('Violations:');
-      expect(container.textContent).to.contain('namespace');
-      expect(container.textContent).to.contain('db.coll');
-      expect(container.textContent).to.contain("'x'");
+      expect(screen.getByText(/Violations:/).textContent).to.contain(
+        'namespace'
+      );
+      expect(screen.getByText(/Violations:/).textContent).to.contain('db.coll');
+      expect(screen.getByText(/Violations:/).textContent).to.contain("'x'");
     });
 
     it('renders writeErrors when expanded', async function () {
       const error = new Error('Bulk write failed.') as any;
       error.writeErrors = [{ index: 0, code: 11000, errmsg: 'duplicate key' }];
 
-      const { container } = render(<ErrorOutput value={error} />);
+      render(<ErrorOutput value={error} />);
       await expand();
 
-      expect(container.textContent).to.contain('Write Errors:');
-      expect(container.textContent).to.contain('11000');
-      expect(container.textContent).to.contain('duplicate key');
+      expect(screen.getByText(/Write Errors:/).textContent).to.contain('11000');
+      expect(screen.getByText(/Write Errors:/).textContent).to.contain(
+        'duplicate key'
+      );
     });
 
     it('renders cause when expanded - Error cause', async function () {
       const cause = new Error('Underlying failure.');
       const error = new Error('Wrapper failure.', { cause });
 
-      const { container } = render(<ErrorOutput value={error} />);
+      render(<ErrorOutput value={error} />);
       await expand();
 
-      expect(container.textContent).to.contain('Caused by:');
-      expect(container.textContent).to.contain('Underlying failure.');
+      expect(screen.getByText(/Caused by:/).textContent).to.contain(
+        'Underlying failure.'
+      );
     });
 
     it('renders cause when expanded - non-Error cause', async function () {
       const error = new Error('Wrapper failure.') as any;
       error.cause = { reason: 'something broke' };
 
-      const { container } = render(<ErrorOutput value={error} />);
+      render(<ErrorOutput value={error} />);
       await expand();
 
-      expect(container.textContent).to.contain('Caused by:');
-      expect(container.textContent).to.contain('reason');
-      expect(container.textContent).to.contain('something broke');
+      expect(screen.getByText(/Caused by:/).textContent).to.contain('reason');
+      expect(screen.getByText(/Caused by:/).textContent).to.contain(
+        'something broke'
+      );
     });
   });
 });
