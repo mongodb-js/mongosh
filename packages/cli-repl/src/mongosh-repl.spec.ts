@@ -139,13 +139,7 @@ describe('MongoshNodeRepl', function () {
     } catch {
       /* not initialized or already closed */
     }
-
-    // ts-sinon's stubInterface() and bare sinon.stub() register with sinon's
-    // default sandbox, which holds on to every stub - and to the arguments
-    // and `this` values it recorded - until it is restored. That keeps this
-    // test's REPL and shell instance state reachable for the rest of the run.
     sinon.restore();
-
     Object.assign(process.env, originalEnvVars);
     for (const key of Object.keys(process.env)) {
       if (!(key in originalEnvVars)) {
