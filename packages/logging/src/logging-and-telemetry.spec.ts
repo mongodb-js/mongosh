@@ -391,7 +391,13 @@ describe('MongoshLoggingAndTelemetry', function () {
 
       await setupPromise;
 
-      expect(analyticsOutput).deep.equal([['track', makeIdentifyEvent()]]);
+      // The explicit flush() above ends the session, and both events are only
+      // sent once the device ID resolves.
+      expect(analyticsOutput.map(([, event]) => event.name)).deep.equal([
+        'Session Ended',
+        'Identify',
+      ]);
+      expect(analyticsOutput).to.deep.include(['track', makeIdentifyEvent()]);
     });
 
     it('only delays analytic outputs, not logging', async function () {
@@ -452,7 +458,8 @@ describe('MongoshLoggingAndTelemetry', function () {
     });
 
     expect(logOutput).to.have.lengthOf(1);
-    expect(analyticsOutput).to.have.lengthOf(2);
+    // Identify + Session Ended (emitted by the detach) + New Connection.
+    expect(analyticsOutput).to.have.lengthOf(3);
   });
 
   it('detaching logger applies to devtools-connect events', async function () {
@@ -469,8 +476,9 @@ describe('MongoshLoggingAndTelemetry', function () {
     bus.emit('devtools-connect:connect-fail-early');
 
     expect(logOutput).to.have.lengthOf(2);
-    // The automatic Identify event was emitted once during setup.
-    expect(analyticsOutput).to.have.lengthOf(1);
+    // The automatic Identify event was emitted once during setup, and the
+    // detach above ended the session.
+    expect(analyticsOutput).to.have.lengthOf(2);
 
     loggingAndTelemetry.attachLogger(logger);
 
@@ -510,7 +518,8 @@ describe('MongoshLoggingAndTelemetry', function () {
 
     expect(logOutput).to.have.lengthOf(3);
 
-    expect(analyticsOutput).to.have.lengthOf(3);
+    // Identify + New Connection + Session Ended (emitted by the detach).
+    expect(analyticsOutput).to.have.lengthOf(4);
   });
 
   it('detaching logger is recoverable', async function () {
@@ -544,7 +553,8 @@ describe('MongoshLoggingAndTelemetry', function () {
 
     expect(logOutput).to.have.lengthOf(3);
 
-    expect(analyticsOutput).to.have.lengthOf(3);
+    // Identify + New Connection + Session Ended (emitted by the detach).
+    expect(analyticsOutput).to.have.lengthOf(4);
 
     loggingAndTelemetry.attachLogger(logger);
 
@@ -557,7 +567,8 @@ describe('MongoshLoggingAndTelemetry', function () {
 
     expect(logOutput).to.have.lengthOf(5);
 
-    expect(analyticsOutput).to.have.lengthOf(4);
+    // Identify + three New Connection events + Session Ended.
+    expect(analyticsOutput).to.have.lengthOf(5);
   });
 
   it('tracks a sequence of events', async function () {

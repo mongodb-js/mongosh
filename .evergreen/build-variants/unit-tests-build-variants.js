@@ -33,6 +33,7 @@ for (const {
     for (const {
       shortName: mShort,
       versionSpec: mVersion,
+      versionListUrl: mVersionListUrl,
     } of MONGODB_VERSIONS) {
       if (
         ['44xc', '44xe', '50xc', '50xe'].includes(mShort) &&
@@ -67,6 +68,7 @@ for (const {
         nVersion,
         mShort,
         mVersion,
+        mVersionListUrl,
         skipNodeVersionCheck,
         disable: optional === true,
       });

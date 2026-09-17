@@ -301,16 +301,6 @@ export class CliRepl implements MongoshIOProvider {
         this.warnAboutInaccessibleFile(err, path),
     });
 
-    // Do not wait for log cleanup and log errors if MongoLogManager throws any.
-    void this.logManager
-      .cleanupOldLogFiles()
-      .catch((err) => {
-        this.bus.emit('mongosh:error', err, 'log');
-      })
-      .finally(() => {
-        markTime(TimingCategories.Logging, 'cleaned up log files');
-      });
-
     if (!this.logWriter) {
       this.logWriter ??= await this.logManager.createLogWriter();
 
@@ -321,6 +311,20 @@ export class CliRepl implements MongoshIOProvider {
 
       markTime(TimingCategories.Logging, 'instantiated log writer');
     }
+
+    // Clean up after creating this session's log file, so that it counts
+    // towards logMaxFileCount/logRetentionGB. Cleaning up first would leave
+    // the configured maximum of old files plus this one, i.e. one too many.
+    this.bus.emit('mongosh:log-cleanup-start');
+    // Do not wait for log cleanup and log errors if MongoLogManager throws any.
+    void this.logManager
+      .cleanupOldLogFiles()
+      .catch((err) => {
+        this.bus.emit('mongosh:error', err, 'log');
+      })
+      .finally(() => {
+        markTime(TimingCategories.Logging, 'cleaned up log files');
+      });
 
     this.loggingAndTelemetry.attachLogger(this.logWriter);
 
@@ -715,9 +719,30 @@ export class CliRepl implements MongoshIOProvider {
   }
 
   /**
+   * Telemetry is only collected for sessions that are interactive or driven by
+   * an AI agent. Scripts passed via --eval or as a file are not tracked, unless
+   * they also enter the REPL afterwards (--shell).
+   *
+   * This is derived from the CLI options rather than from
+   * `mongoshRepl.isInteractive`, so that it holds from process start - events
+   * are emitted (and buffered by ToggleableAnalytics) before the REPL exists.
+   */
+  get isTrackedSessionKind(): boolean {
+    return (
+      CliRepl.getFileAndEvalInfo(this.cliOptions).willEnterInteractiveMode ||
+      !!getAiAgent()
+    );
+  }
+
+  /**
    * Single source of truth for whether telemetry is currently enabled.
    * Combines the global `forceDisableTelemetry` kill switch with the
    * user-configurable `enableTelemetry` setting.
+   *
+   * This does not take the kind of session into account: it also gates whether
+   * the device ID may be exposed in the update notification request, which
+   * happens for non-interactive sessions too. Whether telemetry events are
+   * collected is decided in setTelemetryEnabled().
    */
   async isTelemetryEnabled(): Promise<boolean> {
     return (
@@ -733,7 +758,10 @@ export class CliRepl implements MongoshIOProvider {
       return;
     }
 
-    if (await this.isTelemetryEnabled()) {
+    // Single place deciding whether telemetry events are collected: the
+    // user-facing setting, plus the kind of session this is. disable() also
+    // discards events that ToggleableAnalytics buffered before this point.
+    if ((await this.isTelemetryEnabled()) && this.isTrackedSessionKind) {
       this.toggleableAnalytics.enable();
     } else {
       this.toggleableAnalytics.disable();

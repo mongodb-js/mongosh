@@ -1,4 +1,4 @@
-import S3 from 'aws-sdk/clients/s3';
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import download from 'download';
 import fs from 'fs';
 import path from 'path';
@@ -7,6 +7,11 @@ import path from 'path';
  * The S3 bucket.
  */
 const BUCKET = 'mciuploads';
+
+/**
+ * The region the S3 bucket lives in.
+ */
+const BUCKET_REGION = 'us-east-1';
 
 /**
  * Upload the provided argument to evergreen s3 bucket.
@@ -25,7 +30,8 @@ export async function uploadArtifactToEvergreen(
   awsSecret: string,
   project: string,
   revisionOrVersion: string,
-  artifactUrlExtraTag: string | undefined
+  artifactUrlExtraTag: string | undefined,
+  S3: typeof S3Client = S3Client
 ): Promise<string> {
   const key = getS3ObjectKey(
     project,
@@ -40,18 +46,21 @@ export async function uploadArtifactToEvergreen(
   );
 
   const s3 = new S3({
-    accessKeyId: awsKey,
-    secretAccessKey: awsSecret,
+    region: BUCKET_REGION,
+    credentials: {
+      accessKeyId: awsKey,
+      secretAccessKey: awsSecret,
+    },
   });
 
-  await s3
-    .upload({
+  await s3.send(
+    new PutObjectCommand({
       ACL: 'public-read',
       Bucket: BUCKET,
       Key: key,
       Body: fs.createReadStream(artifact),
     })
-    .promise();
+  );
 
   const url = getArtifactUrl(
     project,

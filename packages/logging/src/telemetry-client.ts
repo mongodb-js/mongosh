@@ -72,9 +72,6 @@ export class TelemetryClient implements MongoshAnalytics {
       sessionId: String(payload.session_id ?? ''),
     });
     const url = `${this.endpoint}${eventPath(event.name)}?${query.toString()}`;
-
-    // TODO(MONGOSH-3504): It might be worth using something like zstd
-    // and/or use a custom dictionary rather than plain gzip.
     const compressed = await gzipAsync(Buffer.from(JSON.stringify(event)));
     try {
       const signal = AbortSignal.any([

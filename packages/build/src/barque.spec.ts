@@ -75,8 +75,6 @@ describe('Barque', function () {
                 'https://repo.mongodb.com/apt/ubuntu/dists/noble/mongodb-enterprise/8.3/multiverse/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
                 'https://repo.mongodb.org/apt/ubuntu/dists/noble/mongodb-org/9.0/multiverse/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
                 'https://repo.mongodb.com/apt/ubuntu/dists/noble/mongodb-enterprise/9.0/multiverse/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
-                'https://repo.mongodb.org/apt/ubuntu/dists/resolute/mongodb-org/9.0/multiverse/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
-                'https://repo.mongodb.com/apt/ubuntu/dists/resolute/mongodb-enterprise/9.0/multiverse/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
                 'https://repo.mongodb.org/apt/debian/dists/buster/mongodb-org/4.4/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
                 'https://repo.mongodb.com/apt/debian/dists/buster/mongodb-enterprise/4.4/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
                 'https://repo.mongodb.org/apt/debian/dists/buster/mongodb-org/5.0/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
