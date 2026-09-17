@@ -1,5 +1,9 @@
 {
-  "require": ["ts-node/register", "../../scripts/import-expansions.js"],
+  "require": [
+    "ts-node/register",
+    "../../scripts/import-expansions.js",
+    "../../scripts/test-env-setup.js"
+  ],
   "timeout": 15000,
   "reporter": "../../configs/mocha-config-mongosh/reporter.ts",
   "spec": ["./test/*.spec.ts"],

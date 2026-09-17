@@ -35,7 +35,7 @@ import { KNOWN_AGENT_ENV_VARS } from '@mongosh/logging';
 import { CliReplErrors } from './error-codes';
 import type { DevtoolsConnectOptions } from '@mongosh/service-provider-node-driver';
 import type { AddressInfo } from 'net';
-import type { CliUserConfig } from '@mongosh/types';
+import { CliUserConfig } from '@mongosh/types';
 import { setTimeout as delay } from 'timers/promises';
 
 describe('CliRepl', function () {
@@ -160,10 +160,19 @@ describe('CliRepl', function () {
       );
     });
 
-    it('records an empty endpoint when none is configured', async function () {
+    it('records an empty endpoint when config explicitly clears it', async function () {
       cliRepl = new CliRepl(cliReplOptions);
+      cliRepl.config.telemetryEndpoint = '';
       await cliRepl.setupTelemetrySink();
       expect(cliRepl.telemetryEndpoint).to.equal('');
+    });
+
+    it('records the production default when config is untouched', async function () {
+      cliRepl = new CliRepl(cliReplOptions);
+      await cliRepl.setupTelemetrySink();
+      expect(cliRepl.telemetryEndpoint).to.equal(
+        new CliUserConfig().telemetryEndpoint
+      );
     });
   });
 

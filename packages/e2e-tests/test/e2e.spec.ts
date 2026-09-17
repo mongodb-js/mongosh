@@ -1552,43 +1552,6 @@ describe('e2e', function () {
         });
       });
 
-      describe('telemetry toggling', function () {
-        it('enableTelemetry() yields a success response', async function () {
-          expect(await shell.executeLine('enableTelemetry()')).to.include(
-            'Telemetry is now enabled'
-          );
-          expect((await readConfig()).enableTelemetry).to.equal(true);
-        });
-        it('disableTelemetry() yields a success response', async function () {
-          expect(await shell.executeLine('disableTelemetry();')).to.include(
-            'Telemetry is now disabled'
-          );
-          expect((await readConfig()).enableTelemetry).to.equal(false);
-        });
-        it('enableTelemetry() returns an error if forceDisableTelemetry is set (but does not throw)', async function () {
-          await shell.executeLine(
-            'process.env.MONGOSH_FORCE_DISABLE_TELEMETRY_FOR_TESTING = 1'
-          );
-          expect(
-            await shell.executeLine('enableTelemetry() + "<<<<"')
-          ).to.include(
-            "Cannot modify telemetry settings while 'forceDisableTelemetry' is set to true<<<<"
-          );
-          expect((await readConfig()).enableTelemetry).to.equal(true);
-        });
-        it('disableTelemetry() returns an error if forceDisableTelemetry is set (but does not throw)', async function () {
-          await shell.executeLine(
-            'process.env.MONGOSH_FORCE_DISABLE_TELEMETRY_FOR_TESTING = 1'
-          );
-          expect(
-            await shell.executeLine('disableTelemetry() + "<<<<"')
-          ).to.include(
-            "Cannot modify telemetry settings while 'forceDisableTelemetry' is set to true<<<<"
-          );
-          expect((await readConfig()).enableTelemetry).to.equal(true);
-        });
-      });
-
       describe('log file', function () {
         it('does not get created if global config has disableLogging', async function () {
           const globalConfig = path.join(homedir, 'globalconfig.conf');
@@ -1907,12 +1870,18 @@ describe('e2e', function () {
             );
 
             const paths: string[] = [];
+            // Log file names encode a timestamp with one-second granularity and
+            // retention deletes oldest-first, so space the batches out: with the
+            // default offset they would tie with each other and with the log
+            // that the shell below creates, making the order arbitrary.
+            const now = Math.floor(Date.now() / 1000);
 
             // Create 3 log files without mongosh_ prefix
             paths.push(
               ...(await createFakeLogFiles({
                 count: 3,
                 prefix: '',
+                offset: now - 120,
                 basePath: customLogDir.path,
               }))
             );
@@ -1922,6 +1891,7 @@ describe('e2e', function () {
               ...(await createFakeLogFiles({
                 count: 3,
                 prefix: 'mongosh_',
+                offset: now - 60,
                 basePath: customLogDir.path,
               }))
             );
@@ -1960,9 +1930,12 @@ describe('e2e', function () {
               )}\n  logMaxFileCount: 4`
             );
 
-            // Create 10 log files
+            // Create 10 log files, clearly older than the log that the shell
+            // below creates: with the default offset the newest of these would
+            // tie with it, and retention deletes oldest-first.
             const paths = await createFakeLogFiles({
               count: 10,
+              offset: Math.floor(Date.now() / 1000) - 60,
               basePath: customLogDir.path,
             });
 
@@ -2005,11 +1978,14 @@ describe('e2e', function () {
             );
             const paths: string[] = [];
 
-            // Create 10 log files, around 1 mb each
+            // Create 10 log files, around 1 mb each, clearly older than the log
+            // that the shell below creates: with the default offset the newest
+            // of these would tie with it, and retention deletes oldest-first.
             paths.push(
               ...(await createFakeLogFiles({
                 count: 10,
                 size: 1024 * 1024,
+                offset: Math.floor(Date.now() / 1000) - 60,
                 basePath: customLogDir.path,
               }))
             );

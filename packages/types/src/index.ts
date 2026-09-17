@@ -405,6 +405,12 @@ export interface MongoshBusEventsMap extends ConnectEventMap {
   ) => void;
   /** Signals that logging has been initialized. */
   'mongosh:log-initialized': () => void;
+  /**
+   * Signals that the cleanup of old log files is about to start. This session's
+   * log file must already exist at this point so that it counts towards
+   * logMaxFileCount/logRetentionGB.
+   */
+  'mongosh:log-cleanup-start': () => void;
 }
 
 export interface MongoshBus {
@@ -517,9 +523,7 @@ export class CliUserConfig extends SnippetShellUserConfig {
   oidcTrustedEndpoints: undefined | string[] = undefined;
   browser: undefined | false | string = undefined;
   updateURL = 'https://downloads.mongodb.com/compass/mongosh.json';
-  // TODO(MONGOSH-3406): set the production telemetry endpoint URL. While this
-  // is empty, telemetry is not sent (events are only written to the log).
-  telemetryEndpoint = '';
+  telemetryEndpoint = 'https://mongosh-telemetry.mongodb.com';
   disableLogging = false;
   logLocation: string | undefined = undefined;
   logRetentionDays = 30;
