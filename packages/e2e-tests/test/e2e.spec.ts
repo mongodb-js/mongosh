@@ -2673,13 +2673,6 @@ describe('e2e', function () {
       // variants (s390x, ppc64le) a single executeLine() can take a second or more.
       const OPERATION_TIME = 3000;
 
-      // The shell that runs the operation only gets its prompt back once the
-      // operation completes, so it has to wait for longer than
-      // waitForPrompt() allows by default. Be generous: the server may
-      // evaluate $where more than once per document, and on MongoDB 9.0 the
-      // default 10s was not enough even for a single document.
-      const SLOW_COMMAND_OPTIONS = { timeout: 60_000 };
-
       // A collection of our own: $where runs once per scanned document, so in
       // a collection shared with the rest of this file the operations below
       // would take OPERATION_TIME per document.
@@ -2711,8 +2704,7 @@ describe('e2e', function () {
 
       it('should return the current operation and clear when it is complete', async function () {
         const currentCommand = helperShell.executeLine(
-          `db.${COLLECTION}.find({$where: function() { sleep(${OPERATION_TIME}) }}).projection({testProjection: 1})`,
-          SLOW_COMMAND_OPTIONS
+          `db.${COLLECTION}.find({$where: function() { sleep(${OPERATION_TIME}) }}).projection({testProjection: 1})`
         );
         helperShell.assertNoErrors();
 
@@ -2747,9 +2739,8 @@ describe('e2e', function () {
           -1
         );
 
-        void helperShell.executeLine(
-          `db.${COLLECTION}.find({$where: function() { sleep(${OPERATION_TIME}) }}).projection({re: BSONRegExp('${stringifiedRegExpString}')})`,
-          SLOW_COMMAND_OPTIONS
+        const currentCommand = helperShell.executeLine(
+          `db.${COLLECTION}.find({$where: function() { sleep(${OPERATION_TIME}) }}).projection({re: BSONRegExp('${stringifiedRegExpString}')})`
         );
         helperShell.assertNoErrors();
 
@@ -2760,6 +2751,11 @@ describe('e2e', function () {
           currentOpShell.assertNoErrors();
           expect(currentOpCall).to.include(stringifiedRegExpString);
         }, CURRENT_OP_POLL_OPTIONS);
+
+        // Await the operation rather than leaving it running: the shells are torn
+        // down when the test ends, so an abandoned prompt wait would reject as an
+        // unhandled rejection later in the run.
+        await currentCommand;
       });
     });
   });
