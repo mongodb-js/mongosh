@@ -2662,6 +2662,8 @@ describe('e2e', function () {
 
   describe('currentOp', function () {
     context('with 2 shells', function () {
+      this.timeout(60_000);
+
       let helperShell: TestShell;
       let currentOpShell: TestShell;
 
@@ -2690,10 +2692,6 @@ describe('e2e', function () {
       // so the total time has to fit in OPERATION_TIME.
       const CURRENT_OP_POLL_OPTIONS = { initialInterval: 250, timeout: 1500 };
 
-      before(function () {
-        this.timeout(60_000);
-      });
-
       beforeEach(async function () {
         helperShell = startTestShell(this, {
           args: [await testServer.connectionString()],
@@ -2704,8 +2702,9 @@ describe('e2e', function () {
         await helperShell.waitForPrompt();
         await currentOpShell.waitForPrompt();
 
-        // Start from a known state with a single dummy object, so that find
-        // commands run with the delay exactly once.
+        // $where runs once per scanned document, so the operations below take
+        // OPERATION_TIME per document. Start each test from a single document
+        // so that their duration is predictable.
         await helperShell.executeLine(`db.${COLLECTION}.drop()`);
         await helperShell.executeLine(`db.${COLLECTION}.insertOne({})`);
       });
