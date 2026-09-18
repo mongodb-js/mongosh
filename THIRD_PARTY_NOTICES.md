@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Thu Sep 17 2026.
+This document was automatically generated on Fri Sep 18 2026.
 
 ## List of dependencies
 
@@ -167,7 +167,7 @@ Package|Version|License
 **[body-parser](#253140cfe429361c727f808753bb1f9b3a37e473837e935fe766910ade1a4420)**|2.3.0|MIT
 **[bowser](#7e460d0286b39487b80f23af29982a9014c20f7f25403c57b17994658645b78c)**|2.14.1|MIT
 **[browserslist](#3a679ad65ccac1e9fae6dd19c08b7010652331cb1dc57c1ceae76066f33b5197)**|4.28.8|MIT
-**[bson](#230b84987836dcb0c829c5b9eec2b483d2aa41b9c055d3507096ba964cf5b73c)**|7.3.1|Apache-2.0
+**[bson](#bddbf1c19c2031771624108aa332cb5cc1bf1301c99e5acb93bc77c76582f14b)**|7.3.3|Apache-2.0
 **[buffer-from](#d08b5e69ef91add4f03dac1707f36962c172cf6cccaf6f9ff2ca502a5210d287)**|1.1.2|MIT
 **[buffer](#409d076f160d0351818531a7c09f5e2928335b83e3f0070a7f3e2685553efa6a)**|5.7.1|MIT
 **[buildcheck](#d7f4047f4468a9c831ee4956aac14dc829d1f6d79cd6aa556155d6d2ad5be581)**|0.0.7|MIT
@@ -20996,8 +20996,8 @@ License files:
       
 
 
-<a id="230b84987836dcb0c829c5b9eec2b483d2aa41b9c055d3507096ba964cf5b73c"></a>
-### [bson](https://www.npmjs.com/package/bson) (version 7.3.1)
+<a id="bddbf1c19c2031771624108aa332cb5cc1bf1301c99e5acb93bc77c76582f14b"></a>
+### [bson](https://www.npmjs.com/package/bson) (version 7.3.3)
 License tags: Apache-2.0
 
 License files:
