@@ -1,18 +1,18 @@
 import React from 'react';
 import { expect } from '@mongosh/testing';
-import { shallow } from '../../../testing/enzyme';
+import { render } from '@testing-library/react';
 
 import { ShowDbsOutput } from './show-dbs-output';
 
 describe('ShowDbsOutput', function () {
   it('renders no show dbs output if value is empty', function () {
-    const wrapper = shallow(<ShowDbsOutput value={[]} />);
+    const { container } = render(<ShowDbsOutput value={[]} />);
 
-    expect(wrapper.text()).to.equal('');
+    expect(container.textContent).to.equal('');
   });
 
   it('renders a ShowDbsOutput for each element in value', function () {
-    const wrapper = shallow(
+    const { container } = render(
       <ShowDbsOutput
         value={[
           { name: 'admin', sizeOnDisk: 45056, empty: false },
@@ -24,7 +24,7 @@ describe('ShowDbsOutput', function () {
       />
     );
 
-    expect(wrapper.text()).to.equal(
+    expect(container.textContent).to.equal(
       `
 admin      44.00 KiB
 dxl         8.00 KiB

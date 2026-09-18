@@ -2,7 +2,7 @@ import sinon from 'sinon';
 import { expect } from '@mongosh/testing';
 import { Editor, createCommands } from './editor';
 import type { Command } from '@mongodb-js/compass-editor';
-import { shallow } from '../../testing/enzyme';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
 
 describe('<Editor />', function () {
@@ -108,34 +108,33 @@ describe('<Editor />', function () {
   });
 
   describe('command callback props', function () {
-    it('does not call callback props that can modify shell input', function () {
+    it('does not call callback props that can modify shell input', async function () {
       const callbackPropSpies = {
         onEnter: sinon.spy(),
         onArrowUpOnFirstLine: sinon.stub().resolves(false),
         onArrowDownOnLastLine: sinon.stub().resolves(false),
         onClearCommand: sinon.spy(),
-        onSigInt: sinon.spy(),
+        onSigInt: sinon.stub().resolves(true),
       };
 
-      const wrapper = shallow(
-        <Editor {...callbackPropSpies} operationInProgress />
+      render(<Editor {...callbackPropSpies} operationInProgress />);
+      const editor = screen.getByRole('textbox');
+
+      fireEvent.keyDown(editor, { key: 'Enter' });
+      fireEvent.keyDown(editor, { key: 'ArrowUp' });
+      fireEvent.keyDown(editor, { key: 'ArrowDown' });
+      fireEvent.keyDown(editor, { key: 'l', ctrlKey: true });
+
+      // Only onSigInt is allowed when an operation is in progress
+      fireEvent.keyDown(editor, { key: 'c', ctrlKey: true });
+      await waitFor(
+        () => expect(callbackPropSpies.onSigInt).to.have.been.called
       );
 
-      wrapper.instance().onEnter();
       expect(callbackPropSpies.onEnter).to.not.have.been.called;
-
-      wrapper.instance().onArrowUpOnFirstLine();
       expect(callbackPropSpies.onArrowUpOnFirstLine).to.not.have.been.called;
-
-      wrapper.instance().onArrowDownOnLastLine();
       expect(callbackPropSpies.onArrowDownOnLastLine).to.not.have.been.called;
-
-      wrapper.instance().onClearCommand();
       expect(callbackPropSpies.onClearCommand).to.not.have.been.called;
-
-      // Only onSigInt is allowed when operation is in progress
-      wrapper.instance().onSigInt();
-      expect(callbackPropSpies.onSigInt).to.have.been.called;
     });
   });
 });

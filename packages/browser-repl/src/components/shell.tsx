@@ -236,6 +236,15 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
         applySnippet(template: string) {
           return editorRef.current?.applySnippet(template) ?? false;
         },
+        cursorDocEnd() {
+          return editorRef.current?.cursorDocEnd() ?? false;
+        },
+        startCompletion() {
+          return editorRef.current?.startCompletion() ?? false;
+        },
+        get editorContents() {
+          return editorRef.current?.editorContents ?? null;
+        },
         get editor() {
           return editorRef.current?.editor ?? null;
         },
@@ -437,7 +446,7 @@ const _Shell: ForwardRefRenderFunction<EditorRef | null, ShellProps> = (
     ]
   );
 
-  const setEditorRef = useCallback((editor) => {
+  const setEditorRef = useCallback((editor: EditorRef | null) => {
     editorRef.current = editor;
   }, []);
 
