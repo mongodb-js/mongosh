@@ -1,0 +1,40 @@
+{
+  "name": "@0q/mongosh",
+  "version": "0.1.0",
+  "description": "mongosh with an embedded MongoDB engine: npx @0q/mongosh mongodb_embedded://./data",
+  "keywords": [
+    "mongosh",
+    "mongodb",
+    "embedded",
+    "sqlite"
+  ],
+  "homepage": "https://github.com/jeroenvervaeke/embedded-mongo",
+  "license": "Apache-2.0",
+  "bin": {
+    "mongosh": "bin/mongosh.js"
+  },
+  "files": [
+    "bin",
+    "dist/mongosh.js",
+    "dist/mongosh.js.LICENSE.txt"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeroenvervaeke/mongosh.git",
+    "directory": "packages/embedded-mongosh"
+  },
+  "scripts": {
+    "build": "npm run webpack-build --prefix ../cli-repl && node scripts/bundle.js",
+    "test": "node --test test/*.test.js",
+    "test-ci": "node ../../scripts/run-if-package-requested.js npm test"
+  },
+  "dependencies": {
+    "@0q/embedded-mongodb": "^0.1.1"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
