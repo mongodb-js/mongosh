@@ -231,9 +231,6 @@ describe('analytics helpers', function () {
     });
 
     it('refreshes the lockfile mtime without dating it in the future', async function () {
-      // fs.utimes() takes seconds: refreshing with Date.now() milliseconds
-      // clamps mtime to 2262-04-11, and a lock dated in the future is never
-      // stale, so telemetry stays disabled on that machine forever.
       const staleDuration = 100;
       const analytics = new ThrottledAnalytics({
         currentSessionId: id,
@@ -257,13 +254,10 @@ describe('analytics helpers', function () {
     });
 
     it('treats a lockfile dated in the future as stale', async function () {
-      // Machines already poisoned by the bug above carry such a lockfile, and
-      // would otherwise never send telemetry again.
       const lockfilePath = path.resolve(metadataPath, `am-${id}.json.lock`);
       await fs.promises.mkdir(lockfilePath);
       const farFuture = new Date('2262-04-11T23:47:16.854Z');
       await fs.promises.utimes(lockfilePath, farFuture, farFuture);
-
       const analytics = new ThrottledAnalytics({
         currentSessionId: id,
         target,
