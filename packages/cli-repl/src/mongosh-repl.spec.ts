@@ -130,7 +130,16 @@ describe('MongoshNodeRepl', function () {
   before(function () {
     originalEnvVars = { ...process.env };
   });
-  afterEach(function () {
+  afterEach(async function () {
+    // Release the Node.js REPL instance and the shell instance state of this
+    // test, so that the autocompleter they reference - which keeps a
+    // TypeScript language service around - can be collected.
+    try {
+      await mongoshRepl?.close();
+    } catch {
+      /* not initialized or already closed */
+    }
+    sinon.restore();
     Object.assign(process.env, originalEnvVars);
     for (const key of Object.keys(process.env)) {
       if (!(key in originalEnvVars)) {
