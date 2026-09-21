@@ -2087,7 +2087,7 @@ describe('CliRepl', function () {
         expect(output, output).not.to.include(
           'listCollections requires authentication'
         );
-        await cliRepl.mongoshRepl.close();
+        await cliRepl.close();
       });
 
       it(`${

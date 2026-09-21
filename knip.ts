@@ -122,8 +122,6 @@ const config: KnipConfig = {
       entry: ["src/index.tsx!", "config/*.js"],
       project: ["src/**/*.{ts,tsx}!"],
       ignoreDependencies: [
-        "@wojtekmaj/enzyme-adapter-react-17",
-        "enzyme",
         // Karma test runner plugins
         "karma-chrome-launcher",
         "karma-mocha",
