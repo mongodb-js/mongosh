@@ -2672,10 +2672,6 @@ describe('e2e', function () {
       // comfortably longer than one shell round trip - on the emulated
       // variants (s390x, ppc64le) a single executeLine() can take a second or more.
       const OPERATION_TIME = 3000;
-
-      // A collection of our own: $where runs once per scanned document, so in
-      // a collection shared with the rest of this file the operations below
-      // would take OPERATION_TIME per document.
       const COLLECTION = 'currentOpColl';
 
       // eventually() adds attempts while the sleeps between them still fit in
@@ -2694,17 +2690,12 @@ describe('e2e', function () {
         });
         await helperShell.waitForPrompt();
         await currentOpShell.waitForPrompt();
-
-        // $where runs once per scanned document, so the operations below take
-        // OPERATION_TIME per document. Start each test from a single document
-        // so that their duration is predictable.
-        await helperShell.executeLine(`db.${COLLECTION}.drop()`);
         await helperShell.executeLine(`db.${COLLECTION}.insertOne({})`);
       });
 
       it('should return the current operation and clear when it is complete', async function () {
         const currentCommand = helperShell.executeLine(
-          `db.${COLLECTION}.find({$where: function() { sleep(${OPERATION_TIME}) }}).projection({testProjection: 1})`
+          `db.${COLLECTION}.find({$where: function() { sleep(${OPERATION_TIME}); return true; }}).projection({testProjection: 1}).limit(1)`
         );
         helperShell.assertNoErrors();
 
@@ -2740,7 +2731,7 @@ describe('e2e', function () {
         );
 
         const currentCommand = helperShell.executeLine(
-          `db.${COLLECTION}.find({$where: function() { sleep(${OPERATION_TIME}) }}).projection({re: BSONRegExp('${stringifiedRegExpString}')})`
+          `db.${COLLECTION}.find({$where: function() { sleep(${OPERATION_TIME}); return true; }}).projection({re: BSONRegExp('${stringifiedRegExpString}')}).limit(1)`
         );
         helperShell.assertNoErrors();
 
