@@ -137,8 +137,9 @@ async function lockfile(
     // created by long running process (longer than staleDuration) we make sure
     // that another process doesn't consider lockfile stale
     intervalId = setInterval(() => {
-      // Do not use Date.now() because utimes() reads numbers as seconds,
-      // so milliseconds would date the lockfile to the year 2262.
+      // Use Dates so that utimes() cannot interpret the time wrong: it reads
+      // plain numbers as seconds, and milliseconds would silently become a
+      // date thousands of years from now.
       const now = new Date();
       fs.promises.utimes(lockfilePath, now, now).catch(() => {
         // ignore errors refreshing the lockfile mtime
