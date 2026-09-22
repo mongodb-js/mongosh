@@ -1,0 +1,49 @@
+name: "Run Disaggregated Storage Smoke Tests"
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 5 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  disagg-smoke-tests:
+    name: "Disaggregated storage cluster"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      npm_config_loglevel: verbose
+      npm_config_foreground_scripts: "true"
+      PUPPETEER_SKIP_DOWNLOAD: "true"
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          check-latest: true
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run smoke tests against the disaggregated storage cluster
+        env:
+          # Full connection string (credentials embedded), e.g.
+          # mongodb+srv://<user>:<password>@disaggr.e06dc.mongodb.net/
+          MONGOSH_SMOKE_TEST_SERVER: ${{ secrets.MONGOSH_DISAGG_SERVER_URL }}
+          # The fle smoke test auto-encrypts via a local mongocryptd / crypt
+          # shared library, which the runner doesn't have; skip it here since
+          # this smoke targets the cluster, not FLE.
+          MONGOSH_NO_AUTOMATIC_ENCRYPTION_SUPPORT: "1"
+        # Secrets are not available to PRs from forks; skip cleanly there
+        # instead of failing or silently running without the db smoke tests.
+        run: |
+          if [ -z "$MONGOSH_SMOKE_TEST_SERVER" ]; then
+            echo "::warning::MONGOSH_DISAGG_SERVER_URL secret not set; skipping disaggregated storage smoke test"
+            exit 0
+          fi
+          npm run test-smoke
