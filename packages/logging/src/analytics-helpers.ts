@@ -137,7 +137,10 @@ async function lockfile(
     // created by long running process (longer than staleDuration) we make sure
     // that another process doesn't consider lockfile stale
     intervalId = setInterval(() => {
-      const now = Date.now();
+      // Use Dates so that utimes() cannot interpret the time wrong: it reads
+      // plain numbers as seconds, and milliseconds would silently become a
+      // date thousands of years from now.
+      const now = new Date();
       fs.promises.utimes(lockfilePath, now, now).catch(() => {
         // ignore errors refreshing the lockfile mtime
       });
@@ -149,9 +152,11 @@ async function lockfile(
       throw e;
     }
     const stats = await fs.promises.stat(lockfilePath);
-    // To make sure that the lockfile is not just a leftover from an unclean
-    // process exit, we check whether or not it is stale
-    if (Date.now() - stats.mtimeMs > staleDuration) {
+    // A lock's mtime is written by whichever process holds it,
+    // so a legitimate mtime is always now or in the past.
+    // The margin avoids stealing a lock that was just created.
+    const age = Date.now() - stats.mtimeMs;
+    if (age > staleDuration || age < -staleDuration) {
       await fs.promises.rmdir(lockfilePath);
       return lockfile(filepath, staleDuration);
     }
