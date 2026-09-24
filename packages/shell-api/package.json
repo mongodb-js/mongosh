@@ -69,9 +69,9 @@
     "@mongosh/testing": "2.6.0",
     "@mongosh/types": "^5.4.0",
     "@types/babel__core": "^7.20.5",
-    "bson": "^7.3.1",
+    "bson": "^7.3.3",
     "eslint": "^7.25.0",
-    "mongodb": "^7.5.0",
+    "mongodb": "^7.6.0",
     "prettier": "^2.8.8",
     "semver": "^7.5.3"
   }
