@@ -12902,50 +12902,17 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_arm64_openssl3
-  - name: e2e_tests_rhel8_power_small
-    display_name: "RHEL 8 PPC (E2E tests)"
+  - name: e2e_tests_rhel8_power_small_m83x
+    display_name: "RHEL 8 PPC 83x (E2E tests)"
     run_on: rhel8-power-small
     tags: []
     expansions:
       executable_os_id: "linux-ppc64le"
       node_js_version: "24.21.0"
-      mongosh_server_test_version: "stable-enterprise"
+      mongosh_server_test_version: "8.3.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_ppc64le
-  - name: e2e_tests_rhel9_power_small
-    display_name: "RHEL 9 PPC (E2E tests)"
-    run_on: rhel9-power-small
-    tags: []
-    expansions:
-      executable_os_id: "linux-ppc64le"
-      node_js_version: "24.21.0"
-      mongosh_server_test_version: "stable-enterprise"
-      mongosh_test_e2e_force_fips: ""
-    tasks:
-      - name: e2e_tests_linux_ppc64le
-  - name: e2e_tests_rhel9_power_small_openssl11
-    display_name: "RHEL 9 PPC openssl11 (E2E tests)"
-    run_on: rhel9-power-small
-    tags: []
-    expansions:
-      executable_os_id: "linux-ppc64le-openssl11"
-      node_js_version: "24.21.0"
-      mongosh_server_test_version: "stable-enterprise"
-      mongosh_test_e2e_force_fips: ""
-    tasks:
-      - name: e2e_tests_linux_ppc64le_openssl11
-  - name: e2e_tests_rhel9_power_small_openssl3
-    display_name: "RHEL 9 PPC openssl3 (E2E tests)"
-    run_on: rhel9-power-small
-    tags: []
-    expansions:
-      executable_os_id: "linux-ppc64le-openssl3"
-      node_js_version: "24.21.0"
-      mongosh_server_test_version: "stable-enterprise"
-      mongosh_test_e2e_force_fips: ""
-    tasks:
-      - name: e2e_tests_linux_ppc64le_openssl3
   - name: e2e_tests_rhel9_power_small_m83x
     display_name: "RHEL 9 PPC 83x (E2E tests)"
     run_on: rhel9-power-small
@@ -12957,6 +12924,28 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_ppc64le
+  - name: e2e_tests_rhel9_power_small_openssl11_m83x
+    display_name: "RHEL 9 PPC 83x openssl11 (E2E tests)"
+    run_on: rhel9-power-small
+    tags: []
+    expansions:
+      executable_os_id: "linux-ppc64le-openssl11"
+      node_js_version: "24.21.0"
+      mongosh_server_test_version: "8.3.x-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests_linux_ppc64le_openssl11
+  - name: e2e_tests_rhel9_power_small_openssl3_m83x
+    display_name: "RHEL 9 PPC 83x openssl3 (E2E tests)"
+    run_on: rhel9-power-small
+    tags: []
+    expansions:
+      executable_os_id: "linux-ppc64le-openssl3"
+      node_js_version: "24.21.0"
+      mongosh_server_test_version: "8.3.x-enterprise"
+      mongosh_test_e2e_force_fips: ""
+    tasks:
+      - name: e2e_tests_linux_ppc64le_openssl3
   - name: e2e_tests_rhel7_zseries_small_m60x
     display_name: "RHEL 7 s390x 60x (E2E tests)"
     run_on: rhel7-zseries-small
