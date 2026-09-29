@@ -115,7 +115,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     runOn: 'ubuntu2004-small',
     tags: ['nightly-driver'],
     executableOsId: 'linux-x64',
-    mVersion: 'stable',
+    mVersion: '8.3.x',
   },
   {
     displayName: 'Ubuntu 20.04 x64',
@@ -123,7 +123,7 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     tags: ['nightly-driver'],
     sharedOpenSsl: 'openssl11',
     executableOsId: 'linux-x64-openssl11',
-    mVersion: 'stable',
+    mVersion: '8.3.x',
   },
   {
     displayName: 'Ubuntu 22.04 x64',
@@ -223,14 +223,14 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     displayName: 'Ubuntu 20.04 arm64',
     runOn: 'ubuntu2004-arm64-small',
     executableOsId: 'linux-arm64',
-    mVersion: 'stable',
+    mVersion: '8.3.x',
   },
   {
     displayName: 'Ubuntu 20.04 arm64',
     runOn: 'ubuntu2004-arm64-small',
     sharedOpenSsl: 'openssl11',
     executableOsId: 'linux-arm64-openssl11',
-    mVersion: 'stable',
+    mVersion: '8.3.x',
   },
   {
     displayName: 'Ubuntu 22.04 arm64',

@@ -11721,8 +11721,8 @@ buildvariants:
       - name: test_service_provider_node_driver
       - name: test_shell_api
   - name: linux-n24
-    display_name: "Ubuntu 20.04 x64 n24 (Unit tests)"
-    run_on: ubuntu2004-small
+    display_name: "Ubuntu 22.04 x64 n24 (Unit tests)"
+    run_on: ubuntu2204-small
     tags: ["nightly-driver"]
     disable: false
     expansions:
@@ -12572,25 +12572,25 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_x64
-  - name: e2e_tests_ubuntu2004_small
-    display_name: "Ubuntu 20.04 x64 (E2E tests)"
+  - name: e2e_tests_ubuntu2004_small_m83x
+    display_name: "Ubuntu 20.04 x64 83x (E2E tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64"
       node_js_version: "24.21.0"
-      mongosh_server_test_version: "stable-enterprise"
+      mongosh_server_test_version: "8.3.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_x64
-  - name: e2e_tests_ubuntu2004_small_openssl11
-    display_name: "Ubuntu 20.04 x64 openssl11 (E2E tests)"
+  - name: e2e_tests_ubuntu2004_small_openssl11_m83x
+    display_name: "Ubuntu 20.04 x64 83x openssl11 (E2E tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     expansions:
       executable_os_id: "linux-x64-openssl11"
       node_js_version: "24.21.0"
-      mongosh_server_test_version: "stable-enterprise"
+      mongosh_server_test_version: "8.3.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_x64_openssl11
@@ -12737,25 +12737,25 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_arm64
-  - name: e2e_tests_ubuntu2004_arm64_small
-    display_name: "Ubuntu 20.04 arm64 (E2E tests)"
+  - name: e2e_tests_ubuntu2004_arm64_small_m83x
+    display_name: "Ubuntu 20.04 arm64 83x (E2E tests)"
     run_on: ubuntu2004-arm64-small
     tags: []
     expansions:
       executable_os_id: "linux-arm64"
       node_js_version: "24.21.0"
-      mongosh_server_test_version: "stable-enterprise"
+      mongosh_server_test_version: "8.3.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_arm64
-  - name: e2e_tests_ubuntu2004_arm64_small_openssl11
-    display_name: "Ubuntu 20.04 arm64 openssl11 (E2E tests)"
+  - name: e2e_tests_ubuntu2004_arm64_small_openssl11_m83x
+    display_name: "Ubuntu 20.04 arm64 83x openssl11 (E2E tests)"
     run_on: ubuntu2004-arm64-small
     tags: []
     expansions:
       executable_os_id: "linux-arm64-openssl11"
       node_js_version: "24.21.0"
-      mongosh_server_test_version: "stable-enterprise"
+      mongosh_server_test_version: "8.3.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_linux_arm64_openssl11
