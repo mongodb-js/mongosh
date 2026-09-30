@@ -1,16 +1,17 @@
 import React from 'react';
 import { expect } from '@mongosh/testing';
-import { shallow } from '../../../testing/enzyme';
+import { render } from '@testing-library/react';
 
 import { CursorIterationResultOutput } from './cursor-iteration-result-output';
-import { ObjectOutput } from './object-output';
 
 describe('CursorIterationResultOutput', function () {
   it('renders no ObjectOutput if value is empty', function () {
     const printable = { documents: [], cursorHasMore: false };
-    const wrapper = shallow(<CursorIterationResultOutput value={printable} />);
+    const { container } = render(
+      <CursorIterationResultOutput value={printable} />
+    );
 
-    expect(wrapper.text()).to.contain('no cursor');
+    expect(container.textContent).to.contain('no cursor');
   });
 
   it('renders a ObjectOutput for each element in value', function () {
@@ -18,8 +19,12 @@ describe('CursorIterationResultOutput', function () {
       documents: [{ doc: 1 }, { doc: 2 }],
       cursorHasMore: false,
     };
-    const wrapper = shallow(<CursorIterationResultOutput value={printable} />);
+    const { container } = render(
+      <CursorIterationResultOutput value={printable} />
+    );
 
-    expect(wrapper.find(ObjectOutput)).to.have.lengthOf(2);
+    expect(container.querySelectorAll('.cm-editor')).to.have.lengthOf(2);
+    expect(container.textContent).to.contain('doc: 1');
+    expect(container.textContent).to.contain('doc: 2');
   });
 });

@@ -38,6 +38,7 @@ export class ErrorOutput extends Component<ErrorOutputProps> {
       <div>
         <pre>
           <a
+            data-testid="error-name"
             href="#"
             onClick={(e): void => {
               e.preventDefault();
@@ -46,7 +47,9 @@ export class ErrorOutput extends Component<ErrorOutputProps> {
           >
             {formattedName || 'Error'}:
           </a>{' '}
-          <span className={messageCss}>{strippedMessage}</span>
+          <span data-testid="error-message" className={messageCss}>
+            {strippedMessage}
+          </span>
         </pre>
       </div>
     );
@@ -153,7 +156,9 @@ export class ErrorOutput extends Component<ErrorOutputProps> {
           {this.formatErrorWriteErrors()}
           {this.formatErrorViolations()}
           {this.formatErrorCause()}
-          <pre className={errInfoCss}>{this.formatStack()}</pre>
+          <pre data-testid="error-stack" className={errInfoCss}>
+            {this.formatStack()}
+          </pre>
         </div>
       </div>
     );

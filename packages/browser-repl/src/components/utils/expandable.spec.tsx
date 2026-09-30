@@ -1,56 +1,73 @@
 import React from 'react';
 import sinon from 'sinon';
-import { Icon } from '@mongodb-js/compass-components';
 import { expect } from '@mongosh/testing';
-import { mount } from '../../../testing/enzyme';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { Expandable } from './expandable';
 
 describe('<Expandable />', function () {
+  // The caret is the only interactive element Expandable itself renders.
+  function caret(): Element {
+    const icon = screen.getByTestId('shell-output').querySelector('svg');
+    if (!icon) {
+      throw new Error('no caret icon rendered');
+    }
+    return icon;
+  }
+
   it('renders children element', function () {
-    const wrapper = mount(<Expandable>some text</Expandable>);
-    expect(wrapper.text()).to.contain('some text');
+    const { container } = render(<Expandable>some text</Expandable>);
+    expect(container.textContent).to.contain('some text');
   });
 
   it('renders child function', function () {
-    const wrapper = mount(<Expandable>{(): string => 'some text'}</Expandable>);
-    expect(wrapper.text()).to.contain('some text');
+    const { container } = render(
+      <Expandable>{(): string => 'some text'}</Expandable>
+    );
+    expect(container.textContent).to.contain('some text');
   });
 
-  it('passes expanded to children', function () {
-    const child1 = sinon.spy(() => '');
-    mount(<Expandable>{child1}</Expandable>);
-    expect(child1).to.have.been.calledWith(false);
+  it('passes expanded to children', async function () {
+    const child = sinon.spy(() => '');
+    render(<Expandable>{child}</Expandable>);
+    expect(child).to.have.been.calledWith(false);
 
-    const child2 = sinon.spy(() => '');
-    const wrapper = mount(<Expandable>{child2}</Expandable>);
-    wrapper.setState({ expanded: true });
-    expect(child2).to.have.been.calledWith(true);
+    await userEvent.click(caret());
+    expect(child).to.have.been.calledWith(true);
   });
 
-  it('passes toggle to children', function () {
+  it('passes toggle to children', async function () {
     let toggle;
 
-    const wrapper = mount(
+    render(
       <Expandable>
-        {(expanded, _toggle): void => {
+        {(expanded, _toggle): string => {
           toggle = _toggle;
+          return expanded ? 'expanded' : 'collapsed';
         }}
       </Expandable>
     );
 
-    toggle();
+    expect(screen.getByTestId('shell-output').textContent).to.contain(
+      'collapsed'
+    );
 
-    expect(wrapper.state('expanded')).to.be.true;
+    await userEvent.click(caret());
+
+    expect(screen.getByTestId('shell-output').textContent).to.contain(
+      'expanded'
+    );
+    expect(toggle).to.be.a('function');
   });
 
   it('renders a caret right icon when not expanded', function () {
-    const wrapper = mount(<Expandable />);
-    expect(wrapper.find(Icon).prop('glyph')).to.equal('CaretRight');
+    render(<Expandable />);
+    expect(caret().getAttribute('aria-label')).to.equal('Caret Right Icon');
   });
 
-  it('renders a caret down icon when expanded', function () {
-    const wrapper = mount(<Expandable />);
-    wrapper.setState({ expanded: true });
-    expect(wrapper.find(Icon).prop('glyph')).to.equal('CaretDown');
+  it('renders a caret down icon when expanded', async function () {
+    render(<Expandable />);
+    await userEvent.click(caret());
+    expect(caret().getAttribute('aria-label')).to.equal('Caret Down Icon');
   });
 });

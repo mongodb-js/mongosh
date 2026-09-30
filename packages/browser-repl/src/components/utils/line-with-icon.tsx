@@ -20,6 +20,7 @@ const lineWithIconContent = css({
 });
 
 interface LineWithIconProps {
+  children?: React.ReactNode;
   icon: JSX.Element;
   className?: string;
   ['data-testid']?: string;

@@ -222,8 +222,6 @@ export class Editor extends Component<EditorProps> {
         text={this.props.value}
         onChangeText={this.props.onChange}
         commands={this.commands}
-        // @ts-expect-error TODO: this works but types don't allow it, waiting
-        // for update in compass-editor
         maxLines={Infinity}
         className={editorStyles}
         completer={this.autocompleter}

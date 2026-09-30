@@ -36,8 +36,6 @@ export interface IdentifyEvent {
     os_darwin_product_version: string | undefined;
     /** macOS-only: product build version from SystemVersion.plist (e.g. `"23B74"`). */
     os_darwin_product_build_version: string | undefined;
-    /** A stable machine identifier; `"unknown"` if unavailable. */
-    device_id: string;
   };
 }
 
@@ -57,8 +55,6 @@ export interface NewConnectionEvent {
     ai_agent: string | undefined;
     /** Unique identifier for the current mongosh session. */
     session_id: string;
-    /** A stable machine identifier; `"unknown"` if unavailable. */
-    device_id: string;
     /** Whether the server is an Atlas deployment. */
     is_atlas: boolean;
     /** Whether the connection URI is an Atlas URL. */
@@ -132,8 +128,6 @@ export interface SessionEndedEvent {
     ai_agent: string | undefined;
     /** Unique identifier for the current mongosh session. */
     session_id: string;
-    /** A stable machine identifier; `"unknown"` if unavailable. */
-    device_id: string;
     /** Whether mongosh was started in interactive (REPL) mode. */
     is_interactive: boolean;
     /** Map of command keys with counts from REPL evaluations. */

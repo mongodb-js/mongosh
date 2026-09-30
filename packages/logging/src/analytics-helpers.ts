@@ -100,6 +100,8 @@ export class ToggleableAnalytics implements MongoshAnalytics {
 
 type ThrottledAnalyticsOptions = {
   target: MongoshAnalytics;
+  /** Stable identifier used to key cross-session throttle state. */
+  currentSessionId: string;
   /**
    * Throttling options. If not provided, throttling is disabled (default: null)
    */
@@ -135,7 +137,10 @@ async function lockfile(
     // created by long running process (longer than staleDuration) we make sure
     // that another process doesn't consider lockfile stale
     intervalId = setInterval(() => {
-      const now = Date.now();
+      // Use Dates so that utimes() cannot interpret the time wrong: it reads
+      // plain numbers as seconds, and milliseconds would silently become a
+      // date thousands of years from now.
+      const now = new Date();
       fs.promises.utimes(lockfilePath, now, now).catch(() => {
         // ignore errors refreshing the lockfile mtime
       });
@@ -147,9 +152,11 @@ async function lockfile(
       throw e;
     }
     const stats = await fs.promises.stat(lockfilePath);
-    // To make sure that the lockfile is not just a leftover from an unclean
-    // process exit, we check whether or not it is stale
-    if (Date.now() - stats.mtimeMs > staleDuration) {
+    // A lock's mtime is written by whichever process holds it,
+    // so a legitimate mtime is always now or in the past.
+    // The margin avoids stealing a lock that was just created.
+    const age = Date.now() - stats.mtimeMs;
+    if (age > staleDuration || age < -staleDuration) {
       await fs.promises.rmdir(lockfilePath);
       return lockfile(filepath, staleDuration);
     }
@@ -171,9 +178,29 @@ export class ThrottledAnalytics implements MongoshAnalytics {
   private restorePromise: Promise<void> = Promise.resolve();
   private unlock: () => Promise<void> = () => Promise.resolve();
 
-  constructor({ target, throttle }: Partial<ThrottledAnalyticsOptions> = {}) {
+  constructor({
+    target,
+    currentSessionId,
+    throttle,
+  }: Partial<ThrottledAnalyticsOptions> = {}) {
     this.target = target ?? new NoopAnalytics();
     this.throttleOptions = throttle ?? this.throttleOptions;
+    if (currentSessionId) {
+      // Start restore immediately so the lockfile is acquired before the first
+      // track() call, rather than being deferred until the first event arrives.
+      this.beginRestore(currentSessionId);
+    }
+  }
+
+  private beginRestore(sessionId: string): void {
+    this.currentSessionId = sessionId;
+    this.restorePromise = this.restoreThrottleState().then((enabled) => {
+      if (!enabled) {
+        this.trackQueue.disable();
+        return;
+      }
+      this.trackQueue.enable();
+    });
   }
 
   get metadataPath() {
@@ -193,18 +220,7 @@ export class ThrottledAnalytics implements MongoshAnalytics {
 
   track(event: TelemetryEvent): void {
     if (!this.currentSessionId) {
-      // Key throttle state on device_id so it persists across sessions for the
-      // same device (device_id is present on every event). session_id is only a
-      // defensive fallback and should not normally be needed.
-      this.currentSessionId =
-        event.payload.device_id ?? event.payload.session_id;
-      this.restorePromise = this.restoreThrottleState().then((enabled) => {
-        if (!enabled) {
-          this.trackQueue.disable();
-          return;
-        }
-        this.trackQueue.enable();
-      });
+      this.beginRestore(event.payload.session_id);
     }
     this.trackQueue.push(event);
   }

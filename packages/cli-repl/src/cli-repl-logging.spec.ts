@@ -1,7 +1,9 @@
 import path from 'path';
+import { promises as fs, existsSync } from 'fs';
+import { ObjectId } from 'bson';
 import type { Duplex } from 'stream';
 import { PassThrough } from 'stream';
-import { startSharedTestServer } from '@mongosh/testing';
+import { eventually, startSharedTestServer } from '@mongosh/testing';
 import { expect, readReplLogFile, useTmpdir } from '../test/repl-helpers';
 import type { CliReplOptions } from './cli-repl';
 import { CliRepl } from './cli-repl';
@@ -119,6 +121,50 @@ describe('CliRepl logging', function () {
         expect(onLogInitialized).not.called;
 
         expect(cliRepl.logWriter).is.undefined;
+      });
+
+      it("counts this session's log file towards logMaxFileCount", async function () {
+        // Cleanup reads the log directory once and keeps the newest
+        // logMaxFileCount files, so this session's log file has to exist by
+        // then; otherwise it is not counted and we keep one file more than
+        // configured.
+        const logMaxFileCount = 4;
+        cliRepl.config.logMaxFileCount = logMaxFileCount;
+        // Log file names encode a timestamp with one-second granularity, and
+        // cleanup deletes oldest-first: make these clearly older than the log
+        // the shell creates below, so that the ordering is not a tie.
+        const anHourAgo = Math.floor(Date.now() / 1000) - 3600;
+        for (let i = 0; i < logMaxFileCount; i++) {
+          await fs.writeFile(
+            path.join(
+              tmpdir.path,
+              `${ObjectId.createFromTime(anHourAgo + i).toHexString()}_log`
+            ),
+            ''
+          );
+        }
+
+        let logFileExistedAtCleanupStart: boolean | undefined;
+        cliRepl.bus.once('mongosh:log-cleanup-start', () => {
+          const logPath = cliRepl.getLogPath();
+          logFileExistedAtCleanupStart = !!logPath && existsSync(logPath);
+        });
+        await cliRepl.start(await testServer.connectionString(), {});
+
+        expect(logFileExistedAtCleanupStart).to.equal(true);
+
+        // Starting a session must not grow the number of retained log files
+        // beyond the configured maximum. Cleanup is not awaited, so wait for
+        // it to settle.
+        await eventually(async () => {
+          const logFiles = (await fs.readdir(tmpdir.path)).filter((name) =>
+            /^[a-f0-9]{24}_log$/.test(name)
+          );
+          expect(logFiles).to.have.lengthOf(logMaxFileCount);
+          expect(logFiles).to.include(
+            path.basename(cliRepl.getLogPath() ?? '')
+          );
+        });
       });
 
       it('logs cleanup errors', async function () {

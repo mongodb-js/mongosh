@@ -158,6 +158,7 @@ export class MongoRunnerSetup extends MongodSetup {
     if (this._cluster) return;
     const tmpDir = await getTmpdir();
     const version = process.env.MONGOSH_SERVER_TEST_VERSION;
+    const versionListUrl = process.env.MONGOSH_SERVER_TEST_VERSION_LIST_URL;
     const dirPath = MongoRunnerSetup._buildDirPath(
       this._id,
       version,
@@ -170,6 +171,7 @@ export class MongoRunnerSetup extends MongodSetup {
       logDir: path.join(tmpDir, 'mongodb-runner', 'logs', dirPath),
       downloadDir: path.join(tmpDir, 'mongodb-runner'),
       version: version,
+      ...(versionListUrl ? { downloadOptions: { versionListUrl } } : {}),
       ...this._opts,
     });
 

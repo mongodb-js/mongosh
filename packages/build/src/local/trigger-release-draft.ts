@@ -85,7 +85,7 @@ export async function triggerReleaseDraft(
   }
 
   console.info('... creating and pushing tag ...');
-  spawnSync('git', ['tag', nextTagName], {
+  spawnSync('git', ['tag', '-m', nextTagName, nextTagName], {
     cwd: repositoryRoot,
     encoding: 'utf-8',
   });
