@@ -7,6 +7,12 @@ pre:
       shell: bash
       script: |
         rm -rf "$HOME/.mongodb/mongosh"
+  # Every task assumes this role so that server binaries can be downloaded from
+  # the private S3 bucket (see MONGOSH-3619/MONGOSH-3625).
+  - command: ec2.assume_role
+    display_name: Assume IAM role with permissions to read private -latest server artifacts
+    params:
+      role_arn: ${private_atlas_artifacts_role_arn}
 post_error_fails_task: true
 post:
   - command: shell.exec
