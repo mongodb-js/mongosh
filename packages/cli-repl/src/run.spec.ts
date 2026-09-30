@@ -111,7 +111,8 @@ describe('CLI entry point', function () {
       let promptedForPassword = false;
       proc.stdout?.setEncoding('utf8').on('data', (chunk) => {
         stdout += chunk;
-        if (stdout.includes('Enter password')) {
+        // Answer the prompt exactly once to handle EPIPE.
+        if (!promptedForPassword && stdout.includes('Enter password')) {
           promptedForPassword = true;
           proc.stdin?.write('\n');
         }
@@ -132,7 +133,8 @@ describe('CLI entry point', function () {
       let promptedForPassword = false;
       proc.stderr?.setEncoding('utf8').on('data', (chunk) => {
         stderr += chunk;
-        if (stderr.includes('Enter password')) {
+        // Answer the prompt exactly once to handle EPIPE.
+        if (!promptedForPassword && stderr.includes('Enter password')) {
           promptedForPassword = true;
           proc.stdin?.write('\n');
         }

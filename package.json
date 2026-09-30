@@ -139,7 +139,9 @@
     "lerna": "^9.0.3"
   },
   "overrides": {
-    "js-yaml@^4.0.0": "^4.3.0"
+    "js-yaml@^4.0.0": "^4.3.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "workspaces": [
     "configs/eslint-config-mongosh",

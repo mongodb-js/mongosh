@@ -1,167 +1,190 @@
 import React from 'react';
 import sinon from 'sinon';
 import { expect } from '@mongosh/testing';
-import { shallow, mount } from '../../testing/enzyme';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { ShellInput } from './shell-input';
-import { Editor } from './editor';
-import ShellLoader from './shell-loader';
-
-function changeValue(wrapper, value): void {
-  wrapper.find(Editor).prop('onChange')(value);
-}
-
-function enter(wrapper): void {
-  wrapper.find(Editor).prop('onEnter')();
-}
-
-function arrowUp(wrapper): void {
-  wrapper.find(Editor).prop('onArrowUpOnFirstLine')();
-}
-
-function arrowDown(wrapper): void {
-  wrapper.find(Editor).prop('onArrowDownOnLastLine')();
-}
 
 describe('<ShellInput />', function () {
+  function editor(): HTMLElement {
+    return screen.getByRole('textbox');
+  }
+
+  function promptSlot(): HTMLElement {
+    return screen.getByTestId('shell-input').firstElementChild as HTMLElement;
+  }
+
+  function promptHasIcon(): boolean {
+    return !!promptSlot().querySelector('svg');
+  }
+
+  function currentValue(): string {
+    return editor().textContent ?? '';
+  }
+
+  async function changeValue(value: string): Promise<void> {
+    await userEvent.type(editor(), value);
+    await waitFor(() => expect(currentValue()).to.equal(value));
+  }
+
+  function key(name: string): void {
+    fireEvent.keyDown(editor(), { key: name });
+  }
+
+  const arrowUp = (): void => key('ArrowUp');
+  const arrowDown = (): void => key('ArrowDown');
+  const enter = (): void => key('Enter');
+
+  async function expectValue(value: string): Promise<void> {
+    await waitFor(() => expect(currentValue()).to.equal(value));
+  }
+
   it('renders an editor', function () {
-    const wrapper = shallow(<ShellInput />);
-    expect(wrapper.find('Editor')).to.have.lengthOf(1);
+    render(<ShellInput />);
+    expect(editor()).to.exist;
   });
 
-  it('calls onInput with the current value when enter is pressed', function () {
+  it('calls onInput with the current value when enter is pressed', async function () {
     const onInput = sinon.spy();
-    const wrapper = shallow(<ShellInput onInput={onInput} />);
+    render(<ShellInput onInput={onInput} />);
 
-    changeValue(wrapper, 'value');
-    enter(wrapper);
+    await changeValue('value');
+    enter();
 
-    expect(onInput).to.have.been.calledWith('value');
+    await waitFor(() => expect(onInput).to.have.been.calledWith('value'));
   });
 
   it('does not set the editor as readOnly by default', function () {
-    const wrapper = shallow(<ShellInput />);
-    expect(wrapper.find('Editor').prop('operationInProgress')).to.equal(false);
+    render(<ShellInput />);
+    expect(editor().getAttribute('aria-readonly')).to.not.equal('true');
   });
 
   describe('history', function () {
-    it('navigates history backward on ArrowUp', function () {
-      const wrapper = shallow(<ShellInput history={['value2', 'value1']} />);
+    it('navigates history backward on ArrowUp', async function () {
+      render(<ShellInput history={['value2', 'value1']} />);
 
-      arrowUp(wrapper);
-      expect(wrapper.state('currentValue')).to.equal('value2');
+      arrowUp();
+      await expectValue('value2');
 
-      arrowUp(wrapper);
-      expect(wrapper.state('currentValue')).to.equal('value1');
+      arrowUp();
+      await expectValue('value1');
     });
 
-    it('navigates history backward and stops on first element', function () {
-      const wrapper = shallow(<ShellInput history={['value1']} />);
+    it('navigates history backward and stops on first element', async function () {
+      render(<ShellInput history={['value1']} />);
 
-      arrowUp(wrapper);
-      arrowUp(wrapper);
-      expect(wrapper.state('currentValue')).to.equal('value1');
+      arrowUp();
+      arrowUp();
+      await expectValue('value1');
     });
 
-    it('navigates history forward', function () {
-      const wrapper = shallow(<ShellInput history={['value2', 'value1']} />);
+    it('navigates history forward', async function () {
+      render(<ShellInput history={['value2', 'value1']} />);
 
-      arrowUp(wrapper);
-      arrowUp(wrapper);
-      arrowDown(wrapper);
-      expect(wrapper.state('currentValue')).to.equal('value2');
+      arrowUp();
+      await expectValue('value2');
+
+      arrowUp();
+      await expectValue('value1');
+
+      arrowDown();
+      await expectValue('value2');
     });
 
-    it('does not move the history index past the last element', function () {
-      const wrapper = shallow(<ShellInput history={['value2', 'value1']} />);
+    it('does not move the history index past the last element', async function () {
+      render(<ShellInput history={['value2', 'value1']} />);
 
-      arrowDown(wrapper);
-      expect(wrapper.state('currentValue')).to.equal('');
+      arrowDown();
+      await expectValue('');
 
-      arrowUp(wrapper);
-      expect(wrapper.state('currentValue')).to.equal('value2');
+      arrowUp();
+      await expectValue('value2');
 
-      arrowUp(wrapper);
-      expect(wrapper.state('currentValue')).to.equal('value1');
+      arrowUp();
+      await expectValue('value1');
     });
 
-    it('navigates forward back to currentValue', function () {
-      const wrapper = shallow(<ShellInput history={['value2', 'value1']} />);
+    it('navigates forward back to currentValue', async function () {
+      render(<ShellInput history={['value2', 'value1']} />);
 
-      arrowUp(wrapper);
-      expect(wrapper.state('currentValue')).to.equal('value2');
+      arrowUp();
+      await expectValue('value2');
 
-      arrowDown(wrapper);
-      expect(wrapper.state('currentValue')).to.equal('');
+      arrowDown();
+      await expectValue('');
     });
 
-    it('navigates forward back to current value after change', function () {
-      const wrapper = shallow(<ShellInput history={['value2', 'value1']} />);
+    it('navigates forward back to current value after change', async function () {
+      render(<ShellInput history={['value2', 'value1']} />);
 
-      arrowUp(wrapper);
-      expect(wrapper.state('currentValue')).to.equal('value2');
+      arrowUp();
+      await expectValue('value2');
 
-      arrowDown(wrapper);
-      changeValue(wrapper, 'value3');
+      arrowDown();
+      await expectValue('');
 
-      arrowUp(wrapper);
-      expect(wrapper.state('currentValue')).to.equal('value2');
+      await changeValue('value3');
 
-      arrowDown(wrapper);
-      expect(wrapper.state('currentValue')).to.equal('value3');
+      arrowUp();
+      await expectValue('value2');
+
+      arrowDown();
+      await expectValue('value3');
     });
 
     it('shows a loader when operationInProgress is true ', function () {
-      const wrapper = mount(
-        <ShellInput history={['value2', 'value1']} operationInProgress />
-      );
+      render(<ShellInput history={['value2', 'value1']} operationInProgress />);
 
-      expect(wrapper.find(ShellLoader).exists()).to.equal(true);
+      // ShellLoader wraps its spinner in a div, the chevron prompt is a bare svg
+      expect(promptSlot().querySelector('div')).to.exist;
     });
 
     it('does not show a loader when operationInProgress is false', function () {
-      const wrapper = shallow(
+      render(
         <ShellInput
           history={['value2', 'value1']}
           operationInProgress={false}
         />
       );
 
-      expect(wrapper.find(ShellLoader).exists()).to.equal(false);
+      expect(promptSlot().querySelector('div')).to.be.null;
     });
   });
 
   describe('autocompletion', function () {
-    it('forwards an autocompleter to the editor', function () {
+    it('forwards an autocompleter to the editor', async function () {
       const autocompleter = {
-        getCompletions: (): Promise<any[]> => Promise.resolve([]),
+        getCompletions: sinon.stub().resolves([]),
       };
-      const wrapper = shallow(<ShellInput autocompleter={autocompleter} />);
-      expect(wrapper.find('Editor').prop('autocompleter')).to.equal(
-        autocompleter
+      render(<ShellInput autocompleter={autocompleter} />);
+
+      await changeValue('db.');
+
+      await waitFor(() =>
+        expect(autocompleter.getCompletions).to.have.been.calledWith('db.')
       );
     });
   });
 
   describe('prompt', function () {
     it('just shows the chevron if no prompt is specified', function () {
-      const wrapper = mount(<ShellInput />);
-      expect(wrapper.find('LineWithIcon').find('Icon').exists()).to.equal(true);
+      render(<ShellInput />);
+      expect(promptSlot().textContent).to.equal('');
+      expect(promptHasIcon()).to.equal(true);
     });
 
     it('shows the prompt as specified', function () {
-      const wrapper = mount(<ShellInput prompt={'le prompt'} />);
-      expect(wrapper.find('LineWithIcon').text()).to.contain('le prompt');
-      expect(wrapper.find('LineWithIcon').find('Icon').exists()).to.equal(
-        false
-      );
+      render(<ShellInput prompt={'le prompt'} />);
+      expect(promptSlot().textContent).to.contain('le prompt');
+      expect(promptHasIcon()).to.equal(false);
     });
 
     it('replaces > with a nice icon', function () {
-      const wrapper = mount(<ShellInput prompt={'mongos> '} />);
-      expect(wrapper.find('LineWithIcon').text()).to.contain('mongos');
-      expect(wrapper.find('LineWithIcon').text()).to.not.contain('mongos>');
-      expect(wrapper.find('LineWithIcon').find('Icon').exists()).to.equal(true);
+      render(<ShellInput prompt={'mongos> '} />);
+      expect(promptSlot().textContent).to.contain('mongos');
+      expect(promptSlot().textContent).to.not.contain('mongos>');
+      expect(promptHasIcon()).to.equal(true);
     });
   });
 });

@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/async-rewriter-spec",
-  "version": "1.0.4",
+  "version": "1.2.0",
   "description": "MongoDB Shell Async Rewriter Spec Package",
   "license": "Apache-2.0",
   "main": "src/index.ts",

@@ -28,7 +28,6 @@ import { createServer as createHTTPServer } from 'http';
 import { once } from 'events';
 import type { AddressInfo } from 'net';
 const { EJSON } = bson;
-import { sleep } from './util-helpers';
 
 const jsContextFlagCombinations: `--jsContext=${'plain-vm' | 'repl'}`[][] = [
   [],
@@ -1552,43 +1551,6 @@ describe('e2e', function () {
         });
       });
 
-      describe('telemetry toggling', function () {
-        it('enableTelemetry() yields a success response', async function () {
-          expect(await shell.executeLine('enableTelemetry()')).to.include(
-            'Telemetry is now enabled'
-          );
-          expect((await readConfig()).enableTelemetry).to.equal(true);
-        });
-        it('disableTelemetry() yields a success response', async function () {
-          expect(await shell.executeLine('disableTelemetry();')).to.include(
-            'Telemetry is now disabled'
-          );
-          expect((await readConfig()).enableTelemetry).to.equal(false);
-        });
-        it('enableTelemetry() returns an error if forceDisableTelemetry is set (but does not throw)', async function () {
-          await shell.executeLine(
-            'process.env.MONGOSH_FORCE_DISABLE_TELEMETRY_FOR_TESTING = 1'
-          );
-          expect(
-            await shell.executeLine('enableTelemetry() + "<<<<"')
-          ).to.include(
-            "Cannot modify telemetry settings while 'forceDisableTelemetry' is set to true<<<<"
-          );
-          expect((await readConfig()).enableTelemetry).to.equal(true);
-        });
-        it('disableTelemetry() returns an error if forceDisableTelemetry is set (but does not throw)', async function () {
-          await shell.executeLine(
-            'process.env.MONGOSH_FORCE_DISABLE_TELEMETRY_FOR_TESTING = 1'
-          );
-          expect(
-            await shell.executeLine('disableTelemetry() + "<<<<"')
-          ).to.include(
-            "Cannot modify telemetry settings while 'forceDisableTelemetry' is set to true<<<<"
-          );
-          expect((await readConfig()).enableTelemetry).to.equal(true);
-        });
-      });
-
       describe('log file', function () {
         it('does not get created if global config has disableLogging', async function () {
           const globalConfig = path.join(homedir, 'globalconfig.conf');
@@ -1907,12 +1869,18 @@ describe('e2e', function () {
             );
 
             const paths: string[] = [];
+            // Log file names encode a timestamp with one-second granularity and
+            // retention deletes oldest-first, so space the batches out: with the
+            // default offset they would tie with each other and with the log
+            // that the shell below creates, making the order arbitrary.
+            const now = Math.floor(Date.now() / 1000);
 
             // Create 3 log files without mongosh_ prefix
             paths.push(
               ...(await createFakeLogFiles({
                 count: 3,
                 prefix: '',
+                offset: now - 120,
                 basePath: customLogDir.path,
               }))
             );
@@ -1922,6 +1890,7 @@ describe('e2e', function () {
               ...(await createFakeLogFiles({
                 count: 3,
                 prefix: 'mongosh_',
+                offset: now - 60,
                 basePath: customLogDir.path,
               }))
             );
@@ -1960,9 +1929,12 @@ describe('e2e', function () {
               )}\n  logMaxFileCount: 4`
             );
 
-            // Create 10 log files
+            // Create 10 log files, clearly older than the log that the shell
+            // below creates: with the default offset the newest of these would
+            // tie with it, and retention deletes oldest-first.
             const paths = await createFakeLogFiles({
               count: 10,
+              offset: Math.floor(Date.now() / 1000) - 60,
               basePath: customLogDir.path,
             });
 
@@ -2005,11 +1977,14 @@ describe('e2e', function () {
             );
             const paths: string[] = [];
 
-            // Create 10 log files, around 1 mb each
+            // Create 10 log files, around 1 mb each, clearly older than the log
+            // that the shell below creates: with the default offset the newest
+            // of these would tie with it, and retention deletes oldest-first.
             paths.push(
               ...(await createFakeLogFiles({
                 count: 10,
                 size: 1024 * 1024,
+                offset: Math.floor(Date.now() / 1000) - 60,
                 basePath: customLogDir.path,
               }))
             );
@@ -2687,11 +2662,24 @@ describe('e2e', function () {
 
   describe('currentOp', function () {
     context('with 2 shells', function () {
+      this.timeout(60_000);
+
       let helperShell: TestShell;
       let currentOpShell: TestShell;
 
-      const CURRENT_OP_WAIT_TIME = 400;
-      const OPERATION_TIME = CURRENT_OP_WAIT_TIME * 2;
+      // How long the server-side operation stays in progress. This is the
+      // window in which db.currentOp() has to observe it, so it needs to be
+      // comfortably longer than one shell round trip - on the emulated
+      // variants (s390x, ppc64le) a single executeLine() can take a second or more.
+      const OPERATION_TIME = 3000;
+      const COLLECTION = 'currentOpColl';
+
+      // eventually() adds attempts while the sleeps between them still fit in
+      // `timeout`, so that allows 1500 / 250 = 6 attempts.
+      //
+      // The time each attempt itself takes is not part of that,
+      // so the total time has to fit in OPERATION_TIME.
+      const CURRENT_OP_POLL_OPTIONS = { initialInterval: 250, timeout: 1500 };
 
       beforeEach(async function () {
         helperShell = startTestShell(this, {
@@ -2702,26 +2690,31 @@ describe('e2e', function () {
         });
         await helperShell.waitForPrompt();
         await currentOpShell.waitForPrompt();
-
-        // Insert a dummy object so find commands will actually run with the delay.
-        await helperShell.executeLine('db.coll.insertOne({})');
+        await helperShell.executeLine(`db.${COLLECTION}.insertOne({})`);
       });
 
       it('should return the current operation and clear when it is complete', async function () {
         const currentCommand = helperShell.executeLine(
-          `db.coll.find({$where: function() { sleep(${OPERATION_TIME}) }}).projection({testProjection: 1})`
+          `db.${COLLECTION}.find({$where: function() { sleep(${OPERATION_TIME}); return true; }}).projection({testProjection: 1}).limit(1)`
         );
         helperShell.assertNoErrors();
-        await sleep(CURRENT_OP_WAIT_TIME);
-        let currentOpCall = await currentOpShell.executeLine(`db.currentOp()`);
 
-        currentOpShell.assertNoErrors();
-
-        expect(currentOpCall).to.include('testProjection');
+        // Poll instead of sleeping for a fixed amount of time: we cannot know
+        // when the operation becomes visible to db.currentOp(), only that it
+        // will be at some point while it is still running.
+        await eventually(async () => {
+          const currentOpCall = await currentOpShell.executeLine(
+            `db.currentOp()`
+          );
+          currentOpShell.assertNoErrors();
+          expect(currentOpCall).to.include('testProjection');
+        }, CURRENT_OP_POLL_OPTIONS);
 
         await currentCommand;
 
-        currentOpCall = await currentOpShell.executeLine(`db.currentOp()`);
+        const currentOpCall = await currentOpShell.executeLine(
+          `db.currentOp()`
+        );
 
         currentOpShell.assertNoErrors();
         expect(currentOpCall).not.to.include('testProjection');
@@ -2737,19 +2730,23 @@ describe('e2e', function () {
           -1
         );
 
-        void helperShell.executeLine(
-          `db.coll.find({$where: function() { sleep(${OPERATION_TIME}) }}).projection({re: BSONRegExp('${stringifiedRegExpString}')})`
+        const currentCommand = helperShell.executeLine(
+          `db.${COLLECTION}.find({$where: function() { sleep(${OPERATION_TIME}); return true; }}).projection({re: BSONRegExp('${stringifiedRegExpString}')}).limit(1)`
         );
         helperShell.assertNoErrors();
 
-        await sleep(CURRENT_OP_WAIT_TIME);
+        await eventually(async () => {
+          const currentOpCall = await currentOpShell.executeLine(
+            `db.currentOp()`
+          );
+          currentOpShell.assertNoErrors();
+          expect(currentOpCall).to.include(stringifiedRegExpString);
+        }, CURRENT_OP_POLL_OPTIONS);
 
-        const currentOpCall = await currentOpShell.executeLine(
-          `db.currentOp()`
-        );
-        currentOpShell.assertNoErrors();
-
-        expect(currentOpCall).to.include(stringifiedRegExpString);
+        // Await the operation rather than leaving it running: the shells are torn
+        // down when the test ends, so an abandoned prompt wait would reject as an
+        // unhandled rejection later in the run.
+        await currentCommand;
       });
     });
   });

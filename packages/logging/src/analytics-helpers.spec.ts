@@ -142,6 +142,13 @@ describe('analytics helpers', function () {
       } catch (e) {
         // ignore
       }
+      try {
+        await fs.promises.rmdir(
+          path.resolve(metadataPath, `am-${id}.json.lock`)
+        );
+      } catch (e) {
+        // ignore
+      }
     });
 
     it('should not throttle events by default', async function () {
@@ -221,6 +228,45 @@ describe('analytics helpers', function () {
       await a2.flush();
       // a1 used 3, a2 gets 2 more to reach rate=5
       expect(events).to.have.lengthOf(5);
+    });
+
+    it('refreshes the lockfile mtime without dating it in the future', async function () {
+      const staleDuration = 100;
+      const analytics = new ThrottledAnalytics({
+        currentSessionId: id,
+        target,
+        throttle: {
+          rate: 5,
+          metadataPath,
+          lockfileStaleDuration: staleDuration,
+        },
+      });
+      analytics.track(throttledIEvt);
+      // Long enough for the refresh interval (staleDuration / 2) to fire.
+      await wait(staleDuration);
+
+      const stats = await fs.promises.stat(
+        path.resolve(metadataPath, `am-${id}.json.lock`)
+      );
+      expect(Date.now() - stats.mtimeMs).to.be.at.least(0);
+
+      await analytics.flush();
+    });
+
+    it('treats a lockfile dated in the future as stale', async function () {
+      const lockfilePath = path.resolve(metadataPath, `am-${id}.json.lock`);
+      await fs.promises.mkdir(lockfilePath);
+      const farFuture = new Date('2262-04-11T23:47:16.854Z');
+      await fs.promises.utimes(lockfilePath, farFuture, farFuture);
+      const analytics = new ThrottledAnalytics({
+        currentSessionId: id,
+        target,
+        throttle: { rate: 5, metadataPath },
+      });
+      analytics.track(throttledIEvt);
+      await analytics.flush();
+
+      expect(events).to.have.lengthOf(1);
     });
 
     it('should only allow one analytics instance to send events', async function () {

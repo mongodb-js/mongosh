@@ -43,8 +43,7 @@ export type SetupTelemetryAnalyticsResult = {
  * When no endpoint is configured there is nowhere to send events, so a no-op
  * {@link ToggleableAnalytics} sink is returned. This does not disable telemetry
  * (`isTelemetryEnabled()` is independent of the endpoint) — events are still
- * logged locally, just not sent. This is also why CI is safe without any
- * special-casing: with no endpoint configured, no HTTP requests are made.
+ * logged locally, just not sent.
  */
 export async function resolveToggleableAnalytics({
   configuredTelemetryEndpoint,

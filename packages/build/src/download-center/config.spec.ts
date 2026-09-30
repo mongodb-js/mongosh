@@ -602,9 +602,10 @@ describe('DownloadCenter config', function () {
         // rhel10 and debian13 are not in the full feed yet
         // confirmed that these will be the names in
         // https://mongodb.slack.com/archives/C1XQ502TA/p1768240223788769
+        // ubuntu2604 is only in cloud.json so far, not in full.json
         ...setXor(
           mongoshJsonFeedEntry.downloads.flatMap((d) => d.targets),
-          ['rhel10', 'debian13']
+          ['rhel10', 'debian13', 'ubuntu2604']
         ),
       ];
 

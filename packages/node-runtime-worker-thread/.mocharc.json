@@ -1,6 +1,7 @@
 {
   "require": [
     "../../scripts/import-expansions.js",
+    "../../scripts/test-env-setup.js",
     "./tests/register-worker.js",
     "ts-node/register"
   ],

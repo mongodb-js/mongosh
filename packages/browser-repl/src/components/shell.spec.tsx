@@ -79,9 +79,9 @@ describe('shell', function () {
     expect(filterEvaluateCalls(fakeRuntime.evaluate.args)).to.be.empty;
   });
 
-  it('focuses on the input if the container is clicked', function () {
+  it('focuses on the input if the container is clicked', async function () {
     render(<ShellWrapper runtime={fakeRuntime} />);
-    userEvent.click(screen.getByTestId('shell'));
+    await userEvent.click(screen.getByTestId('shell'));
 
     expect(HTMLElement.prototype.focus).to.have.been.calledOnce;
   });
@@ -473,9 +473,9 @@ describe('shell', function () {
       await waitFor(() => expect(listener).to.exist);
       const promise = listener?.onPrompt?.('password?', 'password');
 
-      userEvent.type(
-        screen.getByTestId('password-prompt'),
-        'my password{enter}'
+      await userEvent.type(
+        await screen.findByTestId('password-prompt'),
+        'my password{Enter}'
       );
 
       await promise;
@@ -492,7 +492,10 @@ describe('shell', function () {
       await waitFor(() => expect(listener).to.exist);
       const promise = listener?.onPrompt?.('password?', 'password');
 
-      userEvent.type(screen.getByTestId('password-prompt'), '{escape}');
+      await userEvent.type(
+        await screen.findByTestId('password-prompt'),
+        '{Escape}'
+      );
 
       try {
         await promise;
