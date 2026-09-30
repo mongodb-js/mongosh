@@ -19,6 +19,7 @@ const ubuntu1804AndAboveAndDebBased = [
   'ubuntu2004',
   'ubuntu2204',
   'ubuntu2404',
+  'ubuntu2604',
   'debian10',
   'debian11',
   'debian12',
