@@ -154,6 +154,18 @@ repos:
     repos:
       - apt/ubuntu/dists/noble/mongodb-org
 
+  - name: ubuntu2604
+    type: deb
+    code_name: "resolute"
+    edition: org
+    bucket: repo.mongodb.org
+    component: multiverse
+    architectures:
+      - amd64
+      - arm64
+    repos:
+      - apt/ubuntu/dists/resolute/mongodb-org
+
   - name: rhel70
     type: rpm
     edition: org
@@ -220,6 +232,13 @@ repos:
     bucket: repo.mongodb.org
     repos:
       - zypper/suse/15/mongodb-org
+
+  - name: suse16
+    type: rpm
+    edition: org
+    bucket: repo.mongodb.org
+    repos:
+      - zypper/suse/16/mongodb-org
 
   - name: amazon1
     type: rpm
@@ -352,6 +371,18 @@ repos:
     repos:
       - apt/ubuntu/dists/noble/mongodb-enterprise
 
+  - name: ubuntu2604
+    type: deb
+    code_name: "resolute"
+    edition: enterprise
+    bucket: repo.mongodb.com
+    component: multiverse
+    architectures:
+      - amd64
+      - arm64
+    repos:
+      - apt/ubuntu/dists/resolute/mongodb-enterprise
+
   - name: rhel70
     type: rpm
     edition: enterprise
@@ -418,6 +449,13 @@ repos:
     bucket: repo.mongodb.com
     repos:
       - zypper/suse/15/mongodb-enterprise
+
+  - name: suse16
+    type: rpm
+    edition: enterprise
+    bucket: repo.mongodb.com
+    repos:
+      - zypper/suse/16/mongodb-enterprise
 
   - name: amazon1
     type: rpm

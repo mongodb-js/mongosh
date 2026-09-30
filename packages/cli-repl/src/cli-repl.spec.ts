@@ -35,7 +35,7 @@ import { KNOWN_AGENT_ENV_VARS } from '@mongosh/logging';
 import { CliReplErrors } from './error-codes';
 import type { DevtoolsConnectOptions } from '@mongosh/service-provider-node-driver';
 import type { AddressInfo } from 'net';
-import type { CliUserConfig } from '@mongosh/types';
+import { CliUserConfig } from '@mongosh/types';
 import { setTimeout as delay } from 'timers/promises';
 
 describe('CliRepl', function () {
@@ -133,7 +133,7 @@ describe('CliRepl', function () {
     };
   });
 
-  context('setupAnalytics', function () {
+  context('setupTelemetrySink', function () {
     // Endpoint resolution and sink construction (no-op vs telemetry client) are
     // covered by setup-analytics.spec.ts. Here we only verify that CliRepl
     // resolves the endpoint from user config and records it on the instance.
@@ -154,16 +154,25 @@ describe('CliRepl', function () {
     it('records the telemetry endpoint resolved from config', async function () {
       cliRepl = new CliRepl(cliReplOptions);
       cliRepl.config.telemetryEndpoint = 'https://config.example/events';
-      await cliRepl.setupAnalytics();
+      await cliRepl.setupTelemetrySink();
       expect(cliRepl.telemetryEndpoint).to.equal(
         'https://config.example/events'
       );
     });
 
-    it('records an empty endpoint when none is configured', async function () {
+    it('records an empty endpoint when config explicitly clears it', async function () {
       cliRepl = new CliRepl(cliReplOptions);
-      await cliRepl.setupAnalytics();
+      cliRepl.config.telemetryEndpoint = '';
+      await cliRepl.setupTelemetrySink();
       expect(cliRepl.telemetryEndpoint).to.equal('');
+    });
+
+    it('records the production default when config is untouched', async function () {
+      cliRepl = new CliRepl(cliReplOptions);
+      await cliRepl.setupTelemetrySink();
+      expect(cliRepl.telemetryEndpoint).to.equal(
+        new CliUserConfig().telemetryEndpoint
+      );
     });
   });
 
@@ -2078,7 +2087,7 @@ describe('CliRepl', function () {
         expect(output, output).not.to.include(
           'listCollections requires authentication'
         );
-        await cliRepl.mongoshRepl.close();
+        await cliRepl.close();
       });
 
       it(`${

@@ -1,26 +1,16 @@
 import React from 'react';
-import { CodemirrorInlineEditor } from '@mongodb-js/compass-editor';
 import { expect } from '@mongosh/testing';
-import { mount } from '../../../testing/enzyme';
+import { render } from '@testing-library/react';
 import { SyntaxHighlight } from './syntax-highlight';
 
 describe('<SyntaxHighlight />', function () {
-  let wrapper;
-
-  afterEach(function () {
-    wrapper.unmount();
-    wrapper = null;
-  });
-
   it('renders Code', function () {
-    wrapper = mount(<SyntaxHighlight code={'some code'} />);
-    expect(wrapper.find(CodemirrorInlineEditor)).to.have.lengthOf(1);
+    const { container } = render(<SyntaxHighlight code={'some code'} />);
+    expect(container.querySelectorAll('.cm-editor')).to.have.lengthOf(1);
   });
 
   it('passes code to Code', function () {
-    wrapper = mount(<SyntaxHighlight code={'some code'} />);
-    expect(wrapper.find(CodemirrorInlineEditor).prop('initialText')).to.equal(
-      'some code'
-    );
+    const { container } = render(<SyntaxHighlight code={'some code'} />);
+    expect(container.textContent).to.contain('some code');
   });
 });

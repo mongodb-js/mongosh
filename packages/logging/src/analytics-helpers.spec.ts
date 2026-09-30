@@ -29,7 +29,6 @@ const iEvt: IdentifyEvent = {
     os_darwin_product_name: undefined,
     os_darwin_product_version: undefined,
     os_darwin_product_build_version: undefined,
-    device_id: 'test-device-id',
   },
 };
 
@@ -39,7 +38,6 @@ const tEvt: NewConnectionEvent = {
     mongosh_version: '1.2.3',
     ai_agent: undefined,
     session_id: sessionId,
-    device_id: 'test-device-id',
     is_atlas: false,
     is_atlas_url: undefined,
     is_local_atlas: false,
@@ -127,9 +125,7 @@ describe('analytics helpers', function () {
 
     const throttledIEvt: IdentifyEvent = {
       ...iEvt,
-      // device_id is the throttle key for Identify events; use `id` so the
-      // persisted metadata file matches the afterEach cleanup path.
-      payload: { ...iEvt.payload, device_id: id, session_id: id },
+      payload: { ...iEvt.payload, session_id: id },
     };
     const throttledTEvt: NewConnectionEvent = {
       ...tEvt,
@@ -143,6 +139,13 @@ describe('analytics helpers', function () {
     afterEach(async function () {
       try {
         await fs.promises.unlink(path.resolve(metadataPath, `am-${id}.json`));
+      } catch (e) {
+        // ignore
+      }
+      try {
+        await fs.promises.rmdir(
+          path.resolve(metadataPath, `am-${id}.json.lock`)
+        );
       } catch (e) {
         // ignore
       }
@@ -161,6 +164,7 @@ describe('analytics helpers', function () {
 
     it('should throttle when throttling options are provided', async function () {
       const analytics = new ThrottledAnalytics({
+        currentSessionId: id,
         target,
         throttle: { rate: 5, metadataPath },
       });
@@ -174,6 +178,7 @@ describe('analytics helpers', function () {
 
     it('should reset counter after a timeout', async function () {
       const analytics = new ThrottledAnalytics({
+        currentSessionId: id,
         target,
         throttle: { rate: 5, metadataPath, timeframe: 200 },
       });
@@ -193,6 +198,7 @@ describe('analytics helpers', function () {
     it('should persist throttled state and throttle across sessions', async function () {
       // first "session"
       const a1 = new ThrottledAnalytics({
+        currentSessionId: id,
         target,
         throttle: { rate: 5, metadataPath },
       });
@@ -205,6 +211,7 @@ describe('analytics helpers', function () {
       // second "session" — uses a different session_id so no lock conflict
       const sid2 = id + '-2';
       const a2 = new ThrottledAnalytics({
+        currentSessionId: id,
         target,
         throttle: { rate: 5, metadataPath },
       });
@@ -223,12 +230,53 @@ describe('analytics helpers', function () {
       expect(events).to.have.lengthOf(5);
     });
 
+    it('refreshes the lockfile mtime without dating it in the future', async function () {
+      const staleDuration = 100;
+      const analytics = new ThrottledAnalytics({
+        currentSessionId: id,
+        target,
+        throttle: {
+          rate: 5,
+          metadataPath,
+          lockfileStaleDuration: staleDuration,
+        },
+      });
+      analytics.track(throttledIEvt);
+      // Long enough for the refresh interval (staleDuration / 2) to fire.
+      await wait(staleDuration);
+
+      const stats = await fs.promises.stat(
+        path.resolve(metadataPath, `am-${id}.json.lock`)
+      );
+      expect(Date.now() - stats.mtimeMs).to.be.at.least(0);
+
+      await analytics.flush();
+    });
+
+    it('treats a lockfile dated in the future as stale', async function () {
+      const lockfilePath = path.resolve(metadataPath, `am-${id}.json.lock`);
+      await fs.promises.mkdir(lockfilePath);
+      const farFuture = new Date('2262-04-11T23:47:16.854Z');
+      await fs.promises.utimes(lockfilePath, farFuture, farFuture);
+      const analytics = new ThrottledAnalytics({
+        currentSessionId: id,
+        target,
+        throttle: { rate: 5, metadataPath },
+      });
+      analytics.track(throttledIEvt);
+      await analytics.flush();
+
+      expect(events).to.have.lengthOf(1);
+    });
+
     it('should only allow one analytics instance to send events', async function () {
       const a1 = new ThrottledAnalytics({
+        currentSessionId: id,
         target,
         throttle: { rate: 5, metadataPath },
       });
       const a2 = new ThrottledAnalytics({
+        currentSessionId: id,
         target,
         throttle: { rate: 5, metadataPath },
       });

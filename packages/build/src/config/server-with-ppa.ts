@@ -5,7 +5,8 @@ export type SupportedServerVersion =
   | '7.0.0'
   | '8.0.0'
   | '8.2.0'
-  | '8.3.0';
+  | '8.3.0'
+  | '9.0.0';
 
 export type PPARepositoryAndServerVersions = {
   repo: PPARepository;
@@ -20,6 +21,7 @@ export type PPARepository =
   | 'ubuntu2004'
   | 'ubuntu2204'
   | 'ubuntu2404'
+  | 'ubuntu2604'
   | 'debian10'
   | 'debian11'
   | 'debian12'
@@ -32,7 +34,8 @@ export type PPARepository =
   | 'amazon2'
   | 'amazon2023'
   | 'suse12'
-  | 'suse15';
+  | 'suse15'
+  | 'suse16';
 
 export const SERVER_WITH_PPAS: Record<
   SupportedServerVersion,
@@ -139,6 +142,19 @@ export const SERVER_WITH_PPAS: Record<
     'ubuntu2004',
     'ubuntu2204',
     'ubuntu2404',
+  ],
+  '9.0.0': [
+    'amazon2023',
+    'debian12',
+    'debian13',
+    'rhel80',
+    'rhel90',
+    'rhel10',
+    'suse15',
+    'suse16',
+    'ubuntu2204',
+    'ubuntu2404',
+    'ubuntu2604',
   ],
 };
 

@@ -2392,6 +2392,119 @@ describe('Shard', function () {
         expect(warnSpy.calledOnce).to.be.true;
       });
     });
+
+    describe('shardDrainingStatus', function () {
+      this.beforeEach(function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
+      });
+
+      it('calls serviceProvider.runCommandWithCheck without a shardId', async function () {
+        await shard.shardDrainingStatus();
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            shardDrainingStatus: 1,
+          }
+        );
+      });
+
+      it('calls serviceProvider.runCommandWithCheck with a shardId', async function () {
+        await shard.shardDrainingStatus('shard1');
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            shardDrainingStatus: 'shard1',
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedResult = { ok: 1, state: 'started' };
+        serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
+        const result = await shard.shardDrainingStatus('shard1');
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedError = new Error('unreachable');
+        serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
+        const caughtError = await shard
+          .shardDrainingStatus('shard1')
+          .catch((e) => e);
+        expect(caughtError).to.equal(expectedError);
+      });
+
+      it('throws if not mongos', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'not dbgrid',
+        });
+        await shard.shardDrainingStatus();
+        expect(warnSpy.calledOnce).to.be.true;
+      });
+    });
+
+    describe('getTransitionToDedicatedConfigServerStatus', function () {
+      this.beforeEach(function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
+      });
+
+      it('calls serviceProvider.runCommandWithCheck', async function () {
+        await shard.getTransitionToDedicatedConfigServerStatus();
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            getTransitionToDedicatedConfigServerStatus: 1,
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedResult = { ok: 1, state: 'started' };
+        serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
+        const result = await shard.getTransitionToDedicatedConfigServerStatus();
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedError = new Error('unreachable');
+        serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
+        const caughtError = await shard
+          .getTransitionToDedicatedConfigServerStatus()
+          .catch((e) => e);
+        expect(caughtError).to.equal(expectedError);
+      });
+
+      it('throws if not mongos', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'not dbgrid',
+        });
+        await shard.getTransitionToDedicatedConfigServerStatus();
+        expect(warnSpy.calledOnce).to.be.true;
+      });
+    });
   });
 
   describe('integration', function () {

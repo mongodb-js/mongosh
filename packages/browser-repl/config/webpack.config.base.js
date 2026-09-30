@@ -14,7 +14,8 @@ module.exports = {
       module: false,
       // node specific and require a polyfill
       // path polyfill is required for following packages:
-      //   async-rewriter2, @mongodb-js/compass-components, mongodb-log-writer, shell-api
+      //   async-rewriter2, @mongodb-js/compass-components, mongodb-log-writer,
+      //   shell-api
       path: require.resolve('path-browserify'),
       // stream polyfill is required for following packages:
       //   mongodb-log-writer, @leafygreen-ui/emotion
@@ -24,6 +25,23 @@ module.exports = {
       buffer: require.resolve('buffer/'),
       // util polyfill is required by browser-repl itself
       util: require.resolve('util/'),
+      // events is required by: readable-stream, stream-browserify, node-cache,
+      //   shell-api, browser-runtime-core
+      events: require.resolve('events/'),
+      // assert is required by: @babel/helper-module-imports,
+      //   @babel/helper-module-transforms
+      assert: require.resolve('assert/'),
+      // process is required by: semver, @mongodb-js/compass-components
+      process: require.resolve('process/'),
+      // string_decoder is required by: readable-stream
+      string_decoder: require.resolve('string_decoder/'),
+      // punycode is required by: tr46
+      punycode: require.resolve('punycode/'),
+      // Requested by typescript.js behind guarded require() calls that never
+      // run in a browser, so there is nothing to polyfill.
+      os: false,
+      inspector: false,
+      perf_hooks: false,
       // compass specific
       electron: false,
       '@electron/remote': false,
