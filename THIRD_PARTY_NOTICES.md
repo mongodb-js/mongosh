@@ -277,7 +277,7 @@ Package|Version|License
 **[has-proto](#437c29b29300b086a243251b657f12190575992584c3fa721cca9ad2e2b0a864)**|1.2.0|MIT
 **[has-symbols](#c0d7b7b02fe7161b003559eb9011d0e346cb07ad54c046cb4da80d42c1f682b4)**|1.1.0|MIT
 **[has-tostringtag](#e39d802569f1249ba08678c5fb24fc1b87ee4c92cc0f6eaa259f5b54038f2e13)**|1.0.2|MIT
-**[hasown](#ace41f4c3d63ecdc85c94d28b43fc006fc67f35c24ecaa112b631dbcb5c0b39d)**|2.0.2|MIT
+**[hasown](#ba2e3a5fbd1028da71e02d351c424d0d8063ffc9afe439a85d8b952077be8b8b)**|2.0.4|MIT
 **[heap-js](#50ee2dc65e9ebce77699be57ba751251b071d8245207c6ca6ffe16b18e321ce6)**|2.7.1|BSD-3-Clause
 **[highlight.js](#20ba4c4db418be6a789dce158f147021f801ec47138fa1973d45f638984f5e49)**|10.4.1|BSD-3-Clause
 **[hijack-stream](#ea52eb26f65d948b0a115c633971204879db11a0d623979e50d0ca5d2445cae0)**|2.0.1|Apache-2.0
@@ -25689,8 +25689,8 @@ License files:
       
 
 
-<a id="ace41f4c3d63ecdc85c94d28b43fc006fc67f35c24ecaa112b631dbcb5c0b39d"></a>
-### [hasown](https://www.npmjs.com/package/hasown) (version 2.0.2)
+<a id="ba2e3a5fbd1028da71e02d351c424d0d8063ffc9afe439a85d8b952077be8b8b"></a>
+### [hasown](https://www.npmjs.com/package/hasown) (version 2.0.4)
 License tags: MIT
 
 License files:
