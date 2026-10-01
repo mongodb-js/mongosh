@@ -12,25 +12,6 @@ pre:
     params:
       role_arn: ${private_atlas_artifacts_role_arn}
       duration_seconds: 3600
-  # ec2.assume_role exposes the credentials only as redacted expansions, which
-  # are not part of the environment of later commands. Persist them to the shared
-  # AWS credentials file so that processes which need them (e.g. the downloader's
-  # S3 client) find them via the default AWS credential chain, without putting
-  # AWS_* into the environment of the test commands.
-  - command: shell.exec
-    display_name: Persist assumed-role credentials for the AWS SDK
-    params:
-      shell: bash
-      include_expansions_in_env: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN]
-      script: |
-        set -e
-        mkdir -p "$HOME/.aws"
-        cat > "$HOME/.aws/credentials" <<EOF
-        [default]
-        aws_access_key_id = $AWS_ACCESS_KEY_ID
-        aws_secret_access_key = $AWS_SECRET_ACCESS_KEY
-        aws_session_token = $AWS_SESSION_TOKEN
-        EOF
 post_error_fails_task: true
 post:
   - command: shell.exec
@@ -115,6 +96,15 @@ functions:
       type: system
       params:
         directory: src
+    - command: subprocess.exec
+      display_name: Persist assumed-role credentials for the AWS SDK
+      params:
+        working_dir: src
+        binary: bash .evergreen/persist-assumed-role-credentials.sh
+        env:
+          AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+          AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+          AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
 
   checkout_writeable:
     - command: github.generate_token
@@ -129,6 +119,15 @@ functions:
       params:
         directory: src
         token: ${generated_github_token}
+    - command: subprocess.exec
+      display_name: Persist assumed-role credentials for the AWS SDK
+      params:
+        working_dir: src
+        binary: bash .evergreen/persist-assumed-role-credentials.sh
+        env:
+          AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+          AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+          AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
 
   compile_ts:
     - command: expansions.write
