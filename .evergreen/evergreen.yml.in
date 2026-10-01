@@ -22,6 +22,25 @@ pre:
     params:
       role_arn: ${private_atlas_artifacts_role_arn}
       duration_seconds: 3600
+  # ec2.assume_role exposes the credentials only as redacted expansions, which
+  # are not part of the environment of later commands. Persist them to the shared
+  # AWS credentials file so that processes which need them (e.g. the downloader's
+  # S3 client) find them via the default AWS credential chain, without putting
+  # AWS_* into the environment of the test commands.
+  - command: shell.exec
+    display_name: Persist assumed-role credentials for the AWS SDK
+    params:
+      shell: bash
+      include_expansions_in_env: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN]
+      script: |
+        set -e
+        mkdir -p "$HOME/.aws"
+        cat > "$HOME/.aws/credentials" <<EOF
+        [default]
+        aws_access_key_id = $AWS_ACCESS_KEY_ID
+        aws_secret_access_key = $AWS_SECRET_ACCESS_KEY
+        aws_session_token = $AWS_SESSION_TOKEN
+        EOF
 post_error_fails_task: true
 post:
   - command: shell.exec
@@ -223,7 +242,6 @@ functions:
       params:
         working_dir: src
         shell: bash
-        include_expansions_in_env: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN]
         script: |
           set -e
           {
@@ -331,7 +349,6 @@ functions:
       params:
         working_dir: src
         shell: bash
-        include_expansions_in_env: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN]
         env:
           DOCKERHUB_USERNAME: ${dockerhub_username}
           DOCKERHUB_PASSWORD: ${dockerhub_password}
@@ -359,7 +376,6 @@ functions:
       params:
         working_dir: src
         shell: bash
-        include_expansions_in_env: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN]
         env:
           NODE_JS_VERSION: ${node_js_version}
           TEST_MONGOSH_EXECUTABLE: ${test_mongosh_executable|}
@@ -382,7 +398,6 @@ functions:
       params:
         working_dir: src
         shell: bash
-        include_expansions_in_env: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN]
         env:
           NODE_JS_VERSION: ${node_js_version}
         script: |
@@ -504,9 +519,6 @@ functions:
         binary: bash .evergreen/run-e2e-tests.sh
         env:
           NODE_JS_VERSION: ${node_js_version}
-          AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-          AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-          AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
           AWS_AUTH_IAM_ACCESS_KEY_ID: ${devtools_ci_aws_key}
           AWS_AUTH_IAM_SECRET_ACCESS_KEY: ${devtools_ci_aws_secret}
           STREAMS_E2E_SPI_CONNECTION_STRING: ${streams_e2e_spi_connection_string}
@@ -739,9 +751,6 @@ functions:
           ADMIN_USER_NAME: ${admin_user_name}
           ONHOST_SCRIPT_PATH: ${onhost_script_path}
           PRELOAD_SCRIPT_PATH: ${preload_script_path}
-          AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-          AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-          AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
   test_artifact_docker:
     - command: shell.exec
       type: setup
@@ -764,7 +773,6 @@ functions:
       params:
         working_dir: src
         shell: bash
-        include_expansions_in_env: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN]
         env:
           NODE_JS_VERSION: ${node_js_version}
           DOCKERHUB_USERNAME: ${dockerhub_username}
@@ -795,7 +803,6 @@ functions:
       params:
         working_dir: src
         shell: bash
-        include_expansions_in_env: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN]
         env:
           MONGOSH_NO_AUTOMATIC_ENCRYPTION_SUPPORT: ${no_automatic_encryption_support|}
         script: |
@@ -824,7 +831,6 @@ functions:
       params:
         working_dir: src
         shell: bash
-        include_expansions_in_env: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN]
         env:
           MONGOSH_NO_AUTOMATIC_ENCRYPTION_SUPPORT: ${no_automatic_encryption_support|}
         script: |
@@ -852,7 +858,6 @@ functions:
       params:
         working_dir: src
         shell: bash
-        include_expansions_in_env: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN]
         env:
           MONGOSH_NO_AUTOMATIC_ENCRYPTION_SUPPORT: ${no_automatic_encryption_support|}
         script: |
@@ -1106,9 +1111,6 @@ functions:
         env:
           DISTRO_ID: ${distro_id}
           MONGOSH_PERF_TELEMETRY: ${mongosh_perf_telemetry|}
-          AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-          AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-          AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
     - command: subprocess.exec
       params:
         add_expansions_to_env: true
