@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Wed Sep 30 2026.
+This document was automatically generated on Thu Oct 01 2026.
 
 ## List of dependencies
 
@@ -47,7 +47,7 @@ Package|Version|License
 **[@babel/helper-module-imports](#382f28c3d2c03477b32d45e90d47d4a4a33678a71fe82d9aaf09d04ee2b23a13)**|7.29.7|MIT
 **[@babel/helper-module-transforms](#f2782f850d57c5d97d5a11cd2661eda8702c7187c167a766c28847f6f27b933b)**|7.29.7|MIT
 **[@babel/helper-optimise-call-expression](#749aff9e4ee80c98b0b4821ad4777c6fd9b29775a2463faf9fc3a459dd39736a)**|7.25.9|MIT
-**[@babel/helper-plugin-utils](#13ebe49a76ef03f44bfd870b829d5d7b90cd4938f3cf405ff654cdba38a339e3)**|7.26.5|MIT
+**[@babel/helper-plugin-utils](#5b5521637d6135fa482a3502597acc55f2bfd48263f40042c5ff51c79456d977)**|7.29.7|MIT
 **[@babel/helper-replace-supers](#cd12d6509b8764707fdddbda1a4ed071e434d314a669335d6483b0d5f6e7dfee)**|7.26.5|MIT
 **[@babel/helper-skip-transparent-expression-wrappers](#baec2f7168a0a2bf0fd25a8854102d19e5ab97ae2355587650e7ee1718eca7e7)**|7.25.9|MIT
 **[@babel/helper-string-parser](#04c944deddaf678e2d99587a59fa9e371513b52cc03f505e43129da612a513cc)**|7.29.7|MIT
@@ -6554,8 +6554,8 @@ License files:
       
 
 
-<a id="13ebe49a76ef03f44bfd870b829d5d7b90cd4938f3cf405ff654cdba38a339e3"></a>
-### [@babel/helper-plugin-utils](https://www.npmjs.com/package/@babel/helper-plugin-utils) (version 7.26.5)
+<a id="5b5521637d6135fa482a3502597acc55f2bfd48263f40042c5ff51c79456d977"></a>
+### [@babel/helper-plugin-utils](https://www.npmjs.com/package/@babel/helper-plugin-utils) (version 7.29.7)
 License tags: MIT
 
 License files:
