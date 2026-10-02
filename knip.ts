@@ -33,8 +33,9 @@ const config: KnipConfig = {
     "**/.eslintrc.js",
   ],
 
-  // Received from @mongodb-js/sbom-tools
-  ignoreBinaries: ["mongodb-sbom-tools"],
+  // Received from @mongodb-js/sbom-tools. patch-package is only used in the
+  // root postinstall script, so it is not a production dependency.
+  ignoreBinaries: ["mongodb-sbom-tools", "patch-package"],
 
   // Workspace-specific configurations
   workspaces: {
