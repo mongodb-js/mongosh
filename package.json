@@ -7,6 +7,7 @@
   "homepage": "https://github.com/mongodb-js/mongosh",
   "author": "Compass Team <compass@mongodb.com>",
   "scripts": {
+    "postinstall": "patch-package",
     "bootstrap-with-chromium": "npm install && npm run compile",
     "bootstrap": "npx cross-env PUPPETEER_SKIP_DOWNLOAD=1 npm install && npm run compile",
     "clean": "lerna clean -y && rm -Rf node_modules",
@@ -101,8 +102,12 @@
     "node": ">=20.19.3"
   },
   "devDependencies": {
-    "@mongodb-js/tracking-plan": "^0.3.2",
+    "@mongodb-js/eslint-config-mongosh": "^1.0.0",
+    "@mongodb-js/mongodb-runner": "^8.0.0",
     "@mongodb-js/monorepo-tools": "^1.4.5",
+    "@mongodb-js/prettier-config-devtools": "^1.0.1",
+    "@mongodb-js/tracking-plan": "^0.3.2",
+    "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@pkgjs/nv": "^0.3.0",
     "@types/chai": "^5.2.3",
     "@types/mocha": "^5.2.7",
@@ -116,8 +121,8 @@
     "husky": "^9.0.11",
     "knip": "^5.71.0",
     "mocha": "^11.7.5",
-    "mongodb-runner": "6.5.3",
     "nyc": "^15.1.0",
+    "patch-package": "8.0.1",
     "pkg-up": "^3.1.0",
     "rimraf": "^3.0.2",
     "sinon": "^19.0.4",
@@ -130,10 +135,7 @@
     "webpack": "^5.99.9",
     "webpack-bundle-analyzer": "^4.7.0",
     "webpack-cli": "^6.0.1",
-    "yaml": "^1.10.0",
-    "@mongodb-js/eslint-config-mongosh": "^1.0.0",
-    "@mongodb-js/prettier-config-devtools": "^1.0.1",
-    "@mongodb-js/tsconfig-mongosh": "^1.0.0"
+    "yaml": "^1.10.0"
   },
   "optionalDependencies": {
     "lerna": "^9.0.3"

@@ -6,7 +6,10 @@ import path from 'path';
 import semver from 'semver';
 import { promisify } from 'util';
 import which from 'which';
-import { MongoCluster, type MongoClusterOptions } from 'mongodb-runner';
+import {
+  MongoCluster,
+  type MongoClusterOptions,
+} from '@mongodb-js/mongodb-runner';
 import { ConnectionString } from 'mongodb-connection-string-url';
 import { downloadCryptLibrary } from '@mongosh/build';
 
