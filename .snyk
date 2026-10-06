@@ -7,4 +7,9 @@ ignore:
         reason: Not applicable to axios usage inside node-analytics package
         expires: 2024-12-08T16:13:38.499Z
         created: 2023-11-08T16:13:38.503Z
+  SNYK-JS-BASICFTP-20419408:
+    - '*':
+        reason: "ReDoS in basic-ftp Client.list() requires connecting to a malicious FTP server; basic-ftp is only reachable via get-uri's ftp: handler (pac-proxy-agent), which mongosh never uses"
+        expires: 2027-04-06T00:00:00.000Z
+        created: 2026-10-06T00:00:00.000Z
 patch: {}
