@@ -64,7 +64,11 @@ export function formatOutput(
 ): string {
   const { value, type } = evaluationResult;
 
-  if (type === 'Cursor' || type === 'AggregationCursor') {
+  if (
+    type === 'Cursor' ||
+    type === 'AggregationCursor' ||
+    type === 'RunCommandCursor'
+  ) {
     return formatCursor(value, { ...options, ...fullDepthInspectOptions });
   }
 

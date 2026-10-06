@@ -103,6 +103,20 @@ describe('<ShellOutputLine />', function () {
     expect(container.querySelectorAll('pre')).to.have.lengthOf(1);
   });
 
+  it('renders RunCommandCursor', function () {
+    const { container } = render(
+      <ShellOutputLine
+        entry={{
+          format: 'output',
+          type: 'RunCommandCursor',
+          value: { documents: [{ doc: 1 }], cursorHasMore: false },
+        }}
+      />
+    );
+
+    expect(container.textContent).to.contain('doc: 1');
+  });
+
   it('renders CursorIterationResult', function () {
     const { container } = render(
       <ShellOutputLine
