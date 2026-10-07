@@ -198,6 +198,14 @@ async function getInstalledMongodVersion(): Promise<string> {
 export async function downloadCurrentCryptSharedLibrary(
   versionSpec?: string
 ): Promise<string> {
+  // Only the -latest alpha server gets the matching -latest crypt_shared;
+  // every other server keeps the pinned library from downloadCryptLibrary().
+  if (
+    versionSpec === undefined &&
+    process.env.MONGOSH_SERVER_TEST_VERSION?.startsWith('latest-alpha')
+  ) {
+    versionSpec = 'latest-alpha';
+  }
   if (process.platform === 'linux') {
     return (
       await downloadCryptLibrary(
