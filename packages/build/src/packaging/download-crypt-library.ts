@@ -8,7 +8,7 @@ import { getDistro, getArch } from '../config';
 
 export async function downloadCryptLibrary(
   variant: PackageVariant | 'host',
-  versionSpec = ''
+  versionSpec = 'continuous'
 ): Promise<{ cryptLibrary: string; version: string }> {
   let opts: DownloadOptions = {};
   opts.arch = variant === 'host' ? undefined : getArch(variant);
@@ -33,19 +33,6 @@ export async function downloadCryptLibrary(
     'crypt-store',
     variant
   );
-
-  if (!versionSpec) {
-    // A 9.0 library is required to analyze the GA Queryable Encryption query
-    // type names. Switch back to 'continuous' and drop the overrides below once
-    // 9.0 is GA and lands in the default feed.
-    versionSpec = '9.0.0-rc4';
-
-    // Release candidates past rc0 only exist in cloud.json, and the version list
-    // cache is keyed by cache path rather than by feed URL, so a list already
-    // cached from the default feed would be reused and the candidate not found.
-    opts.versionListUrl = 'https://downloads.mongodb.org/cloud.json';
-    opts.cacheTimeMs = 0;
-  }
 
   const { downloadedBinDir: libdir, version } =
     await downloadMongoDbWithVersionInfo({
