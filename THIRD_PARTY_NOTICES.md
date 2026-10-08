@@ -286,7 +286,7 @@ Package|Version|License
 **[inherits](#3eafa9bfb872baf192e837ab771da2e95e983ee682371a2b1c579e518e96f7b4)**|2.0.4|ISC
 **[ini](#2269ab4bd2e1fa90571f520780ab5499f6d49da3b7daee9b9dfdad9e93c33a18)**|1.3.8|ISC
 **[internal-slot](#8a66d06d84c97e73bebdffacb7b974a2a84fe25563a4dc754138d5e994dcc6fe)**|1.1.0|MIT
-**[ip-address](#9e2f4e21a091a6dc02a877834bd3b8a6db99459564cbb6b71d286c0cd854e685)**|10.3.1|MIT
+**[ip-address](#2bf29850014b1a8a84a685ee9fb31b63557e5a6c7dd712fe33633f0546115ae0)**|10.7.2|MIT
 **[ipaddr.js](#38a5a1606dbc89a9c65a28d1e9ebe3c8d323e107a77c495a56dbf522211676d2)**|1.9.1|MIT
 **[ipv6-normalize](#7a4346dbf206011966449898fcd37178a9be89acf6dff120b676d4c4d0dec203)**|1.0.1|MIT
 **[is-array-buffer](#f671f8d9fa2451be35dd544a74f0f9c6426eef5e8d702b872ead49f2dab1e139)**|3.0.5|MIT
@@ -25927,8 +25927,8 @@ License files:
       
 
 
-<a id="9e2f4e21a091a6dc02a877834bd3b8a6db99459564cbb6b71d286c0cd854e685"></a>
-### [ip-address](https://www.npmjs.com/package/ip-address) (version 10.3.1)
+<a id="2bf29850014b1a8a84a685ee9fb31b63557e5a6c7dd712fe33633f0546115ae0"></a>
+### [ip-address](https://www.npmjs.com/package/ip-address) (version 10.7.2)
 License tags: MIT
 
 License files:
