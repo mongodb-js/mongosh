@@ -93,7 +93,11 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
       return <ShowBannerResultOutput value={value} />;
     }
 
-    if (type === 'Cursor' || type === 'AggregationCursor') {
+    if (
+      type === 'Cursor' ||
+      type === 'AggregationCursor' ||
+      type === 'RunCommandCursor'
+    ) {
       return <CursorOutput value={value} />;
     }
 
