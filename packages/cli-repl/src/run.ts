@@ -16,7 +16,10 @@ import { getCryptLibraryPaths } from './crypt-library-paths';
 import { getTlsCertificateSelector } from './tls-certificate-selector';
 import { applyPacProxyS390XPatch } from './pac-proxy-s390x-patch';
 import { redactConnectionString } from 'mongodb-redact';
-import { generateConnectionInfoFromCliArgs } from '@mongosh/arg-parser';
+import {
+  generateConnectionInfoFromCliArgs,
+  embeddedUriAsTyped,
+} from '@mongosh/arg-parser';
 import askcharacter from 'askcharacter';
 import { PassThrough } from 'stream';
 import crypto from 'crypto';
@@ -215,9 +218,11 @@ async function main() {
       driverInfo: { name: 'mongosh', version },
     };
 
-    const title = `mongosh ${redactConnectionString(
-      connectionInfo.connectionString
-    )}`;
+    // The address as typed for an embedded directory; the driver form says nothing to a person.
+    const title = `mongosh ${
+      embeddedUriAsTyped(connectionInfo.connectionString) ??
+      redactConnectionString(connectionInfo.connectionString)
+    }`;
     process.title = title;
     setTerminalWindowTitle(title);
 
