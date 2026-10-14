@@ -41,7 +41,7 @@
     "cross-spawn": "^7.0.5",
     "escape-string-regexp": "^4.0.0",
     "tar": "^7.5.19",
-    "zod": "^3.25.76"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@mongodb-js/devtools-proxy-support": "^0.7.5",
