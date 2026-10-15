@@ -213,6 +213,7 @@ const MAPPINGS: {
       mapGSSAPIHostnameCanonicalization(v)
     ),
   authenticationDatabase: (i, v) => setUrlParam(i, 'authSource', v),
+  ipv6: (i, v) => (v ? setDriver(i, 'family', 6) : i),
   authenticationMechanism: (i, v) =>
     setUrlParam(
       i,

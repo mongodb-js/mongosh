@@ -24,6 +24,7 @@ of mongosh, visit https://www.mongodb.com/try/download/shell.
     -f, --file [arg]                           Load the specified mongosh script
         --host [arg]                           Server to connect to
         --port [arg]                           Port to connect to
+        --ipv6                                 Force IPv6 when resolving hostnames
         --build-info                           Show build information
         --version                              Show version information
         --quiet                                Silence output from the shell during the connection process
