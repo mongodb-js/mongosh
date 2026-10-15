@@ -1,6 +1,6 @@
 import type { DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
 import type { CliOptions } from './cli-options';
-import { generateUri } from './uri-generator';
+import { generateUri, embeddedUriAsTyped } from './uri-generator';
 import { mapCliToDriver } from './arg-mapper';
 
 export interface ConnectionInfo {
@@ -11,7 +11,12 @@ export interface ConnectionInfo {
   >;
 }
 
-export { CliOptions, DevtoolsConnectOptions, mapCliToDriver };
+export {
+  CliOptions,
+  DevtoolsConnectOptions,
+  mapCliToDriver,
+  embeddedUriAsTyped,
+};
 
 export function generateConnectionInfoFromCliArgs(
   options: CliOptions
