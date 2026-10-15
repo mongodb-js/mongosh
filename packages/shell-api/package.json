@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/shell-api",
-  "version": "5.9.2",
+  "version": "5.9.3",
   "description": "MongoDB Shell API Classes Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -51,7 +51,7 @@
   ],
   "dependencies": {
     "@mongodb-js/mongodb-schema": "^12.7.2",
-    "@mongosh/arg-parser": "^5.6.0",
+    "@mongosh/arg-parser": "^5.6.1",
     "@mongosh/errors": "2.6.0",
     "@mongosh/i18n": "^2.26.0",
     "@mongosh/service-provider-core": "5.6.0",
@@ -66,7 +66,7 @@
     "@mongodb-js/mongodb-ts-autocomplete": "^0.9.2",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "@mongosh/testing": "4.0.0",
+    "@mongosh/testing": "4.1.0",
     "@mongosh/types": "^5.4.0",
     "@types/babel__core": "^7.20.5",
     "bson": "^7.3.1",
