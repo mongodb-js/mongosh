@@ -51,7 +51,7 @@
     "yargs-parser": "^20.2.4"
   },
   "peerDependencies": {
-    "zod": "^3.25.76"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@mongodb-js/devtools-connect": "^3.14.9",
