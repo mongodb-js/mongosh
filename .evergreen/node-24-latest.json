@@ -1,7 +1,7 @@
 {
-  "version": "24.21.0",
+  "version": "24.22.0",
   "major": 24,
-  "minor": 21,
+  "minor": 22,
   "patch": 0,
   "tag": "",
   "codename": "krypton",
@@ -10,7 +10,7 @@
   "lts": "2025-10-28T00:00:00.000Z",
   "maintenance": "2026-10-20T00:00:00.000Z",
   "end": "2028-04-30T00:00:00.000Z",
-  "releaseDate": "2026-09-07T00:00:00.000Z",
+  "releaseDate": "2026-10-14T00:00:00.000Z",
   "isLts": true,
   "isSupported": true,
   "isMaintenance": false,
@@ -36,7 +36,7 @@
     "win-x64-zip"
   ],
   "dependencies": {
-    "npm": "11.19.0",
+    "npm": "11.19.1",
     "v8": "13.6.233.17",
     "uv": "1.52.1",
     "zlib": "1.3.2.1-motley",
