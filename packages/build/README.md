@@ -38,7 +38,7 @@ Execute the following steps to publish a new release:
    npm run release publish
    ```
    Follow the instructions and verify the inferred release version is correct.
-7. Wait for Evergreen to finish the publication stage.
+7. Wait for the `Publish Mongosh` GitHub Actions workflow to finish the publication stage.
 8. Ensure that the version bump was automatically merged into main and that it is synced up with the `mongosh@x.x.x` tag.
 9. Close the Jira ticket for the release, post an update in the `#mongosh` Slack channel and ping the docs team.
 
@@ -123,7 +123,7 @@ The _Draft_ stage depends on all three stages _Tests_, _E2E Tests_ and _Smoke Te
 
 #### Publish
 
-The _Publish_ stage is independent from all other stages. As mentioned at the beginning when a release tag is pushed to the repository it will directly trigger the _Publish_ stage. It will do the following things:
+The _Publish_ stage is independent from all other stages. As mentioned at the beginning when a release tag is pushed to the repository it will directly trigger the _Publish_ stage (a dry-run validation runs automatically when a draft tag is pushed, and on every release tag before publishing). It runs on GitHub Actions via the `Publish Mongosh` workflow and does the following things:
 
 1. Use [`curator`](https://github.com/mongodb/curator) to transfer the distributable packages from Evergreen S3 to the MongoDB PPAs.
 2. Upload the full configuration to Download Center so the release is available there.

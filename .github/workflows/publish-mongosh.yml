@@ -77,8 +77,8 @@ jobs:
 
   publish:
     needs: dry-run
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
+    # Only GA/rc release tags should be published
+    if: startsWith(github.ref, 'refs/tags/v') && !contains(github.ref, '-draft')
     environment: Production
     steps:
       - uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
