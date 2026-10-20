@@ -26,9 +26,7 @@ env:
 jobs:
   dry-run:
     runs-on: ubuntu-latest
-    # Must be named CTA-Production to match the repo:mongodb-js/mongosh:environment:CTA-Production
-    # trust policy entry on role/s3-access.cdn-origin-compass (DEVPROD-16257)
-    environment: CTA-Production
+    environment: Production
     steps:
       - uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
         id: app-token
@@ -79,10 +77,9 @@ jobs:
 
   publish:
     needs: dry-run
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
-    # Must be named CTA-Production to match the repo:mongodb-js/mongosh:environment:CTA-Production
-    # trust policy entry on role/s3-access.cdn-origin-compass (DEVPROD-16257)
-    environment: CTA-Production
+    environment: Production
     steps:
       - uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
         id: app-token
