@@ -1,0 +1,63 @@
+name: Publish npm packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'The mongosh@x.y.z tag to publish from'
+        required: true
+        type: string
+      dry-run:
+        description: 'Run without publishing anything'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+description: |
+  Publishes the npm packages of a release (the mongosh release packages and
+  anything not already in npm). Run this after the evergreen publish stage
+  (barque, download center, release promotion) has completed, with the
+  mongosh@x.y.z tag that it pushed.
+
+concurrency:
+  group: publish-npm
+  cancel-in-progress: false
+
+env:
+  PUPPETEER_SKIP_DOWNLOAD: "true"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: Production
+    steps:
+      - uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
+        id: app-token
+        with:
+          app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
+          private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
+
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          ref: ${{ inputs.tag }}
+          fetch-depth: "0" # this is important so git log can pick up on the whole history to generate the list of AUTHORS
+          token: ${{ steps.app-token.outputs.token }}
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          check-latest: true
+          node-version: 24.x
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Publish npm packages
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
+          echo "Publishing packages as $(npm whoami)"
+          npm run evergreen-release npm-publish -- ${{ inputs.dry-run && '--dry-run' || '' }}

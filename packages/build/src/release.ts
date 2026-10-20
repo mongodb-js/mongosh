@@ -15,6 +15,7 @@ import { runSign } from './packaging/run-sign';
 import { runDownloadAndListArtifacts } from './run-download-and-list-artifacts';
 import { runDownloadCryptLibrary } from './packaging/run-download-crypt-library';
 import { PackageBumper } from './npm-packages/bump';
+import { PackagePublisher } from './npm-packages';
 import { publishAuxiliaryPackages } from './publish-auxiliary';
 import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 
@@ -27,7 +28,8 @@ export type ReleaseCommand =
   | 'download-crypt-shared-library'
   | 'download-and-list-artifacts'
   | 'draft'
-  | 'publish';
+  | 'publish'
+  | 'npm-publish';
 
 /**
  * Run release specific commands.
@@ -107,6 +109,15 @@ export async function release(
     } else {
       await publishMongosh(config, octokit);
     }
+  } else if (command === 'npm-publish') {
+    // Publishes whatever is not already in npm; expected to run from the
+    // publish-npm GitHub Actions workflow on a mongosh@x.y.z tag, after the
+    // evergreen publish stage (barque, download center, release promotion)
+    // has completed.
+    new PackagePublisher({
+      useAuxiliaryPackagesOnly: false,
+      isDryRun: config.isDryRun || false,
+    }).publishToNpm();
   } else {
     throw new Error(`Unknown command: ${command}`);
   }
