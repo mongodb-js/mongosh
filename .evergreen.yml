@@ -91,7 +91,6 @@ post:
 #                         We use this to verify that e.g. the Ubuntu-built release
 #                         binary also works on RHEL and Debian.
 #   generate_license_and_vulnerability_report - Generates a report of vulnerabilities affecting the bundled application.
-#   release_publish - Publishes the npm packages and uploads the tarballs.
 functions:
   checkout:
     - command: git.get_project
@@ -5125,80 +5124,6 @@ functions:
           git commit --no-allow-empty -m "chore(release): bump to prepare for mongosh release"
           }
 
-  release_publish_download_and_list_artifacts:
-    - command: expansions.write
-      type: system
-      params:
-        file: tmp/expansions.yaml
-        redacted: true
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        env:
-          node_js_version: ${node_js_version}
-        script: |
-          set -e
-          .evergreen/run-evergreen-release.sh download-and-list-artifacts
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          set -x
-          ls -lh dist/
-          cat -n dist/SHASUMS1.txt
-          cat -n dist/SHASUMS256.txt
-
-  release_publish_dry_run:
-    - command: expansions.write
-      type: system
-      params:
-        file: tmp/expansions.yaml
-        redacted: true
-    - command: ec2.assume_role
-      params:
-        role_arn: "arn:aws:iam::119629040606:role/s3-access.cdn-origin-compass"
-    - command: shell.exec
-      # silent: true
-      params:
-        working_dir: src
-        shell: bash
-        env:
-          devtoolsbot_npm_token: ${devtoolsbot_npm_token}
-          node_js_version: ${node_js_version}
-          DOWNLOAD_CENTER_AWS_KEY_ARTIFACTS: ${AWS_ACCESS_KEY_ID}
-          DOWNLOAD_CENTER_AWS_SECRET_ARTIFACTS: ${AWS_SECRET_ACCESS_KEY}
-          DOWNLOAD_CENTER_AWS_SESSION_TOKEN_ARTIFACTS: ${AWS_SESSION_TOKEN}
-        script: |
-          set -e
-          .evergreen/run-evergreen-release.sh publish -- --dry-run
-
-  release_publish:
-    - command: expansions.write
-      type: system
-      params:
-        file: tmp/expansions.yaml
-        redacted: true
-    - command: ec2.assume_role
-      params:
-        role_arn: "arn:aws:iam::119629040606:role/s3-access.cdn-origin-compass"
-    - command: shell.exec
-      # silent: true
-      params:
-        working_dir: src
-        shell: bash
-        env:
-          devtoolsbot_npm_token: ${devtoolsbot_npm_token}
-          node_js_version: ${node_js_version}
-          DOWNLOAD_CENTER_AWS_KEY_ARTIFACTS: ${AWS_ACCESS_KEY_ID}
-          DOWNLOAD_CENTER_AWS_SECRET_ARTIFACTS: ${AWS_SECRET_ACCESS_KEY}
-          DOWNLOAD_CENTER_AWS_SESSION_TOKEN_ARTIFACTS: ${AWS_SESSION_TOKEN}
-        script: |
-          set -e
-          .evergreen/run-evergreen-release.sh publish
-
   run_perf_tests:
     - command: subprocess.exec
       params:
@@ -5230,7 +5155,6 @@ functions:
 #   package_artifact - Upload the release binary together with other files to S3.
 #   sign_artifact - Get a package file from S3, sign it, put it back into S3.
 #   test_linux_artifact - Test that the built artifact works where we expect it to.
-#   release_publish - Publishes the npm packages and uploads the tarballs.
 #   generate_license_and_vulnerability_report - Generates a report of vulnerabilities affecting the bundled application.
 #   pkg_test_* - Run tests on the release packages
 tasks:
@@ -11490,47 +11414,6 @@ tasks:
       - func: release_draft
         vars:
           node_js_version: "24.21.0"
-  - name: release_publish_dry_run
-    git_tag_only: true
-    exec_timeout_secs: 86400
-    depends_on:
-      - name: release_draft
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "24.21.0"
-      - func: release_publish_download_and_list_artifacts
-        vars:
-          node_js_version: "24.21.0"
-      - func: papertrail_trace
-        vars:
-          product: "mongosh-draft"
-      - func: release_publish_dry_run
-        vars:
-          node_js_version: "24.21.0"
-  - name: release_publish
-    tags: ["publish"]
-    git_tag_only: true
-    exec_timeout_secs: 86400
-    depends_on:
-      - name: compile_ts
-        variant: linux_compile
-    commands:
-      - func: checkout_writeable
-      - func: install
-        vars:
-          node_js_version: "24.21.0"
-      - func: release_publish_download_and_list_artifacts
-        vars:
-          node_js_version: "24.21.0"
-      - func: papertrail_trace
-        vars:
-          product: "mongosh"
-      - func: release_publish
-        vars:
-          node_js_version: "24.21.0"
-
 # Need to run builds for every possible build variant.
 buildvariants:
   - name: darwin-n24
