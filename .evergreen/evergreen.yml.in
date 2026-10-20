@@ -1871,8 +1871,6 @@ buildvariants:
     run_on: ubuntu2004-small
     tasks:
       - name: release_draft
-      - name: release_publish_dry_run
-      - name: release_publish
 
   - name: generate_license_and_vulnerability_report
     display_name: "License and Vulnerability Report"

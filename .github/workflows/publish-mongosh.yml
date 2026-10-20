@@ -1,0 +1,133 @@
+name: Publish Mongosh
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+permissions:
+  contents: none # We use the github app to checkout and push tags
+  id-token: write # Needed to assume the download center artifacts AWS role via OIDC
+
+description: |
+  Publishes the main mongosh packages to NPM, the linux packages to barque,
+  the download center config/JSON feed, and promotes the draft GitHub release.
+  It is triggered by pushing a v*.*.* release tag (previously done by the
+  release_publish task in evergreen).
+
+concurrency:
+  group: publish-mongosh
+  cancel-in-progress: false
+
+env:
+  PUPPETEER_SKIP_DOWNLOAD: "true"
+
+jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+    environment: Production
+    steps:
+      - uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
+        id: app-token
+        with:
+          app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
+          private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::119629040606:role/s3-access.cdn-origin-compass
+          aws-region: us-east-1
+
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          fetch-depth: "0"
+          token: ${{ steps.app-token.outputs.token }}
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          check-latest: true
+          node-version: 24.x
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Dry-run publish
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          TRIGGERED_BY_GIT_TAG: ${{ github.ref_name }}
+          REVISION: ${{ github.sha }}
+          GITHUB_COMMIT: ${{ github.sha }}
+          BRANCH_NAME: main
+          PROJECT: mongosh
+          IS_CI: 'true'
+          BARQUE_API_KEY: ${{ secrets.BARQUE_API_KEY }}
+          BARQUE_USERNAME: ${{ secrets.BARQUE_USERNAME }}
+          DOWNLOAD_CENTER_AWS_KEY: ${{ secrets.DOWNLOAD_CENTER_AWS_KEY }}
+          DOWNLOAD_CENTER_AWS_SECRET: ${{ secrets.DOWNLOAD_CENTER_AWS_SECRET }}
+          DOWNLOAD_CENTER_AWS_KEY_ARTIFACTS: ${{ env.AWS_ACCESS_KEY_ID }}
+          DOWNLOAD_CENTER_AWS_SECRET_ARTIFACTS: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          DOWNLOAD_CENTER_AWS_SESSION_TOKEN_ARTIFACTS: ${{ env.AWS_SESSION_TOKEN }}
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
+          echo "Publishing packages as $(npm whoami)"
+          npm run evergreen-release download-and-list-artifacts
+          npm run evergreen-release publish -- --dry-run
+
+  publish:
+    needs: dry-run
+    runs-on: ubuntu-latest
+    environment: Production
+    steps:
+      - uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
+        id: app-token
+        with:
+          app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
+          private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::119629040606:role/s3-access.cdn-origin-compass
+          aws-region: us-east-1
+
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          fetch-depth: "0"
+          token: ${{ steps.app-token.outputs.token }}
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          check-latest: true
+          node-version: 24.x
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Publish release
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          TRIGGERED_BY_GIT_TAG: ${{ github.ref_name }}
+          REVISION: ${{ github.sha }}
+          GITHUB_COMMIT: ${{ github.sha }}
+          BRANCH_NAME: main
+          PROJECT: mongosh
+          IS_CI: 'true'
+          BARQUE_API_KEY: ${{ secrets.BARQUE_API_KEY }}
+          BARQUE_USERNAME: ${{ secrets.BARQUE_USERNAME }}
+          DOWNLOAD_CENTER_AWS_KEY: ${{ secrets.DOWNLOAD_CENTER_AWS_KEY }}
+          DOWNLOAD_CENTER_AWS_SECRET: ${{ secrets.DOWNLOAD_CENTER_AWS_SECRET }}
+          DOWNLOAD_CENTER_AWS_KEY_ARTIFACTS: ${{ env.AWS_ACCESS_KEY_ID }}
+          DOWNLOAD_CENTER_AWS_SECRET_ARTIFACTS: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          DOWNLOAD_CENTER_AWS_SESSION_TOKEN_ARTIFACTS: ${{ env.AWS_SESSION_TOKEN }}
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
+          echo "Publishing packages as $(npm whoami)"
+          npm run evergreen-release download-and-list-artifacts
+          npm run evergreen-release publish
