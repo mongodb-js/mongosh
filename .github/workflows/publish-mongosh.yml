@@ -122,6 +122,8 @@ jobs:
           IS_CI: 'true'
           BARQUE_API_KEY: ${{ secrets.BARQUE_API_KEY }}
           BARQUE_USERNAME: ${{ secrets.BARQUE_USERNAME }}
+          # The download center AWS key/secret is required to access
+          # the info-mongodb-com configuration bucket.
           DOWNLOAD_CENTER_AWS_KEY: ${{ secrets.DOWNLOAD_CENTER_AWS_KEY }}
           DOWNLOAD_CENTER_AWS_SECRET: ${{ secrets.DOWNLOAD_CENTER_AWS_SECRET }}
           DOWNLOAD_CENTER_AWS_KEY_ARTIFACTS: ${{ env.AWS_ACCESS_KEY_ID }}
