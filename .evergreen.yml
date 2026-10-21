@@ -5192,7 +5192,7 @@ functions:
         env:
           devtoolsbot_npm_token: ${devtoolsbot_npm_token}
           node_js_version: ${node_js_version}
-          SKIP_NPM_PUBLISH: 'true'
+          SKIP_NPM_PUBLISH: ${skip_npm_publish|true}
           DOWNLOAD_CENTER_AWS_KEY_ARTIFACTS: ${AWS_ACCESS_KEY_ID}
           DOWNLOAD_CENTER_AWS_SECRET_ARTIFACTS: ${AWS_SECRET_ACCESS_KEY}
           DOWNLOAD_CENTER_AWS_SESSION_TOKEN_ARTIFACTS: ${AWS_SESSION_TOKEN}
