@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'The mongosh@x.y.z tag to publish from'
-        required: true
+        description: 'The mongosh@x.y.z tag to publish from. Leave empty to publish the latest release.'
+        required: false
         type: string
       dry-run:
         description: 'Run without publishing anything'
@@ -40,9 +40,23 @@ jobs:
           app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
           private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
 
+      - name: Resolve tag to publish
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          TAG_INPUT: ${{ inputs.tag }}
+        run: |
+          if [ -n "$TAG_INPUT" ]; then
+            PUBLISH_TAG="$TAG_INPUT"
+          else
+            PUBLISH_TAG=$(gh api 'repos/mongodb-js/mongosh/tags?per_page=100' --jq '.[].name' \
+              | grep '^mongosh@' | sort -V | tail -1)
+            [ -n "$PUBLISH_TAG" ] || { echo 'Could not find any mongosh@ tag'; exit 1; }
+          fi
+          echo "Publishing from tag: ${PUBLISH_TAG}"
+          echo "PUBLISH_TAG=${PUBLISH_TAG}" >> "$GITHUB_ENV"
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
-          ref: ${{ inputs.tag }}
+          ref: ${{ env.PUBLISH_TAG }}
           fetch-depth: "0" # this is important so git log can pick up on the whole history to generate the list of AUTHORS
           token: ${{ steps.app-token.outputs.token }}
 

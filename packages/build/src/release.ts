@@ -110,10 +110,6 @@ export async function release(
       await publishMongosh(config, octokit);
     }
   } else if (command === 'npm-publish') {
-    // Publishes whatever is not already in npm; expected to run from the
-    // publish-npm GitHub Actions workflow on a mongosh@x.y.z tag, after the
-    // evergreen publish stage (barque, download center, release promotion)
-    // has completed.
     new PackagePublisher({
       useAuxiliaryPackagesOnly: false,
       isDryRun: config.isDryRun || false,
