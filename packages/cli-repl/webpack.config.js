@@ -96,6 +96,12 @@ const config = {
       'commonjs2 ../build/Release/native_machine_id.node',
     '../build/Debug/native_machine_id.node':
       'commonjs2 ../build/Debug/native_machine_id.node',
+    // os-dns-native loads its addon with a static require() since 2.1.x,
+    // so webpack would otherwise try to parse the .node binary.
+    './build/Release/os_dns_native.node':
+      'commonjs2 ./build/Release/os_dns_native.node',
+    './build/Debug/os_dns_native.node':
+      'commonjs2 ./build/Debug/os_dns_native.node',
   },
 
   externalsPresets: {

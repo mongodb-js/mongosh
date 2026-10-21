@@ -41,7 +41,7 @@
     "lodash": "^4.18.1",
     "moment": "^2.31.0",
     "mongodb": "^7.5.0",
-    "mongodb-log-writer": "^2.5.6",
+    "mongodb-log-writer": "^3.0.3",
     "node-fetch": "^3.3.2",
     "prettier": "^2.8.8",
     "strip-ansi": "^6.0.0"
