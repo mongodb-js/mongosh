@@ -14,6 +14,7 @@ import { runUpload } from './run-upload';
 import { runSign } from './packaging/run-sign';
 import { runDownloadAndListArtifacts } from './run-download-and-list-artifacts';
 import { runDownloadCryptLibrary } from './packaging/run-download-crypt-library';
+import { writeBuildInfo } from './build-info';
 import { PackageBumper } from './npm-packages/bump';
 import { PackagePublisher } from './npm-packages';
 import { publishAuxiliaryPackages } from './publish-auxiliary';
@@ -110,6 +111,9 @@ export async function release(
       await publishMongosh(config, octokit);
     }
   } else if (command === 'npm-publish') {
+    // Same build metadata the evergreen publish path writes before its npm
+    // publish, so published tarballs report their packaged build info.
+    await writeBuildInfo(config, 'packaged');
     new PackagePublisher({
       useAuxiliaryPackagesOnly: false,
       isDryRun: config.isDryRun || false,

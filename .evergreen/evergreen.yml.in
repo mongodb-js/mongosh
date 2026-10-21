@@ -1105,22 +1105,20 @@ functions:
           .evergreen/run-evergreen-release.sh publish
 
   dispatch_npm_publish:
-    - command: github.generate_token
-      params:
-        expansion_name: npm_publish_github_token
-        owner: mongodb-js
-        repo: mongosh
-        permissions:
-          actions: write
     - command: shell.exec
       params:
         working_dir: src
         shell: bash
         env:
-          github_token: ${npm_publish_github_token}
-          npm_publish_dry_run: ${npm_publish_dry_run|}
+          DEVTOOLS_BOT_APP_ID: ${devtools_bot_app_id|}
+          DEVTOOLS_BOT_PRIVATE_KEY: ${devtools_bot_private_key|}
+          NPM_PUBLISH_DRY_RUN: ${npm_publish_dry_run|}
         script: |
           set -e
+          if [ "${skip_npm_publish|true}" != 'true' ]; then
+            echo 'npm publishing is handled by evergreen; skipping the GHA dispatch'
+            exit 0
+          fi
           node .evergreen/dispatch-npm-publish.mjs
 
   run_perf_tests:

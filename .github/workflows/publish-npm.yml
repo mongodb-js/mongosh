@@ -53,19 +53,29 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           TAG_INPUT: ${{ inputs.tag }}
+          DRY_RUN: ${{ inputs.dry-run }}
         run: |
-          if [ -n "$TAG_INPUT" ]; then
-            PUBLISH_TAG="$TAG_INPUT"
+          if [ "$DRY_RUN" = 'true' ]; then
+            # Dry runs validate the build/publish machinery, so they run on
+            # main: older release tags predate the npm-publish command, and
+            # the new versions only exist after a real publish anyway.
+            PUBLISH_REF='main'
+          elif [ -n "$TAG_INPUT" ]; then
+            PUBLISH_REF="$TAG_INPUT"
           else
-            PUBLISH_TAG=$(gh api 'repos/mongodb-js/mongosh/tags?per_page=100' --jq '.[].name' \
-              | grep '^mongosh@' | sort -V | tail -1)
-            [ -n "$PUBLISH_TAG" ] || { echo 'Could not find any mongosh@ tag'; exit 1; }
+            # The tag list is paginated and older pages can be all v* tags, so
+            # keep paging until a mongosh@ tag shows up.
+            for page in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
+              PUBLISH_REF=$(gh api "repos/mongodb-js/mongosh/tags?per_page=100&page=$page" --jq '.[].name' \
+                | grep '^mongosh@' | sort -V | tail -1) && [ -n "$PUBLISH_REF" ] && break
+            done
+            [ -n "$PUBLISH_REF" ] || { echo 'Could not find any mongosh@ tag'; exit 1; }
           fi
-          echo "Publishing from tag: ${PUBLISH_TAG}"
-          echo "PUBLISH_TAG=${PUBLISH_TAG}" >> "$GITHUB_ENV"
+          echo "Publishing from ref: ${PUBLISH_REF}"
+          echo "PUBLISH_REF=${PUBLISH_REF}" >> "$GITHUB_ENV"
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
-          ref: ${{ env.PUBLISH_TAG }}
+          ref: ${{ env.PUBLISH_REF }}
           fetch-depth: "0" # this is important so git log can pick up on the whole history to generate the list of AUTHORS
           token: ${{ steps.app-token.outputs.token }}
 
@@ -81,6 +91,9 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
+          # The build info written into the published tarballs reports the
+          # revision of the checked-out ref.
+          export REVISION="$(git rev-parse HEAD)"
           echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
           echo "Publishing packages as $(npm whoami)"
           npm run evergreen-release npm-publish -- ${{ inputs.dry-run && '--dry-run' || '' }}

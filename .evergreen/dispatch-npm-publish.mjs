@@ -2,47 +2,79 @@
 // and waits for it to complete, so the evergreen task reflects the outcome of
 // the npm publish as well. Run from the evergreen release_publish task.
 //
-// Uses the workspace's @octokit/rest (the same client the rest of the release
-// tooling uses) via createRequire, since this runs outside the ts-node
+// Uses the workspace's @octokit via createRequire, since this runs outside the ts-node
 // context. The nonce input identifies our run unambiguously: the workflow's
-// run-name includes it, so we match on that instead of timestamps.
+// run-name includes it.
 import { createRequire } from 'node:module';
 import { randomBytes } from 'node:crypto';
 import { setTimeout as sleep } from 'node:timers/promises';
 
 const require = createRequire(import.meta.url);
 const { Octokit } = require('@octokit/rest');
+const { createAppAuth } = require('@octokit/auth-app');
 
 const OWNER = 'mongodb-js';
 const REPO = 'mongosh';
 const WORKFLOW_FILE = 'publish-npm.yml';
-const token = process.env.GITHUB_TOKEN;
-if (!token) {
-  throw new Error('Usage: GITHUB_TOKEN=<token> dispatch-npm-publish.mjs');
+const SEARCH_TIMEOUT_MS = 5 * 60 * 1000;
+// the run takes ~30min; 2h for queue delays
+const WATCH_TIMEOUT_MS = 2 * 60 * 60 * 1000;
+const appId = process.env.DEVTOOLS_BOT_APP_ID;
+// The key may be stored single-line with literal \n escapes.
+const privateKey = process.env.DEVTOOLS_BOT_PRIVATE_KEY?.replace(/\\n/g, '\n');
+if (!appId || !privateKey) {
+  throw new Error(
+    'DEVTOOLS_BOT_APP_ID and DEVTOOLS_BOT_PRIVATE_KEY are required'
+  );
 }
 
-const octokit = new Octokit({ auth: token });
+// Look up the app installation for this repo, then authenticate all further
+// requests as that installation — Octokit renews the token automatically.
+const appOctokit = new Octokit({
+  authStrategy: createAppAuth,
+  auth: { appId, privateKey },
+});
+const {
+  data: { id: installationId },
+} = await appOctokit.apps.getRepoInstallation({ owner: OWNER, repo: REPO });
+const octokit = new Octokit({
+  authStrategy: createAppAuth,
+  auth: { appId, privateKey, installationId },
+});
+
 const nonce = randomBytes(8).toString('hex');
 const expectedRunName = `Publish npm packages (nonce = ${nonce})`;
 const isDryRun = process.env.NPM_PUBLISH_DRY_RUN === 'true';
 
-// Dispatch with a ref of main so GitHub can find the workflow file; with no
-// tag input, the workflow publishes the latest mongosh@ tag. On dry-run
-// dispatches (evergreen's dry-run task) that is the previous release, so the
-// dry run validates the build/publish machinery, not the new versions.
+// The evergreen publish task bumps the workspace's mongosh package to the
+// release version, so the exact release tag can be derived from it. Passing
+// it explicitly matters for patch releases of older branches, where the
+// latest mongosh@ tag is NOT this release.
+const { version } = JSON.parse(
+  await fs.readFile('packages/cli-repl/package.json', 'utf8')
+);
+const tag = `mongosh@${version}`;
+
+// Dispatch with a ref of main so GitHub can find the workflow file. On
+// dry-run dispatches (evergreen's dry-run task) the workflow checks out main
+// and validates the build/publish machinery without publishing.
 await octokit.rest.actions.createWorkflowDispatch({
   owner: OWNER,
   repo: REPO,
   workflow_id: WORKFLOW_FILE,
   ref: 'main',
-  inputs: isDryRun ? { nonce, 'dry-run': true } : { nonce },
+  inputs: isDryRun ? { tag, nonce, 'dry-run': true } : { tag, nonce },
 });
 console.info(
-  `mongosh: dispatched ${WORKFLOW_FILE} (nonce = ${nonce}), waiting for it to complete...`
+  `mongosh: dispatched ${WORKFLOW_FILE} for ${tag} (nonce = ${nonce}), waiting for it to complete...`
 );
 
 // Finds the run we just dispatched, it may take a moment to be created.
-async function getDispatchedWorkflow({ octokit, expectedRunName, searchTimeoutMs, pollDelayMs = 30_000 }) {
+async function getDispatchedWorkflow({
+  expectedRunName,
+  searchTimeoutMs,
+  pollDelayMs = 30_000,
+}) {
   for (const start = Date.now(); Date.now() - start < searchTimeoutMs; ) {
     const {
       data: { workflow_runs: runs = [] },
@@ -62,7 +94,6 @@ async function getDispatchedWorkflow({ octokit, expectedRunName, searchTimeoutMs
 // Polls the run until it completes and returns its conclusion. Cancels the
 // run when the watch timeout expires.
 async function pollToCompletion({
-  octokit,
   runId,
   watchTimeoutMs,
   watchPollDelayMs = 30_000,
@@ -93,11 +124,9 @@ async function pollToCompletion({
   throw new Error('Timed out waiting for the npm publish run');
 }
 
-const deadline = Date.now() + 2 * 60 * 60 * 1000; // the run takes ~30min; 2h for queue delays
 const run = await getDispatchedWorkflow({
-  octokit,
   expectedRunName,
-  searchTimeoutMs: deadline - Date.now(),
+  searchTimeoutMs: SEARCH_TIMEOUT_MS,
 });
 if (!run) {
   throw new Error('Timed out waiting for the npm publish run to appear');
@@ -105,9 +134,8 @@ if (!run) {
 console.info(`mongosh: run found: ${run.html_url}`);
 
 const conclusion = await pollToCompletion({
-  octokit,
   runId: run.id,
-  watchTimeoutMs: 2 * 60 * 60 * 1000, // the run takes ~30min; 2h for queue delays
+  watchTimeoutMs: WATCH_TIMEOUT_MS,
 });
 console.info(`mongosh: npm publish succeeded (${conclusion}): ${run.html_url}`);
 process.exit(0);
