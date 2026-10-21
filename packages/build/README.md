@@ -38,8 +38,8 @@ Execute the following steps to publish a new release:
    npm run release publish
    ```
    Follow the instructions and verify the inferred release version is correct.
-7. Wait for Evergreen to finish the publication stage.
-8. Publish the npm packages: run the [`Publish npm packages` GitHub Actions workflow](https://github.com/mongodb-js/mongosh/actions/workflows/publish-npm.yml) — leave the tag empty to publish the latest release. It only publishes packages that are not already in npm, so it is safe to re-run.
+7. Wait for Evergreen to finish the publication stage. Evergreen will then automatically trigger the [`Publish npm packages` GitHub Actions workflow](https://github.com/mongodb-js/mongosh/actions/workflows/publish-npm.yml) and wait for it to complete. It only publishes packages that are not already in npm, so it is safe to re-run.
+8. If the npm publish workflow failed, re-run it manually — leave the tag empty to publish the latest release.
 9. Ensure that the version bump was automatically merged into main and that it is synced up with the `mongosh@x.x.x` tag.
 10. Close the Jira ticket for the release, post an update in the `#mongosh` Slack channel and ping the docs team.
 

@@ -1104,6 +1104,24 @@ functions:
           set -e
           .evergreen/run-evergreen-release.sh publish
 
+  dispatch_npm_publish:
+    - command: github.generate_token
+      params:
+        expansion_name: npm_publish_github_token
+        owner: mongodb-js
+        repo: mongosh
+        permissions:
+          actions: write
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          github_token: ${npm_publish_github_token}
+        script: |
+          set -e
+          node .evergreen/dispatch-npm-publish.mjs mongodb-js/mongosh publish-npm.yml
+
   run_perf_tests:
     - command: subprocess.exec
       params:
@@ -1642,6 +1660,7 @@ tasks:
       - func: release_publish
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
+      - func: dispatch_npm_publish
 
 # Need to run builds for every possible build variant.
 buildvariants:
