@@ -24,16 +24,18 @@ if (!token) {
 const octokit = new Octokit({ auth: token });
 const nonce = randomBytes(8).toString('hex');
 const expectedRunName = `Publish npm packages (nonce = ${nonce})`;
+const isDryRun = process.env.NPM_PUBLISH_DRY_RUN === 'true';
 
 // Dispatch with a ref of main so GitHub can find the workflow file; with no
-// tag input, the workflow publishes the latest mongosh@ tag, which is the
-// one this release just pushed.
+// tag input, the workflow publishes the latest mongosh@ tag. On dry-run
+// dispatches (evergreen's dry-run task) that is the previous release, so the
+// dry run validates the build/publish machinery, not the new versions.
 await octokit.rest.actions.createWorkflowDispatch({
   owner: OWNER,
   repo: REPO,
   workflow_id: WORKFLOW_FILE,
   ref: 'main',
-  inputs: { nonce },
+  inputs: isDryRun ? { nonce, 'dry-run': true } : { nonce },
 });
 console.info(
   `mongosh: dispatched ${WORKFLOW_FILE} (nonce = ${nonce}), waiting for it to complete...`

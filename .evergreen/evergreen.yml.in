@@ -1118,6 +1118,7 @@ functions:
         shell: bash
         env:
           github_token: ${npm_publish_github_token}
+          npm_publish_dry_run: ${npm_publish_dry_run|}
         script: |
           set -e
           node .evergreen/dispatch-npm-publish.mjs
@@ -1639,6 +1640,9 @@ tasks:
       - func: release_publish_dry_run
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_TARGET) %>"
+      - func: dispatch_npm_publish
+        vars:
+          npm_publish_dry_run: 'true'
   - name: release_publish
     tags: ["publish"]
     git_tag_only: true
