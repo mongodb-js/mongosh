@@ -1,10 +1,19 @@
 name: Publish npm packages
 
+# The nonce in the run name lets the evergreen dispatch_npm_publish script
+# unambiguously match the run it dispatched.
+run-name: >-
+  Publish npm packages${{ inputs.nonce && format(' (nonce = {0})', inputs.nonce) || '' }}
+
 on:
   workflow_dispatch:
     inputs:
       tag:
         description: 'The mongosh@x.y.z tag to publish from. Leave empty to publish the latest release.'
+        required: false
+        type: string
+      nonce:
+        description: 'Set automatically when dispatched from evergreen'
         required: false
         type: string
       dry-run:

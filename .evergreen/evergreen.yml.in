@@ -1120,7 +1120,7 @@ functions:
           github_token: ${npm_publish_github_token}
         script: |
           set -e
-          node .evergreen/dispatch-npm-publish.mjs mongodb-js/mongosh publish-npm.yml
+          node .evergreen/dispatch-npm-publish.mjs
 
   run_perf_tests:
     - command: subprocess.exec
