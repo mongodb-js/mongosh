@@ -1,3 +1,7 @@
+# Publishes the npm packages of a release (the mongosh release packages and
+# anything not already in npm). Run this after the evergreen publish stage
+# (barque, download center, release promotion) has completed, with the
+# mongosh@x.y.z tag that it pushed.
 name: Publish npm packages
 
 # The nonce in the run name lets the evergreen dispatch_npm_publish script
@@ -24,12 +28,6 @@ on:
 
 permissions:
   contents: read
-
-description: |
-  Publishes the npm packages of a release (the mongosh release packages and
-  anything not already in npm). Run this after the evergreen publish stage
-  (barque, download center, release promotion) has completed, with the
-  mongosh@x.y.z tag that it pushed.
 
 concurrency:
   group: publish-npm

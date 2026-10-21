@@ -11552,6 +11552,8 @@ tasks:
         vars:
           node_js_version: "24.21.0"
       - func: dispatch_npm_publish
+        vars:
+          npm_publish_dry_run: 'false'
 
 # Need to run builds for every possible build variant.
 buildvariants:
