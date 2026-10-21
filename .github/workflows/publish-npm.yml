@@ -17,10 +17,10 @@ on:
         required: false
         type: string
       dry-run:
-        description: 'Run without publishing anything'
+        description: 'Run without publishing anything. Uncheck to actually publish.'
         required: false
         type: boolean
-        default: false
+        default: true
 
 permissions:
   contents: read

@@ -57,13 +57,14 @@ const tag = `mongosh@${version}`;
 
 // Dispatch with a ref of main so GitHub can find the workflow file. On
 // dry-run dispatches (evergreen's dry-run task) the workflow checks out main
-// and validates the build/publish machinery without publishing.
+// and validates the build/publish machinery without publishing. The dry-run
+// input is always sent explicitly — the workflow defaults it to true.
 await octokit.rest.actions.createWorkflowDispatch({
   owner: OWNER,
   repo: REPO,
   workflow_id: WORKFLOW_FILE,
   ref: 'main',
-  inputs: isDryRun ? { tag, nonce, 'dry-run': true } : { tag, nonce },
+  inputs: { tag, nonce, 'dry-run': isDryRun },
 });
 console.info(
   `mongosh: dispatched ${WORKFLOW_FILE} for ${tag} (nonce = ${nonce}), waiting for it to complete...`
