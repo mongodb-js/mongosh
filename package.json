@@ -178,7 +178,6 @@
   ],
   "allowScripts": {
     "@mongodb-js/native-machine-id": true,
-    "cpu-features": true,
     "get-console-process-list": true,
     "glibc-version": true,
     "interruptor": true,
@@ -189,7 +188,6 @@
     "mongodb-crypt-library-version": true,
     "os-dns-native": true,
     "puppeteer": true,
-    "ssh2": true,
     "win-export-certificate-and-key": true
   }
 }
