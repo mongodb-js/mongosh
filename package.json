@@ -177,14 +177,15 @@
     "packages/connectivity-tests"
   ],
   "allowScripts": {
+    "@mongodb-js/native-machine-id": true,
     "cpu-features": true,
     "glibc-version": true,
     "interruptor": true,
     "kerberos": true,
+    "macos-export-certificate-and-key": true,
     "mongodb-client-encryption": true,
     "mongodb-crypt-library-dummy": true,
     "mongodb-crypt-library-version": true,
-    "@mongodb-js/native-machine-id": true,
     "os-dns-native": true,
     "ssh2": true
   }
