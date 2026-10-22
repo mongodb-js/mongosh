@@ -175,5 +175,19 @@
     "packages/node-runtime-worker-thread",
     "packages/browser-repl",
     "packages/connectivity-tests"
-  ]
+  ],
+  "allowScripts": {
+    "@mongodb-js/native-machine-id": true,
+    "get-console-process-list": true,
+    "glibc-version": true,
+    "interruptor": true,
+    "kerberos": true,
+    "macos-export-certificate-and-key": true,
+    "mongodb-client-encryption": true,
+    "mongodb-crypt-library-dummy": true,
+    "mongodb-crypt-library-version": true,
+    "os-dns-native": true,
+    "puppeteer": true,
+    "win-export-certificate-and-key": true
+  }
 }
