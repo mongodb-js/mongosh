@@ -1,0 +1,97 @@
+# Publishes the npm packages of a release (the mongosh release packages and
+# anything not already in npm). Run this after the evergreen publish stage
+# (barque, download center, release promotion) has completed, with the
+# mongosh@x.y.z tag that it pushed.
+name: Publish npm packages
+
+# The nonce in the run name lets the evergreen dispatch_npm_publish script
+# unambiguously match the run it dispatched.
+run-name: >-
+  Publish npm packages${{ inputs.nonce && format(' (nonce = {0})', inputs.nonce) || '' }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'The mongosh@x.y.z tag to publish from. Leave empty to publish the latest release.'
+        required: false
+        type: string
+      nonce:
+        description: 'Set automatically when dispatched from evergreen'
+        required: false
+        type: string
+      dry-run:
+        description: 'Run without publishing anything. Uncheck to actually publish.'
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-npm
+  cancel-in-progress: false
+
+env:
+  PUPPETEER_SKIP_DOWNLOAD: "true"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: Production
+    steps:
+      - uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
+        id: app-token
+        with:
+          app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
+          private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
+
+      - name: Resolve tag to publish
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          TAG_INPUT: ${{ inputs.tag }}
+          DRY_RUN: ${{ inputs.dry-run }}
+        run: |
+          if [ "$DRY_RUN" = 'true' ]; then
+            # Dry runs validate the build/publish machinery, so they run on
+            # main: older release tags predate the npm-publish command, and
+            # the new versions only exist after a real publish anyway.
+            PUBLISH_REF='main'
+          elif [ -n "$TAG_INPUT" ]; then
+            PUBLISH_REF="$TAG_INPUT"
+          else
+            # The tag list is paginated and older pages can be all v* tags, so
+            # keep paging until a mongosh@ tag shows up.
+            for page in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
+              PUBLISH_REF=$(gh api "repos/mongodb-js/mongosh/tags?per_page=100&page=$page" --jq '.[].name' \
+                | grep '^mongosh@' | sort -V | tail -1) && [ -n "$PUBLISH_REF" ] && break
+            done
+            [ -n "$PUBLISH_REF" ] || { echo 'Could not find any mongosh@ tag'; exit 1; }
+          fi
+          echo "Publishing from ref: ${PUBLISH_REF}"
+          echo "PUBLISH_REF=${PUBLISH_REF}" >> "$GITHUB_ENV"
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          ref: ${{ env.PUBLISH_REF }}
+          fetch-depth: "0" # this is important so git log can pick up on the whole history to generate the list of AUTHORS
+          token: ${{ steps.app-token.outputs.token }}
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          check-latest: true
+          node-version: 24.x
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Publish npm packages
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          # The build info written into the published tarballs reports the
+          # revision of the checked-out ref.
+          export REVISION="$(git rev-parse HEAD)"
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
+          echo "Publishing packages as $(npm whoami)"
+          npm run evergreen-release npm-publish -- ${{ inputs.dry-run && '--dry-run' || '' }}
