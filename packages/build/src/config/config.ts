@@ -68,6 +68,7 @@ export interface Config {
   manpage?: ManPageConfig;
   isDryRun?: boolean;
   useAuxiliaryPackagesOnly?: boolean;
+  skipNpmPublish?: boolean;
   ctaConfig: CTAConfig;
   ctaConfigSchema: Schema;
 }
