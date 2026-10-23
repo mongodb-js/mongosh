@@ -13,6 +13,10 @@
       "path": "configs/tsconfig-mongosh"
     },
     {
+      "name": "📦 @0q/mongosh",
+      "path": "packages/embedded-mongosh"
+    },
+    {
       "name": "📦 @mongosh/docker-build-scripts",
       "path": "scripts/docker"
     },

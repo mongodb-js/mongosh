@@ -58,7 +58,8 @@
     "mongodb-connection-string-url": "^7.0.1",
     "socks": "^2.8.3",
     "mongodb-client-encryption": "^7.2.0",
-    "kerberos": "^7.0.0"
+    "kerberos": "^7.0.0",
+    "@0q/embedded-mongodb": "^0.1.0"
   },
   "optionalDependencies": {
     "kerberos": "^7.0.0",

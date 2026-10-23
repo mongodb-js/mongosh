@@ -80,6 +80,8 @@ const config = {
 
   externals: {
     electron: 'commonjs2 electron', // optional dep of the OIDC plugin
+    // Loads a native addon and the database engine beside it, which have to stay files on disk.
+    '@0q/embedded-mongodb': 'commonjs2 @0q/embedded-mongodb',
     ...Object.fromEntries(eagerNodeBuiltins.map((m) => [m, `commonjs2 ${m}`])),
     ...Object.fromEntries(
       Module.builtinModules.map((m) => [`node:${m}`, `commonjs2 ${m}`])
