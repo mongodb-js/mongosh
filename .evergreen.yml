@@ -91,7 +91,7 @@ post:
 #                         We use this to verify that e.g. the Ubuntu-built release
 #                         binary also works on RHEL and Debian.
 #   generate_license_and_vulnerability_report - Generates a report of vulnerabilities affecting the bundled application.
-#   release_publish - Publishes the non-npm packages and uploads the tarballs (npm publish runs on GHA).
+#   release_publish - Publishes the npm packages and uploads the tarballs.
 functions:
   checkout:
     - command: git.get_project
@@ -5192,30 +5192,12 @@ functions:
         env:
           devtoolsbot_npm_token: ${devtoolsbot_npm_token}
           node_js_version: ${node_js_version}
-          SKIP_NPM_PUBLISH: ${skip_npm_publish|true}
           DOWNLOAD_CENTER_AWS_KEY_ARTIFACTS: ${AWS_ACCESS_KEY_ID}
           DOWNLOAD_CENTER_AWS_SECRET_ARTIFACTS: ${AWS_SECRET_ACCESS_KEY}
           DOWNLOAD_CENTER_AWS_SESSION_TOKEN_ARTIFACTS: ${AWS_SESSION_TOKEN}
         script: |
           set -e
           .evergreen/run-evergreen-release.sh publish
-
-  dispatch_npm_publish:
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        env:
-          DEVTOOLS_BOT_APP_ID: ${devtools_bot_app_id|}
-          DEVTOOLS_BOT_PRIVATE_KEY: ${devtools_bot_private_key|}
-          NPM_PUBLISH_DRY_RUN: ${npm_publish_dry_run|}
-        script: |
-          set -e
-          if [ "${skip_npm_publish|true}" != 'true' ]; then
-            echo 'npm publishing is handled by evergreen; skipping the GHA dispatch'
-            exit 0
-          fi
-          node .evergreen/dispatch-npm-publish.mjs
 
   run_perf_tests:
     - command: subprocess.exec
@@ -5248,8 +5230,8 @@ functions:
 #   package_artifact - Upload the release binary together with other files to S3.
 #   sign_artifact - Get a package file from S3, sign it, put it back into S3.
 #   test_linux_artifact - Test that the built artifact works where we expect it to.
+#   release_publish - Publishes the npm packages and uploads the tarballs.
 #   generate_license_and_vulnerability_report - Generates a report of vulnerabilities affecting the bundled application.
-#   release_publish - Publishes the non-npm packages and uploads the tarballs (npm publish runs on GHA).
 #   pkg_test_* - Run tests on the release packages
 tasks:
   - name: compile_ts
@@ -11527,9 +11509,6 @@ tasks:
       - func: release_publish_dry_run
         vars:
           node_js_version: "24.22.1"
-      - func: dispatch_npm_publish
-        vars:
-          npm_publish_dry_run: 'true'
   - name: release_publish
     tags: ["publish"]
     git_tag_only: true
@@ -11551,9 +11530,6 @@ tasks:
       - func: release_publish
         vars:
           node_js_version: "24.22.1"
-      - func: dispatch_npm_publish
-        vars:
-          npm_publish_dry_run: 'false'
 
 # Need to run builds for every possible build variant.
 buildvariants:
@@ -13554,8 +13530,6 @@ buildvariants:
   - name: draft_publish_release
     display_name: "Draft/Publish Release"
     run_on: ubuntu2004-small
-    # The npm packages are published separately, by the publish-npm GitHub
-    # Actions workflow.
     tasks:
       - name: release_draft
       - name: release_publish_dry_run

@@ -19,7 +19,6 @@ const validCommands: (ReleaseCommand | 'trigger-release' | 'update-cta')[] = [
   'upload',
   'draft',
   'publish',
-  'npm-publish',
   'sign',
   'download-crypt-shared-library',
   'download-and-list-artifacts',
@@ -59,9 +58,6 @@ const getBuildConfig = (): Config => {
 
   config.isDryRun ||= process.argv.includes('--dry-run');
   config.useAuxiliaryPackagesOnly ||= process.argv.includes('--auxiliary');
-  // The npm packages are published from GitHub Actions (see
-  // .github/workflows/publish-npm.yml), so evergreen skips them.
-  config.skipNpmPublish ||= process.env.SKIP_NPM_PUBLISH === 'true';
 
   return config;
 };
