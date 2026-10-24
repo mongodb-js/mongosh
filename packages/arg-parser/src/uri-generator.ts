@@ -132,6 +132,28 @@ function validateHostSeedList(
 }
 
 /**
+ * Split a single `--host` value into a host and an optional port.
+ *
+ * Bracketed IPv6 (`[::1]`, `[::1]:27017`) keeps the colons inside the
+ * brackets. A bare IPv6 address has more than one colon, and its last
+ * hextet is numeric, so it is not a `host:port` pair.
+ */
+function splitSingleHost(value: string): { host: string; port?: string } {
+  const bracketed = /^\[([^\]]+)\](?::(\d+))?$/.exec(value);
+  if (bracketed) {
+    return { host: `[${bracketed[1]}]`, port: bracketed[2] };
+  }
+  if ((value.match(/:/g) ?? []).length > 1) {
+    return { host: `[${value}]` };
+  }
+  const matched = /^(?<host>[^:]+)(?::(?<port>\d+))?$/.exec(value);
+  if (!matched?.groups?.host) {
+    return { host: value };
+  }
+  return { host: matched.groups.host, port: matched.groups.port };
+}
+
+/**
  * Generate the host from the options or default.
  *
  * @param {CliOptions} options - The options.
@@ -141,10 +163,7 @@ function validateHostSeedList(
 function generateHost(options: CliOptions): string {
   if (options.host) {
     validateHost(options.host);
-    if (options.host.includes(':')) {
-      return options.host.split(':')[0];
-    }
-    return options.host;
+    return splitSingleHost(options.host).host;
   }
   return DEFAULT_HOST;
 }
@@ -157,18 +176,29 @@ function generateHost(options: CliOptions): string {
  * @returns {string} The port.
  */
 function generatePort(options: CliOptions): string {
-  if (options.host && options.host.includes(':')) {
+  if (options.host && /[:[\]]/.test(options.host)) {
     validateHost(options.host);
-    const port = options.host.split(':')[1];
-    if (!options.port || options.port === port) {
-      return port;
+    const port = splitSingleHost(options.host).port;
+    if (port !== undefined) {
+      if (!options.port || options.port === port) {
+        return port;
+      }
+      throw new MongoshInvalidInputError(
+        i18n.__(CONFLICT),
+        CommonErrors.InvalidArgument
+      );
     }
-    throw new MongoshInvalidInputError(
-      i18n.__(CONFLICT),
-      CommonErrors.InvalidArgument
-    );
   }
   return options.port ? options.port : DEFAULT_PORT;
+}
+
+/** Host part of a `host:port` or `[ipv6]:port` connection-string host. */
+function hostnameOf(hostport: string): string {
+  if (hostport.startsWith('[')) {
+    const end = hostport.indexOf(']');
+    return end === -1 ? hostport : hostport.slice(1, end);
+  }
+  return hostport.split(':')[0];
 }
 
 function parseHostOption(value: string | undefined): {
@@ -212,7 +242,9 @@ export function generateUri(options: Readonly<CliOptions>): string {
   const connectionString = generateUriNormalized(options);
   if (
     connectionString.hosts.every((host) =>
-      ['localhost', '127.0.0.1'].includes(host.split(':')[0])
+      ['localhost', '127.0.0.1', '::1', '0:0:0:0:0:0:0:1'].includes(
+        hostnameOf(host)
+      )
     )
   ) {
     const params = connectionString.searchParams;

@@ -76,6 +76,70 @@ describe('uri-generator.generate-uri', function () {
         'mongodb://localhost:27018/?directConnection=true&serverSelectionTimeoutMS=2000'
       );
     });
+    it('handles a bracketed IPv6 host', function () {
+      expect(
+        generateUri({ connectionSpecifier: undefined, host: '[::1]' })
+      ).to.equal(
+        'mongodb://[::1]:27017/?directConnection=true&serverSelectionTimeoutMS=2000'
+      );
+    });
+    it('handles a bare IPv6 host', function () {
+      expect(
+        generateUri({
+          connectionSpecifier: undefined,
+          host: '::1',
+          port: '27017',
+        })
+      ).to.equal(
+        'mongodb://[::1]:27017/?directConnection=true&serverSelectionTimeoutMS=2000'
+      );
+    });
+    it('handles a bracketed IPv6 host with a port', function () {
+      expect(
+        generateUri({ connectionSpecifier: undefined, host: '[::1]:27017' })
+      ).to.equal(
+        'mongodb://[::1]:27017/?directConnection=true&serverSelectionTimeoutMS=2000'
+      );
+    });
+    it('handles a bracketed IPv6 host whose port matches --port', function () {
+      expect(
+        generateUri({
+          connectionSpecifier: undefined,
+          host: '[::1]:27017',
+          port: '27017',
+        })
+      ).to.equal(
+        'mongodb://[::1]:27017/?directConnection=true&serverSelectionTimeoutMS=2000'
+      );
+    });
+    it('throws if a bracketed IPv6 host port disagrees with --port', function () {
+      try {
+        generateUri({
+          connectionSpecifier: undefined,
+          host: '[::1]:27018',
+          port: '27019',
+        });
+        expect.fail('expected error');
+      } catch (e: any) {
+        expect(e).to.be.instanceOf(MongoshInvalidInputError);
+        expect(e.code).to.equal(CommonErrors.InvalidArgument);
+      }
+    });
+    it('keeps an IPv4-mapped IPv6 address bracketed', function () {
+      expect(
+        generateUri({
+          connectionSpecifier: undefined,
+          host: '[::ffff:192.0.2.1]:27017',
+        })
+      ).to.equal('mongodb://[::ffff:192.0.2.1]:27017/?directConnection=true');
+    });
+    it('uses the IPv6 host when the positional argument is a database name', function () {
+      expect(
+        generateUri({ connectionSpecifier: 'admin', host: '[::1]' })
+      ).to.equal(
+        'mongodb://[::1]:27017/admin?directConnection=true&serverSelectionTimeoutMS=2000'
+      );
+    });
   });
 
   context('when a full URI is provided', function () {
