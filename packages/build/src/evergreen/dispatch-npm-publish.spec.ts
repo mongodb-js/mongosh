@@ -22,7 +22,7 @@ describe('dispatch-npm-publish.mjs', function () {
   describe('with a mocked GitHub API', function () {
     let privateKey: string;
 
-    before(async function () {
+    before(function () {
       // auth-app needs a real RSA key to sign the app JWT, even when the
       // network is mocked.
       const { privateKey: key } = crypto.generateKeyPairSync('rsa', {
@@ -51,9 +51,9 @@ describe('dispatch-npm-publish.mjs', function () {
           path.join(repoRoot, 'packages', 'cli-repl', 'package.json'),
           'utf8'
         )
-      );
+      ) as { version: string };
       expect(stdout).to.include(
-        `dispatched ${'publish-npm.yml'} for mongosh@${version}`
+        `dispatched publish-npm.yml for mongosh@${version}`
       );
       expect(stdout).to.include('run found');
       expect(stdout).to.include('npm publish succeeded (success)');
