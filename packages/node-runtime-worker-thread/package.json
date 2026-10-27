@@ -6,6 +6,14 @@
   "license": "Apache-2.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./worker-runtime": "./dist/worker-runtime.js",
+    "./package.json": "./package.json"
+  },
   "publishConfig": {
     "access": "public"
   },

@@ -35,6 +35,18 @@ function getRPCOptions(messageBus: RPCMessageBus): PostmsgRpcOptions {
   };
 }
 
+export type CancelablePromise<T> = Promise<T> & { cancel(): void };
+
+export type CancelableMethods<T> = {
+  [k in keyof T]: T[k] extends (...args: infer Args) => infer ReturnVal
+    ? (
+        ...args: Args
+      ) => ReturnVal extends Promise<infer PromiseValue>
+        ? CancelablePromise<PromiseValue>
+        : CancelablePromise<ReturnVal>
+    : T[k];
+};
+
 export const close = Symbol('@@rpc.close');
 
 export const cancel = Symbol('@@rpc.cancel');
