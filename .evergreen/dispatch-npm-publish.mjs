@@ -41,12 +41,7 @@ const appOctokit = new Octokit({
 });
 const {
   data: { id: installationId },
-} = await appOctokit.rest.apps.getRepoInstallation({
-  owner: OWNER,
-  repo: REPO,
-});
-// Creates the installation token on first use and refreshes it when it
-// expires.
+} = await appOctokit.apps.getRepoInstallation({ owner: OWNER, repo: REPO });
 const octokit = new Octokit({
   authStrategy: createAppAuth,
   auth: { appId, privateKey, installationId },
