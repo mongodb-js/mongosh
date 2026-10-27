@@ -7,6 +7,7 @@
 // run-name includes it.
 import { createRequire } from 'node:module';
 import { randomBytes } from 'node:crypto';
+import { promises as fs } from 'node:fs';
 import { setTimeout as sleep } from 'node:timers/promises';
 
 const require = createRequire(import.meta.url);
