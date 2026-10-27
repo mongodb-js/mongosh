@@ -7,12 +7,13 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import type { RuntimeEvaluationListener } from '@mongosh/browser-runtime-core';
 import type { MongoshBus } from '@mongosh/types';
+import { execFileSync } from 'child_process';
 import type {
   Caller,
   RPCMessageBus,
   WorkerThreadRuntime,
   WorkerRuntimeEvaluationListener,
-} from '../dist/index';
+} from '../dist/client';
 import {
   createCaller,
   cancel,
@@ -20,13 +21,15 @@ import {
   deserializeEvaluationResult,
   WorkerThreadEvaluationListener,
   WorkerProcessMongoshBus,
-  workerRuntimePath,
-} from '../dist/index';
+} from '../dist/client';
+import { workerRuntimePath } from '../dist/index';
 
 chai.use(sinonChai);
 
 function createMockRpcMessageBus(): RPCMessageBus {
   const ee = new EventEmitter();
+  // Every exposed method adds its own message listener.
+  ee.setMaxListeners(0);
   return {
     addEventListener: ee.on.bind(ee),
     removeEventListener: ee.off.bind(ee),
@@ -51,6 +54,16 @@ describe('public API', function () {
     expect(
       require.resolve('@mongosh/node-runtime-worker-thread/worker-runtime')
     ).to.equal(workerRuntimePath);
+  });
+
+  it('loads the client entry without interruptor', function () {
+    const loaded = execFileSync(process.execPath, [
+      '-p',
+      `require(${JSON.stringify(
+        require.resolve('@mongosh/node-runtime-worker-thread/client')
+      )}); Object.keys(require.cache).filter((k) => k.includes('interruptor'))`,
+    ]).toString();
+    expect(loaded.trim()).to.equal('[]');
   });
 
   it('does not resolve deep imports into dist', function () {

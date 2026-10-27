@@ -210,13 +210,3 @@ class WorkerRuntime implements Runtime {
 }
 
 export { WorkerRuntime, workerRuntimePath };
-
-export type { Caller, RPCMessageBus } from './rpc';
-export { createCaller, cancel } from './rpc';
-export {
-  serializeConnectOptions,
-  deserializeEvaluationResult,
-} from './serializer';
-export { WorkerThreadEvaluationListener, WorkerProcessMongoshBus };
-export type { WorkerThreadRuntime };
-export type { WorkerRuntimeEvaluationListener } from './worker-runtime';

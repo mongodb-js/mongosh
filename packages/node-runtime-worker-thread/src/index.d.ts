@@ -14,6 +14,8 @@ declare module 'postmsg-rpc' {
 
   export type MessageData = ClientMessageData | ServerMessageData;
 
+  export type CancelablePromise<T> = Promise<T> & { cancel(): void };
+
   export type PostmsgRpcOptions = {
     addListener(name: 'message', fn: Function): void;
     removeListener(name: 'message', fn: Function): void;
