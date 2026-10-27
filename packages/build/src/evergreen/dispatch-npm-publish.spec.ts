@@ -8,7 +8,7 @@ import { pathToFileURL } from 'url';
 
 const execFile = promisify(execFileCallback);
 
-const repoRoot = path.resolve(__dirname, '..', '..', '..');
+const repoRoot = path.resolve(__dirname, '..', '..', '..', '..');
 const scriptPath = path.join(
   repoRoot,
   '.evergreen',
