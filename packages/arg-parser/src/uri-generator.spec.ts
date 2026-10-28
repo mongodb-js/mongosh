@@ -639,6 +639,27 @@ describe('uri-generator.generate-uri', function () {
     });
   });
 
+  context(
+    'when the --host option has multiple colons but is not a valid IPv6 address',
+    function () {
+      for (const host of ['::gggg:1', '1:2:3:4:5:6:7:8:9:10', '::1:27017:5']) {
+        it(`throws for ${host}`, function () {
+          try {
+            generateUri({ connectionSpecifier: undefined, host });
+          } catch (e: any) {
+            expect(e.message).to.contain(
+              `The --host argument contains an invalid character: ${host}`
+            );
+            expect(e).to.be.instanceOf(MongoshInvalidInputError);
+            expect(e.code).to.equal(CommonErrors.InvalidArgument);
+            return;
+          }
+          expect.fail('expected error');
+        });
+      }
+    }
+  );
+
   context('when the --host option contains a seed list', function () {
     context('without a replica set', function () {
       it('returns a URI for the hosts and ports specified in --host', function () {
