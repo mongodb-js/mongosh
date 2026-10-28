@@ -132,11 +132,36 @@ function validateHostSeedList(
 }
 
 /**
+ * Whether `value` (without brackets) is a valid IPv6 address, including
+ * IPv4-mapped forms such as `::ffff:192.0.2.1`.
+ */
+function isIPv6Address(value: string): boolean {
+  return normalizeIPv6(value) !== undefined;
+}
+
+/**
+ * Normalize an IPv6 address (without brackets) to its canonical,
+ * bracketed form (e.g. `0::1` -> `[::1]`), or `undefined` if it is not
+ * a valid IPv6 address.
+ */
+function normalizeIPv6(value: string): string | undefined {
+  if (!value.includes(':') || /[^0-9a-fA-F:.]/.test(value)) return undefined;
+  try {
+    return new URL(`http://[${value}]/`).hostname;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
  * Split a single `--host` value into a host and an optional port.
  *
  * Bracketed IPv6 (`[::1]`, `[::1]:27017`) keeps the colons inside the
- * brackets. A bare IPv6 address has more than one colon, and its last
- * hextet is numeric, so it is not a `host:port` pair.
+ * brackets. A bare value with more than one colon is wrapped whole if it
+ * is a valid IPv6 address (`::1:80` stays `[::1:80]`). Otherwise, if a
+ * trailing `:<digits>` cannot be part of the address (e.g. `::1:27017` or
+ * `::ffff:192.0.2.1:27017`), it is split off as the port.
+ * An empty port (`localhost:`) is returned as `''`.
  */
 function splitSingleHost(value: string): { host: string; port?: string } {
   const bracketed = /^\[([^\]]+)\](?::(\d+))?$/.exec(value);
@@ -144,9 +169,19 @@ function splitSingleHost(value: string): { host: string; port?: string } {
     return { host: `[${bracketed[1]}]`, port: bracketed[2] };
   }
   if ((value.match(/:/g) ?? []).length > 1) {
-    return { host: `[${value}]` };
+    if (isIPv6Address(value)) {
+      return { host: `[${value}]` };
+    }
+    const withPort = /^(?<host>.+):(?<port>\d+)$/.exec(value);
+    if (withPort?.groups && isIPv6Address(withPort.groups.host)) {
+      return { host: `[${withPort.groups.host}]`, port: withPort.groups.port };
+    }
+    throw new MongoshInvalidInputError(
+      `${i18n.__(INVALID_HOST)}: ${value}`,
+      CommonErrors.InvalidArgument
+    );
   }
-  const matched = /^(?<host>[^:]+)(?::(?<port>\d+))?$/.exec(value);
+  const matched = /^(?<host>[^:]+)(?::(?<port>\d*))?$/.exec(value);
   if (!matched?.groups?.host) {
     return { host: value };
   }
@@ -201,6 +236,17 @@ function hostnameOf(hostport: string): string {
   return hostport.split(':')[0];
 }
 
+/**
+ * Whether a connection-string host refers to the local machine. IPv6
+ * addresses are normalized first, so `0::1`, `[0::1]` and
+ * `[::ffff:127.0.0.1]` are treated like `::1` and `127.0.0.1`.
+ */
+function isLoopbackHost(hostport: string): boolean {
+  const hostname = hostnameOf(hostport);
+  if (['localhost', '127.0.0.1'].includes(hostname)) return true;
+  return ['[::1]', '[::ffff:7f00:1]'].includes(normalizeIPv6(hostname) ?? '');
+}
+
 function parseHostOption(value: string | undefined): {
   replSetName?: string;
   hosts?: string[];
@@ -214,7 +260,7 @@ function parseHostOption(value: string | undefined): {
   // All hosts follow the pattern (hostname|ipv4|ipv6)[(:port)]
   if (
     !hosts.every((host) =>
-      /^([A-Za-z0-9._-]+|\[[0-9a-fA-F:]+\])(:\d+)?$/.test(host)
+      /^([A-Za-z0-9._-]+|\[[0-9a-fA-F:.]+\])(:\d+)?$/.test(host)
     )
   ) {
     return {};
@@ -240,13 +286,7 @@ export function generateUri(options: Readonly<CliOptions>): string {
     return '';
   }
   const connectionString = generateUriNormalized(options);
-  if (
-    connectionString.hosts.every((host) =>
-      ['localhost', '127.0.0.1', '::1', '0:0:0:0:0:0:0:1'].includes(
-        hostnameOf(host)
-      )
-    )
-  ) {
+  if (connectionString.hosts.every(isLoopbackHost)) {
     const params = connectionString.searchParams;
     if (!params.has('serverSelectionTimeoutMS')) {
       params.set('serverSelectionTimeoutMS', '2000');

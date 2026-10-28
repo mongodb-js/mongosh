@@ -140,6 +140,66 @@ describe('uri-generator.generate-uri', function () {
         'mongodb://[::1]:27017/admin?directConnection=true&serverSelectionTimeoutMS=2000'
       );
     });
+    it('splits a port off a bare IPv6 host when it cannot be a hextet', function () {
+      expect(
+        generateUri({ connectionSpecifier: undefined, host: '::1:27017' })
+      ).to.equal(
+        'mongodb://[::1]:27017/?directConnection=true&serverSelectionTimeoutMS=2000'
+      );
+    });
+    it('splits a port off a bare IPv4-mapped IPv6 host', function () {
+      expect(
+        generateUri({
+          connectionSpecifier: undefined,
+          host: '::ffff:192.0.2.1:27017',
+        })
+      ).to.equal('mongodb://[::ffff:192.0.2.1]:27017/?directConnection=true');
+    });
+    it('throws if the port split off a bare IPv6 host disagrees with --port', function () {
+      for (const host of ['::1:27017', '::ffff:192.0.2.1:27017']) {
+        try {
+          generateUri({ connectionSpecifier: undefined, host, port: '27018' });
+          expect.fail('expected error');
+        } catch (e: any) {
+          expect(e).to.be.instanceOf(MongoshInvalidInputError);
+          expect(e.code).to.equal(CommonErrors.InvalidArgument);
+        }
+      }
+    });
+    it('keeps a bare IPv6 host whose last hextet is numeric wrapped whole', function () {
+      expect(
+        generateUri({ connectionSpecifier: undefined, host: '::1:80' })
+      ).to.equal('mongodb://[::1:80]:27017/?directConnection=true');
+    });
+    it('keeps a bare IPv4-mapped IPv6 host wrapped whole', function () {
+      expect(
+        generateUri({
+          connectionSpecifier: undefined,
+          host: '::ffff:192.0.2.1',
+        })
+      ).to.equal('mongodb://[::ffff:192.0.2.1]:27017/?directConnection=true');
+    });
+    it('keeps an empty port for localhost:', function () {
+      expect(
+        generateUri({ connectionSpecifier: undefined, host: 'localhost:' })
+      ).to.equal(
+        'mongodb://localhost:/?directConnection=true&serverSelectionTimeoutMS=2000'
+      );
+    });
+    it('keeps an empty port for 127.0.0.1:', function () {
+      expect(
+        generateUri({ connectionSpecifier: undefined, host: '127.0.0.1:' })
+      ).to.equal(
+        'mongodb://127.0.0.1:/?directConnection=true&serverSelectionTimeoutMS=2000'
+      );
+    });
+    for (const host of ['0::1', '[0::1]', '[::ffff:127.0.0.1]']) {
+      it(`uses a fast server selection timeout for loopback ${host}`, function () {
+        expect(
+          generateUri({ connectionSpecifier: undefined, host })
+        ).to.include('serverSelectionTimeoutMS=2000');
+      });
+    }
   });
 
   context('when a full URI is provided', function () {
@@ -619,6 +679,13 @@ describe('uri-generator.generate-uri', function () {
           'The host list contains different ports than provided by --port'
         );
       });
+
+      it('returns a URI for bracketed IPv4-mapped and IPv6 hosts', function () {
+        const options = { host: '[::ffff:192.0.2.1],[::1]' };
+        expect(generateUri(options)).to.equal(
+          'mongodb://[::ffff:192.0.2.1],[::1]/'
+        );
+      });
     });
 
     context('with a replica set', function () {
@@ -665,6 +732,13 @@ describe('uri-generator.generate-uri', function () {
         };
         expect(generateUri(options)).to.equal(
           'mongodb://198.51.100.1:456,foo.example.net:456,[::1]:456/?replicaSet=replsetname'
+        );
+      });
+
+      it('returns a URI for a bracketed IPv4-mapped IPv6 host', function () {
+        const options = { host: 'replsetname/[::ffff:192.0.2.1]:27017' };
+        expect(generateUri(options)).to.equal(
+          'mongodb://[::ffff:192.0.2.1]:27017/?replicaSet=replsetname'
         );
       });
 
