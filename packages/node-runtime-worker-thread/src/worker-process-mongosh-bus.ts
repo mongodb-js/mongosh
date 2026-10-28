@@ -1,11 +1,11 @@
 import type { MongoshBus } from '@mongosh/types';
-import type { Exposed } from './rpc';
+import type { Exposed, RPCMessageBus } from './rpc';
 import { exposeAll, close } from './rpc';
 
 export class WorkerProcessMongoshBus {
   exposedEmitter: Exposed<MongoshBus>;
 
-  constructor(eventEmitter: MongoshBus, worker: Worker) {
+  constructor(eventEmitter: MongoshBus, worker: RPCMessageBus) {
     const exposedEmitter: Exposed<MongoshBus> = exposeAll(
       {
         emit(...args) {

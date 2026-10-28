@@ -719,18 +719,29 @@ export class CliRepl implements MongoshIOProvider {
   }
 
   /**
-   * Telemetry is only collected for sessions that are interactive or driven by
-   * an AI agent. Scripts passed via --eval or as a file are not tracked, unless
-   * they also enter the REPL afterwards (--shell).
+   * Telemetry is only collected for agent sessions or REPL sessions with a
+   * terminal. Input piped or redirected into the REPL (`mongosh < script.js`,
+   * `echo ... | mongosh`) is still interactive for mongosh, but is not tracked.
    *
-   * This is derived from the CLI options rather than from
+   * This is derived from the CLI options and the input stream rather than from
    * `mongoshRepl.isInteractive`, so that it holds from process start - events
    * are emitted (and buffered by ToggleableAnalytics) before the REPL exists.
    */
   get isTrackedSessionKind(): boolean {
     return (
-      CliRepl.getFileAndEvalInfo(this.cliOptions).willEnterInteractiveMode ||
+      (CliRepl.getFileAndEvalInfo(this.cliOptions).willEnterInteractiveMode &&
+        this.hasTerminalInput) ||
       !!getAiAgent()
+    );
+  }
+
+  /**
+   * Whether input comes from a terminal rather than a pipe or a file.
+   */
+  private get hasTerminalInput(): boolean {
+    return (
+      !!(this.input as { isTTY?: boolean }).isTTY ||
+      !!process.env.MONGOSH_FORCE_TERMINAL
     );
   }
 

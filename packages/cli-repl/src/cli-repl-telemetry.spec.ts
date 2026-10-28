@@ -169,6 +169,9 @@ describe('CliRepl telemetry (integration)', function () {
         // CliRepl created in these tests (including ones constructed inside a
         // test, e.g. containerized-mode cases) uses it.
         process.env.MONGOSH_TELEMETRY_ENDPOINT = host;
+        // Telemetry is only collected when the REPL reads from a terminal, so
+        // make the input stream look like one.
+        (input as Duplex & { isTTY?: boolean }).isTTY = true;
         cliRepl = new CliRepl(cliReplOptions);
       });
 
@@ -309,6 +312,47 @@ describe('CliRepl telemetry (integration)', function () {
         await waitBus(cliRepl.bus, 'mongosh:closed');
         // Identify + New Connection + Session Ended = 3 events
         expect(totalEventsTracked).to.equal(3);
+      });
+
+      context('when input is piped into the REPL', function () {
+        beforeEach(function () {
+          // e.g. `mongosh < script.js` or `echo 'db.hello()' | mongosh`
+          (input as Duplex & { isTTY?: boolean }).isTTY = false;
+        });
+
+        afterEach(function () {
+          delete process.env.MONGOSH_FORCE_TERMINAL;
+        });
+
+        it('does not send telemetry events', async function () {
+          cliRepl = new CliRepl(cliReplOptions);
+          await cliRepl.start(await testServer.connectionString(), {});
+          input.write('db.hello()\n');
+          input.write('exit\n');
+          await waitBus(cliRepl.bus, 'mongosh:closed');
+          expect(requests).to.have.lengthOf(0);
+        });
+
+        it('sends telemetry events when driven by an AI agent', async function () {
+          process.env.AI_AGENT = '1';
+          cliRepl = new CliRepl(cliReplOptions);
+          await cliRepl.start(await testServer.connectionString(), {});
+          input.write('db.hello()\n');
+          input.write('exit\n');
+          await waitBus(cliRepl.bus, 'mongosh:closed');
+          // Identify + New Connection + Session Ended = 3 events
+          expect(totalEventsTracked).to.equal(3);
+        });
+
+        it('sends telemetry events when MONGOSH_FORCE_TERMINAL is set', async function () {
+          process.env.MONGOSH_FORCE_TERMINAL = '1';
+          cliRepl = new CliRepl(cliReplOptions);
+          await cliRepl.start(await testServer.connectionString(), {});
+          input.write('exit\n');
+          await waitBus(cliRepl.bus, 'mongosh:closed');
+          // Identify + New Connection + Session Ended = 3 events
+          expect(totalEventsTracked).to.equal(3);
+        });
       });
 
       it('sends a SessionEndedEvent with all session properties instead of individual API Call events', async function () {

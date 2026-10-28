@@ -12,7 +12,7 @@ import { EventEmitter, once } from 'events';
 import { pathToFileURL } from 'url';
 import type { Caller } from './rpc';
 import { createCaller, cancel, exposeAll } from './rpc';
-import type { WorkerRuntime as WorkerThreadWorkerRuntime } from './worker-runtime';
+import type { WorkerRuntime as WorkerThreadRuntime } from './worker-runtime';
 import {
   deserializeEvaluationResult,
   serializeConnectOptions,
@@ -26,7 +26,8 @@ import { WorkerProcessMongoshBus } from './worker-process-mongosh-bus';
 type DevtoolsConnectOptions = Parameters<
   (typeof CompassServiceProvider)['connect']
 >[1];
-type WorkerThreadRuntime = Caller<WorkerThreadWorkerRuntime>;
+
+const workerRuntimePath = path.resolve(__dirname, 'worker-runtime.js');
 
 class WorkerRuntime implements Runtime {
   private initOptions: {
@@ -42,7 +43,7 @@ class WorkerRuntime implements Runtime {
 
   private workerProcess!: Worker;
 
-  private workerProcessRuntime!: WorkerThreadRuntime;
+  private workerProcessRuntime!: Caller<WorkerThreadRuntime>;
 
   private initWorkerPromise: Promise<void>;
 
@@ -50,7 +51,7 @@ class WorkerRuntime implements Runtime {
 
   private workerProcessMongoshBus!: WorkerProcessMongoshBus;
 
-  private workerProcessPath = path.resolve(__dirname, 'worker-runtime.js');
+  private workerProcessPath = workerRuntimePath;
 
   constructor(
     uri: string,
@@ -208,4 +209,4 @@ class WorkerRuntime implements Runtime {
   }
 }
 
-export { WorkerRuntime };
+export { WorkerRuntime, workerRuntimePath };

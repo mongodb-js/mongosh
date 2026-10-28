@@ -15,6 +15,9 @@ if [ "${MONGOSH_PERF_TELEMETRY:-}" = "1" ]; then
   MONGOSH_TELEMETRY_ENDPOINT="$(cat telemetry-sink-endpoint.txt)"
   export MONGOSH_TELEMETRY_ENDPOINT
   export SSL_CERT_FILE="$PWD/packages/testing/certificates/ca.crt"
+  # The perf harness spawns mongosh with piped stdio and none of the iterations
+  # have a terminal and telemetry would be skipped, so force it on.
+  export MONGOSH_FORCE_TERMINAL=1
 fi
 
 # shellcheck disable=SC2016 # $MONGODB_URI is deliberately expanded by the inner shell, which mongodb-runner invokes with the URI in its environment

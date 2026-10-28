@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/build",
-  "version": "3.17.0",
+  "version": "3.17.2",
   "private": true,
   "description": "MongoDB Shell Build Tools",
   "main": "lib/index.js",
@@ -67,6 +67,7 @@
     "@mongodb-js/mongodb-downloader": "^3.0.0",
     "@mongodb-js/monorepo-tools": "^1.4.5",
     "@mongodb-js/signing-utils": "^0.5.14",
+    "@octokit/auth-app": "^8.3.1",
     "@octokit/rest": "^22.0.1",
     "ajv": "^8.17.1",
     "boxednode": "^3.0.0",
