@@ -648,7 +648,7 @@ describe('uri-generator.generate-uri', function () {
             generateUri({ connectionSpecifier: undefined, host });
           } catch (e: any) {
             expect(e.message).to.contain(
-              `The --host argument contains an invalid character: ${host}`
+              `The --host argument is not a valid IPv6 address: ${host}`
             );
             expect(e).to.be.instanceOf(MongoshInvalidInputError);
             expect(e.code).to.equal(CommonErrors.InvalidArgument);

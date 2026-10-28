@@ -27,6 +27,11 @@ const CONFLICT = 'cli-repl.uri-generator.no-host-port';
 const INVALID_HOST = 'cli-repl.uri-generator.invalid-host';
 
 /**
+ * Invalid IPv6 --host message.
+ */
+const INVALID_IPV6_HOST = 'cli-repl.uri-generator.invalid-ipv6-host';
+
+/**
  * Host seed list contains a port that mismatches an explicit --port.
  */
 const HOST_LIST_PORT_MISMATCH =
@@ -177,7 +182,7 @@ function splitSingleHost(value: string): { host: string; port?: string } {
       return { host: `[${withPort.groups.host}]`, port: withPort.groups.port };
     }
     throw new MongoshInvalidInputError(
-      `${i18n.__(INVALID_HOST)}: ${value}`,
+      `${i18n.__(INVALID_IPV6_HOST)}: ${value}`,
       CommonErrors.InvalidArgument
     );
   }
