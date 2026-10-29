@@ -1,0 +1,42 @@
+name: publish-0q-mongosh
+
+# Publishes @0q/mongosh -- cli-repl's single-file bundle with a bin and a dependency on
+# @0q/embedded-mongodb -- through npm's trusted publishing. Dispatch only. The package's
+# trusted publisher on npmjs.com names this repository and this workflow file; the first
+# version went up by hand, since that setting only exists once a package does.
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: publish-0q-mongosh
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      id-token: write # The OIDC token npm's trusted publishing checks.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          registry-url: https://registry.npmjs.org
+      # Trusted publishing arrived in npm 11.5.1; the npm a Node release bundles can lag it.
+      - run: npm install -g npm@^11.5.1 && npm --version
+      - name: Install and compile the shell
+        run: |
+          npx cross-env PUPPETEER_SKIP_DOWNLOAD=1 npm ci
+          npm run compile-cli
+      - name: Bundle
+        run: |
+          npm run webpack-build -w packages/cli-repl
+          node packages/embedded-mongosh/scripts/bundle.js
+      # What is published is what was just run: version, and an embedded directory round trip.
+      - name: Test the package
+        run: npm test -w packages/embedded-mongosh
+      - name: Publish
+        run: npm publish -w packages/embedded-mongosh --access public --provenance
