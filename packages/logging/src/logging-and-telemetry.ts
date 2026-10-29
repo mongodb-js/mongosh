@@ -2,7 +2,7 @@ import {
   redact,
   redactConnectionString,
   shouldRedactCommand,
-} from 'mongodb-redact';
+} from '@mongodb-js/mongodb-redact';
 import type {
   MongoshBus,
   ApiEventWithArguments,

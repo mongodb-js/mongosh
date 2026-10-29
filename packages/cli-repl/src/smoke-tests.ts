@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { promises as fs } from 'fs';
 import { once } from 'events';
-import { redactConnectionString } from 'mongodb-redact';
+import { redactConnectionString } from '@mongodb-js/mongodb-redact';
 import fleSmokeTestScript from './smoke-tests-fle';
 import { baseBuildInfo, buildInfo } from './build-info';
 import escapeRegexp from 'escape-string-regexp';

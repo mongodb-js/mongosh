@@ -24,7 +24,7 @@ import Cursor from './cursor';
 import type { DeleteResult } from './result';
 import { assertArgsDefinedType, assertKeysDefined } from './helpers';
 import { asPrintable } from './enums';
-import { redactConnectionString } from 'mongodb-redact';
+import { redactConnectionString } from '@mongodb-js/mongodb-redact';
 import type Mongo from './mongo';
 import {
   CommonErrors,

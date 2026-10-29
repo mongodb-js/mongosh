@@ -47,6 +47,7 @@
   },
   "dependencies": {
     "@aws-sdk/credential-providers": "^3.1009.0",
+    "@mongodb-js/mongodb-build-info": "^1.9.19",
     "@mongodb-js/oidc-plugin": "^2.0.8",
     "@mongodb-js/devtools-connect": "^3.14.9",
     "@mongosh/errors": "2.6.0",
@@ -54,7 +55,6 @@
     "@mongosh/types": "^5.4.0",
     "gcp-metadata": "^7.0.1",
     "mongodb": "^7.5.0",
-    "mongodb-build-info": "^1.9.6",
     "mongodb-connection-string-url": "^7.0.1",
     "socks": "^2.8.3",
     "mongodb-client-encryption": "^7.2.0",

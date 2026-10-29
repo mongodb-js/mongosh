@@ -26,7 +26,7 @@ import {
 import { ServerVersions, asPrintable } from './enums';
 import type { UpdateResult } from './result';
 import { CommandResult } from './result';
-import { redactConnectionString } from 'mongodb-redact';
+import { redactConnectionString } from '@mongodb-js/mongodb-redact';
 import type Mongo from './mongo';
 import type AggregationCursor from './aggregation-cursor';
 import type RunCommandCursor from './run-command-cursor';

@@ -49,7 +49,7 @@ import { Database } from './database';
 import type ShellInstanceState from './shell-instance-state';
 import { ClientBulkWriteResult } from './result';
 import { CommandResult } from './result';
-import { redactConnectionString } from 'mongodb-redact';
+import { redactConnectionString } from '@mongodb-js/mongodb-redact';
 import { asPrintable, ServerVersions } from './enums';
 import Session from './session';
 import type { GenericServerSideSchema, StringKey } from './helpers';

@@ -3,7 +3,7 @@ import {
   MongoshRuntimeError,
   MongoshWarning,
 } from '@mongosh/errors';
-import { redactConnectionString, redact } from 'mongodb-redact';
+import { redactConnectionString, redact } from '@mongodb-js/mongodb-redact';
 import i18n from '@mongosh/i18n';
 import type { AutoEncryptionOptions } from '@mongosh/service-provider-core';
 import { EJSON } from 'bson';
