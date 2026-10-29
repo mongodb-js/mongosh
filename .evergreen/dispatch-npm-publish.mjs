@@ -7,6 +7,7 @@
 // run-name includes it.
 import { createRequire } from 'node:module';
 import { randomBytes } from 'node:crypto';
+import { promises as fs } from 'node:fs';
 import { setTimeout as sleep } from 'node:timers/promises';
 
 const require = createRequire(import.meta.url);
@@ -19,6 +20,8 @@ const WORKFLOW_FILE = 'publish-npm.yml';
 const SEARCH_TIMEOUT_MS = 5 * 60 * 1000;
 // the run takes ~30min; 2h for queue delays
 const WATCH_TIMEOUT_MS = 2 * 60 * 60 * 1000;
+// Overridable for tests so they don't have to wait out the real poll interval.
+const POLL_DELAY_MS = Number(process.env.NPM_PUBLISH_POLL_DELAY_MS) || 30_000;
 const appId = process.env.DEVTOOLS_BOT_APP_ID;
 // The key may be stored single-line with literal \n escapes.
 const privateKey = process.env.DEVTOOLS_BOT_PRIVATE_KEY?.replace(/\\n/g, '\n');
@@ -28,8 +31,10 @@ if (!appId || !privateKey) {
   );
 }
 
-// Look up the app installation for this repo, then authenticate all further
-// requests as that installation — Octokit renews the token automatically.
+// Two auth identities are needed: the installation lookup is an app-level
+// route, which the auth-app hook authenticates with the app JWT
+// automatically; everything else acts as the installation. Each identity gets
+// its own client, as in the auth-app docs.
 const appOctokit = new Octokit({
   authStrategy: createAppAuth,
   auth: { appId, privateKey },
@@ -74,7 +79,7 @@ console.info(
 async function getDispatchedWorkflow({
   expectedRunName,
   searchTimeoutMs,
-  pollDelayMs = 30_000,
+  pollDelayMs = POLL_DELAY_MS,
 }) {
   for (const start = Date.now(); Date.now() - start < searchTimeoutMs; ) {
     const {
@@ -97,7 +102,7 @@ async function getDispatchedWorkflow({
 async function pollToCompletion({
   runId,
   watchTimeoutMs,
-  watchPollDelayMs = 30_000,
+  watchPollDelayMs = POLL_DELAY_MS,
 }) {
   for (const start = Date.now(); Date.now() - start < watchTimeoutMs; ) {
     const {
