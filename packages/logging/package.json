@@ -18,9 +18,9 @@
   },
   "dependencies": {
     "@mongodb-js/devtools-connect": "^3.14.9",
+    "@mongodb-js/mongodb-redact": "^1.4.19",
     "@mongosh/types": "^5.4.0",
-    "mongodb-log-writer": "^2.5.6",
-    "mongodb-redact": "^1.4.6"
+    "mongodb-log-writer": "^2.5.6"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",

@@ -13,7 +13,7 @@ type EvaluationFunction = (
   filename: string
 ) => Promise<any>;
 
-import { shouldRedactCommand, redact } from 'mongodb-redact';
+import { shouldRedactCommand, redact } from '@mongodb-js/mongodb-redact';
 import { TimingCategories, type TimingCategory } from '@mongosh/types';
 
 let hasAlreadyRunGlobalRuntimeSupportEval = false;
