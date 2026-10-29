@@ -51,7 +51,7 @@ import {
   MongoshUnimplementedError,
   MongoshInternalError,
 } from '@mongosh/errors';
-import { shouldRedactCommand } from 'mongodb-redact';
+import { shouldRedactCommand } from '@mongodb-js/mongodb-redact';
 import type Session from './session';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ShellApiErrors } from './error-codes';

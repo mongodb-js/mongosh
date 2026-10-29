@@ -4,7 +4,7 @@ import {
   MongoshInvalidInputError,
   MongoshRuntimeError,
 } from '@mongosh/errors';
-import { redactConnectionString } from 'mongodb-redact';
+import { redactConnectionString } from '@mongodb-js/mongodb-redact';
 import type { Document } from '@mongosh/service-provider-core';
 import type Mongo from './mongo';
 import type { Database, DatabaseWithSchema } from './database';

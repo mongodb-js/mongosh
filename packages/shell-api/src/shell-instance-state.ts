@@ -18,7 +18,7 @@ import type {
   ShellUserConfig,
 } from '@mongosh/types';
 import { EventEmitter } from 'events';
-import { redactConnectionString } from 'mongodb-redact';
+import { redactConnectionString } from '@mongodb-js/mongodb-redact';
 import { toIgnore } from './decorators';
 import {
   ALL_PLATFORMS,
