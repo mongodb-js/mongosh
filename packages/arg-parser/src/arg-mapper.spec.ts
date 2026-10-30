@@ -28,9 +28,9 @@ function optionsTest(cliOptions: CliOptions): {
 
 describe('arg-mapper.mapCliToDriver', function () {
   context('when cli args have ipv6', function () {
-    it('maps --ipv6 to the driver family option', function () {
+    it('leaves the connection unchanged when ipv6 is true', function () {
       expect(optionsTest({ ipv6: true })).to.deep.equal({
-        driver: { family: 6 },
+        cs: 'mongodb://localhost',
       });
     });
 

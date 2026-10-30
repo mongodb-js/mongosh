@@ -148,6 +148,10 @@ function isIPv6Address(value: string): boolean {
  * Normalize an IPv6 address (without brackets) to its canonical,
  * bracketed form (e.g. `0::1` -> `[::1]`), or `undefined` if it is not
  * a valid IPv6 address.
+ *
+ * `URL.hostname` rewrites an IPv4-mapped address to hex
+ * (`::ffff:192.0.2.1` -> `[::ffff:c000:201]`). Callers that need the
+ * dotted spelling should use `canonicalIPv6Host`.
  */
 function normalizeIPv6(value: string): string | undefined {
   if (!value.includes(':') || /[^0-9a-fA-F:.]/.test(value)) return undefined;
@@ -156,6 +160,27 @@ function normalizeIPv6(value: string): string | undefined {
   } catch {
     return undefined;
   }
+}
+
+/**
+ * Bracketed host for a connection string. IPv4-mapped addresses keep
+ * their dotted spelling; every other address uses `normalizeIPv6`.
+ */
+function canonicalIPv6Host(value: string): string | undefined {
+  if (normalizeIPv6(value) === undefined) return undefined;
+  if (value.includes('.')) return `[${value}]`;
+  return normalizeIPv6(value);
+}
+
+function requireIPv6Host(value: string): string {
+  const host = canonicalIPv6Host(value);
+  if (host === undefined) {
+    throw new MongoshInvalidInputError(
+      `${i18n.__(INVALID_IPV6_HOST)}: ${value}`,
+      CommonErrors.InvalidArgument
+    );
+  }
+  return host;
 }
 
 /**
@@ -171,15 +196,18 @@ function normalizeIPv6(value: string): string | undefined {
 function splitSingleHost(value: string): { host: string; port?: string } {
   const bracketed = /^\[([^\]]+)\](?::(\d+))?$/.exec(value);
   if (bracketed) {
-    return { host: `[${bracketed[1]}]`, port: bracketed[2] };
+    return { host: requireIPv6Host(bracketed[1]), port: bracketed[2] };
   }
   if ((value.match(/:/g) ?? []).length > 1) {
     if (isIPv6Address(value)) {
-      return { host: `[${value}]` };
+      return { host: requireIPv6Host(value) };
     }
     const withPort = /^(?<host>.+):(?<port>\d+)$/.exec(value);
     if (withPort?.groups && isIPv6Address(withPort.groups.host)) {
-      return { host: `[${withPort.groups.host}]`, port: withPort.groups.port };
+      return {
+        host: requireIPv6Host(withPort.groups.host),
+        port: withPort.groups.port,
+      };
     }
     throw new MongoshInvalidInputError(
       `${i18n.__(INVALID_IPV6_HOST)}: ${value}`,

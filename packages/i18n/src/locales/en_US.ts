@@ -14,7 +14,7 @@ const translations: Catalog = {
       options: 'Options:',
       file: 'Load the specified mongosh script',
       help: 'Show this usage information',
-      ipv6: 'Force IPv6 when resolving hostnames',
+      ipv6: 'Enable IPv6 support',
       host: 'Server to connect to',
       port: 'Port to connect to',
       buildInfo: 'Show build information',

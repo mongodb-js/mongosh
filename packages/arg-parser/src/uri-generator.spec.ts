@@ -200,6 +200,25 @@ describe('uri-generator.generate-uri', function () {
         ).to.include('serverSelectionTimeoutMS=2000');
       });
     }
+    it('canonicalizes compressed IPv6 loopback spellings', function () {
+      for (const host of ['0::1', '[0::1]', '0:0:0:0:0:0:0:1']) {
+        expect(generateUri({ connectionSpecifier: undefined, host })).to.equal(
+          'mongodb://[::1]:27017/?directConnection=true&serverSelectionTimeoutMS=2000'
+        );
+      }
+    });
+    it('throws when a bracketed --host is not an IPv6 address', function () {
+      try {
+        generateUri({ connectionSpecifier: undefined, host: '[not-an-ip]' });
+        expect.fail('expected error');
+      } catch (e: any) {
+        expect(e.message).to.contain(
+          'The --host argument is not a valid IPv6 address: not-an-ip'
+        );
+        expect(e).to.be.instanceOf(MongoshInvalidInputError);
+        expect(e.code).to.equal(CommonErrors.InvalidArgument);
+      }
+    });
   });
 
   context('when a full URI is provided', function () {
