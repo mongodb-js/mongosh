@@ -1,15 +1,15 @@
 {
   "name": "mongosh",
-  "version": "2.14.0",
+  "version": "2.14.1",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
       "name": "mongosh",
-      "version": "2.14.0",
+      "version": "2.14.1",
       "license": "Apache-2.0",
       "dependencies": {
-        "@mongosh/cli-repl": "2.14.0"
+        "@mongosh/cli-repl": "2.14.1"
       },
       "bin": {
         "mongosh": "bin/mongosh.js"
@@ -1945,12 +1945,12 @@
     },
     "node_modules/@mongosh/autocomplete": {
       "name": "@mongosh/autocomplete",
-      "version": "5.9.5",
+      "version": "5.9.7",
       "license": "Apache-2.0",
       "dependencies": {
         "@mongodb-js/mongodb-constants": "^0.33.0",
         "@mongodb-js/mongodb-ts-autocomplete": "^0.9.2",
-        "@mongosh/shell-api": "^5.9.5",
+        "@mongosh/shell-api": "^5.9.7",
         "semver": "^7.5.4"
       },
       "devDependencies": {
@@ -1967,7 +1967,7 @@
     },
     "node_modules/@mongosh/cli-repl": {
       "name": "@mongosh/cli-repl",
-      "version": "2.14.0",
+      "version": "2.14.1",
       "license": "Apache-2.0",
       "dependencies": {
         "@mongodb-js/device-id": "^0.4.13",
@@ -1975,18 +1975,18 @@
         "@mongodb-js/get-os-info": "^0.7.0",
         "@mongodb-js/mongodb-redact": "^1.4.19",
         "@mongosh/arg-parser": "^5.6.1",
-        "@mongosh/autocomplete": "^5.9.5",
-        "@mongosh/editor": "^5.9.5",
+        "@mongosh/autocomplete": "^5.9.7",
+        "@mongosh/editor": "^5.9.7",
         "@mongosh/errors": "^2.6.0",
         "@mongosh/history": "^2.6.0",
         "@mongosh/i18n": "^2.26.0",
         "@mongosh/js-multiline-to-singleline": "^2.6.0",
         "@mongosh/logging": "^5.4.2",
         "@mongosh/service-provider-core": "^5.6.0",
-        "@mongosh/service-provider-node-driver": "^5.6.5",
-        "@mongosh/shell-api": "^5.9.5",
-        "@mongosh/shell-evaluator": "^5.9.5",
-        "@mongosh/snippet-manager": "^5.9.5",
+        "@mongosh/service-provider-node-driver": "^5.6.7",
+        "@mongosh/shell-api": "^5.9.7",
+        "@mongosh/shell-evaluator": "^5.9.7",
+        "@mongosh/snippet-manager": "^5.9.7",
         "@mongosh/types": "^5.4.0",
         "ansi-escape-sequences": "^5.1.2",
         "askcharacter": "^2.0.4",
@@ -2011,7 +2011,7 @@
         "@mongodb-js/prettier-config-devtools": "^1.0.1",
         "@mongodb-js/sbom-tools": "^0.10.4",
         "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-        "@mongosh/testing": "4.1.2",
+        "@mongosh/testing": "4.1.4",
         "@types/ansi-escape-sequences": "^4.0.0",
         "@types/chai-as-promised": "^8.0.2",
         "@types/node": "^22.15.30",
@@ -2038,12 +2038,12 @@
     },
     "node_modules/@mongosh/editor": {
       "name": "@mongosh/editor",
-      "version": "5.9.5",
+      "version": "5.9.7",
       "license": "Apache-2.0",
       "dependencies": {
         "@mongosh/js-multiline-to-singleline": "2.6.0",
-        "@mongosh/shell-api": "^5.9.5",
-        "@mongosh/shell-evaluator": "^5.9.5",
+        "@mongosh/shell-api": "^5.9.7",
+        "@mongosh/shell-evaluator": "^5.9.7",
         "@mongosh/types": "^5.4.0",
         "bson": "^7.3.1",
         "js-beautify": "^1.15.1"
@@ -2182,7 +2182,7 @@
     },
     "node_modules/@mongosh/service-provider-node-driver": {
       "name": "@mongosh/service-provider-node-driver",
-      "version": "5.6.5",
+      "version": "5.6.7",
       "license": "Apache-2.0",
       "dependencies": {
         "@aws-sdk/credential-providers": "^3.1009.0",
@@ -2201,7 +2201,7 @@
         "@mongodb-js/eslint-config-mongosh": "^1.0.0",
         "@mongodb-js/prettier-config-devtools": "^1.0.1",
         "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-        "@mongosh/testing": "4.1.2",
+        "@mongosh/testing": "4.1.4",
         "@types/sinon-chai": "^4.0.0",
         "eslint": "^7.25.0",
         "prettier": "^2.8.8"
@@ -2216,7 +2216,7 @@
     },
     "node_modules/@mongosh/shell-api": {
       "name": "@mongosh/shell-api",
-      "version": "5.9.5",
+      "version": "5.9.7",
       "license": "Apache-2.0",
       "dependencies": {
         "@mongodb-js/mongodb-redact": "^1.4.19",
@@ -2235,7 +2235,7 @@
         "@mongodb-js/mongodb-ts-autocomplete": "^0.9.2",
         "@mongodb-js/prettier-config-devtools": "^1.0.1",
         "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-        "@mongosh/testing": "4.1.2",
+        "@mongosh/testing": "4.1.4",
         "@mongosh/types": "^5.4.0",
         "@types/babel__core": "^7.20.5",
         "bson": "^7.3.1",
@@ -2272,12 +2272,12 @@
     },
     "node_modules/@mongosh/shell-evaluator": {
       "name": "@mongosh/shell-evaluator",
-      "version": "5.9.5",
+      "version": "5.9.7",
       "license": "Apache-2.0",
       "dependencies": {
         "@mongodb-js/mongodb-redact": "^1.4.19",
         "@mongosh/async-rewriter2": "2.6.0",
-        "@mongosh/shell-api": "^5.9.5"
+        "@mongosh/shell-api": "^5.9.7"
       },
       "devDependencies": {
         "@mongodb-js/eslint-config-mongosh": "^1.0.0",
@@ -2294,11 +2294,11 @@
     },
     "node_modules/@mongosh/snippet-manager": {
       "name": "@mongosh/snippet-manager",
-      "version": "5.9.5",
+      "version": "5.9.7",
       "license": "Apache-2.0",
       "dependencies": {
         "@mongosh/errors": "2.6.0",
-        "@mongosh/shell-api": "^5.9.5",
+        "@mongosh/shell-api": "^5.9.7",
         "@mongosh/types": "^5.4.0",
         "bson": "^7.3.1",
         "cross-spawn": "^7.0.5",
@@ -2311,7 +2311,7 @@
         "@mongodb-js/eslint-config-mongosh": "^1.0.0",
         "@mongodb-js/prettier-config-devtools": "^1.0.1",
         "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-        "@mongosh/testing": "4.1.2",
+        "@mongosh/testing": "4.1.4",
         "@types/cross-spawn": "^6.0.6",
         "eslint": "^7.25.0",
         "nanobus": "^4.5.0",
