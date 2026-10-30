@@ -14,7 +14,7 @@ const translations: Catalog = {
       options: 'Options:',
       file: 'Load the specified mongosh script',
       help: 'Show this usage information',
-      ipv6: 'Enable IPv6 support (disabled by default)',
+      ipv6: 'Enable IPv6 support',
       host: 'Server to connect to',
       port: 'Port to connect to',
       buildInfo: 'Show build information',
@@ -121,6 +121,7 @@ const translations: Catalog = {
       'no-host-port':
         'If a full URI is provided, you cannot also specify --host or --port',
       'invalid-host': 'The --host argument contains an invalid character',
+      'invalid-ipv6-host': 'The --host argument is not a valid IPv6 address',
       'host-list-port-mismatch':
         'The host list contains different ports than provided by --port',
       'diverging-service-name':

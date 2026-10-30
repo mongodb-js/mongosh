@@ -44,6 +44,7 @@ curl -fsSL https://raw.githubusercontent.com/mongodb-js/mongosh/refs/heads/main/
     -f, --file [arg]                           Load the specified mongosh script
         --host [arg]                           Server to connect to
         --port [arg]                           Port to connect to
+        --ipv6                                 Enable IPv6 support
         --build-info                           Show build information
         --version                              Show version information
         --quiet                                Silence output from the shell during the connection process
