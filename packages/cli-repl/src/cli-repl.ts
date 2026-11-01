@@ -405,8 +405,11 @@ export class CliRepl implements MongoshIOProvider {
       }
 
       if (await this.isTlsKeyFilePasswordMissingURI(searchParams)) {
-        const keyFilePassword = encodeURIComponent(
-          await this.requirePassword('Enter TLS key file password')
+        // URLSearchParams.set percent-encodes the value. Encoding first
+        // stores the password twice-encoded, so the driver decrypts the
+        // PEM with the still-encoded passphrase.
+        const keyFilePassword = await this.requirePassword(
+          'Enter TLS key file password'
         );
         searchParams.set('tlsCertificateKeyFilePassword', keyFilePassword);
       }
