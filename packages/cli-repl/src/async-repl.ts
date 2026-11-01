@@ -176,30 +176,41 @@ export function start(opts: AsyncREPLOptions): REPLServer {
               // Handle SIGINT (Ctrl+C) that occurs while we are stuck in `await`
               // by racing a listener for 'SIGINT' against the evalResult Promise.
               // We remove all 'SIGINT' listeners and install our own.
-              sigintListener = async (): Promise<void> => {
-                let interruptHandled = false;
-                try {
-                  interruptHandled = await onAsyncSigint();
-                } catch (e: any) {
-                  // ignore
-                } finally {
-                  // Reject with an exception similar to one thrown by Node.js
-                  // itself if the `customEval` itself is interrupted
-                  // and the asyncSigint handler did not deal with it
-                  reject(
-                    interruptHandled
-                      ? undefined
-                      : new Error(
-                          'Asynchronous execution was interrupted by `SIGINT`'
-                        )
-                  );
+              // The listener stays installed for the whole interrupt. once()
+              // would drop it before onAsyncSigint() finishes, and with no
+              // process SIGINT listener Node's default action exits immediately,
+              // skipping connection close and history/telemetry flush.
+              let interruptStarted = false;
+              sigintListener = (): void => {
+                if (interruptStarted) {
+                  return;
                 }
+                interruptStarted = true;
+                void (async (): Promise<void> => {
+                  let interruptHandled = false;
+                  try {
+                    interruptHandled = Boolean(await onAsyncSigint());
+                  } catch {
+                    // ignore
+                  } finally {
+                    // Reject with an exception similar to one thrown by Node.js
+                    // itself if the `customEval` itself is interrupted
+                    // and the asyncSigint handler did not deal with it
+                    reject(
+                      interruptHandled
+                        ? undefined
+                        : new Error(
+                            'Asynchronous execution was interrupted by `SIGINT`'
+                          )
+                    );
+                  }
+                })();
               };
 
               replSigint = disableEvent(repl, 'SIGINT');
               processSigint = disableEvent(process, 'SIGINT');
 
-              repl.once('SIGINT', sigintListener);
+              repl.on('SIGINT', sigintListener);
             }
 
             // The REPL may become over-eager and emit 'exit' events while our
@@ -217,7 +228,7 @@ export function start(opts: AsyncREPLOptions): REPLServer {
             );
 
             if (sigintListener !== undefined) {
-              process.once('SIGINT', sigintListener);
+              process.on('SIGINT', sigintListener);
             }
             evalResult.then(resolve, reject);
           });
