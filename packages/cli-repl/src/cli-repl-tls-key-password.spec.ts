@@ -47,7 +47,10 @@ describe('prompted TLS key file password', function () {
         encodeURIComponent(keyPath) +
         '&serverSelectionTimeoutMS=500';
       try {
-        await cliRepl.start(uri, {});
+        await cliRepl.start(uri, {
+          productName: 'Test Product',
+          productDocsLink: 'https://example.com/',
+        });
         expect.fail('start() should stop when connect is stubbed');
       } catch (err: any) {
         expect(err.message).to.equal('stop-before-connect');
