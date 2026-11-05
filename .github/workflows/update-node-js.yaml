@@ -14,7 +14,7 @@ jobs:
     name: Update Node.js versions
     runs-on: ubuntu-latest
     steps:
-      - uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
+      - uses: mongodb-js/devtools-shared/actions/setup-bot-token@48521375c90a504db064c2805af41741c1aaf789 # main
         id: app-token
         with:
           app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
