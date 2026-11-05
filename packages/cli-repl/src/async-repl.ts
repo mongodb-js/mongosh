@@ -30,6 +30,12 @@ export type AsyncREPLOptions = ReadLineOptions &
     wrapCallbackError?: (err: Error) => Error;
     asyncEval: AsyncEvalFunction;
     onAsyncSigint?: () => Promise<boolean> | boolean;
+    /**
+     * Called for every further SIGINT that arrives while `onAsyncSigint()`
+     * is still running. The evaluation is not rejected again; it is up to
+     * the caller to decide what a repeated Ctrl+C means (e.g. exit).
+     */
+    onAsyncSigintDuringInterrupt?: () => void;
   };
 
 export type EvalStartEvent = {
@@ -79,7 +85,12 @@ export function start(opts: AsyncREPLOptions): REPLServer {
   const { Recoverable, start: originalStart } =
     // eslint-disable-next-line @typescript-eslint/consistent-type-imports
     require('repl') as typeof import('repl');
-  const { asyncEval, wrapCallbackError = (err) => err, onAsyncSigint } = opts;
+  const {
+    asyncEval,
+    wrapCallbackError = (err) => err,
+    onAsyncSigint,
+    onAsyncSigintDuringInterrupt,
+  } = opts;
   if (onAsyncSigint) {
     (opts as ReplOptions).breakEvalOnSigint = true;
   }
@@ -180,9 +191,17 @@ export function start(opts: AsyncREPLOptions): REPLServer {
               // would drop it before onAsyncSigint() finishes, and with no
               // process SIGINT listener Node's default action exits immediately,
               // skipping connection close and history/telemetry flush.
+              // Further SIGINTs in that window never reject the evaluation a
+              // second time; they are reported to onAsyncSigintDuringInterrupt
+              // instead, which can e.g. start a graceful exit.
               let interruptStarted = false;
               sigintListener = (): void => {
                 if (interruptStarted) {
+                  try {
+                    onAsyncSigintDuringInterrupt?.();
+                  } catch {
+                    // ignore
+                  }
                   return;
                 }
                 interruptStarted = true;

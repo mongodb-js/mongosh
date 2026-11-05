@@ -1,4 +1,5 @@
 import type { REPLServer } from 'repl';
+import type { EventEmitter } from 'events';
 import { once } from 'events';
 import type { Readable, Writable } from 'stream';
 import { PassThrough } from 'stream';
@@ -87,5 +88,63 @@ describe('AsyncRepl SIGINT during an in-flight interrupt', function () {
     ]);
     expect(result).to.equal('seen');
     await finished;
+  });
+
+  it('reports further SIGINTs to onAsyncSigintDuringInterrupt without rejecting twice', async function () {
+    if (process.platform === 'win32') {
+      return this.skip();
+    }
+
+    let releaseInterrupt!: (handled: boolean) => void;
+    const interruptGate = new Promise<boolean>((resolve) => {
+      releaseInterrupt = resolve;
+    });
+    let interruptEntered = false;
+    const onAsyncSigint = sinon.stub().callsFake(async () => {
+      interruptEntered = true;
+      return interruptGate;
+    });
+    const onAsyncSigintDuringInterrupt = sinon.stub();
+    const { input, output, repl } = createAsyncRepl({
+      onAsyncSigint,
+      onAsyncSigintDuringInterrupt,
+    });
+    const evalFinishEvents: unknown[] = [];
+    (repl as EventEmitter).on(evalFinish, (ev: unknown) =>
+      evalFinishEvents.push(ev)
+    );
+
+    input.write('new Promise(() => {})\n');
+    await delay(100);
+    process.kill(process.pid, 'SIGINT');
+    const startWait = Date.now();
+    while (!interruptEntered) {
+      if (Date.now() - startWait > 5000) {
+        throw new Error('onAsyncSigint was not entered');
+      }
+      await delay(10);
+    }
+    sinon.assert.notCalled(onAsyncSigintDuringInterrupt);
+
+    process.kill(process.pid, 'SIGINT');
+    await delay(50);
+    sinon.assert.calledOnce(onAsyncSigintDuringInterrupt);
+    process.kill(process.pid, 'SIGINT');
+    await delay(50);
+    sinon.assert.calledTwice(onAsyncSigintDuringInterrupt);
+    sinon.assert.calledOnce(onAsyncSigint);
+    expect(evalFinishEvents).to.have.lengthOf(0);
+
+    releaseInterrupt(false);
+    let content = '';
+    for await (const chunk of output) {
+      content += chunk;
+      if (content.includes('execution was interrupted')) break;
+    }
+    await delay(50);
+    expect(evalFinishEvents).to.have.lengthOf(1);
+    expect(content.match(/execution was interrupted/g) ?? []).to.have.lengthOf(
+      1
+    );
   });
 });
