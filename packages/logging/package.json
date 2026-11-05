@@ -17,7 +17,7 @@
     "node": ">=14.15.1"
   },
   "dependencies": {
-    "@mongodb-js/devtools-connect": "^5.0.10",
+    "@mongodb-js/devtools-connect": "^5.0.13",
     "@mongodb-js/mongodb-redact": "^1.4.19",
     "@mongosh/types": "^5.4.0",
     "mongodb-log-writer": "^3.0.4"
