@@ -1,6 +1,6 @@
 import type { EventEmitter } from 'events';
 import type { ReadStream } from 'tty';
-import isRecoverableError from 'is-recoverable-error';
+import isRecoverableError from './is-recoverable-error';
 import type { ReadLineOptions } from 'readline';
 import type { ReplOptions, REPLServer } from 'repl';
 import type { start as originalStart } from 'repl';
