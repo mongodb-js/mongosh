@@ -139,7 +139,7 @@ Package|Version|License
 **[acorn-private-methods](#65e51308c5c9b8d8cc18e95e9d65106ea83282512d442d99f2bafc24a165cffc)**|1.0.0|MIT
 **[acorn-static-class-features](#f6024de47034c2be7edac4d9ed3065f2ca7114178d5c5471d557d595fd61c186)**|1.0.0|MIT
 **[acorn](#fc95bfb698293b3127755b9d97e2974c7df920d0c63b56dd59fb99de9867d4d0)**|7.4.1|MIT
-**[acorn](#a6db268d3214d148deafdf2f93e14b3cc42625352e90e74502c07e8676ea6dfd)**|8.14.0|MIT
+**[acorn](#b4ccb1aaf4904a1615c3ada1199ad45d384a80c2bd8b6dff978e7212355f300a)**|8.19.0|MIT
 **[agent-base](#428ab87654bdb212ef10d3199dc9c630af633c944b1995f64f0b556b3f15612d)**|7.1.4|MIT
 **[ansi-escape-sequences](#facc0b756e4e6b040bafa6604056a2290d18923d9c14a2e0a64f850d3477bac0)**|5.1.2|MIT
 **[ansi-regex](#7fa0e28daa6f9c697017b06f32a9e31a57ccfb4f138a8daded68a5d002231e29)**|5.0.1|MIT
@@ -305,7 +305,6 @@ Package|Version|License
 **[is-negative-zero](#52bfa7a0a5179ef02b297ce92113f0c5aced36291aa0882d08aa04a289d7672f)**|2.0.3|MIT
 **[is-number-object](#c316600a2e75852f7be3e7d1babc1ceda0a4477565c3df86c53552cf1932391b)**|1.1.1|MIT
 **[is-promise](#8c7017281bacafa898885920d2a251cfb7c381b1bdfafa85374bbd529ce6cd8f)**|4.0.0|MIT
-**[is-recoverable-error](#b963d532d8253ad1cf2b75dd3fb0d702f34008bc8c9dda2263ec811df0f91b32)**|1.0.3|MIT
 **[is-regex](#9fb19e7c300a50a4dbfa191a1c5588f8502964bfd3251614d4863cc06535b8b3)**|1.2.1|MIT
 **[is-set](#af0e69272cbdbff01e5f873f16f9aa12c5c8fcbc228972be63e0b1ce16bd180a)**|2.0.3|MIT
 **[is-shared-array-buffer](#4b8d726a1b78bc35a36dbac9403eb644840259c954e104d9fcb081b5964ebc69)**|1.0.4|MIT
@@ -19185,8 +19184,8 @@ License files:
       
 
 
-<a id="a6db268d3214d148deafdf2f93e14b3cc42625352e90e74502c07e8676ea6dfd"></a>
-### [acorn](https://www.npmjs.com/package/acorn) (version 8.14.0)
+<a id="b4ccb1aaf4904a1615c3ada1199ad45d384a80c2bd8b6dff978e7212355f300a"></a>
+### [acorn](https://www.npmjs.com/package/acorn) (version 8.19.0)
 License tags: MIT
 
 License files:
@@ -26458,35 +26457,6 @@ License files:
       LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
-
-
-<a id="b963d532d8253ad1cf2b75dd3fb0d702f34008bc8c9dda2263ec811df0f91b32"></a>
-### [is-recoverable-error](https://www.npmjs.com/package/is-recoverable-error) (version 1.0.3)
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      Copyright Node.js contributors. All rights reserved.
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to
-      deal in the Software without restriction, including without limitation the
-      rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-      sell copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-      FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-      IN THE SOFTWARE.
-      
 
 
 <a id="9fb19e7c300a50a4dbfa191a1c5588f8502964bfd3251614d4863cc06535b8b3"></a>
