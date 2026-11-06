@@ -96,8 +96,6 @@ const config = {
       'commonjs2 ../build/Release/native_machine_id.node',
     '../build/Debug/native_machine_id.node':
       'commonjs2 ../build/Debug/native_machine_id.node',
-    // os-dns-native >= 2.1 requires its addon directly instead of through
-    // `bindings`, which webpack would otherwise try to parse as JavaScript
     './build/Release/os_dns_native.node':
       'commonjs2 ./build/Release/os_dns_native.node',
     './build/Debug/os_dns_native.node':
