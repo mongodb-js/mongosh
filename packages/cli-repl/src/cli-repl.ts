@@ -1333,6 +1333,17 @@ export class CliRepl implements MongoshIOProvider {
     throw error;
   }
 
+  /**
+   * Exit immediately without running {@link CliRepl.close}. Only used as a
+   * kill switch when a graceful {@link CliRepl.exit} has stalled, e.g. after
+   * repeated Ctrl+C while an interrupted operation is still reconnecting.
+   *
+   * @param code The exit code, if any.
+   */
+  async forceExit(code?: number): Promise<never> {
+    return await this.onExit(code);
+  }
+
   /** Read a file from disk. */
   async readFileUTF8(
     filename: string
