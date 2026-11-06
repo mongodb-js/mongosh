@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Tue Nov 03 2026.
+This document was automatically generated on Fri Nov 06 2026.
 
 ## List of dependencies
 
@@ -332,7 +332,7 @@ Package|Version|License
 **[lodash.merge](#996e40d63a94f1b8693d7c81e0cdfb874c6432d6bbd675976fc1b6b13652c8db)**|4.6.2|MIT
 **[lodash](#02c5607a9d3316c6c04fcbf8d5fb61810668de71f499205765e125fd4829cd17)**|4.18.1|MIT
 **[lowlight](#6efc5090c0eda3b461d933d6b79bddcdf8165a10aea9f39ac76620ce5fb05bf5)**|1.17.0|MIT
-**[lru-cache](#df6b41d7403d4f84b3f9d9e95ff4db28bf14f74d9b3b3e58c5b1a28f3d92c467)**|11.5.1|BlueOak-1.0.0
+**[lru-cache](#aca9cdd4321dd851dbbfaf788934444ffe451fa027ea25ecda331e53138e9cd6)**|11.5.3|BlueOak-1.0.0
 **[lru-cache](#fe7f0a2f2cf4c92f13c3a2a63f14f80f20f6919979306dc054e4f947c1234651)**|5.1.1|ISC
 **[math-intrinsics](#f585fed67bcee1ccc26f6fd0010ab256b0e752435b26949a15143b03495a11d9)**|1.1.0|MIT
 **[media-typer](#a6ed851f3cff7cd032526f44bdf66cce2f57fc33741e56542ab659f9b002faa6)**|1.1.0|MIT
@@ -345,10 +345,10 @@ Package|Version|License
 **[minimatch](#beb2bef4b974d5ddbbb300e73e50db04067431f44476c4842cab782f3577c73e)**|9.0.9|ISC
 **[minimist](#8162d302efd0533ce00fc8a52dd6703dbb4205435af84e72b7694c608a729de4)**|1.2.8|MIT
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
-**[mongodb-client-encryption](#c1c2e8654dbbacdaa456c73e0892d6ab5c32e8d5a2a25c056b9174ca4d1c3cab)**|7.2.0|Apache-2.0
+**[mongodb-client-encryption](#d51bc496aad712aff10716acb139c248545f100815af800ea4cfa8d2e9d73db3)**|7.2.1|Apache-2.0
 **[mongodb-connection-string-url](#267005f447433080cc6f4777fd158a8ea3dc603ee3a9d3d77cace34dcf82718c)**|7.0.2|Apache-2.0
 **[mongodb-crypt-library-version](#3e1d5f9567c61690518d3cd8a3523c8be420f056599efc3adce11df0edbfa787)**|2.0.1|Apache-2.0
-**[mongodb-log-writer](#81ec4d4efe99c89e6e4d8d6f9d84b7f87ef4ae92bbc9328d484f13ba894c84ed)**|2.5.6|Apache-2.0
+**[mongodb-log-writer](#1f3193fb1754dacd6466b8b92ca48d621b5bfae81afa8459a351ef78d3cf12c8)**|3.0.4|Apache-2.0
 **[mongodb-ns](#9658ed4c4d2d38de9ce3cef33fe9341cfa97429730fc4a4638828d4e5b74b329)**|3.2.1|Apache-2.0
 **[mongodb](#2b6d1321e5706f8de316a1b3f659dfd6e492d154443936866c044e7ac313d9c5)**|7.5.0|Apache-2.0
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
@@ -360,7 +360,6 @@ Package|Version|License
 **[node-abi](#6b6e3668c7b638fe3bdbdfe7e5929922e46f2599ca98e8639bc88e733ce652fe)**|3.33.0|MIT
 **[node-addon-api](#fda53eedd94b7b4715b4b38feabbda94f39cb65947d1f3b9e9b92925285153b4)**|8.2.1|MIT
 **[node-addon-api](#e7486763beec09dbdc97b04188281671ab43bf57761b71a087741fe5db541d00)**|8.5.0|MIT
-**[node-addon-api](#6229b4201ea3ef7be83227f13d178fe940528acd58ded6d96bb0726958086cb6)**|8.9.0|MIT
 **[node-addon-api](#85ae7b46799e601feeabb27b3713d6edbc2de78de8b5fedf5b409c7b684eead7)**|8.9.2|MIT
 **[node-cache](#7facc0b98aa570bf195800a761cbe85a8d5b639a49d16be0162f589f86ab6f4e)**|5.1.2|MIT
 **[node-domexception](#3c25065fd2bc1b6b56856e30ac5b8f34ddae33ca87b225854f8d855b0ccabfbe)**|1.0.0|MIT
@@ -375,7 +374,7 @@ Package|Version|License
 **[once](#d0d1303998dfae04e4f898f477380aac35568f4d6679f4ea913c2441cf9ebb0b)**|1.4.0|ISC
 **[open](#d014b2891443a3afc1d36e54769389831aa4a59ac459b9b9873f650b1c919307)**|10.2.0|MIT
 **[openid-client](#00df66b19cf3a8fdcd5bae5a38751e39685ed1f6986557e9d30b90917b9c768c)**|6.6.3|MIT
-**[os-dns-native](#9f258105d3daf2840edf7ef048426459a0febc2730883e5b576835dbb91795ec)**|2.0.1|MIT
+**[os-dns-native](#d095ec47d4bbea620f8cc876fe95ff5e5b6ba27249f693c7f48d628dec40c6e1)**|2.1.3|MIT
 **[own-keys](#ea2c792d62ee0a9b2bcb3000d74851d23d963b6658ea5eb6c9b3ff9c7003c4d1)**|1.0.1|MIT
 **[pac-proxy-agent](#a1e028ed101bcee38608950703fbac1f2fd2ad61072b39432ca69a0d79aa84f8)**|7.2.0|MIT
 **[pac-resolver](#7935fe0839f6e2b7c51abcc08705a6096eff5670dc2bdc3819fd096b8d114d8b)**|7.0.1|MIT
@@ -430,7 +429,7 @@ Package|Version|License
 **[simple-get](#c2c12990b6319daff653bdf953cadfa368185f0edc671124fb1028f6979df829)**|4.0.1|MIT
 **[smart-buffer](#bc8fbee089eb9cddf673c4c9dbc15edd13839063c27e2814009b6a0448065875)**|4.2.0|MIT
 **[socks-proxy-agent](#d2c38f45ca9652d91bdddab43eb515b26566789904dee10e0c32517705184cec)**|8.0.5|MIT
-**[socks](#4e0e5ac276b79a2d0decf0832ffd4bcd86f25240fdfd33b3b37831f36ebf7346)**|2.8.7|MIT
+**[socks](#c09a5fe630fe362d29ef50eeccbfd01aaeb90ed18f3c66244a6a4583e1c86d94)**|2.8.10|MIT
 **[source-map-support](#51292ddf8fc7ef77f9704ca4a46b94e4505a6fecfebe7e53e22bc9fc8c6ef86e)**|0.5.21|MIT
 **[source-map](#55fb2b4a8e114a26cce0c971365f26175ae0d834849c5edebbdb5adafaa08787)**|0.6.1|BSD-3-Clause
 **[sparse-bitfield](#0cbcf2cac3ff859d288ae5ffc2c793bbd2430b120f5930bd09b6dba7259086d7)**|3.0.3|MIT
@@ -27483,8 +27482,8 @@ License files:
       
 
 
-<a id="df6b41d7403d4f84b3f9d9e95ff4db28bf14f74d9b3b3e58c5b1a28f3d92c467"></a>
-### [lru-cache](https://www.npmjs.com/package/lru-cache) (version 11.5.1)
+<a id="aca9cdd4321dd851dbbfaf788934444ffe451fa027ea25ecda331e53138e9cd6"></a>
+### [lru-cache](https://www.npmjs.com/package/lru-cache) (version 11.5.3)
 License tags: BlueOak-1.0.0
 
 License files:
@@ -27889,8 +27888,8 @@ License files:
       
 
 
-<a id="c1c2e8654dbbacdaa456c73e0892d6ab5c32e8d5a2a25c056b9174ca4d1c3cab"></a>
-### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 7.2.0)
+<a id="d51bc496aad712aff10716acb139c248545f100815af800ea4cfa8d2e9d73db3"></a>
+### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 7.2.1)
 License tags: Apache-2.0
 
 License files:
@@ -28504,8 +28503,8 @@ License files:
       
 
 
-<a id="81ec4d4efe99c89e6e4d8d6f9d84b7f87ef4ae92bbc9328d484f13ba894c84ed"></a>
-### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 2.5.6)
+<a id="1f3193fb1754dacd6466b8b92ca48d621b5bfae81afa8459a351ef78d3cf12c8"></a>
+### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 3.0.4)
 License tags: Apache-2.0
 
 License files:
@@ -29356,25 +29355,6 @@ License files:
       
 
 
-<a id="6229b4201ea3ef7be83227f13d178fe940528acd58ded6d96bb0726958086cb6"></a>
-### [node-addon-api](https://www.npmjs.com/package/node-addon-api) (version 8.9.0)
-License tags: MIT
-
-License files:
-* LICENSE.md:
-
-      The MIT License (MIT)
-      
-      Copyright (c) 2017 [Node.js API collaborators](https://github.com/nodejs/node-addon-api#collaborators)
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-
 <a id="85ae7b46799e601feeabb27b3713d6edbc2de78de8b5fedf5b409c7b684eead7"></a>
 ### [node-addon-api](https://www.npmjs.com/package/node-addon-api) (version 8.9.2)
 License tags: MIT
@@ -29775,8 +29755,8 @@ License files:
       
 
 
-<a id="9f258105d3daf2840edf7ef048426459a0febc2730883e5b576835dbb91795ec"></a>
-### [os-dns-native](https://www.npmjs.com/package/os-dns-native) (version 2.0.1)
+<a id="d095ec47d4bbea620f8cc876fe95ff5e5b6ba27249f693c7f48d628dec40c6e1"></a>
+### [os-dns-native](https://www.npmjs.com/package/os-dns-native) (version 2.1.3)
 License tags: MIT
 
 License files:
@@ -31633,8 +31613,8 @@ License files:
       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-<a id="4e0e5ac276b79a2d0decf0832ffd4bcd86f25240fdfd33b3b37831f36ebf7346"></a>
-### [socks](https://www.npmjs.com/package/socks) (version 2.8.7)
+<a id="c09a5fe630fe362d29ef50eeccbfd01aaeb90ed18f3c66244a6a4583e1c86d94"></a>
+### [socks](https://www.npmjs.com/package/socks) (version 2.8.10)
 License tags: MIT
 
 License files:
