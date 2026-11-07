@@ -284,6 +284,12 @@ export class NodeDriverServiceProvider
   public mongoClient: MongoClient; // public for testing
   private readonly uri?: ConnectionString;
   private currentClientOptions: DevtoolsConnectOptions;
+  /**
+   * Replacement clients whose close() failed. They stay referenced until
+   * close() can shut them down, so a failed swap does not drop the last
+   * reference to a live pool.
+   */
+  private readonly clientsAwaitingClose: MongoClient[] = [];
   private dbcache: WeakMap<MongoClient, Map<string, Db>>;
   public baseCmdOptions: OperationOptions; // public for testing
   private bus: MongoshBus;
@@ -723,7 +729,45 @@ export class NodeDriverServiceProvider
   async close(): Promise<void> {
     this.dbcache.set(this.mongoClient, new Map());
 
-    await this.mongoClient.close();
+    const pending = this.clientsAwaitingClose.splice(0);
+    const errors: unknown[] = [];
+    try {
+      await this.closeMongoClient(this.mongoClient);
+    } catch (err) {
+      errors.push(err);
+    }
+    for (const client of pending) {
+      try {
+        await this.closeMongoClient(client);
+      } catch (err) {
+        this.clientsAwaitingClose.push(client);
+        errors.push(err);
+      }
+    }
+    if (errors.length > 0) {
+      throw errors[0];
+    }
+  }
+
+  /**
+   * Close a client, retrying once.
+   *
+   * MongoClient.close() marks the client closed and clears its cursor and
+   * session sets before it awaits them, and only then calls topology.close().
+   * A throw from cursor or session cleanup leaves the monitors and pools
+   * running. close(force) does not change that. A second close() still
+   * reaches topology.close() when the first one threw before it.
+   */
+  private async closeMongoClient(client: MongoClient): Promise<void> {
+    try {
+      await client.close();
+    } catch (firstError) {
+      try {
+        await client.close();
+      } catch {
+        throw firstError;
+      }
+    }
   }
 
   async suspend(): Promise<() => Promise<void>> {
@@ -1421,6 +1465,7 @@ export class NodeDriverServiceProvider
    */
   async resetConnectionOptions(options: MongoClientOptions): Promise<void> {
     this.bus.emit('mongosh-sp:reset-connection-options');
+    const previousClientOptions = this.currentClientOptions;
     this.currentClientOptions = {
       ...this.currentClientOptions,
       ...options,
@@ -1429,16 +1474,34 @@ export class NodeDriverServiceProvider
       this.uri as ConnectionString,
       this.currentClientOptions
     );
-    const { client, state, lastSeenTopology } =
-      await NodeDriverServiceProvider.connectMongoClient(
-        (this.uri as ConnectionString).toString(),
-        clientOptions,
-        this.bus
-      );
+    let client: MongoClient;
+    let state: DevtoolsConnectionState;
+    let lastSeenTopology: TopologyDescription | undefined;
     try {
-      await this.mongoClient.close();
-      // eslint-disable-next-line no-empty
-    } catch {}
+      ({ client, state, lastSeenTopology } =
+        await NodeDriverServiceProvider.connectMongoClient(
+          (this.uri as ConnectionString).toString(),
+          clientOptions,
+          this.bus
+        ));
+    } catch (err) {
+      this.currentClientOptions = previousClientOptions;
+      throw err;
+    }
+    const previousClient = this.mongoClient;
+    try {
+      await this.closeMongoClient(previousClient);
+    } catch (closeError) {
+      // The replacement is already connected. Publishing it would drop the
+      // only reference to a client whose topology may still be running.
+      this.currentClientOptions = previousClientOptions;
+      try {
+        await this.closeMongoClient(client);
+      } catch {
+        this.clientsAwaitingClose.push(client);
+      }
+      throw closeError;
+    }
     this.mongoClient = client;
     this.currentClientOptions.parentState = state;
     if (lastSeenTopology) this._lastSeenTopology = lastSeenTopology;
