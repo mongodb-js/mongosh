@@ -7,6 +7,12 @@ const CTRL_C = '\u0003';
 const CTRL_D = '\u0004';
 
 /**
+ * Text held while a line is blocked. Past this, the original stream is
+ * paused so a pipe stops instead of the queue growing for the whole command.
+ */
+export const LINE_BY_LINE_QUEUE_LIMIT = 1024 * 1024;
+
+/**
  * A proxy for `tty.ReadStream` that allows to read
  * the stream line by line.
  *
@@ -27,15 +33,28 @@ export class LineByLineInput extends Readable {
   private _forwarding: boolean;
   private _blockOnNewLineEnabled: boolean;
   private _charQueue: (string | null)[];
+  private _queuedChars: number;
+  private _queueLimit: number;
+  private _sourcePausedByUs: boolean;
+  private _started: boolean;
+  private _closed: boolean;
   private _decoder: StringDecoder;
   private _insidePushCalls: number;
 
-  constructor(readable: Readable & Partial<ReadStream>) {
+  constructor(
+    readable: Readable & Partial<ReadStream>,
+    options?: { queueLimit?: number }
+  ) {
     super();
     this._originalInput = readable;
+    this._queueLimit = options?.queueLimit ?? LINE_BY_LINE_QUEUE_LIMIT;
     this._forwarding = true;
     this._blockOnNewLineEnabled = true;
     this._charQueue = [];
+    this._queuedChars = 0;
+    this._sourcePausedByUs = false;
+    this._started = false;
+    this._closed = false;
     this._decoder = new StringDecoder('utf-8');
     this._insidePushCalls = 0;
 
@@ -83,11 +102,46 @@ export class LineByLineInput extends Readable {
 
   /** Start processing data from the original input stream. */
   start(): void {
-    this._originalInput.on('data', (chunk) => this._onData(chunk));
-    this._originalInput.on('end', () => this._onData(null));
+    if (this._closed || this._started) {
+      return;
+    }
+    this._started = true;
+    this._originalInput.on('data', this._onData);
+    this._originalInput.on('end', this._onEnd);
   }
 
-  _read(): void {}
+  /**
+   * Detach from the original stream and drop anything still queued.
+   * MongoshNodeRepl.close() calls this so an embedded host whose stdin
+   * stays open does not keep feeding a shell that has already closed.
+   */
+  close(): void {
+    this._closed = true;
+    this._started = false;
+    this._originalInput.removeListener('data', this._onData);
+    this._originalInput.removeListener('end', this._onEnd);
+    this._charQueue.length = 0;
+    this._queuedChars = 0;
+    if (this._sourcePausedByUs) {
+      this._sourcePausedByUs = false;
+      this._originalInput.resume?.();
+    }
+  }
+
+  _read(): void {
+    this._flush();
+  }
+
+  /**
+   * Readable.resume() can ask for data before it clears its paused flag.
+   * Flush again once that call returns so a resumed proxy delivers the
+   * characters it held.
+   */
+  resume(): this {
+    super.resume();
+    this._flush();
+    return this;
+  }
 
   /** Proceed to read more data from the input stream. */
   nextLine(): void {
@@ -106,15 +160,25 @@ export class LineByLineInput extends Readable {
     this._flush();
   }
 
-  private _onData = (chunk: Buffer | null): void => {
+  private _onEnd = (): void => {
+    this._onData(null);
+  };
+
+  private _onData = (chunk: Buffer | string | null): void => {
+    if (this._closed) {
+      return;
+    }
     if (this._blockOnNewLineEnabled) {
+      if (chunk !== null && this._shouldDropIncoming()) {
+        return;
+      }
       return this._forwardAndBlockOnNewline(chunk);
     }
 
     return this._forwardWithoutBlocking(chunk);
   };
 
-  private _forwardAndBlockOnNewline(chunk: Buffer | null): void {
+  private _forwardAndBlockOnNewline(chunk: Buffer | string | null): void {
     const chars = chunk === null ? [null] : this._decoder.write(chunk);
     for (const char of chars) {
       // Look up the last character we have queued up, if any:
@@ -135,14 +199,19 @@ export class LineByLineInput extends Readable {
       ) {
         (this._charQueue[this._charQueue.length - 1] as string) +=
           char as string;
+        this._queuedChars += (char as string).length;
       } else {
         this._charQueue.push(char);
+        if (typeof char === 'string') {
+          this._queuedChars += char.length;
+        }
       }
     }
+    this._pauseSourceIfOverCap();
     this._flush();
   }
 
-  private _forwardWithoutBlocking(chunk: Buffer | null): void {
+  private _forwardWithoutBlocking(chunk: Buffer | string | null): void {
     if (chunk !== null) {
       // keeps decoding state consistent
       this._decoder.write(chunk);
@@ -168,26 +237,67 @@ export class LineByLineInput extends Readable {
   }
 
   private _flush(): void {
+    // If we are already inside a push() call, then we do not need to flush
+    // the queue again.
+    if (this._insidePushCalls !== 0) {
+      return;
+    }
     while (
       this._charQueue.length &&
       this._shouldForward() &&
-      // We don't forward residual characters we could
-      // have in the buffer if in the meanwhile something
-      // downstream explicitly called pause(), as that may cause
-      // unexpected behaviors.
-      !this._originalInput.isPaused() &&
-      // If we are already inside a push() call, then we do not need to flush
-      // the queue again.
-      this._insidePushCalls === 0
+      // Readline pauses this proxy, not the original stdin. Honor that
+      // pause, and also stop when push() asks for backpressure.
+      !this.isPaused()
     ) {
       const char = this._charQueue.shift() as string | null;
+      if (typeof char === 'string') {
+        this._queuedChars -= char.length;
+      }
 
       if (this._isLineEnding(char)) {
         this._pauseForwarding();
       }
 
-      this.push(char);
+      if (!this.push(char)) {
+        break;
+      }
     }
+    this._resumeSourceIfDrained();
+  }
+
+  private _pauseSourceIfOverCap(): void {
+    if (this._queuedChars <= this._queueLimit || this._sourcePausedByUs) {
+      return;
+    }
+    if (typeof this._originalInput.pause !== 'function') {
+      return;
+    }
+    this._originalInput.pause();
+    this._sourcePausedByUs = true;
+  }
+
+  private _resumeSourceIfDrained(): void {
+    if (!this._sourcePausedByUs || this._queuedChars > this._queueLimit) {
+      return;
+    }
+    this._sourcePausedByUs = false;
+    this._originalInput.resume?.();
+  }
+
+  /**
+   * A chunk that arrives after the cap is kept when the source can be
+   * paused, because that chunk has already been read. Further chunks are
+   * dropped only when the source has no pause().
+   */
+  private _shouldDropIncoming(): boolean {
+    if (this._queuedChars <= this._queueLimit) {
+      return false;
+    }
+    if (typeof this._originalInput.pause === 'function') {
+      this._pauseSourceIfOverCap();
+      return false;
+    }
+    return true;
   }
 
   private _isRegularCharacter(char: string | null): boolean {
