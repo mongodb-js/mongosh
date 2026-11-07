@@ -27,6 +27,20 @@ function optionsTest(cliOptions: CliOptions): {
 }
 
 describe('arg-mapper.mapCliToDriver', function () {
+  context('when cli args have ipv6', function () {
+    it('leaves the connection unchanged when ipv6 is true', function () {
+      expect(optionsTest({ ipv6: true })).to.deep.equal({
+        cs: 'mongodb://localhost',
+      });
+    });
+
+    it('leaves the connection unchanged when ipv6 is false', function () {
+      expect(optionsTest({ ipv6: false })).to.deep.equal({
+        cs: 'mongodb://localhost',
+      });
+    });
+  });
+
   context('when cli args have authenticationDatabase', function () {
     const cliOptions: CliOptions = { authenticationDatabase: 'authDb' };
 
