@@ -147,7 +147,11 @@ export class MongoshPublisher {
     await mongoshGithubRepo.promoteRelease(config);
     await this.writeBuildInfo(config, 'packaged');
 
-    this.packagePublisher.publishToNpm();
+    // The npm packages are published from GitHub Actions (publish-npm
+    // workflow) when SKIP_NPM_PUBLISH is set, e.g. on evergreen.
+    if (!this.config.skipNpmPublish) {
+      this.packagePublisher.publishToNpm();
+    }
 
     // TODO(MONGOSH-3497): clean up the homebrew publishing code.
     // Homebrew publishing is now handled by Homebrew's own bot/automation, which

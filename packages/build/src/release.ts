@@ -1,4 +1,6 @@
 import { Octokit } from '@octokit/rest';
+import { promises as fs } from 'fs';
+import path from 'path';
 import { runCompile } from './compile';
 import type { Config } from './config';
 import { getReleaseVersionFromTag, redactConfig } from './config';
@@ -14,7 +16,9 @@ import { runUpload } from './run-upload';
 import { runSign } from './packaging/run-sign';
 import { runDownloadAndListArtifacts } from './run-download-and-list-artifacts';
 import { runDownloadCryptLibrary } from './packaging/run-download-crypt-library';
+import { writeBuildInfo } from './build-info';
 import { PackageBumper } from './npm-packages/bump';
+import { PackagePublisher } from './npm-packages';
 import { publishAuxiliaryPackages } from './publish-auxiliary';
 import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 
@@ -27,7 +31,8 @@ export type ReleaseCommand =
   | 'download-crypt-shared-library'
   | 'download-and-list-artifacts'
   | 'draft'
-  | 'publish';
+  | 'publish'
+  | 'npm-publish';
 
 /**
  * Run release specific commands.
@@ -107,6 +112,21 @@ export async function release(
     } else {
       await publishMongosh(config, octokit);
     }
+  } else if (command === 'npm-publish') {
+    // Same build metadata the evergreen publish path writes before its npm
+    // publish, so published tarballs report their packaged build info. The
+    // lib directory is not committed and only gets created by the build
+    // (which runs inside publishToNpm), so create it here first.
+    if (config.buildInfoFilePath) {
+      await fs.mkdir(path.dirname(config.buildInfoFilePath), {
+        recursive: true,
+      });
+    }
+    await writeBuildInfo(config, 'packaged');
+    new PackagePublisher({
+      useAuxiliaryPackagesOnly: false,
+      isDryRun: config.isDryRun || false,
+    }).publishToNpm();
   } else {
     throw new Error(`Unknown command: ${command}`);
   }

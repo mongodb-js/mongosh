@@ -1,7 +1,7 @@
 // The telemetry format came from legacy Segment, which stores data in snake_case.
 // Forgive me javascript, for i have sinned.
 
-import * as getBuildInfo from 'mongodb-build-info';
+import * as getBuildInfo from '@mongodb-js/mongodb-build-info';
 import type { ConnectionString } from 'mongodb-connection-string-url';
 
 export type ConnectionExtraInfo = {

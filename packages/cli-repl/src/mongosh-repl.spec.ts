@@ -23,7 +23,9 @@ import {
   waitEval,
 } from '../test/repl-helpers';
 import type { MongoshIOProvider, MongoshNodeReplOptions } from './mongosh-repl';
-import MongoshNodeRepl from './mongosh-repl';
+import MongoshNodeRepl, {
+  FORCE_EXIT_AFTER_SIGINT_TIMEOUT_MS,
+} from './mongosh-repl';
 import { parseAnyLogEntry } from '../../shell-api/src/log-entry';
 import stripAnsi from 'strip-ansi';
 import { setTimeout as delay } from 'timers/promises';
@@ -152,6 +154,59 @@ describe('MongoshNodeRepl', function () {
     expect(() => mongoshRepl.runtimeState()).to.throw(
       /mongosh not initialized yet\nCurrent trace/
     );
+  });
+
+  context('Ctrl+C while an interrupt is still in flight', function () {
+    let clock: sinon.SinonFakeTimers;
+    let forceExit: sinon.SinonStub;
+
+    beforeEach(function () {
+      clock = sinon.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+      forceExit = sinon.stub().resolves();
+      ioProvider.forceExit = forceExit as any;
+    });
+
+    afterEach(function () {
+      clock.restore();
+    });
+
+    it('starts the graceful exit path and does not hard-exit once it completes', async function () {
+      const onExit = sinon.stub(mongoshRepl, 'onExit').resolves();
+      mongoshRepl.onAsyncSigintDuringInterrupt();
+      expect(onExit).to.have.been.calledOnceWithExactly();
+      await clock.tickAsync(0);
+      await clock.tickAsync(FORCE_EXIT_AFTER_SIGINT_TIMEOUT_MS * 2);
+      expect(forceExit).not.to.have.been.called;
+    });
+
+    it('hard-exits only after the timeout if the graceful exit stalls', async function () {
+      sinon
+        .stub(mongoshRepl, 'onExit')
+        .returns(new Promise<never>(() => undefined));
+      mongoshRepl.onAsyncSigintDuringInterrupt();
+      await clock.tickAsync(FORCE_EXIT_AFTER_SIGINT_TIMEOUT_MS - 1);
+      expect(forceExit).not.to.have.been.called;
+      await clock.tickAsync(1);
+      expect(forceExit).to.have.been.calledOnceWithExactly(130);
+    });
+
+    it('hard-exits immediately if the graceful exit fails', async function () {
+      sinon.stub(mongoshRepl, 'onExit').rejects(new Error('close failed'));
+      mongoshRepl.onAsyncSigintDuringInterrupt();
+      await clock.tickAsync(0);
+      expect(forceExit).to.have.been.calledOnceWithExactly(130);
+    });
+
+    it('hard-exits immediately on a further Ctrl+C while the graceful exit is pending', function () {
+      const onExit = sinon
+        .stub(mongoshRepl, 'onExit')
+        .returns(new Promise<never>(() => undefined));
+      mongoshRepl.onAsyncSigintDuringInterrupt();
+      expect(forceExit).not.to.have.been.called;
+      mongoshRepl.onAsyncSigintDuringInterrupt();
+      expect(onExit).to.have.been.calledOnce;
+      expect(forceExit).to.have.been.calledOnceWithExactly(130);
+    });
   });
 
   context('with default options', function () {
@@ -371,6 +426,45 @@ describe('MongoshNodeRepl', function () {
       input.write('_error.message\n');
       await waitEval(bus);
       expect(output).to.include('blah');
+    });
+    it('closes gracefully on a second Ctrl+C while the interrupt is stalled', async function () {
+      if (process.platform === 'win32') {
+        return this.skip(); // No SIGINT on Windows.
+      }
+      const { instanceState } = mongoshRepl.runtimeState();
+      let releaseInterrupt!: (fullyInterrupted: boolean) => void;
+      sinon.stub(instanceState, 'onInterruptExecution').returns(
+        new Promise<boolean>((resolve) => {
+          releaseInterrupt = resolve;
+        })
+      );
+      const instanceStateClose = sinon.spy(instanceState, 'close');
+      const forceExit = sinon.stub().resolves();
+      ioProvider.forceExit = forceExit as any;
+      const evalErrors: unknown[] = [];
+      bus.on('mongosh:evaluate-finished', () => evalErrors.push('finished'));
+
+      input.write('new Promise(() => {})\n');
+      await delay(100);
+      process.kill(process.pid, 'SIGINT');
+      while (!output.includes('Stopping execution')) {
+        await delay(10);
+      }
+      process.kill(process.pid, 'SIGINT');
+      const [code] = await once(bus, 'test-exit-event');
+      expect(code).to.equal(undefined);
+      expect(instanceStateClose).to.have.been.calledOnce;
+      expect(forceExit).not.to.have.been.called;
+
+      // Let the stalled interrupt finish so the eval (and its SIGINT
+      // listener) is cleaned up; it must only finish once.
+      releaseInterrupt(true);
+      while (evalErrors.length === 0) {
+        await delay(10);
+      }
+      await delay(50);
+      expect(evalErrors).to.have.lengthOf(1);
+      expect(forceExit).not.to.have.been.called;
     });
   });
 

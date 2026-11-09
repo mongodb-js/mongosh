@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/service-provider-node-driver",
-  "version": "5.6.0",
+  "version": "5.6.7",
   "description": "MongoDB Shell Server Service Provider Package",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -47,22 +47,22 @@
   },
   "dependencies": {
     "@aws-sdk/credential-providers": "^3.1009.0",
+    "@mongodb-js/mongodb-build-info": "^1.9.19",
     "@mongodb-js/oidc-plugin": "^2.0.8",
-    "@mongodb-js/devtools-connect": "^3.14.9",
+    "@mongodb-js/devtools-connect": "^5.0.13",
     "@mongosh/errors": "2.6.0",
     "@mongosh/service-provider-core": "5.6.0",
     "@mongosh/types": "^5.4.0",
     "gcp-metadata": "^7.0.1",
     "mongodb": "^7.5.0",
-    "mongodb-build-info": "^1.9.6",
-    "mongodb-connection-string-url": "^7.0.1",
+    "mongodb-connection-string-url": "^7.0.2",
     "socks": "^2.8.3",
-    "mongodb-client-encryption": "^7.2.0",
+    "mongodb-client-encryption": "^7.2.1",
     "kerberos": "^7.0.0"
   },
   "optionalDependencies": {
     "kerberos": "^7.0.0",
-    "mongodb-client-encryption": "^7.2.0"
+    "mongodb-client-encryption": "^7.2.1"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
@@ -71,6 +71,6 @@
     "@types/sinon-chai": "^4.0.0",
     "eslint": "^7.25.0",
     "prettier": "^2.8.8",
-    "@mongosh/testing": "2.6.0"
+    "@mongosh/testing": "4.1.4"
   }
 }

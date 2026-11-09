@@ -1,4 +1,4 @@
-import { shouldRedactCommand, redact } from 'mongodb-redact';
+import { shouldRedactCommand, redact } from '@mongodb-js/mongodb-redact';
 
 /**
  * Modifies the most recent command in history based on sensitive information.

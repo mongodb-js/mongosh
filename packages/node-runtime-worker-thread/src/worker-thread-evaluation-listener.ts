@@ -1,6 +1,5 @@
-import type { Exposed } from './rpc';
+import type { Exposed, RPCMessageBus } from './rpc';
 import { exposeAll, close } from './rpc';
-import type { WorkerRuntime } from './index';
 import { deserializeEvaluationResult } from './serializer';
 import type { RuntimeEvaluationListener } from '@mongosh/browser-runtime-core';
 
@@ -11,7 +10,10 @@ export class WorkerThreadEvaluationListener {
     >
   >;
 
-  constructor(workerRuntime: WorkerRuntime, worker: Worker) {
+  constructor(
+    workerRuntime: { evaluationListener: RuntimeEvaluationListener | null },
+    worker: RPCMessageBus
+  ) {
     this.exposedListener = exposeAll(
       {
         onPrompt(question, type) {

@@ -94,7 +94,7 @@ import {
   ClientEncryption,
 } from 'mongodb';
 import { connectMongoClient } from '@mongodb-js/devtools-connect';
-import { identifyServerName } from 'mongodb-build-info';
+import { identifyServerName } from '@mongodb-js/mongodb-build-info';
 
 const bsonlib = () => {
   const {

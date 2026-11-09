@@ -97,6 +97,35 @@ for (const colors of [false, true]) {
       });
     });
 
+    context('when the result is a RunCommandCursor', function () {
+      it('returns the inspection', function () {
+        const output = stripAnsiColors(
+          format({
+            value: {
+              documents: [{ doc: 1 }, { doc: 2 }],
+              cursorHasMore: true,
+            },
+            type: 'RunCommandCursor',
+          })
+        );
+
+        expect(output).to.include('doc: 1');
+        expect(output).to.include('doc: 2');
+        expect(output).to.include('Type "it" for more');
+      });
+
+      it('returns an empty string when empty', function () {
+        const output = stripAnsiColors(
+          format({
+            value: { documents: [], cursorHasMore: false },
+            type: 'RunCommandCursor',
+          })
+        );
+
+        expect(output).to.equal('');
+      });
+    });
+
     context('when the result is a CursorIterationResult', function () {
       context('when the CursorIterationResult is not empty', function () {
         it('returns the inspection', function () {

@@ -102,6 +102,7 @@
   },
   "devDependencies": {
     "@mongodb-js/tracking-plan": "^0.3.2",
+    "@mongodb-js/mongodb-runner": "^8.1.2",
     "@mongodb-js/monorepo-tools": "^1.4.5",
     "@pkgjs/nv": "^0.3.0",
     "@types/chai": "^5.2.3",
@@ -112,11 +113,10 @@
     "chai": "^6.2.1",
     "cross-env": "^6.0.3",
     "find-up": "^5.0.0",
-    "glob": "^10.3.12",
+    "glob": "^14.0.2",
     "husky": "^9.0.11",
     "knip": "^5.71.0",
     "mocha": "^11.7.5",
-    "mongodb-runner": "6.5.3",
     "nyc": "^15.1.0",
     "pkg-up": "^3.1.0",
     "rimraf": "^3.0.2",
@@ -175,5 +175,19 @@
     "packages/node-runtime-worker-thread",
     "packages/browser-repl",
     "packages/connectivity-tests"
-  ]
+  ],
+  "allowScripts": {
+    "@mongodb-js/native-machine-id": true,
+    "get-console-process-list": true,
+    "glibc-version": true,
+    "interruptor": true,
+    "kerberos": true,
+    "macos-export-certificate-and-key": true,
+    "mongodb-client-encryption": true,
+    "mongodb-crypt-library-dummy": true,
+    "mongodb-crypt-library-version": true,
+    "os-dns-native": true,
+    "puppeteer": true,
+    "win-export-certificate-and-key": true
+  }
 }

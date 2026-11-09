@@ -14,6 +14,8 @@ declare module 'postmsg-rpc' {
 
   export type MessageData = ClientMessageData | ServerMessageData;
 
+  export type CancelablePromise<T> = Promise<T> & { cancel(): void };
+
   export type PostmsgRpcOptions = {
     addListener(name: 'message', fn: Function): void;
     removeListener(name: 'message', fn: Function): void;
@@ -41,15 +43,3 @@ declare module 'inline-entry-loader!*' {
   const entry: string;
   export default entry;
 }
-
-declare type CancelablePromise<T> = Promise<T> & { cancel(): void };
-
-declare type CancelableMethods<T> = {
-  [k in keyof T]: T[k] extends (...args: infer Args) => infer ReturnVal
-    ? (
-        ...args: Args
-      ) => ReturnVal extends Promise<infer PromiseValue>
-        ? CancelablePromise<PromiseValue>
-        : CancelablePromise<ReturnVal>
-    : T[k];
-};

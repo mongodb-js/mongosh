@@ -18,22 +18,33 @@ export BASEDIR="$PWD/.evergreen"
 RESOLVED_NIGHTLY_FILE="$BASEDIR/.resolved-nightly-node-version"
 NIGHTLY_NODE_DIR="$BASEDIR/node-nightly"
 if [ "$NODE_JS_VERSION" = "nightly" ]; then
+  # Map the host architecture to the Node.js download naming so the nightly
+  # variant can run on either x64 or arm64 Linux distros.
+  case "$(uname -m)" in
+    x86_64) NIGHTLY_NODE_ARCH=x64 ;;
+    aarch64 | arm64) NIGHTLY_NODE_ARCH=arm64 ;;
+    *) echo "Unsupported architecture for Node.js nightly: $(uname -m)" >&2; exit 1 ;;
+  esac
   if [ -s "$RESOLVED_NIGHTLY_FILE" ]; then
     NODE_JS_VERSION=$(cat "$RESOLVED_NIGHTLY_FILE")
   else
+    # index.json lists a nightly as soon as the first platform build lands, so
+    # the newest entry may not have our linux tarball yet (404). Pick the
+    # newest one that does. Fail if that build is more than 3 days old, so a
+    # stalled upstream nightly pipeline doesn't silently keep this job green.
     NODE_JS_VERSION=$(curl -sSfL https://nodejs.org/download/nightly/index.json \
-      | python3 -c 'import sys,json; print(json.load(sys.stdin)[0]["version"].lstrip("v"))')
+      | NIGHTLY_FILE="linux-$NIGHTLY_NODE_ARCH" python3 -c '
+import sys, json, os, datetime
+f = os.environ["NIGHTLY_FILE"]
+r = next(r for r in json.load(sys.stdin) if f in r["files"])
+age = (datetime.date.today() - datetime.date.fromisoformat(r["date"])).days
+if age > 3:
+    sys.exit("Newest Node.js nightly with %s is %s (%d days old, max 3)" % (f, r["version"], age))
+print(r["version"].lstrip("v"))')
     echo "$NODE_JS_VERSION" > "$RESOLVED_NIGHTLY_FILE"
   fi
   if [ ! -x "$NIGHTLY_NODE_DIR/bin/node" ]; then
     mkdir -p "$NIGHTLY_NODE_DIR"
-    # Map the host architecture to the Node.js download naming so the nightly
-    # variant can run on either x64 or arm64 Linux distros.
-    case "$(uname -m)" in
-      x86_64) NIGHTLY_NODE_ARCH=x64 ;;
-      aarch64 | arm64) NIGHTLY_NODE_ARCH=arm64 ;;
-      *) echo "Unsupported architecture for Node.js nightly: $(uname -m)" >&2; exit 1 ;;
-    esac
     curl -sSfL "https://nodejs.org/download/nightly/v$NODE_JS_VERSION/node-v$NODE_JS_VERSION-linux-$NIGHTLY_NODE_ARCH.tar.xz" \
       | tar -xJ --strip-components=1 -C "$NIGHTLY_NODE_DIR"
   fi

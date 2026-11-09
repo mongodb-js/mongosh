@@ -16,7 +16,7 @@ on:
         description: The environment to run the script in
         type: environment
         required: true
-        default: CTA-Production
+        default: Production
 
 permissions:
   id-token: write
@@ -26,7 +26,7 @@ jobs:
   dry-run:
     name: Update greeting CTA
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment || 'CTA-Production'}}
+    environment: ${{ github.event.inputs.environment || 'Production'}}
     env:
       npm_config_loglevel: verbose
       npm_config_foreground_scripts: "true"

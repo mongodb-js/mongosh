@@ -3,7 +3,7 @@ import {
   MongoshRuntimeError,
   MongoshWarning,
 } from '@mongosh/errors';
-import { redactConnectionString, redact } from 'mongodb-redact';
+import { redactConnectionString, redact } from '@mongodb-js/mongodb-redact';
 import i18n from '@mongosh/i18n';
 import type { AutoEncryptionOptions } from '@mongosh/service-provider-core';
 import { EJSON } from 'bson';
@@ -405,8 +405,11 @@ export class CliRepl implements MongoshIOProvider {
       }
 
       if (await this.isTlsKeyFilePasswordMissingURI(searchParams)) {
-        const keyFilePassword = encodeURIComponent(
-          await this.requirePassword('Enter TLS key file password')
+        // URLSearchParams.set percent-encodes the value. Encoding first
+        // stores the password twice-encoded, so the driver decrypts the
+        // PEM with the still-encoded passphrase.
+        const keyFilePassword = await this.requirePassword(
+          'Enter TLS key file password'
         );
         searchParams.set('tlsCertificateKeyFilePassword', keyFilePassword);
       }
@@ -719,18 +722,29 @@ export class CliRepl implements MongoshIOProvider {
   }
 
   /**
-   * Telemetry is only collected for sessions that are interactive or driven by
-   * an AI agent. Scripts passed via --eval or as a file are not tracked, unless
-   * they also enter the REPL afterwards (--shell).
+   * Telemetry is only collected for agent sessions or REPL sessions with a
+   * terminal. Input piped or redirected into the REPL (`mongosh < script.js`,
+   * `echo ... | mongosh`) is still interactive for mongosh, but is not tracked.
    *
-   * This is derived from the CLI options rather than from
+   * This is derived from the CLI options and the input stream rather than from
    * `mongoshRepl.isInteractive`, so that it holds from process start - events
    * are emitted (and buffered by ToggleableAnalytics) before the REPL exists.
    */
   get isTrackedSessionKind(): boolean {
     return (
-      CliRepl.getFileAndEvalInfo(this.cliOptions).willEnterInteractiveMode ||
+      (CliRepl.getFileAndEvalInfo(this.cliOptions).willEnterInteractiveMode &&
+        this.hasTerminalInput) ||
       !!getAiAgent()
+    );
+  }
+
+  /**
+   * Whether input comes from a terminal rather than a pipe or a file.
+   */
+  private get hasTerminalInput(): boolean {
+    return (
+      !!(this.input as { isTTY?: boolean }).isTTY ||
+      !!process.env.MONGOSH_FORCE_TERMINAL
     );
   }
 
@@ -1317,6 +1331,17 @@ export class CliRepl implements MongoshIOProvider {
     this.bus.emit('mongosh:error', error, 'fatal');
 
     throw error;
+  }
+
+  /**
+   * Exit immediately without running {@link CliRepl.close}. Only used as a
+   * kill switch when a graceful {@link CliRepl.exit} has stalled, e.g. after
+   * repeated Ctrl+C while an interrupted operation is still reconnecting.
+   *
+   * @param code The exit code, if any.
+   */
+  async forceExit(code?: number): Promise<never> {
+    return await this.onExit(code);
   }
 
   /** Read a file from disk. */

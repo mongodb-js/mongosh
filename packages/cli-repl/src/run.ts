@@ -15,7 +15,7 @@ import { getStoragePaths, getGlobalConfigPaths } from './config-directory';
 import { getCryptLibraryPaths } from './crypt-library-paths';
 import { getTlsCertificateSelector } from './tls-certificate-selector';
 import { applyPacProxyS390XPatch } from './pac-proxy-s390x-patch';
-import { redactConnectionString } from 'mongodb-redact';
+import { redactConnectionString } from '@mongodb-js/mongodb-redact';
 import { generateConnectionInfoFromCliArgs } from '@mongosh/arg-parser';
 import askcharacter from 'askcharacter';
 import { PassThrough } from 'stream';

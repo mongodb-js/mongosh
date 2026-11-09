@@ -38,9 +38,10 @@ Execute the following steps to publish a new release:
    npm run release publish
    ```
    Follow the instructions and verify the inferred release version is correct.
-7. Wait for Evergreen to finish the publication stage.
-8. Ensure that the version bump was automatically merged into main and that it is synced up with the `mongosh@x.x.x` tag.
-9. Close the Jira ticket for the release, post an update in the `#mongosh` Slack channel and ping the docs team.
+7. Wait for Evergreen to finish the publication stage. Evergreen will then automatically trigger the [`Publish npm packages` GitHub Actions workflow](https://github.com/mongodb-js/mongosh/actions/workflows/publish-npm.yml) and wait for it to complete. It only publishes packages that are not already in npm, so it is safe to re-run.
+8. If the npm publish workflow failed, re-run it manually — leave the tag empty to publish the latest release.
+9. Ensure that the version bump was automatically merged into main and that it is synced up with the `mongosh@x.x.x` tag.
+10. Close the Jira ticket for the release, post an update in the `#mongosh` Slack channel and ping the docs team.
 
 ### Branches and Tags
 
@@ -123,13 +124,13 @@ The _Draft_ stage depends on all three stages _Tests_, _E2E Tests_ and _Smoke Te
 
 #### Publish
 
-The _Publish_ stage is independent from all other stages. As mentioned at the beginning when a release tag is pushed to the repository it will directly trigger the _Publish_ stage. It will do the following things:
+The _Publish_ stage is independent from all other stages. As mentioned at the beginning when a release tag is pushed to the repository it will directly trigger the _Publish_ stage (a dry-run validation runs automatically once the _Draft_ stage has completed). It runs on Evergreen and does the following things:
 
 1. Use [`curator`](https://github.com/mongodb/curator) to transfer the distributable packages from Evergreen S3 to the MongoDB PPAs.
 2. Upload the full configuration to Download Center so the release is available there.
 3. Promote the GitHub release created in _Draft_ to a published release.
-4. Publishes the npm packages.
-5. Creates a new PR for the [official Homebrew repository](https://github.com/homebrew/homebrew-core) to update the `mongosh` formula.
+
+The npm packages are published separately, by the [`Publish npm packages`](https://github.com/mongodb-js/mongosh/actions/workflows/publish-npm.yml) GitHub Actions workflow. The `mongosh` formula in the [official Homebrew repository](https://github.com/homebrew/homebrew-core) is updated automatically by Homebrew's own bot once the new version is published to npm.
 
 ## Package Structure
 

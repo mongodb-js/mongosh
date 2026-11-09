@@ -34,7 +34,7 @@ const config = {
   },
 };
 
-module.exports = ['index', 'worker-runtime'].map((entry) => ({
+module.exports = ['index', 'client', 'worker-runtime'].map((entry) => ({
   entry: { [entry]: path.resolve(__dirname, 'src', `${entry}.ts`) },
   ...merge(baseWebpackConfig, config),
 }));

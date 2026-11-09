@@ -1,6 +1,6 @@
 import { expose, caller } from 'postmsg-rpc';
 import { deserializeError, serializeError } from './serializer';
-import type { PostmsgRpcOptions } from 'postmsg-rpc';
+import type { CancelablePromise, PostmsgRpcOptions } from 'postmsg-rpc';
 
 export type RPCMessageBus = {
   postMessage: Function;
@@ -34,6 +34,12 @@ function getRPCOptions(messageBus: RPCMessageBus): PostmsgRpcOptions {
     },
   };
 }
+
+export type AsyncMethods<T> = {
+  [k in keyof T]: T[k] extends (...args: infer Args) => infer ReturnVal
+    ? (...args: Args) => Promise<Awaited<ReturnVal>>
+    : T[k];
+};
 
 export const close = Symbol('@@rpc.close');
 
@@ -78,10 +84,9 @@ export function exposeAll<O extends object>(
   return obj as Exposed<O>;
 }
 
-export type Caller<
-  Impl,
-  Keys extends keyof Impl = keyof Impl
-> = CancelableMethods<Pick<Impl, Keys>> & { [cancel]: () => void };
+export type Caller<Impl, Keys extends keyof Impl = keyof Impl> = AsyncMethods<
+  Pick<Impl, Keys>
+> & { [cancel]: () => void };
 
 export function createCaller<Impl extends object>(
   methodNames: Extract<keyof Impl, string>[],

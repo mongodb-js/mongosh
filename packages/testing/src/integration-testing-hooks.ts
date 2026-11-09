@@ -6,7 +6,10 @@ import path from 'path';
 import semver from 'semver';
 import { promisify } from 'util';
 import which from 'which';
-import { MongoCluster, type MongoClusterOptions } from 'mongodb-runner';
+import {
+  MongoCluster,
+  type MongoClusterOptions,
+} from '@mongodb-js/mongodb-runner';
 import { ConnectionString } from 'mongodb-connection-string-url';
 import { downloadCryptLibrary } from '@mongosh/build';
 
@@ -195,6 +198,14 @@ async function getInstalledMongodVersion(): Promise<string> {
 export async function downloadCurrentCryptSharedLibrary(
   versionSpec?: string
 ): Promise<string> {
+  // Only the -latest alpha server gets the matching -latest crypt_shared;
+  // every other server keeps the pinned library from downloadCryptLibrary().
+  if (
+    versionSpec === undefined &&
+    process.env.MONGOSH_SERVER_TEST_VERSION?.startsWith('latest-alpha')
+  ) {
+    versionSpec = 'latest-alpha';
+  }
   if (process.platform === 'linux') {
     return (
       await downloadCryptLibrary(

@@ -93,7 +93,7 @@ import PlanCache from './plan-cache';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ShellApiErrors } from './error-codes';
 import type { MQLDocument, MQLQuery, MQLPipeline } from './mql-types';
-import { shouldRedactCommand } from 'mongodb-redact';
+import { shouldRedactCommand } from '@mongodb-js/mongodb-redact';
 
 export type CollectionWithSchema<
   M extends GenericServerSideSchema = GenericServerSideSchema,
