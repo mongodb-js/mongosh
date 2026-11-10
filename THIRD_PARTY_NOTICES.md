@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Mon Nov 09 2026.
+This document was automatically generated on Tue Nov 10 2026.
 
 ## List of dependencies
 
@@ -89,7 +89,7 @@ Package|Version|License
 **[@mongosh/shell-evaluator](#32c8ab8ac6e8e2758fd4ab286427f8ad6f4d427b04ae13ba8e323a6ce99dd3d7)**|5.9.7|Apache-2.0
 **[@mongosh/snippet-manager](#514dc9860815a6a16464f6375ed6d47a30f91d1148dd4817b665c999765bbaa9)**|5.9.7|Apache-2.0
 **[@mongosh/types](#062a6565d75567916643e8edcdd61eb1be791860c41ce0a208ebac94d6dad641)**|5.4.0|Apache-2.0
-**[@one-ini/wasm](#6aca526b8422bf437f742c50072eb83ba3514db8deb4030046affbd54c8944bc)**|0.1.1|MIT
+**[@one-ini/wasm](#0c31a87f2a13d13824ead0f9739ac0d1c7a246820fce8a7b3a24d246e753dd4d)**|0.2.1|MIT
 **[@smithy/config-resolver](#4bb80518d822d84d79eac09ea6b4635b27400c8173b7e643ed4ec86f14aefc5a)**|4.4.13|Apache-2.0
 **[@smithy/core](#fbd31b429f8b33acdbc68b12aeff93153c46c8ff773472761df4e771385f78bc)**|3.35.1|Apache-2.0
 **[@smithy/credential-provider-imds](#4bec717cb88b2b85cd0816d3c4e00765da9351441b02966f2f3eb288f25970dd)**|4.5.2|Apache-2.0
@@ -131,7 +131,7 @@ Package|Version|License
 **[@smithy/util-utf8](#d84c4080d717edfbcfd0a903fc554549c673091618969b1580ecda94c41bb0ba)**|4.2.2|Apache-2.0
 **[@smithy/uuid](#6fb5f2722612f4fb79cdd6d2464b654f9bd645a13d3eacaefc80cd40bf52dc07)**|1.1.2|Apache-2.0
 **[@tootallnate/quickjs-emscripten](#dda6dbabe98503ac1af20979be1778d7a1c8f355b85377124a909567193c2cd3)**|0.23.0|MIT
-**[abbrev](#c30934de9b5a9eaa4bd539e4fb000f214ca923048bbf3def3d1d868c182c97b9)**|2.0.0|ISC
+**[abbrev](#ee088492c85fa4277595b9aa5347e09662acf02aa8ba1854e2e54f434cf9a745)**|5.0.0|ISC
 **[accepts](#f95b7a83c78ce214a33c8f8ef681fb76acf619e685469f394034d5d5ea1cfb23)**|2.0.0|MIT
 **[acorn-class-fields](#416283a109773027507e8cea39477b662b1aa6754210a18dd38077c4efd7df56)**|1.0.0|MIT
 **[acorn-numeric-separator](#6940f4404e355b21617dccb71f5ebcba980bbd438d41f701bfa6a62deb33121c)**|0.3.6|MIT
@@ -184,7 +184,7 @@ Package|Version|License
 **[color-convert](#55c87baa2843a3df1bf7eb7ad8e5c1329afea9bef4e94386d484de20b03c119b)**|2.0.1|MIT
 **[color-name](#66a8b5479032c7b05b81caf8cef9ed81be452b9f3f299868af0167900a4db262)**|1.1.4|MIT
 **[colors](#2d352591ce20a2f9d1e7fccec793f62e69aba3af1b77e9deda6dffc6261d2bd9)**|1.0.3|MIT
-**[commander](#e47f67c7d9819c6ea4aff6c23f632c2c18b17afeed9dc25536a7c58844d04890)**|10.0.1|MIT
+**[commander](#208492410730a1ea4bf80a573369fb800d2e34bd8729f31128b3f7127188a308)**|14.0.3|MIT
 **[config-chain](#d43148ec4e9c8cac9e15277d86afc87973b0538d96092edbd71396d40b57d5c0)**|1.1.13|MIT
 **[content-disposition](#77b551d384bf630c8add2f55996ef250da3b575a1ac116424ee6f0ce83a7aac4)**|1.0.1|MIT
 **[content-type](#65e9de41d2cef0ed95875e387bc56dae50b05d41b1a7868ed68c32834843bbab)**|1.0.5|MIT
@@ -206,7 +206,7 @@ Package|Version|License
 **[decompress-response](#64c777c1b9075eb1d4fc1a0e1ea86130393649a9a01a8e42c16eb14c59b5b8da)**|6.0.0|MIT
 **[deep-extend](#654bd7d00073c2195bca924a07d93393b2aaf5cacbb6f52a383877f6f33dbfbf)**|0.6.0|MIT
 **[default-browser-id](#fefbee72ba0c7dfe4b4dd02628fac920cbb9a69e60d4b608af6fd92a2d8081bd)**|5.0.0|MIT
-**[default-browser](#9f034c9dfeee1e3b11602a39dd3f67a6a9e4867791087334fe907e528d2b47de)**|5.2.1|MIT
+**[default-browser](#fbb9ad6bceeab1d9e4edaa5a8bfa74cfbfdfd0eb2f5a5857b023722754e0f780)**|5.5.1|MIT
 **[define-data-property](#a776d26c4eb3429c37b30afeed2ddcd9be51dec6d9ea7025b0e6426a5d4f78d6)**|1.1.4|MIT
 **[define-lazy-prop](#6e79b04c4690532e40a5cdfb76f3ab49de1d6778466fede1548a2e19ac8e75c4)**|3.0.0|MIT
 **[define-properties](#332935df321f270f8588f3ae5e25759d1611d1610bd987eac78b79dd1ee5fe35)**|1.2.1|MIT
@@ -214,7 +214,7 @@ Package|Version|License
 **[depd](#7028878ddf0fd7d977703a868b5ec8df7220b2f8e7d67827e93767cbb0f21b99)**|2.0.0|MIT
 **[detect-libc](#75227d1b1c09630ea361abee4d27101e350832bbeab9640a013c82662408b467)**|2.0.1|Apache-2.0
 **[dunder-proto](#390fd69f2035b583e461890d5b0a3230f4adb33b042e6f0d1472dd911bc1de98)**|1.0.1|MIT
-**[editorconfig](#bb8328e1b8971956fcecdf086fe80ad6bb2c0d9018f4c5840ea6863543dfd151)**|1.0.7|MIT
+**[editorconfig](#d6c8b235cbeaf31df76f909d7ca35318d6ba5f63aa402b64497e9b08b769abae)**|3.0.2|MIT
 **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**|1.1.1|MIT
 **[electron-to-chromium](#c3c63055d652e56cc14c0d21e07dd1aa30cc6e49b539cea2fc7a85f0770ae97d)**|1.5.412|ISC
 **[emoji-regex](#21d47c0d2d45dbdbe552db6d5d71bcc984e7552785b9d47b0b6e41a77b2d9b33)**|10.6.0|MIT
@@ -252,7 +252,7 @@ Package|Version|License
 **[function-bind](#83de3b394293d96fb3fea968392a9d9ffb8b461f6c173bbb76a5bc51db5bec52)**|1.1.2|MIT
 **[function.prototype.name](#775c04e76594f9c73207c02d86d212b6054f2dc54ad9b970b65c43c176213ddf)**|1.1.8|MIT
 **[functions-have-names](#e47bfb8af99536984c43eccff65479505a133c528be9e5e73fa43c03b31749bf)**|1.2.3|MIT
-**[gaxios](#cc797f33bb7a42f7a247f46789c1e376d81af4291f1060f36eb3117b13505043)**|7.1.3|Apache-2.0
+**[gaxios](#9592a42af881c300b4f60b5cf5410975de9adb4e4e43fa751eee5248d9029454)**|7.3.1|Apache-2.0
 **[gcp-metadata](#1f8416f1fecac43179e187e706211f144939923d87b2b53896693d20ff6355a6)**|7.0.1|Apache-2.0
 **[gensync](#c49cbe8d63515db5596a717f0d65eab2f06a623b4f1dfbd512d61bbdccf1aa4c)**|1.0.0-beta.2|MIT
 **[get-caller-file](#127d623aeb8ebd58971ab08694a8dadcfba2bffde5187c7123eecf25e0b12e2f)**|2.0.5|ISC
@@ -263,7 +263,7 @@ Package|Version|License
 **[get-uri](#4ae602658ce541126b57c19a2c8c47ed82d62e55c642d49f59f14e841ddc1db6)**|6.0.3|MIT
 **[github-from-package](#8cba969ea116f44491f4fbb8b391c0ab40408fc2e5380f81bc8e8e42b55fff8b)**|0.0.0|MIT
 **[glibc-version](#62fbf8da0a10c16152b4f6893d0780a561e07501070188d532fcbcaed1526cf1)**|1.0.1|Apache-2.0
-**[glob](#0d490ef02b92f1e0ff665b9d9340cf9da89573282b06caec75cd7fa8beb7cff1)**|10.5.0|ISC
+**[glob](#86ae17b6cc87bf144e73cc18f3b65d0610c0e2acda3df3b4ce3af6b0e8b19ebd)**|13.0.7|BlueOak-1.0.0
 **[globalthis](#9d3a89fc658543d8156545acfbcfbad006c28c336ffcc45743e99c43c38a4535)**|1.0.4|MIT
 **[google-logging-utils](#0f403441e9df9734e96a863c1d13187819f20d279895415ef43f20c77189b0b0)**|1.1.3|Apache-2.0
 **[gopd](#f757cb02c87ace6527b13d93a039184daf59e5f4511f9f558a3729aef1f1b6bb)**|1.2.0|MIT
@@ -300,6 +300,7 @@ Package|Version|License
 **[is-docker](#b21de9a8d47c7c165b912be5c7a36eae3939076531e05733aa2ac7f1099dc46d)**|3.0.0|MIT
 **[is-finalizationregistry](#1e5f8592b3a0fe83ac33a7d0e4812993394a7aa7901baceaa16d26f8267bcfd2)**|1.1.1|MIT
 **[is-generator-function](#02ce69cc3682318440923489f67b0d16af50fcace41c51c11ba459a6f042d711)**|1.0.10|MIT
+**[is-in-ssh](#5c276fae7d395a2f6311b1f68e5c59b876ce8a60e214c81e6bdfdca2ed71cd53)**|1.0.0|MIT
 **[is-inside-container](#3f45825f7cda0ec2231b94ee915a0dc76a31eb0f97746c44510d9b05d80c1a97)**|1.0.0|MIT
 **[is-map](#a9d75aec4f0b5614e4286c133a5fb6390141bd79d8b5bff8f3f7815869d04f8e)**|2.0.3|MIT
 **[is-negative-zero](#52bfa7a0a5179ef02b297ce92113f0c5aced36291aa0882d08aa04a289d7672f)**|2.0.3|MIT
@@ -314,12 +315,12 @@ Package|Version|License
 **[is-weakmap](#ed08152c59d2b4e2e55e4c75373f7cd102901b6de08e20dba61722d1bb7a5086)**|2.0.2|MIT
 **[is-weakref](#459d1a1a4ce84c5e24719e7330ffbc7b5a904df16c57f03e6eabc11d73ccc4f0)**|1.1.1|MIT
 **[is-weakset](#5538f4c86728250aa4d278637d76d6fff7d7a2cf1ff7433f842cc4045c95ec6e)**|2.0.3|MIT
-**[is-wsl](#38b5685d9d35bd3f3dfc5cb892b9edef01eb8769b2cc19aad7e5807e304b7015)**|3.1.0|MIT
+**[is-wsl](#a44f70aa8a1b98c8ef6c7525eb1a0b7a36ab8c24b3c681848b43c5902df06381)**|3.1.1|MIT
 **[isarray](#55a8a963f7aba0af49a654ea316f8dc19b717b632b88145881fda3988256ef6d)**|2.0.5|MIT
 **[isexe](#2f62e711a6921973ef3f9650fd3e06585fd3842e34078c8fa959481738600405)**|2.0.0|ISC
 **[isnumber](#bc455463940cfdb939affcb3dcd801c0af55f6d51e5ae4609134900aac2ca032)**|1.0.0|MIT
 **[jose](#f9d2cbf414f008926ab4887a10cb2c34b1b205b42ce272c330e2eb0248071b7a)**|6.0.12|MIT
-**[js-beautify](#4d9446c42fb3dfd9b4130a7d3a0b2014c777cebed3243efef61c2a606c8b3e02)**|1.15.1|MIT
+**[js-beautify](#ef85bbb6188244e5dc2d6350c1026cd2bc221eff094d10f0fa406da2a4d95746)**|2.0.3|MIT
 **[js-cookie](#e2c9b2624618eca93070f7686413d8366d8eeddc474192b4f17fa136f0cd447d)**|3.0.8|MIT
 **[js-tokens](#f4371f095c6f087cf41433031f8c612e21a4258b18cb4e847ffae73905e146d4)**|4.0.0|MIT
 **[js-yaml](#7eb2520fa3814be245633e750f04ca7e70d902bc8000bc39d233d965d30cc41f)**|5.4.1|MIT
@@ -341,7 +342,7 @@ Package|Version|License
 **[mime-db](#4f88fcddeb8de9fdedcbb3e2497dbf09ef2b2f4011c8737c093169df36869deb)**|1.54.0|MIT
 **[mime-types](#d3f6b61aada9a3c3ec5532a5dcbcc1ef5b8d0cbff594adb68716f614377ffd77)**|3.0.2|MIT
 **[mimic-response](#3a8c7e8eed886630dd878b11cbb7ef72840b3bab1f8d4251956ca4f9fa40925f)**|3.1.0|MIT
-**[minimatch](#beb2bef4b974d5ddbbb300e73e50db04067431f44476c4842cab782f3577c73e)**|9.0.9|ISC
+**[minimatch](#7dfd90b95b048a79ebe8ed0a5438741772f81760d73bd59f1487537674efb86b)**|10.2.6|BlueOak-1.0.0
 **[minimist](#8162d302efd0533ce00fc8a52dd6703dbb4205435af84e72b7694c608a729de4)**|1.2.8|MIT
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
 **[mongodb-client-encryption](#d51bc496aad712aff10716acb139c248545f100815af800ea4cfa8d2e9d73db3)**|7.2.1|Apache-2.0
@@ -363,7 +364,7 @@ Package|Version|License
 **[node-cache](#7facc0b98aa570bf195800a761cbe85a8d5b639a49d16be0162f589f86ab6f4e)**|5.1.2|MIT
 **[node-domexception](#3c25065fd2bc1b6b56856e30ac5b8f34ddae33ca87b225854f8d855b0ccabfbe)**|1.0.0|MIT
 **[node-fetch](#22edb8ba3fe3457e8c1a02e497e6a8cb54e89775224f0c7680ea43772b5c1638)**|3.3.2|MIT
-**[nopt](#433638d5f5df3b4edbb157fe427ad250f2bf614555b16f59834681eaf9c9560d)**|7.2.1|ISC
+**[nopt](#7f48d8dcd73f19cbbf0a2fcc857d025bcba8914b6784fb2e413a6256cefd240d)**|10.0.1|ISC
 **[numeral](#d274a180ad09fc1ae9325f01bf5dc1296caf553888d952fab7ebf524dfdc56a1)**|2.0.6|MIT
 **[oauth4webapi](#20c210c3de969a4d06291b8bf773ce03262544409a28dac2ba63df67a1534827)**|3.6.2|MIT
 **[object-inspect](#ecbef7226b7af9b6efde6c61e71aaefa8a0bf57a726689d055c866298db9886e)**|1.13.4|MIT
@@ -371,7 +372,7 @@ Package|Version|License
 **[object.assign](#bad5aa92482188df4646987f14216640323e5d45592bb9ab101df122d722faa2)**|4.1.7|MIT
 **[on-finished](#d3c391e10faad1d82190a06f5be315d94a9194cff75aa389940432ef15cf45de)**|2.4.1|MIT
 **[once](#d0d1303998dfae04e4f898f477380aac35568f4d6679f4ea913c2441cf9ebb0b)**|1.4.0|ISC
-**[open](#d014b2891443a3afc1d36e54769389831aa4a59ac459b9b9873f650b1c919307)**|10.2.0|MIT
+**[open](#6ac77d846c988586dfd83cbd43e9137d5bbcac5999028ab136dd583fca4723d3)**|11.0.4|MIT
 **[openid-client](#00df66b19cf3a8fdcd5bae5a38751e39685ed1f6986557e9d30b90917b9c768c)**|6.6.3|MIT
 **[os-dns-native](#d095ec47d4bbea620f8cc876fe95ff5e5b6ba27249f693c7f48d628dec40c6e1)**|2.1.3|MIT
 **[own-keys](#ea2c792d62ee0a9b2bcb3000d74851d23d963b6658ea5eb6c9b3ff9c7003c4d1)**|1.0.1|MIT
@@ -382,6 +383,7 @@ Package|Version|License
 **[path-to-regexp](#2a588a3a53f84c38deb7694bd8fb3618c6659f5afb52a74c90024a3b71732994)**|8.4.0|MIT
 **[picocolors](#7c5f372425355293c448d7405cb3b0a1fe19402bd0298caae8e341077624f0b7)**|1.1.1|ISC
 **[possible-typed-array-names](#5ba4283f5512abd5d57e79c0a75acb3818d98d169df979afb01ad6867cefd312)**|1.0.0|MIT
+**[powershell-utils](#bf666e269b6718b91aaa9d8bccdec00b1d05697ca88b5c4a06aa4b2d759cdb2a)**|0.2.1|MIT
 **[prebuild-install](#034b3dd1336ef871b8a3739cb1647e8750e3bf21d4ecc9bbfb45525b798ddf20)**|7.1.3|MIT
 **[pretty-repl](#52450099e67a2b965036ab65b63b01d615b3fbcff38085a23fd8e80694d2a8ed)**|4.0.1|MIT
 **[progress](#b598d996665da76d10446d00412c9422fc984e52a6e405e322aa93c70ae317a1)**|2.0.3|MIT
@@ -389,7 +391,7 @@ Package|Version|License
 **[proxy-addr](#b94cf93d9a9b565b45709d6348836b83655ae5e0ad3bc5dd6ea24ef661b3be24)**|2.0.8|MIT
 **[pump](#147f1bd3a6380306e696f0574feda0b1490121a1d12e4500e91ffb6e888ffa3a)**|3.0.0|MIT
 **[punycode](#3fe331f5536b72438f24d644ea9804b5e462f791a4c72a6d94f37193af1086aa)**|2.3.1|MIT
-**[qs](#415d3b31f709d0004de78a0f91efd2da4890222805f3d5f283b495f29ff9171f)**|6.16.1|BSD-3-Clause
+**[qs](#7c7b010a534afbd9c4539d6e0a8abcb35da92c13cae420e1d4b3dbab402f9754)**|6.16.2|BSD-3-Clause
 **[range-parser](#e973789240fef3c00f359e6acc8570dd769b70ee8b29fdcb679897fa2d696bff)**|1.2.1|MIT
 **[raw-body](#6c791d6d9ec7a011e573514432e037b3a1a50a921c494c45b57d79af7f2a3d7b)**|3.0.2|MIT
 **[rc](#0dd705bd5862b4c60ed88e6b4a6f5ece23c627c97f6928233d32aefdd463c3f7)**|1.2.8|(BSD-2-Clause OR MIT OR Apache-2.0)
@@ -399,7 +401,6 @@ Package|Version|License
 **[regexp.prototype.flags](#a15ad9e3604c5f7c3af83cb95b0695d81bd65b11bb75a62096f7c5afab53399d)**|1.5.4|MIT
 **[reservoir](#84f8998f94ad5bd85b50458378edf3815fff553cdcabf8ced3db418f05e85ff6)**|0.1.2|MIT
 **[resolve-mongodb-srv](#e797eff0fd333efbb1d1e2a4a12bfab5fd17187e63684ec49a596053d03ec3ab)**|1.1.7|Apache-2.0
-**[rimraf](#1bb1332b22035aab394ca6bb2f8099bd0dc793a97bbbccb9bdfc666ae1db47f3)**|5.0.10|ISC
 **[router](#1b270661457a8f738b0cfe76c768fd3585c8771d04fad5f7aae1f1feed84a8da)**|2.2.0|MIT
 **[run-applescript](#235c737185151e246ca6c3099135f0b89a61bababb6e5b16f4444a5578eee364)**|7.0.0|MIT
 **[safe-array-concat](#6a70583d2389f167356be873177edab01c2b46ba5e76c7db90d6c6ae0e32ff75)**|1.1.3|MIT
@@ -410,6 +411,7 @@ Package|Version|License
 **[semver](#8b8f657069cf84b7ca932ab17eb24a0a55a8053ccd2a36c03185dadab64db3f8)**|6.3.1|ISC
 **[semver](#9820574a08f66349702b3a538cfb93136780250f98497b337bc415b68c8748d0)**|7.7.2|ISC
 **[semver](#82a86616e50ded7925322daf1aa73ade1c2c4b1f4f9ac088bc8cb5b82de067bd)**|7.8.5|ISC
+**[semver](#302f8da5f167ba57bc8e154367582890e9e609cedacd938a6ae8cdaa6aaeec48)**|7.8.6|ISC
 **[send](#1b29954c091694853ad3454c280ae2131fc5527135a7551588bce2719b54cc70)**|1.2.0|MIT
 **[serve-static](#ae8c8c81ae13ef8d08a78c4e33b04ea28b5ed9f8ccb43ace3850b1c6549fe636)**|2.2.0|MIT
 **[set-function-length](#88ee3e1c8e8c22ac3653a290c1cdc68787d064f17a743020a070b31290bb4eb9)**|1.2.2|MIT
@@ -480,7 +482,7 @@ Package|Version|License
 **[which](#5a71f2b741944bf107d6e7f067241798a6e277e42e8ca1e28c4608ccc233f8ec)**|2.0.2|ISC
 **[wrap-ansi](#73510341652cf181e67a927a84114f247052e12db67de6c9ff21e2a854e673c6)**|9.0.2|MIT
 **[wrappy](#13cebf193d7ada5ee347b9ae819b96f5e6da21f9b53e7f268c7703b686158595)**|1.0.2|ISC
-**[wsl-utils](#3c6cb23f48b28398188bbe0a6b73ab9fa96d0ba5322f8f68b056cfc22a3f1f7a)**|0.1.0|MIT
+**[wsl-utils](#ee8506733ae11ac9b9d7fd283514c7a5e8fc12fb905996b51cb54cceee3ae2c1)**|1.0.1|MIT
 **[y18n](#1dd471a41f77455fc624d6d6ba14ef1b741362d6c36295d66fa1474d3fc2e27d)**|5.0.8|ISC
 **[yallist](#63b110ffd18712146937e9f182800c6f2b5783e76d1659a0bd4b457789b0df07)**|3.1.1|ISC
 **[yargs-parser](#d114360895423d9e902d0d2591b959ed4b0c309f8cec3e7b22fb6ed5502d1c19)**|20.2.9|ISC
@@ -10445,8 +10447,8 @@ License files:
 License tags: Apache-2.0
 
 
-<a id="6aca526b8422bf437f742c50072eb83ba3514db8deb4030046affbd54c8944bc"></a>
-### [@one-ini/wasm](https://www.npmjs.com/package/@one-ini/wasm) (version 0.1.1)
+<a id="0c31a87f2a13d13824ead0f9739ac0d1c7a246820fce8a7b3a24d246e753dd4d"></a>
+### [@one-ini/wasm](https://www.npmjs.com/package/@one-ini/wasm) (version 0.2.1)
 License tags: MIT
 
 License files:
@@ -18919,8 +18921,8 @@ License files:
       
 
 
-<a id="c30934de9b5a9eaa4bd539e4fb000f214ca923048bbf3def3d1d868c182c97b9"></a>
-### [abbrev](https://www.npmjs.com/package/abbrev) (version 2.0.0)
+<a id="ee088492c85fa4277595b9aa5347e09662acf02aa8ba1854e2e54f434cf9a745"></a>
+### [abbrev](https://www.npmjs.com/package/abbrev) (version 5.0.0)
 License tags: ISC
 
 License files:
@@ -21784,8 +21786,8 @@ License files:
 License tags: MIT
 
 
-<a id="e47f67c7d9819c6ea4aff6c23f632c2c18b17afeed9dc25536a7c58844d04890"></a>
-### [commander](https://www.npmjs.com/package/commander) (version 10.0.1)
+<a id="208492410730a1ea4bf80a573369fb800d2e34bd8729f31128b3f7127188a308"></a>
+### [commander](https://www.npmjs.com/package/commander) (version 14.0.3)
 License tags: MIT
 
 License files:
@@ -22394,8 +22396,8 @@ License files:
       
 
 
-<a id="9f034c9dfeee1e3b11602a39dd3f67a6a9e4867791087334fe907e528d2b47de"></a>
-### [default-browser](https://www.npmjs.com/package/default-browser) (version 5.2.1)
+<a id="fbb9ad6bceeab1d9e4edaa5a8bfa74cfbfdfd0eb2f5a5857b023722754e0f780"></a>
+### [default-browser](https://www.npmjs.com/package/default-browser) (version 5.5.1)
 License tags: MIT
 
 License files:
@@ -22772,8 +22774,8 @@ License files:
       
 
 
-<a id="bb8328e1b8971956fcecdf086fe80ad6bb2c0d9018f4c5840ea6863543dfd151"></a>
-### [editorconfig](https://www.npmjs.com/package/editorconfig) (version 1.0.7)
+<a id="d6c8b235cbeaf31df76f909d7ca35318d6ba5f63aa402b64497e9b08b769abae"></a>
+### [editorconfig](https://www.npmjs.com/package/editorconfig) (version 3.0.2)
 License tags: MIT
 
 License files:
@@ -23886,8 +23888,8 @@ License files:
       
 
 
-<a id="cc797f33bb7a42f7a247f46789c1e376d81af4291f1060f36eb3117b13505043"></a>
-### [gaxios](https://www.npmjs.com/package/gaxios) (version 7.1.3)
+<a id="9592a42af881c300b4f60b5cf5410975de9adb4e4e43fa751eee5248d9029454"></a>
+### [gaxios](https://www.npmjs.com/package/gaxios) (version 7.3.1)
 License tags: Apache-2.0
 
 License files:
@@ -24716,28 +24718,76 @@ License files:
       
 
 
-<a id="0d490ef02b92f1e0ff665b9d9340cf9da89573282b06caec75cd7fa8beb7cff1"></a>
-### [glob](https://www.npmjs.com/package/glob) (version 10.5.0)
-License tags: ISC
+<a id="86ae17b6cc87bf144e73cc18f3b65d0610c0e2acda3df3b4ce3af6b0e8b19ebd"></a>
+### [glob](https://www.npmjs.com/package/glob) (version 13.0.7)
+License tags: BlueOak-1.0.0
 
 License files:
-* LICENSE:
+* LICENSE.md:
 
-      The ISC License
+      All packages under `src/` are licensed according to the terms in
+      their respective `LICENSE` or `LICENSE.md` files.
       
-      Copyright (c) 2009-2023 Isaac Z. Schlueter and Contributors
+      The remainder of this project is licensed under the Blue Oak
+      Model License, as follows:
       
-      Permission to use, copy, modify, and/or distribute this software for any
-      purpose with or without fee is hereby granted, provided that the above
-      copyright notice and this permission notice appear in all copies.
+      -----
       
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-      IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+      # Blue Oak Model License
+      
+      Version 1.0.0
+      
+      ## Purpose
+      
+      This license gives everyone as much permission to work with
+      this software as possible, while protecting contributors
+      from liability.
+      
+      ## Acceptance
+      
+      In order to receive this license, you must agree to its
+      rules.  The rules of this license are both obligations
+      under that agreement and conditions to your license.
+      You must not do anything with this software that triggers
+      a rule that you cannot or will not follow.
+      
+      ## Copyright
+      
+      Each contributor licenses you to do everything with this
+      software that would otherwise infringe that contributor's
+      copyright in it.
+      
+      ## Notices
+      
+      You must ensure that everyone who gets a copy of
+      any part of this software from you, with or without
+      changes, also gets the text of this license or a link to
+      <https://blueoakcouncil.org/license/1.0.0>.
+      
+      ## Excuse
+      
+      If anyone notifies you in writing that you have not
+      complied with [Notices](#notices), you can keep your
+      license by taking all practical steps to comply within 30
+      days after the notice.  If you do not do so, your license
+      ends immediately.
+      
+      ## Patent
+      
+      Each contributor licenses you to do everything with this
+      software that would otherwise infringe any patent claims
+      they can license or become able to license.
+      
+      ## Reliability
+      
+      No contributor can revoke this license.
+      
+      ## No Liability
+      
+      ***As far as the law allows, this software comes as is,
+      without any warranty or condition, and no contributor
+      will be liable to anyone for any damages related to this
+      software or this license, under any kind of legal claim.***
       
 
 
@@ -26319,6 +26369,25 @@ License files:
       
 
 
+<a id="5c276fae7d395a2f6311b1f68e5c59b876ce8a60e214c81e6bdfdca2ed71cd53"></a>
+### [is-in-ssh](https://www.npmjs.com/package/is-in-ssh) (version 1.0.0)
+License tags: MIT
+
+License files:
+* license:
+
+      MIT License
+      
+      Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      
+
+
 <a id="3f45825f7cda0ec2231b94ee915a0dc76a31eb0f97746c44510d9b05d80c1a97"></a>
 ### [is-inside-container](https://www.npmjs.com/package/is-inside-container) (version 1.0.0)
 License tags: MIT
@@ -26740,8 +26809,8 @@ License files:
       
 
 
-<a id="38b5685d9d35bd3f3dfc5cb892b9edef01eb8769b2cc19aad7e5807e304b7015"></a>
-### [is-wsl](https://www.npmjs.com/package/is-wsl) (version 3.1.0)
+<a id="a44f70aa8a1b98c8ef6c7525eb1a0b7a36ab8c24b3c681848b43c5902df06381"></a>
+### [is-wsl](https://www.npmjs.com/package/is-wsl) (version 3.1.1)
 License tags: MIT
 
 License files:
@@ -26865,8 +26934,8 @@ License files:
       
 
 
-<a id="4d9446c42fb3dfd9b4130a7d3a0b2014c777cebed3243efef61c2a606c8b3e02"></a>
-### [js-beautify](https://www.npmjs.com/package/js-beautify) (version 1.15.1)
+<a id="ef85bbb6188244e5dc2d6350c1026cd2bc221eff094d10f0fa406da2a4d95746"></a>
+### [js-beautify](https://www.npmjs.com/package/js-beautify) (version 2.0.3)
 License tags: MIT
 
 License files:
@@ -27774,28 +27843,68 @@ License files:
       
 
 
-<a id="beb2bef4b974d5ddbbb300e73e50db04067431f44476c4842cab782f3577c73e"></a>
-### [minimatch](https://www.npmjs.com/package/minimatch) (version 9.0.9)
-License tags: ISC
+<a id="7dfd90b95b048a79ebe8ed0a5438741772f81760d73bd59f1487537674efb86b"></a>
+### [minimatch](https://www.npmjs.com/package/minimatch) (version 10.2.6)
+License tags: BlueOak-1.0.0
 
 License files:
-* LICENSE:
+* LICENSE.md:
 
-      The ISC License
+      # Blue Oak Model License
       
-      Copyright (c) 2011-2023 Isaac Z. Schlueter and Contributors
+      Version 1.0.0
       
-      Permission to use, copy, modify, and/or distribute this software for any
-      purpose with or without fee is hereby granted, provided that the above
-      copyright notice and this permission notice appear in all copies.
+      ## Purpose
       
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-      IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+      This license gives everyone as much permission to work with
+      this software as possible, while protecting contributors
+      from liability.
+      
+      ## Acceptance
+      
+      In order to receive this license, you must agree to its
+      rules. The rules of this license are both obligations
+      under that agreement and conditions to your license.
+      You must not do anything with this software that triggers
+      a rule that you cannot or will not follow.
+      
+      ## Copyright
+      
+      Each contributor licenses you to do everything with this
+      software that would otherwise infringe that contributor's
+      copyright in it.
+      
+      ## Notices
+      
+      You must ensure that everyone who gets a copy of
+      any part of this software from you, with or without
+      changes, also gets the text of this license or a link to
+      <https://blueoakcouncil.org/license/1.0.0>.
+      
+      ## Excuse
+      
+      If anyone notifies you in writing that you have not
+      complied with [Notices](#notices), you can keep your
+      license by taking all practical steps to comply within 30
+      days after the notice. If you do not do so, your license
+      ends immediately.
+      
+      ## Patent
+      
+      Each contributor licenses you to do everything with this
+      software that would otherwise infringe any patent claims
+      they can license or become able to license.
+      
+      ## Reliability
+      
+      No contributor can revoke this license.
+      
+      ## No Liability
+      
+      **_As far as the law allows, this software comes as is,
+      without any warranty or condition, and no contributor
+      will be liable to anyone for any damages related to this
+      software or this license, under any kind of legal claim._**
       
 
 
@@ -29438,8 +29547,8 @@ License files:
       
 
 
-<a id="433638d5f5df3b4edbb157fe427ad250f2bf614555b16f59834681eaf9c9560d"></a>
-### [nopt](https://www.npmjs.com/package/nopt) (version 7.2.1)
+<a id="7f48d8dcd73f19cbbf0a2fcc857d025bcba8914b6784fb2e413a6256cefd240d"></a>
+### [nopt](https://www.npmjs.com/package/nopt) (version 10.0.1)
 License tags: ISC
 
 License files:
@@ -29675,8 +29784,8 @@ License files:
       
 
 
-<a id="d014b2891443a3afc1d36e54769389831aa4a59ac459b9b9873f650b1c919307"></a>
-### [open](https://www.npmjs.com/package/open) (version 10.2.0)
+<a id="6ac77d846c988586dfd83cbd43e9137d5bbcac5999028ab136dd583fca4723d3"></a>
+### [open](https://www.npmjs.com/package/open) (version 11.0.4)
 License tags: MIT
 
 License files:
@@ -29991,6 +30100,25 @@ License files:
       
 
 
+<a id="bf666e269b6718b91aaa9d8bccdec00b1d05697ca88b5c4a06aa4b2d759cdb2a"></a>
+### [powershell-utils](https://www.npmjs.com/package/powershell-utils) (version 0.2.1)
+License tags: MIT
+
+License files:
+* license:
+
+      MIT License
+      
+      Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      
+
+
 <a id="034b3dd1336ef871b8a3739cb1647e8750e3bf21d4ecc9bbfb45525b798ddf20"></a>
 ### [prebuild-install](https://www.npmjs.com/package/prebuild-install) (version 7.1.3)
 License tags: MIT
@@ -30201,8 +30329,8 @@ License files:
       
 
 
-<a id="415d3b31f709d0004de78a0f91efd2da4890222805f3d5f283b495f29ff9171f"></a>
-### [qs](https://www.npmjs.com/package/qs) (version 6.16.1)
+<a id="7c7b010a534afbd9c4539d6e0a8abcb35da92c13cae420e1d4b3dbab402f9754"></a>
+### [qs](https://www.npmjs.com/package/qs) (version 6.16.2)
 License tags: BSD-3-Clause
 
 License files:
@@ -30747,31 +30875,6 @@ License files:
       
 
 
-<a id="1bb1332b22035aab394ca6bb2f8099bd0dc793a97bbbccb9bdfc666ae1db47f3"></a>
-### [rimraf](https://www.npmjs.com/package/rimraf) (version 5.0.10)
-License tags: ISC
-
-License files:
-* LICENSE:
-
-      The ISC License
-      
-      Copyright (c) 2011-2023 Isaac Z. Schlueter and Contributors
-      
-      Permission to use, copy, modify, and/or distribute this software for any
-      purpose with or without fee is hereby granted, provided that the above
-      copyright notice and this permission notice appear in all copies.
-      
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-      IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-      
-
-
 <a id="1b270661457a8f738b0cfe76c768fd3585c8771d04fad5f7aae1f1feed84a8da"></a>
 ### [router](https://www.npmjs.com/package/router) (version 2.2.0)
 License tags: MIT
@@ -31031,6 +31134,31 @@ License files:
 
 <a id="82a86616e50ded7925322daf1aa73ade1c2c4b1f4f9ac088bc8cb5b82de067bd"></a>
 ### [semver](https://www.npmjs.com/package/semver) (version 7.8.5)
+License tags: ISC
+
+License files:
+* LICENSE:
+
+      The ISC License
+      
+      Copyright (c) Isaac Z. Schlueter and Contributors
+      
+      Permission to use, copy, modify, and/or distribute this software for any
+      purpose with or without fee is hereby granted, provided that the above
+      copyright notice and this permission notice appear in all copies.
+      
+      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+      IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+      
+
+
+<a id="302f8da5f167ba57bc8e154367582890e9e609cedacd938a6ae8cdaa6aaeec48"></a>
+### [semver](https://www.npmjs.com/package/semver) (version 7.8.6)
 License tags: ISC
 
 License files:
@@ -33416,8 +33544,8 @@ License files:
       
 
 
-<a id="3c6cb23f48b28398188bbe0a6b73ab9fa96d0ba5322f8f68b056cfc22a3f1f7a"></a>
-### [wsl-utils](https://www.npmjs.com/package/wsl-utils) (version 0.1.0)
+<a id="ee8506733ae11ac9b9d7fd283514c7a5e8fc12fb905996b51cb54cceee3ae2c1"></a>
+### [wsl-utils](https://www.npmjs.com/package/wsl-utils) (version 1.0.1)
 License tags: MIT
 
 License files:
