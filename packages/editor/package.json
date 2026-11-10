@@ -39,7 +39,7 @@
     "@mongosh/shell-evaluator": "^5.9.7",
     "@mongosh/types": "^5.4.0",
     "bson": "^7.3.1",
-    "js-beautify": "^1.15.1"
+    "js-beautify": "^2.0.3"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
