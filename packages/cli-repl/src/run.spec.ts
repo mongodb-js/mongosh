@@ -59,11 +59,13 @@ describe('CLI entry point', function () {
     expect(require('win-export-certificate-and-key')).to.be.a('function');
   });
 
-  it('can load macos-export-certificate-and-key on macOS', function () {
+  it('can load @mongodb-js/macos-export-certificate-and-key on macOS', function () {
     if (process.platform !== 'darwin') {
       return this.skip();
     }
-    expect(require('macos-export-certificate-and-key')).to.be.a('function');
+    expect(require('@mongodb-js/macos-export-certificate-and-key')).to.be.a(
+      'function'
+    );
   });
 
   it('asks for connection string when configured to do so', async function () {

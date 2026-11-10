@@ -178,6 +178,7 @@
     "packages/connectivity-tests"
   ],
   "allowScripts": {
+    "@mongodb-js/macos-export-certificate-and-key": true,
     "@mongodb-js/native-machine-id": true,
     "get-console-process-list": true,
     "glibc-version": true,
