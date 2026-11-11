@@ -57,9 +57,11 @@ export const escapeSingleLineText = (text: string): string =>
 // Babel's syntax errors contain SGR-highlighted code frames. Keep those color
 // sequences (and only those) so the frame stays readable, and escape every
 // other control character.
+// eslint-disable-next-line no-control-regex
 const SGR_SEQUENCE_REGEXP = /^\x1B\[[0-9;]*m$/;
 export const escapeMultilineTextPreservingSgr = (text: string): string =>
   text
+    // eslint-disable-next-line no-control-regex
     .split(/(\x1B\[[0-9;]*m)/)
     .map((part) =>
       SGR_SEQUENCE_REGEXP.test(part) ? part : escapeMultilineText(part)
