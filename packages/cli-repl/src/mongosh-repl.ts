@@ -1390,13 +1390,12 @@ class MongoshNodeRepl implements EvaluationListener {
 /**
  * Determines whether a given object should be interpreted as an Error object.
  */
-function isErrorLike(value: any): boolean {
+export function isErrorLike(value: any): boolean {
   try {
     return (
       value &&
       getShellApiType(value) === null &&
-      ((value.message !== undefined && typeof value.stack === 'string') ||
-        (value.code !== undefined && value.errmsg !== undefined))
+      util.types.isNativeError(value)
     );
   } catch (err: any) {
     throw new MongoshInternalError(err?.message || String(err));

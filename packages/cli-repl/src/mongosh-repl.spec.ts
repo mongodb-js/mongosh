@@ -25,10 +25,12 @@ import {
 import type { MongoshIOProvider, MongoshNodeReplOptions } from './mongosh-repl';
 import MongoshNodeRepl, {
   FORCE_EXIT_AFTER_SIGINT_TIMEOUT_MS,
+  isErrorLike,
 } from './mongosh-repl';
 import { parseAnyLogEntry } from '../../shell-api/src/log-entry';
 import stripAnsi from 'strip-ansi';
 import { setTimeout as delay } from 'timers/promises';
+import { runInNewContext } from 'vm';
 
 function nonnull<T>(value: T | null | undefined): NonNullable<T> {
   if (!value) throw new Error();
@@ -251,19 +253,22 @@ describe('MongoshNodeRepl', function () {
       expect(error.message).to.equal('meow');
     });
 
-    it('defaults to MongoshInternalError for exceptions', async function () {
+    it('wraps thrown non-error values in an Error', async function () {
       input.write('throw { code: "ABC", errmsg: "DEF" }\n');
       const [error] = await once(bus, 'mongosh:error');
-      expect(error.name).to.equal('MongoshInternalError');
+      expect(error.name).to.equal('Error');
+      expect(stripAnsi(error.message)).to.include("code: 'ABC'");
+      expect(stripAnsi(error.message)).to.include("errmsg: 'DEF'");
     });
 
-    it('handles writer errors by wrapping them in MongoshInternalError', async function () {
+    it('does not evaluate getters on non-error values', async function () {
       input.write(
         'throw { get message() { throw new Error("surprise!!!"); } }\n'
       );
       const [error] = await once(bus, 'mongosh:error');
-      expect(error.name).to.equal('MongoshInternalError');
-      expect(error.message).to.include('surprise!!!');
+      expect(error.name).to.equal('Error');
+      expect(stripAnsi(error.message)).to.include('[Getter]');
+      expect(stripAnsi(error.message)).to.not.include('surprise!!!');
     });
 
     context('print / printjson', function () {
@@ -1865,6 +1870,115 @@ describe('MongoshNodeRepl', function () {
       );
       await mongoshRepl.initialize(serviceProvider);
       expect(serviceProvider.getConnectionInfo).to.have.been.calledOnce;
+    });
+  });
+});
+
+describe('isErrorLike', function () {
+  const shellApiType = Symbol.for('@@mongosh.shellApiType');
+
+  // Error-shaped fields that can be stored in documents.
+  const errorShapedFields = {
+    name: 'Evil',
+    message: 'hello\u0007world\u0001',
+    stack: 'Evil: x\n    at evil (evil.js:1:1)',
+  };
+
+  // Documents reach the shell as plain objects after BSON deserialization.
+  const asStoredDocument = (fields: Record<string, unknown>) =>
+    bson.deserialize(bson.serialize({ _id: 1, ...fields }));
+
+  context('stored documents', function () {
+    it('does not classify a stored message/stack document as an error', function () {
+      expect(isErrorLike(asStoredDocument(errorShapedFields))).to.equal(false);
+    });
+
+    it('does not classify a stored code/errmsg document as an error', function () {
+      expect(
+        isErrorLike(
+          asStoredDocument({
+            name: 'Evil',
+            code: 'ABC',
+            errmsg: errorShapedFields.message,
+          })
+        )
+      ).to.equal(false);
+    });
+
+    it('does not classify a cross-realm document as an error', function () {
+      expect(
+        isErrorLike(
+          runInNewContext(
+            `({ name: 'Evil', message: '${errorShapedFields.message}', stack: 'Evil: x' })`
+          )
+        )
+      ).to.equal(false);
+    });
+  });
+
+  context('user-created plain objects', function () {
+    it('does not classify a thrown message/stack object as an error', function () {
+      expect(isErrorLike({ ...errorShapedFields })).to.equal(false);
+    });
+
+    it('does not classify a thrown code/errmsg object as an error', function () {
+      expect(isErrorLike({ code: 'ABC', errmsg: 'DEF' })).to.equal(false);
+    });
+  });
+
+  context('actual errors', function () {
+    it('classifies Error instances as errors', function () {
+      expect(isErrorLike(new Error('boom'))).to.equal(true);
+    });
+
+    it('classifies Error subclasses as errors', function () {
+      expect(isErrorLike(new TypeError('boom'))).to.equal(true);
+    });
+
+    it('classifies cross-realm Error instances as errors', function () {
+      expect(isErrorLike(runInNewContext('new Error("cross-realm")'))).to.equal(
+        true
+      );
+    });
+
+    it('classifies driver-style errors as errors', function () {
+      expect(
+        isErrorLike(
+          Object.assign(new Error('E11000 duplicate key error'), {
+            code: 11000,
+            errmsg: 'E11000 duplicate key error',
+          })
+        )
+      ).to.equal(true);
+    });
+  });
+
+  context('everything else', function () {
+    for (const value of [
+      null,
+      undefined,
+      0,
+      42,
+      'message',
+      true,
+      [],
+      {},
+      { message: 'x' },
+      { stack: 'x' },
+    ]) {
+      it(`classifies ${inspect(value)} as not an error`, function () {
+        expect(!!isErrorLike(value)).to.equal(false);
+      });
+    }
+
+    it('classifies a shell-API-tagged value as not an error', function () {
+      expect(
+        isErrorLike({
+          message: 'x',
+          stack: 'y',
+          [shellApiType]: 'Document',
+        })
+      ).to.equal(false);
     });
   });
 });
