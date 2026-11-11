@@ -2380,6 +2380,48 @@ describe('CliRepl', function () {
       );
     });
 
+    for (const { release, deprecated } of [
+      // Windows 11 23H2 and Windows Server 2022
+      { release: '10.0.22631', deprecated: false },
+      { release: '10.0.20348', deprecated: false },
+      // Windows 10 22H2, Windows Server 2019 and Windows Server 2016
+      { release: '10.0.19045', deprecated: true },
+      { release: '10.0.17763', deprecated: true },
+      { release: '10.0.14393', deprecated: true },
+      // Windows Server 2012 R2
+      { release: '6.3.9600', deprecated: true },
+    ]) {
+      it(`prints a deprecation warning when running on Windows < 10.0.20348, otherwise not (release=${release})`, async function () {
+        cliRepl = new CliRepl(cliReplOptions);
+        cliRepl.getWindowsRelease = () => release;
+        await cliRepl.start('', {});
+
+        if (deprecated) {
+          expect(output).to.include('Deprecation warnings:');
+          expect(output).to.include(
+            'Using mongosh on Windows versions older than Windows 11 / Windows Server 2022 is deprecated, and support may be removed in a future release.'
+          );
+          expect(output).to.include(
+            'See https://www.mongodb.com/docs/mongodb-shell/install/#supported-operating-systems for documentation on supported platforms.'
+          );
+        } else {
+          expect(output).to.not.include(
+            'Using mongosh on Windows versions older than Windows 11 / Windows Server 2022 is deprecated, and support may be removed in a future release.'
+          );
+        }
+      });
+    }
+
+    it('does not print a Windows deprecation warning when the Windows release is not present (non-Windows systems)', async function () {
+      cliRepl = new CliRepl(cliReplOptions);
+      cliRepl.getWindowsRelease = () => undefined;
+      await cliRepl.start('', {});
+
+      expect(output).to.not.include(
+        'Using mongosh on Windows versions older than Windows 11 / Windows Server 2022 is deprecated, and support may be removed in a future release.'
+      );
+    });
+
     for (const { version, deprecated } of [
       { version: '4.0.1+uniqssl', deprecated: false },
       { version: '4.0', deprecated: false },
@@ -2454,10 +2496,14 @@ describe('CliRepl', function () {
       // we override the real method on the object start() will actually use)
       // to force the glibc-based OS deprecation check.
       cliRepl.getGlibcVersion = () => '1.27';
+      cliRepl.getWindowsRelease = () => '10.0.17763';
       await cliRepl.start('', {});
       expect(output).not.to.include('Deprecation warnings:');
       expect(output).not.to.include(
         'Using mongosh on the current operating system is deprecated, and support may be removed in a future release.'
+      );
+      expect(output).not.to.include(
+        'Using mongosh on Windows versions older than Windows 11 / Windows Server 2022 is deprecated, and support may be removed in a future release.'
       );
       expect(output).not.to.include(
         'Using mongosh with Node.js versions lower than 24.0.0 is deprecated, and support may be removed in a future release.'

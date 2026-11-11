@@ -11442,7 +11442,7 @@ tasks:
       - func: write_preload_script
       - func: spawn_host
         vars:
-          distro: windows-vsCurrent-small
+          distro: windows-2022-latest-small
       - func: run_pkg_tests_through_ssh
         vars:
           admin_user_name: Administrator
@@ -11462,7 +11462,7 @@ tasks:
       - func: write_preload_script
       - func: spawn_host
         vars:
-          distro: windows-vsCurrent-small
+          distro: windows-2022-latest-small
       - func: run_pkg_tests_through_ssh
         vars:
           admin_user_name: Administrator
@@ -13153,9 +13153,9 @@ buildvariants:
       - name: sign_artifact_darwin_x64
       - name: package_artifact_darwin_arm64
       - name: sign_artifact_darwin_arm64
-  - name: e2e_tests_windows_vsCurrent_small_m80x
-    display_name: "Windows VS pre-2022 80x (E2E tests)"
-    run_on: windows-vsCurrent-small
+  - name: e2e_tests_windows_2022_latest_small_m80x
+    display_name: "Windows VS 2022 80x (E2E tests)"
+    run_on: windows-2022-latest-small
     tags: []
     expansions:
       executable_os_id: "win32"
@@ -13164,9 +13164,9 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_win32
-  - name: e2e_tests_windows_vsCurrent_small_m82x
-    display_name: "Windows VS pre-2022 82x (E2E tests)"
-    run_on: windows-vsCurrent-small
+  - name: e2e_tests_windows_2022_latest_small_m82x
+    display_name: "Windows VS 2022 82x (E2E tests)"
+    run_on: windows-2022-latest-small
     tags: []
     expansions:
       executable_os_id: "win32"

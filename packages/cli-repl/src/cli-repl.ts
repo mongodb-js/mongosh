@@ -17,7 +17,7 @@ import * as yaml from 'js-yaml';
 import ConnectionString from 'mongodb-connection-string-url';
 import semver from 'semver';
 import type { Readable, Writable } from 'stream';
-import { buildInfo, getGlibcVersion } from './build-info';
+import { buildInfo, getGlibcVersion, getWindowsRelease } from './build-info';
 import type { StyleDefinition } from './clr';
 import type { ShellHomePaths } from './config-directory';
 import { ConfigManager, ShellHomeDirectory } from './config-directory';
@@ -1100,6 +1100,7 @@ export class CliRepl implements MongoshIOProvider {
 
   // Factored out for testing
   getGlibcVersion = getGlibcVersion;
+  getWindowsRelease = getWindowsRelease;
 
   verifyPlatformSupport(): void {
     const { quiet } = CliRepl.getFileAndEvalInfo(this.cliOptions);
@@ -1108,11 +1109,16 @@ export class CliRepl implements MongoshIOProvider {
     }
 
     const glibcVersion = this.getGlibcVersion();
+    const windowsRelease = this.getWindowsRelease();
 
     const warnings: string[] = [];
     const RECOMMENDED_GLIBC = '>=2.28.0';
     const RECOMMENDED_OPENSSL = '>=3.0.0';
     const RECOMMENDED_NODEJS = '>=24.0.0';
+    // Windows 11 and Windows Server 2022 are both NT 10.0 build 20348 or
+    // higher; Windows 10 (<= 19045), Server 2016 (14393) and Server 2019
+    // (17763) are all below that.
+    const RECOMMENDED_WINDOWS = '>=10.0.20348';
     const semverRangeCheck = (
       semverLikeVersion: string,
       range: string
@@ -1134,6 +1140,17 @@ export class CliRepl implements MongoshIOProvider {
     ) {
       warnings.push(
         '  - Using mongosh on the current operating system is deprecated, and support may be removed in a future release.'
+      );
+    }
+
+    const satisfiesWindowsRequirement = (windowsRelease: string) =>
+      semverRangeCheck(windowsRelease, RECOMMENDED_WINDOWS);
+    if (
+      windowsRelease !== undefined &&
+      !satisfiesWindowsRequirement(windowsRelease)
+    ) {
+      warnings.push(
+        '  - Using mongosh on Windows versions older than Windows 11 / Windows Server 2022 is deprecated, and support may be removed in a future release.'
       );
     }
 
