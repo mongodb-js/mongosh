@@ -11442,7 +11442,10 @@ tasks:
       - func: write_preload_script
       - func: spawn_host
         vars:
-          distro: windows-2022-latest-small
+          # Spawned Windows Server 2022 hosts never boot (no SSH, no agent
+          # check-in), so keep the package smoke test on the previous image
+          # until spawning windows-2022 distros works (see MONGOSH-3826).
+          distro: windows-vsCurrent-small
       - func: run_pkg_tests_through_ssh
         vars:
           admin_user_name: Administrator
@@ -11462,7 +11465,10 @@ tasks:
       - func: write_preload_script
       - func: spawn_host
         vars:
-          distro: windows-2022-latest-small
+          # Spawned Windows Server 2022 hosts never boot (no SSH, no agent
+          # check-in), so keep the package smoke test on the previous image
+          # until spawning windows-2022 distros works (see MONGOSH-3826).
+          distro: windows-vsCurrent-small
       - func: run_pkg_tests_through_ssh
         vars:
           admin_user_name: Administrator
