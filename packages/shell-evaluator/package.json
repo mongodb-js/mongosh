@@ -1,6 +1,6 @@
 {
   "name": "@mongosh/shell-evaluator",
-  "version": "5.9.7",
+  "version": "5.9.9",
   "description": "MongoDB Top Level API Package",
   "main": "./lib/index.js",
   "scripts": {
@@ -37,7 +37,7 @@
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
-    "@mongosh/types": "^5.4.0",
+    "@mongosh/types": "^5.4.2",
     "@types/sinon-chai": "^4.0.0",
     "eslint": "^7.25.0",
     "prettier": "^2.8.8"
@@ -45,6 +45,6 @@
   "dependencies": {
     "@mongodb-js/mongodb-redact": "^1.4.19",
     "@mongosh/async-rewriter2": "2.6.0",
-    "@mongosh/shell-api": "^5.9.7"
+    "@mongosh/shell-api": "^5.9.9"
   }
 }
