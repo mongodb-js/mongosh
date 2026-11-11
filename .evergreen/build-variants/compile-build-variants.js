@@ -104,7 +104,7 @@ exports.COMPILE_BUILD_VARIANTS = [
   {
     id: 'win32',
     displayName: 'Windows VS 2022',
-    runOn: 'windows-2022-latest-small',
+    runOn: 'windows-2022-latest-large',
     executableOsId: 'win32',
   },
 ].map((buildVariant) => {

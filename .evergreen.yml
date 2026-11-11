@@ -12483,7 +12483,7 @@ buildvariants:
       - name: compile_artifact
   - name: build_win32
     display_name: "Windows VS 2022 (Build)"
-    run_on: windows-2022-latest-small
+    run_on: windows-2022-latest-large
     expansions:
       executable_os_id: "win32"
       node_js_version: "24.22.2"
