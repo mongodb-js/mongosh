@@ -1,6 +1,11 @@
 /* eslint no-control-regex: 0 */
 import type { FormatOptions } from './format-output';
-import { formatOutput } from './format-output';
+import {
+  escapeMultilineText,
+  escapeSingleLineText,
+  formatError,
+  formatOutput,
+} from './format-output';
 import { expect } from 'chai';
 
 for (const colors of [false, true]) {
@@ -312,7 +317,7 @@ for (const colors of [false, true]) {
         );
       });
 
-      it('escapes the message name if the error can be server-generated', function () {
+      it('escapes the message if the error can be server-generated', function () {
         const output = stripAnsiColors(
           format({
             value: Object.assign(new Error('foo\bbar.'), {
@@ -322,10 +327,10 @@ for (const colors of [false, true]) {
           })
         );
 
-        expect(output).to.equal("\rMongoServerError: 'foo\\bbar.'");
+        expect(output).to.equal('\rMongoServerError: foo\\x08bar.');
       });
 
-      it('does not escape the message name if the error is a generic one', function () {
+      it('escapes the message if the error is a generic one', function () {
         const output = stripAnsiColors(
           format({
             value: Object.assign(new Error('foo\bbar.'), { name: 'FooError' }),
@@ -333,7 +338,7 @@ for (const colors of [false, true]) {
           })
         );
 
-        expect(output).to.equal('\rFooError: foo\bbar.');
+        expect(output).to.equal('\rFooError: foo\\x08bar.');
       });
     });
 
@@ -676,3 +681,84 @@ test 558.79 GiB
     });
   });
 }
+
+describe('escape helpers', function () {
+  it('escapes control characters but keeps newlines and tabs in multiline text', function () {
+    expect(escapeMultilineText('a\nb\tc\x01d\x9be\rf')).to.equal(
+      'a\nb\tc\\x01d\\x9Be\\x0Df'
+    );
+  });
+
+  it('escapes newlines and tabs in single-line text', function () {
+    expect(escapeSingleLineText('a\nb\tc')).to.equal('a\\x0Ab\\x09c');
+  });
+});
+
+describe('formatError', function () {
+  const format = (error: Error, opts: Partial<FormatOptions> = {}): string =>
+    formatError(error, { colors: false, ...opts });
+
+  it('escapes control characters in the error name', function () {
+    const error = Object.assign(new Error('meow'), {
+      name: 'Evil\u0001name\u0007',
+    });
+
+    const output = format(error);
+    expect(output).to.include('Evil\\x01name\\x07');
+    expect(output).to.not.include('\u0001');
+  });
+
+  it('escapes newlines in the error name', function () {
+    const error = Object.assign(new Error('meow'), {
+      name: 'Evil\nMongoshInternalError',
+    });
+
+    expect(format(error)).to.include('Evil\\x0AMongoshInternalError');
+  });
+
+  it('escapes control characters in the error message', function () {
+    const error = new Error('a\u0001b\u0007c\u009bd\re');
+
+    const output = format(error);
+    expect(output).to.include('a\\x01b');
+    expect(output).to.include('\\x07c');
+    expect(output).to.include('\\x9B');
+    expect(output).to.include('\\x0D');
+    // the leading \r is added by mongosh itself to clear the current line
+    expect(output.slice(1)).to.not.match(/[\u0000-\u001f\u007f-\u009f]/);
+  });
+
+  it('keeps newlines and tabs in the error message', function () {
+    expect(format(new Error('line1\nline2\tend'))).to.equal(
+      '\rError: line1\nline2\tend'
+    );
+  });
+
+  it('escapes control characters in the stack trace', function () {
+    const error = new Error('meow');
+    error.stack = 'Error: meow\n    at one\n    at \u0001two';
+
+    const output = format(error, { showStackTraces: true });
+    expect(output).to.include('\\x01two');
+    expect(output).to.include('\n    at one\n');
+    expect(output).to.not.include('\u0001');
+  });
+
+  it('escapes the codeName', function () {
+    const error = Object.assign(new Error('meow'), {
+      name: 'MongoServerError',
+      codeName: 'Bad\u0001\u0007',
+    });
+
+    expect(format(error)).to.include('[Bad\\x01\\x07]');
+  });
+
+  it('strips the ANSI highlighting from SyntaxError messages', function () {
+    const error = new SyntaxError('\u001b[31mUnexpected token\u001b[0m');
+
+    const output = format(error);
+    expect(output).to.include('Unexpected token');
+    expect(output).to.not.include('\u001b');
+    expect(output.endsWith('\n\n')).to.equal(true);
+  });
+});

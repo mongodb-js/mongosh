@@ -1293,20 +1293,16 @@ describe('MongoshNodeRepl', function () {
         output = '';
         input.write('throw null;\n');
         await waitEval(bus);
-        // We do verify that both `Error` and `null` are syntax-highlighted here.
-        expect(output).to.match(
-          /\x1b\[\d+mError\x1b\[\d+m: \x1b\[\d+mnull\x1b\[\d+m/
-        );
+        // The error name is highlighted; the formatted message is stripped of
+        // ANSI before being escaped by formatError().
+        expect(output).to.match(/\x1b\[\d+mError\x1b\[\d+m: null/);
       });
 
       it('allows `throw number`', async function () {
         output = '';
         input.write('throw 123;\n');
         await waitEval(bus);
-        // We do verify that both `Error` and `123` are syntax-highlighted here.
-        expect(output).to.match(
-          /\x1b\[\d+mError\x1b\[\d+m: \x1b\[\d+m123\x1b\[\d+m/
-        );
+        expect(output).to.match(/\x1b\[\d+mError\x1b\[\d+m: 123/);
       });
     });
 

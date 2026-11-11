@@ -32,6 +32,7 @@ import type { ReplOptions, REPLServer } from 'repl';
 import type { Readable, Writable } from 'stream';
 import type { ReadStream, WriteStream } from 'tty';
 import { callbackify, promisify } from 'util';
+import stripAnsi from 'strip-ansi';
 import * as asyncRepl from './async-repl';
 import type { StyleDefinition } from './clr';
 import clr from './clr';
@@ -830,9 +831,11 @@ class MongoshNodeRepl implements EvaluationListener {
 
       if (!isErrorLike(err)) {
         throw new Error(
-          this.formatOutput({
-            value: err,
-          })
+          stripAnsi(
+            this.formatOutput({
+              value: err,
+            })
+          )
         );
       }
       throw err;
