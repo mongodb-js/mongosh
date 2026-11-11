@@ -1395,7 +1395,7 @@ class MongoshNodeRepl implements EvaluationListener {
  */
 export function isErrorLike(value: any): boolean {
   try {
-    return (
+    return !!(
       value &&
       getShellApiType(value) === null &&
       util.types.isNativeError(value)

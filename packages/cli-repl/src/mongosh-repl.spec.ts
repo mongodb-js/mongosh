@@ -1963,7 +1963,7 @@ describe('isErrorLike', function () {
       { stack: 'x' },
     ]) {
       it(`classifies ${inspect(value)} as not an error`, function () {
-        expect(!!isErrorLike(value)).to.equal(false);
+        expect(isErrorLike(value)).to.equal(false);
       });
     }
 
