@@ -2,6 +2,7 @@
 import type { FormatOptions } from './format-output';
 import {
   escapeMultilineText,
+  escapeMultilineTextPreservingSgr,
   escapeSingleLineText,
   formatError,
   formatOutput,
@@ -692,6 +693,12 @@ describe('escape helpers', function () {
   it('escapes newlines and tabs in single-line text', function () {
     expect(escapeSingleLineText('a\nb\tc')).to.equal('a\\x0Ab\\x09c');
   });
+
+  it('keeps SGR sequences and escapes other control characters', function () {
+    expect(
+      escapeMultilineTextPreservingSgr('a\u001b[31mb\u001b[0m\u0007c')
+    ).to.equal('a\u001b[31mb\u001b[0m\\x07c');
+  });
 });
 
 describe('formatError', function () {
@@ -760,5 +767,25 @@ describe('formatError', function () {
     expect(output).to.include('Unexpected token');
     expect(output).to.not.include('\u001b');
     expect(output.endsWith('\n\n')).to.equal(true);
+  });
+
+  it('keeps the SGR highlighting in SyntaxError messages when colors are enabled', function () {
+    const error = new SyntaxError('\u001b[31mUnexpected token\u001b[0m');
+
+    expect(format(error, { colors: true })).to.include(
+      '\u001b[31mUnexpected token\u001b[0m'
+    );
+  });
+
+  it('escapes non-SGR control characters in SyntaxError messages', function () {
+    const error = new SyntaxError(
+      '\u001b[31mUnexpected\u001b[0m\u0001\u001b]0;TITLE\u0007'
+    );
+
+    const output = format(error, { colors: true });
+    expect(output).to.include('\u001b[31mUnexpected\u001b[0m');
+    expect(output).to.include('\\x01');
+    expect(output).to.include('\\x1B]0;TITLE\\x07');
+    expect(output).to.not.include('\u0001');
   });
 });

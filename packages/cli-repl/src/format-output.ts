@@ -54,6 +54,18 @@ export const escapeMultilineText = (text: string): string =>
 export const escapeSingleLineText = (text: string): string =>
   text.replace(DISALLOWED_SINGLELINE_CONTROL_CHARS, escapeControlChar);
 
+// Babel's syntax errors contain SGR-highlighted code frames. Keep those color
+// sequences (and only those) so the frame stays readable, and escape every
+// other control character.
+const SGR_SEQUENCE_REGEXP = /^\x1B\[[0-9;]*m$/;
+export const escapeMultilineTextPreservingSgr = (text: string): string =>
+  text
+    .split(/(\x1B\[[0-9;]*m)/)
+    .map((part) =>
+      SGR_SEQUENCE_REGEXP.test(part) ? part : escapeMultilineText(part)
+    )
+    .join('');
+
 export const fullDepthInspectOptions = {
   depth: Infinity,
   maxArrayLength: Infinity,
@@ -346,11 +358,17 @@ export function formatError(error: Error, options: FormatOptions): string {
 
   if (error.message) {
     const message = String(error.message);
-    // Babel embeds ANSI-highlighted code frames in syntax errors.
-    result +=
-      error.name === 'SyntaxError'
-        ? escapeMultilineText(stripAnsi(message))
-        : escapeMultilineText(message);
+    if (error.name === 'SyntaxError') {
+      // Babel embeds SGR-highlighted code frames in syntax errors. Keep the
+      // highlighting when colors are enabled, but strip it otherwise (Babel
+      // does its own color detection and may emit ANSI even when we don't
+      // want colors).
+      result += options.colors
+        ? escapeMultilineTextPreservingSgr(message)
+        : escapeMultilineText(stripAnsi(message));
+    } else {
+      result += escapeMultilineText(message);
+    }
   }
 
   if (isShouldReportAsBugError(error)) {
