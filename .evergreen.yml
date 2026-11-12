@@ -11598,7 +11598,7 @@ buildvariants:
     disable: false
     expansions:
       executable_os_id: darwin-arm64
-      mongosh_server_test_version: "6.0.x"
+      mongosh_server_test_version: "6.0.29"
       node_js_version: "24.22.2"
       mongosh_skip_node_version_check: ""
     tasks:
@@ -11614,7 +11614,7 @@ buildvariants:
     disable: false
     expansions:
       executable_os_id: darwin-arm64
-      mongosh_server_test_version: "6.0.x-enterprise"
+      mongosh_server_test_version: "6.0.29-enterprise"
       node_js_version: "24.22.2"
       mongosh_skip_node_version_check: ""
     tasks:

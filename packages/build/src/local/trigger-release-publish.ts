@@ -47,13 +47,19 @@ export async function triggerReleasePublish(
   await verifyEvergreenStatus(latestDraftTag);
 
   console.info('... tagging commit and pushing ...');
-  spawnSync('git', ['tag', releaseTag, latestDraftTag.commit], {
-    cwd: repositoryRoot,
-    encoding: 'utf-8',
-  });
+  spawnSync(
+    'git',
+    ['tag', '-m', releaseTag, releaseTag, latestDraftTag.commit],
+    {
+      cwd: repositoryRoot,
+      encoding: 'utf-8',
+      stdio: 'inherit',
+    }
+  );
   spawnSync('git', ['push', 'origin', releaseTag], {
     cwd: repositoryRoot,
     encoding: 'utf-8',
+    stdio: 'inherit',
   });
 
   console.info('SUCCESS! Your new release has been tagged and published.');

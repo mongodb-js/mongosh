@@ -22,6 +22,12 @@ cd test-envs
 
 git checkout b01126de0fb76ba41813d8ed9f761e3a02d735a6
 
+# The pinned test environments download the MongoDB apt signing key from
+# pgp.mongodb.com but then re-fetch the same key from keyserver.ubuntu.com.
+# Import the downloaded key instead so the images build when the keyserver is
+# unreachable. Drop this patch once the pinned commit includes the fix.
+git apply "$CONNECTIVITY_TEST_SOURCE_DIR/patches/mongodb-enterprise-key.patch"
+
 "$CONNECTIVITY_TEST_SOURCE_DIR/ldap.sh"
 "$CONNECTIVITY_TEST_SOURCE_DIR/localhost.sh"
 "$CONNECTIVITY_TEST_SOURCE_DIR/atlas.sh"
