@@ -11564,8 +11564,8 @@ tasks:
 # Need to run builds for every possible build variant.
 buildvariants:
   - name: darwin-n24
-    display_name: "MacOS 14 arm64 n24 (Unit tests)"
-    run_on: macos-14-arm64
+    display_name: "MacOS 15 arm64 n24 (Unit tests)"
+    run_on: macos-15-arm64
     tags: []
     disable: false
     expansions:
@@ -11598,8 +11598,8 @@ buildvariants:
       - name: test_snippet_manager
       - name: test_types
   - name: tests_darwin-m60xc_n24
-    display_name: "MacOS 14 arm64 m60xc n24 (Unit tests)"
-    run_on: macos-14-arm64
+    display_name: "MacOS 15 arm64 m60xc n24 (Unit tests)"
+    run_on: macos-15-arm64
     tags: []
     disable: false
     expansions:
@@ -11614,8 +11614,8 @@ buildvariants:
       - name: test_service_provider_node_driver
       - name: test_shell_api
   - name: tests_darwin-m60xe_n24
-    display_name: "MacOS 14 arm64 m60xe n24 (Unit tests)"
-    run_on: macos-14-arm64
+    display_name: "MacOS 15 arm64 m60xe n24 (Unit tests)"
+    run_on: macos-15-arm64
     tags: []
     disable: false
     expansions:
@@ -11630,8 +11630,8 @@ buildvariants:
       - name: test_service_provider_node_driver
       - name: test_shell_api
   - name: tests_darwin-m70xc_n24
-    display_name: "MacOS 14 arm64 m70xc n24 (Unit tests)"
-    run_on: macos-14-arm64
+    display_name: "MacOS 15 arm64 m70xc n24 (Unit tests)"
+    run_on: macos-15-arm64
     tags: []
     disable: false
     expansions:
@@ -11646,8 +11646,8 @@ buildvariants:
       - name: test_service_provider_node_driver
       - name: test_shell_api
   - name: tests_darwin-m70xe_n24
-    display_name: "MacOS 14 arm64 m70xe n24 (Unit tests)"
-    run_on: macos-14-arm64
+    display_name: "MacOS 15 arm64 m70xe n24 (Unit tests)"
+    run_on: macos-15-arm64
     tags: []
     disable: false
     expansions:
@@ -11662,8 +11662,8 @@ buildvariants:
       - name: test_service_provider_node_driver
       - name: test_shell_api
   - name: tests_darwin-m80xc_n24
-    display_name: "MacOS 14 arm64 m80xc n24 (Unit tests)"
-    run_on: macos-14-arm64
+    display_name: "MacOS 15 arm64 m80xc n24 (Unit tests)"
+    run_on: macos-15-arm64
     tags: []
     disable: false
     expansions:
@@ -11678,8 +11678,8 @@ buildvariants:
       - name: test_service_provider_node_driver
       - name: test_shell_api
   - name: tests_darwin-m80xe_n24
-    display_name: "MacOS 14 arm64 m80xe n24 (Unit tests)"
-    run_on: macos-14-arm64
+    display_name: "MacOS 15 arm64 m80xe n24 (Unit tests)"
+    run_on: macos-15-arm64
     tags: []
     disable: false
     expansions:
@@ -11694,8 +11694,8 @@ buildvariants:
       - name: test_service_provider_node_driver
       - name: test_shell_api
   - name: tests_darwin-m83xc_n24
-    display_name: "MacOS 14 arm64 m83xc n24 (Unit tests)"
-    run_on: macos-14-arm64
+    display_name: "MacOS 15 arm64 m83xc n24 (Unit tests)"
+    run_on: macos-15-arm64
     tags: []
     disable: false
     expansions:
@@ -11710,8 +11710,8 @@ buildvariants:
       - name: test_service_provider_node_driver
       - name: test_shell_api
   - name: tests_darwin-m83xe_n24
-    display_name: "MacOS 14 arm64 m83xe n24 (Unit tests)"
-    run_on: macos-14-arm64
+    display_name: "MacOS 15 arm64 m83xe n24 (Unit tests)"
+    run_on: macos-15-arm64
     tags: []
     disable: false
     expansions:
@@ -11726,8 +11726,8 @@ buildvariants:
       - name: test_service_provider_node_driver
       - name: test_shell_api
   - name: tests_darwin-m90xc_n24
-    display_name: "MacOS 14 arm64 m90xc n24 (Unit tests)"
-    run_on: macos-14-arm64
+    display_name: "MacOS 15 arm64 m90xc n24 (Unit tests)"
+    run_on: macos-15-arm64
     tags: []
     disable: false
     expansions:
@@ -11743,8 +11743,8 @@ buildvariants:
       - name: test_service_provider_node_driver
       - name: test_shell_api
   - name: tests_darwin-m90xe_n24
-    display_name: "MacOS 14 arm64 m90xe n24 (Unit tests)"
-    run_on: macos-14-arm64
+    display_name: "MacOS 15 arm64 m90xe n24 (Unit tests)"
+    run_on: macos-15-arm64
     tags: []
     disable: false
     expansions:
@@ -11760,8 +11760,8 @@ buildvariants:
       - name: test_service_provider_node_driver
       - name: test_shell_api
   - name: tests_darwin-mlatest_n24
-    display_name: "MacOS 14 arm64 mlatest n24 (Unit tests)"
-    run_on: macos-14-arm64
+    display_name: "MacOS 15 arm64 mlatest n24 (Unit tests)"
+    run_on: macos-15-arm64
     tags: ["mlatest"]
     disable: false
     expansions:
@@ -13100,31 +13100,9 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_darwin_arm64
-  - name: e2e_tests_macos_14
-    display_name: "MacOS 14 x64 (E2E tests)"
-    run_on: macos-14
-    tags: []
-    expansions:
-      executable_os_id: "darwin-x64"
-      node_js_version: "24.22.2"
-      mongosh_server_test_version: "stable-enterprise"
-      mongosh_test_e2e_force_fips: ""
-    tasks:
-      - name: e2e_tests_darwin
-  - name: e2e_tests_macos_14_arm64
-    display_name: "MacOS 14 arm64 (E2E tests)"
-    run_on: macos-14-arm64
-    tags: []
-    expansions:
-      executable_os_id: "darwin-arm64"
-      node_js_version: "24.22.2"
-      mongosh_server_test_version: "stable-enterprise"
-      mongosh_test_e2e_force_fips: ""
-    tasks:
-      - name: e2e_tests_darwin_arm64
-  - name: e2e_tests_macos_14_arm64_m83x
-    display_name: "MacOS 14 arm64 83x (E2E tests)"
-    run_on: macos-14-arm64
+  - name: e2e_tests_macos_15_arm64_gui_m83x
+    display_name: "MacOS 15 Sequoia (arm64) 83x (E2E tests)"
+    run_on: macos-15-arm64-gui
     tags: []
     expansions:
       executable_os_id: "darwin-arm64"
@@ -13133,25 +13111,25 @@ buildvariants:
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_darwin_arm64
-  - name: e2e_tests_darwin_m805
-    display_name: "MacOS 14 805 (E2E tests)"
-    run_on: macos-14
+  - name: e2e_tests_darwin_m80x
+    display_name: "MacOS 15 Sequoia (amd64) 80x (E2E tests)"
+    run_on: macos-15-amd64-gui
     tags: []
     expansions:
       executable_os_id: "darwin-x64"
       node_js_version: "24.22.2"
-      mongosh_server_test_version: "8.0.5-enterprise"
+      mongosh_server_test_version: "8.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_darwin
-  - name: e2e_tests_darwin_arm64_m805
-    display_name: "MacOS 14 arm64 805 (E2E tests)"
-    run_on: macos-14-arm64
+  - name: e2e_tests_darwin_arm64_m80x
+    display_name: "MacOS 15 Sequoia (arm64) 80x (E2E tests)"
+    run_on: macos-15-arm64-gui
     tags: []
     expansions:
       executable_os_id: "darwin-arm64"
       node_js_version: "24.22.2"
-      mongosh_server_test_version: "8.0.5-enterprise"
+      mongosh_server_test_version: "8.0.x-enterprise"
       mongosh_test_e2e_force_fips: ""
     tasks:
       - name: e2e_tests_darwin_arm64
@@ -13370,7 +13348,7 @@ buildvariants:
       - name: verify_artifact_win32msi_x64
   - name: verify_mac_artifact
     display_name: "MacOS (Signature Verification)"
-    run_on: macos-14-arm64
+    run_on: macos-15-arm64
     tasks:
       - name: verify_artifact_darwin_arm64
       - name: verify_artifact_darwin_x64
@@ -13516,14 +13494,14 @@ buildvariants:
     tasks:
       - name: pkg_test_ssh_win32_x64
       - name: pkg_test_ssh_win32msi_x64
-  - name: pkg_smoke_tests_macos_1400_x64
-    display_name: "package smoke tests (macos 14.00 x64)"
-    run_on: macos-14
+  - name: pkg_smoke_tests_macos_1500_x64
+    display_name: "package smoke tests (macos 15.00 x64)"
+    run_on: macos-15-amd64
     tasks:
       - name: pkg_test_macos_darwin_x64
-  - name: pkg_smoke_tests_macos_1400_arm64
-    display_name: "package smoke tests (macos 14.00 arm64)"
-    run_on: macos-14-arm64
+  - name: pkg_smoke_tests_macos_1500_arm64
+    display_name: "package smoke tests (macos 15.00 arm64)"
+    run_on: macos-15-arm64
     tasks:
       - name: pkg_test_macos_darwin_arm64
   - name: pkg_smoke_tests_rhel7_s390x

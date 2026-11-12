@@ -1789,7 +1789,7 @@ buildvariants:
       - name: verify_artifact_win32msi_x64
   - name: verify_mac_artifact
     display_name: "MacOS (Signature Verification)"
-    run_on: macos-14-arm64
+    run_on: macos-15-arm64
     tasks:
       - name: verify_artifact_darwin_arm64
       - name: verify_artifact_darwin_x64
@@ -1852,14 +1852,14 @@ buildvariants:
     tasks:
       - name: pkg_test_ssh_win32_x64
       - name: pkg_test_ssh_win32msi_x64
-  - name: pkg_smoke_tests_macos_1400_x64
-    display_name: "package smoke tests (macos 14.00 x64)"
-    run_on: macos-14
+  - name: pkg_smoke_tests_macos_1500_x64
+    display_name: "package smoke tests (macos 15.00 x64)"
+    run_on: macos-15-amd64
     tasks:
       - name: pkg_test_macos_darwin_x64
-  - name: pkg_smoke_tests_macos_1400_arm64
-    display_name: "package smoke tests (macos 14.00 arm64)"
-    run_on: macos-14-arm64
+  - name: pkg_smoke_tests_macos_1500_arm64
+    display_name: "package smoke tests (macos 15.00 arm64)"
+    run_on: macos-15-arm64
     tasks:
       - name: pkg_test_macos_darwin_arm64
   - name: pkg_smoke_tests_rhel7_s390x
