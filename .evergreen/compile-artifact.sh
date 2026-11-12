@@ -23,10 +23,13 @@ export TMP=/tmp/m
 export TMPDIR=/tmp/m
 
 if [ $(uname) = Darwin ]; then
-  # match what Node.js 24 does on their own builder machines
-  export CFLAGS='-mmacosx-version-min=13.5'
-  export CXXFLAGS='-mmacosx-version-min=13.5'
-  export MACOSX_DEPLOYMENT_TARGET=13.5
+  # mongosh 3.0 supports macOS 15 and newer only, so the compiled binary must
+  # not load on older releases. Node.js itself still builds for 13.5, hence
+  # setting the minimum explicitly (and for the linker via LDFLAGS).
+  export CFLAGS='-mmacosx-version-min=15.0'
+  export CXXFLAGS='-mmacosx-version-min=15.0'
+  export LDFLAGS='-mmacosx-version-min=15.0'
+  export MACOSX_DEPLOYMENT_TARGET=15.0
 fi
 
 # The CI machines we have for Windows and x64 macOS are not
