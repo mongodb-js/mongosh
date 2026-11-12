@@ -415,12 +415,6 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     mVersion: '8.2.x',
   },
   {
-    displayName: 'MacOS 15 Sequoia (arm64)',
-    runOn: 'macos-15-arm64-gui',
-    executableOsId: 'darwin-arm64',
-    mVersion: '8.3.x',
-  },
-  {
     displayName: 'MacOS 15 Sequoia (amd64)',
     id: 'darwin',
     runOn: 'macos-15-amd64-gui',
