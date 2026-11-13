@@ -77,6 +77,47 @@ async function preCompileHook(nodeSourceTree: string) {
       throw new Error(`applying patch failed with code ${code}`);
     }
   }
+
+  await applyNodeVcbuildSpeedups(nodeSourceTree);
+}
+
+/**
+ * boxednode passes `release` to vcbuild.bat, and that path caps MSBuild at two
+ * parallel build nodes (`set "msbcpu=/m:2"`) regardless of how many CPUs the
+ * host has. Building Node.js from source is the single most CPU-bound step of
+ * the release pipeline, so let MSBuild use all available cores.
+ */
+export function patchNodeVcbuildForCi(vcbuild: string): string {
+  return vcbuild.replace(
+    /^(set "msbcpu=)\/m:2"/m,
+    '$1/m:%NUMBER_OF_PROCESSORS%"'
+  );
+}
+
+async function applyNodeVcbuildSpeedups(nodeSourceTree: string): Promise<void> {
+  if (process.platform !== 'win32') return;
+  const vcbuildPath = path.join(nodeSourceTree, 'vcbuild.bat');
+  let vcbuild: string;
+  try {
+    vcbuild = await fs.readFile(vcbuildPath, 'utf8');
+  } catch {
+    console.warn(`Not patching ${vcbuildPath}: file not found.`);
+    return;
+  }
+
+  const patched = patchNodeVcbuildForCi(vcbuild);
+  if (patched === vcbuild) {
+    console.warn(
+      `Not patching ${vcbuildPath}: no known build settings to adjust. ` +
+        'The Node.js build will use its defaults (slower).'
+    );
+    return;
+  }
+
+  console.warn(
+    'Adjusting Node.js build settings in vcbuild.bat for CI (MSBuild parallelism).'
+  );
+  await fs.writeFile(vcbuildPath, patched);
 }
 
 async function findModulePath(lernaPkg: string, mod: string): Promise<string> {

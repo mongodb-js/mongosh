@@ -134,7 +134,7 @@ describe('DownloadCenter config', function () {
     it('has an MSI and ZIP artifacts for windows', function () {
       const version = createVersionConfig(packageInformation('1.2.2'));
       const [platform] = version.platform.filter(
-        (p) => p.os === 'Windows x64 (10+)'
+        (p) => p.os === 'Windows x64 (11) / Server 2022+'
       );
       expect(platform.packages.links[0].download_link).to.contain(
         'win32-x64.zip'
