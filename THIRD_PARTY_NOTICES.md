@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Thu Nov 12 2026.
+This document was automatically generated on Fri Nov 13 2026.
 
 ## List of dependencies
 
@@ -448,7 +448,7 @@ Package|Version|License
 **[strip-ansi](#c04be5885def178aaa83cb8dc066589cf02e899a8a12c6b94d90c69f23516478)**|7.2.0|MIT
 **[strip-json-comments](#30c033ea06e2fc5831069ae3348fedc44cf44d65ec1ca8e7a0afd01789f5bb05)**|2.0.1|MIT
 **[supports-color](#b97a30572cac0a03b8cf442bc01621a041d5714550984f25cb71fac2587edbd6)**|7.2.0|MIT
-**[system-ca](#37546d95936426fb53ac75c628cd4ab062b360fd5e95279a3b8a26f57afd66fe)**|3.0.0|Apache-2.0
+**[system-ca](#71d25a90a0a9952267b388b95c6df79dfc823a9243ebeb2b834720ba0104cc0a)**|3.0.1|Apache-2.0
 **[tar-fs](#907e1fea910142adbe6c4af5f6279670d17eff5a61dd89c7c7487b4a1257f35a)**|2.1.4|MIT
 **[tar-stream](#0dc8f500e45626ff1f83a8b3bb9d4dbae5ce9f2df7fc81b5eca6af1af2e85d27)**|2.2.0|MIT
 **[tar](#60084ba1dfc104fc5913fddf44f263f540deb54f0842678f7aacbb1a87c50fbe)**|7.5.22|BlueOak-1.0.0
@@ -32229,8 +32229,8 @@ License files:
       
 
 
-<a id="37546d95936426fb53ac75c628cd4ab062b360fd5e95279a3b8a26f57afd66fe"></a>
-### [system-ca](https://www.npmjs.com/package/system-ca) (version 3.0.0)
+<a id="71d25a90a0a9952267b388b95c6df79dfc823a9243ebeb2b834720ba0104cc0a"></a>
+### [system-ca](https://www.npmjs.com/package/system-ca) (version 3.0.1)
 License tags: Apache-2.0
 
 License files:

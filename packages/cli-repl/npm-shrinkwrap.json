@@ -53,10 +53,10 @@
         "node": ">=18.19.0"
       },
       "optionalDependencies": {
+        "@mongodb-js/macos-export-certificate-and-key": "^2.0.1",
         "@mongodb-js/native-machine-id": "^0.3.6",
         "get-console-process-list": "^1.0.5",
         "glibc-version": "^1.0.1",
-        "macos-export-certificate-and-key": "^2.0.1",
         "mongodb-crypt-library-version": "^2.0.1",
         "win-export-certificate-and-key": "^3.0.2"
       }
@@ -1357,6 +1357,31 @@
       "resolved": "https://registry.npmjs.org/@mongodb-js/get-os-info/-/get-os-info-0.7.0.tgz",
       "integrity": "sha512-pAaBe0wPL0v9aS62OC52jwD3iEBGTD+i2Rppsr77mf0BCyb/PMJZW06PxviZDkaqDMEfpOXVfYDdwtj3gnzfPQ==",
       "license": "Apache-2.0"
+    },
+    "node_modules/@mongodb-js/macos-export-certificate-and-key": {
+      "version": "2.0.1",
+      "resolved": "https://registry.npmjs.org/@mongodb-js/macos-export-certificate-and-key/-/macos-export-certificate-and-key-2.0.1.tgz",
+      "integrity": "sha512-rbp64+YS9gEGBzGhSnZHnuFXWhNxt4A1M3tgmn39rwPMgLF4ZTSvEBNaKsoP43x828Dl1sbEMl6sDmbcm2TbYg==",
+      "hasInstallScript": true,
+      "license": "Apache-2.0",
+      "optional": true,
+      "os": [
+        "darwin"
+      ],
+      "dependencies": {
+        "bindings": "^1.5.0",
+        "node-addon-api": "^8.5.0"
+      }
+    },
+    "node_modules/@mongodb-js/macos-export-certificate-and-key/node_modules/node-addon-api": {
+      "version": "8.9.2",
+      "resolved": "https://registry.npmjs.org/node-addon-api/-/node-addon-api-8.9.2.tgz",
+      "integrity": "sha512-VijLXbi3UACN69I0JVXJsX4tjACjNoQDgv2gTF6sx2wWEi8tkSg2eX8p5gSIFi8z2+DL3oHmY6OyKce38SDolg==",
+      "license": "MIT",
+      "optional": true,
+      "engines": {
+        "node": "^18 || ^20 || >= 21"
+      }
     },
     "node_modules/@mongodb-js/mongodb-build-info": {
       "version": "1.9.19",
@@ -5813,31 +5838,6 @@
         "node": "20 || >=22"
       }
     },
-    "node_modules/macos-export-certificate-and-key": {
-      "version": "2.0.1",
-      "resolved": "https://registry.npmjs.org/macos-export-certificate-and-key/-/macos-export-certificate-and-key-2.0.1.tgz",
-      "integrity": "sha512-2Y2lbgJ1s4iglK7WCRApKhn+52x5xm6wgT+WCHn3bznLeVUACl14aHG5f3zb1o4tUzdLQ7scad5T6YxpvM92Tw==",
-      "hasInstallScript": true,
-      "license": "Apache-2.0",
-      "optional": true,
-      "os": [
-        "darwin"
-      ],
-      "dependencies": {
-        "bindings": "^1.5.0",
-        "node-addon-api": "^8.5.0"
-      }
-    },
-    "node_modules/macos-export-certificate-and-key/node_modules/node-addon-api": {
-      "version": "8.5.0",
-      "resolved": "https://registry.npmjs.org/node-addon-api/-/node-addon-api-8.5.0.tgz",
-      "integrity": "sha512-/bRZty2mXUIFY/xU5HLvveNHlswNJej+RnxBjOMkidWfwZzgTbPG1E3K5TOxRLOR+5hX7bSofy8yf1hZevMS8A==",
-      "license": "MIT",
-      "optional": true,
-      "engines": {
-        "node": "^18 || ^20 || >= 21"
-      }
-    },
     "node_modules/math-intrinsics": {
       "version": "1.1.0",
       "resolved": "https://registry.npmjs.org/math-intrinsics/-/math-intrinsics-1.1.0.tgz",
@@ -7182,12 +7182,12 @@
       }
     },
     "node_modules/system-ca": {
-      "version": "3.0.0",
-      "resolved": "https://registry.npmjs.org/system-ca/-/system-ca-3.0.0.tgz",
-      "integrity": "sha512-QlQvvCHxjUuhW8mAbOsDh6GTWvdJPFKpu4xTLsAYDDCjwZXCGiOC0zhhzS9QXBJOpO1CcKOU/CuVCDlJA+pIIQ==",
+      "version": "3.0.1",
+      "resolved": "https://registry.npmjs.org/system-ca/-/system-ca-3.0.1.tgz",
+      "integrity": "sha512-lWHGR9JnGqRwdNOsbtZfyIZw8tlZz2RBMwXZIgA4HPWlMMgXsKU+nYGHpsEXRAHQFpT3fwjNdZnq96Rldp5/hw==",
       "license": "Apache-2.0",
       "optionalDependencies": {
-        "macos-export-certificate-and-key": "^2.0.1",
+        "@mongodb-js/macos-export-certificate-and-key": "^2.0.1",
         "win-export-certificate-and-key": "^3.0.2"
       }
     },
