@@ -181,7 +181,7 @@ export class SignableCompiler {
         ? {
             path: await findModulePath(
               'cli-repl',
-              'macos-export-certificate-and-key'
+              '@mongodb-js/macos-export-certificate-and-key'
             ),
             requireRegexp: /\bmacos_export_certificate_and_key\.node$/,
           }
