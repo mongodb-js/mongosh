@@ -9,24 +9,19 @@ source .evergreen/setup-env.sh
 # make sure our .sbom files are freshly created
 rm -vrf .sbom && mkdir -vp .sbom
 
-if uname -a | grep -q 'Linux.*x86_64'; then
-  rm -rf "tmp/.sccache"
-  mkdir -p "tmp/.sccache"
-  curl -L https://github.com/mozilla/sccache/releases/download/0.2.13/sccache-0.2.13-x86_64-unknown-linux-musl.tar.gz | tar -C "tmp/.sccache" -xzvf - --strip=1 sccache-0.2.13-x86_64-unknown-linux-musl/sccache
-  export CC="$PWD/tmp/.sccache/sccache gcc"
-  export CXX="$PWD/tmp/.sccache/sccache g++"
-fi
-
 rm -rf /tmp/m && mkdir -pv /tmp/m # Node.js compilation can fail on long path prefixes
 trap "rm -rf /tmp/m" EXIT
 export TMP=/tmp/m
 export TMPDIR=/tmp/m
 
 if [ $(uname) = Darwin ]; then
-  # match what Node.js 24 does on their own builder machines
-  export CFLAGS='-mmacosx-version-min=13.5'
-  export CXXFLAGS='-mmacosx-version-min=13.5'
-  export MACOSX_DEPLOYMENT_TARGET=13.5
+  # mongosh 3.0 supports macOS 15 and newer only, so the compiled binary must
+  # not load on older releases. Node.js itself still builds for 13.5, hence
+  # setting the minimum explicitly (and for the linker via LDFLAGS).
+  export CFLAGS='-mmacosx-version-min=15.0'
+  export CXXFLAGS='-mmacosx-version-min=15.0'
+  export LDFLAGS='-mmacosx-version-min=15.0'
+  export MACOSX_DEPLOYMENT_TARGET=15.0
 fi
 
 # The CI machines we have for Windows and x64 macOS are not
