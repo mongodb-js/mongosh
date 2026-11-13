@@ -1551,6 +1551,9 @@ tasks:
       case 'ssh': { %>
       - func: spawn_host
         vars:
+          # Spawned Windows Server 2022 hosts never boot (no SSH, no agent
+          # check-in), so keep the package smoke test on the previous image
+          # until spawning windows-2022 distros works (see MONGOSH-3826).
           distro: windows-vsCurrent-small
       - func: run_pkg_tests_through_ssh
         vars:

@@ -124,3 +124,10 @@ export function getGlibcVersion(): string | undefined {
     return (cachedGlibcVersion = undefined);
   }
 }
+
+let cachedWindowsRelease: string | undefined | null = null;
+export function getWindowsRelease(): string | undefined {
+  if (process.platform !== 'win32') return undefined;
+  if (cachedWindowsRelease !== null) return cachedWindowsRelease;
+  return (cachedWindowsRelease = os.release());
+}
