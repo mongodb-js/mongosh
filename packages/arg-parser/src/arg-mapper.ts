@@ -213,6 +213,9 @@ const MAPPINGS: {
       mapGSSAPIHostnameCanonicalization(v)
     ),
   authenticationDatabase: (i, v) => setUrlParam(i, 'authSource', v),
+  // Legacy compatibility. IPv6 is already enabled, so this must not
+  // force family 6. MONGOSH-3797.
+  ipv6: (i) => i,
   authenticationMechanism: (i, v) =>
     setUrlParam(
       i,
