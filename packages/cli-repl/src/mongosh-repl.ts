@@ -1222,6 +1222,9 @@ class MongoshNodeRepl implements EvaluationListener {
    * to be flushed.
    */
   async close(): Promise<void> {
+    // The proxy listens on the original stdin. Detach it before the REPL
+    // goes away so a host whose stdin stays open does not keep queueing.
+    this.lineByLineInput.close();
     const rs = this._runtimeState;
     if (rs) {
       this._runtimeState = null;
