@@ -88,10 +88,12 @@ export async function triggerReleaseDraft(
   spawnSync('git', ['tag', '-m', nextTagName, nextTagName], {
     cwd: repositoryRoot,
     encoding: 'utf-8',
+    stdio: 'inherit',
   });
   spawnSync('git', ['push', 'origin', nextTagName], {
     cwd: repositoryRoot,
     encoding: 'utf-8',
+    stdio: 'inherit',
   });
 
   console.info('SUCCESS! Your new draft has been tagged and pushed.');

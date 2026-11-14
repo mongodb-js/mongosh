@@ -36,6 +36,38 @@ export const CONTROL_CHAR_REGEXP_ALLOW_SIMPLE =
   // eslint-disable-next-line no-control-regex
   /[\x00-\x08\x0B-\x1F\x7F-\x9F]/;
 
+const escapeControlChar = (ch: string): string =>
+  `\\x${ch.charCodeAt(0).toString(16).padStart(2, '0').toUpperCase()}`;
+
+// C0/C1 control characters, keeping \t and \n so that multi-line error
+// messages and stack traces stay readable.
+// eslint-disable-next-line no-control-regex
+const DISALLOWED_MULTILINE_CONTROL_CHARS = /[\x00-\x08\x0B-\x1F\x7F-\x9F]/g;
+// Single-line fields must not contain newlines either, otherwise they can be
+// used to forge additional lines of output.
+// eslint-disable-next-line no-control-regex
+const DISALLOWED_SINGLELINE_CONTROL_CHARS = /[\x00-\x1F\x7F-\x9F]/g;
+
+export const escapeMultilineText = (text: string): string =>
+  text.replace(DISALLOWED_MULTILINE_CONTROL_CHARS, escapeControlChar);
+
+export const escapeSingleLineText = (text: string): string =>
+  text.replace(DISALLOWED_SINGLELINE_CONTROL_CHARS, escapeControlChar);
+
+// Babel's syntax errors contain SGR-highlighted code frames. Keep those color
+// sequences (and only those) so the frame stays readable, and escape every
+// other control character.
+// eslint-disable-next-line no-control-regex
+const SGR_SEQUENCE_REGEXP = /^\x1B\[[0-9;]*m$/;
+export const escapeMultilineTextPreservingSgr = (text: string): string =>
+  text
+    // eslint-disable-next-line no-control-regex
+    .split(/(\x1B\[[0-9;]*m)/)
+    .map((part) =>
+      SGR_SEQUENCE_REGEXP.test(part) ? part : escapeMultilineText(part)
+    )
+    .join('');
+
 export const fullDepthInspectOptions = {
   depth: Infinity,
   maxArrayLength: Infinity,
@@ -311,22 +343,34 @@ function formatListCommands(
 export function formatError(error: Error, options: FormatOptions): string {
   let result = '';
   if (error.name) {
-    result += `\r${clr(error.name, 'mongosh:error', options)}`;
+    result += `\r${clr(
+      escapeSingleLineText(String(error.name)),
+      'mongosh:error',
+      options
+    )}`;
     const codeName = (error as MongoServerError).codeName;
     if (codeName)
       result += `${clr(
-        `[` + formatSimpleType(codeName, options) + `]`,
+        `[` + escapeSingleLineText(String(codeName)) + `]`,
         'mongosh:error',
         options
       )}`;
     result += ': ';
   }
 
-  if (error.message && String(error.name).startsWith('Mongo')) {
-    // potentially contains arbitrary strings from the database
-    result += formatSimpleType(error.message, options);
-  } else if (error.message) {
-    result += error.message;
+  if (error.message) {
+    const message = String(error.message);
+    if (error.name === 'SyntaxError') {
+      // Babel embeds SGR-highlighted code frames in syntax errors. Keep the
+      // highlighting when colors are enabled, but strip it otherwise (Babel
+      // does its own color detection and may emit ANSI even when we don't
+      // want colors).
+      result += options.colors
+        ? escapeMultilineTextPreservingSgr(message)
+        : escapeMultilineText(stripAnsi(message));
+    } else {
+      result += escapeMultilineText(message);
+    }
   }
 
   if (isShouldReportAsBugError(error)) {
@@ -337,18 +381,15 @@ export function formatError(error: Error, options: FormatOptions): string {
     }
   }
   if (error.name === 'SyntaxError') {
-    if (!options.colors) {
-      // Babel applies syntax highlighting to its errors by default.
-      // This is deep inside the dependency chain here, to the degree where
-      // it seems unreasonable to pass coloring options along all the way.
-      // Instead, we just strip the syntax highlighting away if coloring is
-      // disabled (e.g. in script usage).
-      result = stripAnsi(result);
-    }
     // leave a bit of breathing room after the syntax error message output
     result += '\n\n';
   } else if (options.showStackTraces && error.stack) {
-    result += error.stack.slice(error.stack.indexOf('\n'));
+    // skip the first line, which repeats the error name and message
+    const stack = String(error.stack);
+    const firstNewline = stack.indexOf('\n');
+    result += escapeMultilineText(
+      firstNewline === -1 ? stack : stack.slice(firstNewline)
+    );
   }
   if ((error as any).errInfo) {
     result += `\n${clr(

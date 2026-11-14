@@ -6,6 +6,16 @@ const {
   platformToDetails,
 } = require('../constants');
 
+// MongoDB 6.0.30 has no macOS artifacts in the public download feed yet, so
+// the macOS 6.0.x unit test variants cannot set up a server. Pin them to the
+// last published macOS version until the artifacts are available.
+const MONGODB_VERSION_OVERRIDES = {
+  darwin: {
+    '60xc': '6.0.29',
+    '60xe': '6.0.29-enterprise',
+  },
+};
+
 /** @type {import("./unit-tests-build-variants.js").UnitTestsBuildVariant[]} */
 const UNIT_TESTS_BUILD_VARIANTS = [];
 
@@ -50,8 +60,7 @@ for (const {
         continue;
       }
       const details =
-        platform === 'linux' &&
-        ['latest', '90xc', '90xe'].includes(mShort)
+        platform === 'linux' && ['latest', '90xc', '90xe'].includes(mShort)
           ? ubuntu2204Details
           : platformDetails;
       UNIT_TESTS_BUILD_VARIANTS.push({
@@ -70,7 +79,7 @@ for (const {
         nShort,
         nVersion,
         mShort,
-        mVersion,
+        mVersion: MONGODB_VERSION_OVERRIDES[platform]?.[mShort] ?? mVersion,
         mVersionListUrl,
         skipNodeVersionCheck,
         disable: optional === true,

@@ -96,6 +96,10 @@ const config = {
       'commonjs2 ../build/Release/native_machine_id.node',
     '../build/Debug/native_machine_id.node':
       'commonjs2 ../build/Debug/native_machine_id.node',
+    './build/Release/os_dns_native.node':
+      'commonjs2 ./build/Release/os_dns_native.node',
+    './build/Debug/os_dns_native.node':
+      'commonjs2 ./build/Debug/os_dns_native.node',
   },
 
   externalsPresets: {

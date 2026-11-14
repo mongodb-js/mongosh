@@ -405,8 +405,11 @@ export class CliRepl implements MongoshIOProvider {
       }
 
       if (await this.isTlsKeyFilePasswordMissingURI(searchParams)) {
-        const keyFilePassword = encodeURIComponent(
-          await this.requirePassword('Enter TLS key file password')
+        // URLSearchParams.set percent-encodes the value. Encoding first
+        // stores the password twice-encoded, so the driver decrypts the
+        // PEM with the still-encoded passphrase.
+        const keyFilePassword = await this.requirePassword(
+          'Enter TLS key file password'
         );
         searchParams.set('tlsCertificateKeyFilePassword', keyFilePassword);
       }
@@ -1328,6 +1331,17 @@ export class CliRepl implements MongoshIOProvider {
     this.bus.emit('mongosh:error', error, 'fatal');
 
     throw error;
+  }
+
+  /**
+   * Exit immediately without running {@link CliRepl.close}. Only used as a
+   * kill switch when a graceful {@link CliRepl.exit} has stalled, e.g. after
+   * repeated Ctrl+C while an interrupted operation is still reconnecting.
+   *
+   * @param code The exit code, if any.
+   */
+  async forceExit(code?: number): Promise<never> {
+    return await this.onExit(code);
   }
 
   /** Read a file from disk. */

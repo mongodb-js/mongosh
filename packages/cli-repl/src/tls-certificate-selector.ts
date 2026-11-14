@@ -63,7 +63,7 @@ function getCertificateExporter(): TlsCertificateExporter | undefined {
           .exportCertificateAndPrivateKeyAsync;
       case 'darwin':
         // eslint-disable-next-line @typescript-eslint/no-var-requires
-        return require('macos-export-certificate-and-key')
+        return require('@mongodb-js/macos-export-certificate-and-key')
           .exportCertificateAndPrivateKeyAsync;
       default:
         return undefined;

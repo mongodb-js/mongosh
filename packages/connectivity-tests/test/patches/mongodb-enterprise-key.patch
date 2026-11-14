@@ -1,0 +1,60 @@
+diff --git a/docker/enterprise/4.2/Dockerfile b/docker/enterprise/4.2/Dockerfile
+index 7d135c4..f8cad1c 100644
+--- a/docker/enterprise/4.2/Dockerfile
++++ b/docker/enterprise/4.2/Dockerfile
+@@ -75,12 +75,10 @@ RUN set -ex; \
+ 	apt-get install -y --no-install-recommends wget; \
+  	# pull from pgp.mongodb.com rather than a keyserver which is not supported.
+ 	# (although apt-key is deprecated on newer ubuntu/debian.)
+-	wget -qO - https://pgp.mongodb.com/server-4.2.asc | apt-key add -; \
++	wget -qO /tmp/mongodb.asc https://pgp.mongodb.com/server-4.2.asc; \
++	apt-key add /tmp/mongodb.asc; \
+ 	export GNUPGHOME="$(mktemp -d)"; \
+-	echo "disable-ipv6" >> "${GNUPGHOME}/dirmngr.conf"; \
+-	for key in $GPG_KEYS; do \
+-		gpg --batch --keyserver keyserver.ubuntu.com --recv-keys "$key"; \
+-	done; \
++	gpg --batch --import /tmp/mongodb.asc; \
+ 	gpg --batch --export $GPG_KEYS > /etc/apt/trusted.gpg.d/mongodb.gpg; \
+ 	command -v gpgconf && gpgconf --kill all || :; \
+ 	rm -r "$GNUPGHOME"; \
+diff --git a/docker/enterprise/4.4/Dockerfile b/docker/enterprise/4.4/Dockerfile
+index 04f34ba..c26de33 100644
+--- a/docker/enterprise/4.4/Dockerfile
++++ b/docker/enterprise/4.4/Dockerfile
+@@ -75,12 +75,10 @@ RUN set -ex; \
+ 	apt-get install -y --no-install-recommends wget; \
+  	# pull from pgp.mongodb.com rather than a keyserver which is not supported.
+ 	# (although apt-key is deprecated on newer ubuntu/debian.)
+-	wget -qO - https://pgp.mongodb.com/server-4.4.asc | apt-key add -; \
++	wget -qO /tmp/mongodb.asc https://pgp.mongodb.com/server-4.4.asc; \
++	apt-key add /tmp/mongodb.asc; \
+ 	export GNUPGHOME="$(mktemp -d)"; \
+-	echo "disable-ipv6" >> "${GNUPGHOME}/dirmngr.conf"; \
+-	for key in $GPG_KEYS; do \
+-		gpg --batch --keyserver keyserver.ubuntu.com --recv-keys "$key"; \
+-	done; \
++	gpg --batch --import /tmp/mongodb.asc; \
+ 	gpg --batch --export $GPG_KEYS > /etc/apt/trusted.gpg.d/mongodb.gpg; \
+ 	command -v gpgconf && gpgconf --kill all || :; \
+ 	rm -r "$GNUPGHOME"; \
+diff --git a/docker/enterprise/5.0/Dockerfile b/docker/enterprise/5.0/Dockerfile
+index 00960a2..d59e1c8 100644
+--- a/docker/enterprise/5.0/Dockerfile
++++ b/docker/enterprise/5.0/Dockerfile
+@@ -78,12 +78,11 @@ RUN set -ex; \
+ 	apt-get install -y --no-install-recommends wget; \
+   # pull from pgp.mongodb.com rather than a keyserver which is not supported.
+ 	# (although apt-key is deprecated on newer ubuntu/debian.)
+-	wget -qO - https://pgp.mongodb.com/server-5.0.asc | apt-key add -; \
++	wget -qO /tmp/mongodb.asc https://pgp.mongodb.com/server-5.0.asc; \
++	apt-key add /tmp/mongodb.asc; \
+ 	export GNUPGHOME="$(mktemp -d)"; \
++	gpg --batch --import /tmp/mongodb.asc; \
+ 	set -- 'F5679A222C647C87527C2F8CB00A0BD1E2C63C11'; \
+-	for key; do \
+-		gpg --batch --keyserver keyserver.ubuntu.com --recv-keys "$key"; \
+-	done; \
+ 	gpg --batch --export "$@" > /etc/apt/trusted.gpg.d/mongodb.gpg; \
+ 	command -v gpgconf && gpgconf --kill all || :; \
+ 	rm -r "$GNUPGHOME"; \

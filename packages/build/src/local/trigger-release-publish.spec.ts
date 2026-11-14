@@ -50,7 +50,7 @@ describe('local trigger-release-publish', function () {
       expect(spawnSync).to.have.been.calledTwice;
       expect(spawnSync.getCall(0)).calledWith(
         'git',
-        ['tag', 'v0.8.0', 'hash'],
+        ['tag', '-m', 'v0.8.0', 'v0.8.0', 'hash'],
         sinon.match.any
       );
       expect(spawnSync.getCall(1)).calledWith(

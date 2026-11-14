@@ -32,6 +32,7 @@ import type { ReplOptions, REPLServer } from 'repl';
 import type { Readable, Writable } from 'stream';
 import type { ReadStream, WriteStream } from 'tty';
 import { callbackify, promisify } from 'util';
+import stripAnsi from 'strip-ansi';
 import * as asyncRepl from './async-repl';
 import type { StyleDefinition } from './clr';
 import clr from './clr';
@@ -81,6 +82,11 @@ export type MongoshIOProvider = Omit<
 > & {
   getHistoryFilePath(): string;
   exit(code?: number): Promise<never>;
+  /**
+   * Exit immediately, without waiting for any cleanup. Only used as a last
+   * resort when a graceful exit (via `exit()`) has stalled.
+   */
+  forceExit?(code?: number): Promise<never>;
   readFileUTF8(
     filename: string
   ): Promise<{ contents: string; absolutePath: string }>;
@@ -117,6 +123,12 @@ export type MongoshNodeReplOptions = {
 export type InitializationToken = { __initialized: 'yes' };
 
 /**
+ * How long a Ctrl+C received during an in-flight interrupt waits for the
+ * graceful close/exit path to complete before the process is hard-exited.
+ */
+export const FORCE_EXIT_AFTER_SIGINT_TIMEOUT_MS = 3000;
+
+/**
  * Grouped properties of MongoshNodeRepl that are only available
  * after initialization.
  */
@@ -149,6 +161,7 @@ class MongoshNodeRepl implements EvaluationListener {
   private _isInteractive = false;
   closeTrace?: string;
   exitPromise?: Promise<never>;
+  private sigintExitRequested = false;
   input: Readable;
   lineByLineInput: LineByLineInput;
   output: Writable;
@@ -286,6 +299,8 @@ class MongoshNodeRepl implements EvaluationListener {
             stack: err.stack,
           }),
         onAsyncSigint: this.onAsyncSigint.bind(this),
+        onAsyncSigintDuringInterrupt:
+          this.onAsyncSigintDuringInterrupt.bind(this),
         ...this.nodeReplOptions,
       });
       fixNode60446(repl);
@@ -816,9 +831,11 @@ class MongoshNodeRepl implements EvaluationListener {
 
       if (!isErrorLike(err)) {
         throw new Error(
-          this.formatOutput({
-            value: err,
-          })
+          stripAnsi(
+            this.formatOutput({
+              value: err,
+            })
+          )
         );
       }
       throw err;
@@ -913,6 +930,44 @@ class MongoshNodeRepl implements EvaluationListener {
       process.removeListener('SIGINT', asyncSigintHandler);
       this.bus.emit('mongosh:evaluate-finished');
     }
+  }
+
+  /**
+   * Called by the async REPL helpers for every additional SIGINT received while
+   * {@link MongoshNodeRepl.onAsyncSigint} is still running (e.g. while a
+   * reconnect after an interrupt hangs).
+   *
+   * The first such SIGINT starts the regular graceful exit path, so that the
+   * connection is closed and history, logs and telemetry are flushed. If that
+   * has not completed within {@link FORCE_EXIT_AFTER_SIGINT_TIMEOUT_MS}, or if
+   * another SIGINT arrives in the meantime, the process exits immediately.
+   */
+  onAsyncSigintDuringInterrupt(): void {
+    if (this.sigintExitRequested) {
+      this.forceExit();
+      return;
+    }
+    this.sigintExitRequested = true;
+
+    const fallbackTimer = setTimeout(
+      () => this.forceExit(),
+      FORCE_EXIT_AFTER_SIGINT_TIMEOUT_MS
+    );
+    fallbackTimer.unref?.();
+    this.onExit().then(
+      () => clearTimeout(fallbackTimer),
+      () => {
+        clearTimeout(fallbackTimer);
+        this.forceExit();
+      }
+    );
+  }
+
+  private forceExit(): void {
+    // 128 + SIGINT (2), the conventional exit code for termination by SIGINT.
+    Promise.resolve(this.ioProvider.forceExit?.(130)).catch(() => {
+      /* ignore */
+    });
   }
 
   /**
@@ -1338,13 +1393,12 @@ class MongoshNodeRepl implements EvaluationListener {
 /**
  * Determines whether a given object should be interpreted as an Error object.
  */
-function isErrorLike(value: any): boolean {
+export function isErrorLike(value: any): boolean {
   try {
-    return (
+    return !!(
       value &&
       getShellApiType(value) === null &&
-      ((value.message !== undefined && typeof value.stack === 'string') ||
-        (value.code !== undefined && value.errmsg !== undefined))
+      util.types.isNativeError(value)
     );
   } catch (err: any) {
     throw new MongoshInternalError(err?.message || String(err));
