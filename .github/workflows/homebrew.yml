@@ -14,18 +14,17 @@ jobs:
     runs-on: ${{ matrix.runner}}
     strategy:
       matrix:
-        runner: [macos-13, macos-14, macos-15]
+        runner: [macos-15]
       fail-fast: false
     steps:
       - name: Install mongosh
         run: brew install mongosh
 
       - name: Run smoke tests
-        # 8.0.5 due to us having macos-13 in the platform support list, SERVER-101020
         env:
           # MONGOSH-1216, MONGOSH-1120
           MONGOSH_NO_AUTOMATIC_ENCRYPTION_SUPPORT: 1
-        run: npx --yes @mongodb-js/mongodb-runner --version 8.0.5-enterprise -- exec -- sh -c 'env MONGOSH_SMOKE_TEST_SERVER=$MONGODB_URI mongosh --smokeTests'
+        run: npx --yes @mongodb-js/mongodb-runner --version 8.0.x-enterprise -- exec -- sh -c 'env MONGOSH_SMOKE_TEST_SERVER=$MONGODB_URI mongosh --smokeTests'
 
       - name: Report failure
         if: ${{ failure() }}

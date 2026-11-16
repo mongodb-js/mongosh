@@ -107,7 +107,7 @@ describe('DownloadCenter config', function () {
     it('has an artifact for darwin', function () {
       const version = createVersionConfig(packageInformation('1.2.2'));
       const platforms = version.platform.filter(
-        (p) => p.os === 'MacOS x64 (11.0+)'
+        (p) => p.os === 'MacOS x64 (15.0+)'
       );
       expect(platforms).to.have.length(1);
       expect(platforms[0].packages.links[0].name).to.include('zip');
