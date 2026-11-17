@@ -23,8 +23,6 @@ variable. For detailed instructions for each of our supported platforms, please 
 [installation documentation](https://www.mongodb.com/docs/mongodb-shell/install#mdb-shell-install).
 
 Alternatively:
-- Run `npx mongosh` to run mongosh without a full installation. This is
-  easiest if you already have npm installed.
 - Run `download_latest.sh` to download a `mongosh` binary. You can use
   the following script:
 ```sh
