@@ -49,6 +49,10 @@ export async function generateShrinkwrap(
   const packageJsonContent = await fs.readFile(packageJsonPath, 'utf8');
   const packageJson = JSON.parse(packageJsonContent);
 
+  const rootPackageJson = JSON.parse(
+    await fs.readFile(path.join(projectRoot, 'package.json'), 'utf8')
+  );
+
   console.info(
     `mongosh: Generating npm-shrinkwrap.json for ${packageJson.name} from lockfile`
   );
@@ -73,15 +77,23 @@ export async function generateShrinkwrap(
       ...(packageJson.bin && { bin: packageJson.bin }),
       ...(packageJson.engines && { engines: packageJson.engines }),
     };
+    // Carry over the root overrides so that lockfile entries pinned by them
+    // stay valid and npm does not try to re-resolve them from the registry.
+    const tmpPkg = {
+      ...prodPkg,
+      ...(rootPackageJson.overrides && {
+        overrides: rootPackageJson.overrides,
+      }),
+    };
     await fs.writeFile(
       path.join(tmpDir, 'package.json'),
-      JSON.stringify(prodPkg, null, 2)
+      JSON.stringify(tmpPkg, null, 2)
     );
 
     // Copy the lockfile with a modified root entry matching the target package
     lockfile.name = packageJson.name;
     lockfile.version = packageJson.version;
-    lockfile.packages[''] = { ...prodPkg };
+    lockfile.packages[''] = { ...tmpPkg };
 
     // Move the workspace's nested dependencies onto the new root, so their
     // versions resolve from the lockfile rather than from the registry.
@@ -134,8 +146,10 @@ export async function generateShrinkwrap(
 
     // Post-process: remove dev entries, workspace paths, and convert links
     const packages = pruned.packages as Record<string, LockfilePackageEntry>;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { overrides, ...rootEntry } = packages[''];
     const cleanedPackages: Record<string, LockfilePackageEntry> = {
-      '': packages[''],
+      '': rootEntry,
     };
     let depCount = 0;
 

@@ -92,4 +92,31 @@ describe('generate-shrinkwrap', function () {
       expect(entry.version, `"${dep}" should have a version`).to.be.a('string');
     }
   });
+
+  it('honors root overrides without needing the registry', async function () {
+    const emptyCache = await fs.mkdtemp(
+      path.join(os.tmpdir(), 'mongosh-shrinkwrap-cache-')
+    );
+    const originalCache = process.env.npm_config_cache;
+    process.env.npm_config_cache = emptyCache;
+    try {
+      await generateShrinkwrap(tmpPackageDir, PROJECT_ROOT);
+    } finally {
+      if (originalCache === undefined) delete process.env.npm_config_cache;
+      else process.env.npm_config_cache = originalCache;
+      await fs.rm(emptyCache, { recursive: true, force: true });
+    }
+
+    const shrinkwrap = JSON.parse(
+      await fs.readFile(path.join(tmpPackageDir, 'npm-shrinkwrap.json'), 'utf8')
+    );
+    expect(shrinkwrap.packages['']).to.not.have.property('overrides');
+    const rootPkg = JSON.parse(
+      await fs.readFile(path.join(PROJECT_ROOT, 'package.json'), 'utf8')
+    );
+    const overridden = shrinkwrap.packages['node_modules/basic-ftp'];
+    expect(overridden.version).to.satisfy((v: string) =>
+      require('semver').satisfies(v, rootPkg.overrides['basic-ftp'])
+    );
+  });
 });
