@@ -95,8 +95,15 @@ export function getReposAndArch(packageVariant: PackageVariant): {
         getArch(packageVariant) === 'ppc64le' ||
         getArch(packageVariant) === 's390x'
       ) {
+        // RHEL 7 and 8 stay published until MONGOSH-3829 removes support for
+        // them; RHEL 9 and 10 are current enterprise PPA targets.
         return {
-          ppas: getSupportedServersForPPAs(['rhel70', 'rhel80']),
+          ppas: getSupportedServersForPPAs([
+            'rhel70',
+            'rhel80',
+            'rhel90',
+            'rhel10',
+          ]),
           arch: getRPMArchName(getArch(packageVariant)),
         };
       }
