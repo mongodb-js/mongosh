@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Tue Nov 17 2026.
+This document was automatically generated on Wed Nov 18 2026.
 
 ## List of dependencies
 
@@ -158,7 +158,7 @@ Package|Version|License
 **[available-typed-arrays](#b26a9227325a0e2f27e4793244a52200e15f63f970e71f86ead22e0f696c4a41)**|1.0.7|MIT
 **[base64-js](#cf278cb8d073b3bd22b60816c2ba78b69043aec6bcd673437b4c1db3375153d6)**|1.5.1|MIT
 **[baseline-browser-mapping](#a3cb1a1eab5f150876099b3634509044ed6e0ec383240588588abb20874c47d8)**|2.11.16|Apache-2.0
-**[basic-ftp](#b90cf716d4d99eb53bb2c9e2211b9236670a95ccda70b4472afcc7abdb72b369)**|5.3.1|MIT
+**[basic-ftp](#6f2c559d7c4077ad0d78e94a199616e82d13403c1f53172f78b3d3faa97616a0)**|6.2.6|MIT
 **[bcrypt-pbkdf](#b6b5900f1e48a933591abc1c918fbcc9c890b3d071f607c59d704bc1c13b3937)**|1.0.2|BSD-3-Clause
 **[bignumber.js](#72ac920aeb92af6ca1db48e34a5fb141e8e8e98ad9fab1e2223c1ecc8b539f73)**|9.3.1|MIT
 **[bindings](#acdb65ce90d2786593049f690752613250632fd5aeaa2960152abc4f0e8f3a44)**|1.5.0|MIT
@@ -20479,8 +20479,8 @@ License files:
       
 
 
-<a id="b90cf716d4d99eb53bb2c9e2211b9236670a95ccda70b4472afcc7abdb72b369"></a>
-### [basic-ftp](https://www.npmjs.com/package/basic-ftp) (version 5.3.1)
+<a id="6f2c559d7c4077ad0d78e94a199616e82d13403c1f53172f78b3d3faa97616a0"></a>
+### [basic-ftp](https://www.npmjs.com/package/basic-ftp) (version 6.2.6)
 License tags: MIT
 
 License files:
