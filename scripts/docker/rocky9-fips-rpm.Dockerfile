@@ -4,6 +4,7 @@ ARG artifact_url=""
 ADD ${artifact_url} /tmp
 ADD compile-and-install-openssl3.sh /tmp
 ADD node_modules /usr/share/mongodb-crypt-library-version/node_modules
+RUN sed -i /etc/dnf/dnf.conf -e '/tsflags=nodocs/d'
 RUN dnf repolist
 RUN dnf install -y man
 RUN bash /tmp/compile-and-install-openssl3.sh
