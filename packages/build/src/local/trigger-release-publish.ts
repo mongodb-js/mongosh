@@ -2,6 +2,7 @@ import { EvergreenApi } from '../evergreen';
 import type { TaggedCommit } from '../git';
 import {
   getLatestDraftOrReleaseTagFromLog as getLatestDraftOrReleaseTagFromLogFn,
+  getReleaseVersionRestrictionFromBranch,
   verifyGitStatus as verifyGitStatusFn,
 } from '../git';
 import { confirm as confirmFn, spawnSync as spawnSyncFn } from '../helpers';
@@ -16,11 +17,14 @@ export async function triggerReleasePublish(
 ): Promise<void> {
   console.info('Triggering process to publish a new release...');
 
-  verifyGitStatus(repositoryRoot);
+  const repositoryStatus = verifyGitStatus(repositoryRoot);
+  const versionRestriction = getReleaseVersionRestrictionFromBranch(
+    repositoryStatus.branch?.local
+  );
 
   const latestDraftTag = getLatestDraftOrReleaseTagFromLog(
     repositoryRoot,
-    undefined
+    versionRestriction
   );
   if (!latestDraftTag) {
     throw new Error('Failed to find a prior tag to release from.');
@@ -36,6 +40,7 @@ export async function triggerReleasePublish(
   console.info(`      version: v${latestDraftTag.tag.semverName}`);
   console.info(`       commit: ${latestDraftTag.commit}`);
   console.info(`      release: ${releaseTag}`);
+  console.info(`       branch: ${repositoryStatus.branch?.local}`);
   const confirmed = await confirm(
     `!! Is this correct and should we tag ${latestDraftTag.commit} as ${releaseTag}?`
   );
@@ -46,10 +51,18 @@ export async function triggerReleasePublish(
   console.info('... verifying evergreen status ...');
   await verifyEvergreenStatus(latestDraftTag);
 
+  // The branch is recorded on the tag because the publish step is what merges
+  // the version bump back, and it only runs in CI, where the release branch is
+  // no longer known (the tag commit is not on any branch yet).
+  const sourceBranch = repositoryStatus.branch?.local;
+  const tagMessage = sourceBranch
+    ? `${releaseTag} from ${sourceBranch}`
+    : releaseTag;
+
   console.info('... tagging commit and pushing ...');
   spawnSync(
     'git',
-    ['tag', '-m', releaseTag, releaseTag, latestDraftTag.commit],
+    ['tag', '-m', tagMessage, releaseTag, latestDraftTag.commit],
     {
       cwd: repositoryRoot,
       encoding: 'utf-8',

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { EvergreenApi, EvergreenTask } from '../evergreen';
-import type { TaggedCommit } from '../git';
+import type { RepositoryStatus, TaggedCommit } from '../git';
 import {
   triggerReleasePublish,
   verifyEvergreenStatusFn,
@@ -15,8 +15,14 @@ describe('local trigger-release-publish', function () {
     let verifyEvergreenStatus: sinon.SinonStub;
     let spawnSync: sinon.SinonStub;
 
+    const mainRepoStatus: RepositoryStatus = {
+      branch: { local: 'main', tracking: 'origin/main', diverged: false },
+      clean: true,
+      hasUnpushedTags: false,
+    };
+
     beforeEach(function () {
-      verifyGitStatus = sinon.stub();
+      verifyGitStatus = sinon.stub().returns(mainRepoStatus);
       getLatestDraftOrReleaseTagFromLog = sinon.stub();
       confirm = sinon.stub();
       verifyEvergreenStatus = sinon.stub();
@@ -45,17 +51,59 @@ describe('local trigger-release-publish', function () {
       );
 
       expect(verifyGitStatus).to.have.been.called;
+      expect(getLatestDraftOrReleaseTagFromLog).to.have.been.calledWith(
+        'root',
+        undefined
+      );
       expect(confirm).to.have.been.called;
       expect(verifyEvergreenStatus).to.have.been.called;
       expect(spawnSync).to.have.been.calledTwice;
       expect(spawnSync.getCall(0)).calledWith(
         'git',
-        ['tag', '-m', 'v0.8.0', 'v0.8.0', 'hash'],
+        ['tag', '-m', 'v0.8.0 from main', 'v0.8.0', 'hash'],
         sinon.match.any
       );
       expect(spawnSync.getCall(1)).calledWith(
         'git',
         ['push', 'origin', 'v0.8.0'],
+        sinon.match.any
+      );
+    });
+
+    it('only considers tags of the branch version on a version branch', async function () {
+      const versionBranchRepoStatus: RepositoryStatus = {
+        branch: { local: 'v2.x', tracking: 'origin/v2.x', diverged: false },
+        clean: true,
+        hasUnpushedTags: false,
+      };
+      verifyGitStatus.returns(versionBranchRepoStatus);
+      const latestTag: TaggedCommit = {
+        commit: 'hash',
+        tag: {
+          draftVersion: 1,
+          releaseVersion: '2.14.1',
+          semverName: '2.14.1-draft.1',
+        },
+      };
+      getLatestDraftOrReleaseTagFromLog.returns(latestTag);
+      confirm.resolves(true);
+
+      await triggerReleasePublish(
+        'root',
+        verifyGitStatus,
+        getLatestDraftOrReleaseTagFromLog,
+        confirm,
+        verifyEvergreenStatus,
+        spawnSync
+      );
+
+      expect(getLatestDraftOrReleaseTagFromLog).to.have.been.calledWith(
+        'root',
+        { major: 2 }
+      );
+      expect(spawnSync.getCall(0)).calledWith(
+        'git',
+        ['tag', '-m', 'v2.14.1 from v2.x', 'v2.14.1', 'hash'],
         sinon.match.any
       );
     });

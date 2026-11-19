@@ -157,6 +157,44 @@ describe('local trigger-release-draft', function () {
       );
     });
 
+    it('only considers tags of the branch version on a version branch', async function () {
+      const versionBranchRepoStatus: RepositoryStatus = {
+        branch: { local: 'v2.x', tracking: 'origin/v2.x', diverged: false },
+        clean: true,
+        hasUnpushedTags: false,
+      };
+      verifyGitStatus.returns(versionBranchRepoStatus);
+      const latestTag: TaggedCommit = {
+        commit: 'hash',
+        tag: {
+          draftVersion: undefined,
+          releaseVersion: '2.14.1',
+          semverName: '2.14.1',
+        },
+      };
+      getLatestDraftOrReleaseTagFromLog.returns(latestTag);
+      confirm.resolves(true);
+
+      await triggerReleaseDraft(
+        'root',
+        verifyGitStatus,
+        getLatestDraftOrReleaseTagFromLog,
+        choose,
+        confirm,
+        spawnSync
+      );
+
+      expect(getLatestDraftOrReleaseTagFromLog).to.have.been.calledWith(
+        'root',
+        { major: 2 }
+      );
+      expect(spawnSync.getCall(0)).calledWith(
+        'git',
+        ['tag', '-m', 'v2.14.2-draft.0', 'v2.14.2-draft.0'],
+        sinon.match.any
+      );
+    });
+
     it('fails if no previous tag is found', async function () {
       getLatestDraftOrReleaseTagFromLog.returns(undefined);
       try {
