@@ -8,7 +8,7 @@ describe('shouldDoPublicRelease', function () {
     expect(shouldDoPublicRelease(config as any)).to.be.false;
   });
 
-  it('returns false when branch is not main', function () {
+  it('returns false when branch is not a release branch', function () {
     const config: Partial<Config> = { branch: 'feature' };
     expect(shouldDoPublicRelease(config as any)).to.be.false;
   });
@@ -43,5 +43,16 @@ describe('shouldDoPublicRelease', function () {
       version: '0.0.3',
     };
     expect(shouldDoPublicRelease(config as any)).to.be.true;
+  });
+
+  ['v2.x', 'release/v2.14.x', 'release/v2.14.1'].forEach((branchName) => {
+    it(`returns true when version matches commit tag on ${branchName}`, function () {
+      const config: Partial<Config> = {
+        branch: branchName,
+        triggeringGitTag: 'v2.14.1',
+        version: '2.14.1',
+      };
+      expect(shouldDoPublicRelease(config as any)).to.be.true;
+    });
   });
 });
