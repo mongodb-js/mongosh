@@ -7,6 +7,22 @@ import {
 } from '../git';
 import { confirm as confirmFn, spawnSync as spawnSyncFn } from '../helpers';
 
+const DEFAULT_EVERGREEN_PROJECT = 'mongosh';
+
+/**
+ * The Evergreen project a release is built in. Every release line runs in its
+ * own project (main in `mongosh`, the 2.x line in `mongosh-2.x`, ...) because
+ * an Evergreen project tracks a single branch.
+ */
+export function getEvergreenProjectForBranch(
+  branchName: string | undefined
+): string {
+  const major = getReleaseVersionRestrictionFromBranch(branchName)?.major;
+  return major === undefined
+    ? DEFAULT_EVERGREEN_PROJECT
+    : `${DEFAULT_EVERGREEN_PROJECT}-${major}.x`;
+}
+
 export async function triggerReleasePublish(
   repositoryRoot: string,
   verifyGitStatus: typeof verifyGitStatusFn = verifyGitStatusFn,
@@ -18,9 +34,10 @@ export async function triggerReleasePublish(
   console.info('Triggering process to publish a new release...');
 
   const repositoryStatus = verifyGitStatus(repositoryRoot);
-  const versionRestriction = getReleaseVersionRestrictionFromBranch(
-    repositoryStatus.branch?.local
-  );
+  const sourceBranch = repositoryStatus.branch?.local;
+  const versionRestriction =
+    getReleaseVersionRestrictionFromBranch(sourceBranch);
+  const evergreenProject = getEvergreenProjectForBranch(sourceBranch);
 
   const latestDraftTag = getLatestDraftOrReleaseTagFromLog(
     repositoryRoot,
@@ -40,7 +57,8 @@ export async function triggerReleasePublish(
   console.info(`      version: v${latestDraftTag.tag.semverName}`);
   console.info(`       commit: ${latestDraftTag.commit}`);
   console.info(`      release: ${releaseTag}`);
-  console.info(`       branch: ${repositoryStatus.branch?.local}`);
+  console.info(`       branch: ${sourceBranch ?? 'unknown'}`);
+  console.info(`      project: ${evergreenProject}`);
   const confirmed = await confirm(
     `!! Is this correct and should we tag ${latestDraftTag.commit} as ${releaseTag}?`
   );
@@ -49,12 +67,11 @@ export async function triggerReleasePublish(
   }
 
   console.info('... verifying evergreen status ...');
-  await verifyEvergreenStatus(latestDraftTag);
+  await verifyEvergreenStatus(latestDraftTag, evergreenProject);
 
   // The branch is recorded on the tag because the publish step is what merges
   // the version bump back, and it only runs in CI, where the release branch is
   // no longer known (the tag commit is not on any branch yet).
-  const sourceBranch = repositoryStatus.branch?.local;
   const tagMessage = sourceBranch
     ? `${releaseTag} from ${sourceBranch}`
     : releaseTag;
@@ -80,12 +97,13 @@ export async function triggerReleasePublish(
 
 export async function verifyEvergreenStatusFn(
   latestDraftTag: TaggedCommit,
+  project: string,
   evergreenApiProvider: Promise<EvergreenApi> = EvergreenApi.fromUserConfiguration(),
   confirm: typeof confirmFn = confirmFn
 ): Promise<void> {
   const evergreenApi = await evergreenApiProvider;
   const tasks = await evergreenApi.getTasks(
-    'mongosh',
+    project,
     latestDraftTag.commit,
     `v${latestDraftTag.tag.semverName}`
   );

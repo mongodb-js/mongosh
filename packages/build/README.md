@@ -69,6 +69,8 @@ Release tags are used to trigger the publication of a release and its correspond
 
 `npm run release publish` records the branch it runs on in the release tag annotation (for example `v0.8.0 from release/v0.8.x`). The publish automation creates the version bump commit on top of the release tag, and the [`Merge Release Tag`](../../.github/workflows/merge-release-tag.yml) workflow merges that commit back into the recorded branch, so releases from `main` and from release branches do not update each other's branch. Tags without the annotation (older releases) are merged into the default branch.
 
+Every release line is built in its own Evergreen project, because an Evergreen project tracks a single branch: `main` releases in the `mongosh` project, and releases from `vN.x` or `release/vN...` in the `mongosh-N.x` project (e.g. `v2.x` → `mongosh-2.x`). `npm run release publish` derives that project from the current branch and verifies the draft build status there.
+
 The automated release process for publication of a release will re-use the compiled binaries and packages that were created in the most recent draft tag. Thus, every release tag requires a prior draft tag to be present. The release automation process is handled by [Evergreen](#evergreen-ci).
 
 ## Evergreen CI
