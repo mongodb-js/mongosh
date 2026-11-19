@@ -26,6 +26,12 @@ const execFile = util.promisify(childProcess.execFile);
 export const LATEST_CURATOR =
   'https://s3.amazonaws.com/boxes.10gen.com/build/curator/curator-dist-ubuntu1604-latest.tar.gz';
 
+// ppc64le and s390x only have enterprise server packages on RHEL 9 and 10,
+// starting with server 7.0. RHEL 7 and 8 also have community packages up to 7.0.
+const PPC64LE_AND_S390X_ARCHES = ['ppc64le', 's390x'];
+const RHEL9_AND_10_ENTERPRISE_ONLY_PPAS: PPARepository[] = ['rhel90', 'rhel10'];
+const RHEL9_AND_10_MINIMUM_SERVER_VERSION = '7.0.0';
+
 // make sure everything written in /tmp is cleared if an uncaught exception occurs
 tmp.setGracefulCleanup();
 
@@ -96,14 +102,23 @@ export function getReposAndArch(packageVariant: PackageVariant): {
         getArch(packageVariant) === 's390x'
       ) {
         // RHEL 7 and 8 stay published until MONGOSH-3829 removes support for
-        // them; RHEL 9 and 10 are current enterprise PPA targets.
+        // them. RHEL 9 and 10 are current enterprise PPA targets, but the
+        // server never published packages for these architectures there
+        // before server 7.0.
+        const rhel9And10Ppas = getSupportedServersForPPAs(
+          RHEL9_AND_10_ENTERPRISE_ONLY_PPAS
+        ).map(({ repo, serverVersions }) => ({
+          repo,
+          serverVersions: serverVersions.filter((version) =>
+            semver.gte(version, RHEL9_AND_10_MINIMUM_SERVER_VERSION)
+          ),
+        }));
+
         return {
-          ppas: getSupportedServersForPPAs([
-            'rhel70',
-            'rhel80',
-            'rhel90',
-            'rhel10',
-          ]),
+          ppas: [
+            ...getSupportedServersForPPAs(['rhel70', 'rhel80']),
+            ...rhel9And10Ppas,
+          ],
           arch: getRPMArchName(getArch(packageVariant)),
         };
       }
@@ -225,20 +240,24 @@ export class Barque {
     curatorService: string
   ): Promise<string[]> {
     const results: Promise<string>[] = [];
+    const isEnterpriseOnlyArch =
+      PPC64LE_AND_S390X_ARCHES.includes(architecture);
     for (const { repo: ppa, serverVersions } of ppasWithServerVersions) {
       for (const version of serverVersions) {
         for (const edition of this.mongodbEditions) {
-          // For ppc64le and s390x, we only publish enterprise edition only
-          // starting server version 6. But in order to keep the current publishing
-          // behaviour, we will only skip publishing for server version 8.0 community
-          // edition.
+          // For ppc64le and s390x, we only publish enterprise edition
+          // starting server version 8.0. In addition, the RHEL 9/10
+          // repositories for these architectures never had community
+          // packages. In order to keep the current publishing behaviour, we
+          // keep publishing community packages for RHEL 7/8 up to 7.0.
           if (
             edition === 'org' &&
-            ['ppc64le', 's390x'].includes(architecture) &&
-            semver.gte(version, '8.0.0')
+            isEnterpriseOnlyArch &&
+            (semver.gte(version, '8.0.0') ||
+              RHEL9_AND_10_ENTERPRISE_ONLY_PPAS.includes(ppa))
           ) {
             console.info(
-              `Skipping publishing community v${version} for ${architecture}`
+              `Skipping publishing community v${version} for ${architecture} on ${ppa}`
             );
             continue;
           }
