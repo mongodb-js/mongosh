@@ -84,7 +84,7 @@ If the fix is a code change, do not restart the old `release_publish` task: it r
 
 #### If the Version Is Already Public
 
-If the GitHub release has been promoted or `mongosh@<version>` already exists on npm, do not delete or move its tags. Cut a new patch release instead: run `npm run release draft` from `main`, choose `patch`, and publish the new version.
+If the GitHub release has been promoted or `mongosh@<version>` already exists on npm, do not delete or move its tags. If only npm dispatch or publishing failed, re-run the `Publish npm packages` workflow with the existing `mongosh@<version>` tag and dry-run disabled to publish the remaining packages. If already-public release contents need changes, cut a new patch release instead: run `npm run release draft` from `main` (or the appropriate release branch for a superseded release), choose `patch`, and publish the new version.
 
 ### Branches and Tags
 
