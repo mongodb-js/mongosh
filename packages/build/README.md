@@ -71,7 +71,7 @@ The _Publish_ stage requires the release tag to point at the commit of the most 
    git tag -d v<version>
    git push origin :refs/tags/v<version>
    ```
-   Keep the draft tag (`v<version>-draft.<n>`), the `mongosh@<version>`/`@mongosh/*` tags, and the draft GitHub release. Existing package tags are skipped by `pushTags()`, and `mongosh@<version>` is what the npm publish workflow uses.
+   Keep the draft tag (`v<version>-draft.<n>`), the `mongosh@<version>`/`@mongosh/*` tags, and the draft GitHub release. Existing package tags are skipped by `pushTags()`, so the npm publish workflow still checks out the original `mongosh@<version>` revision, not the replacement draft. Use this same-version recovery only if neither the fix nor any intervening changes need to reach npm package contents or their build/publish tooling; otherwise stop here and draft a new version containing those changes.
 3. Run `npm run release draft` and confirm the next draft tag (`v<version>-draft.<n+1>`) is created on the fix commit.
 4. Wait for the draft stage to succeed. It replaces the assets on the existing draft GitHub release.
 5. Run `npm run release publish`. It tags the draft commit `v<version>` and re-runs the publish stage, which re-submits all Linux packages (overwriting the partial uploads) and then completes Download Center, GitHub release promotion, and npm publishing.
