@@ -90,4 +90,65 @@ describe('LineByLineInput', function () {
       });
     }
   );
+
+  context('when the proxy is paused', function () {
+    it('holds input until resume', function () {
+      lineByLineInput.pause();
+      stdinMock.emit('data', Buffer.from('ab\nc'));
+      expect(forwardedChunks).to.deep.equal([]);
+      lineByLineInput.resume();
+      expect(forwardedChunks).to.deep.equal(['ab', '\n']);
+      lineByLineInput.nextLine();
+      expect(forwardedChunks).to.deep.equal(['ab', '\n', 'c']);
+    });
+  });
+
+  context('when the queued text passes the limit', function () {
+    it('pauses the original stream and resumes it once the queue drains', async function () {
+      let paused = false;
+      stdinMock.pause = () => {
+        paused = true;
+        return stdinMock;
+      };
+      stdinMock.resume = () => {
+        paused = false;
+        return stdinMock;
+      };
+      lineByLineInput.close();
+      lineByLineInput = new LineByLineInput(stdinMock, { queueLimit: 4 });
+      lineByLineInput.start();
+      lineByLineInput.on('data', (chunk: string | Buffer) => {
+        const decoded = decoder.write(chunk);
+        if (decoded) {
+          forwardedChunks.push(decoded);
+        }
+      });
+      // on('data') starts the stream on a later turn.
+      await new Promise((resolve) => setImmediate(resolve));
+
+      stdinMock.emit('data', Buffer.from('x\n'));
+      expect(paused).to.equal(false);
+      stdinMock.emit('data', Buffer.from('yyyyy'));
+      expect(paused).to.equal(true);
+
+      lineByLineInput.nextLine();
+      expect(paused).to.equal(false);
+      expect(forwardedChunks.join('')).to.include('y');
+    });
+  });
+
+  context('when close() is called', function () {
+    it('removes the stdin listeners and drops queued input', function () {
+      expect(stdinMock.listenerCount('data')).to.equal(1);
+      expect(stdinMock.listenerCount('end')).to.equal(1);
+
+      lineByLineInput.close();
+      stdinMock.emit('data', Buffer.from('ab\n'));
+      stdinMock.emit('end');
+
+      expect(forwardedChunks).to.deep.equal([]);
+      expect(stdinMock.listenerCount('data')).to.equal(0);
+      expect(stdinMock.listenerCount('end')).to.equal(0);
+    });
+  });
 });
