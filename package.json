@@ -140,6 +140,14 @@
   },
   "overrides": {
     "basic-ftp": "^6.2.4",
+    "editorconfig": {
+      "minimatch": "^11.0.1"
+    },
+    "js-beautify": {
+      "glob": {
+        "minimatch": "^11.0.1"
+      }
+    },
     "js-yaml@^4.0.0": "^4.3.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
