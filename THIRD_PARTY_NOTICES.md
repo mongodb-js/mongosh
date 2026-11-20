@@ -342,7 +342,7 @@ Package|Version|License
 **[mime-db](#4f88fcddeb8de9fdedcbb3e2497dbf09ef2b2f4011c8737c093169df36869deb)**|1.54.0|MIT
 **[mime-types](#d3f6b61aada9a3c3ec5532a5dcbcc1ef5b8d0cbff594adb68716f614377ffd77)**|3.0.2|MIT
 **[mimic-response](#3a8c7e8eed886630dd878b11cbb7ef72840b3bab1f8d4251956ca4f9fa40925f)**|3.1.0|MIT
-**[minimatch](#7dfd90b95b048a79ebe8ed0a5438741772f81760d73bd59f1487537674efb86b)**|10.2.6|BlueOak-1.0.0
+**[minimatch](#19818945c94b3df823b94bea9add0d07d899ce144aede17f57c05bc650476e77)**|11.0.5|BlueOak-1.0.0
 **[minimist](#8162d302efd0533ce00fc8a52dd6703dbb4205435af84e72b7694c608a729de4)**|1.2.8|MIT
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
 **[mongodb-client-encryption](#d51bc496aad712aff10716acb139c248545f100815af800ea4cfa8d2e9d73db3)**|7.2.1|Apache-2.0
@@ -27843,8 +27843,8 @@ License files:
       
 
 
-<a id="7dfd90b95b048a79ebe8ed0a5438741772f81760d73bd59f1487537674efb86b"></a>
-### [minimatch](https://www.npmjs.com/package/minimatch) (version 10.2.6)
+<a id="19818945c94b3df823b94bea9add0d07d899ce144aede17f57c05bc650476e77"></a>
+### [minimatch](https://www.npmjs.com/package/minimatch) (version 11.0.5)
 License tags: BlueOak-1.0.0
 
 License files:
