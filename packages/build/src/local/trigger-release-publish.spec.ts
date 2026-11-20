@@ -1,8 +1,9 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { EvergreenApi, EvergreenTask } from '../evergreen';
-import type { TaggedCommit } from '../git';
+import type { RepositoryStatus, TaggedCommit } from '../git';
 import {
+  getEvergreenProjectForBranch,
   triggerReleasePublish,
   verifyEvergreenStatusFn,
 } from './trigger-release-publish';
@@ -15,8 +16,14 @@ describe('local trigger-release-publish', function () {
     let verifyEvergreenStatus: sinon.SinonStub;
     let spawnSync: sinon.SinonStub;
 
+    const mainRepoStatus: RepositoryStatus = {
+      branch: { local: 'main', tracking: 'origin/main', diverged: false },
+      clean: true,
+      hasUnpushedTags: false,
+    };
+
     beforeEach(function () {
-      verifyGitStatus = sinon.stub();
+      verifyGitStatus = sinon.stub().returns(mainRepoStatus);
       getLatestDraftOrReleaseTagFromLog = sinon.stub();
       confirm = sinon.stub();
       verifyEvergreenStatus = sinon.stub();
@@ -45,17 +52,66 @@ describe('local trigger-release-publish', function () {
       );
 
       expect(verifyGitStatus).to.have.been.called;
+      expect(getLatestDraftOrReleaseTagFromLog).to.have.been.calledWith(
+        'root',
+        undefined
+      );
       expect(confirm).to.have.been.called;
-      expect(verifyEvergreenStatus).to.have.been.called;
+      expect(verifyEvergreenStatus).to.have.been.calledWith(
+        latestTag,
+        'mongosh'
+      );
       expect(spawnSync).to.have.been.calledTwice;
       expect(spawnSync.getCall(0)).calledWith(
         'git',
-        ['tag', '-m', 'v0.8.0', 'v0.8.0', 'hash'],
+        ['tag', '-m', 'v0.8.0 from main', 'v0.8.0', 'hash'],
         sinon.match.any
       );
       expect(spawnSync.getCall(1)).calledWith(
         'git',
         ['push', 'origin', 'v0.8.0'],
+        sinon.match.any
+      );
+    });
+
+    it('only considers tags of the branch version on a version branch', async function () {
+      const versionBranchRepoStatus: RepositoryStatus = {
+        branch: { local: 'v2.x', tracking: 'origin/v2.x', diverged: false },
+        clean: true,
+        hasUnpushedTags: false,
+      };
+      verifyGitStatus.returns(versionBranchRepoStatus);
+      const latestTag: TaggedCommit = {
+        commit: 'hash',
+        tag: {
+          draftVersion: 1,
+          releaseVersion: '2.14.1',
+          semverName: '2.14.1-draft.1',
+        },
+      };
+      getLatestDraftOrReleaseTagFromLog.returns(latestTag);
+      confirm.resolves(true);
+
+      await triggerReleasePublish(
+        'root',
+        verifyGitStatus,
+        getLatestDraftOrReleaseTagFromLog,
+        confirm,
+        verifyEvergreenStatus,
+        spawnSync
+      );
+
+      expect(getLatestDraftOrReleaseTagFromLog).to.have.been.calledWith(
+        'root',
+        { major: 2 }
+      );
+      expect(verifyEvergreenStatus).to.have.been.calledWith(
+        latestTag,
+        'mongosh-2.x'
+      );
+      expect(spawnSync.getCall(0)).calledWith(
+        'git',
+        ['tag', '-m', 'v2.14.1 from v2.x', 'v2.14.1', 'hash'],
         sinon.match.any
       );
     });
@@ -217,9 +273,13 @@ describe('local trigger-release-publish', function () {
 
     it('works if all tasks are successful', async function () {
       getTasks.resolves([successTask]);
-      await verifyEvergreenStatusFn(exampleTag, evergreenProvider);
+      await verifyEvergreenStatusFn(
+        exampleTag,
+        'mongosh-2.x',
+        evergreenProvider
+      );
       expect(getTasks).to.have.been.calledWith(
-        'mongosh',
+        'mongosh-2.x',
         'sha',
         'v0.8.2-draft.5'
       );
@@ -229,7 +289,11 @@ describe('local trigger-release-publish', function () {
       const expectedError = new Error('failed');
       getTasks.rejects(expectedError);
       try {
-        await verifyEvergreenStatusFn(exampleTag, evergreenProvider);
+        await verifyEvergreenStatusFn(
+          exampleTag,
+          'mongosh-2.x',
+          evergreenProvider
+        );
       } catch (e: any) {
         expect(e).to.equal(expectedError);
         return;
@@ -241,13 +305,18 @@ describe('local trigger-release-publish', function () {
       getTasks.resolves([successTask, failedTask]);
       const confirm = sinon.stub().resolves(false);
       try {
-        await verifyEvergreenStatusFn(exampleTag, evergreenProvider, confirm);
+        await verifyEvergreenStatusFn(
+          exampleTag,
+          'mongosh-2.x',
+          evergreenProvider,
+          confirm
+        );
       } catch (e: any) {
         expect(e.message).to.contain(
           'Some Evergreen tasks were not successful'
         );
         expect(getTasks).to.have.been.calledWith(
-          'mongosh',
+          'mongosh-2.x',
           'sha',
           'v0.8.2-draft.5'
         );
@@ -259,8 +328,31 @@ describe('local trigger-release-publish', function () {
     it('continues if there are failed tasks but user acknowledges', async function () {
       getTasks.resolves([successTask, failedTask]);
       const confirm = sinon.stub().resolves(true);
-      await verifyEvergreenStatusFn(exampleTag, evergreenProvider, confirm);
+      await verifyEvergreenStatusFn(
+        exampleTag,
+        'mongosh-2.x',
+        evergreenProvider,
+        confirm
+      );
       expect(confirm).to.have.been.called;
+    });
+  });
+
+  describe('getEvergreenProjectForBranch', function () {
+    it('uses the mongosh project for main and master', function () {
+      expect(getEvergreenProjectForBranch('main')).to.equal('mongosh');
+      expect(getEvergreenProjectForBranch('master')).to.equal('mongosh');
+    });
+
+    it('uses the project of the release line for version branches', function () {
+      expect(getEvergreenProjectForBranch('v2.x')).to.equal('mongosh-2.x');
+      expect(getEvergreenProjectForBranch('release/v2.14.x')).to.equal(
+        'mongosh-2.x'
+      );
+      expect(getEvergreenProjectForBranch('release/v2.14.3')).to.equal(
+        'mongosh-2.x'
+      );
+      expect(getEvergreenProjectForBranch('v3.x')).to.equal('mongosh-3.x');
     });
   });
 });

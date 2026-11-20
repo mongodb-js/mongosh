@@ -137,6 +137,30 @@ describe('evergreen rest-api', function () {
       );
     });
 
+    it('returns only matching tasks when the project identifier contains a hyphen', async function () {
+      const otherLineTask: EvergreenTask = {
+        task_id: 'task_id',
+        version_id: 'mongosh_v2.14.4_draft.0_29jasdf',
+        status: 'success',
+        display_name: 'Task',
+        build_variant: 'variant',
+      };
+      const task: EvergreenTask = {
+        task_id: 'task_id2',
+        version_id: 'mongosh_2.x_v2.14.4_draft.0_29jasdf',
+        status: 'success',
+        display_name: 'Task',
+        build_variant: 'variant',
+      };
+      fetch.resolves({
+        status: 200,
+        json: sinon.stub().resolves([otherLineTask, task]),
+      });
+
+      const tasks = await api.getTasks('mongosh-2.x', 'sha', 'v2.14.4-draft.0');
+      expect(tasks).to.deep.equal([task]);
+    });
+
     it('fails if there is a non-200 response code', async function () {
       fetch.resolves({
         status: 404,

@@ -13,9 +13,9 @@ export interface TagDetails {
 }
 
 export interface ReleaseVersion {
-  major: number | undefined;
-  minor: number | undefined;
-  patch: number | undefined;
+  major?: number;
+  minor?: number;
+  patch?: number;
 }
 
 export function getLatestDraftOrReleaseTagFromLog(

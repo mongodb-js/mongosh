@@ -1,4 +1,5 @@
 import { spawnSync as spawnSyncFn } from '../helpers';
+import type { ReleaseVersion } from './tags';
 
 export interface RepositoryStatus {
   branch?: {
@@ -11,7 +12,40 @@ export interface RepositoryStatus {
 }
 
 const MAIN_OR_MASTER_BRANCH = /^(main|master)$/;
+const VERSION_BRANCH = /^v([0-9]+)\.x$/;
 const RELEASE_BRANCH = /^release\/v([a-z0-9]+\.[a-z0-9]+\.[a-z0-9]+)$/;
+
+/**
+ * Branches releases can be cut from: the branch that always holds the newest
+ * release line (main/master), a version branch for a maintenance release line
+ * (e.g. v2.x) or a release branch for a specific version
+ * (e.g. release/v2.14.x).
+ */
+export function isReleasableBranch(branchName: string | undefined): boolean {
+  return (
+    !!branchName &&
+    (MAIN_OR_MASTER_BRANCH.test(branchName) ||
+      VERSION_BRANCH.test(branchName) ||
+      RELEASE_BRANCH.test(branchName))
+  );
+}
+
+/**
+ * The version newer tags must belong to, used to look up the latest tag on the
+ * branch being released. main/master always carry the newest release line, so
+ * they are unrestricted; maintenance and release branches are limited to their
+ * own version so that e.g. releasing from v2.x never picks up a newer line's
+ * tag.
+ */
+export function getReleaseVersionRestrictionFromBranch(
+  branchName: string | undefined
+): ReleaseVersion | undefined {
+  const versionBranch = branchName?.match(VERSION_BRANCH);
+  if (versionBranch) {
+    return { major: parseInt(versionBranch[1], 10) };
+  }
+  return getReleaseVersionFromBranch(branchName);
+}
 
 export function verifyGitStatus(
   repositoryRoot: string,
@@ -29,12 +63,9 @@ export function verifyGitStatus(
       'Could not determine local repository information - please verify your repository is intact.'
     );
   }
-  if (
-    !MAIN_OR_MASTER_BRANCH.test(repositoryStatus.branch.local) &&
-    !RELEASE_BRANCH.test(repositoryStatus.branch.local)
-  ) {
+  if (!isReleasableBranch(repositoryStatus.branch.local)) {
     throw new Error(
-      'The current branch does not match: master|main|release/vX.X.X'
+      'The current branch does not match: master|main|vX.x|release/vX.X.X'
     );
   }
   if (!repositoryStatus.branch.tracking) {

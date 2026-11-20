@@ -22,6 +22,11 @@ export interface EvergreenTask {
   status: EvergreenTaskStatus;
 }
 
+// Mirrors Evergreen's util.CleanName, which is applied to version ids.
+function cleanVersionIdSegment(value: string): string {
+  return value.replace(/[-/ ]/g, '_');
+}
+
 export class EvergreenApi {
   public readonly apiBasepath: string;
   private readonly apiToken: string;
@@ -85,11 +90,13 @@ export class EvergreenApi {
     const tasks = await this.apiGET<EvergreenTask[]>(
       `/projects/${project}/revisions/${commitSha}/tasks?limit=5000`
     );
-    return !tagFilter
-      ? tasks
-      : tasks.filter((t) =>
-          t.version_id.startsWith(`${project}_${tagFilter.replace(/-/g, '_')}`)
-        );
+    if (!tagFilter) {
+      return tasks;
+    }
+    // Version ids are built from `<project>_<tag>_<id>` and sanitized with
+    // Evergreen's util.CleanName, which turns '-', ' ' and '/' into '_'.
+    const versionIdPrefix = cleanVersionIdSegment(`${project}_${tagFilter}`);
+    return tasks.filter((t) => t.version_id.startsWith(versionIdPrefix));
   }
 
   private async apiGET<T>(path: string): Promise<T> {

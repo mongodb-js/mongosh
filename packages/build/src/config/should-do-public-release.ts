@@ -1,11 +1,13 @@
 import semver from 'semver';
 import type { Config } from './config';
+import { isReleasableBranch } from '../git/repository-status';
 
 /**
  * Checks if current build needs to be released to github and the download
  * center.
- * Returns true if current branch is main, there is a commit tag, and if
- * current version matches current revision's tag.
+ * Returns true if the current branch is a branch releases are cut from (main,
+ * a version branch like v2.x, or a release branch), there is a commit tag, and
+ * if current version matches current revision's tag.
  */
 export function shouldDoPublicRelease(config: Config): boolean {
   if (config.isPatch) {
@@ -17,8 +19,12 @@ export function shouldDoPublicRelease(config: Config): boolean {
     return false;
   }
 
-  if (config.branch !== 'main') {
-    console.info('mongosh: skip public release: is not main');
+  if (!isReleasableBranch(config.branch)) {
+    console.info(
+      'mongosh: skip public release: branch',
+      config.branch,
+      'is not a branch releases are cut from'
+    );
     return false;
   }
 
