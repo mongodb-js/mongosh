@@ -43,6 +43,49 @@ Execute the following steps to publish a new release:
 9. Ensure that the version bump was automatically merged into main and that it is synced up with the `mongosh@x.x.x` tag.
 10. Close the Jira ticket for the release, post an update in the `#mongosh` Slack channel and ping the docs team.
 
+### Recovering from a Failed Publish Stage
+
+The _Publish_ stage performs its steps in this order:
+
+1. Bump package versions, commit, and push the `@mongosh/*` and `mongosh@<version>` tags.
+2. Upload the Linux packages to the package repositories (Barque).
+3. Upload the Download Center configuration.
+4. Promote the GitHub release from draft to published.
+5. Hand off npm publishing to the `Publish npm packages` GitHub Actions workflow.
+
+Because the steps are ordered, a failure always happens before the GitHub release is promoted and before npm publishing starts, so a failed run never produces a publicly available release. It can still leave side effects behind: pushed package tags, a version bump commit on `main`, a draft GitHub release, and partially uploaded Linux packages. None of these prevent retrying the release.
+
+First verify how far the run got:
+
+- `gh release view v<version> --json isDraft`: a draft release means the release was not announced.
+- `npm view mongosh@<version> version`: a 404 means npm has not been published.
+- The task log: if `release_publish` failed before `mongosh: Submitting to barque complete`, only some Linux packages were uploaded. The publish stage re-submits every package on every run, so partially uploaded packages are overwritten. Barque re-signs RPMs on each submission, so their checksums change (see MONGOSH-3809); this is acceptable while the version is unreleased.
+
+#### Retrying the Same Version
+
+The _Publish_ stage requires the release tag to point at the commit of the most recent draft tag and re-uses that draft's artifacts (`packages/build/src/publish-mongosh.ts`). If the fix is in the publish code (e.g. `packages/build/src/barque.ts`), it must be part of a **new draft build** (re-pointing the release tag is not enough).
+
+1. Merge the fix. Make sure the commit you draft from is the one you intend to release; anything else on `main` at that point will be included.
+2. Delete **only** the release tag, both locally and on the remote:
+   ```
+   git tag -d v<version>
+   git push origin :refs/tags/v<version>
+   ```
+   Keep the draft tag (`v<version>-draft.<n>`), the `mongosh@<version>`/`@mongosh/*` tags, and the draft GitHub release. Existing package tags are skipped by `pushTags()`, so the npm publish workflow still checks out the original `mongosh@<version>` revision, not the replacement draft. Use this same-version recovery only if neither the fix nor any intervening changes need to reach npm package contents or their build/publish tooling; otherwise stop here and draft a new version containing those changes.
+3. Run `npm run release draft` and confirm the next draft tag (`v<version>-draft.<n+1>`) is created on the fix commit.
+4. Wait for the draft stage to succeed. It replaces the assets on the existing draft GitHub release.
+5. Run `npm run release publish`. It tags the draft commit `v<version>` and re-runs the publish stage, which re-submits all Linux packages (overwriting the partial uploads) and then completes Download Center, GitHub release promotion, and npm publishing.
+
+If the fix is a code change, do not restart the old `release_publish` task: it runs the old revision and the old publish code, so it fails the same way. Retrying the same task only works when the failure was fixed outside of the repository (for example when Barque created a missing repository path).
+
+#### If Barque Rejects the Upload
+
+`[curator] ... problem submitting repobuilder job: 404 (Not Found): problem parsing error response: invalid character 'r' ...` means Barque does not have a repository path for the requested `distro`/`arch`/`edition`/`version` combination. If the combination is legitimately expected, file a DEVPROD ticket for the Release Infrastructure team (or ask in `#ask-devprod-release-tools`) to create the path, then retry. Otherwise fix the publish matrix (`packages/build/src/config/server-with-ppa.ts` and `packages/build/src/barque.ts`) and follow the new-draft flow above.
+
+#### If the Version Is Already Public
+
+If the GitHub release has been promoted or `mongosh@<version>` already exists on npm, do not delete or move its tags. If only npm dispatch or publishing failed, re-run the `Publish npm packages` workflow with the existing `mongosh@<version>` tag and dry-run disabled to publish the remaining packages. If already-public release contents need changes, cut a new patch release instead: run `npm run release draft` from `main` (or the appropriate release branch for a superseded release), choose `patch`, and publish the new version.
+
 ### Branches and Tags
 
 Typically, a release is always created from the main branch (currently `main`). The only exception are _patch releases_, i.e. when we need to fix an issue for an already published, already superseeded release. Patch releases are created from _release branches_ that match the following pattern:
