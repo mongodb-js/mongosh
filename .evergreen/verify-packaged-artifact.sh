@@ -67,6 +67,66 @@ setup_gpg() {
   curl $MONGOSH_KEY | gpg --homedir $GPG_HOME --import > "$TMP_FILE" 2>&1
 }
 
+# Succeeds when the dotted version $1 is greater than $2.
+version_gt() {
+  awk -v a="$1" -v b="$2" 'BEGIN {
+    na = split(a, A, "."); nb = split(b, B, ".");
+    for (i = 1; i <= 3; i++) {
+      ai = (i <= na ? A[i] : 0) + 0;
+      bi = (i <= nb ? B[i] : 0) + 0;
+      if (ai > bi) exit 0;
+      if (ai < bi) exit 1;
+    }
+    exit 1;
+  }'
+}
+
+macho_minimum_macos_version() {
+  local output minos
+  output=$(vtool -show-build "$1" 2>/dev/null) || return 1
+  minos=$(printf '%s\n' "$output" | awk '/^[[:space:]]*minos /{ print $2; exit }')
+  if [ -z "$minos" ]; then
+    # Binaries built with older toolchains record LC_VERSION_MIN_MACOSX instead.
+    minos=$(printf '%s\n' "$output" | awk '/LC_VERSION_MIN_MACOSX/{ found = 1 } found && /^[[:space:]]*version /{ print $2; exit }')
+  fi
+  printf '%s' "$minos"
+}
+
+# mongosh 3.x supports macOS 15 and newer. Every Mach-O file in the archive
+# must therefore be loadable on 15, and the executable itself must declare
+# exactly that minimum so that lowering the deployment target in
+# compile-artifact.sh cannot silently widen our supported platform range.
+assert_macos_deployment_target() {
+  local archive="$1" expected="$2"
+  local extract_dir rc=0 candidate relative minos
+  extract_dir=$(mktemp -d)
+  unzip -q "$ARTIFACTS_DIR/$archive" -d "$extract_dir"
+
+  while IFS= read -r candidate; do
+    if ! file "$candidate" | grep -q 'Mach-O'; then
+      continue
+    fi
+    relative="${candidate#"$extract_dir"/}"
+    minos=$(macho_minimum_macos_version "$candidate")
+    if [ -z "$minos" ]; then
+      echo "ERROR: cannot determine the minimum macOS version of $relative"
+      rc=1
+      continue
+    fi
+    echo "$relative requires macOS $minos"
+    if version_gt "$minos" "$expected"; then
+      echo "ERROR: $relative requires macOS $minos, which is newer than the supported minimum $expected"
+      rc=1
+    elif [[ "$relative" == */bin/mongosh ]] && version_gt "$expected" "$minos"; then
+      echo "ERROR: $relative targets macOS $minos, expected exactly $expected"
+      rc=1
+    fi
+  done < <(find "$extract_dir" -type f)
+
+  rm -rf "$extract_dir"
+  return $rc
+}
+
 BASEDIR="$PWD/.evergreen"
 ARTIFACT_URL_FILE="$PWD/../artifact-url.txt"
 
@@ -86,6 +146,9 @@ else
   # 2. MacOS as the archives are not signed but the contents of the zip are signed
   #    (check './sign-packaged-artifact.sh') and hence we don't have any .sig file.
   if [[ $OSTYPE == "cygwin" ]] || [[ $OSTYPE == "darwin"* ]]; then
+    if [[ $OSTYPE == "darwin"* ]] && [[ $ARTIFACT_FILE_NAME == *.zip ]]; then
+      assert_macos_deployment_target "$ARTIFACT_FILE_NAME" "15.0"
+    fi
     echo "Skipping GPG verification on {$OSTYPE}"
     exit 0
   fi

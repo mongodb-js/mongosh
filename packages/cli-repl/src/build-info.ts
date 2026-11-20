@@ -124,3 +124,22 @@ export function getGlibcVersion(): string | undefined {
     return (cachedGlibcVersion = undefined);
   }
 }
+
+let cachedWindowsRelease: string | undefined | null = null;
+export function getWindowsRelease(): string | undefined {
+  if (process.platform !== 'win32') return undefined;
+  if (cachedWindowsRelease !== null) return cachedWindowsRelease;
+  return (cachedWindowsRelease = os.release());
+}
+
+let cachedMacOSRelease: string | undefined | null = null;
+/**
+ * Return the Darwin kernel release (e.g. `24.6.0` for macOS 15.6), which is
+ * the only stable way to determine the macOS version without spawning
+ * `sw_vers`. Darwin 24 is macOS 15.
+ */
+export function getMacOSRelease(): string | undefined {
+  if (process.platform !== 'darwin') return undefined;
+  if (cachedMacOSRelease !== null) return cachedMacOSRelease;
+  return (cachedMacOSRelease = os.release());
+}

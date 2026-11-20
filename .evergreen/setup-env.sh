@@ -60,6 +60,14 @@ export MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING="$BASEDIR/../packages/testing/test
 export IS_MONGOSH_EVERGREEN_CI=1
 export DEBUG="mongodb*,$DEBUG"
 
+# AWS SDK clients need a region to read private artifacts, e.g. mongodb-runner
+# downloading `latest-alpha` server builds from s3://origin-mongodb-server-latest.
+# The macOS 14 fleet supplied this through EC2 instance metadata; the macOS 15
+# fleet does not, so set it explicitly next to the credentials that checkout
+# persists to ~/.aws/credentials.
+export AWS_REGION="${AWS_REGION:-us-east-1}"
+export AWS_DEFAULT_REGION="${AWS_DEFAULT_REGION:-us-east-1}"
+
 # This is, weirdly enough, specifically set on s390x hosts, but messes
 # with our e2e tests.
 if [ x"$TERM" = x"dumb" ]; then

@@ -16,6 +16,12 @@ const MONGODB_VERSION_OVERRIDES = {
   },
 };
 
+// Server-version coverage lives on Linux, where hosts are plentiful and cheap.
+// macOS only needs to prove that the platform works, so keep a representative
+// set (oldest supported, one LTS community and enterprise, and latest) instead
+// of the whole matrix.
+const DARWIN_MONGODB_VERSIONS = ['60xc', '80xc', '80xe', 'latest'];
+
 /** @type {import("./unit-tests-build-variants.js").UnitTestsBuildVariant[]} */
 const UNIT_TESTS_BUILD_VARIANTS = [];
 
@@ -57,6 +63,12 @@ for (const {
         platform === 'darwin'
       ) {
         // Unit tests on macOS use arm64 and therefore require 6.0+
+        continue;
+      }
+      if (
+        platform === 'darwin' &&
+        !DARWIN_MONGODB_VERSIONS.includes(mShort)
+      ) {
         continue;
       }
       const details =

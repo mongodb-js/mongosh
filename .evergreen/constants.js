@@ -4,8 +4,8 @@ exports.PLATFORMS = ['darwin', 'linux', 'win32'];
 
 exports.platformToDetails = {
   darwin: {
-    displayName: 'MacOS 14 arm64',
-    runOn: 'macos-14-arm64',
+    displayName: 'MacOS 15 arm64',
+    runOn: 'macos-15-arm64',
     executableOsId: 'darwin-arm64',
   },
   linux: {
