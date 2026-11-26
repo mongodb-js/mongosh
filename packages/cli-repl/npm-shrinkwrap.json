@@ -6358,9 +6358,9 @@
       "optional": true
     },
     "node_modules/pretty-repl": {
-      "version": "4.0.1",
-      "resolved": "https://registry.npmjs.org/pretty-repl/-/pretty-repl-4.0.1.tgz",
-      "integrity": "sha512-Ve+ZNS5fwxylks3TTR4su7SaNAHVOh++7J5R8VKFAHIjmAMS8X79rnETc/JJoqay52cfgeHum7vm2+9hFSys9Q==",
+      "version": "4.0.2",
+      "resolved": "https://registry.npmjs.org/pretty-repl/-/pretty-repl-4.0.2.tgz",
+      "integrity": "sha512-3altKZ3SwPGe85UhHpITxum+OxbK1TFC7+egag9pgNDa1fOK2Zisg6swOzEVp5w7rqW0vxN/KJyNkaaEXpCF4w==",
       "license": "MIT",
       "dependencies": {
         "ansi-regex": "^5.0.1",
@@ -6369,7 +6369,7 @@
         "strip-ansi": "^6.0.0"
       },
       "engines": {
-        "node": ">=14"
+        "node": ">=20"
       }
     },
     "node_modules/progress": {

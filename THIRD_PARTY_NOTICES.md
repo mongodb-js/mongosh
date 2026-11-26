@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Wed Nov 25 2026.
+This document was automatically generated on Thu Nov 26 2026.
 
 ## List of dependencies
 
@@ -385,7 +385,7 @@ Package|Version|License
 **[possible-typed-array-names](#5ba4283f5512abd5d57e79c0a75acb3818d98d169df979afb01ad6867cefd312)**|1.0.0|MIT
 **[powershell-utils](#bf666e269b6718b91aaa9d8bccdec00b1d05697ca88b5c4a06aa4b2d759cdb2a)**|0.2.1|MIT
 **[prebuild-install](#034b3dd1336ef871b8a3739cb1647e8750e3bf21d4ecc9bbfb45525b798ddf20)**|7.1.3|MIT
-**[pretty-repl](#52450099e67a2b965036ab65b63b01d615b3fbcff38085a23fd8e80694d2a8ed)**|4.0.1|MIT
+**[pretty-repl](#24f4370ce0c9362bdcc7c05870e3552d9bc0a7963c1f006b50ce85ae89d437c6)**|4.0.2|MIT
 **[progress](#b598d996665da76d10446d00412c9422fc984e52a6e405e322aa93c70ae317a1)**|2.0.3|MIT
 **[proto-list](#d4d3609bf7b212ffd3a73f3a8f8e7b69fedcf74d6e9843ee217046ab37b32260)**|1.2.4|ISC
 **[proxy-addr](#b94cf93d9a9b565b45709d6348836b83655ae5e0ad3bc5dd6ea24ef661b3be24)**|2.0.8|MIT
@@ -30150,8 +30150,8 @@ License files:
       
 
 
-<a id="52450099e67a2b965036ab65b63b01d615b3fbcff38085a23fd8e80694d2a8ed"></a>
-### [pretty-repl](https://www.npmjs.com/package/pretty-repl) (version 4.0.1)
+<a id="24f4370ce0c9362bdcc7c05870e3552d9bc0a7963c1f006b50ce85ae89d437c6"></a>
+### [pretty-repl](https://www.npmjs.com/package/pretty-repl) (version 4.0.2)
 License tags: MIT
 
 License files:
