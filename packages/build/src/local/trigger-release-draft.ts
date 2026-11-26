@@ -3,7 +3,7 @@ import semver from 'semver';
 import type { TagDetails } from '../git';
 import {
   getLatestDraftOrReleaseTagFromLog as getLatestDraftOrReleaseTagFromLogFn,
-  getReleaseVersionFromBranch,
+  getReleaseVersionRestrictionFromBranch,
   verifyGitStatus as verifyGitStatusFn,
 } from '../git';
 import {
@@ -25,13 +25,13 @@ export async function triggerReleaseDraft(
   console.info('Triggering process to create a new release draft...');
 
   const repositoryStatus = verifyGitStatus(repositoryRoot);
-  const branchReleaseVersion = getReleaseVersionFromBranch(
+  const branchVersionRestriction = getReleaseVersionRestrictionFromBranch(
     repositoryStatus.branch?.local
   );
 
   const latestDraftOrReleaseTag = getLatestDraftOrReleaseTagFromLog(
     repositoryRoot,
-    branchReleaseVersion
+    branchVersionRestriction
   );
   if (!latestDraftOrReleaseTag) {
     throw new Error('Could not find a previous draft or release tag.');
@@ -42,7 +42,7 @@ export async function triggerReleaseDraft(
 
   let bumpType: BumpType | undefined = undefined;
   if (
-    branchReleaseVersion &&
+    branchVersionRestriction &&
     latestDraftOrReleaseTag.tag.draftVersion === undefined
   ) {
     console.info(

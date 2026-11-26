@@ -3,7 +3,9 @@ import sinon from 'sinon';
 import type { RepositoryStatus } from './repository-status';
 import {
   getReleaseVersionFromBranch,
+  getReleaseVersionRestrictionFromBranch,
   getRepositoryStatus,
+  isReleasableBranch,
   verifyGitStatus,
 } from './repository-status';
 
@@ -23,7 +25,7 @@ describe('git repository-status', function () {
       spawnSync = sinon.stub();
     });
 
-    ['master', 'main', 'release/v0.8.0', 'release/v0.8.x'].forEach(
+    ['master', 'main', 'v2.x', 'release/v0.8.0', 'release/v0.8.x'].forEach(
       (branchName) => {
         it(`accepts a clean repository on ${branchName}`, function () {
           const status: RepositoryStatus = {
@@ -322,6 +324,51 @@ describe('git repository-status', function () {
     it('returns undefined for non-release branches', function () {
       const version = getReleaseVersionFromBranch('main');
       expect(version).to.be.undefined;
+    });
+  });
+
+  describe('isReleasableBranch', function () {
+    ['main', 'master', 'v2.x', 'release/v2.14.x', 'release/v2.14.3'].forEach(
+      (branchName) => {
+        it(`returns true for ${branchName}`, function () {
+          expect(isReleasableBranch(branchName)).to.be.true;
+        });
+      }
+    );
+
+    ['feature', 'release/v2.x', 'v2', '2.x', '2.x.y', undefined].forEach(
+      (branchName) => {
+        it(`returns false for ${String(branchName)}`, function () {
+          expect(isReleasableBranch(branchName)).to.be.false;
+        });
+      }
+    );
+  });
+
+  describe('getReleaseVersionRestrictionFromBranch', function () {
+    it('does not restrict tags on main or master', function () {
+      expect(getReleaseVersionRestrictionFromBranch('main')).to.be.undefined;
+      expect(getReleaseVersionRestrictionFromBranch('master')).to.be.undefined;
+    });
+
+    it('restricts tags to the major version on a version branch', function () {
+      expect(getReleaseVersionRestrictionFromBranch('v2.x')).to.deep.equal({
+        major: 2,
+      });
+    });
+
+    it('restricts tags to the version on a release branch', function () {
+      expect(
+        getReleaseVersionRestrictionFromBranch('release/v2.14.3')
+      ).to.deep.equal({ major: 2, minor: 14, patch: 3 });
+      expect(
+        getReleaseVersionRestrictionFromBranch('release/v2.14.x')
+      ).to.deep.equal({ major: 2, minor: 14, patch: undefined });
+    });
+
+    it('returns undefined for non-release branches', function () {
+      expect(getReleaseVersionRestrictionFromBranch('feature')).to.be.undefined;
+      expect(getReleaseVersionRestrictionFromBranch(undefined)).to.be.undefined;
     });
   });
 });
