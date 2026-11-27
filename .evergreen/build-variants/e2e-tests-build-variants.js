@@ -415,36 +415,18 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     mVersion: '8.2.x',
   },
   {
-    displayName: 'MacOS 14 x64',
-    runOn: 'macos-14',
-    executableOsId: 'darwin-x64',
-    mVersion: 'stable',
-  },
-  {
-    displayName: 'MacOS 14 arm64',
-    runOn: 'macos-14-arm64',
-    executableOsId: 'darwin-arm64',
-    mVersion: 'stable',
-  },
-  {
-    displayName: 'MacOS 14 arm64',
-    runOn: 'macos-14-arm64',
-    executableOsId: 'darwin-arm64',
-    mVersion: '8.3.x',
-  },
-  {
-    displayName: 'MacOS 14',
+    displayName: 'MacOS 15 Sequoia (amd64)',
     id: 'darwin',
-    runOn: 'macos-14',
+    runOn: 'macos-15-amd64-gui',
     executableOsId: 'darwin-x64',
-    mVersion: '8.0.5',
+    mVersion: '8.0.x',
   },
   {
-    displayName: 'MacOS 14 arm64',
-    runOn: 'macos-14-arm64',
+    displayName: 'MacOS 15 Sequoia (arm64)',
+    runOn: 'macos-15-arm64-gui',
     id: 'darwin_arm64',
     executableOsId: 'darwin-arm64',
-    mVersion: '8.0.5',
+    mVersion: '8.0.x',
     additionalTasks: [
       'package_artifact_darwin_x64',
       'sign_artifact_darwin_x64',
@@ -453,19 +435,14 @@ exports.E2E_TESTS_BUILD_VARIANTS = [
     ],
   },
   {
-    // Server 8.3+ binaries are built with Windows SDK 10.0.26100.0 and fail to
-    // load on Windows Server 2019 (missing GetProcessWorkingSetSize in the
-    // api-ms-win-core-memory-l1-1-1 API set; see SERVER-116018, closed as
-    // Works as Designed). Pin pre-2022 Windows to the newest server versions
-    // that still run there instead of `stable`.
-    displayName: 'Windows VS pre-2022',
-    runOn: 'windows-vsCurrent-small',
+    displayName: 'Windows VS 2022',
+    runOn: 'windows-2022-latest-small',
     executableOsId: 'win32',
     mVersion: '8.0.x',
   },
   {
-    displayName: 'Windows VS pre-2022',
-    runOn: 'windows-vsCurrent-small',
+    displayName: 'Windows VS 2022',
+    runOn: 'windows-2022-latest-small',
     executableOsId: 'win32',
     mVersion: '8.2.x',
   },
